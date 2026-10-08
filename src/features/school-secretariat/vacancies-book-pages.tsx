@@ -99,7 +99,7 @@ export function EnrollmentBookPage() {
   const meta = [`${ctx.schoolName} — ano letivo ${ctx.yearLabel}`, "Ordem cronológica de registro; não é numeração oficial."];
   const print = () => {
     const w = window.open("", "_blank"); if (!w) return;
-    w.document.write(bookPrintHtml({ school: ctx.schoolName, inep: inepOf(ctx.school), year: ctx.yearLabel, knownAt: new Date(knownAt).toLocaleString("pt-BR"), header }, shown));
+    w.document.write(bookPrintHtml({ school: ctx.schoolName, inep: inepOf(ctx.school), year: ctx.yearLabel, knownAt: new Date(knownAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }), header }, shown));
     w.document.close(); w.focus(); w.print();
   };
   return (

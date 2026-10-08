@@ -32,7 +32,7 @@ export function itemCard(rows: LedgerRow[], item: string, unit: string): { row: 
 
 /** Lote/validade como fato: ausente = "não informado", nunca inventado. */
 export const lotText = (l: string | null) => l ?? "não informado";
-export const expiryText = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR") : "não informada");
+export const expiryText = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "não informada");
 
 export interface CountLine { item_value_id: string; unit_value_id: string; lote: string | null; fisica: number; calculada: number | null; diferenca: number | null; justificativa: string | null }
 export type Divergence = "IGUAL" | "DIVERGENTE" | "UNKNOWN";

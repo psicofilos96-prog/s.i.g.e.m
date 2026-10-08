@@ -222,7 +222,7 @@ const ChartTooltipContent = React.forwardRef<
                         </div>
                         {item.value && (
                           <span className="font-mono font-medium tabular-nums text-foreground">
-                            {item.value.toLocaleString("pt-BR")}
+                            {item.value.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
                           </span>
                         )}
                       </div>

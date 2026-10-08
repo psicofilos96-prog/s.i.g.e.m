@@ -80,7 +80,7 @@ export function mapApplicabilityRow(r: Row): InstitutionalMatrixApplicability {
 /** Rótulo de carga: ausência é dita por extenso, nunca vira número. */
 export function describeLoad(item: InstitutionalMatrixItem, unitLabel?: string | null): string {
   if (!item.load) return "Carga não registrada";
-  return `${item.load.quantity.toLocaleString("pt-BR")} ${unitLabel ?? item.load.unitValueId}`;
+  return `${item.load.quantity.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} ${unitLabel ?? item.load.unitValueId}`;
 }
 
 const rpc = supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;

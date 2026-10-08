@@ -100,11 +100,11 @@ function LedgerView({ ledger }: { ledger: LedgerRow[] }) {
     </div>
     {rows.length === 0 ? <p className="text-muted-foreground">Nenhum movimento com estes filtros.</p> : (
       <ul className="divide-y rounded border">{rows.map((r) => (
-        <li key={r.id} className="p-2"><strong>{new Date(`${r.moved_on}T12:00:00`).toLocaleDateString("pt-BR")}</strong> · {MOVEMENT_CLASS_LABEL[r.movement_class] ?? r.movement_class} · {r.item_value_id}: {r.sign == null ? "?" : r.sign > 0 ? "+" : r.sign < 0 ? "−" : "±"}{r.quantity} {r.unit_value_id}
+        <li key={r.id} className="p-2"><strong>{new Date(`${r.moved_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</strong> · {MOVEMENT_CLASS_LABEL[r.movement_class] ?? r.movement_class} · {r.item_value_id}: {r.sign == null ? "?" : r.sign > 0 ? "+" : r.sign < 0 ? "−" : "±"}{r.quantity} {r.unit_value_id}
           <div className="text-muted-foreground">Lote {lotText(r.lot)} · validade {expiryText(r.expires_on)} · {r.event_kind}{r.superseded ? " (substituído)" : ""}{r.source_receipt_version_id ? " · origem: aceite" : ""}{r.stock_count_ref ? " · origem: contagem" : ""}{r.reason ? ` · motivo: ${r.reason}` : ""}</div></li>))}</ul>)}
     <label className="block max-w-sm">Ficha do item<select className={field} value={card} onChange={(e) => setCard(e.target.value)}><option value="">Escolha…</option>{items.map((i) => <option key={i} value={i}>{i.replace("|", " · ")}</option>)}</select></label>
     {card && <ol aria-label="Ficha do item" className="divide-y rounded border">{itemCard(ledger, ci!, cu!).map(({ row, running }) => (
-      <li key={row.id} className="flex justify-between p-2"><span>{new Date(`${row.moved_on}T12:00:00`).toLocaleDateString("pt-BR")} · {MOVEMENT_CLASS_LABEL[row.movement_class] ?? row.movement_class} {row.quantity}</span><span>Saldo: {running ?? "não disponível"}</span></li>))}</ol>}
+      <li key={row.id} className="flex justify-between p-2"><span>{new Date(`${row.moved_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {MOVEMENT_CLASS_LABEL[row.movement_class] ?? row.movement_class} {row.quantity}</span><span>Saldo: {running ?? "não disponível"}</span></li>))}</ol>}
   </div>);
 }
 
@@ -172,7 +172,7 @@ function CountView({ school, lines, counts, onDone }: { school: string; lines: L
     {counts.length === 0 ? <p className="text-muted-foreground">Nenhuma contagem registrada.</p> : (
       <ul className="space-y-2">{counts.map((c) => (
         <li key={c.logical_id} className="rounded border p-2">
-          <div><strong>{new Date(`${c.counted_on}T12:00:00`).toLocaleDateString("pt-BR")}</strong> · {COUNT_STATUS[c.status] ?? c.status} · versão {c.version}</div>
+          <div><strong>{new Date(`${c.counted_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })}</strong> · {COUNT_STATUS[c.status] ?? c.status} · versão {c.version}</div>
           <ul className="mt-1 divide-y">{c.lines.map((l, i) => { const d = divergence(l); return (
             <li key={i} className="flex flex-wrap items-center justify-between gap-2 py-1"><span>{l.item_value_id} · lote {lotText(l.lote)}: físico {l.fisica} × calculado {l.calculada ?? "não disponível"} — {d === "UNKNOWN" ? "diferença desconhecida" : d === "IGUAL" ? "sem diferença" : `diferença ${l.diferenca}`}</span>
               {d === "DIVERGENTE" && (c.status === "conferida" || c.status === "aprovada") && <button type="button" disabled={pending} onClick={() => adjust(c, l)} className="rounded border px-2 py-1 disabled:opacity-50">Lançar ajuste</button>}</li>); })}</ul>

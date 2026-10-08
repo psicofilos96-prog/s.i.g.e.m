@@ -50,7 +50,7 @@ export function ClosingSection({ school }: { school: string }) {
             <button type="button" disabled={pending || (!!head && !reason.trim())} onClick={close} className="rounded bg-primary px-3 py-2 text-primary-foreground disabled:opacity-50">{pending ? "Enviando…" : head ? "Emitir nova versão" : "Fechar"}</button>
           </fieldset>)}
         {closings.length > 0 && <ol aria-label="Versões do fechamento" className="divide-y rounded border">{closings.map((c) => (
-          <li key={c.id} className="p-2">Versão {c.version} · {new Date(c.recorded_at).toLocaleString("pt-BR")} · {c.movement_ids.length} movimento(s) · manifesto <code>{c.manifest_sha256.slice(0, 16)}…</code>{c.reason ? ` · motivo: ${c.reason}` : ""}</li>))}</ol>}
+          <li key={c.id} className="p-2">Versão {c.version} · {new Date(c.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {c.movement_ids.length} movimento(s) · manifesto <code>{c.manifest_sha256.slice(0, 16)}…</code>{c.reason ? ` · motivo: ${c.reason}` : ""}</li>))}</ol>}
       </>)}
       {msg && <p role="status">{msg}</p>}
     </section>

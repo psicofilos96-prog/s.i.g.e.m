@@ -65,7 +65,7 @@ function Row({ p, today, expanded, onToggle, events, def }: { p: Pending; today:
       </button>
       {expanded && <div className="mt-3 space-y-3">
         <ol className="space-y-1 text-xs">{[...events].sort((a, b) => a.seq - b.seq).map((e) => (
-          <li key={e.id}>{e.seq}. {e.fromState ? `${e.fromState} → ` : "aberto em "}{e.toState} · {new Date(e.recordedAt).toLocaleString("pt-BR")}{e.comment ? ` — ${e.comment}` : ""}</li>))}</ol>
+          <li key={e.id}>{e.seq}. {e.fromState ? `${e.fromState} → ` : "aberto em "}{e.toState} · {new Date(e.recordedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{e.comment ? ` — ${e.comment}` : ""}</li>))}</ol>
         {actions.length > 0 && <div className="flex flex-wrap items-end gap-2">
           <label className="flex-1 text-xs">Comentário<textarea className="mt-1 w-full rounded-md border bg-background p-2 text-sm" value={comment} onChange={(e) => setComment(e.target.value)} /></label>
           <label className="text-xs">Prazo (opcional)<DateInput className="mt-1 block min-h-11" value={due} onChange={(e) => setDue(e.target.value)} /></label>

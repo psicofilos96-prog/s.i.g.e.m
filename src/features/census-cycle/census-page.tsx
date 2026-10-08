@@ -159,7 +159,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
         <StatusBadge tone={c.nature === "nativo" ? "info" : "neutral"}>{c.nature === "nativo" ? "Operação nativa" : "Observado/importado (histórico)"}</StatusBadge>
         <span className="text-sm text-muted-foreground">Referência {c.reference_date} · etapa: {last ? STAGE_LABEL[last.stage] : "—"}</span>
       </div>
-      <ol className="flex flex-wrap gap-2 text-xs">{c.events.map((e) => <li key={e.seq} className="rounded border border-border px-2 py-1">{e.seq}. {STAGE_LABEL[e.stage]} · {new Date(e.created_at).toLocaleDateString("pt-BR")} · {e.reason}</li>)}</ol>
+      <ol className="flex flex-wrap gap-2 text-xs">{c.events.map((e) => <li key={e.seq} className="rounded border border-border px-2 py-1">{e.seq}. {STAGE_LABEL[e.stage]} · {new Date(e.created_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {e.reason}</li>)}</ol>
       {head && live && live !== head.fingerprint ? <StatePanel tone="warning" title="Os fatos mudaram" description="Os registros mudaram depois da fotografia vigente; gere nova versão para conferir." /> : null}
 
       <Tabs defaultValue="cobertura">
@@ -189,7 +189,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
           {c.imports.length === 0 ? <p className="text-muted-foreground">Nenhuma fonte recebida neste ciclo.</p> : null}
           <ol className="space-y-2">{c.imports.map((i) => (
             <li key={i.id} className="rounded border border-border p-2">
-              <p>{new Date(i.created_at).toLocaleString("pt-BR")} · {i.origin} · {i.accepted} linha(s) aceitas · {i.rejections.length} rejeitada(s) · hash {short(i.source_sha256)}</p>
+              <p>{new Date(i.created_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {i.origin} · {i.accepted} linha(s) aceitas · {i.rejections.length} rejeitada(s) · hash {short(i.source_sha256)}</p>
               {i.rejections.length ? <details className="text-xs"><summary>Ver rejeições</summary><ul>{i.rejections.slice(0, 200).map((r) => <li key={r.row}>linha {r.row}: {r.reason}</li>)}</ul></details> : null}
               {head ? <Button size="sm" variant="outline" onClick={() => readCompare(head.id, i.id).then(setCmp, (e) => setMsg(errText(e)))}>Comparar com fotografia v{head.version}</Button> : null}
             </li>))}</ol>

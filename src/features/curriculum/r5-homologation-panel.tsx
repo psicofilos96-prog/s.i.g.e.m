@@ -73,7 +73,7 @@ export function HomologationPanel({ kind, versionId, title }: { kind: R5Kind; ve
             <li key={h.id} className="p-2">
               <span className="font-medium text-foreground">{h.sequence}. {h.decision === "homologada" ? "Homologação" : "Revogação"}</span>
               <span className="text-muted-foreground"> · efeito desde {formatAcademicDate(h.effectiveFrom)} {h.actRef ? `· referência documental ${h.actRef}` : "· decisão interna (sem documento-fonte)"}
-                {h.reason ? ` · motivo: ${h.reason}` : ""} · registrada em {new Date(h.recordedAt).toLocaleString("pt-BR")}</span>
+                {h.reason ? ` · motivo: ${h.reason}` : ""} · registrada em {new Date(h.recordedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</span>
             </li>
           ))}
         </ol>

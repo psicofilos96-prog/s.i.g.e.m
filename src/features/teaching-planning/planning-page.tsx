@@ -186,7 +186,7 @@ export function PlanningPage() {
                 <div className="flex flex-wrap items-center gap-2 text-sm">Copiar para:
                   {assignments.data.map((a) => <Button key={a.assignment_id} size="sm" variant="outline" onClick={() => copy(all.find((v) => v.id === draft.head)!, a)}>{a.component_label_snapshot} · {a.class_id}</Button>)}</div>)}
               {draft.planId && <Button size="sm" variant="ghost" aria-expanded={historyOf === draft.planId} onClick={() => setHistoryOf(historyOf ? null : draft.planId)}>Histórico de versões</Button>}
-              {historyOf && <ol className="space-y-1 text-xs">{planHistory(all, historyOf).map((v) => <li key={v.id}>v{v.version} · {STATUS_LABEL[v.status]} · {new Date(v.recorded_at).toLocaleString("pt-BR")}{v.copied_from_version_id ? " · copiado de outro planejamento" : ""}</li>)}</ol>}
+              {historyOf && <ol className="space-y-1 text-xs">{planHistory(all, historyOf).map((v) => <li key={v.id}>v{v.version} · {STATUS_LABEL[v.status]} · {new Date(v.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{v.copied_from_version_id ? " · copiado de outro planejamento" : ""}</li>)}</ol>}
             </div>)}
         </section>
       </div>

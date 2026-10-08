@@ -31,7 +31,7 @@ export function allowedActions(state: CommState): { edit: boolean; publish: bool
 /** "Disponível" é fato interno do SIGEM; nunca afirmamos recebimento externo. */
 export function availabilityLine(publishedAt: string | null, reads: number | null, acks: number | null, requiresAck: boolean) {
   if (!publishedAt) return "Ainda não disponível para ninguém.";
-  const base = `Disponível no SIGEM desde ${new Date(publishedAt).toLocaleString("pt-BR")}. Leituras registradas: ${reads ?? 0}.`;
+  const base = `Disponível no SIGEM desde ${new Date(publishedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}. Leituras registradas: ${reads ?? 0}.`;
   return requiresAck ? `${base} Ciências registradas: ${acks ?? 0}.` : base;
 }
 

@@ -91,7 +91,7 @@ function NetworkIntelligence() {
               <label className="text-sm">Situação em <DateInput value={cmpOn} onChange={(e) => setCmpOn(e.target.value)} /></label>
               <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={cmpYear} onChange={(e) => setCmpYear(e.target.value)}><option value="">Todos</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name} — {YEAR_LABEL[y.nature]}</option>)}</select></label>
             </div>
-            {comparisons ? <ul className="space-y-1 text-sm">{comparisons.map((c) => <li key={c.key}>{c.name}: {c.result.kind === "comparavel" ? `diferença ${c.result.delta.toLocaleString("pt-BR")}` : `não comparável — ${c.result.reason}`}</li>)}</ul> : null}
+            {comparisons ? <ul className="space-y-1 text-sm">{comparisons.map((c) => <li key={c.key}>{c.name}: {c.result.kind === "comparavel" ? `diferença ${c.result.delta.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}` : `não comparável — ${c.result.reason}`}</li>)}</ul> : null}
           </section>
           <section aria-labelledby="qualidade-ind" className="space-y-2 rounded-lg border border-border p-4">
             <h3 id="qualidade-ind" className="font-medium">Qualidade das fontes</h3>
@@ -142,10 +142,10 @@ function MetricCard({ d, ctx, caps, tick }: { d: MetricDefinition; ctx: Ctx; cap
     <article className="rounded-lg border border-border bg-card p-4 space-y-2" aria-labelledby={`m-${d.id}`}>
       <h3 id={`m-${d.id}`} className="text-sm font-medium text-muted-foreground">{d.label}</h3>
       {!r ? <p role="status" className="text-sm">Calculando…</p>
-        : r.status === "disponivel" ? <p className="text-3xl font-semibold tabular-nums">{r.value.toLocaleString("pt-BR")} <span className="text-sm font-normal text-muted-foreground">{r.unit}</span></p>
+        : r.status === "disponivel" ? <p className="text-3xl font-semibold tabular-nums">{r.value.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} <span className="text-sm font-normal text-muted-foreground">{r.unit}</span></p>
         : <p className="text-sm"><strong>Não disponível.</strong> {r.reason}</p>}
       {r?.status === "disponivel" && r.note && <p className="text-xs text-muted-foreground">{r.note}</p>}
-      {state && <p className="text-xs text-muted-foreground">Calculado às {new Date(state.fetchedAt).toLocaleTimeString("pt-BR")}{state.stale ? " — desatualizado, use Atualizar" : ""}</p>}
+      {state && <p className="text-xs text-muted-foreground">Calculado às {new Date(state.fetchedAt).toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" })}{state.stale ? " — desatualizado, use Atualizar" : ""}</p>}
       <button type="button" className="text-xs underline" aria-expanded={open} onClick={() => setOpen(!open)}>De onde veio esse número?</button>
       {open && (
         <dl className="text-xs space-y-1">

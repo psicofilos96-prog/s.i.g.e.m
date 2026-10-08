@@ -17,7 +17,7 @@ type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unkno
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
 const today = () => operationalToday();
-const br = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR") : "sem término");
+const br = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "sem término");
 const field = "mt-1 block w-full rounded border bg-background p-2";
 
 export function InclusionPage() {
@@ -152,7 +152,7 @@ function Student({ school, student }: { school: string; student: string }) {
               <Attachments recordLogicalId={r.logical_id} />
             </li>))}</ul>}
       {history && <div role="region" aria-label="Histórico" className="rounded border p-2 text-xs"><div className="flex justify-between"><strong>Histórico</strong><Button size="sm" variant="ghost" onClick={() => setHistory(null)}>Fechar</Button></div>
-        <ol>{[...history].sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {new Date(h.recorded_at).toLocaleString("pt-BR")}{h.reason ? ` · motivo: ${h.reason}` : ""}</li>)}</ol></div>}
+        <ol>{[...history].sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {new Date(h.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{h.reason ? ` · motivo: ${h.reason}` : ""}</li>)}</ol></div>}
       {!err && <NewRecord school={school} student={student} onDone={load} />}
       {msg && <p role="status" className="text-sm">{msg}</p>}
     </section>

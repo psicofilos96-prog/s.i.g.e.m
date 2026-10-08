@@ -46,7 +46,7 @@ function PublicIndex() {
                 <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{KIND_LABEL[i.kind]}</p>
                 <Link to="/publico/$slug" params={{ slug: i.slug }} className="mt-1 block font-semibold text-primary hover:underline">{i.title}</Link>
                 {i.summary && <p className="mt-1 text-sm text-muted-foreground">{i.summary}</p>}
-                <p className="mt-2 text-xs text-muted-foreground">Publicado em {new Date(i.published_at).toLocaleDateString("pt-BR")} · versão {i.version}</p>
+                <p className="mt-2 text-xs text-muted-foreground">Publicado em {new Date(i.published_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · versão {i.version}</p>
               </li>
             ))}
           </ul>

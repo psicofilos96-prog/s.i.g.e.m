@@ -65,7 +65,7 @@ function AdjustBox({ c, info, canAdjust, busy, onSubmit }: AdjustProps & { c: Ma
     <details className="mt-2 text-xs">
       <summary className="cursor-pointer font-medium">Ajuste manual{info.history.length ? ` (${info.history.length} registro${info.history.length > 1 ? "s" : ""})` : ""}</summary>
       {c.adjustment && <p className="mt-1">Calculado pelo SIGEM: <strong>{c.adjustment.calculated ?? "—"}</strong> · Valor efetivo: <strong>{c.adjustment.adjusted ?? "—"}</strong> · Motivo: {c.adjustment.reason}</p>}
-      {info.history.length > 0 && <ol className="mt-1 list-decimal pl-4">{info.history.map((h) => <li key={h.at}>{new Date(h.at).toLocaleString("pt-BR")} — {h.kind === "anulacao" ? "ajuste anulado" : `ajustado para ${h.adjusted}`} pela {h.side === "escola" ? "escola" : "Estatística"}: {h.reason}</li>)}</ol>}
+      {info.history.length > 0 && <ol className="mt-1 list-decimal pl-4">{info.history.map((h) => <li key={h.at}>{new Date(h.at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} — {h.kind === "anulacao" ? "ajuste anulado" : `ajustado para ${h.adjusted}`} pela {h.side === "escola" ? "escola" : "Estatística"}: {h.reason}</li>)}</ol>}
       {canAdjust && (
         <div className="mt-2 space-y-1">
           <input aria-label={`Novo valor para ${c.label}`} className="w-full rounded-md border border-input bg-background p-1" value={val} onChange={(e) => setVal(e.target.value)} placeholder="Novo valor" />
@@ -148,7 +148,7 @@ function openMapDocument(v: MapView, c: { year: number; month: number }, version
   const html = renderMapDocument({
     headerLines: NETWORK_BRANDING.headerLines, schoolName: nameCell ? String(nameCell.value) : "Unidade escolar", snapshot,
     statusLabel: useOfficial ? "Aprovado (oficial)" : STAGE_LABEL[wf.stage], revision: useOfficial ? ver!.version : null,
-    signatures: ["Secretaria Escolar", "Direção da Unidade", "Estatística (CIECE)"], generatedAt: new Date().toLocaleString("pt-BR"),
+    signatures: ["Secretaria Escolar", "Direção da Unidade", "Estatística (CIECE)"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
   });
   const w = window.open("", "_blank"); if (!w) return;
   w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
@@ -202,7 +202,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           <div><dt className="inline text-muted-foreground">Regra: </dt><dd className="inline">{v.rule ? `${v.rule.id} v${v.rule.version}${v.rule.homologationActRef ? ` (${v.rule.homologationActRef})` : ""}` : "aguardando regra homologada que cubra esta escola"}</dd></div>
           <div><dt className="inline text-muted-foreground">Ano letivo: </dt><dd className="inline">{YEAR_STATE[v.yearState ?? ""] ?? "estado não pôde ser lido"}</dd></div>
           <div><dt className="inline text-muted-foreground">Natureza: </dt><dd className="inline">{officialized && v.status.id === "oficializado" ? "Fotografia oficial congelada" : "Dinâmico — não oficial"}</dd></div>
-          {v.openedAt && <div><dt className="inline text-muted-foreground">Aberto em: </dt><dd className="inline">{new Date(v.openedAt).toLocaleString("pt-BR")}</dd></div>}
+          {v.openedAt && <div><dt className="inline text-muted-foreground">Aberto em: </dt><dd className="inline">{new Date(v.openedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</dd></div>}
         </dl>
         {!v.opened && (
           <div className="mt-3">
@@ -276,7 +276,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
             </div>
           )}
           {v.openCorrection && (
-            <p className="mt-2 text-sm">Correção aberta em {new Date(v.openCorrection.openedAt).toLocaleString("pt-BR")}. Motivo: {v.openCorrection.reason}</p>
+            <p className="mt-2 text-sm">Correção aberta em {new Date(v.openCorrection.openedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}. Motivo: {v.openCorrection.reason}</p>
           )}
           {(!correcting || v.openCorrection) && (
             <div className="mt-3 flex flex-wrap gap-2">
@@ -313,7 +313,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
             {[...v.versions].reverse().map((ver) => (
               <li key={ver.id} className="rounded-md border border-border bg-card p-3 text-sm">
                 <p className="font-medium">Versão {ver.version}{ver.superseded ? " — substituída" : " — vigente"}</p>
-                <p className="text-muted-foreground">Oficializada em {new Date(ver.recordedAt).toLocaleString("pt-BR")} · fotografia de {fmtDate(ver.snapshotDate)} · regra {ver.ruleId} v{ver.ruleVersion}</p>
+                <p className="text-muted-foreground">Oficializada em {new Date(ver.recordedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} · fotografia de {fmtDate(ver.snapshotDate)} · regra {ver.ruleId} v{ver.ruleVersion}</p>
                 {ver.correctionReason && <p className="mt-1">Motivo: {ver.correctionReason}</p>}
               </li>
             ))}

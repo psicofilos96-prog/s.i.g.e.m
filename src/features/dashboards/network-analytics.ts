@@ -101,7 +101,7 @@ export function exportMetadata(r: NetworkReading, yn: YearNature): Record<string
 export type DisplayState = "AVAILABLE" | "ZERO" | "UNKNOWN" | "UNAVAILABLE" | "BLOCKED";
 const DISPLAY: Record<IndicatorState, DisplayState> = { available: "AVAILABLE", zero: "ZERO", unknown: "UNKNOWN", unavailable: "UNAVAILABLE" };
 export const displayState = (i: IndicatorReading): DisplayState => DISPLAY[i.state];
-export const displayValue = (i: IndicatorReading): string => (i.state === "available" || i.state === "zero" ? (i.value ?? 0).toLocaleString("pt-BR") : "—");
+export const displayValue = (i: IndicatorReading): string => (i.state === "available" || i.state === "zero" ? (i.value ?? 0).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "—");
 
 /** Bloqueios reais da análise da rede: dependem de fonte/parâmetro externo; nunca são calculados nem zerados. */
 export const ANALYTICS_BLOCKS: readonly Readonly<{ code: string; label: string; reason: string }>[] = [

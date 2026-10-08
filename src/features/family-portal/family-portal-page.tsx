@@ -71,7 +71,7 @@ function Section({ s, k, studentId }: { s: FamilySummary; k: FamilySection; stud
             </li>))}</ul>)
         : k === "documentos" ? (
           <ul className="space-y-1 text-sm">{s.documents!.map((d) => (
-            <li key={d.verification_code}>{d.kind}{d.number ? ` nº ${d.number}` : ""} — {new Date(d.emitted_at).toLocaleDateString("pt-BR")} ·{" "}
+            <li key={d.verification_code}>{d.kind}{d.number ? ` nº ${d.number}` : ""} — {new Date(d.emitted_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} ·{" "}
               <Link to="/verificar/$codigo" params={{ codigo: d.verification_code }} className="underline">verificar situação</Link></li>))}</ul>)
         : k === "calendario" ? <Link to="/calendario-escolar" className="text-sm underline">Abrir o calendário escolar homologado</Link>
         : null}

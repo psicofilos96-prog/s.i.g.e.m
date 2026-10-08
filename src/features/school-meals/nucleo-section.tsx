@@ -88,7 +88,7 @@ function TrailSection({ names }: { names: Map<string, string> }) {
           <div className="overflow-x-auto"><table className="w-full">
             <thead><tr className="text-left"><th>Quando</th><th>Origem</th><th>Ato</th><th>Versão</th><th>Escola</th><th>Motivo</th></tr></thead>
             <tbody>{slice.map((r) => <tr key={`${r.source}|${r.logical_id}|${r.version}`} className="border-t">
-              <td>{new Date(r.recorded_at).toLocaleString("pt-BR")}</td><td>{SOURCE_LABEL[r.source] ?? r.source}</td><td>{r.act}</td><td>{r.version}</td>
+              <td>{new Date(r.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</td><td>{SOURCE_LABEL[r.source] ?? r.source}</td><td>{r.act}</td><td>{r.version}</td>
               <td>{names.get(r.school_id) ?? "Escola"}</td><td>{r.reason ?? "—"}</td></tr>)}</tbody></table>
             <div className="mt-2 flex gap-2"><button type="button" className="rounded border px-2 py-1 disabled:opacity-50" disabled={page === 0} onClick={() => setPage(page - 1)}>Anterior</button>
               <button type="button" className="rounded border px-2 py-1 disabled:opacity-50" disabled={(page + 1) * 50 >= rows.length} onClick={() => setPage(page + 1)}>Próxima</button>
