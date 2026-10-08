@@ -38,7 +38,7 @@ Migrations 0201 (aposentada: `calendar_id` uuid, tabela vazia marcada DEPRECATED
 - `calendar_external_profile_at(calendar, modelo, on, knownAt)` — construção lê sempre; demais autenticados
   só se alguma versão do calendário estiver homologada na data; sem revisão ⇒ `padrao`.
 Gravar perfil não cria versão acadêmica, não toca homologação nem conteúdo. Nenhum bucket público;
-`calendar-image-assets.ts` (laboratório) não foi promovido. Não usa localStorage.
+`calendar-image-assets.ts` (laboratório) foi removido no NDEAD.1 por não ter uso.
 
 ## Impressão
 Cada externo tem renderer próprio e CSS isolado em `.cx-*`; o portal reaproveita a raiz `.cd-print-root`

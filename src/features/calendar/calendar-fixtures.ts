@@ -118,6 +118,7 @@ function ranges(prefix: string): CalendarRange[] {
     ["RECESSO", "2027-05-28", "2027-05-28"],
     ["FERIAS", "2027-07-12", "2027-07-23"],
     ["RECESSO", "2027-09-06", "2027-09-06"],
+    ["RECESSO", "2027-10-13", "2027-10-14"],
     ["FERIAS", "2027-12-20", "2027-12-24"],
     ["FERIAS", "2027-12-27", "2027-12-31"],
   ];
@@ -160,8 +161,9 @@ const commonTail: Ev[] = [
   ["FERIADO", "2027-05-27", "CORPUS CHRISTI", true, undefined, "corpus-christi"],
   ["RETORNO", "2027-07-26"],
   ["FL", "2027-09-07", "FERIADO LETIVO (Independência do Brasil)", true],
-  ["MESTRE", "2027-10-11", "DIA DO MESTRE / Transferido para o dia 11/10", true, "2027-10-15"],
-  ["FERIADO", "2027-10-12", "NOSSA SENHORA APARECIDA / DIA DA CRIANÇA", true],
+  // Decisão de 2026-10-08: 11/10 letivo; 12/10 e 15/10 feriados; 13–14/10 recesso.
+  ["FERIADO", "2027-10-12", "DIA DAS CRIANÇAS", true],
+  ["FERIADO", "2027-10-15", "DIA DO PROFESSOR", true],
   ["FERIADO", "2027-11-02", "DIA DE FINADOS", true],
   ["FERIADO", "2027-11-15", "PROCLAMAÇÃO DA REPÚBLICA", true],
   ["TERMINO", "2027-12-17"],
@@ -195,6 +197,7 @@ const regularCouncils: Ev[] = [
   ["CC", "2027-05-21"],
   ["CC", "2027-09-10"],
   ["CC", "2027-12-10"],
+  ["CF", "2027-12-21"],
 ];
 
 const regularPeriods: CalendarPeriod[] = [
@@ -284,7 +287,8 @@ export function createCalendarFixtures(): NetworkCalendar[] {
     overrides: [
       { date: "2027-12-10", type: "CC" },
       { date: "2027-12-17", type: "TERMINO" },
-      ...decemberRecess,
+      ...decemberRecess.filter((d) => d.date !== "2027-12-21"),
+      { date: "2027-12-21", type: "CF" },
     ],
     rules: rules2027(),
     document: DEFAULT_DOCUMENT(),
