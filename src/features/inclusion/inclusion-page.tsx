@@ -3,7 +3,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { TermReviewPanel } from "./term-review-panel";
 import { ClinicalSection } from "./clinical-section";
-import { studentInclusionReportHtml, type ClinicalRow } from "./clinical-model";
+import { evolutionReportHtml, studentInclusionReportHtml, type ClinicalRow } from "./clinical-model";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -114,6 +114,10 @@ function Student({ school, student }: { school: string; student: string }) {
     const w = window.open("", "_blank"); if (!w) return;
     w.document.write(studentInclusionReportHtml({ school, student, records: rs ?? [], clinical, generatedOn: today() })); w.document.close(); w.print();
   }
+  function printEvolution() {
+    const w = window.open("", "_blank"); if (!w) return;
+    w.document.write(evolutionReportHtml({ school, student, records: rs ?? [], generatedOn: today() })); w.document.close(); w.print();
+  }
   const load = useCallback(async () => {
     try { setRs(await call<InclusionRecord[]>("inclusion_records_at", { _school: school, _student: student, _known_at: null, _logical_id: null })); setErr(null); }
     catch (e) { setErr(inclusionMessage((e as Error).message)); }
@@ -139,7 +143,7 @@ function Student({ school, student }: { school: string; student: string }) {
   return (
     <section aria-labelledby="stu" className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2"><h2 id="stu" className="font-semibold">Estudante {student}</h2>
-        {rs && rs.length > 0 && <div className="flex gap-2"><Button size="sm" variant="outline" onClick={exportCsv}>Exportar relatório minimizado</Button><Button size="sm" variant="outline" onClick={printReport}>Imprimir relatório do estudante</Button></div>}</div>
+        {rs && rs.length > 0 && <div className="flex gap-2"><Button size="sm" variant="outline" onClick={exportCsv}>Exportar relatório minimizado</Button><Button size="sm" variant="outline" onClick={printReport}>Imprimir relatório do estudante</Button><Button size="sm" variant="outline" onClick={printEvolution}>Imprimir relatório evolutivo</Button></div>}</div>
       {err ? <StatePanel tone="warning" title="Registros não disponíveis" description={err} />
         : !rs ? <SkeletonState label="Carregando" />
         : rs.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro de inclusão visível para você. Isso não indica ausência de necessidade.</p>
