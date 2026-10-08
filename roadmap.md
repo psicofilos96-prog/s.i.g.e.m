@@ -591,5 +591,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Dois novos modelos externos (Modelo 4 Matriz mês×dia com fundo fotográfico; Modelo 5 Quadro Anual) lendo do calendário interno, com personalização total (fonte, tamanho, espaçamento, dimensões, posição dos blocos)
 
 ## Em andamento (2026-10-08)
-- [ ] NDATE.1 — auditoria de datas/horários/timezone (só bugs técnicos)
+- [x] NDATE.1 — auditoria de datas/horários/timezone (só bugs técnicos)
 - [ ] Calendários externos: anexar imagem de fundo e ajustar; PNGs sobrepostos sem alterar estrutura; controle total de formatação
