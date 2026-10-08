@@ -157,3 +157,10 @@ NE-01 e NE-02 COMPLETO_TECNICAMENTE; NE-03 PARCIAL (TEMPLATE_INSTITUCIONAL_PENDE
 | BU-01 | COMPLETO_TECNICAMENTE (NSEARCH.2) |
 | AU-01 | COMPLETO_TECNICAMENTE; DEPENDE_DECISAO (exportar-auditoria) |
 Resultado: NÃO PASS — 8 gaps técnicos decididos abertos, listados em `docs/ux-sigem-auditoria-final.md` (NFINAL.7).
+
+## NREAUDIT.1 (2026-10-08) — reauditoria final da fila (substitui a conclusão da NFINAL.7; tabela NFINAL.7 permanece válida)
+Lotes desde NFINAL.7: NRATE.1, NFORMAT.1, NPERM.3, NCSS.2, NBUNDLE.1, NASSET.1, NCROSSLINK.1, NRELEASE.1, NTABLE.1, NFILTER.1, NDOCINDEX.1 — todos técnicos, sem nova regra institucional, sem alteração de dado oficial, sem nova capacidade. Nenhum requisito mudou de estado; nenhum dos 8 gaps NFINAL.7 foi fechado por esses lotes.
+
+Gates (`node scripts/verify.mjs --skip=rotas`): índice de docs OK; migrations OK; tipos 0 erros; 413 arquivos / 4.337 testes OK; invariantes profundas 12/65 OK; a11y OK; SQL: 0 DEFINER sem search_path, 272 tabelas com RLS, 95 sem política no código-fonte (fechadas por padrão; acesso só por funções — REVISAR); segredos: nenhum; build OK. Smoke de rotas não rodado (exige servidor + login).
+
+Resultado: NÃO PASS mantido. SIGEM_TECHNICAL_CLOSURE_AUDIT_COMPLETE não declarado. STOP 2027 respeitado (nenhuma configuração institucional iniciada).

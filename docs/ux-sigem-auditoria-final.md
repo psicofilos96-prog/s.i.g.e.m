@@ -113,3 +113,6 @@ TEMPLATE_INSTITUCIONAL_PENDENTE: matrícula, transferência, atestado, renovaç�
 - HOMOLOGACAO: regra do Mapa 2027 (CI-01/CI-02).
 
 STOP — 2027 não configurado oficialmente.
+
+## NREAUDIT.1 (2026-10-08)
+Reauditoria após a fila NRATE.1–NDOCINDEX.1: gates verdes (ver `matriz-completude-produto-sigem.md`, seção NREAUDIT.1). Os 8 gaps técnicos da NFINAL.7 continuam abertos; nenhuma pendência nova de regra foi criada. Resultado: NÃO PASS.
