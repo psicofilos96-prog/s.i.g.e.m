@@ -211,3 +211,7 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 | Admin | guia (novo) | contagens reais da Home Admin (NADM.4) | Abrir central de acessos (novo) |
 - Ação principal do guia só aparece com sessão; rótulos sem números (teste `src/config/station-homes-nhome1.test.ts`). Nenhum número decorativo adicionado.
 - Screenshots: Files `nhome1-screenshots/` (sem login). Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING para CIECE, Supervisão, Avaliação, Alimentação e Admin com conta real; REVISAR saudação/foto da Secretaria (decorativa, não numérica).
+
+## NPDF.3 — Revalidação de PDFs (2026-10-08)
+- 10 documentos PASS sem login (Mapa, Livro, Avaliação, Relatórios, Horários, Calendário 2027 do laboratório, revisão docente, relatório evolutivo, Dossiê, QR da carteirinha): 0 vazamento, sem interface do app, cabeçalho repetido, reprodução idêntica entre fusos. Relatório por documento: `docs/auditoria-pdfs-npdf3.md`.
+- Pendente: TEMPLATE_INSTITUCIONAL_PENDENTE (documentos da Secretaria — 0 modelos cadastrados); INTERACTIVE_BROWSER_VALIDATION_PENDING (PDF com dados reais e login; QR por câmera).
