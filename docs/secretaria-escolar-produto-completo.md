@@ -75,5 +75,5 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 - Abertos: comunicação multi-turma, Serviços da escola, contagem na home, auditoria de rotas, gates completos. Sem PASS.
 
 ## N5.5.1 parte 2 (2026-10-07)
-- Serviços da escola (`/secretaria/servicos`, `school-services.ts`): agrupa só telas existentes (Alimentação escolar); Transporte, Infraestrutura e Atendimento domiciliar aparecem como "Ainda não disponível" até existirem telas próprias (N11.2.2). Nenhum motor duplicado. Teste: `school-services.test.ts`.
+- Serviços da escola (`/secretaria/servicos`, `school-services.ts`): agrupa só telas existentes (Alimentação escolar); Transporte, Infraestrutura e Atendimento domiciliar têm telas próprias desde N11.2.3; acesso de contas de setor segue a estação (N11.2.4: REVISAR). Nenhum motor duplicado. Teste: `school-services.test.ts`.
 - Pendente: comunicação multi-turma com prévia de destinatários, home com contadores reais, anexo privado de pendência, auditoria de rotas, fixtures de duas escolas (exigem executar ações no banco — bloqueado), deep 31/31, build. NÃO PASS.

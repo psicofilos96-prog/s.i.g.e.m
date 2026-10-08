@@ -10,6 +10,7 @@ import { PEDIDOS_ALIMENTACAO, CONSOLIDADO_ALIMENTACAO } from "@/features/school-
 import { ENTREGAS_ALIMENTACAO, FORNECEDOR_FATOS_ALIMENTACAO } from "@/features/school-meals/receiving-model";
 import { EXECUCAO_ALIMENTACAO, TRILHA_ALIMENTACAO, QUALIDADE_ALIMENTACAO } from "@/features/school-meals/nucleo-model";
 import { FICHA_ESTOQUE_ALIMENTACAO, SALDO_ESTOQUE_ALIMENTACAO } from "@/features/school-meals/stock-model";
+import { TRANSPORTE_ROTAS } from "@/features/school-transport/transport-model";
 import { REPORTING_REPORTS } from "@/features/school-meals/reporting-model";
 import type { Branding, CellValue, ReportDefinition } from "./report-engine";
 import { HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, networkTotal, type SchoolProjection } from "@/features/statistical-map/network-projection";
@@ -130,5 +131,6 @@ export const REPORTS: readonly ReportDefinition[] = [
   TRILHA_ALIMENTACAO,
   QUALIDADE_ALIMENTACAO,
   ...Object.values(REPORTING_REPORTS),
+  TRANSPORTE_ROTAS,
 ];
 export const reportById = (id: string) => REPORTS.find((r) => r.id === id) ?? null;

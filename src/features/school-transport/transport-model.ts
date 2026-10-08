@@ -1,5 +1,6 @@
 // N11.2.3 — Transporte escolar: projeção pura sobre fatos append-only (school_transport_facts).
 // Nenhuma regra de elegibilidade, distância ou capacidade existe aqui: só o que foi registrado.
+import type { CellValue, ReportDefinition } from "@/features/reports/report-engine";
 export type TransportKind = "rota" | "ponto" | "vinculo-estudante";
 export type TransportFact = {
   id: string; school_id: string; kind: TransportKind; logical_id: string; version: number;
@@ -55,4 +56,27 @@ export const TRANSPORT_ERROR: Record<string, string> = {
 export function transportMessage(raw: string): string {
   const key = Object.keys(TRANSPORT_ERROR).find((k) => raw.includes(k));
   return (key && TRANSPORT_ERROR[key]) || "Não foi possível registrar. Tente de novo.";
+}
+
+// ---------- Relatório (motor comum) ----------
+
+/** Rotas × pontos × quantidade de vínculos vigentes, só do que a sessão já leu. Sem nome de estudante. */
+export const TRANSPORTE_ROTAS: ReportDefinition = {
+  id: "transporte-rotas-escola", version: 1, title: "Transporte escolar — rotas e pontos",
+  description: "Rotas e pontos vigentes da escola na data, com a quantidade de estudantes vinculados como registrada. Não calcula direito ao transporte.",
+  source: "school_transport_facts (RLS da sessão) → transportPicture",
+  params: [{ id: "on", label: "Situação na data", type: "date", required: false }],
+  columns: [
+    { id: "route", label: "Rota", kind: "text" },
+    { id: "stop", label: "Ponto", kind: "text" },
+    { id: "students", label: "Estudantes vinculados", kind: "number" },
+  ],
+  formats: ["csv", "pdf"], reproducible: false, syncRowLimit: 5000,
+};
+
+/** Rota sem ponto sai com ponto e quantidade ausentes (null), nunca zero. */
+export function transportReportRows(pictures: readonly RoutePicture[]): Record<string, CellValue>[] {
+  return pictures.flatMap((p): Record<string, CellValue>[] => p.stops.length === 0
+    ? [{ route: p.route.label ?? "Rota sem nome", stop: null, students: null }]
+    : p.stops.map((s) => ({ route: p.route.label ?? "Rota sem nome", stop: s.stop.label ?? "Ponto sem nome", students: s.students.length })));
 }
