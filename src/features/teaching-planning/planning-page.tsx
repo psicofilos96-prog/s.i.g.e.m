@@ -206,7 +206,7 @@ function Attachments({ planId, uid, readOnly }: { planId: string; uid: string | 
       {live.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum anexo.</p> : <ul className="text-sm">{live.map((a) => (
         <li key={a.id} className="flex gap-2"><button type="button" className="underline" onClick={async () => window.open(await attachmentUrl(a.object_path), "_blank", "noopener")}>{a.label}</button>
           {!readOnly && <button type="button" className="text-xs underline" onClick={async () => { try { await revokeAttachment(planId, a.id); q.refetch(); } catch (e) { setErr(planMessage((e as Error).message)); } }}>remover</button>}</li>))}</ul>}
-      {!readOnly && uid && <input type="file" aria-label="Adicionar anexo" className="text-sm" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; if (f.size > 10 * 1024 * 1024) { setErr("Arquivo acima de 10 MB."); return; } try { await uploadAttachment(uid, planId, f); q.refetch(); setErr(null); } catch (x) { setErr(planMessage((x as Error).message)); } e.target.value = ""; }} />}
+      {!readOnly && uid && <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" aria-label="Adicionar anexo" className="text-sm" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; if (f.size > 10 * 1024 * 1024) { setErr("Arquivo acima de 10 MB."); return; } try { await uploadAttachment(uid, planId, f); q.refetch(); setErr(null); } catch (x) { setErr(planMessage((x as Error).message)); } e.target.value = ""; }} />}
     </fieldset>
   );
 }

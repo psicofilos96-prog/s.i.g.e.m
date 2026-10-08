@@ -73,3 +73,15 @@ Status: **PASS técnico**; INFRAESTRUTURA_PENDENTE em tipos por área.
 - Correções: nenhuma necessária.
 - Pendente: restringir tipos no próprio armazenamento (a ferramenta disponível não altera essa opção) — INFRAESTRUTURA_PENDENTE; download por link real com login (INTERACTIVE_BROWSER_VALIDATION_PENDING).
 - Gates: suíte completa 379 arquivos OK; varredura de segurança: 26 achados, todos em catálogos normativos lidos por qualquer pessoa logada (já conhecidos), nenhum sobre arquivos.
+
+## NFILE.3 — revisão após os novos módulos (2026-10-08)
+Status: **PASS técnico**; INFRAESTRUTURA_PENDENTE (tipos por área no armazenamento) e INTERACTIVE_BROWSER_VALIDATION_PENDING mantidos.
+
+- Áreas: as mesmas 5, todas privadas, limites 5/10 MB conferidos; 0 objetos guardados; 0 referências em `student_photo_versions`, `inclusion_attachments`, `teaching_plan_attachments`, `assessment_item_media`, `meal_evidence_attachments`, `meal_fiscal_documents` ⇒ 0 órfãos, 0 referências quebradas. Nada apagado.
+- Envios ao armazenamento: continuam só os 5 pontos com `guardUpload` (tipo real, tamanho, caminho seguro, `upsert:false`); nenhum novo módulo grava no armazenamento; nenhum `getPublicUrl`; links só com `SIGNED_URL_TTL_SECONDS` = 60 s.
+- Arquivos lidos só no navegador (não vão ao armazenamento): imagens do calendário externo e do layout (reduzidas antes de salvar), logotipo da identidade (`validateLogoBytes`), JSON de layout do calendário, fonte curricular, Censo e Central de Importações.
+- Referências históricas: substituir = novo arquivo + nova versão/evento; foto versionada não pode ser apagada; nenhuma regra de atualizar em área de armazenamento.
+
+Correções técnicas:
+- Importações lidas no navegador (layout do calendário, referência curricular, Censo, Central de Importações) não tinham teto de tamanho: agora recusam acima de 20 MB (`IMPORT_MAX_BYTES` em `import-kernel.ts`, teste `import-size.test.ts`), sem gravar nada. É limite técnico, não norma.
+- Anexo de inclusão e anexo de planejamento não indicavam ao seletor os tipos aceitos; agora indicam JPG/PNG/WEBP/PDF, os mesmos da política (que continua sendo a garantia).

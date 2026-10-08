@@ -230,8 +230,8 @@ function Attachments({ recordLogicalId }: { recordLogicalId: string }) {
             try { const { url } = await openFn({ data: { attachmentId: a.id, purpose: p } }); window.open(url, "_blank", "noopener"); } catch (e) { setMsg(inclusionMessage((e as Error).message)); }
           }}>abrir</button></li>))}</ul>}
       <div className="mt-1 flex flex-wrap gap-3">
-        <label className="cursor-pointer underline">Anexar pedagógico<input type="file" className="sr-only" onChange={(e) => e.target.files?.[0] && void onFile(e.target.files[0], "pedagogico")} /></label>
-        <label className="cursor-pointer underline">Anexar clínico (segregado)<input type="file" className="sr-only" onChange={(e) => e.target.files?.[0] && void onFile(e.target.files[0], "clinico")} /></label>
+        <label className="cursor-pointer underline">Anexar pedagógico<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only" onChange={(e) => e.target.files?.[0] && void onFile(e.target.files[0], "pedagogico")} /></label>
+        <label className="cursor-pointer underline">Anexar clínico (segregado)<input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="sr-only" onChange={(e) => e.target.files?.[0] && void onFile(e.target.files[0], "clinico")} /></label>
       </div>
       {msg && <p role="status">{msg}</p>}
     </div>
