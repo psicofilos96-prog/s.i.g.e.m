@@ -72,8 +72,8 @@ export const PROMOTION_TARGET: Record<Change["kind"], { writer: string; screen: 
   "grade:remover-bloco": { writer: "record_class_schedule_version", screen: "/horarios" },
   "grade:adicionar-bloco": { writer: "record_class_schedule_version", screen: "/horarios" },
   "grade:trocar-responsavel": { writer: "record_class_schedule_version", screen: "/horarios" },
-  "regencia:adicionar": { writer: "record_teaching_assignment_version", screen: "/turmas" },
-  "regencia:remover": { writer: "record_teaching_assignment_version", screen: "/turmas" },
+  "regencia:adicionar": { writer: "record_teaching_assignment_version_v2", screen: "/turmas" },
+  "regencia:remover": { writer: "record_teaching_assignment_version_v2", screen: "/turmas" },
   "turma:mover-blocos": { writer: "record_class_schedule_version", screen: "/horarios" },
 };
 

@@ -1,6 +1,6 @@
 /**
  * Fonte dos documentos escolares: modelos, emissões e fatos canônicos.
- * Fatos são compostos SÓ no banco (school_document_facts/emit_school_document_v2); o v1 com snapshot do navegador foi aposentado.
+ * Fatos são compostos SÓ no banco (school_document_facts, via emit_school_document_v3); o v1 com snapshot do navegador foi aposentado.
  * Frequência, avaliação e fechamento não são compostos enquanto não houver
  * regra homologada: aparecem como ausentes, nunca como zero.
  */
