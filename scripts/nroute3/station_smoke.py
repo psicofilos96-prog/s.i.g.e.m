@@ -15,7 +15,11 @@ async def main():
                 await pg.goto(BASE); await pg.evaluate("([k,v])=>localStorage.setItem(k,v)",[m["storage_key"],json.dumps(m["session"])])
                 for path in st["paths"]:
                     if name=="mob" and path!=st["paths"][0]: continue
-                    r=await pg.goto(BASE+path, wait_until="networkidle"); await pg.wait_for_timeout(1200)
+                    try:
+                        r=await pg.goto(BASE+path, wait_until="load", timeout=30000)
+                    except Exception as e:
+                        res.append({"station":st["kind"],"vp":name,"path":path,"error":"timeout"}); continue
+                    await pg.wait_for_timeout(2500)
                     body=await pg.inner_text("body")
                     h1=await pg.locator("h1").all_inner_texts()
                     crumb=await pg.locator("nav[aria-label*='readcrumb' i], nav[aria-label*='trilha' i]").count()

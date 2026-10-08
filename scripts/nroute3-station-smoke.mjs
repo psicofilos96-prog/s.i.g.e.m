@@ -41,7 +41,7 @@ try {
   execFileSync("python3", ["scripts/nroute3/station_smoke.py"], { stdio: "inherit", timeout: 540000 });
 } catch (e) { console.error("NROUTE3 erro:", e.message ?? e); code = 1; }
 finally {
-  const cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); console.log("cleanup:", cl.error ? "ERRO " + cl.error.message : "ok");
+  let cl; for (let i = 0; i < 3; i++) { cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); if (!cl.error) break; } console.log("cleanup:", cl.error ? "ERRO " + cl.error.message : "ok");
   for (const id of users) await admin.auth.admin.deleteUser(id);
   execFileSync("rm", ["-rf", "/tmp/browser/nroute3/sessions"]);
   const { data } = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });

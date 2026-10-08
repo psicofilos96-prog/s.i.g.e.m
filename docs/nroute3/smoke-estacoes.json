@@ -1,0 +1,587 @@
+[
+ {
+  "station": "secretaria-escolar",
+  "vp": "desk",
+  "path": "/",
+  "status": 200,
+  "title": "Início — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "vp": "desk",
+  "path": "/secretaria",
+  "status": 200,
+  "title": "Secretaria Escolar — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "vp": "desk",
+  "path": "/alunos",
+  "status": 200,
+  "title": "Alunos — SIGEM",
+  "h1": [
+   "Tela de demonstração"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "vp": "desk",
+  "path": "/turmas",
+  "status": 200,
+  "title": "Turmas — SIGEM",
+  "h1": [
+   "Turmas"
+  ],
+  "breadcrumb": true,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "vp": "desk",
+  "path": "/enturmacoes",
+  "status": 200,
+  "title": "Enturmações — SIGEM",
+  "h1": [
+   "Enturmações"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "vp": "desk",
+  "path": "/matriculas/nova",
+  "status": 200,
+  "title": "Nova matrícula guiada — SIGEM",
+  "h1": [
+   "Nova matrícula"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "vp": "desk",
+  "path": "/documentos-escolares",
+  "status": 200,
+  "title": "Documentos escolares — SIGEM",
+  "h1": [
+   "Documentos escolares"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "secretaria-escolar",
+  "vp": "mob",
+  "path": "/",
+  "status": 200,
+  "title": "Início — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "direcao-escolar",
+  "vp": "desk",
+  "path": "/direcao",
+  "status": 200,
+  "title": "Portal da Direção Escolar — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "direcao-escolar",
+  "vp": "desk",
+  "path": "/gestao-escolar",
+  "status": 200,
+  "title": "Gestão escolar — SIGEM",
+  "h1": [
+   "Estação da gestão escolar"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "direcao-escolar",
+  "vp": "desk",
+  "path": "/profissionais",
+  "status": 200,
+  "title": "Profissionais — SIGEM",
+  "h1": [
+   "Tela de demonstração"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "direcao-escolar",
+  "vp": "desk",
+  "path": "/mapa-estatistico",
+  "status": 200,
+  "title": "Mapa Estatístico — SIGEM",
+  "h1": [
+   "Mapa Estatístico"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "direcao-escolar",
+  "vp": "mob",
+  "path": "/direcao",
+  "status": 200,
+  "title": "Portal da Direção Escolar — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "professor",
+  "vp": "desk",
+  "path": "/diario",
+  "status": 200,
+  "title": "Meu Diário — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "professor",
+  "vp": "desk",
+  "path": "/planejamento",
+  "status": 200,
+  "title": "Planejamento docente — SIGEM",
+  "h1": [
+   "Planejamento"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "professor",
+  "vp": "desk",
+  "path": "/avaliacoes-do-professor",
+  "status": 200,
+  "title": "Avaliações do professor — SIGEM",
+  "h1": [
+   "Avaliações do professor"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "professor",
+  "vp": "mob",
+  "path": "/diario",
+  "status": 200,
+  "title": "Meu Diário — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "vp": "desk",
+  "path": "/orientacao",
+  "status": 200,
+  "title": "Portal da Orientação Pedagógica — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "vp": "desk",
+  "path": "/acompanhamento-diarios",
+  "status": 200,
+  "title": "Acompanhamento dos diários — SIGEM",
+  "h1": [
+   "Acompanhamento dos diários"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "vp": "desk",
+  "path": "/horarios",
+  "status": 200,
+  "title": "Horários escolares — SIGEM",
+  "h1": [
+   "Horários escolares"
+  ],
+  "breadcrumb": true,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "orientacao-pedagogica",
+  "vp": "mob",
+  "path": "/orientacao",
+  "status": 200,
+  "title": "Portal da Orientação Pedagógica — SIGEM",
+  "h1": [
+   "O que depende de você hoje"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "vp": "desk",
+  "path": "/ciece",
+  "status": 200,
+  "title": "CIECE — Informação e Estatística — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "vp": "desk",
+  "path": "/qualidade-dos-dados",
+  "status": 200,
+  "title": "Qualidade dos dados — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "vp": "desk",
+  "path": "/revisao-de-anomalias",
+  "status": 200,
+  "title": "Variações para revisar — SIGEM",
+  "h1": [
+   "Variações para revisar"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "vp": "desk",
+  "path": "/relatorios",
+  "status": 200,
+  "title": "Relatórios — SIGEM",
+  "h1": [
+   "Qual relatório você precisa?"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "vp": "desk",
+  "path": "/censo-escolar",
+  "status": 200,
+  "title": "Censo Escolar — SIGEM",
+  "h1": [
+   "Censo Escolar"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "ciece-estatistica",
+  "vp": "mob",
+  "path": "/ciece",
+  "status": 200,
+  "title": "CIECE — Informação e Estatística — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "vp": "desk",
+  "path": "/matrizes-curriculares",
+  "status": 200,
+  "title": "Matrizes curriculares — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "vp": "desk",
+  "path": "/matrizes-curriculares/correspondencia",
+  "status": 200,
+  "title": "Correspondência curricular — SIGEM",
+  "h1": [
+   "Correspondência curricular"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "vp": "desk",
+  "path": "/calendario-escolar",
+  "status": 200,
+  "title": "Calendários escolares — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "vp": "desk",
+  "path": "/preparacao-2027",
+  "status": 200,
+  "title": "Preparação do ano letivo 2027 — SIGEM",
+  "h1": [
+   "Preparação do ano letivo 2027"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "gestao-pedagogica-da-rede",
+  "vp": "mob",
+  "path": "/matrizes-curriculares",
+  "status": 200,
+  "title": "Matrizes curriculares — SIGEM",
+  "h1": [
+   "Matrizes curriculares institucionais"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "vp": "desk",
+  "path": "/administracao-geral",
+  "status": 200,
+  "title": "Administração Geral — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "vp": "desk",
+  "path": "/central-de-acessos",
+  "status": 200,
+  "title": "Central de acessos — SIGEM",
+  "h1": [
+   "Central de acessos"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "vp": "desk",
+  "path": "/estacao-administrativa",
+  "status": 200,
+  "title": "Estação administrativa — SIGEM",
+  "h1": [
+   "Estação administrativa"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "vp": "desk",
+  "path": "/regras-institucionais",
+  "status": 200,
+  "title": "Regras institucionais — SIGEM",
+  "h1": [
+   "Regras institucionais"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "vp": "desk",
+  "path": "/central-de-integracoes",
+  "status": 200,
+  "title": "Central de integrações institucionais — SIGEM",
+  "h1": [
+   "Central de integrações institucionais"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "vp": "desk",
+  "path": "/rota-inexistente-nroute3",
+  "status": 404,
+  "title": "",
+  "h1": [
+   "Página não encontrada"
+  ],
+  "breadcrumb": false,
+  "notFound": true,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "administrador-geral-do-sigem",
+  "vp": "mob",
+  "path": "/administracao-geral",
+  "status": 200,
+  "title": "Administração Geral — SIGEM",
+  "h1": [
+   "Administração Geral"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "rh-profissionais-da-rede",
+  "vp": "desk",
+  "path": "/departamento-pessoal",
+  "status": 200,
+  "title": "Vida funcional — DP administrativo — SIGEM",
+  "h1": [],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ },
+ {
+  "station": "rh-profissionais-da-rede",
+  "vp": "mob",
+  "path": "/departamento-pessoal",
+  "status": 200,
+  "title": "Vida funcional — DP administrativo — SIGEM",
+  "h1": [
+   "Profissionais da escola"
+  ],
+  "breadcrumb": false,
+  "notFound": false,
+  "bad": [],
+  "hscroll": false,
+  "errors": []
+ }
+]
