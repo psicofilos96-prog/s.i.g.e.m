@@ -1,3 +1,5 @@
+import { paginate, stableSort, usePersistentState } from "@/lib/list-paging";
+import { ListPager } from "@/components/sigem/list-pager";
 /**
  * B2.5.4 — Administração institucional de Turmas (sessão real).
  * Só lê pela fonte institucional e só grava pelos escritores do banco.
@@ -79,10 +81,14 @@ export function InstitutionalClassesListPage() {
   const caps = useCaps();
   const validOn = todayIso();
   const q = useQuery({ queryKey: ["inst-classes", validOn], queryFn: () => listInstitutionalClasses({ validOn }) });
-  const [query, setQuery] = useState("");
+  const [query, setQueryRaw] = usePersistentState("turmas:busca", "");
+  const [pageNo, setPageNo] = useState(1);
+  const setQuery = (v: string) => { setQueryRaw(v); setPageNo(1); };
   const canCreate = schoolsWithCapability(caps, CLASS_REGISTRY_CAPABILITY).length > 0;
-  const rows = (q.data ?? []).filter((r) =>
-    (r.record.kind === "one" ? r.record.value.name : "").toLocaleLowerCase("pt-BR").includes(query.toLocaleLowerCase("pt-BR")));
+  const nameOf = (r: NonNullable<typeof q.data>[number]) => (r.record.kind === "one" ? r.record.value.name : "");
+  const filtered = stableSort((q.data ?? []).filter((r) => nameOf(r).toLocaleLowerCase("pt-BR").includes(query.toLocaleLowerCase("pt-BR"))), nameOf, (r) => r.classId);
+  const pg = paginate(filtered, pageNo, 50);
+  const rows = pg.items;
   return (
     <div className="grid gap-4">
       <OperationalPageHeader
@@ -97,12 +103,14 @@ export function InstitutionalClassesListPage() {
       {q.error ? <ErrorLine text="Não foi possível consultar as turmas institucionais." /> : null}
       {q.data && rows.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          Nenhuma turma institucional registrada no seu escopo.
+          {(q.data.length > 0) ? "Nenhuma turma corresponde à pesquisa." : "Nenhuma turma institucional registrada no seu escopo."}
         </p>
       ) : null}
+      {q.data && q.data.length > 0 ? <ListPager r={pg} onPage={setPageNo} noun="turmas" /> : null}
       {rows.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-border bg-card">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-busy={q.isFetching}>
+            <caption className="sr-only">Turmas institucionais</caption>
             <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
               <tr><th className="p-2">Turma</th><th className="p-2">Ano letivo</th><th className="p-2">Escola</th><th className="p-2">Situação</th><th className="p-2">Organização de períodos</th></tr>
             </thead>

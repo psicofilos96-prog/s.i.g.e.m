@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 import { operationalToday } from "@/lib/academic-date";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,7 +56,7 @@ function SchoolTransport({ school, on }: { school: School; on: string }) {
   const [err, setErr] = useState<string | null>(null);
   const load = useCallback(() => {
     setErr(null);
-    db.from("school_transport_facts").select("*").eq("school_id", school.id).limit(5000)
+    readPages<any>((a, b) => db.from("school_transport_facts").select("*").eq("school_id", school.id).order("id").range(a, b), 20000)
       .then(({ data, error }: any) => error ? setErr(transportMessage(error.message)) : setRows(data ?? []));
   }, [school.id]);
   useEffect(load, [load]);

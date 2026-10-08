@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
@@ -13,7 +14,7 @@ const today = () => operationalToday();
 const br = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "não informado");
 
 async function readAll(t: string, col: string, school: string) {
-  const { data, error } = await db.from(t).select("*").eq(col, school).limit(5000);
+  const { data, error } = await readPages<any>((a, b) => db.from(t).select("*").eq(col, school).order("id").range(a, b), 20000);
   if (error) throw new Error(error.message);
   return data ?? [];
 }
