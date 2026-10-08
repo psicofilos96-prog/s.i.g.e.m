@@ -1,5 +1,5 @@
 import { operationalToday } from "@/lib/academic-date";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { governError } from "@/lib/observability/governed-errors";
