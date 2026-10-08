@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 import { MoreFilters } from "@/components/sigem/more-filters";
 import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useMemo, useState } from "react";
@@ -68,7 +69,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {panel.blocks.map((b) => (
               <Link key={b.id} to={b.link as "/secretaria"} className="rounded-lg border bg-card p-4 space-y-1 hover:bg-accent">
-                <div className="flex items-baseline justify-between gap-2"><h3 className="text-sm font-semibold">{b.title}</h3><span className="text-xs text-muted-foreground">{STATE_LABEL[b.state]}</span></div>
+                <div className="flex items-baseline justify-between gap-2"><h3 className="text-sm font-semibold">{b.title}</h3><span className="text-xs text-muted-foreground">{knownLabel(STATE_LABEL, b.state)}</span></div>
                 <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? "—"}</p>
                 {b.reason && <p className="text-xs text-muted-foreground">{b.reason}</p>}
               </Link>))}
@@ -185,7 +186,7 @@ function SupervisionHome() {
           <li key={t.id} className="rounded-md border border-border bg-card p-3">
             <a href={t.to} className="font-medium underline-offset-2 hover:underline">{t.title}</a>
             <p className="text-sm text-muted-foreground">{t.what}</p>
-            <p className="mt-1 text-xs">{TOOL_STATE_LABEL[t.state]}</p>
+            <p className="mt-1 text-xs">{knownLabel(TOOL_STATE_LABEL, t.state)}</p>
           </li>
         ))}
       </ul>
