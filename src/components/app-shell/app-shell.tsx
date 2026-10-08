@@ -461,6 +461,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [unit, setUnit] = useState<string>(DEMO_UNITS[0]);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  // NHOME.1: ação principal do guia só com sessão — sem login a página de destino também pede entrada.
+  const signedInForGuide = useSessionAuthority().status === "signed-in";
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -499,7 +501,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <StationGate pathname={pathname}>
               {(() => {
                 const g = guideForPath(pathname);
-                return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide {...g} /></div> : null;
+                return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary && signedInForGuide ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
               })()}
               <div className="mb-4 empty:hidden print:hidden"><WhatThisMeans pathname={pathname} /></div>
               {children}
