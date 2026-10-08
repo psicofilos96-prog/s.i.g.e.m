@@ -1744,6 +1744,13 @@
       "when": 1791450332822,
       "tag": "0248_ndb3_revoke_superseded_emit_school_document_v2",
       "breakpoints": true
+    },
+    {
+      "idx": 249,
+      "version": "7",
+      "when": 1791484450566,
+      "tag": "0249_nsec4_revoke_anon_table_privileges",
+      "breakpoints": true
     }
   ]
 }
