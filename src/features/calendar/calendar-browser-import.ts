@@ -102,9 +102,11 @@ export function buildDaysPayload(plan: ImportPlan, mapping: Record<string, Insti
     if (!m) problems.push(`Tipo "${t.label}" sem tipo institucional escolhido.`);
     else if (m.schoolDayEffect !== t.countsAsSchoolDay) problems.push(`Tipo "${t.label}": o efeito do tipo institucional escolhido difere do resultado da fonte.`);
   }
-  if (problems.length) return { ok: false, problems };
+  // NTYPE.1: dia com tipo fora do plano/mapeamento falha fechado com problema legível, nunca TypeError.
+  for (const d of plan.days) if (!mapping[d.code]) problems.push(`Dia ${d.day}: tipo "${d.code}" sem tipo institucional escolhido.`);
+  if (problems.length) return { ok: false, problems: [...new Set(problems)] };
   const days = plan.days.filter((d) => !window || (d.day >= window.from && d.day <= window.to))
-    .map((d) => ({ day: d.day, day_type_version_id: mapping[d.code]!.versionId }));
+    .flatMap((d) => { const m = mapping[d.code]; return m ? [{ day: d.day, day_type_version_id: m.versionId }] : []; });
   if (days.length === 0) return { ok: false, problems: ["Nenhuma data da fonte cai dentro da vigência informada."] };
   return { ok: true, days };
 }

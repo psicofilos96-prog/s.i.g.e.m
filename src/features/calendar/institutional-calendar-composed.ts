@@ -20,8 +20,8 @@ import type { ComposedEvidence, DayResolution, DayState } from "./institutional-
 /** Clone estrutural profundamente congelado (evidência validada do servidor, imune a mutação da origem). */
 export function deepFrozenClone<T>(v: T): T {
   if (v === null || typeof v !== "object") return v;
-  const out: any = Array.isArray(v) ? v.map((x) => deepFrozenClone(x)) : Object.fromEntries(Object.entries(v as object).map(([k, x]) => [k, deepFrozenClone(x)]));
-  return Object.freeze(out);
+  const out: unknown = Array.isArray(v) ? v.map((x) => deepFrozenClone(x)) : Object.fromEntries(Object.entries(v as object).map(([k, x]) => [k, deepFrozenClone(x)]));
+  return Object.freeze(out) as T;
 }
 
 const normOf = (raw: unknown): { normId: string | null; normVersionId: string | null } => {
