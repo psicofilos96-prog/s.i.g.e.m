@@ -589,3 +589,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] NDEAD.1 — varredura de código morto (remover só com prova)
 - [ ] Calendário 2027: 11/10 letivo; 12/10 feriado Dia das Crianças; 13–14/10 recesso; 15/10 feriado Dia do Professor; 10/12 CC; 21/12 CF
 - [ ] Dois novos modelos externos (Modelo 4 Matriz mês×dia com fundo fotográfico; Modelo 5 Quadro Anual) lendo do calendário interno, com personalização total (fonte, tamanho, espaçamento, dimensões, posição dos blocos)
+
+## Em andamento (2026-10-08)
+- [ ] NDATE.1 — auditoria de datas/horários/timezone (só bugs técnicos)
+- [ ] Calendários externos: anexar imagem de fundo e ajustar; PNGs sobrepostos sem alterar estrutura; controle total de formatação
