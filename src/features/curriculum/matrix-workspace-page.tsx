@@ -157,7 +157,7 @@ export function MatrixVersionDiff({
                   </span>
                   {change.label}
                 </p>
-                <p className="font-mono text-[0.6875rem] text-tabular text-muted-foreground">
+                <p className="font-mono text-micro text-tabular text-muted-foreground">
                   {change.detail}
                 </p>
               </div>

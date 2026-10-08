@@ -5,6 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --text-2xs: 0.625rem;
+  --text-2xs--line-height: 0.875rem;
+  --text-micro: 0.6875rem;
+  --text-micro--line-height: 1rem;
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Outfit", "Figtree", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;

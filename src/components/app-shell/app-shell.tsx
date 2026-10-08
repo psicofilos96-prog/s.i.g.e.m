@@ -80,7 +80,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
             alt={brand.name}
             className="h-4 w-auto max-w-[6.5rem] object-contain object-left brightness-0 invert"
           />
-          <p className="mt-1 truncate text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
+          <p className="mt-1 truncate text-2xs font-semibold uppercase tracking-wide text-sidebar-muted">
             {institution.locality}
           </p>
         </div>
@@ -148,7 +148,7 @@ function SidebarNavigation({
       {groups.map((group) => (
         <div className="mb-5" key={group.label}>
           {!compact && (
-            <p className="mb-2 px-2.5 text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
+            <p className="mb-2 px-2.5 text-2xs font-semibold uppercase tracking-wide text-sidebar-muted">
               {group.label}
             </p>
           )}
@@ -196,7 +196,7 @@ function SidebarNavigation({
       {generalAdmin.status === "general-admin" ? (
         <div className="mb-5">
           {!compact && (
-            <p className="mb-2 px-2.5 text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
+            <p className="mb-2 px-2.5 text-2xs font-semibold uppercase tracking-wide text-sidebar-muted">
               Administração
             </p>
           )}
@@ -241,10 +241,10 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
       <SidebarNavigation compact={compact} />
       {!compact && (
         <div className="print:hidden mx-4 mb-3 border-l border-sidebar-border pl-3">
-          <p className="text-[0.625rem] font-semibold uppercase tracking-wide text-sidebar-muted">
+          <p className="text-2xs font-semibold uppercase tracking-wide text-sidebar-muted">
             {institution.governmentName}
           </p>
-          <p className="mt-0.5 text-[0.6875rem] text-sidebar-foreground/75">
+          <p className="mt-0.5 text-micro text-sidebar-foreground/75">
             {institution.departmentName}
           </p>
         </div>
@@ -398,7 +398,7 @@ function Topbar({
         >
           <Search className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">Buscar no sistema</span>
-          <kbd className="ml-auto hidden rounded border border-border bg-card px-1.5 text-[0.625rem] font-semibold lg:block">
+          <kbd className="ml-auto hidden rounded border border-border bg-card px-1.5 text-2xs font-semibold lg:block">
             ⌘K
           </kbd>
         </button>

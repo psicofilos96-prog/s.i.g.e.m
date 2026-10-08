@@ -76,12 +76,12 @@ export function ScheduleWeekView({
                         <Icon className="size-3.5 text-muted-foreground" aria-hidden="true" />
                       </div>
                       <p className="mt-1 text-xs font-semibold leading-snug">{item.label}</p>
-                      <p className="mt-1 text-[0.6875rem] text-muted-foreground">{item.kind}</p>
+                      <p className="mt-1 text-micro text-muted-foreground">{item.kind}</p>
                       {contexts.map((entry) =>
                         entry ? (
                           <p
                             key={entry.assignment.id}
-                            className="mt-1 text-[0.6875rem] leading-snug"
+                            className="mt-1 text-micro leading-snug"
                           >
                             <Link
                               to="/horarios/profissionais/$profissionalId"
@@ -108,7 +108,7 @@ export function ScheduleWeekView({
                         </div>
                       ) : null}
                       {item.note ? (
-                        <p className="mt-2 flex gap-1 text-[0.6875rem] leading-snug text-muted-foreground">
+                        <p className="mt-2 flex gap-1 text-micro leading-snug text-muted-foreground">
                           <AlertTriangle className="mt-0.5 size-3 shrink-0" aria-hidden="true" />{" "}
                           {item.note}
                         </p>

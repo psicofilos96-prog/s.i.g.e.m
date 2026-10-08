@@ -508,7 +508,7 @@ function PeriodsTable({
       <div
         aria-hidden
         className={cn(
-          "hidden gap-3 border-b border-border/70 pb-1.5 text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground md:grid",
+          "hidden gap-3 border-b border-border/70 pb-1.5 text-micro font-semibold uppercase tracking-wide text-muted-foreground md:grid",
           COLS,
         )}
       >
@@ -768,7 +768,7 @@ function Cell({
 }) {
   return (
     <div className={cn("min-w-0", className)}>
-      <span className="block text-[0.6875rem] font-semibold uppercase tracking-wide text-muted-foreground md:sr-only">
+      <span className="block text-micro font-semibold uppercase tracking-wide text-muted-foreground md:sr-only">
         {label}
       </span>
       <span className="tabular-nums">{children}</span>
