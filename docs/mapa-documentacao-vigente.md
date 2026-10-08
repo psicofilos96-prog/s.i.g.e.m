@@ -203,6 +203,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `secretaria-fluxo-real-pos-diario.md` | Secretaria Escolar — fluxo real pós-Diário (2026-10-05) | Referência vigente | — | — |
 | `secretaria-vida-escolar.md` | Frente N — Secretaria / Vida escolar | Referência vigente | — | — |
 | `seguranca-leitura-ampla-nsec3.md` | NSEC.3 — Leituras amplas reavaliadas (2026-10-08) | Registro de lote | — | — |
+| `contratos-de-banco-vigentes-ndb3.md` | NDB.3 — Mapa final de contratos de banco (2026-10-08) | Registro de lote | — | — |
 | `security-definer-function-inventory.md` | Inventário das funções SECURITY DEFINER (NSEC.2) | Referência vigente | — | — |
 | `security-hardening-final.md` | NSEC.1 — Hardening de segurança (2026-10-07, parcial) | Histórico | — | — |
 | `sigem-contas-padrao.md` | Padrões de contas institucionais (somente documentação) | Referência vigente | — | — |
