@@ -5,7 +5,7 @@ import { useMemo, useRef, useState } from "react";
 import { useAutosave } from "@/features/autosave/use-autosave";
 import { readOpenDrafts, writeDraft, type CloudDraft } from "./infant-draft-cloud";
 import { useEffect } from "react";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, formatDateTime } from "@/lib/academic-date";
 import { DateInput } from "@/components/sigem/date-input";
 import { Link, useBlocker, useNavigate } from "@tanstack/react-router";
 import {
@@ -632,7 +632,7 @@ export function InfantExperienceRegisterPage({
         </StatusBadge>
         {recoverable.length > 0 ? (
           <Button size="sm" variant="secondary" onClick={() => resume(recoverable[0]!)}>
-            Retomar rascunho de {new Date(recoverable[0]!.recordedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+            Retomar rascunho de {formatDateTime(recoverable[0]!.recordedAt)}
           </Button>
         ) : null}
         <span role="status" aria-live="polite" className="text-xs text-muted-foreground" data-autosave-status={autosave.status}>

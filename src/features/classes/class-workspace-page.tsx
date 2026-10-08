@@ -60,6 +60,7 @@ import {
   type ClassDraft,
   type ClassDraftIssue,
 } from "@/features/classes/class-draft";
+import { countLabel } from "@/lib/format-ptbr";
 
 export type ClassWorkspaceMode = "nova" | "edicao";
 
@@ -722,8 +723,8 @@ export function ClassWorkspacePage({
                 )}
                 <p className="mt-3 text-xs text-muted-foreground">
                   {errors.length
-                    ? `Concluir configuração indisponível: ${errors.length} erro(s) de preenchimento.`
-                    : `Pronto para conclusão demonstrativa com ${warnings.length} aviso(s) em aberto.`}
+                    ? `Concluir configuração indisponível: ${countLabel(errors.length, "erro", "erros")} de preenchimento.`
+                    : `Pronto para conclusão demonstrativa com ${countLabel(warnings.length, "aviso", "avisos")} em aberto.`}
                 </p>
               </div>
             </DetailSection>

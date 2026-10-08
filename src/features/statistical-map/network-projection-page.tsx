@@ -15,6 +15,7 @@ import {
   HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, display, monthLabel, networkTotal,
   type Measure, type MonthWindow, type SchoolProjection,
 } from "./network-projection";
+import { MONTH_NAMES } from "@/lib/format-ptbr";
 
 type Result = { window: MonthWindow; scope: string; schools: SchoolProjection[]; authorized: boolean; coverage: null | { official: string[]; unreadable: boolean } };
 
@@ -28,7 +29,7 @@ function Records({ m }: { m: Measure }) {
   return <ul className="max-h-40 overflow-auto font-mono text-xs">{m.records.map((r) => <li key={r}>{r}</li>)}</ul>;
 }
 
-const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const MONTHS = MONTH_NAMES;
 
 export function NetworkProjectionPage() {
   const fetchProjection = useServerFn(getNetworkProjection);

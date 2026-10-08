@@ -24,6 +24,6 @@ describe("auditoria de PDFs (NDOC.2)", () => {
     for (const h of [livro, rel]) expect(h).toMatch(/thead\{display:table-header-group\}/);
   });
   it("reprodução histórica: data do histórico usa o fuso de Itaperuna, não o do computador", () => {
-    expect(docs()[2]).toContain("01/10/2026, 20:30:00");
+    expect(docs()[2]).toContain("01/10/2026 20:30");
   });
 });

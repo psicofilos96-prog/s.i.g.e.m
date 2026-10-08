@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { commMessage } from "./communication-model";
+import { formatDateTime } from "@/lib/academic-date";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
@@ -31,9 +32,9 @@ export function FamilyCommunications({ studentId }: { studentId: string }) {
           <details onToggle={(e) => { if ((e.target as HTMLDetailsElement).open && !it.read_at) void mark(it, "leitura"); }}>
             <summary className="cursor-pointer font-medium">{it.title}{!it.read_at && <span className="ml-2 text-xs text-primary">novo</span>}</summary>
             <p className="mt-1 whitespace-pre-wrap">{it.body}</p>
-            <p className="text-xs text-muted-foreground">Publicado em {new Date(it.published_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{it.rectified ? " · versão corrigida" : ""}</p>
+            <p className="text-xs text-muted-foreground">Publicado em {formatDateTime(it.published_at)}{it.rectified ? " · versão corrigida" : ""}</p>
             {it.requires_acknowledgement && (it.acknowledged_at
-              ? <p className="text-xs">Ciência registrada em {new Date(it.acknowledged_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}.</p>
+              ? <p className="text-xs">Ciência registrada em {formatDateTime(it.acknowledged_at)}.</p>
               : <Button size="sm" variant="outline" onClick={() => void mark(it, "ciencia")}>Declarar ciência</Button>)}
           </details>
         </li>))}

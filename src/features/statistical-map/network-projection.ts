@@ -5,6 +5,7 @@
  * nunca zero; zero só quando a fonte foi lida e não tem registro.
  */
 import type { CycleEnrollmentAtRow, CycleParticipationRow, ClassAllocationAtRow } from "@/features/student-life/cycle-enrollment-source";
+import { MONTH_NAMES_LOWER } from "@/lib/format-ptbr";
 
 export type MovementRow = {
   id: string; logical_id: string; version: number; student_id: string; enrollment_id: string | null;
@@ -121,7 +122,7 @@ export const display = (v: number | null) => (v == null ? "não disponível" : S
 // -------- Exportação: a MESMA projeção, sem recálculo --------
 export const HEADER_LINES = ["Prefeitura Municipal de Itaperuna", "Secretaria Municipal de Educação", "Núcleo de Informação e Estatística"] as const;
 export const MAP_TITLE = "MAPA ESTATÍSTICO";
-const MONTHS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const MONTHS = MONTH_NAMES_LOWER;
 export const monthLabel = (w: MonthWindow) => `${MONTHS[w.month - 1]}/${w.year}`;
 
 export function exportRows(schools: readonly SchoolProjection[]): string[][] {

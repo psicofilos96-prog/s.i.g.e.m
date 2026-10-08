@@ -2,6 +2,7 @@
 // itens zerados, anomalias configuráveis e linhas de relatório. Nenhum número é fabricado.
 import { STATE_REGISTRY, labelsOf } from "@/config/state-presentation";
 import type { ReportDefinition, CellValue } from "@/features/reports/report-engine";
+import { formatRatioPercent, formatNumber } from "@/lib/format-ptbr";
 
 export type OrderStatus = "rascunho" | "submetido" | "em-analise" | "devolvido" | "autorizado-total" | "autorizado-parcial" | "rejeitado" | "cancelado" | "retificado";
 export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = labelsOf(STATE_REGISTRY.solicitacao);
@@ -94,7 +95,7 @@ export function anomalies(lines: OrderLine[], history: Record<string, number | n
       if (r.kind === "variacao-historica" && r.threshold != null) {
         const h = history[l.item_ref];
         if (h != null && h > 0 && Math.abs(l.quantidade - h) / h > r.threshold)
-          out.push({ rule: r.id, item: l.item_ref, explanation: `Diferença de ${Math.round((Math.abs(l.quantidade - h) / h) * 100)}% em relação ao histórico (${h}); limite configurado ${Math.round(r.threshold * 100)}%.` });
+          out.push({ rule: r.id, item: l.item_ref, explanation: `Diferença de ${formatRatioPercent(Math.abs(l.quantidade - h) / h, 0)} em relação ao histórico (${formatNumber(h)}); limite configurado ${formatRatioPercent(r.threshold, 0)}.` });
       }
     }
   }

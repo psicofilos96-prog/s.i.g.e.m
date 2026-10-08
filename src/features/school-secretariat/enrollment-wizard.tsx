@@ -10,6 +10,7 @@ import { readSchoolLife } from "./secretariat-source";
 import { lifeKindLabel } from "./secretariat";
 import { WIZARD_STEPS, canComplete, missingByStep, photoPath, photoProblem, seatLabel, sniffImage, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
 import { abandonDraft, bindPhoto, classOptions, completeDraft, currentStudentPhoto, openDrafts, photoUrl, removePhoto, saveDraft, uploadPhoto, type OpenDraft } from "./enrollment-wizard-source";
+import { formatDateTime } from "@/lib/academic-date";
 
 /** N5.2.1 — Cadastrar aluno → Matricular → Enturmar → Revisar → Concluir, numa só tela retomável. */
 export function EnrollmentWizard() {
@@ -57,7 +58,7 @@ function DraftPicker({ school }: { school: string }) {
               <li key={d.draftId} className="flex flex-wrap items-center justify-between gap-2 p-3">
                 <span>
                   <strong>{d.existingStudentName ?? d.payload.aluno?.nome ?? "Aluno sem nome"}</strong>
-                  <span className="block text-sm text-muted-foreground">Passo {d.step} de 8 · {WIZARD_STEPS[d.step - 1]?.title} · salvo {new Date(d.updatedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</span>
+                  <span className="block text-sm text-muted-foreground">Passo {d.step} de 8 · {WIZARD_STEPS[d.step - 1]?.title} · salvo {formatDateTime(d.updatedAt)}</span>
                 </span>
                 <Button variant="outline" onClick={() => setCurrent(d)}>Continuar</Button>
               </li>

@@ -9,6 +9,7 @@ import {
   REVIEW_STATE_LABEL, canSubmit, recordReview, reviewMessage, reviewPrintHtml, reviewQueue, reviewState, reviewsOf,
   type PrintSection, type ReviewEvent, type ReviewSubject,
 } from "./teacher-work-review";
+import { formatDateTime } from "@/lib/academic-date";
 
 const EVENT_LABEL: Record<ReviewEvent["event"], string> = { enviado: "Enviado", "ajuste-solicitado": "Ajuste solicitado", aprovado: "Aprovado" };
 const SUBJECT_LABEL: Record<ReviewSubject, string> = { plano: "Planejamento", instrumento: "Prova" };
@@ -33,7 +34,7 @@ export function ReviewPanel({ kind, subjectId, versionId, isAuthor, print }: { k
       {events.length > 0 && (
         <ol className="space-y-1 text-xs">
           {events.map((e) => (
-            <li key={e.seq}>{EVENT_LABEL[e.event]} · {new Date(e.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{e.comment ? ` — “${e.comment}”` : ""}</li>
+            <li key={e.seq}>{EVENT_LABEL[e.event]} · {formatDateTime(e.recorded_at)}{e.comment ? ` — “${e.comment}”` : ""}</li>
           ))}
         </ol>
       )}
@@ -76,7 +77,7 @@ export function ReviewQueue({ school }: { school: string }) {
           return (
             <li key={key} className="space-y-2 rounded border p-3 text-sm">
               <p className="font-medium">{SUBJECT_LABEL[r.subject_kind]}: {r.title ?? "Sem título"}</p>
-              <p className="text-xs text-muted-foreground">Enviado em {new Date(r.submitted_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</p>
+              <p className="text-xs text-muted-foreground">Enviado em {formatDateTime(r.submitted_at)}</p>
               <label className="block text-xs">Comentário
                 <Textarea value={comment[key] ?? ""} onChange={(e) => setComment({ ...comment, [key]: e.target.value })} />
               </label>

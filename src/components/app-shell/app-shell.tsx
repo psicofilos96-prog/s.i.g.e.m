@@ -56,6 +56,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { countLabel } from "@/lib/format-ptbr";
 
 /** Unidades apenas para representar a troca de contexto; sem autenticação. */
 const DEMO_UNITS = [
@@ -577,7 +578,7 @@ function SessionMenu() {
           {name}
           <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
             {authority.person
-              ? `${authority.capabilities.length} capacidade(s) efetiva(s) pela política homologada.`
+              ? `${countLabel(authority.capabilities.length, "capacidade efetiva", "capacidades efetivas")} pela política homologada.`
               : "Conta ainda não vinculada a pessoa institucional — nenhuma capacidade."}
           </span>
         </DropdownMenuLabel>

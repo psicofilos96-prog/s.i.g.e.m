@@ -14,8 +14,9 @@ import { layoutCss } from "./calendar-layout";
 import { dayTypesOf, typeInfo, weekendLetter } from "./calendar-catalog";
 import type { PrintCount, PrintModel } from "./institutional-calendar-presentation";
 import type { NetworkCalendar } from "./calendar-types";
+import { MONTH_NAMES } from "@/lib/format-ptbr";
 
-const MONTHS = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+const MONTHS = MONTH_NAMES;
 const short = (iso: string) => `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const Count = ({ c }: { c: PrintCount }) =>

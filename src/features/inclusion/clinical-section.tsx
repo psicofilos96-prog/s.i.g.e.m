@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { askText } from "@/components/sigem/confirm-action";
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { inclusionMessage } from "./inclusion-model";
 import { CLINICAL_DIMENSION_SCHEME, clinicalHeads, clinicalHistory, type ClinicalRow } from "./clinical-model";
 
@@ -52,7 +52,7 @@ export function ClinicalSection({ school, student, onLoaded }: { school: string;
               <Button size="sm" variant="outline" onClick={() => void amend(r, "encerramento")}>Encerrar</Button>
               {r.version > 1 && <Button size="sm" variant="ghost" onClick={() => setHist(hist === r.logical_id ? null : r.logical_id)}>Histórico</Button>}
             </div>
-            {hist === r.logical_id && <ol className="mt-1 text-xs">{clinicalHistory(rows, r.logical_id).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {new Date(h.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{h.reason ? ` · motivo: ${h.reason}` : ""}</li>)}</ol>}
+            {hist === r.logical_id && <ol className="mt-1 text-xs">{clinicalHistory(rows, r.logical_id).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {formatDateTime(h.recorded_at)}{h.reason ? ` · motivo: ${h.reason}` : ""}</li>)}</ol>}
           </li>))}</ul>
       )}
       {rows !== null && <NewClinical school={school} student={student} onDone={() => void read(purpose || "Conferência após registro")} />}

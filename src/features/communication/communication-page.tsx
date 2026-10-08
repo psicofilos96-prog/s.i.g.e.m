@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { ATTACHMENTS_PENDING, AUDIENCE_LABEL, EXTERNAL_DELIVERY_PROVIDER_PENDING, STATE_LABEL, allowedActions, availabilityLine, commMessage, type Audience, type CommState } from "./communication-model";
+import { formatDateTime } from "@/lib/academic-date";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
@@ -118,7 +119,7 @@ function History({ id }: { id: string }) {
   return (
     <details onToggle={(e) => { if ((e.target as HTMLDetailsElement).open && !h) void call<Hist[]>("school_communication_history", { _communication: id }).then(setH, () => setH([])); }}>
       <summary className="cursor-pointer text-xs underline">Histórico</summary>
-      {h && <ul className="mt-1 text-xs">{h.map((x, i) => <li key={i}>{new Date(x.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {x.entry_kind === "versao" ? `versão ${x.number}: ${x.detail}` : `${x.entry_kind} (${x.detail})`}{x.reason ? ` — ${x.reason}` : ""}</li>)}</ul>}
+      {h && <ul className="mt-1 text-xs">{h.map((x, i) => <li key={i}>{formatDateTime(x.recorded_at)} · {x.entry_kind === "versao" ? `versão ${x.number}: ${x.detail}` : `${x.entry_kind} (${x.detail})`}{x.reason ? ` — ${x.reason}` : ""}</li>)}</ul>}
     </details>
   );
 }

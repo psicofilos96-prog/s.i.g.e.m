@@ -10,6 +10,7 @@ import { ReferencePicker } from "@/features/curricular-reference/reference-picke
 import { readCatalog } from "@/features/curricular-reference/reference-source";
 import { copyDraft, filterPlans, planTargetDate, parseBlocks, parseRefs, planHeads, planHistory, planMessage, plansOn, STATUS_LABEL, type PlanBlock, type PlanStatus, type PlanVersion } from "./planning-model";
 import { attachmentUrl, classPositions, planPeriods, itemsOfMatrix, matrixItemKeys, myAssignments, planAttachments, revokeAttachment, savePlan, uploadAttachment, visiblePlans, type Assignment } from "./planning-source";
+import { formatDateTime } from "@/lib/academic-date";
 
 const today = () => new Date().toLocaleDateString("sv-SE");
 type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null };
@@ -186,7 +187,7 @@ export function PlanningPage() {
                 <div className="flex flex-wrap items-center gap-2 text-sm">Copiar para:
                   {assignments.data.map((a) => <Button key={a.assignment_id} size="sm" variant="outline" onClick={() => copy(all.find((v) => v.id === draft.head)!, a)}>{a.component_label_snapshot} · {a.class_id}</Button>)}</div>)}
               {draft.planId && <Button size="sm" variant="ghost" aria-expanded={historyOf === draft.planId} onClick={() => setHistoryOf(historyOf ? null : draft.planId)}>Histórico de versões</Button>}
-              {historyOf && <ol className="space-y-1 text-xs">{planHistory(all, historyOf).map((v) => <li key={v.id}>v{v.version} · {STATUS_LABEL[v.status]} · {new Date(v.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{v.copied_from_version_id ? " · copiado de outro planejamento" : ""}</li>)}</ol>}
+              {historyOf && <ol className="space-y-1 text-xs">{planHistory(all, historyOf).map((v) => <li key={v.id}>v{v.version} · {STATUS_LABEL[v.status]} · {formatDateTime(v.recorded_at)}{v.copied_from_version_id ? " · copiado de outro planejamento" : ""}</li>)}</ol>}
             </div>)}
         </section>
       </div>

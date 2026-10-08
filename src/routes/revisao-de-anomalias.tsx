@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { detect, DEFAULT_PARAMS, METHOD, type Series, type SeriesOutcome } from "@/features/anomalies/anomaly-core";
 import { loadSeries } from "@/features/anomalies/anomaly-sources";
+import { formatRatioPercent } from "@/lib/format-ptbr";
 
 export const Route = createFileRoute("/revisao-de-anomalias")({
   head: () => ({
@@ -37,7 +38,7 @@ function Page() {
       <header className="space-y-2">
         <p className="text-sm text-muted-foreground">Inconsistências certas ficam na <Link to="/qualidade-dos-dados" className="underline">Central de Qualidade</Link>.</p>
         <details className="text-sm"><summary className="cursor-pointer">Como é calculado</summary>
-          <p className="mt-2">{METHOD.description} Limiar {DEFAULT_PARAMS.robustZ}, variação mínima {DEFAULT_PARAMS.minRelativeChange * 100}%, grupos abaixo de {DEFAULT_PARAMS.minGroupSize} são ignorados, histórico mínimo {DEFAULT_PARAMS.minReference} pontos.</p>
+          <p className="mt-2">{METHOD.description} Limiar {DEFAULT_PARAMS.robustZ}, variação mínima {formatRatioPercent(DEFAULT_PARAMS.minRelativeChange)}, grupos abaixo de {DEFAULT_PARAMS.minGroupSize} são ignorados, histórico mínimo {DEFAULT_PARAMS.minReference} pontos.</p>
           <ul className="mt-2 list-disc pl-5">{METHOD.limitations.map((l) => <li key={l}>{l}</li>)}</ul>
         </details>
       </header>

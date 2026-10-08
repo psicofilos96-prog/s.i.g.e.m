@@ -10,6 +10,7 @@ import {
 } from "./import-engine";
 import { batchDetail, canonicalRecordsFor, importRpc, listBatches, recordEvent, stageBatch, type BatchView, type StoredRow } from "./import-source";
 import type { EventView } from "./import-engine";
+import { formatDateTime } from "@/lib/academic-date";
 
 type Preview = { adapter: ImportAdapter; fileName: string; sha: string; rows: StagedRow[] };
 
@@ -98,7 +99,7 @@ export function ImportCenterPage() {
           : batches.map((b) => (
             <div key={b.id} className="rounded-lg border bg-card p-3">
               <button className="text-left w-full" onClick={() => setOpen(open === b.id ? null : b.id)} aria-expanded={open === b.id}>
-                <span className="font-medium">{b.source_name}</span> · {adapterById(b.adapter_id)?.label ?? b.adapter_id} · {b.row_count} linhas · {new Date(b.received_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}
+                <span className="font-medium">{b.source_name}</span> · {adapterById(b.adapter_id)?.label ?? b.adapter_id} · {b.row_count} linhas · {formatDateTime(b.received_at)}
                 {b.reprocesses_id && <span className="ml-2 text-xs">(reprocessa lote anterior)</span>}
               </button>
               {open === b.id && <BatchPanel batch={b} onReprocess={() => { setReprocessOf(b.id); setAdapterId(b.adapter_id); window.scrollTo({ top: 0 }); }} />}
@@ -187,7 +188,7 @@ function BatchPanel({ batch, onReprocess }: { batch: BatchView; onReprocess: () 
       <Button variant="outline" size="sm" onClick={onReprocess}>Reprocessar com arquivo corrigido</Button>
       {msg && <p role="status" className="text-sm">{msg}</p>}
       <details><summary className="text-sm cursor-pointer">Eventos ({d.events.length})</summary>
-        <ul className="text-xs">{d.events.map((e, i) => <li key={i}>{new Date(e.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {e.kind}{e.canonical_ref ? ` · ${e.canonical_ref}` : ""}{e.detail ? ` · ${e.detail}` : ""}</li>)}</ul>
+        <ul className="text-xs">{d.events.map((e, i) => <li key={i}>{formatDateTime(e.recorded_at)} · {e.kind}{e.canonical_ref ? ` · ${e.canonical_ref}` : ""}{e.detail ? ` · ${e.detail}` : ""}</li>)}</ul>
       </details>
     </div>
   );

@@ -9,6 +9,7 @@ import type { CalendarDayRead } from "./institutional-calendar-readers";
 import type { CouncilConfiguration } from "./institutional-calendar-councils";
 import { logosOf, type CalendarLogo } from "./calendar-logos";
 import { defaultFreeLayout, sanitizeFree, type FreeLayout } from "./calendar-external-free";
+import { MONTH_NAMES } from "@/lib/format-ptbr";
 
 export const PRESENTATION_TEMPLATES = [
   { code: "interno", label: "Interno — Modelo técnico/oficial" },
@@ -24,7 +25,7 @@ export type ExternalTemplateCode = Exclude<PresentationTemplateCode, "interno">;
 export const DEFAULT_TEMPLATE: PresentationTemplateCode = "interno";
 export const isExternal = (c: PresentationTemplateCode): c is ExternalTemplateCode => c !== "interno";
 
-export const MONTH_NAMES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+export { MONTH_NAMES };
 export const WEEK_HEAD = ["D", "S", "T", "Q", "Q", "S", "S"];
 
 // ---------------- perfil visual (só aparência) ----------------
