@@ -13,7 +13,7 @@ const src = files("src").map((f) => [f, readFileSync(f, "utf8")] as const);
 describe("NASSET.1 assets institucionais", () => {
   it("todo asset importado existe", () => {
     for (const [, c] of src) for (const m of c.matchAll(/@\/assets\/([\w.-]+\.asset\.json)/g))
-      expect(existsSync(join("src/assets", m[1])), m[1]).toBe(true);
+      expect(existsSync(join("src/assets", m[1] ?? "")), m[1]).toBe(true);
   });
   it("todo asset do projeto é usado", () => {
     for (const a of readdirSync("src/assets"))
