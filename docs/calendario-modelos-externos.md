@@ -216,3 +216,10 @@ Resultados dos 6 PDFs reais (EJA, EJA Fase I, Ensino Regular × Panorâmico, Mos
 - Editor (`calendar-external-free-editor.tsx`): arrastar/redimensionar na prévia, setas 1 mm / Shift 5 mm, encaixe na grade, desfazer/refazer, exportar/importar JSON (`sigem-calendario-layout/1`), restaurar padrão. Sobreposição sem permissão ou tabela maior que o bloco geram aviso e bloqueiam a impressão; nada é cortado.
 - Banco: migration 0240 só amplia os códigos aceitos; mesma permissão (`construir-calendario-da-rede`) e mesmo histórico de revisões.
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: conferir com supervisao@ logada, salvar, reabrir e gerar PDF.
+
+## Personalização máxima (2026-10-08)
+- Fotográfico e Quadro anual aceitam imagem de fundo da folha inteira, além das fotos do topo e do rodapé. Cada imagem tem foco horizontal/vertical, zoom e opacidade próprios.
+- Imagens avulsas (PNG transparente, JPEG ou WEBP), até 12: posição, tamanho, rotação, opacidade, camada, por cima/por baixo e trava. Ficam numa camada à parte, sem alterar tabela nem dados.
+- Bloco: espaçamento entre letras, itálico, cor do texto, cor de fundo, espessura/cor da borda e arredondamento, somados aos controles já existentes.
+- As imagens não entram no JSON de layout exportado; importar um layout mantém as imagens atuais.
+- INTERACTIVE_BROWSER_VALIDATION_PENDING: anexar e salvar com login real.
