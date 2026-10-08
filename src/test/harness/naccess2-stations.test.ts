@@ -28,9 +28,9 @@ describe("NACCESS.2 — superfícies por estação", () => {
       for (const h of out) expect(hits).toContain(h);
     });
     it(`${s}: downloads alcançáveis = relatórios cuja tela dona a estação já abre`, () => {
-      const reach = CATALOG.filter((e) => allows(e.meta.route));
-      for (const e of reach) expect(allows(e.meta.route)).toBe(true);
-      for (const e of CATALOG.filter((x) => !reach.includes(x))) expect(allows(e.meta.route)).toBe(false);
+      const reach = CATALOG.filter((e) => allows(e.route));
+      for (const e of reach) expect(allows(e.route)).toBe(true);
+      for (const e of CATALOG.filter((x) => !reach.includes(x))) expect(allows(e.route)).toBe(false);
     });
     it(`${s}: rota desconhecida e área administrativa são recusadas`, () => {
       expect(allows("/rota-inexistente")).toBe(false);
