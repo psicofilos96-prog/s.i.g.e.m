@@ -20,3 +20,9 @@
 ## Pendências
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: conferir com login real o uso por teclado e leitor de tela, e a queda de rede.
 - REVISAR: outras telas com listas de erros por etapa (alocação, transferência, regras avaliativas) ainda não apontam campo a campo.
+
+## Complemento (2026-10-08)
+- Transferência (7 campos) e enturmação/alocação (5 campos): cada mensagem de erro junto ao campo tem id próprio e o controle recebe `aria-invalid` + `aria-describedby` (`fieldA11y`); `FieldMessage` aceita `id`. Regras inalteradas.
+- Teste: `src/features/transfers/field-a11y-nform2.test.tsx`.
+- Nova turma: sem contrato canônico de rascunho de turma; segue sem persistência (DEPENDE_DECISAO), sem armazenamento do navegador como fonte.
+- REVISAR: regras avaliativas ainda listam problemas por etapa. INTERACTIVE_BROWSER_VALIDATION_PENDING: teclado/leitor de tela/rede com login.

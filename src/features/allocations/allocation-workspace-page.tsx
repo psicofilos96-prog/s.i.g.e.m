@@ -108,9 +108,14 @@ import {
   type AllocationStepId,
 } from "@/features/allocations/allocation-presentation";
 
-function FieldError({ issue }: { issue?: AllocationIssue | undefined }) {
+function fieldA11y(issue: AllocationIssue | undefined, id: string) {
+  const bad = !!issue && issue.severity === "erro";
+  return bad ? { "aria-invalid": true as const, "aria-describedby": id } : {};
+}
+
+function FieldError({ issue, id }: { issue?: AllocationIssue | undefined; id?: string }) {
   if (!issue || issue.severity !== "erro") return null;
-  return <FieldMessage>{humanAllocationIssue(issue)}</FieldMessage>;
+  return <FieldMessage id={id}>{humanAllocationIssue(issue)}</FieldMessage>;
 }
 
 function ClassOptionSummary({ option }: { option: ClassOption }) {
@@ -311,7 +316,7 @@ export function AllocationWorkspacePage({
                   update({ targetId: value, classId: "", groupingLabel: "" })
                 }
               >
-                <SelectTrigger
+                <SelectTrigger {...fieldA11y(issueOf("targetId"), "al-err-targetId")}
                   id="target-select"
                   aria-label="Aluno e inscrição no ano letivo"
                   className="mt-1.5 h-12 text-base"
@@ -330,7 +335,7 @@ export function AllocationWorkspacePage({
               <FieldHint>
                 A turma vale para a inscrição do aluno neste ano letivo, e não para sempre.
               </FieldHint>
-              <FieldError issue={issueOf("targetId")} />
+              <FieldError issue={issueOf("targetId")} id="al-err-targetId" />
             </>
           )}
         </div>
@@ -479,7 +484,7 @@ export function AllocationWorkspacePage({
               Escolha o aluno no passo anterior para ver as turmas.
             </p>
           ) : options.length ? (
-            <RadioGroup
+            <RadioGroup {...fieldA11y(issueOf("classId"), "al-err-classId")}
               value={draft.classId}
               onValueChange={(value) => update({ classId: value, groupingLabel: "" })}
               aria-label="Turmas compatíveis com o contexto"
@@ -507,7 +512,7 @@ export function AllocationWorkspacePage({
               Nenhuma turma demonstrativamente compatível neste contexto.
             </p>
           )}
-          <FieldError issue={issueOf("classId")} />
+          <FieldError issue={issueOf("classId")} id="al-err-classId" />
         </div>
 
         {selected ? (
@@ -521,7 +526,7 @@ export function AllocationWorkspacePage({
                   value={draft.groupingLabel}
                   onValueChange={(value) => update({ groupingLabel: value })}
                 >
-                  <SelectTrigger
+                  <SelectTrigger {...fieldA11y(issueOf("groupingLabel"), "al-err-groupingLabel")}
                     id="grouping-select"
                     aria-label="Agrupamento correspondente ao aluno"
                     className="mt-1.5 h-12 text-base"
@@ -540,7 +545,7 @@ export function AllocationWorkspacePage({
                   Turma multisseriada/multietapa com {selected.item.groupings.length} agrupamentos.
                   Os agrupamentos permanecem distintos e não são concatenados em uma série única.
                 </FieldHint>
-                <FieldError issue={issueOf("groupingLabel")} />
+                <FieldError issue={issueOf("groupingLabel")} id="al-err-groupingLabel" />
               </>
             ) : (
               <p className="text-base text-muted-foreground">
@@ -596,14 +601,14 @@ export function AllocationWorkspacePage({
         <Label htmlFor="start-date" className="text-base">
           {dateLabel}
         </Label>
-        <DateInput
+        <DateInput {...fieldA11y(issueOf("startDate"), "al-err-startDate")}
           id="start-date"
           className="mt-1.5 h-12 text-base"
           value={draft.startDate}
           onChange={(event) => update({ startDate: event.target.value })}
         />
         <FieldHint>Dia, mês e ano. Exemplo: 09/02/2026.</FieldHint>
-        <FieldError issue={issueOf("startDate")} />
+        <FieldError issue={issueOf("startDate")} id="al-err-startDate" />
       </div>
 
       {!isMovement ? (
@@ -611,7 +616,7 @@ export function AllocationWorkspacePage({
           <Label htmlFor="end-date" className="text-base">
             Último dia <span className="font-normal text-muted-foreground">(se já souber)</span>
           </Label>
-          <DateInput
+          <DateInput {...fieldA11y(issueOf("endDate"), "al-err-endDate")}
             id="end-date"
             className="mt-1.5 h-12 text-base"
             value={draft.endDate}
@@ -621,7 +626,7 @@ export function AllocationWorkspacePage({
             Normalmente fica em branco: uma alocação atual pode permanecer aberta e não pressupõe
             durar todo o período letivo.
           </FieldHint>
-          <FieldError issue={issueOf("endDate")} />
+          <FieldError issue={issueOf("endDate")} id="al-err-endDate" />
         </div>
       ) : null}
 

@@ -122,10 +122,10 @@ export function FieldHint({ children }: { children: ReactNode }) {
  * `show` existe para que nada apareça antes de interação significativa:
  * a tela orienta quem já mexeu no campo, nunca recebe quem acabou de chegar.
  */
-export function FieldMessage({ children, show = true }: { children?: ReactNode; show?: boolean }) {
+export function FieldMessage({ children, show = true, id }: { children?: ReactNode; show?: boolean; id?: string | undefined }) {
   if (!children || !show) return null;
   return (
-    <span className="mt-1.5 block text-sm font-medium text-destructive" role="alert">
+    <span id={id} className="mt-1.5 block text-sm font-medium text-destructive" role="alert">
       {children}
     </span>
   );
