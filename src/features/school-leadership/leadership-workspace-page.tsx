@@ -19,7 +19,7 @@ import {
   ShieldAlert,
   Users,
 } from "lucide-react";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import { EmptyState } from "@/components/sigem/patterns";
 import {
   DecisionDesk,
@@ -163,7 +163,7 @@ export function LeadershipWorkspacePage() {
     [context],
   );
 
-  const isoDate = context.requestedAt.slice(0, 10);
+  const isoDate = civilDateOf(context.requestedAt);
 
   /** Assuntos que dependem de decisão, com fatos e alternativas projetados. */
   const decisionViews = useMemo<readonly LeadershipDecisionView[]>(() => {

@@ -18,6 +18,7 @@ import type { CalendarDayRead } from "./institutional-calendar-readers";
 import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
 import { institutionalIdentity, isFreeTemplate } from "./calendar-external-model";
 import { FreeLayoutEditor } from "./calendar-external-free-editor";
+import { resetSection, validateImage } from "./calendar-external-sections";
 import { historyPush, historyRedo, historyUndo, layoutIssues, moveFreeBlock, moveSticker, type FreeBlockId, type History } from "./calendar-external-free";
 
 /** Resumo, em palavras, do que "Ajustar para caber" mudou. */
@@ -46,6 +47,9 @@ const fileToDataUrl = (f: File) => new Promise<string>((res, rej) => { const r =
 async function pickImage(f: File | undefined): Promise<{ ok: string } | { error: string }> {
   if (!f) return { error: "Nenhum arquivo." };
   if (!["image/png", "image/jpeg", "image/webp"].includes(f.type)) return { error: "Use PNG, JPEG ou WEBP." };
+  const bytes = new Uint8Array(await f.arrayBuffer());
+  const v = validateImage(f.type, bytes);
+  if ("error" in v) return v;
   const url = await fileToDataUrl(f);
   if (url.length > ASSET_MAX_CHARS) return { error: "Imagem maior que o limite (≈1,1 MB)." };
   return { ok: url };
@@ -85,14 +89,15 @@ function FitPreview({ children }: { children: ReactNode }) {
   );
 }
 
-function Group({ title, hint, open, children }: { title: string; hint: string; open?: boolean; children: ReactNode }) {
+function Group({ title, hint, open, children, onReset }: { title: string; hint: string; open?: boolean; children: ReactNode; onReset?: () => void }) {
   return (
     <details open={open} className="group rounded-md border border-border bg-card">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2">
         <span className="min-w-0"><span className="block text-sm font-medium">{title}</span><span className="block text-xs text-muted-foreground">{hint}</span></span>
         <span aria-hidden className="shrink-0 text-muted-foreground transition-transform group-open:rotate-90">›</span>
       </summary>
-      <div className="space-y-3 border-t border-border px-3 py-3">{children}</div>
+      <div className="space-y-3 border-t border-border px-3 py-3">{children}
+        {onReset && <Button type="button" size="sm" variant="ghost" onClick={onReset}>Restaurar esta seção</Button>}</div>
     </details>
   );
 }
@@ -142,7 +147,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
       </div>
       {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
 
-      <Group title="1. Modelo e identidade" hint="Título, subtítulo, frase e logos" open>
+      <Group onReset={() => onChange(resetSection(profile, def, "identidade"))} title="1. Modelo e identidade" hint="Título, subtítulo, frase e logos" open>
         {text("visualTitle", "Título principal", "CALENDÁRIO ESCOLAR + ano")}{text("subtitle", "Subtítulo", "título do calendário")}
         {text("slogan", "Frase institucional")}{text("footerText", "Texto ao lado do logo SIGEM")}
         {fixed("footerPhrase", "Frase do rodapé")}{template === "externo-mosaico" && fixed("feriasText", "Texto da faixa de férias")}
@@ -168,7 +173,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         <Button type="button" size="sm" variant="outline" onClick={() => onChange({ ...profile, logos: def.logos, visualTitle: null, subtitle: null, slogan: def.slogan, footerText: null, footerPhrase: def.footerPhrase })}>Voltar à identidade herdada</Button>
       </Group>
 
-      <Group title="2. Plano de fundo" hint="Imagem do topo e imagens decorativas">
+      <Group onReset={() => onChange(resetSection(profile, def, "fundo"))} title="2. Plano de fundo" hint="Imagem do topo e imagens decorativas">
         {toggle("imagemTopo")}
         {imageInput(profile.coverImage ? "Trocar imagem do topo" : "Escolher imagem do topo", (u) => set("coverImage", u))}
         <div className="flex flex-wrap gap-1">
@@ -182,7 +187,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         {profile.footerImage && <Button type="button" size="sm" variant="outline" onClick={() => set("footerImage", null)}>Remover imagem do rodapé</Button>}
       </Group>
 
-      <Group title="3. Posição da imagem de fundo" hint="Mover, aproximar e centralizar sem trocar a arte">
+      <Group onReset={() => onChange(resetSection(profile, def, "posicaoFundo"))} title="3. Posição da imagem de fundo" hint="Mover, aproximar e centralizar sem trocar a arte">
         <Choice label="Ajuste" value={profile.coverFit} onChange={(v) => set("coverFit", v)}
           options={[{ v: "cobrir", l: "Cobrir área" }, { v: "conter", l: "Imagem inteira" }, { v: "manual", l: "Ajuste manual" }] as const} />
         {profile.coverFit !== "cobrir" && range("coverZoom", "Zoom", 100, 250, 5, "%")}
@@ -207,7 +212,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         <Button type="button" size="sm" variant="outline" onClick={() => onChange({ ...profile, coverFit: def.coverFit, coverFocusX: def.coverFocusX, coverFocusY: def.coverFocusY, coverZoom: def.coverZoom, coverOpacity: def.coverOpacity, coverOverlay: def.coverOverlay })}>Resetar posição da imagem</Button>
       </Group>
 
-      <Group title="4. Cores e aparência" hint="Cores, cartões e bordas">
+      <Group onReset={() => onChange(resetSection(profile, def, "cores"))} title="4. Cores e aparência" hint="Cores, cartões e bordas">
         <div className="grid gap-1 sm:grid-cols-2">
           {color("primary", "Principal")}{color("secondary", "Secundária")}{color("accent", "Destaque")}{color("headerColor", "Títulos")}
           {color("textColor", "Textos")}{color("cardColor", "Blocos e caixas")}{color("borderColor", "Bordas")}{color("gridColor", "Linhas da grade do calendário")}{color("lightColor", "Legenda e fundos claros")}
@@ -221,7 +226,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
             </label>))}</div></div>}
       </Group>
 
-      <Group title="5. Tipografia" hint="Fontes e tamanhos">
+      <Group onReset={() => onChange(resetSection(profile, def, "tipografia"))} title="5. Tipografia" hint="Fontes e tamanhos">
         {(["titleFont", "bodyFont"] as const).map((k) => (
           <label key={k} className="block text-xs">{k === "titleFont" ? "Fonte dos títulos" : "Fonte dos textos"}
             <select className={field} value={profile[k]} onChange={(e) => set(k, e.target.value)}>{FONT_OPTIONS.map((f) => <option key={f} value={f}>{f.split(",")[0]!.replace(/'/g, "")}</option>)}</select></label>))}
@@ -253,7 +258,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         {range("minFitPt", "Menor fonte permitida no ajuste automático", 4, 7, 0.5, " pt")}
       </Group>
 
-      <Group title="6. Estrutura e blocos" hint="O que aparece, larguras e Períodos letivos">
+      <Group onReset={() => onChange(resetSection(profile, def, "estrutura"))} title="6. Estrutura e blocos" hint="O que aparece, larguras e Períodos letivos">
         <div className="space-y-1"><p className="text-xs font-medium">Ordem dos blocos de informação</p>
           <ol aria-label="Ordem dos blocos" className="space-y-1">{profile.blockOrder.map((b, i) => (
             <li key={b} className="flex items-center justify-between gap-2 rounded-md border border-border px-2 py-1 text-xs">
@@ -291,7 +296,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         {fixed("qrText", "Texto do QR Code")}
       </Group>
 
-      <Group title="7. Impressão" hint="A4 paisagem, uma página">
+      <Group onReset={() => onChange(resetSection(profile, def, "impressao"))} title="7. Impressão" hint="A4 paisagem, uma página">
         <p className="text-xs text-muted-foreground">A prévia é a mesma folha A4 paisagem que vai para o PDF. Se algo passar da página, um aviso aparece acima da prévia; nada é cortado.</p>
         <Button type="button" size="sm" variant="outline" onClick={() => onChange(def)}>Restaurar padrão deste modelo</Button>
       </Group>
@@ -330,6 +335,18 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
     window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
   }, [free, selected, hist]); // eslint-disable-line react-hooks/exhaustive-deps
   const [editing, setEditing] = useState(false);
+  // CAL.EXT.3.1: desfazer/refazer da sessão (Ctrl+Z / Ctrl+Shift+Z ou Ctrl+Y), fora de campos de texto.
+  useEffect(() => {
+    if (!editing) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const tag = (e.target as HTMLElement | null)?.tagName; if (tag === "INPUT" || tag === "TEXTAREA") return;
+      const k = e.key.toLowerCase();
+      if (k === "z" && !e.shiftKey) { e.preventDefault(); setHist(historyUndo); }
+      else if ((k === "z" && e.shiftKey) || k === "y") { e.preventDefault(); setHist(historyRedo); }
+    };
+    window.addEventListener("keydown", onKey); return () => window.removeEventListener("keydown", onKey);
+  }, [editing]);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const screenRef = useRef<HTMLDivElement>(null);
@@ -386,6 +403,8 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
         <Button type="button" size="sm" variant="outline" disabled={blocked} title={blocked ? "Corrija os avisos antes de imprimir" : undefined} onClick={() => window.print()}>Imprimir / PDF</Button>
         {canEdit && <Button type="button" size="sm" variant="outline" aria-expanded={editing} onClick={() => setEditing((v) => !v)}>Personalizar modelo externo</Button>}
         {editing && <Button type="button" size="sm" disabled={busy || !!fitting} onClick={() => void save()}>Salvar personalização</Button>}
+        {editing && <Button type="button" size="sm" variant="outline" disabled={!hist.past.length} aria-keyshortcuts="Control+Z" onClick={() => setHist(historyUndo)}>Desfazer</Button>}
+        {editing && <Button type="button" size="sm" variant="outline" disabled={!hist.future.length} aria-keyshortcuts="Control+Shift+Z" onClick={() => setHist(historyRedo)}>Refazer</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => setDraft(defaultProfile(template, presentation))}>Restaurar padrão</Button>}
         {editing && free && <span className="self-center text-xs text-muted-foreground">Salvar grava este layout como o padrão do município para este modelo.</span>}

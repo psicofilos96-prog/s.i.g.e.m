@@ -109,7 +109,7 @@ describe("situação e prazo não criam prioridade nem classificação", () => {
 
   it("encerrar não afirma resolver", () => {
     const line = resolveGuidanceStateLine(
-      queueItem({ concludedAt: "2027-04-01T00:00:00.000Z" }),
+      queueItem({ concludedAt: "2027-04-01T12:00:00.000Z" }),
     );
     expect(line).toContain("01/04/2027");
     expect(line).toContain("não significa");

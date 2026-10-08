@@ -1,3 +1,4 @@
+import { civilDateOf } from "@/lib/academic-date";
 /**
  * Etapa 13F — Adaptadores de fonte para a projeção longitudinal.
  *
@@ -95,7 +96,7 @@ export function createDocumentRecordAdapter(options?: {
         estado: document.documentStatusDefinitionId,
       },
       effectiveDate:
-        document.issuanceDate ?? document.provenance.recordedAt.slice(0, 10),
+        document.issuanceDate ?? civilDateOf(document.provenance.recordedAt),
       recordedAt: document.provenance.recordedAt,
       subjectStudentIds: studentIdsOf(document.subjectReferences),
       ...(document.supersedesDocumentRecordId

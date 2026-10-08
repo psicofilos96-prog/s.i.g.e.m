@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,7 +23,7 @@ function save(name: string, blob: Blob) { const a = document.createElement("a");
 
 /** Central do Núcleo e relatórios: leitura pura. Cartão → drill-down com o mesmo filtro do agregado → exportação pelo report-engine. */
 export function ReportingCenter({ names, network, defaultSchool }: { names: Map<string, string>; network: boolean; defaultSchool: string }) {
-  const today = new Date().toLocaleDateString("en-CA");
+  const today = operationalToday();
   const [from, setFrom] = useState(`${today.slice(0, 7)}-01`); const [to, setTo] = useState(today);
   const [school, setSchool] = useState(network ? "" : defaultSchool);
   const [rows, setRows] = useState<SummaryRow[] | null>(null); const [err, setErr] = useState<string | null>(null); const [loading, setLoading] = useState(false);

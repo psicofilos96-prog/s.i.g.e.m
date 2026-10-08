@@ -7,7 +7,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { useQuery } from "@tanstack/react-query";
 import { Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 
 export type CensusClassBond = Readonly<{
   id: string; studentName: string | null; enrollmentCode: string; stage: string | null;
@@ -44,7 +44,7 @@ export function CensusClassBondsPanel({ classId }: { classId: string }) {
                 <span>{b.studentName ?? "Nome não informado"}</span>
                 <span className="text-muted-foreground">
                   Matrícula {b.enrollmentCode} · {b.stage ?? "etapa não informada"}{b.multiStage ? ` · etapa de vínculo: ${b.multiStage}` : ""}
-                  {" · "}início {b.validFrom ? formatAcademicDate(b.validFrom) : "não informado"} · observado em {formatAcademicDate(b.knownAt.slice(0, 10))}
+                  {" · "}início {b.validFrom ? formatAcademicDate(b.validFrom) : "não informado"} · observado em {formatAcademicDate(civilDateOf(b.knownAt))}
                 </span>
               </li>
             ))}

@@ -1,3 +1,4 @@
+import { operationalMonthKey } from "@/lib/academic-date";
 import { governError } from "@/lib/observability/governed-errors";
 import { Fragment, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -33,9 +34,8 @@ const MONTHS = MONTH_NAMES;
 
 export function NetworkProjectionPage() {
   const fetchProjection = useServerFn(getNetworkProjection);
-  const now = new Date();
-  const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1);
+  const [year, setYear] = useState(() => Number(operationalMonthKey().slice(0, 4)));
+  const [month, setMonth] = useState(() => Number(operationalMonthKey().slice(5, 7)));
   const [refDate, setRefDate] = useState("");
   const [knownAt, setKnownAt] = useState("");
   const [district, setDistrict] = useState("");

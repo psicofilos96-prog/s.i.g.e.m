@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * Frente W — "Meus diários": só regências/substituições da própria pessoa. Aulas previstas (grade) e ministradas
  * (fato registrado) aparecem separadas; chamada só depois da aula registrada; ausência de marcação nunca é falta.
@@ -17,7 +18,7 @@ import {
   recordAttendance, recordLesson, unmarkedCount, type LessonRow, type Mark, type MyDiary, type RosterRow, type SlotRow,
 } from "./diary-w-source";
 
-const today = () => new Date().toLocaleDateString("sv-SE");
+const today = () => operationalToday();
 const YEAR: Record<string, string> = { operacional: "Ano em operação", "em-preparacao": "Ano em preparação", encerrado: "Ano encerrado", "historico-importado": "Ano histórico" };
 const key = (d: MyDiary) => `${d.assignment_id}|${d.substitution_id ?? ""}|${d.engagement_id}`;
 

@@ -1,3 +1,4 @@
+import { shiftMonthKey, operationalMonthKey } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
@@ -24,8 +25,8 @@ function download(name: string, text: string) {
 }
 
 export function OrdersSection({ school, network, names }: { school: string; network: boolean; names: Map<string, string> }) {
-  const now = new Date();
-  const [competence, setCompetence] = useState(`${now.getFullYear()}-${String(now.getMonth() + 2 > 12 ? 1 : now.getMonth() + 2).padStart(2, "0")}`);
+  // NDATE.2: próxima competência com virada de ano (dezembro → janeiro do ano seguinte).
+  const [competence, setCompetence] = useState(() => shiftMonthKey(operationalMonthKey(), 1));
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [items, setItems] = useState<Named[]>([]); const [units, setUnits] = useState<Named[]>([]);
   const [cons, setCons] = useState<Cons[] | null>(null);

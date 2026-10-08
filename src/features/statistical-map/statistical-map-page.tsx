@@ -21,7 +21,7 @@ import { STAGE_LABEL, groupByStructure, originBadge, projectWorkflow, renderMapD
 import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, returnStatisticalMap, adjustMapCell, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
-import { formatDateTime } from "@/lib/academic-date";
+import { formatDateTime, operationalToday } from "@/lib/academic-date";
 import { MONTH_NAMES_LOWER } from "@/lib/format-ptbr";
 
 const MONTHS = MONTH_NAMES_LOWER;
@@ -331,7 +331,6 @@ export function StatisticalMapWorkspace() {
   const list = useServerFn(listMapSchools);
   const get = useServerFn(getStatisticalMap);
   const qc = useQueryClient();
-  const now = new Date();
   const [schoolId, setSchoolId] = useState<string>("");
   const [year, setYear] = useState<number | null>(null);
   const [month, setMonth] = useState<number | null>(null);
@@ -342,7 +341,7 @@ export function StatisticalMapWorkspace() {
   const competence = { schoolId: sid, year: year ?? 0, month: month ?? 1 };
   const key = ["statistical-map", sid, year, month];
   const map = useQuery({ queryKey: key, enabled: ready, queryFn: () => get({ data: competence }) });
-  const years = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 3 + i);
+  const years = Array.from({ length: 5 }, (_, i) => Number(operationalToday().slice(0, 4)) - 3 + i);
 
   return (
     <div className="mx-auto w-full max-w-5xl space-y-4 p-4">

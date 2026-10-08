@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * B2.5.4 — Fonte institucional de Turmas.
  *
@@ -73,8 +74,7 @@ export const canMaintainPeriodLink = (caps: readonly EffectiveCapability[], scho
   schoolsWithCapability(caps, CLASS_PERIOD_ORGANIZATION_CAPABILITY).includes(schoolId);
 
 export function todayIso(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return operationalToday();
 }
 
 export type InstitutionalClassSummary = {

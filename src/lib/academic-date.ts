@@ -258,3 +258,49 @@ export function operationalToday(now: Date = new Date()): IsoDate {
   const get = (t: string) => p.find((x) => x.type === t)!.value;
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
+
+
+/* ------------------------------ NDATE.2 ------------------------------ */
+
+/** Mês operacional "AAAA-MM" da rede (America/Sao_Paulo). */
+export function operationalMonthKey(now: Date = new Date()): string {
+  return operationalToday(now).slice(0, 7);
+}
+/** Desloca uma competência "AAAA-MM" em n meses, com virada de ano. */
+export function shiftMonthKey(key: string, n: number): string {
+  const y = Number(key.slice(0, 4));
+  const m = Number(key.slice(5, 7)) - 1 + n;
+  const yy = y + Math.floor(m / 12);
+  const mm = ((m % 12) + 12) % 12;
+  return `${yy}-${String(mm + 1).padStart(2, "0")}`;
+}
+/** Primeiro e último dia civil (inclusivos) de "AAAA-MM". */
+export function monthBounds(key: string): { from: IsoDate; to: IsoDate } {
+  const y = Number(key.slice(0, 4));
+  const m = Number(key.slice(5, 7));
+  return { from: isoOf(y, m, 1), to: isoOf(y, m, daysInMonth(y, m)) };
+}
+/** Hora e minuto operacionais (America/Sao_Paulo). */
+export function operationalClock(now: Date = new Date()): { hour: number; minute: number; hhmm: string } {
+  const p = new Intl.DateTimeFormat("en-GB", { timeZone: OPERATIONAL_TIME_ZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(now);
+  const get = (t: string) => p.find((x) => x.type === t)!.value;
+  return { hour: Number(get("hour")), minute: Number(get("minute")), hhmm: `${get("hour")}:${get("minute")}` };
+}
+/**
+ * Data civil de um valor que pode ser data (`AAAA-MM-DD`) ou instante
+ * (timestamptz). Instante com fuso explícito vira o dia em America/Sao_Paulo —
+ * `slice(0,10)` de "…T01:00:00+00:00" dava o dia seguinte após 21h.
+ * Valor sem fuso é mantido como está (nunca reinterpretado).
+ */
+export function civilDateOf(value: string): IsoDate;
+export function civilDateOf(value: string | null | undefined): IsoDate | undefined;
+export function civilDateOf(value: string | null | undefined): IsoDate | undefined {
+  if (value == null) return undefined;
+  const s = String(value);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}(:?\d{2})?)$/i.test(s)) {
+    const ms = Date.parse(s.replace(" ", "T").replace(/([+-]\d{2})$/, "$1:00"));
+    if (!Number.isNaN(ms)) return operationalToday(new Date(ms));
+  }
+  return s.slice(0, 10);
+}

@@ -22,7 +22,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useSessionAuthority } from "@/features/authority/session-authority";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import {
   CLASS_PERIOD_ORGANIZATION_CAPABILITY, CLASS_REGISTRY_CAPABILITY,
   type ClassPeriodOrganizationLinkVersion, type InstitutionalClassRecordVersion,
@@ -328,7 +328,7 @@ function RecordHistory({ items }: { items: InstitutionalClassRecordVersion[] }) 
             Versão {v.version} · {v.name}
             <StatusBadge tone={presentState("turma", v.administrativeStatus).tone}>{presentState("turma", v.administrativeStatus).label}</StatusBadge>
           </div>
-          <p className="text-muted-foreground">Vale de {fmtStart(v.validFrom)} a {fmt(v.validUntil)} · registrada em {formatAcademicDate(v.createdAt.slice(0, 10))}</p>
+          <p className="text-muted-foreground">Vale de {fmtStart(v.validFrom)} a {fmt(v.validUntil)} · registrada em {formatAcademicDate(civilDateOf(v.createdAt))}</p>
           <p className="text-muted-foreground">{v.changeReason ? `Motivo: ${v.changeReason} · ` : "Registro inicial · "}Ato: {v.originatingActRef}</p>
         </li>
       ))}

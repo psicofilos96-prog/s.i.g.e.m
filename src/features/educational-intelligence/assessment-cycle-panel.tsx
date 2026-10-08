@@ -1,3 +1,4 @@
+import { civilDateOf } from "@/lib/academic-date";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,7 +96,7 @@ function Row({ edition, events, onChanged }: { edition: CycleEdition; events: Cy
       {next === "publicada" ? <p className="text-xs text-muted-foreground">Validar e publicar são etapas separadas: publicar só é possível depois da validação.</p> : null}
       {msg ? <p role="status">{msg}</p> : null}
       <button type="button" className="text-xs underline" aria-expanded={open} onClick={() => setOpen(!open)}>Histórico ({events.length})</button>
-      {open ? <ol className="text-xs text-muted-foreground">{events.map((ev) => <li key={ev.seq}>{ev.recorded_at.slice(0, 10)} · {knownLabel(CYCLE_LABEL, ev.to_state)}{ev.note ? ` — ${ev.note}` : ""}</li>)}</ol> : null}
+      {open ? <ol className="text-xs text-muted-foreground">{events.map((ev) => <li key={ev.seq}>{civilDateOf(ev.recorded_at)} · {knownLabel(CYCLE_LABEL, ev.to_state)}{ev.note ? ` — ${ev.note}` : ""}</li>)}</ol> : null}
     </li>
   );
 }

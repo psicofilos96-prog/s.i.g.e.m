@@ -1,4 +1,4 @@
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, civilDateOf, operationalClock } from "@/lib/academic-date";
 /**
  * Etapa 13G/13UX — Home da Secretaria Escolar (segunda rodada de refinamento).
  *
@@ -294,7 +294,7 @@ export function SecretaryWorkspacePage() {
               Secretaria escolar · {unitLabel}
             </p>
             <h1 className="mt-2 font-display text-2xl font-bold sm:text-3xl">
-              {greetingFor(new Date().getHours())}, Fábio.
+              {greetingFor(operationalClock().hour)}, Fábio.
             </h1>
             <p className="mt-2 max-w-xl text-base text-hero-foreground/90 [overflow-wrap:anywhere]">
               {waitingCount === 0
@@ -690,7 +690,7 @@ export function SecretaryWorkspacePage() {
                   items={[
                     {
                       term: "Projeção gerada em",
-                      detail: formatAcademicDate(projection.producedAt.slice(0, 10)),
+                      detail: formatAcademicDate(civilDateOf(projection.producedAt)),
                     },
                     {
                       term: "Versão do formato",

@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, monthBounds, operationalMonthKey } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -60,9 +60,8 @@ export function SchoolMealsPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [school, setSchool] = useState("");
-  const now = new Date();
-  const [from, setFrom] = useState(iso(new Date(now.getFullYear(), now.getMonth(), 1)));
-  const [to, setTo] = useState(iso(new Date(now.getFullYear(), now.getMonth() + 1, 0)));
+  const [from, setFrom] = useState(() => monthBounds(operationalMonthKey()).from);
+  const [to, setTo] = useState(() => monthBounds(operationalMonthKey()).to);
   useEffect(() => { mealSchools().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!.id); }, (e: Error) => setErr(mealMessage(e.message))); }, []);
   return (
     <div className="space-y-6">

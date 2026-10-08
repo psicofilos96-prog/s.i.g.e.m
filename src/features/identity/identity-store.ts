@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * Identidade Institucional — fonte central de brasões e logos do SIGEM.
  *
@@ -135,9 +136,7 @@ export function validateLogoBytes(input: {
 
 // ---------- Resolução temporal ----------
 function todayIso() {
-  const d = new Date();
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  return operationalToday();
 }
 
 /** Ativo vigente numa data (padrão: hoje). Não aplica regra jurídica sobre qual data documental usar. */

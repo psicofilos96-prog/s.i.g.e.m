@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
@@ -16,12 +17,11 @@ const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
 const field = "mt-1 block w-full rounded border bg-background p-2";
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const iso = (d: Date) => d.toLocaleDateString("en-CA");
 interface Nc { logical_id: string; version: number; status: NonconformityStatus; school_id: string; motive: string; evidence_refs: string[]; deadline_state: string }
 const BUCKETS: [Bucket, string][] = [["hoje", "Entregas de hoje"], ["pendentes", "Pendentes"], ["atrasadas", "Atrasadas"], ["recebidas", "Recebidas"]];
 
 export function ReceivingSection({ school, network, names }: { school: string; network: boolean; names: Map<string, string> }) {
-  const today = iso(new Date());
+  const today = operationalToday();
   const [from, setFrom] = useState(today.slice(0, 8) + "01"); const [to, setTo] = useState(today);
   const [rows, setRows] = useState<DeliveryRow[] | null>(null); const [ncs, setNcs] = useState<Nc[]>([]);
   const [err, setErr] = useState<string | null>(null); const [msg, setMsg] = useState<string | null>(null);

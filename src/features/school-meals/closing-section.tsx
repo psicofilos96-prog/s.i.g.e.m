@@ -3,13 +3,13 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { CHECKLIST_AREAS, CHECKLIST_LABEL, CODE_TEXT, checklistComplete, checklistState, isCompetenceEnded, opsMessage, type ChecklistRow } from "./operations-l3-model";
-import { formatDateTime } from "@/lib/academic-date";
+import { formatDateTime, operationalToday, shiftMonthKey, operationalMonthKey } from "@/lib/academic-date";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
 interface Closing { id: string; competence: string; version: number; closing_on: string; manifest_sha256: string; recorded_at: string; reason: string | null; movement_ids: string[] }
 const STATE_TEXT = { AVAILABLE: "Registrado", ZERO: "Nenhum (zero registrado)", PENDING: "Pendente", UNKNOWN: "Desconhecido", BLOCKED: "Bloqueado" } as const;
-const prevMonth = () => { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - 1); return d.toLocaleDateString("en-CA").slice(0, 7); };
+const prevMonth = () => shiftMonthKey(operationalMonthKey(), -1);
 
 /** Checklist da competência: só lê fatos. Fechar não apaga nem impede retificação; reemissão é nova versão com motivo. */
 export function ClosingSection({ school }: { school: string }) {
@@ -25,7 +25,7 @@ export function ClosingSection({ school }: { school: string }) {
   }, [school, competence]);
   useEffect(() => { void load(); }, [load]);
   const head = closings[0];
-  const ended = isCompetenceEnded(competence, new Date().toLocaleDateString("en-CA"));
+  const ended = isCompetenceEnded(competence, operationalToday());
   const close = async () => {
     if (busy.current) return; busy.current = true; setPending(true);
     try { await call("record_meal_stock_closing", { _school: school, _competence: competence, _expected_version: head?.version ?? null, _reason: head ? reason : null }); setMsg(head ? "Nova versão do fechamento emitida." : "Fechamento registrado."); setReason(""); void load(); }

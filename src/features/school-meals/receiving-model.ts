@@ -1,3 +1,4 @@
+import { civilDateOf } from "@/lib/academic-date";
 // NAE.3 — modelo puro de programação de entrega, recebimento, não conformidade e documento fiscal.
 // Autorização ≠ entrega ≠ conferência ≠ aceite ≠ estoque ≠ pagamento. Nenhum prazo, nota de fornecedor ou sanção é calculado.
 import type { ReportDefinition } from "@/features/reports/report-engine";
@@ -72,7 +73,7 @@ export function supplierFacts(rows: DeliveryRow[], today: string): SupplierFacts
     const f = m.get(k) ?? { contract: k, scheduled: 0, onTime: 0, late: 0, partial: 0, rejectedQty: 0, pendingQty: 0, openNonconformities: 0 };
     f.scheduled++;
     const received = r.receipt_status === "confirmado" || r.receipt_status === "retificado";
-    if (received && r.received_at) { if (r.received_at.slice(0, 10) <= r.expected_on) f.onTime++; else f.late++; }
+    if (received && r.received_at) { if (civilDateOf(r.received_at) <= r.expected_on) f.onTime++; else f.late++; }
     else if (r.expected_on < today) f.late++;
     if (received && (r.accepted_qty ?? 0) < r.quantity) f.partial++;
     f.rejectedQty += r.rejected_qty ?? 0;

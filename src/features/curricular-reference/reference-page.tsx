@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 /**
@@ -20,7 +21,7 @@ import {
   recordSimplification, revokeRelation, type EditorialLayers, type HomologationState,
 } from "./reference-source";
 
-const todayIso = () => new Date().toLocaleDateString("sv-SE");
+const todayIso = () => operationalToday();
 const MATCH_LABEL: Record<string, string> = { codigo: "código", "texto-oficial": "texto oficial", simplificacao: "explicação SIGEM", "palavra-chave": "palavra-chave" };
 const HOM_LABEL: Record<HomologationState, string> = { homologada: "Homologada", revogada: "Homologação revogada", "nao-homologada": "Não homologada" };
 const HomBadge = ({ s }: { s: HomologationState }) => <Badge variant={s === "homologada" ? "secondary" : "outline"}>{HOM_LABEL[s]}</Badge>;

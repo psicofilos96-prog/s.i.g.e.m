@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,7 +13,7 @@ const LABEL = { "sem-registro": "Sem registro", seguido: "Cardápio seguido", de
 
 /** "Hoje na alimentação": execução do dia por refeição. Nada aqui altera o cardápio publicado. */
 export function TodaySection({ school, slots }: { school: string; slots: Slot[] }) {
-  const today = new Date().toLocaleDateString("en-CA");
+  const today = operationalToday();
   const [rows, setRows] = useState<Row[] | null>(null); const [err, setErr] = useState<string | null>(null);
   const [slot, setSlot] = useState(""); const [followed, setFollowed] = useState<"" | "sim" | "nao">("");
   const [deviation, setDeviation] = useState(""); const [meals, setMeals] = useState(""); const [basis, setBasis] = useState("");

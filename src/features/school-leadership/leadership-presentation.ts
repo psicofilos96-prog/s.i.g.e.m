@@ -18,7 +18,7 @@
  *  5. Falha fechada preservada: sem competência ou sem fato exigido, a
  *     alternativa permanece inexecutável, com explicação humana.
  */
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import { resolveActionDisclosure } from "@/lib/human-status";
 import {
   ALTERNATIVE_ADMISSIBILITY,
@@ -369,7 +369,7 @@ export function resolveLeadershipStateLine(item: OperationalQueueItem): string {
     return "Aguardando providência de instância superior.";
   }
   if (item.concludedAt) {
-    return `Concluído em ${formatAcademicDate(item.concludedAt.slice(0, 10))}.`;
+    return `Concluído em ${formatAcademicDate(civilDateOf(item.concludedAt))}.`;
   }
   return "Em acompanhamento institucional.";
 }

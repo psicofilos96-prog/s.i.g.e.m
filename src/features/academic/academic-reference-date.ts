@@ -1,3 +1,4 @@
+import { operationalToday as sharedOperationalToday } from "@/lib/academic-date";
 /**
  * B4.6.2b.2 — data acadêmica de referência das consultas institucionais.
  *
@@ -24,10 +25,9 @@ export function isCivilDate(value: string | undefined): value is string {
   return d <= days;
 }
 
-/** Data operacional local de hoje (AAAA-MM-DD). Referência de consulta, nunca norma. */
+/** Data operacional de hoje (AAAA-MM-DD, America/Sao_Paulo). Referência de consulta, nunca norma. NDATE.2: delega ao utilitário único. */
 export function operationalToday(now: Date = new Date()): string {
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}`;
+  return sharedOperationalToday(now);
 }
 
 export function resolveAcademicReferenceDate(args: {

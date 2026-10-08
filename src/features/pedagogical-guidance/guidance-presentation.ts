@@ -25,7 +25,7 @@
  *  7. Conteúdo não autorizado não anuncia a própria existência além da nota
  *     genérica de omissão já praticada pela política.
  */
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import { resolveActionDisclosure } from "@/lib/human-status";
 import { personsHoldingCapacity } from "@/features/student-life/dossier-records";
 import type { StudentResponsibilityAssignment } from "@/features/student-life/dossier-types";
@@ -130,7 +130,7 @@ export function resolveGuidanceActions(
  */
 export function resolveGuidanceStateLine(item: OperationalQueueItem): string {
   if (item.concludedAt) {
-    return `Encerrado em ${formatAcademicDate(item.concludedAt.slice(0, 10))}. Encerrar não significa que a situação foi resolvida.`;
+    return `Encerrado em ${formatAcademicDate(civilDateOf(item.concludedAt))}. Encerrar não significa que a situação foi resolvida.`;
   }
   const awaiting = item.awaitingPartyDefinitionId ?? "";
   if (awaiting.includes("orientacao")) {
@@ -260,7 +260,7 @@ export function resolveSignalOccurrenceView(input: {
   );
   return {
     occurrenceId: occurrence.occurrenceId,
-    observedOnLine: `Registrado em ${formatAcademicDate(occurrence.materializedAt.slice(0, 10))}`,
+    observedOnLine: `Registrado em ${formatAcademicDate(civilDateOf(occurrence.materializedAt))}`,
     observedFacts: resolveObservedFactLines(occurrence.factSnapshot),
     provenance: [
       {

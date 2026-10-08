@@ -1,3 +1,4 @@
+import { civilDateOf } from "@/lib/academic-date";
 import type { CellValue, ReportDefinition } from "@/features/reports/report-engine";
 
 /** Linha do inventário vinda de `access_center_inventory()` (já autorizada no banco). */
@@ -81,7 +82,7 @@ export function exportRows(rows: readonly InventoryRow[]): Record<string, CellVa
     login: r.login, tipo: kindLabel(r.account_kind), natureza: actorLabel(r.account_kind), estacao: r.station_code ? stationLabel(r.station_code) : null,
     escopo: r.scope_kind === "network" ? "Rede" : r.scope_kind === "school" ? "Escola" : null,
     escola: r.school_name, inep: r.inep, situacao: STATE_LABEL[accessState(r)],
-    ultimo_acesso: r.last_sign_in_at?.slice(0, 10) ?? null, criada_em: r.created_at?.slice(0, 10) ?? null, origem: r.origin,
+    ultimo_acesso: civilDateOf(r.last_sign_in_at) ?? null, criada_em: civilDateOf(r.created_at) ?? null, origem: r.origin,
   }));
 }
 

@@ -40,7 +40,7 @@ import {
   type DiarySearch,
 } from "@/features/diary/diary-data";
 import { demonstrationStudents } from "@/features/students/students-data";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import { classConfigurationState, type ConfigurationState } from "./assessment-configuration";
 import { useAssessmentRules } from "./assessment-rule-store";
 import { curriculumRefOf, eligibilityInPeriod, studentPlacements } from "./assessment-rules";
@@ -681,7 +681,7 @@ function StandingStateBlock({ row, onRegister }: { row: StandingRow; onRegister:
             Situação acadêmica oficial: {d.ruleSetId === record.ruleSetId && d.standing?.id === record.standingId ? d.standing.label : (record.standingId ?? "—")}
           </p>
           <p className="text-muted-foreground">
-            Registrada em {formatAcademicDate(record.determinedAt.slice(0, 10))} por {record.determinedBy.actorName} · regra {record.ruleSetId} versão {record.ruleSetVersion}
+            Registrada em {formatAcademicDate(civilDateOf(record.determinedAt))} por {record.determinedBy.actorName} · regra {record.ruleSetId} versão {record.ruleSetVersion}
             {record.deliberationSource ? " · considera deliberação oficial do Conselho" : ""}
           </p>
           <details className="mt-1 text-xs text-muted-foreground">

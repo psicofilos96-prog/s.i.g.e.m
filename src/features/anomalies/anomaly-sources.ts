@@ -1,3 +1,4 @@
+import { civilDateOf } from "@/lib/academic-date";
 import { readPages } from "@/lib/list-paging";
 // Séries agregadas lidas com o cliente do PRÓPRIO usuário (RLS). Fonte recusada ⇒ série ausente, nunca zeros.
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +28,7 @@ export async function loadSeries(): Promise<SourceResult> {
   else {
     const days = new Map<string, number>();
     for (const r of req.data ?? []) {
-      const d = String(r.created_at).slice(0, 10);
+      const d = civilDateOf(String(r.created_at));
       days.set(d, (days.get(d) ?? 0) + (Number(r.status) >= 500 ? 1 : 0));
     }
     const keys = [...days.keys()].sort();

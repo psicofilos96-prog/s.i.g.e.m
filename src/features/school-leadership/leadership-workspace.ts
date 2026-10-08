@@ -46,7 +46,7 @@ import {
   type WorkspaceQueueDefinition,
   type WorkspaceTemporalWindowDefinition,
 } from "@/features/workspace/workspace-types";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import {
   assessDecisionProcess,
   currentDecisionRecord,
@@ -791,7 +791,7 @@ export function buildLeadershipWorkspaceProjection(input?: {
   decisionProcesses?: readonly InstitutionalDecisionProcess[];
 }): WorkspaceProjection {
   const context = input?.context ?? createLeadershipAccessContext();
-  const isoDate = context.requestedAt.slice(0, 10);
+  const isoDate = civilDateOf(context.requestedAt);
   const registry =
     input?.processRegistry ??
     createLeadershipProcessRegistry({

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
@@ -15,7 +16,7 @@ type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unkno
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const field = "mt-1 block w-full rounded border bg-background p-2";
-const today = () => new Date().toLocaleDateString("en-CA");
+const today = () => operationalToday();
 interface Line { item_value_id: string; unit_value_id: string; lot: string | null; expires_on: string | null; balance: number | null; movements: number }
 interface Alert { kind: string; item_value_id: string; unit_value_id: string; lot: string | null; detail: string }
 interface Count { logical_id: string; version: number; status: string; counted_on: string; lines: CountLine[]; author_person_id: string }

@@ -40,7 +40,7 @@ import {
   type DiaryContext,
   type DiarySearch,
 } from "@/features/diary/diary-data";
-import { daysBetween, formatAcademicDate } from "@/lib/academic-date";
+import { daysBetween, formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import {
   assessmentPermissions,
   classStageLabel,
@@ -181,7 +181,7 @@ function RuleDetails({ rule, yearLabel, periodsLabel }: {
         <Fact label="Origem institucional">
           Supervisão de Ensino — homologada em{" "}
           {rule.audit.homologatedAt
-            ? formatAcademicDate(rule.audit.homologatedAt.slice(0, 10))
+            ? formatAcademicDate(civilDateOf(rule.audit.homologatedAt))
             : "—"}
         </Fact>
       </dl>

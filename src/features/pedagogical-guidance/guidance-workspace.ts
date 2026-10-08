@@ -8,7 +8,7 @@
  * Portal não é domínio nem fonte de verdade: filas, contagens, pendências e
  * visões de turma são projeções autorizadas — nunca segunda verdade institucional.
  */
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
 import { DOSSIER_ACCESS_EXECUTOR_IDS } from "@/features/student-life/dossier-access";
 import type { DossierAccessPolicy } from "@/features/student-life/dossier-types";
 import { demonstrationStudents } from "@/features/students/students-data";
@@ -254,7 +254,7 @@ function signalFactAdapter(raw: unknown): WorkspaceOperationalFact | null {
     titleSnapshot: `Sinal de atenção detectado pela configuração vigente na época`,
     summary:
       "Condição configurada apurada sobre fatos canônicos. Não constitui diagnóstico, rótulo nem abertura de acompanhamento.",
-    effectiveDate: occurrence.materializedAt.slice(0, 10),
+    effectiveDate: civilDateOf(occurrence.materializedAt),
     recordedAt: occurrence.provenance.recordedAt,
     awaitingPartyDefinitionId: GUIDANCE_AWAITING_PARTIES.guidance,
     availableOperations: [

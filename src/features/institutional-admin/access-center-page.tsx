@@ -1,4 +1,4 @@
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, civilDateOf } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
@@ -93,7 +93,7 @@ function PeopleSection({ data, accounts, accountsError }: { data: PeopleData; ac
                 <p className="font-medium">{p.display_name} <span className="text-muted-foreground">({p.actor_nature === "orgao-institucional" ? "órgão" : "pessoa natural"})</span></p>
                 <p className="text-muted-foreground">
                   {accounts === null ? "Contas não consultadas." : acc.length === 0 ? "Sem conta vinculada." :
-                    acc.map((a) => `${a.login ?? "conta"} — ${a.banned ? "bloqueada" : "ativa"}${a.password_change_required ? ", troca de senha pendente" : ""}${a.last_sign_in_at ? `, último acesso ${a.last_sign_in_at.slice(0, 10)}` : ", nunca acessou"}`).join("; ")}
+                    acc.map((a) => `${a.login ?? "conta"} — ${a.banned ? "bloqueada" : "ativa"}${a.password_change_required ? ", troca de senha pendente" : ""}${a.last_sign_in_at ? `, último acesso ${civilDateOf(a.last_sign_in_at)}` : ", nunca acessou"}`).join("; ")}
                 </p>
                 <ul className="mt-2 grid gap-1">
                   {eng.length === 0 ? <li className="text-muted-foreground">Sem atuação registrada.</li> : eng.map((e) => {
@@ -132,7 +132,7 @@ function PolicySection({ data, canDraft, canHomologate, onDone }: { data: { vers
         {versions.map((v) => (
           <li key={v.id}>
             <button className={`underline-offset-2 hover:underline ${sel?.id === v.id ? "font-semibold" : ""}`} onClick={() => setSelected(v.id)}>
-              v{v.version} — {v.status === "homologated" ? `efetivada em ${v.homologated_at?.slice(0, 10) ?? "—"} (${v.homologation_origin === "decisao-do-proprietario" ? "decisão do proprietário" : v.homologation_origin ?? "origem não registrada"}), vigência ${v.valid_from ?? "—"}` : "rascunho (não autoriza ninguém)"} · registrada em {v.created_at.slice(0, 10)}{v.created_by ? "" : " · autor não registrado"}
+              v{v.version} — {v.status === "homologated" ? `efetivada em ${civilDateOf(v.homologated_at) ?? "—"} (${v.homologation_origin === "decisao-do-proprietario" ? "decisão do proprietário" : v.homologation_origin ?? "origem não registrada"}), vigência ${v.valid_from ?? "—"}` : "rascunho (não autoriza ninguém)"} · registrada em {civilDateOf(v.created_at)}{v.created_by ? "" : " · autor não registrado"}
             </button>
           </li>
         ))}
