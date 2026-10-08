@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { governError } from "@/lib/observability/governed-errors";
+import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
 import { ErrorState } from "./states";
 
 /**

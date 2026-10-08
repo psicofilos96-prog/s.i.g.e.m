@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
  * AMBIENTE DE TRABALHO e continuará sendo derivada do contexto institucional do
  * agente; nada aqui codifica cargo nem cria sessão, usuário ou permissão.
  */
+import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
@@ -510,19 +511,25 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 }
 
+/** NOBS.4 — falha ao ler a autoridade: recarregar entra na trilha de recuperação. */
+function StationLoadError({ error }: { error: unknown }) {
+  const trail = useRecoveryTrail(error, { operation: "ler-autoridade" }, { onReload: () => window.location.reload() });
+  return (
+    <section role="alert" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
+      <h1 className="font-display text-xl font-semibold text-foreground">Não conseguimos abrir sua área</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{trail.governed.userMessage}</p>
+      <p className="mt-1 text-xs text-muted-foreground">Código para o suporte: {trail.governed.correlationId}</p>
+      <Button className="mt-5" onClick={trail.reload}>Tentar novamente</Button>
+    </section>
+  );
+}
+
 /** BQ.1 Lote 2 — rota fora da estação da conta de setor não renderiza o conteúdo. */
 function StationGate({ pathname, children }: { pathname: string; children: ReactNode }) {
   const authority = useSessionAuthority();
   // Lote 2.1: autoridade ainda não lida ⇒ conteúdo não é montado (falha fechada; o servidor recusa de todo modo).
   if (authority.status === "loading") {
-    if (authority.error)
-      return (
-        <section role="alert" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
-          <h1 className="font-display text-xl font-semibold text-foreground">Não conseguimos abrir sua área</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Verifique a internet e tente de novo.</p>
-          <Button className="mt-5" onClick={() => window.location.reload()}>Tentar novamente</Button>
-        </section>
-      );
+    if (authority.error) return <StationLoadError error={authority.error} />;
     return (
       <div role="status" aria-label="Abrindo sua área" data-sigem-shell-skeleton className="space-y-6" >
         <div className="h-8 w-64 animate-pulse rounded-lg bg-muted" />
