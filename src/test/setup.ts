@@ -50,3 +50,7 @@ setDiaryPersistenceMode("laboratorio"); // antes dos imports do arquivo de teste
 beforeEach(() => {
   setDiaryPersistenceMode("laboratorio");
 });
+
+// NFILTER.1: estado de lista vive na sessão; cada teste começa sem estado herdado.
+import { beforeEach as __nfilterBeforeEach } from "vitest";
+__nfilterBeforeEach(() => { try { sessionStorage.clear(); } catch { /* sem DOM */ } });

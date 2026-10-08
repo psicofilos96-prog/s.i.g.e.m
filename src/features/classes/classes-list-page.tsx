@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { usePersistentState } from "@/lib/list-paging";
+import { useListUrlFilters } from "@/lib/list-url-state";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { OperationalPageHeader } from "@/components/sigem/operational";
@@ -95,8 +97,9 @@ function classSearchHaystack(item: DemonstrationClass) {
 }
 
 export function ClassesListPage() {
-  const [query, setQuery] = useState("");
-  const [values, setValues] = useState<FilterValues>(initialValues);
+  // NFILTER.1: busca livre só na sessão (contém nomes); filtros de opção na URL.
+  const [query, setQuery] = usePersistentState("turmas-demo:busca", "");
+  const [values, setValues] = useListUrlFilters(initialValues);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<string[]>([]);
   const [viewState] = useState<DataGridState>("ready");

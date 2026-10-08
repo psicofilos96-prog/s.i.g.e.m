@@ -228,3 +228,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [NCROSSLINK.1 links e continuidade](links-continuidade-ncrosslink1.md) — Registro de lote
 - [NRELEASE.1 checklist de release](release-checklist-nrelease1.md) — Referência vigente
 - `docs/tabelas-densas-ntable1.md` — Registro de lote NTABLE.1
+- `docs/filtros-estado-nfilter1.md` — Registro de lote NFILTER.1
