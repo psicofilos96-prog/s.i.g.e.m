@@ -147,7 +147,7 @@ Documentos: 242. Sem classe: 0. Com referência quebrada: 0.
 - `formularios-assistentes-nform1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `formularios-nform2.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `links-continuidade-ncrosslink1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `matriz-fluxo-teste.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `matriz-fluxo-teste.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `responsividade-nmobile1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `responsividade-nmobile2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `tabelas-densas-ntable1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
