@@ -67,9 +67,9 @@ function SchoolTransport({ school, on }: { school: School; on: string }) {
   const pic = transportPicture(rows, school.id, on);
   const dup = duplicatedStudents(pic);
   return (
-    <section className="space-y-4" aria-label="Transporte da escola">
+    <section className="space-y-4" aria-labelledby={`transporte-${school.id}`}>
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">{school.name}</h2>
+        <h2 id={`transporte-${school.id}`} className="text-lg font-semibold">{school.name}</h2>
         {pic.length > 0 && <div className="flex flex-wrap gap-2 print:hidden">
           <button type="button" className="rounded border px-3 py-1 text-sm" onClick={() => window.print()}>Imprimir rotas</button>
           <ExportButtons name={`transporte-${school.id}-${on}`} make={() => { const b = { headerLines: [school.name], title: `${TRANSPORTE_ROTAS.title} — ${on}` }; const r = runReport(TRANSPORTE_ROTAS, { params: { on } }, transportReportRows(pic)); const m = ["Quantidade como registrada; não é cálculo de direito ao transporte.", "\"não disponível\" = ponto não registrado; não é zero."]; return { ok: true as const, csv: toCsv(r, b, m), html: toPrintableHtml(r, b, m) }; }} />
