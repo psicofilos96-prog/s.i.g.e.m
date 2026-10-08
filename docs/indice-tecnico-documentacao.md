@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 213. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 214. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -59,7 +59,10 @@ Documentos: 213. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `matriz-curricular-catalogos-produto.md`, `nucleo-curricular-academico.md`, `referencias-curriculares-bncc-saeb.md`, `repositorio-curricular-bncc-saeb.md`
 
+**Registros de lote (decisões e provas da etapa):** `horarios-conflito-entre-turmas-nhor4.md`
+
 **Pendências declaradas:**
+- `horarios-conflito-entre-turmas-nhor4.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `matriz-curricular-catalogos-produto.md`: DEPENDE_DADO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `b2-5-2-turmas-historico-cadastral.md`, `b3-3-posicao-curricular-alocacao.md`, `b4-0-auditoria-organizacao-pedagogica.md`, `b4-1-matriz-curricular.md`, `b4-2-1-homologacao-versao-matriz.md`, `b4-2-2a-perfil-correspondencia.md`, `b4-2-2b-correspondencia-posicao-matriz.md`, `b4-2-3-associacao-especifica.md`, `b4-2-4-resolucao-integrada.md`, `b4-2-5-projecao-turma-ui-readonly.md`, `b4-2-classificacao-proposta-d1.md`, `b4-2-d1-catalogo-proposto-22-posicoes.md`, `b4-2-planejamento-turma-matriz.md`, `b4-3-4-5-prontidao-e-quadro-de-decisao.md`, `b4-3-jornada-turma.md`, `b4-4-grade-turma.md`, `b4-5-horario-profissional.md`, `frente-y-repositorio-curricular.md`, `governanca-turmas-educacenso-2026.md`

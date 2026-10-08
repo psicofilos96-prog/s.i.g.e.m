@@ -152,7 +152,7 @@ NE-01 e NE-02 COMPLETO_TECNICAMENTE; NE-03 PARCIAL (TEMPLATE_INSTITUCIONAL_PENDE
 | RE-01 | COMPLETO_TECNICAMENTE (NREL.2) |
 | AD-01 | COMPLETO_TECNICAMENTE (NACCESS.1) |
 | UX-01 | COMPLETO_TECNICAMENTE (NROUTE.2, 0 rota principal antiga sem justificativa); gap aberto: NUX.4/vocabulário tela a tela |
-| HO-01 | COMPLETO_TECNICAMENTE (NHOR.3) |
+| HO-01 | COMPLETO_TECNICAMENTE (NHOR.3, NHOR.4) |
 | IM-01 | COMPLETO_TECNICAMENTE; gap aberto: Central de Importações sem o núcleo NIMPORT.2 |
 | BU-01 | COMPLETO_TECNICAMENTE (NSEARCH.2) |
 | AU-01 | COMPLETO_TECNICAMENTE; DEPENDE_DECISAO (exportar-auditoria) |
@@ -177,3 +177,4 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 - NUI.3 (2026-10-08): status desconhecido explícito em todas as telas via `knownLabel`; catálogo único; varredura `ui-vocabulary-nui3.test.ts`. Pendências: DEPENDE_DECISAO (redação descritiva por domínio), INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver docs/vocabulario-telas-nui3.md.
 
 - NREL.3 (2026-10-08): modelos pessoais do gerador no servidor por conta, versionados e isolados. Pendências: DEPENDE_DECISAO (compartilhar), PENDENTE (Avaliação/CIECE/DP), INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver docs/relatorios-modelos-nrel3.md.
+- NHOR.4 (2026-10-08): conflito do mesmo profissional entre turmas diferentes (leitura em lote das grades legíveis, sem nova política), alerta na grade e ficha, PDF por turma/profissional/escola. Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver docs/horarios-conflito-entre-turmas-nhor4.md.

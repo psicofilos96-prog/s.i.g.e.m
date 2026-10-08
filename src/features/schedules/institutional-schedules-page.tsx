@@ -1,4 +1,5 @@
 import { CONFLICT_TEXT, findConflicts, gridBlocksOf } from "./schedule-conflicts";
+import { CrossClassPanel } from "./cross-class-panel";
 import { governError } from "@/lib/observability/governed-errors";
 import { classNamesAt } from "@/features/classes/class-names-batch";
 import { institutionalCalendarDependency } from "@/features/calendar/institutional-calendar-days";
@@ -161,6 +162,7 @@ export function InstitutionalSchedulesPage({ contextKey, referenceDate, onDateCh
             {schedule.error && <p role="alert" className="text-sm text-destructive">{scheduleMessage(schedule.error)}</p>}
             {schedule.data && !schedule.error && <ScheduleView schedule={schedule.data} contextKey={contextKey} />}
           </section>
+          {list && ready && <CrossClassPanel classes={list} classId={classId} validOn={t.validOn} knownAt={t.knownAt} contextKey={contextKey} />}
         </>
       )}
     </div>
