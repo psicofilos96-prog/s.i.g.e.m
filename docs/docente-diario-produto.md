@@ -68,3 +68,10 @@ Gates: 4.065/4.065 full suite (após ajuste), deep 31/31, typecheck 0 erros, mig
 - Documentos pedagógicos no contexto docente: PENDENTE (N8.2.1). Multisseriada no Meu Diário: não revisada nesta rodada.
 - Capacidade `revisar-trabalho-docente`: ASSIGNMENT_PENDING. Contas sintéticas / login: INTERACTIVE_BROWSER_VALIDATION_PENDING.
 - Situação: PARTIAL (não TEACHER_CLASSROOM_TECHNICALLY_COMPLETE).
+
+## N10.2.4 (2026-10-08)
+- Documentos pedagógicos autorizados na área do professor: o único canal autorizado é "há mediação vigente" (`inclusion_teaching_support_flags`, só turmas próprias). Agora aparece em Meu Diário ("Mediação vigente nas suas turmas"), com nomes só de quem está na lista da turma; nada de PEI, registro ou clínico — FEITO (`teaching-support.ts`, teste `teaching-support-n1024.test.ts`: relacionado vê, não relacionado/fora da lista não vê nem por id).
+- SIPE/SIA com OP: já integrados (envio, fila, aprovar/ajuste, impressão com situação); sem mudança.
+- Multisseriada no Meu Diário: a turma aparece uma vez com a etapa estrutural da turma; posição por estudante continua só na enturmação (B3.3). Mostrar a posição de cada estudante no Diário = REVISAR (exige leitura de `allocation_curricular_positions_at` no espelho do Diário).
+- Mobile headless (390×844 e 820×1180, sem login): /diario, /planejamento, /avaliacoes-do-professor sem rolagem lateral.
+- DEPENDE_DECISAO: quem revisa, Quadro Permanente, aprovação obrigatória da prova. ASSIGNMENT_PENDING: `revisar-trabalho-docente`. INTERACTIVE_BROWSER_VALIDATION_PENDING: perfis reais relacionado/não relacionado.

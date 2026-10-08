@@ -13,6 +13,7 @@ import {
 import { diaryClassCalendar, useComposedCalendarRefresh } from "./diary-calendar";
 import { diaryReference } from "./diary-session-state";
 import { NextLessonCard } from "./next-lesson-card";
+import { TeachingSupportNotice } from "@/features/teacher-diary/teaching-support-notice";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -140,6 +141,7 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
         />
       ) : null}
       <NextLessonCard assignments={context.assignments} date={context.referenceDate} />
+      <TeachingSupportNotice date={context.referenceDate} classes={context.assignments} />
       <ResumeSection search={journeySearch} />
       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(17rem,.8fr)]">
         <DailyAgenda search={search} />
