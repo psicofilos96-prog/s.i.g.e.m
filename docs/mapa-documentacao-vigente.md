@@ -194,6 +194,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `prontidao-operacional-recuperacao.md` | Prontidão operacional e recuperação (NOPS.1 → NOPS.2) | Referência vigente | sim | — |
 | `publicacoes-verificacao-publica.md` | Publicações e verificação pública (NPUB.1) | Referência vigente | sim | — |
 | `qualidade-dados-filas-ndata2.md` | NDATA.2 — Filas de revisão da qualidade dos dados | Registro de lote | — | — |
+| `auditoria-dados-oficiais-ndata3.md` | NDATA.3 — Auditoria somente leitura dos dados oficiais | Registro de lote | — | — |
 | `qualidade-integridade-dados-oficiais.md` | Qualidade e integridade dos dados oficiais — NDATA.1 (2026-10-07) | Referência vigente | — | — |
 | `r5-competencia-e1-e4.md` | R5 — Competência institucional para E1–E4 | Histórico | — | — |
 | `r5-gate-operacional.md` | R5 — Gate operacional antes de importar/homologar as 22 posições e matrizes | Histórico | sim | — |
