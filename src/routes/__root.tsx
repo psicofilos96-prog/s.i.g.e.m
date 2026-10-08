@@ -14,7 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ConfirmHost } from "@/components/sigem/confirm-action";
 import { brand } from "@/config/branding";
 import { supabase } from "@/integrations/supabase/client";
-import { consumeVoluntarySignOut, reactToSignOut } from "@/features/authority/session-lifecycle";
+import { consumeVoluntarySignOut, reactToSignOut, isAccountSwitch } from "@/features/authority/session-lifecycle";
 import { isPublicPath } from "@/features/public-portal/public-paths";
 
 import appCss from "../styles.css?url";
@@ -130,7 +130,16 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
-    const { data } = supabase.auth.onAuthStateChange((event) => {
+    let lastUserId: string | null = null;
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      const nextUserId = session?.user?.id ?? null;
+      if (event === "INITIAL_SESSION") { lastUserId = nextUserId; return; }
+      if (event === "SIGNED_IN" && isAccountSwitch(lastUserId, nextUserId)) {
+        // NAUTH.3: outra conta entrou (troca de contexto/outra aba): nada da anterior sobrevive no cache.
+        void queryClient.cancelQueries().then(() => queryClient.clear());
+      }
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") lastUserId = nextUserId;
+      if (event === "SIGNED_OUT") lastUserId = null;
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       if (event === "SIGNED_OUT") {
         // NAUTH.2: sessão encerrada (voluntária, expirada ou noutra aba) nunca deixa dado anterior em cache.

@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 237. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 238. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -94,9 +94,10 @@ Documentos: 237. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `central-de-acessos.md`, `departamento-pessoal-vida-funcional.md`, `matriz-de-acesso-az.md`, `sigem-contas-padrao.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-autenticacao-sessao-nauth2.md`, `menu-rotas-capacidades-nperm3.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-autenticacao-nauth3.md`, `auditoria-autenticacao-sessao-nauth2.md`, `menu-rotas-capacidades-nperm3.md`
 
 **Pendências declaradas:**
+- `auditoria-autenticacao-nauth3.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-autenticacao-sessao-nauth2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `central-de-acessos.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `matriz-de-acesso-az.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING
