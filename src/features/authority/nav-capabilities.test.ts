@@ -32,6 +32,16 @@ describe("NPERM.3 — menu × rota × capacidade", () => {
     expect(stationAllowsPath("secretaria_escolar", "/central-de-acessos")).toBe(false);
     expect(stationAllowsPath("secretaria_escolar", "/alunos/123")).toBe(true);
   });
+  it("NPERM.4 — Integrações só aparecem com administrar-integracoes em alcance de rede", () => {
+    const net = { ...cap("administrar-integracoes"), schoolId: null };
+    for (const p of ["/integracoes", "/central-de-integracoes"]) {
+      expect(navItemAllowed(p, [])).toBe(false);
+      expect(navItemAllowed(p, [cap("administrar-integracoes")])).toBe(false);
+      expect(navItemAllowed(p, [net])).toBe(true);
+    }
+    for (const f of ["integration-page", "institutional-page"]) expect(readFileSync(`src/features/integration/${f}.tsx`, "utf8")).toContain("administrar-integracoes");
+    expect(readFileSync("drizzle/migrations/0091_integration_api_webhooks.sql", "utf8")).toContain("has_network_capability('administrar-integracoes')");
+  });
   it("o bloqueio de estação envolve o conteúdo da rota, não só o menu", () => {
     const shell = readFileSync("src/components/app-shell/app-shell.tsx", "utf8");
     expect(shell).toMatch(/<StationGate pathname=\{pathname\}>/);

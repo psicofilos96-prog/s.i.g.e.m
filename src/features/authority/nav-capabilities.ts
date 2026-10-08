@@ -9,10 +9,19 @@ import type { EffectiveCapability } from "./session-authority";
 export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>> = {
   // publications-admin-page.tsx: sem a capacidade ⇒ "Sem permissão para publicar".
   "/publicacoes": ["publicar-conteudo-publico"],
+  // NPERM.4 — integration-page/institutional-page: integration_require_admin() recusa a tela
+  // inteira sem `administrar-integracoes` em alcance de rede (has_network_capability, 0091/0092).
+  "/integracoes": ["administrar-integracoes"],
+  "/central-de-integracoes": ["administrar-integracoes"],
 };
+
+/** Rotas cuja capacidade só vale em alcance de rede (sem escola/turma), espelhando o banco. */
+export const NAV_NETWORK_SCOPE: ReadonlySet<string> = new Set(["/integracoes", "/central-de-integracoes"]);
 
 /** Sem regra ⇒ visível; com regra ⇒ exige ao menos uma das capacidades efetivas. */
 export function navItemAllowed(path: string, caps: readonly EffectiveCapability[]): boolean {
   const need = NAV_REQUIRED_CAPABILITY[path];
-  return !need || caps.some((c) => need.includes(c.capabilityId));
+  if (!need) return true;
+  const network = NAV_NETWORK_SCOPE.has(path);
+  return caps.some((c) => need.includes(c.capabilityId) && (!network || (c.schoolId === null && c.classId === null)));
 }
