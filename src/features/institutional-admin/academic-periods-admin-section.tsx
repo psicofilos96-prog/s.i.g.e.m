@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { DateInput } from "@/components/sigem/date-input";
-import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, parseAcademicDate, formatDateTime } from "@/lib/academic-date";
 
 type Audit = {
   id: string; version: number; change_reason: string | null; originating_act_ref: string;
@@ -55,7 +55,7 @@ function AuditHistory({ rows }: { rows: Audit[] }) {
       <li key={row.id}>
         v{row.version} · {row.is_active ? "ativo" : "inativo"} · vigência {formatAcademicDate(row.valid_from)}
         {row.change_reason ? ` · motivo: ${row.change_reason}` : ""} · ato {row.originating_act_ref}
-        {` · registrado em ${new Date(row.created_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`}
+        {` · registrado em ${formatDateTime(row.created_at)}`}
         {` · pessoa ${row.recorded_by_person_id} · atuação ${row.recorded_via_engagement_id}`}
       </li>,
     )}

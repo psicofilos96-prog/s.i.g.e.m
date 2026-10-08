@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { ErrorState, LoadingState, WarningNote } from "@/components/sigem/states";
 import { EVENT_CATALOG, SCOPES } from "./integration-core";
 import { processWebhookQueue } from "./integration.functions";
+import { formatDateTime } from "@/lib/academic-date";
 
 type Overview = {
   clients: { id: string; name: string; scopes: string[]; school_ids: string[] | null; rate: number; active: boolean }[];
@@ -123,7 +124,7 @@ export function IntegrationPage() {
         <h2 className="text-lg font-semibold">Chamadas recentes</h2>
         {data.requests.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma chamada.</p> : (
           <table className="w-full text-sm"><thead><tr className="text-left"><th>Quando</th><th>Rota</th><th>HTTP</th><th>Código</th></tr></thead>
-            <tbody>{data.requests.map((r) => <tr key={r.request_id + r.created_at}><td>{new Date(r.created_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</td><td>{r.method} {r.route}</td><td>{r.status}</td><td>{r.error_code ?? "—"}</td></tr>)}</tbody></table>
+            <tbody>{data.requests.map((r) => <tr key={r.request_id + r.created_at}><td>{formatDateTime(r.created_at)}</td><td>{r.method} {r.route}</td><td>{r.status}</td><td>{r.error_code ?? "—"}</td></tr>)}</tbody></table>
         )}
       </section>
     </div>

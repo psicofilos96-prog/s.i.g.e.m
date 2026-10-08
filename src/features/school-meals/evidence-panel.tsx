@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { openMealEvidence, revokeMealEvidence, uploadMealEvidence } from "./evidence.functions";
 import { EVIDENCE_EVENT_LABEL, EVIDENCE_MAX_BYTES, EVIDENCE_MEDIA, evidenceMessage, type EvidenceTarget } from "./evidence-model";
+import { formatDateTime } from "@/lib/academic-date";
 
 interface Ev { id: string; logical_id: string; version: number; event_kind: keyof typeof EVIDENCE_EVENT_LABEL; media_type: string | null; size_bytes: number | null; sha256: string | null; label: string | null; reason: string | null; recorded_at: string; is_head: boolean; readable: boolean }
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -52,7 +53,7 @@ export function EvidencePanel({ kind, target, canWrite }: { kind: EvidenceTarget
       {rows === null ? <SkeletonState label="Carregando" /> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma evidência anexada.</p> : (
         <ul className="divide-y">{rows.map((e) => (
           <li key={e.id} className={`flex flex-wrap items-center justify-between gap-2 py-1 ${e.is_head ? "" : "text-muted-foreground"}`}>
-            <span>v{e.version} · {EVIDENCE_EVENT_LABEL[e.event_kind]} · {e.label ?? "sem título"} · {e.media_type ?? "—"} · {kb(e.size_bytes)} · {new Date(e.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{e.reason ? ` · motivo: ${e.reason}` : ""}</span>
+            <span>v{e.version} · {EVIDENCE_EVENT_LABEL[e.event_kind]} · {e.label ?? "sem título"} · {e.media_type ?? "—"} · {kb(e.size_bytes)} · {formatDateTime(e.recorded_at)}{e.reason ? ` · motivo: ${e.reason}` : ""}</span>
             <span className="flex gap-1">
               {e.readable && <Button size="sm" variant="outline" onClick={() => void view(e)}>Ver</Button>}
               {canWrite && e.is_head && e.event_kind !== "revogacao" && <>

@@ -1,4 +1,4 @@
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -48,7 +48,7 @@ export function ScenarioPage() {
         <button className="min-h-11 underline" onClick={() => setCurrent(s)}>{s.label}</button> ({s.changes.length} alterações)
         <Button size="sm" variant="outline" onClick={() => { store?.remove(uid!, s.id); setList(store?.list(uid!) ?? []); if (current?.id === s.id) setCurrent(null); }}>Excluir cenário</Button></li>)}</ul>}
       {!current ? <EmptyState title="Nenhum cenário aberto" description="Crie um cenário: ele congela a base lida agora." /> : <>
-        <p className="text-sm">Base: {current.base.length} turmas, lida em {new Date(current.knownAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} para {current.validOn}.
+        <p className="text-sm">Base: {current.base.length} turmas, lida em {formatDateTime(current.knownAt)} para {current.validOn}.
           {stale === true && <strong> A organização real mudou desde a criação: o cenário está desatualizado.</strong>}</p>
         <fieldset className="flex flex-wrap items-end gap-2 rounded-md border p-3 text-sm"><legend>Alteração hipotética</legend>
           {(["classId", "blockKey", "to", "eng"] as const).map((k) => <label key={k}>{({ classId: "Turma", blockKey: "Bloco", to: "Turma destino", eng: "Atuação responsável" })[k]}
