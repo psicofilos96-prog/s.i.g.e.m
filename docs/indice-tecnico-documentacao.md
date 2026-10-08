@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 225. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 225. Sem classe: 0. Com referência quebrada: 2.
 
 ## Arquitetura, regras e invariantes
 
@@ -219,4 +219,5 @@ Documentos: 225. Sem classe: 0. Com referência quebrada: 0.
 
 ## Referências quebradas
 
-Nenhuma.
+- `mapa-documentacao-vigente.md`: `docs/auditoria-op-direcao-n725.md`
+- `matriz-completude-produto-sigem.md`: `docs/auditoria-op-direcao-n725.md`

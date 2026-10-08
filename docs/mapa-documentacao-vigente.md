@@ -252,3 +252,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 - `docs/auditoria-secretaria-n56.md` — Registro de lote (N5.6).
 - `docs/auditoria-avaliacao-n625.md` — Registro de lote (N6.2.5).
+- `docs/auditoria-op-direcao-n725.md` — Registro de lote (N7.2.5).

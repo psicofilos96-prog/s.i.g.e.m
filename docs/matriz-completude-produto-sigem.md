@@ -255,3 +255,7 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 ## N6.2.5 — Avaliação (auditoria final)
 
 - PASS técnico; nenhum gap técnico decidido; detalhes em `docs/auditoria-avaliacao-n625.md`. Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING, ASSIGNMENT_PENDING, DEPENDE_DADO (BNCC↔SAEB).
+
+## N7.2.5 — OP e Direção (auditoria final)
+
+- PASS técnico; título duplicado corrigido; detalhes em `docs/auditoria-op-direcao-n725.md`. Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING, REVISAR (/alunos h1; data técnica no rodapé do motor).
