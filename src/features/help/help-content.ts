@@ -24,7 +24,7 @@ export type Release = Readonly<{ version: string; date: string; items: readonly 
 
 const t = (s: string): Text => ({ "pt-BR": s });
 
-export const CONTENT_VERSION = 3;
+export const CONTENT_VERSION = 4;
 
 export const TOPICS: readonly HelpTopic[] = [
   { id: "matricula-participacao-alocacao", version: 1, updatedOn: "2026-10-05", routes: ["/matriculas", "/enturmacoes", "/secretaria", "/alunos"],
@@ -92,7 +92,7 @@ export const GLOSSARY: readonly GlossaryTerm[] = [
   { id: "regencia", term: t("Regência"), definition: t("Atribuição de um componente de uma turma a uma atuação docente, com vigência.") },
   { id: "jornada", term: t("Jornada"), definition: t("Organização de tempo definida para a turma.") },
   { id: "grade", term: t("Grade"), definition: t("Blocos de horário da turma, versionados.") },
-  { id: "vinculo-funcional", term: t("Vínculo funcional"), definition: t("Relação de trabalho mantida pelo Departamento Pessoal externo; o SIGEM só a consome pela planilha oficial."), see: ["atuacao"] },
+  { id: "vinculo-funcional", term: t("Vínculo funcional"), definition: t("Relação de trabalho registrada pelo DP administrativo do SIGEM; folha, previdência, pensão e consignações ficam fora do sistema."), see: ["atuacao"] },
   { id: "lotacao-educacional", term: t("Presença/lotação educacional"), definition: t("Onde a pessoa atua educacionalmente, com escopo e vigência; é a atuação que recebe permissões."), see: ["atuacao"] },
   { id: "conta", term: t("Conta"), definition: t("Login de acesso. Não é pessoa nem permissão; conta de órgão ou técnica não pratica ato humano.") },
   { id: "atuacao", term: t("Atuação"), definition: t("Exercício de uma pessoa num escopo, base para as permissões.") },
@@ -110,6 +110,47 @@ export const GLOSSARY: readonly GlossaryTerm[] = [
   { id: "asof", term: t("Vigente em (asOf / validOn)"), definition: t("Data em que se quer saber o que valia.") },
   { id: "knownat", term: t("Conhecido até"), definition: t("Momento até o qual o sistema considera registros feitos.") },
   { id: "natureza", term: t("Natureza do dado"), definition: t("Observado (vindo de fonte), operacional (registro de trabalho), oficial (após ato) ou derivado (calculado de outros); nunca se confundem.") },
+];
+
+/**
+ * NHELP.1 — bloco "O que isso significa?" por tela complexa. Cada entrada explica só a AÇÃO da tela
+ * e a ORIGEM do dado mostrado; nunca afirma prazo, patamar, fórmula ou efeito institucional.
+ */
+export type ScreenMeaning = Readonly<{ id: string; version: number; routes: readonly string[]; action: Text; origin: Text; terms?: readonly string[] }>;
+
+export const SCREEN_MEANINGS: readonly ScreenMeaning[] = [
+  { id: "mapa", version: 1, routes: ["/mapa-estatistico", "/mapa-estatistico-rede"],
+    action: t("Aqui a escola confere a fotografia das turmas e envia o mapa; a rede aprova, devolve ou pede retificação."),
+    origin: t("Os números são contados a partir das matrículas e enturmações registradas na data da fotografia. O que não foi registrado aparece como não informado, nunca como zero."),
+    terms: ["matricula", "alocacao"] },
+  { id: "avaliacao", version: 1, routes: ["/avaliacao-desempenho", "/avaliacoes-do-professor", "/regras-avaliativas", "/diario/turmas"],
+    action: t("Aqui se registram ou consultam avaliações e seus resultados."),
+    origin: t("Os resultados vêm dos lançamentos feitos por quem aplicou a avaliação. Cálculos e situações só aparecem quando existe uma regra avaliativa homologada; sem ela, a tela mostra o que falta."),
+    terms: ["homologacao", "oficializacao"] },
+  { id: "calendario", version: 1, routes: ["/calendario-escolar"],
+    action: t("Aqui se consulta o calendário que vale para a escola; só a Supervisão constrói e homologa."),
+    origin: t("Os dias vêm da versão homologada do calendário. Rascunhos não valem para ninguém."),
+    terms: ["homologacao"] },
+  { id: "matricula", version: 1, routes: ["/matriculas", "/enturmacoes"],
+    action: t("Aqui se registra o vínculo do estudante com a escola e, depois, o lugar dele numa turma."),
+    origin: t("Cada registro guarda data e autoria. Mudanças criam um novo registro; o anterior continua no histórico."),
+    terms: ["matricula", "alocacao", "participacao"] },
+  { id: "turmas", version: 1, routes: ["/turmas"],
+    action: t("Aqui se criam e consultam as turmas da escola no ano letivo."),
+    origin: t("O cadastro da turma tem versões com data. O nome da turma nunca define etapa nem matriz; isso vem da posição de cada estudante."),
+    terms: ["turma", "posicao"] },
+  { id: "diario", version: 1, routes: ["/diario"],
+    action: t("Aqui o professor registra aulas e frequência das turmas que assume."),
+    origin: t("As turmas aparecem pelas suas atribuições vigentes. Aulas previstas vêm da grade homologada; sem grade, não há aula prevista."),
+    terms: ["atribuicao", "aula-prevista", "aula-ministrada"] },
+  { id: "aee", version: 1, routes: ["/inclusao"],
+    action: t("Aqui se acompanham registros de inclusão e atendimento educacional especializado de cada estudante."),
+    origin: t("Os registros vêm de quem tem permissão para registrá-los. Conteúdo sensível só aparece a quem tem acesso autorizado, e cada acesso fica registrado."),
+    terms: ["capacidade"] },
+  { id: "relatorios", version: 1, routes: ["/relatorios"],
+    action: t("Aqui você escolhe um relatório e gera o arquivo."),
+    origin: t("O relatório lê os mesmos dados que você já pode ver nas telas, com os mesmos filtros. Ele nunca mostra mais do que a sua conta pode ver."),
+    terms: ["natureza"] },
 ];
 
 export const FLOWS: readonly Flow[] = [

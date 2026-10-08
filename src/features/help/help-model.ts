@@ -1,4 +1,4 @@
-import { FLOWS, GLOSSARY, TOPICS, TOURS, type Flow, type HelpTopic, type Locale, type Text, type Tour } from "./help-content";
+import { FLOWS, GLOSSARY, SCREEN_MEANINGS, TOPICS, TOURS, type ScreenMeaning, type Flow, type HelpTopic, type Locale, type Text, type Tour } from "./help-content";
 
 export const txt = (x: Text, l: Locale = "pt-BR") => x[l] ?? x["pt-BR"];
 const norm = (s: string) => s.normalize("NFD").replace(/\p{Diacritic}/gu, "").toLowerCase();
@@ -32,3 +32,10 @@ export function searchHelp(q: string, v: Viewer): Hit[] {
 
 /** Última versão vista por tópico (sem PII) — indica "atualizado". */
 export const isUpdated = (t: HelpTopic, seen: Readonly<Record<string, number>>) => (seen[t.id] ?? 0) < t.version;
+
+/** NHELP.1: bloco da tela pelo prefixo de rota mais específico; sem entrada ⇒ null. */
+export function meaningForRoute(path: string, list: readonly ScreenMeaning[] = SCREEN_MEANINGS): ScreenMeaning | null {
+  let best: ScreenMeaning | null = null; let len = -1;
+  for (const m of list) for (const r of m.routes) if ((path === r || path.startsWith(`${r}/`)) && r.length > len) { best = m; len = r.length; }
+  return best;
+}
