@@ -43,3 +43,4 @@ Reexecução (sha256, plano, dry-run), arquivo vazio/ilegível, relatório de ex
 - Testes: `src/features/data-import/import-center-view.test.ts` (vazio, inválido, repetido, conflito, rollback, 20.000 linhas, Censo).
 - Gap NFINAL.7 nº 2 (Central sem readFileSafely/exceptionReportCsv): FECHADO.
 - Pendências: Censo não tem compensação (a fonte não aplica fatos; comparação nunca corrige — não aplicável); INTERACTIVE_BROWSER_VALIDATION_PENDING (upload real com login); DEPENDE_DADO (leiautes Educacenso/GPE/DP).
+- CSV de exceções do núcleo neutraliza fórmulas como o motor de relatórios (NIMPORT.3).

@@ -61,7 +61,7 @@ export function exceptionReport<T>(rows: readonly T[], view: (r: T) => { locator
 }
 
 /** NIMPORT.3: neutraliza fórmula (=, +, -, @, tab, CR) como o motor de relatórios, contra CSV injection. */
-const neutralizeCell = (v: string) => (/^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
+const neutralizeCell = (v: string) => (/^[=+\-@\t\r]/.test(v) && !/^-?\d+(\.\d+)?$/.test(v) ? `'${v}` : v);
 const csvCell = (raw: string) => { const v = neutralizeCell(raw); return /[";\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
 /** CSV pt-BR (separador `;`, BOM UTF-8) do relatório de exceções. */
 export function exceptionReportCsv(rows: readonly ExceptionRow[]): string {
