@@ -1,3 +1,4 @@
+import { DemoOnlyRoute } from "@/features/classes/demo-only-route";
 import { createFileRoute } from "@tanstack/react-router";
 import { MatrixWorkspacePage } from "@/features/curriculum/matrix-workspace-page";
 import { brand } from "@/config/branding";
@@ -20,5 +21,5 @@ export const Route = createFileRoute("/matrizes-curriculares/nova")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <MatrixWorkspacePage mode="nova-matriz" />,
+  component: () => <DemoOnlyRoute what="O editor desta tela trabalha sobre matrizes de demonstração." real="/matrizes-curriculares" realLabel="Abrir as matrizes curriculares da rede">{() => <MatrixWorkspacePage mode="nova-matriz" />}</DemoOnlyRoute>,
 });

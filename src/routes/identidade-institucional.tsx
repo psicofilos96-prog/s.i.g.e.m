@@ -1,3 +1,4 @@
+import { DemoOnlyRoute } from "@/features/classes/demo-only-route";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { IdentityAdminPage } from "@/features/identity/identity-admin-page";
@@ -28,9 +29,9 @@ function Page() {
   const { perfil } = Route.useSearch();
   const navigate = useNavigate({ from: "/identidade-institucional" });
   return (
-    <IdentityAdminPage
+    <DemoOnlyRoute what="Esta tela usa perfis e unidades de demonstração.">{() => <IdentityAdminPage
       profile={perfil ?? "ciece"}
       onProfile={(p) => navigate({ search: { perfil: p } })}
-    />
+    />}</DemoOnlyRoute>
   );
 }
