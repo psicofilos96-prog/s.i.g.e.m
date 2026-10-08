@@ -35,3 +35,9 @@ Entregue só o núcleo da fiscalização do Diário. Dossiê da Direção, SIPE,
 - Fiscalização do Diário (`diary-oversight-section.tsx`, em /diario visão geral): além da lista por aula prevista com filtros de turma/professor (período vem do seletor De/Até da página), agora mostra "Resumo por turma" com contagens (previstas, sem registro, sem chamada), sem taxa nem ranking, sobre o mesmo recorte filtrado.
 - Gap mantido: turma e componente ainda aparecem pelo código porque não há leitor de nomes de turma da escola para a OP; acesso ao registro original (somente leitura) pendente.
 - Pendentes: Dossiê da Direção, SIPE com ajuste/reenvio, SIA completo, Conselho/Reclassificação com ata e assinaturas, relatórios OP/Direção. Busca Ativa: transição final = DEPENDE_DECISAO. NÃO PASS.
+
+## N7.2.4 (2026-10-08)
+- Dossiê da Direção: botão "Gerar Dossiê da Direção (PDF)" em /gestao-escolar, A4, com a MESMA projeção da tela (blocos + pendências) pelo motor de relatórios; texto escapado; declara que não é documento oficial; sem pendência nunca afirma "escola em ordem" — FEITO. PDF headless (fixtures, 30 turmas com nomes longos): 2 páginas A4, 0 overflow.
+- Duas escolas (harness de fixtures, `dossier-n724.test.ts`): escola não alcançada fica toda "Não disponível", sem zero e sem nomes da outra escola.
+- SIPE/SIA: estados já definidos (não enviado, em análise, ajuste solicitado, aprovado) e impressão com a situação visível permanecem; sem mudança. Conselho/ata: registro de deliberação humana pelo módulo colegiado; nenhuma reclassificação automática.
+- DEPENDE_DECISAO: aprovação obrigatória da prova, Quadro Permanente, Busca Ativa, regra de reclassificação. ASSIGNMENT_PENDING: `revisar-trabalho-docente`. INTERACTIVE_BROWSER_VALIDATION_PENDING: duas escolas reais com login.

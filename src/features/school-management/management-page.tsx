@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { readYears, type YearOption } from "@/features/year-transition/year-transition-source";
 import { yearStateLabel } from "@/features/school-secretariat/secretariat";
-import { runReport, toCsv } from "@/features/reports/report-engine";
+import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
+import { openSchedulePrint } from "@/features/schedules/schedule-print";
 import { GESTAO_ESCOLAR } from "@/features/reports/report-registry";
-import { STATE_LABEL, buildPanel, managementRows, type Block, type BlockState, type Pending } from "./management-panel";
+import { STATE_LABEL, buildPanel, dossierPrintHtml, managementRows, type Block, type BlockState, type Pending } from "./management-panel";
 import { readManagementInputs } from "./management-source";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
@@ -61,6 +62,11 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     const blob = new Blob([toCsv(r, { headerLines: ["SIGEM"], title: GESTAO_ESCOLAR.title }, meta)], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `gestao-escolar-${on}.csv`; a.click(); URL.revokeObjectURL(a.href);
   };
+  const exportPdf = () => {
+    const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
+    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`];
+    openSchedulePrint(dossierPrintHtml(toPrintableHtml(r, { headerLines: ["SIGEM"], title: "Dossiê da Direção — situação operacional" }, meta), res.pending));
+  };
   return (
     <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Blocos marcados com “conhecido até” reproduzem o que estava registrado naquele momento; os demais mostram o estado atual da fonte." />}
@@ -79,7 +85,8 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
         {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência derivável das fontes que você alcança. Isso não afirma que a escola está em ordem.</p>
           : <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text}</Link> <span className="text-xs text-muted-foreground">({p.source})</span></li>)}</ul>}
       </section>
-      <Button variant="outline" onClick={exportCsv}>Exportar situação operacional (CSV)</Button>
+      <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação operacional (CSV)</Button>
+        <Button variant="outline" onClick={exportPdf}>Gerar Dossiê da Direção (PDF)</Button></div>
     </div>
   );
 }
