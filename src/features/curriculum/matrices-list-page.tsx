@@ -123,7 +123,7 @@ export function MatricesListPage() {
           <Link
             to="/matrizes-curriculares/$id"
             params={{ id: matrix.id }}
-            className="block truncate font-semibold text-foreground hover:text-primary hover:underline"
+            className="block truncate py-0.5 pointer-coarse:py-3 font-semibold text-foreground hover:text-primary hover:underline"
             title={matrix.name}
           >
             {matrix.name}

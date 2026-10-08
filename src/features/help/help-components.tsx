@@ -20,7 +20,7 @@ export function HelpHint({ termId }: { termId: string }) {
   if (!g) return null;
   return (
     <Popover>
-      <PopoverTrigger aria-label={`O que é ${txt(g.term)}?`} className="inline-flex min-h-9 min-w-9 items-center justify-center rounded-full text-muted-foreground hover:text-foreground">
+      <PopoverTrigger aria-label={`O que é ${txt(g.term)}?`} className="inline-flex min-h-9 min-w-9 pointer-coarse:min-h-11 pointer-coarse:min-w-11 items-center justify-center rounded-full text-muted-foreground hover:text-foreground">
         <CircleHelp className="h-4 w-4" aria-hidden />
       </PopoverTrigger>
       <PopoverContent className="max-w-xs text-sm"><p className="font-medium">{txt(g.term)}</p><p>{txt(g.definition)}</p></PopoverContent>
@@ -36,7 +36,7 @@ export function ContextHelp() {
   if (!topics.length) return null;
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger aria-label="Ajuda desta página" className="inline-flex min-h-9 items-center gap-1 rounded-md px-2 text-sm text-muted-foreground hover:text-foreground">
+      <PopoverTrigger aria-label="Ajuda desta página" className="inline-flex min-h-9 pointer-coarse:min-h-11 items-center gap-1 rounded-md px-2 text-sm text-muted-foreground hover:text-foreground">
         <CircleHelp className="h-4 w-4" aria-hidden /> Ajuda
       </PopoverTrigger>
       <PopoverContent className="w-80 space-y-3 text-sm">
@@ -53,7 +53,7 @@ export function WhatThisMeans({ pathname }: { pathname: string }) {
   if (!m) return null;
   return (
     <details className="group rounded-md border border-border bg-muted/40 px-3 py-2 text-sm" data-help-meaning={m.id}>
-      <summary className="inline-flex min-h-9 cursor-pointer items-center gap-1 font-medium text-foreground focus-visible:outline-2 focus-visible:outline-ring">
+      <summary className="inline-flex min-h-9 pointer-coarse:min-h-11 cursor-pointer items-center gap-1 font-medium text-foreground focus-visible:outline-2 focus-visible:outline-ring">
         <CircleHelp className="h-4 w-4" aria-hidden /> O que isso significa?
       </summary>
       <dl className="mt-2 space-y-2 text-muted-foreground">

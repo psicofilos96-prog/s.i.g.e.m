@@ -193,6 +193,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `relatorio-simulacao-piloto-2026-10-05.md` | Relatório de simulação do piloto — 2026-10-05 | Histórico | — | — |
 | `release-candidate-ax.md` | SIGEM — Release Candidate técnico (AX, 2026-10-06) | Histórico | sim | — |
 | `repositorio-curricular-bncc-saeb.md` | Frente P — Repositório curricular BNCC + SAEB | Referência vigente | — | — |
+| `responsividade-nmobile2.md` | NMOBILE.2 — Fechamento dos gaps mobile (2026-10-08) | Registro de lote | — | — |
 | `responsividade-nmobile1.md` | NMOBILE.1 — Responsividade (2026-10-08) | Registro de lote | — | — |
 | `roadmap-pos-base-real.md` | Roadmap pós-base real | Histórico | — | — |
 | `rotina-de-verificacao.md` | Rotina única de verificação (`npm run verify`) | Referência vigente | — | — |

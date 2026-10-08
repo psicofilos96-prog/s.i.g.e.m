@@ -74,7 +74,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, Props>(function Date
           onBlur?.(isoEvent(e, iso ?? ""));
         }}
         className={cn(
-          "flex h-9 w-full rounded-md border border-input bg-card px-3 py-1 pr-9 text-base tabular-nums shadow-xs transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          "flex h-9 pointer-coarse:h-11 w-full rounded-md border border-input bg-card px-3 py-1 pr-9 pointer-coarse:pr-11 text-base tabular-nums shadow-xs transition-[border-color,box-shadow] placeholder:text-muted-foreground focus-visible:border-primary/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/20 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           className,
         )}
       />
@@ -84,7 +84,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, Props>(function Date
         aria-hidden
         disabled={disabled}
         data-touch-target="date-picker"
-        className="absolute right-0 grid h-9 w-9 place-items-center text-muted-foreground hover:text-foreground disabled:opacity-50"
+        className="absolute right-0 grid h-9 w-9 pointer-coarse:h-11 pointer-coarse:w-11 place-items-center text-muted-foreground hover:text-foreground disabled:opacity-50"
         onClick={() => {
           const el = picker.current;
           if (!el) return;

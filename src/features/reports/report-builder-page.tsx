@@ -10,7 +10,7 @@ import { BUILDER_SOURCES, sourceById } from "./builder-sources";
 import { loadCloudTemplates, newIdempotencyKey, saveCloudTemplate, SHARE_DISABLED_REASON, SHARE_WITH_SECTOR_CAPABILITY } from "./report-templates-cloud";
 import { SECTOR_LABEL, buildResult, collectAll, columnsOf, loadTemplates, previewSlice, provenance, saveTemplate, validateChoice, type BuilderChoice, type Collected, type SavedTemplate, type Sector } from "./report-builder";
 
-const sel = "w-full min-w-0 rounded-md border border-input bg-background px-2 py-1 text-sm";
+const sel = "w-full min-w-0 min-h-9 pointer-coarse:min-h-11 rounded-md border border-input bg-background px-2 py-1 text-sm";
 const STEPS = ["Assunto", "Filtros", "Colunas", "Prévia", "Exportar"] as const;
 const SECTORS = Object.keys(SECTOR_LABEL) as Sector[];
 
@@ -101,7 +101,7 @@ export function ReportBuilder() {
         </label>
       </div>
       <ol className="flex flex-wrap gap-2 text-sm" aria-label="Etapas">
-        {STEPS.map((s, i) => <li key={s}><button type="button" aria-current={i === step ? "step" : undefined} disabled={i > 0 && !src || (i >= 3 && !data)} onClick={() => setStep(i)} className={`rounded px-2 py-1 ${i === step ? "bg-primary text-primary-foreground" : "border border-border"} disabled:opacity-50`}>{i + 1}. {s}</button></li>)}
+        {STEPS.map((s, i) => <li key={s}><button type="button" aria-current={i === step ? "step" : undefined} disabled={i > 0 && !src || (i >= 3 && !data)} onClick={() => setStep(i)} className={`rounded px-2 py-1 min-h-9 pointer-coarse:min-h-11 ${i === step ? "bg-primary text-primary-foreground" : "border border-border"} disabled:opacity-50`}>{i + 1}. {s}</button></li>)}
       </ol>
       {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
 

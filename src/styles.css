@@ -117,6 +117,8 @@
 }
 
 @layer base {
+  /* NMOBILE.2: campo focado rola para longe de barras fixas e do teclado virtual. */
+  input, select, textarea { scroll-margin-block: 6rem; }
   * {
     border-color: var(--color-border);
   }
