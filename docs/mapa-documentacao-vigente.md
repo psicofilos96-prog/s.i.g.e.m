@@ -292,3 +292,6 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 ## NSCHOOL.1
 - [Unidades escolares — coerência](unidades-escolares-nschool1.md) — Registro de lote
+
+## NPREP.1
+- [Prontidão 2027](prontidao-2027-nprep1.md) — Registro de lote
