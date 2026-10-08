@@ -28,7 +28,7 @@ function CiecePage() {
   const ask = useServerFn(queryCieceIndicator);
   const catalog = useQuery({ queryKey: ["ciece-catalog", session.user?.id], enabled: !!session.user, queryFn: () => describe() });
 
-  if (session.loading) return <SkeletonState label="Carregando" />;
+  if (session.loading) return <><h1 className="sr-only">CIECE — Informação e Estatística</h1><SkeletonState label="Carregando" /></>;
   if (!session.user)
     return (
       <div className="mx-auto max-w-3xl p-4">
@@ -38,8 +38,8 @@ function CiecePage() {
           action={<Link to="/laboratorio/ciece" className="text-sm font-medium text-primary underline">Abrir o laboratório demonstrativo</Link>} />
       </div>
     );
-  if (catalog.isPending) return <SkeletonState label="Carregando catálogo" />;
-  if (catalog.isError) return <div className="p-4"><StatePanel tone="danger" title="Catálogo indisponível" description="Não foi possível consultar o CIECE agora. Tente novamente." /></div>;
+  if (catalog.isPending) return <><h1 className="sr-only">CIECE — Informação e Estatística</h1><SkeletonState label="Carregando catálogo" /></>;
+  if (catalog.isError) return <div className="p-4"><h1 className="sr-only">CIECE — Informação e Estatística</h1><StatePanel tone="danger" title="Catálogo indisponível" description="Não foi possível consultar o CIECE agora. Tente novamente." /></div>;
 
   const source: CieceSource = { kind: "institucional", query: (input) => ask({ data: input }) };
   return <CieceWorkspace source={source} catalog={catalog.data as CieceCatalog} initialReference={{}} />;
