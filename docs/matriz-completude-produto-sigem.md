@@ -239,3 +239,11 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 
 - PASS técnico: seções com restauração, validação real de imagens, desfazer/refazer, aviso de transbordo, 6 PDFs 2027 com 1 página e sem sobreposição. Detalhes em `docs/calendario-modelos-externos.md`.
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: uso do editor com login da Supervisão.
+
+## NMAP.5 — Mapa Estatístico I–VI
+
+- PASS técnico, sem correções; detalhes em `docs/auditoria-mapa-nmap5.md`. Pendências: HOMOLOGACAO (0 regras), DEPENDE_DECISAO (peso de remanejados, carência de mediador), INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## CAL.COUNT.1
+
+- PASS — CALENDAR_SCHOOL_DAY_TOTAL_RECONCILED (`docs/cal-count-1-reconciliacao.md`).
