@@ -173,6 +173,7 @@ Documentos: 214. Sem classe: 0. Com referência quebrada: 0.
 **Registros de lote (decisões e provas da etapa):** `admin-busca-notificacoes-auditoria-nadm2.md`, `auditoria-central-naud2.md`, `auditoria-exportacoes-nexp.md`, `auditoria-temporal-ntemp1.md`
 
 **Pendências declaradas:**
+- `admin-busca-notificacoes-auditoria-nadm2.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-central-naud2.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-exportacoes-nexp.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-temporal-ntemp1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
