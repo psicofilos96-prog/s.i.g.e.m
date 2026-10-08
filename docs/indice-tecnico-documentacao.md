@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 253. Sem classe: 0. Com referência quebrada: 1.
+Documentos: 254. Sem classe: 0. Com referência quebrada: 1.
 
 ## Arquitetura, regras e invariantes
 
@@ -93,7 +93,7 @@ Documentos: 253. Sem classe: 0. Com referência quebrada: 1.
 
 **Vigente:** `central-de-acessos.md`, `departamento-pessoal-vida-funcional.md`, `matriz-de-acesso-az.md`, `sigem-contas-padrao.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-autenticacao-nauth3.md`, `auditoria-autenticacao-sessao-nauth2.md`, `menu-rotas-capacidades-nperm3.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-autenticacao-nauth3.md`, `auditoria-autenticacao-sessao-nauth2.md`, `menu-rotas-capacidades-nperm3.md`, `trajetoria-profissional-nprof1.md`
 
 **Pendências declaradas:**
 - `auditoria-autenticacao-nauth3.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -101,6 +101,7 @@ Documentos: 253. Sem classe: 0. Com referência quebrada: 1.
 - `central-de-acessos.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `matriz-de-acesso-az.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING
 - `menu-rotas-capacidades-nperm3.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `trajetoria-profissional-nprof1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `bq1-contas-estacoes-setoriais.md`, `governanca-jornadas-profissionais-educacenso-2026.md`, `governanca-profissionais-educacenso-2026.md`
 
@@ -241,4 +242,4 @@ Documentos: 253. Sem classe: 0. Com referência quebrada: 1.
 
 ## Referências quebradas
 
-- `mapa-documentacao-vigente.md`: `trajetoria-profissional-nprof1.md`
+- `mapa-documentacao-vigente.md`: `unidades-escolares-nschool1.md`
