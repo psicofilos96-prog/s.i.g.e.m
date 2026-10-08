@@ -12,7 +12,6 @@ import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  Bell,
   Building2,
   Check,
   ChevronDown,
