@@ -1,6 +1,7 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
+import { withSecurityHeaders } from "@/lib/security-headers";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 import { classifyError, isIncident, logError, metric, resolveRequestId } from "@/lib/observability/telemetry";
 
@@ -35,7 +36,18 @@ const csrfMiddleware = createCsrfMiddleware({
   filter: (ctx) => ctx.handlerType === "serverFn",
 });
 
+// NWEBSEC.1 — cabeçalhos de segurança e no-store em toda resposta do app.
+const securityHeadersMiddleware = createMiddleware().server(async ({ next, request }) => {
+  const result = await next();
+  const pathname = new URL(request.url).pathname;
+  if (result instanceof Response) return withSecurityHeaders(result, pathname);
+  if (result && typeof result === "object" && "response" in result && result.response instanceof Response) {
+    return { ...result, response: withSecurityHeaders(result.response, pathname) };
+  }
+  return result;
+});
+
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  requestMiddleware: [securityHeadersMiddleware, errorMiddleware, csrfMiddleware],
 }));

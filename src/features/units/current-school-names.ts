@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 // NSCHOOL.1 — nome vigente da escola numa data. Única projeção para listas e seletores:
 // a versão vigente é a de maior número cuja vigência já começou (valid_from <= data);
 // versão futura (renomeação agendada) nunca aparece antes da data, e o passado não é apagado.
@@ -15,7 +16,7 @@ export function currentSchoolNames(rows: readonly SchoolVersionRow[], on: string
   return new Map([...best].map(([id, r]) => [id, r.official_name ?? id]));
 }
 
-export function todayIso(): string { return new Date().toISOString().slice(0, 10); }
+export function todayIso(): string { return operationalToday(); }
 
 /** Lê versões (RLS da sessão) e devolve id → nome vigente na data. Erro de leitura propaga. */
 export async function readCurrentSchoolNames(ids?: readonly string[], on: string = todayIso()): Promise<Map<string, string>> {
