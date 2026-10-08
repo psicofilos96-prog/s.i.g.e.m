@@ -28,7 +28,7 @@ const STALE_HEAD: Array<[string, string]> = [
   ["enrollment_draft_save", "draft:stale-head"],
   ["enrollment_draft_complete", "draft:stale-head"],
   ["record_school_document_template_version", "base-superseded"],
-  ["sec_allocate_core", "base-superseded"],
+  ["sec_allocate_core", "secretariat:active-class-exists"],
   ["secretariat_reassign_class", "base-superseded"],
 ];
 
@@ -64,6 +64,7 @@ describe("NCONC.1 — concorrência e cabeça esperada", () => {
       "calendar:base-superseded",
       'duplicate key value violates unique constraint "capability_policies_logical_policy_id_version_key"',
       "deadlock detected",
+      "secretariat:active-class-exists",
       "could not serialize access due to concurrent update",
     ]) expect(categorize(new Error(msg))).toBe("conflito");
   });
