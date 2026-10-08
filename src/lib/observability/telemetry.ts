@@ -24,6 +24,10 @@ const PATTERNS: Array<[RegExp, string]> = [
   [/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, "[cpf]"],
   [/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g, "[email]"],
   [/((?:sb-[^=;\s]+|cookie)[=:]\s*)[^;\s]+/gi, "$1[redacted]"],
+  // NOBS.3 — senha, laudo/CID e diagnóstico nunca chegam ao log, nem dentro de mensagem de erro.
+  [/\b(senha|password|passwd|pwd)\b\s*[:=]\s*\S+/gi, "$1=[redacted]"],
+  [/\bcid[- ]?(10|11)?[- :]?[A-Z]\d{2}(\.\d+)?\b/gi, "[cid]"],
+  [/\b(laudo|diagn[oó]stico)\b[^,;.]*/gi, "[conteúdo clínico]"],
 ];
 
 export function redactText(input: unknown, max = 300): string {
