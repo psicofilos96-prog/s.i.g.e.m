@@ -12,7 +12,6 @@ import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  Bell,
   Building2,
   Check,
   ChevronDown,
@@ -444,11 +443,10 @@ function Topbar({
         )}
 
 
-        <Button variant="ghost" size="icon" aria-label="Avisos">
-          <Bell />
-        </Button>
-        <Button variant="ghost" size="icon" aria-label="Ajuda" className="hidden sm:inline-flex">
-          <CircleHelp />
+        <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
+          <Link to="/ajuda" aria-label="Central de ajuda">
+            <CircleHelp />
+          </Link>
         </Button>
 
         <SessionMenu />

@@ -301,3 +301,6 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 ## NDESIGN.QA
 - [Acabamento visual](acabamento-visual-ndesignqa.md) — Registro de lote
+
+## NLINK.1
+- [Links e ações navegacionais](links-navegacao-nlink1.md) — Registro de lote; smoke test de destinos e botões sem ação.
