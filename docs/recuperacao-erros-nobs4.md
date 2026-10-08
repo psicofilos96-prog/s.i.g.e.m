@@ -20,3 +20,9 @@
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: falta conferir com login real que o evento sai no log publicado.
 - `ErrorState` usado direto (sem `GuidedErrorState`) e `ConcurrencyConflictNotice` continuam sem trilha quando a tela não passa o erro: REVISAR tela a tela.
 - Fecha a parte NOBS.3 do gap NFINAL.7 nº 8. A parte de erros por campo/célula (NFORM.1) continua aberta.
+
+## Complemento (2026-10-08)
+- `ErrorState` direto (portal público, publicações, integrações, central institucional) passou a registrar "nova tentativa" pela trilha (`RecoveryRetryButton`); quem já governou o erro (GuidedErrorState) usa `traced` para não duplicar.
+- `ConcurrencyConflictNotice`: "Recarregar versão atual" registra "recarregou".
+- Teste: `src/components/sigem/states-recovery-nobs4.test.tsx`. O botão da vitrine `/design-system` é demonstração inerte.
+- Pendência: INTERACTIVE_BROWSER_VALIDATION_PENDING (queda real de rede com login).
