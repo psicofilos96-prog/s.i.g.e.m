@@ -274,3 +274,6 @@ Matrizes/catálogos: auditoria final PASS técnico; DEPENDE_DADO (matriz/catálo
 
 ## Busca/Notificações (2026-10-08)
 Revisão PASS técnico; harness 102/102. Ver docs/revisao-busca-notificacoes.md.
+
+## NAUD.3 (2026-10-08)
+Central de Auditoria: PASS técnico; exportação bloqueada (ASSIGNMENT_PENDING). Ver docs/auditoria-central-auditoria-naud3.md.

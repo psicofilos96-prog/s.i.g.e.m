@@ -262,4 +262,5 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `docs/auditoria-supervisao-nsup3.md` — Registro de lote: auditoria final da Supervisão (NSUP.3).
 - `docs/auditoria-matriz-catalogos-ncurr3.md` — Registro de lote: auditoria final de matrizes e catálogos (NCURR.3).
 - `docs/revisao-busca-notificacoes.md` — Registro de lote: revisão de Busca Global e Notificações.
+- `docs/auditoria-central-auditoria-naud3.md` — Registro de lote: auditoria final da Central de Auditoria (NAUD.3).
 - `docs/auditoria-docente-n1025.md` — Registro de lote: auditoria final do ambiente Docente (N10.2.5).
