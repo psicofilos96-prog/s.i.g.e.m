@@ -34,7 +34,8 @@ const RULES: ReadonlyArray<[RegExp, GovernedCategory]> = [
   // NCONC.1: corrida detectada pelo banco é conflito mesmo quando o nome da restrição contém "capability".
   [/duplicate key value|unique constraint|deadlock detected|could not serialize|serialization failure|lock_not_available|could not obtain lock/, "conflito"],
   [/unauthenticated|no-session|session-required|not-authorized|access-denied|capability|natural-person-required|not-author\b|not-in-school|other-school|outside-school|cross-school|engagement-outside-school|not-posted-in-school|student-not-enrolled-in-school|family:not-authorized|permission denied/, "autorizacao"],
-  [/base-superseded|base-unknown|base-not-allowed|stale|conflito|conflict|concurrent|already-exists|duplicad|same-source-different-value|active-class-exists/, "conflito"],
+  // NCONC.2: a outra sessão já concluiu/homologou, ou a mesma chave chegou com outro pedido — também é corrida.
+  [/base-superseded|base-unknown|base-not-allowed|stale|conflito|conflict|concurrent|already-exists|duplicad|same-source-different-value|active-class-exists|already-homologated|draft:closed|key-reused/, "conflito"],
   [/period-closed|cycle-closed|version-closed|already-closed|window-closed|staging-closed|order-closed|nonconformity-closed|after-version-closed|enrollment-ended|competence-not-ended|already-revoked|already-annulled|append-only/, "registro-fechado"],
   [/regra-institucional-pendente|not-homologated|nao-homologad|rule-pending|rule-required|rule-not-defined|no-homologated-rule|homologation-rule-missing|without-rules|without-homologated-rule|ambiguous-rules|policy-pending|blocked-composition|blocked-applicability|_policy_pending|_rule_pending|institutional_rule|blocked-/, "dependencia-normativa"],
   [/source-missing|blocked_by_source|by_official_source|layout-missing|missing-source|official_source_pending|source_pending|content_source|catalog-pending|catalog_pending|_pending/, "fonte-ausente"],
