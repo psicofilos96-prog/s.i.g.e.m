@@ -4,7 +4,7 @@
  * interno. CSS isolado em escopo `.cx-*`; medidas em mm/frações da folha para a prévia ser igual ao PDF.
  */
 import { weekendLetter } from "./calendar-catalog";
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
 import type { PrintDay } from "./institutional-calendar-presentation";
@@ -431,7 +431,7 @@ export function ExternalSheet(props: { template: ExternalTemplateCode; vm: Exter
 const mm = (v: number) => `${v}mm`;
 function FreeBox({ id, b, p, title, selected, onSelect, onMove, children }: { id: FreeBlockId; b: BlockBox; p: ExternalProfile; title?: string; selected?: boolean; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; children: ReactNode }) {
   const s = b.style;
-  const drag = (mode: "move" | "resize") => (e: React.PointerEvent<HTMLElement>) => {
+  const drag = (mode: "move" | "resize") => (e: RPointerEvent<HTMLElement>) => {
     if (!onMove || b.locked) return;
     e.preventDefault(); e.stopPropagation(); onSelect?.(id);
     const sheet = (e.currentTarget as HTMLElement).closest<HTMLElement>(".cx-folha"); if (!sheet) return;
