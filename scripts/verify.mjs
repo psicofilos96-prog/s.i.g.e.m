@@ -46,6 +46,8 @@ const SECRET_PATTERNS = [
 const SECRET_ALLOW = /(\.test\.|\/test\/|scripts\/verify\.mjs|docs\/)/;
 
 const STEPS = [
+  { id: "docs", title: "Índice da documentação", what: "Índice técnico atualizado e nenhuma referência a documento inexistente.",
+    fn: () => { const r = run("node", ["scripts/docs-index.mjs", "--check"]); return { ok: r.ok, note: tail(r.out, 2) }; } },
   { id: "migrations", title: "Integridade de migrations", what: "Migration congelada não foi editada; journal = arquivos; novas listadas para congelar.",
     fn: () => { const r = run("node", ["scripts/check-migrations.mjs"]); return { ok: r.ok, note: tail(r.out, 2) }; } },
   { id: "tipos", title: "Tipos (TypeScript)", what: "O projeto compila sem erro de tipo.",

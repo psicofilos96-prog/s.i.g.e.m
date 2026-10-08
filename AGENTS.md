@@ -58,3 +58,4 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 
 ## Listas
 - >1000 linhas só por `readPages` (`src/lib/list-paging.ts`, ordem estável, `truncated`), porque o servidor corta em 1000 e contagem parcial não pode parecer total.
+- Índice técnico da documentação é gerado por `scripts/docs-index.mjs` e conferido no `verify`, nunca editado à mão, porque índice manual fica stale.

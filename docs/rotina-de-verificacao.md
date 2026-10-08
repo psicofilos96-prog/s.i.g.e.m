@@ -23,3 +23,5 @@ Opções: `--only=tipos,testes`, `--skip=build,rotas`, `SIGEM_BASE_URL` (padrão
 | rotas | Requisições sem login a rotas públicas e principais; falha em 5xx. Se o servidor não responde, a etapa fica NÃO EXECUTADA. |
 
 Fora da rotina (exigem login real ou contas sintéticas via `scripts/harness-gate.mjs`): smoke autenticado por estação, a11y com Playwright (`bo-a11y-smoke.py`) e a varredura de segurança da plataforma.
+
+- Etapa `docs`: `node scripts/docs-index.mjs --check` (índice técnico atualizado, sem referência quebrada).
