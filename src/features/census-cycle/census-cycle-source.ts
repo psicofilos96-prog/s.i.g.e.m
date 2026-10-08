@@ -1,3 +1,4 @@
+import { sha256Hex as kernelSha256 } from "@/features/data-import/import-kernel";
 import { supabase } from "@/integrations/supabase/client";
 import type { CompareRow, CycleView, SnapshotContent, Stage } from "./census-cycle";
 
@@ -33,7 +34,7 @@ export const stageSource = (a: { cycle: string; origin: string; editionLayout: s
     _source_sha256: a.sha256, _rows: a.rows,
   });
 
+/** NIMPORT.3: mesma impressão digital do núcleo comum (bytes UTF-8 do texto). */
 export async function sha256Hex(text: string): Promise<string> {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  return kernelSha256(new TextEncoder().encode(text));
 }

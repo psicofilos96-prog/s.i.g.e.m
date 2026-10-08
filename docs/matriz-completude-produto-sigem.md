@@ -164,3 +164,6 @@ Lotes desde NFINAL.7: NRATE.1, NFORMAT.1, NPERM.3, NCSS.2, NBUNDLE.1, NASSET.1, 
 Gates (`node scripts/verify.mjs --skip=rotas`): índice de docs OK; migrations OK; tipos 0 erros; 413 arquivos / 4.337 testes OK; invariantes profundas 12/65 OK; a11y OK; SQL: 0 DEFINER sem search_path, 272 tabelas com RLS, 95 sem política no código-fonte (fechadas por padrão; acesso só por funções — REVISAR); segredos: nenhum; build OK. Smoke de rotas não rodado (exige servidor + login).
 
 Resultado: NÃO PASS mantido. SIGEM_TECHNICAL_CLOSURE_AUDIT_COMPLETE não declarado. STOP 2027 respeitado (nenhuma configuração institucional iniciada).
+
+## NIMPORT.3 (2026-10-08)
+IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIMPORT.2" FECHADO (Central e Censo sobre `import-kernel`). Restam 7 gaps técnicos NFINAL.7. INTERACTIVE_BROWSER_VALIDATION_PENDING; DEPENDE_DADO (leiautes oficiais). Resultado global: NÃO PASS mantido; 2027 não configurado.

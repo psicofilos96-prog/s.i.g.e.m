@@ -36,3 +36,11 @@ Reexecução (sha256, plano, dry-run), arquivo vazio/ilegível, relatório de ex
 - **PENDENTE**: o Censo faz parser no banco; o núcleo só cobre o lado da tela.
 - **PENDENTE**: o roteiro `scripts/ncfg3/dryrun.ts` não foi executado de novo porque as fontes temporárias do NCFG.3 não existem mais; a equivalência é garantida pelo teste do valor do hash.
 - **INTERACTIVE_BROWSER_VALIDATION_PENDING**: importar arquivo real com login.
+
+## NIMPORT.3 (2026-10-08) — integração visual do núcleo
+- Central de Importações (`import-center-page.tsx`) agora usa `import-center-view.ts` sobre `import-kernel.ts`: leitura segura (vazio/ilegível recusados, nunca lote vazio), prévia com contagens, proveniência e chave de idempotência do lote, relatório de exceções CSV (prévia e lote guardado) e plano de compensação (`compensationPlan`: só aplicadas não compensadas).
+- Censo (`census-page.tsx`): leitura segura (`readCensusSource`: vazio, ilegível, não-lista e lista vazia recusados), impressão digital do núcleo (`census-cycle-source.sha256Hex` delega ao kernel, mesmo valor) e relatório de exceções CSV das rejeições. Writer `census_stage_source` inalterado; nenhum writer de domínio alterado; nenhum dado oficial importado.
+- Testes: `src/features/data-import/import-center-view.test.ts` (vazio, inválido, repetido, conflito, rollback, 20.000 linhas, Censo).
+- Gap NFINAL.7 nº 2 (Central sem readFileSafely/exceptionReportCsv): FECHADO.
+- Pendências: Censo não tem compensação (a fonte não aplica fatos; comparação nunca corrige — não aplicável); INTERACTIVE_BROWSER_VALIDATION_PENDING (upload real com login); DEPENDE_DADO (leiautes Educacenso/GPE/DP).
+- CSV de exceções do núcleo neutraliza fórmulas como o motor de relatórios (NIMPORT.3).
