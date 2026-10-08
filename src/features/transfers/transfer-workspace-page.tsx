@@ -119,9 +119,14 @@ import {
   type TransferStepId,
 } from "@/features/transfers/transfer-presentation";
 
-function FieldError({ issue }: { issue?: TransferIssue | undefined }) {
+function fieldA11y(issue: TransferIssue | undefined, id: string) {
+  const bad = !!issue && issue.severity === "erro";
+  return bad ? { "aria-invalid": true as const, "aria-describedby": id } : {};
+}
+
+function FieldError({ issue, id }: { issue?: TransferIssue | undefined; id?: string }) {
   if (!issue || issue.severity !== "erro") return null;
-  return <FieldMessage>{humanTransferIssue(issue)}</FieldMessage>;
+  return <FieldMessage id={id}>{humanTransferIssue(issue)}</FieldMessage>;
 }
 
 function PlanList({ label, items }: { label: string; items: string[] }) {
@@ -330,7 +335,7 @@ export function TransferWorkspacePage({
                 value={draft.entryStudentId ?? ""}
                 onValueChange={(value) => update({ entryStudentId: value })}
               >
-                <SelectTrigger
+                <SelectTrigger {...fieldA11y(issueOf("entryStudentId"), "tr-err-entryStudentId")}
                   id="entry-student"
                   aria-label="Aluno que está chegando"
                   className="mt-1.5 h-12 text-base"
@@ -346,7 +351,7 @@ export function TransferWorkspacePage({
                 </SelectContent>
               </Select>
               <FieldHint>Ainda não cadastrado? Cadastre o aluno antes de continuar.</FieldHint>
-              <FieldError issue={issueOf("entryStudentId")} />
+              <FieldError issue={issueOf("entryStudentId")} id="tr-err-entryStudentId" />
               <Button asChild variant="outline" className="mt-3 min-h-11">
                 <Link to="/alunos/novo">Cadastrar aluno</Link>
               </Button>
@@ -403,7 +408,7 @@ export function TransferWorkspacePage({
               value={draft.originId ?? ""}
               onValueChange={(value) => update({ originId: value })}
             >
-              <SelectTrigger
+              <SelectTrigger {...fieldA11y(issueOf("originId"), "tr-err-originId")}
                 id="origin-select"
                 aria-label="Aluno e escola de origem"
                 className="mt-1.5 h-12 text-base"
@@ -418,7 +423,7 @@ export function TransferWorkspacePage({
                 ))}
               </SelectContent>
             </Select>
-            <FieldError issue={issueOf("originId")} />
+            <FieldError issue={issueOf("originId")} id="tr-err-originId" />
           </div>
         )}
 
@@ -549,13 +554,13 @@ export function TransferWorkspacePage({
                   <Label htmlFor="external-institution" className="text-base">
                     Escola de destino
                   </Label>
-                  <Input
+                  <Input {...fieldA11y(issueOf("externalDestino"), "tr-err-externalDestino")}
                     id="external-institution"
                     className="mt-1.5 h-12 text-base"
                     value={draft.externalInstitutionName}
                     onChange={(event) => update({ externalInstitutionName: event.target.value })}
                   />
-                  <FieldError issue={issueOf("externalDestino")} />
+                  <FieldError issue={issueOf("externalDestino")} id="tr-err-externalDestino" />
                 </div>
                 <div>
                   <Label htmlFor="external-location" className="text-base">
@@ -610,7 +615,7 @@ export function TransferWorkspacePage({
                   })
                 }
               >
-                <SelectTrigger
+                <SelectTrigger {...fieldA11y(issueOf("destinationUnitId"), "tr-err-destinationUnitId")}
                   id="destination-unit"
                   aria-label="Escola de destino"
                   className="mt-1.5 h-12 text-base"
@@ -625,7 +630,7 @@ export function TransferWorkspacePage({
                   ))}
                 </SelectContent>
               </Select>
-              <FieldError issue={issueOf("destinationUnitId")} />
+              <FieldError issue={issueOf("destinationUnitId")} id="tr-err-destinationUnitId" />
             </div>
             <div>
               <Label htmlFor="destination-period" className="text-base">
@@ -661,7 +666,7 @@ export function TransferWorkspacePage({
                   update({ destinationOfferId: value, destinationOrganization: "" })
                 }
               >
-                <SelectTrigger
+                <SelectTrigger {...fieldA11y(issueOf("destinationOfferId"), "tr-err-destinationOfferId")}
                   id="destination-offer"
                   aria-label="Oferta educacional do destino"
                   className="mt-1.5 h-12 text-base"
@@ -676,7 +681,7 @@ export function TransferWorkspacePage({
                   ))}
                 </SelectContent>
               </Select>
-              <FieldError issue={issueOf("destinationOfferId")} />
+              <FieldError issue={issueOf("destinationOfferId")} id="tr-err-destinationOfferId" />
             </div>
             <div>
               <Label htmlFor="destination-organization" className="text-base">
@@ -686,7 +691,7 @@ export function TransferWorkspacePage({
                 value={draft.destinationOrganization}
                 onValueChange={(value) => update({ destinationOrganization: value })}
               >
-                <SelectTrigger
+                <SelectTrigger {...fieldA11y(issueOf("destinationOrganization"), "tr-err-destinationOrganization")}
                   id="destination-organization"
                   aria-label="Etapa ou ano no destino"
                   className="mt-1.5 h-12 text-base"
@@ -701,7 +706,7 @@ export function TransferWorkspacePage({
                   ))}
                 </SelectContent>
               </Select>
-              <FieldError issue={issueOf("destinationOrganization")} />
+              <FieldError issue={issueOf("destinationOrganization")} id="tr-err-destinationOrganization" />
             </div>
           </>
         ) : null}
@@ -753,14 +758,14 @@ export function TransferWorkspacePage({
         <Label htmlFor="effective-date" className="text-base">
           Data da transferência
         </Label>
-        <DateInput
+        <DateInput {...fieldA11y(issueOf("effectiveDate"), "tr-err-effectiveDate")}
           id="effective-date"
           className="mt-1.5 h-12 text-base"
           value={draft.effectiveDate}
           onChange={(event) => update({ effectiveDate: event.target.value })}
         />
         <FieldHint>Dia, mês e ano. Exemplo: 03/08/2026.</FieldHint>
-        <FieldError issue={issueOf("effectiveDate")} />
+        <FieldError issue={issueOf("effectiveDate")} id="tr-err-effectiveDate" />
       </div>
 
       <div>
