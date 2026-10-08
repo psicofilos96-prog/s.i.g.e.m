@@ -2,7 +2,7 @@
  * CAL.EXT.3 — Editor do layout livre (modelos Fotográfico e Quadro anual): blocos em mm, tipografia por bloco,
  * dimensionamento da tabela, fotos, encaixe na grade, JSON exportar/importar. Só aparência.
  */
-import { useState, type ReactNode } from "react";
+import { useState, type ChangeEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { ASSET_MAX_CHARS, FONT_OPTIONS, type ExternalProfile } from "./calendar-external-model";
 import {
@@ -36,7 +36,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
   const setTable = (patch: Partial<TableCfg>) => setF({ ...f, table: { ...f.table, ...patch } });
   const setPhoto = (patch: Partial<PhotoCfg>) => setF({ ...f, photo: { ...f.photo, ...patch } });
   const issues = layoutIssues(f);
-  const pickPhoto = (k: "top" | "bottom") => (e: React.ChangeEvent<HTMLInputElement>) => {
+  const pickPhoto = (k: "top" | "bottom") => (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { setMsg("Use PNG, JPEG ou WEBP."); return; }
     const r = new FileReader(); r.onload = () => { const u = String(r.result); if (u.length > ASSET_MAX_CHARS) setMsg("Imagem maior que o limite (≈1,1 MB)."); else { setMsg(null); setPhoto({ [k]: u }); } }; r.readAsDataURL(file);
@@ -45,7 +45,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
     const blob = new Blob([JSON.stringify({ formato: "sigem-calendario-layout/1", free: { ...f, photo: { ...f.photo, top: null, bottom: null } } }, null, 2)], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "layout-calendario.json"; a.click(); URL.revokeObjectURL(a.href);
   };
-  const importJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const importJson = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return;
     void file.text().then((txt) => {
       try { const j = JSON.parse(txt) as { formato?: string; free?: unknown };
