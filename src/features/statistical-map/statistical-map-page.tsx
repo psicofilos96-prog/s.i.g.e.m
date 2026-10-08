@@ -147,7 +147,7 @@ function openMapDocument(v: MapView, c: { year: number; month: number }, version
   const wf = projectWorkflow(v.opened, v.workflowEvents, v.versions.length);
   const html = renderMapDocument({
     headerLines: NETWORK_BRANDING.headerLines, schoolName: nameCell ? String(nameCell.value) : "Unidade escolar", snapshot,
-    statusLabel: useOfficial ? "Aprovado (oficial)" : STAGE_LABEL[wf.stage], revision: useOfficial ? ver!.version : null,
+    statusLabel: STAGE_LABEL[useOfficial ? "aprovado" : wf.stage], revision: useOfficial ? ver!.version : null,
     signatures: ["Secretaria Escolar", "Direção da Unidade", "Estatística (CIECE)"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
   });
   const w = window.open("", "_blank"); if (!w) return;

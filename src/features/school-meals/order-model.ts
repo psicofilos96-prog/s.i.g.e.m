@@ -1,12 +1,18 @@
 // NAE.2 — modelo puro do pedido: estados, motor explicável de necessidade/teto (só com regra homologada),
 // itens zerados, anomalias configuráveis e linhas de relatório. Nenhum número é fabricado.
+import { STATE_REGISTRY, labelsOf } from "@/config/state-presentation";
 import type { ReportDefinition, CellValue } from "@/features/reports/report-engine";
 
 export type OrderStatus = "rascunho" | "submetido" | "em-analise" | "devolvido" | "autorizado-total" | "autorizado-parcial" | "rejeitado" | "cancelado" | "retificado";
-export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = {
-  rascunho: "Rascunho da escola", submetido: "Submetido", "em-analise": "Em análise", devolvido: "Devolvido para correção",
-  "autorizado-total": "Autorizado (total)", "autorizado-parcial": "Autorizado (parcial)", rejeitado: "Rejeitado", cancelado: "Cancelado", retificado: "Autorização retificada",
+export const ORDER_STATUS_LABEL: Record<OrderStatus, string> = labelsOf(STATE_REGISTRY.solicitacao);
+/** Espelho das transições aceitas por `record_meal_order` (0183); o banco continua sendo a garantia. */
+export type OrderAction = "rascunho" | "submissao" | "analise" | "devolucao" | "autorizacao" | "retificacao" | "rejeicao" | "cancelamento";
+export const ORDER_ACTIONS_FROM: Record<OrderStatus, readonly OrderAction[]> = {
+  rascunho: ["rascunho", "submissao", "cancelamento"], devolvido: ["rascunho", "submissao", "cancelamento"],
+  submetido: ["analise", "devolucao", "autorizacao", "rejeicao", "cancelamento"], "em-analise": ["devolucao", "autorizacao", "rejeicao", "cancelamento"],
+  "autorizado-total": ["retificacao"], "autorizado-parcial": ["retificacao"], retificado: ["retificacao"], rejeitado: [], cancelado: [],
 };
+export const orderAllows = (s: OrderStatus, a: OrderAction) => ORDER_ACTIONS_FROM[s].includes(a);
 export const AUTHORIZED: OrderStatus[] = ["autorizado-total", "autorizado-parcial", "retificado"];
 export const isAuthorized = (s: OrderStatus) => AUTHORIZED.includes(s);
 /** Escola só edita rascunho ou devolvido; submissão congela. */

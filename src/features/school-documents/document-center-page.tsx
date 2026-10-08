@@ -175,7 +175,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
                       <p className="font-medium">{kindLabel(h.document_kind)} {h.emission_number ? `nº ${h.emission_number}` : ""}
                         {h.emission_kind === "reproducao" ? " — reprodução" : ""}</p>
                       <p className="text-muted-foreground">{new Date(h.emitted_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} · código {h.verification_code} ·{" "}
-                        {st === "valida" ? "válido" : st === "cancelada" ? `cancelado (${h.event_reason ?? "ver original"})` : `retificado (${h.event_reason ?? "ver original"})`}</p>
+                        <StatusBadge tone={presentState("documento", st).tone}>{presentState("documento", st).label}</StatusBadge>{st !== "valida" ? ` (${h.event_reason ?? "ver original"})` : ""}</p>
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => setViewing(h)}>Ver</Button>

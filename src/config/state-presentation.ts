@@ -59,6 +59,11 @@ export const STATE_REGISTRY = {
   } satisfies Record<TaskStatus, Entry>,
 } as const;
 
+/** Rótulos de um domínio, para consumidores que já exportavam um mapa de rótulos. */
+export function labelsOf<K extends string>(m: Readonly<Record<K, Entry>>): Record<K, string> {
+  return Object.fromEntries(Object.entries(m).map(([k, v]) => [k, (v as Entry).label])) as Record<K, string>;
+}
+
 export type StateDomain = keyof typeof STATE_REGISTRY;
 export type StatePresentation = Readonly<{ label: string; tone: StateTone; phase: StatePhase | null; known: boolean }>;
 

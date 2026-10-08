@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { runReport, toCsv } from "@/features/reports/report-engine";
 import { mealMessage } from "./meals-model";
 import {
-  CONSOLIDADO_ALIMENTACAO, ORDER_STATUS_LABEL, PEDIDOS_ALIMENTACAO, classifyZero, orderReportRow, schoolCanEdit,
+  CONSOLIDADO_ALIMENTACAO, ORDER_STATUS_LABEL, PEDIDOS_ALIMENTACAO, orderAllows, classifyZero, orderReportRow, schoolCanEdit,
   type HistoryRow, type OrderLine, type OrderStatus,
 } from "./order-model";
 
@@ -126,8 +126,8 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
           <p className="font-medium">{names.get(o.school_id) ?? o.school_id} — {ORDER_STATUS_LABEL[o.status]} · v{o.version}</p>
           <p className="text-muted-foreground">{o.lines.map((l) => `${itemLabel(l.item_ref)}: ${l.quantidade}`).join(" · ") || "sem itens"}</p>
           <div className="flex flex-wrap gap-2">
-            {o.status === "submetido" && <Button size="sm" variant="outline" onClick={() => go(o, "analise", false)}>Iniciar análise</Button>}
-            {(o.status === "submetido" || o.status === "em-analise") && <>
+            {orderAllows(o.status, "analise") && <Button size="sm" variant="outline" onClick={() => go(o, "analise", false)}>Iniciar análise</Button>}
+            {orderAllows(o.status, "autorizacao") && <>
               <Button size="sm" variant="outline" onClick={() => go(o, "devolucao", true)}>Devolver</Button>
               <Button size="sm" onClick={() => go(o, "autorizacao", false)}>Autorizar como solicitado</Button>
               <Button size="sm" variant="destructive" onClick={() => go(o, "rejeicao", true)}>Rejeitar</Button>

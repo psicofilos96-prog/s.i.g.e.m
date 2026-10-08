@@ -130,7 +130,7 @@ function RecordName({ r }: { r: InstitutionalClassSummary }) {
 }
 function StatusCell({ r }: { r: InstitutionalClassSummary }) {
   if (r.record.kind !== "one") return <Missing>—</Missing>;
-  return <Badge variant={r.record.value.administrativeStatus === "ativa" ? "secondary" : "outline"}>{r.record.value.administrativeStatus === "ativa" ? "Ativa" : "Inativa"}</Badge>;
+  const s = presentState("turma", r.record.value.administrativeStatus); return <StatusBadge tone={s.tone}>{s.label}</StatusBadge>;
 }
 function LinkCell({ r }: { r: InstitutionalClassSummary }) {
   if (r.link.kind === "one") return <>{r.link.organizationName ?? <Missing>Organização sem nome registrado</Missing>}</>;
@@ -324,7 +324,7 @@ function RecordHistory({ items }: { items: InstitutionalClassRecordVersion[] }) 
         <li key={v.id} className="rounded-md border border-border p-3 text-sm">
           <div className="flex flex-wrap items-center gap-2 font-medium">
             Versão {v.version} · {v.name}
-            <Badge variant="outline">{v.administrativeStatus === "ativa" ? "Ativa" : "Inativa"}</Badge>
+            <StatusBadge tone={presentState("turma", v.administrativeStatus).tone}>{presentState("turma", v.administrativeStatus).label}</StatusBadge>
           </div>
           <p className="text-muted-foreground">Vale de {fmtStart(v.validFrom)} a {fmt(v.validUntil)} · registrada em {formatAcademicDate(v.createdAt.slice(0, 10))}</p>
           <p className="text-muted-foreground">{v.changeReason ? `Motivo: ${v.changeReason} · ` : "Registro inicial · "}Ato: {v.originatingActRef}</p>

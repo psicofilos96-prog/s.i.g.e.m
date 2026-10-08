@@ -3,18 +3,13 @@
  * append-only de `teacher_work_review_events`; o banco decide autor, revisor e cabeça.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { STATE_REGISTRY, labelsOf } from "@/config/state-presentation";
 
 export type ReviewSubject = "plano" | "instrumento";
 export type ReviewEvent = { seq: number; event: "enviado" | "ajuste-solicitado" | "aprovado"; subject_version_id: string; comment: string | null; by_author: boolean; recorded_at: string };
 export type ReviewState = "nao-enviado" | "em-analise" | "ajuste-solicitado" | "aprovado" | "aprovado-versao-anterior";
 
-export const REVIEW_STATE_LABEL: Record<ReviewState, string> = {
-  "nao-enviado": "Ainda não enviado à Orientação Pedagógica",
-  "em-analise": "Enviado — em análise pela Orientação Pedagógica",
-  "ajuste-solicitado": "Ajuste solicitado — corrija e reenvie",
-  aprovado: "Aprovado pela Orientação Pedagógica",
-  "aprovado-versao-anterior": "Versão anterior aprovada — esta versão ainda não foi enviada",
-};
+export const REVIEW_STATE_LABEL: Record<ReviewState, string> = labelsOf(STATE_REGISTRY["sipe-sia"]);
 
 export function reviewState(events: readonly ReviewEvent[], currentVersionId: string | null): ReviewState {
   const head = events.at(-1);
