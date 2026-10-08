@@ -660,6 +660,8 @@ export function MissingEntryAction({
           className="min-h-11"
           placeholder="Motivo"
           aria-label={`Motivo de não registrado para ${studentName}`}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `assessment-missing-err-${studentId}` : undefined}
         />
       )}
       <div className="flex gap-2">
@@ -676,7 +678,7 @@ export function MissingEntryAction({
         </Button>
       </div>
       {error && (
-        <span className="text-xs text-destructive" role="alert">
+        <span id={`assessment-missing-err-${studentId}`} className="text-xs text-destructive" role="alert">
           {error}
         </span>
       )}
