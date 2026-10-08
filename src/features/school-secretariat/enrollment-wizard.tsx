@@ -9,7 +9,7 @@ import { createAutosave, type AutosaveStatus } from "@/features/autosave/autosav
 import { readYears, locateStudent, type YearOption } from "@/features/year-transition/year-transition-source";
 import { readSchoolLife } from "./secretariat-source";
 import { lifeKindLabel } from "./secretariat";
-import { WIZARD_STEPS, canComplete, missingByStep, photoPath, photoProblem, seatLabel, sniffImage, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
+import { WIZARD_STEPS, canComplete, fieldProblems, missingByStep, photoPath, photoProblem, seatLabel, sniffImage, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
 import { abandonDraft, bindPhoto, classOptions, completeDraft, currentStudentPhoto, openDrafts, photoUrl, removePhoto, saveDraft, uploadPhoto, type OpenDraft } from "./enrollment-wizard-source";
 import { formatDateTime } from "@/lib/academic-date";
 
@@ -71,11 +71,16 @@ function DraftPicker({ school }: { school: string }) {
   );
 }
 
-function Field({ label, value, onChange, type = "text", hint }: { label: string; value: string; onChange: (v: string) => void; type?: string; hint?: string }) {
+type FP = ReturnType<typeof fieldProblems>;
+/** NFORM.2 — erro específico junto ao campo, ligado por aria-invalid/aria-describedby. */
+function Field({ label, value, onChange, type = "text", hint, error }: { label: string; value: string; onChange: (v: string) => void; type?: string; hint?: string; error?: string | undefined }) {
+  const id = useId();
+  const described = [hint ? `${id}-h` : "", error ? `${id}-e` : ""].filter(Boolean).join(" ") || undefined;
   return (
     <label className="block text-sm">{label}
-      <input type={type} className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={value} onChange={(e) => onChange(e.target.value)} />
-      {hint ? <span className="text-xs text-muted-foreground">{hint}</span> : null}
+      <input type={type} aria-invalid={error ? true : undefined} aria-describedby={described} className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={value} onChange={(e) => onChange(e.target.value)} />
+      {hint ? <span id={`${id}-h`} className="text-xs text-muted-foreground">{hint}</span> : null}
+      {error ? <span id={`${id}-e`} className="block text-xs text-destructive">{error}</span> : null}
     </label>
   );
 }
@@ -100,6 +105,7 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
   const go = async (n: number) => { stepRef.current = n; setStep(n); auto.change(pRef.current); await auto.flush(); };
   const identity = { existingStudentId: ident.existingStudentId, hasCpf: ident.hasCpf, inep: ident.inep };
   const missing = missingByStep(p, identity);
+  const fp = fieldProblems(p, identity);
   const [done, setDone] = useState<{ studentId: string; name: string } | null>(null);
 
   if (done) return <Done school={school} studentId={done.studentId} name={done.name} onAgain={onExit} />;
@@ -125,7 +131,7 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
       <div className="rounded-lg border bg-card p-4 space-y-3">
         <h2 className="text-lg font-semibold">{WIZARD_STEPS[step - 1]!.title}</h2>
         {missing[step]!.length ? <div role="status" className="rounded-md border border-warning p-2 text-sm"><p className="font-medium">Falta nesta etapa:</p><ul className="list-disc pl-5">{missing[step]!.map((m) => <li key={m}>{m}</li>)}</ul></div> : null}
-        {step === 1 ? <StepStudent school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} /> : null}
+        {step === 1 ? <StepStudent fp={fp} school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} /> : null}
         {step === 2 ? <StepGuardians p={p} edit={edit} /> : null}
         {step === 3 ? (<div className="grid gap-3 sm:grid-cols-2">
           {(["logradouro", "numero", "bairro", "cidade", "cep"] as const).map((k) => (
@@ -141,8 +147,8 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
           <Field label="Observações escolares" value={p.escolar?.observacao ?? ""} onChange={(v) => edit((x) => ({ ...x, escolar: { ...x.escolar, observacao: v } }))}
             hint="Informações de saúde, laudos e NEE não são registradas aqui: têm registro restrito próprio." />
         </div>) : null}
-        {step === 6 ? <StepYear p={p} edit={edit} /> : null}
-        {step === 7 ? <StepClass school={school} p={p} edit={edit} /> : null}
+        {step === 6 ? <StepYear fp={fp} p={p} edit={edit} /> : null}
+        {step === 7 ? <StepClass fp={fp} school={school} p={p} edit={edit} /> : null}
         {step === 8 ? <StepReview p={p} ident={ident} missing={missing} go={go} /> : null}
         {missing[step]!.length ? <p className="text-sm text-warning-foreground" role="status">Falta: {missing[step]!.join(", ")}.</p> : null}
       </div>
@@ -165,7 +171,7 @@ type Auto = ReturnType<typeof createAutosave<WizardPayload>>;
 type Edit = (f: (x: WizardPayload) => WizardPayload) => void;
 type Ident = { existingStudentId: string | null; existingName: string | null; hasCpf: boolean; cpfHint: string | null; inep: string | null };
 
-function StepStudent({ school, draft, p, edit, ident, setIdent, seq, stepRef, auto }: { school: string; draft: string; p: WizardPayload; edit: Edit; ident: Ident; setIdent: (i: Ident) => void; seq: React.MutableRefObject<number>; stepRef: React.MutableRefObject<number>; auto: Auto }) {
+function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef, auto }: { fp: FP; school: string; draft: string; p: WizardPayload; edit: Edit; ident: Ident; setIdent: (i: Ident) => void; seq: React.MutableRefObject<number>; stepRef: React.MutableRefObject<number>; auto: Auto }) {
   const [cpf, setCpf] = useState(""); const [inep, setInep] = useState(ident.inep ?? ""); const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
   const [found, setFound] = useState<{ id: string; name: string; activeHere: boolean } | null>(null);
   const year = p.matricula?.ano ?? "";
@@ -198,8 +204,8 @@ function StepStudent({ school, draft, p, edit, ident, setIdent, seq, stepRef, au
     <div className="space-y-3">
       <p className="text-sm text-muted-foreground">Primeiro confira se o aluno já tem cadastro na rede (busca só por documento, nunca por nome).</p>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={cpf} onChange={setCpf} />
-        <Field label="Código INEP do aluno" value={inep} onChange={setInep} />
+        <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={cpf} onChange={setCpf} error={(cpf.trim() && !validCpf(cpf) ? "CPF inválido: confira os 11 dígitos." : undefined) ?? fp.identificacao} />
+        <Field label="Código INEP do aluno" value={inep} onChange={setInep} error={fp.identificacao} />
       </div>
       <div className="flex flex-wrap gap-2">
         <Button variant="outline" disabled={busy} onClick={() => void search()}>Já tem cadastro? Buscar</Button>
@@ -213,7 +219,7 @@ function StepStudent({ school, draft, p, edit, ident, setIdent, seq, stepRef, au
       ) : null}
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
       <PhotoField school={school} draft={draft} p={p} edit={edit} auto={auto} />
-      <Field label="Nome completo" value={p.aluno?.nome ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nome: v } }))} />
+      <Field label="Nome completo" error={fp["aluno.nome"]} value={p.aluno?.nome ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nome: v } }))} />
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Data de nascimento" type="date" value={p.aluno?.nascimento ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nascimento: v } }))} />
         <Field label="Nome social (se houver)" value={p.aluno?.nomeSocial ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nomeSocial: v } }))} />
@@ -240,7 +246,7 @@ function StepGuardians({ p, edit }: { p: WizardPayload; edit: Edit }) {
   );
 }
 
-function StepYear({ p, edit }: { p: WizardPayload; edit: Edit }) {
+function StepYear({ fp, p, edit }: { fp: FP; p: WizardPayload; edit: Edit }) {
   const [years, setYears] = useState<YearOption[]>([]);
   useEffect(() => { readYears().then(setYears, () => setYears([])); }, []);
   const open = years.filter((y) => y.state === "operacional" || y.state === "em-preparacao");
@@ -248,19 +254,20 @@ function StepYear({ p, edit }: { p: WizardPayload; edit: Edit }) {
     <div className="space-y-3">
       {open.length ? (
         <label className="block text-sm">Ano letivo
-          <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={p.matricula?.ano ?? ""}
+          <select aria-invalid={fp["matricula.ano"] ? true : undefined} aria-describedby={fp["matricula.ano"] ? "wz-ano-e" : undefined} className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={p.matricula?.ano ?? ""}
             onChange={(e) => edit((x) => ({ ...x, matricula: { ...x.matricula, ano: e.target.value }, turma: {} }))}>
             <option value="">Escolha…</option>
             {open.map((y) => <option key={y.id} value={y.id}>{y.label}</option>)}
           </select>
+          {fp["matricula.ano"] ? <span id="wz-ano-e" className="block text-xs text-destructive">{fp["matricula.ano"]}</span> : null}
         </label>
       ) : <p role="alert" className="rounded-md border border-warning p-3 text-sm">Nenhum ano letivo está aberto para matrícula. A abertura do ano é ato da rede; o rascunho fica salvo até lá.</p>}
-      <Field label="Data de início na escola" type="date" value={p.matricula?.data ?? ""} onChange={(v) => edit((x) => ({ ...x, matricula: { ...x.matricula, data: v }, turma: {} }))} />
+      <Field label="Data de início na escola" error={fp["matricula.data"]} type="date" value={p.matricula?.data ?? ""} onChange={(v) => edit((x) => ({ ...x, matricula: { ...x.matricula, data: v }, turma: {} }))} />
     </div>
   );
 }
 
-function StepClass({ school, p, edit }: { school: string; p: WizardPayload; edit: Edit }) {
+function StepClass({ fp, school, p, edit }: { fp: FP; school: string; p: WizardPayload; edit: Edit }) {
   const [opts, setOpts] = useState<ClassOption[] | null>(null); const [err, setErr] = useState("");
   const year = p.matricula?.ano, on = p.matricula?.data;
   useEffect(() => { if (year && on) classOptions(school, year, on).then(setOpts, (e) => setErr(wizardMessage(e))); }, [school, year, on]);
@@ -269,8 +276,9 @@ function StepClass({ school, p, edit }: { school: string; p: WizardPayload; edit
   if (!opts) return <SkeletonState label="Carregando turmas" />;
   if (!opts.length) return <p role="alert">Nenhuma turma ativa desta escola neste ano na data escolhida.</p>;
   return (
-    <fieldset className="grid gap-2 sm:grid-cols-2">
+    <fieldset className="grid gap-2 sm:grid-cols-2" aria-invalid={fp.turma ? true : undefined} aria-describedby={fp.turma ? "wz-turma-e" : undefined}>
       <legend className="sr-only">Turmas disponíveis</legend>
+      {fp.turma ? <p id="wz-turma-e" className="text-xs text-destructive sm:col-span-2">{fp.turma}</p> : null}
       {opts.map((c) => (
         <label key={c.id} className={`cursor-pointer rounded-md border p-3 ${p.turma?.id === c.id ? "border-primary ring-2 ring-primary" : ""}`}>
           <input type="radio" name="turma" className="sr-only" checked={p.turma?.id === c.id} onChange={() => edit((x) => ({ ...x, turma: { id: c.id, nome: c.name } }))} />
