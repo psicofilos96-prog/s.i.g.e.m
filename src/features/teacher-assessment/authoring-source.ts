@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 import { guardUpload, safeLabel, assertSafePath } from "@/features/privacy/upload-policy";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,10 +7,18 @@ import type { InstrumentVersion, ItemOption, ItemVersion, Randomization } from "
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any; storage: any };
 const must = async <T,>(p: PromiseLike<{ data: T; error: { message: string } | null }>) => { const r = await p; if (r.error) throw new Error(r.error.message); return r.data; };
 
-export const visibleItems = () => must<ItemVersion[]>(db.from("assessment_item_versions").select("*").order("recorded_at", { ascending: false }).limit(2000));
+/** NFINAL.7 — leitura paginada; acima do limite falha em vez de devolver lista cortada em silêncio. */
+const allPages = async <T,>(build: (f: number, t: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>, max = 20000): Promise<T[]> => {
+  const r = await readPages<T>(build, max);
+  if (r.error) throw new Error(r.error.message);
+  if (r.truncated) throw new Error("list:truncated — há mais registros do que o limite de leitura desta tela.");
+  return r.data ?? [];
+};
+
+export const visibleItems = () => allPages<ItemVersion>((f, t) => db.from("assessment_item_versions").select("*").order("recorded_at", { ascending: false }).order("id").range(f, t));
 /** Gabarito é lido à parte e só retorna o que a regra do banco libera (autor ou compartilhamento explícito). */
 export const itemKey = (versionId: string) => must<{ answer: unknown; criteria: string | null }[]>(db.from("assessment_item_keys").select("answer, criteria").eq("item_version_id", versionId));
-export const visibleInstruments = () => must<InstrumentVersion[]>(db.from("teacher_instrument_versions").select("*").order("recorded_at", { ascending: false }).limit(1000));
+export const visibleInstruments = () => allPages<InstrumentVersion>((f, t) => db.from("teacher_instrument_versions").select("*").order("recorded_at", { ascending: false }).order("id").range(f, t));
 export const schoolsOfAssignments = async (classIds: string[]) => classIds.length ? must<{ id: string; school_id: string }[]>(db.from("institutional_classes").select("id, school_id").in("id", classIds)) : [];
 
 export type SaveItem = { itemId: string | null; head: string | null; typeId: string; stem: string; options: ItemOption[]; refIds: string[]; schoolId: string; visibility: "pessoal" | "compartilhado"; status: "rascunho" | "publicado"; keyShared: boolean; answer: unknown; criteria: string | null; copiedFrom: string | null; referenceOn?: string };
