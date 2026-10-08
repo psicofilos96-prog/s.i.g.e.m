@@ -5,7 +5,6 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   CalendarDays,
-  ChevronRight,
   CircleHelp,
   Search,
 } from "lucide-react";
