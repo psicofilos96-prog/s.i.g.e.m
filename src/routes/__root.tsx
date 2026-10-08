@@ -22,6 +22,8 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { useRecoveryTrail } from "../lib/observability/recovery-trail";
 
 function NotFoundComponent() {
+  // NROUTE.3: a aba identifica a página não encontrada (antes ficava sem título).
+  useEffect(() => { document.title = "Página não encontrada — SIGEM"; }, []);
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">

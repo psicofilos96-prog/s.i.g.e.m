@@ -534,6 +534,8 @@ function StationGate({ pathname, children }: { pathname: string; children: React
     if (authority.error) return <StationLoadError error={authority.error} />;
     return (
       <div role="status" aria-label="Abrindo sua área" data-sigem-shell-skeleton className="space-y-6" >
+        {/* NROUTE.3: título principal existe também enquanto a área abre (leitores de tela). */}
+        <h1 className="sr-only">{pageTitleForPath(pathname)}</h1>
         <div className="h-8 w-64 animate-pulse rounded-lg bg-muted" />
         <div className="h-4 w-96 max-w-full animate-pulse rounded bg-muted" />
         <div className="grid gap-4 sm:grid-cols-3">
