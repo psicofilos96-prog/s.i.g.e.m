@@ -16,7 +16,7 @@ import {
   columnTotals, countText, periodColumns, externalLegendCodes, institutionalIdentity, shortDate, WEEK_HEAD,
   type ExternalLogo, type InfoBlock, type ExternalMonth, type ExternalPillar, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
 } from "./calendar-external-model";
-import { SHEET_H, SHEET_W, type BlockBox, type FreeBlockId } from "./calendar-external-free";
+import { SHEET_H, SHEET_W, adjustedBg, type BlockBox, type FreeBlockId, type Sticker } from "./calendar-external-free";
 
 type Types = ReturnType<typeof dayTypesOf>;
 const EFFECT_TEXT: Record<PrintDay["effect"], string> = {
