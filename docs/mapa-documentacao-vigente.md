@@ -287,3 +287,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [Tipagem NTYPE.1](tipagem-auditoria-ntype1.md) — registro de lote
 - [Regressão visual NVIS.1](regressao-visual-nvis1.md) — registro de lote
 - [Resiliência a conexão (NRESILIENCE.1)](resiliencia-conexao-nresilience1.md) — Registro de lote
+- [Trajetória do estudante (NSTUDENT.1)](trajetoria-estudante-nstudent1.md) — Registro de lote
