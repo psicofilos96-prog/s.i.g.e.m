@@ -259,3 +259,7 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 ## N7.2.5 — OP e Direção (auditoria final)
 
 - PASS técnico; título duplicado corrigido; detalhes em `docs/auditoria-op-direcao-n725.md`. Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING, REVISAR (/alunos h1; data técnica no rodapé do motor).
+
+## N8.2.5 — Inclusão/AEE/Mediador (auditoria final)
+
+- PASS técnico; rótulo da fila de termos e tabela da rede corrigidos; detalhes em `docs/auditoria-inclusao-n825.md`. Pendências: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING, DEPENDE_DECISAO (PEI/PAEE, revisor de termos, trilha da impressão clínica).
