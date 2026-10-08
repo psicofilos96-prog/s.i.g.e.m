@@ -8,6 +8,8 @@ import { FAMILY_SECTIONS, SECTION_LABEL, familyMessage, fmtDate, resolveSelected
 import { readFamilyStudents, readFamilySummary } from "./family-source";
 import { projectStudentCard } from "./student-card";
 import { StudentCardView } from "./student-card-view";
+import { withIssuance, type IssuedCard } from "./card-issuance";
+import { readFamilyCards } from "./card-issuance-source";
 
 export function FamilyPortalPage({ requested }: { requested: string | undefined }) {
   const navigate = useNavigate();
@@ -46,7 +48,7 @@ function Summary({ studentId, student }: { studentId: string; student: FamilyStu
       {student && s.sections.includes("matricula") && (
         <section aria-labelledby="cart" className="space-y-2">
           <h2 id="cart" className="text-lg font-semibold">Carteirinha</h2>
-          <StudentCardView card={projectStudentCard(student, s, operationalToday())} />
+          <FamilyCard student={student} s={s} studentId={studentId} />
         </section>)}
       <div className="grid gap-4 md:grid-cols-2">
         {visible.map((k) => <Section key={k} s={s} k={k} studentId={studentId} />)}
@@ -76,5 +78,23 @@ function Section({ s, k, studentId }: { s: FamilySummary; k: FamilySection; stud
         : k === "calendario" ? <Link to="/calendario-escolar" className="text-sm underline">Abrir o calendário escolar homologado</Link>
         : null}
     </section>
+  );
+}
+
+/** Carteirinha emitida pela Secretaria (com QR) quando existir; senão, só a projeção sem código. Expirada é sinalizada. */
+function FamilyCard({ student, s, studentId }: { student: FamilyStudent; s: FamilySummary; studentId: string }) {
+  const [issued, setIssued] = useState<IssuedCard[] | null | "erro">(null);
+  useEffect(() => { readFamilyCards(studentId).then(setIssued, () => setIssued("erro")); }, [studentId]);
+  if (issued === null) return <SkeletonState label="Carregando carteirinha" />;
+  const head = issued === "erro" ? null : issued[0] ?? null;
+  const card = withIssuance(projectStudentCard(student, s, operationalToday()), head, typeof window !== "undefined" ? window.location.origin : "");
+  return (
+    <div className="space-y-2">
+      {issued === "erro" && <p className="text-sm text-muted-foreground">Não foi possível consultar a carteirinha emitida agora.</p>}
+      {issued !== "erro" && !head && <p className="text-sm text-muted-foreground">A escola ainda não emitiu a carteirinha; a prévia abaixo não tem valor de verificação.</p>}
+      {head?.status === "expirada" && <StatePanel tone="warning" title="Carteirinha expirada" description={`A validade terminou em ${fmtDate(head.valid_until)}. Procure a secretaria da escola.`} />}
+      <div className="card-print-area"><StudentCardView card={card} /></div>
+      {head && <button type="button" className="text-sm underline" onClick={() => window.print()}>Imprimir ou salvar em PDF</button>}
+    </div>
   );
 }
