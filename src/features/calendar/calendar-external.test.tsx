@@ -37,7 +37,7 @@ const vm = buildExternalViewModel(model, presentation);
 
 describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
   it("registry: cinco modelos, default interno", () => {
-    expect(PRESENTATION_TEMPLATES.map((t) => t.code)).toEqual(["interno", "externo-panoramico", "externo-mosaico", "externo-fotografico", "externo-quadro"]);
+    expect(PRESENTATION_TEMPLATES.map((t) => t.code)).toEqual(["interno", "externo-panoramico", "externo-mosaico"]);
     expect(DEFAULT_TEMPLATE).toBe("interno");
   });
   it("modelo interno continua o mesmo renderer, sem dependência dos externos", () => {

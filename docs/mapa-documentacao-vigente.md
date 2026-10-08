@@ -307,3 +307,6 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 ## NWEBSEC.1
 - [Segurança web e cabeçalhos](seguranca-web-nwebsec1.md) — Registro de lote; cabeçalhos, no-store, limites.
+
+## NKEY.1
+- [Atalhos de teclado e foco](teclado-foco-nkey1.md) — Registro de lote.

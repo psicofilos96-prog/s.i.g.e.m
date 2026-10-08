@@ -36,6 +36,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { navItemAllowed } from "@/features/authority/nav-capabilities";
 import { STATION_HOME, STATION_LABEL, stationAllowsPath } from "@/features/authority/station-navigation";
+import { Kbd } from "@/components/sigem/kbd";
+import { SEARCH_SHORTCUT_LABEL, isSearchShortcut } from "@/lib/keyboard";
 import { NotificationBell } from "@/features/notifications/notification-bell";
 import { ContextHelp, WhatThisMeans } from "@/features/help/help-components";
 import { CATEGORY_LABEL, MATCH_LABEL, MIN_QUERY, deepLink, groupHits, stationScopedHits, useDebounced, useGlobalSearch } from "@/features/global-search/global-search";
@@ -399,9 +401,7 @@ function Topbar({
         >
           <Search className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">Buscar no sistema</span>
-          <kbd className="ml-auto hidden rounded border border-border bg-card px-1.5 text-2xs font-semibold lg:block">
-            ⌘K
-          </kbd>
+          <Kbd className="ml-auto hidden lg:block">{SEARCH_SHORTCUT_LABEL}</Kbd>
         </button>
 
         <Button
@@ -465,7 +465,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+      // NKEY.1: tela com busca própria (ex.: Secretaria) trata antes e marca o evento.
+      if (isSearchShortcut(event) && !event.defaultPrevented) {
         event.preventDefault();
         setSearchOpen((value) => !value);
       }

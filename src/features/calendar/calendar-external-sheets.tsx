@@ -3,6 +3,8 @@
  * do usuário. Consomem SÓ `ExternalViewModel` (derivado de `PrintModel`) e o perfil visual; não tocam no renderer
  * interno. CSS isolado em escopo `.cx-*`; medidas em mm/frações da folha para a prévia ser igual ao PDF.
  */
+import { INFO_PLACES, InfoLinesAt } from "./calendar-info-lines";
+import { observationLines } from "./calendar-document";
 import { weekendLetter } from "./calendar-catalog";
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
@@ -303,7 +305,7 @@ function Sheet({ className, p, template, vm, children }: { className: string; p:
   }, [p.minFitPt]);
   return (
     <article ref={ref} className={`cx-folha ${className}`} style={themeVars(p, template)} data-testid={`external-sheet-${template}`}
-      aria-label={`Calendário ${vm.year ?? ""} — modelo ${template === "externo-mosaico" ? "mosaico" : template === "externo-fotografico" ? "matriz com fundo fotográfico" : template === "externo-quadro" ? "quadro anual" : "panorâmico"}`}>{children}</article>
+      aria-label={`Calendário ${vm.year ?? ""} — modelo ${template === "externo-mosaico" ? "mosaico" : "panorâmico"}`}>{children}</article>
   );
 }
 
@@ -424,8 +426,7 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
 }
 
 export function ExternalSheet(props: { template: ExternalTemplateCode; vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
-  if (props.template === "externo-fotografico" || props.template === "externo-quadro") return <FreeSheet {...props} template={props.template} />;
-  return props.template === "externo-mosaico" ? <MosaicSheet {...props} /> : <PanoramicSheet {...props} />;
+  return <FreeSheet {...props} template={props.template} />;
 }
 
 // ---------------- CAL.EXT.3 — modelos de layout livre ----------------
@@ -478,13 +479,15 @@ function StickerImg({ s, onMove }: { s: Sticker; onMove?: ((id: string, patch: {
   );
 }
 
-export function FreeSheet({ vm, p, presentation, template, selected, onSelect, onMove, onMoveSticker }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; template: "externo-fotografico" | "externo-quadro"; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
+export function FreeSheet({ vm, p, presentation, template, selected, onSelect, onMove, onMoveSticker }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; template: ExternalTemplateCode; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
   const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
   const f = p.free; const B = f.blocks; const t = f.table;
   const id = institutionalIdentity(presentation);
   const cols = Array.from({ length: 31 }, (_, i) => i + 1);
   const colTotals = columnTotals(vm.months);
-  const foto = template === "externo-fotografico";
+  const foto = false;
+  const cards = template === "externo-panoramico";
+  const info = observationLines(typeof presentation["observations"] === "string" ? presentation["observations"] : undefined);
   const topImg = f.photo.top ?? (f.photo.useDefaultTop ? homeImage.url : null);
   const title = p.visualTitle ?? "CALENDÁRIO ESCOLAR";
   const year = vm.year !== null && !title.includes(String(vm.year)) ? ` ${vm.year}` : "";
@@ -495,7 +498,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
   const cell: CSSProperties | undefined = manual ? { width: mm(t.cellWmm), minWidth: mm(t.cellWmm), height: mm(t.cellHmm) } : undefined;
   const logos = p.logos.filter((l) => !l.hidden);
   return (
-    <Sheet className={`cf-livre ${foto ? "cf-fotografico" : "cf-quadro"}`} p={p} template={template} vm={vm}>
+    <Sheet className={`cf-livre ${foto ? "cf-fotografico" : "cf-quadro"} ${cards ? "cf-panoramico" : "cf-mosaico"}`} p={p} template={template} vm={vm}>
       {f.photo.page && <div className="cf-foto cf-foto-pagina" aria-hidden style={{ position: "absolute", inset: 0, ...adjustedBg(f.photo.page, f.photo.pageAdj) }} />}
       {topImg && f.photo.topHmm > 0 && <div className="cf-foto cf-foto-topo" aria-hidden style={{ height: mm(f.photo.topHmm), ...adjustedBg(topImg, f.photo.topAdj) }} />}
       {f.photo.bottom && f.photo.bottomHmm > 0 && <div className="cf-foto cf-foto-rodape" aria-hidden style={{ height: mm(f.photo.bottomHmm), ...adjustedBg(f.photo.bottom, f.photo.bottomAdj) }} />}
@@ -514,6 +517,8 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
       </FreeBox>}
       {B.matriz.visible && <FreeBox {...common("matriz")}>
         <Notices vm={vm} />
+        {cards ? <div className="cx-meses cf-meses" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "1.5mm", height: "100%" }}>
+          {vm.months.map((m) => <MonthCard key={m.key} m={m} types={types} p={p} />)}</div> :
         <table className={`cf-matriz${manual ? " cf-manual" : ""}`} style={tableStyle}>
           <colgroup><col style={{ width: mm(t.monthColMm) }} />{cols.map((c) => <col key={c} />)}{p.show.totaisMensais && t.totalColMm > 0 && <col style={{ width: mm(t.totalColMm) }} />}</colgroup>
           <thead style={{ fontSize: `${t.headPt}pt` }}><tr><th scope="col">Mês / Dia</th>{cols.map((c) => <th key={c} scope="col" style={cell ? { width: cell.width, minWidth: cell.minWidth } : undefined}>{c}</th>)}
@@ -527,7 +532,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
             </tr>; })}</tbody>
           {p.show.totaisColuna && <tfoot><tr><th scope="row">Letivos</th>{colTotals.map((v, i) => <td key={i}>{v === null ? "—" : v}</td>)}
             {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total cx-total-geral" title={vm.total.reason ?? ""}>{countText(vm.total)}</td>}</tr></tfoot>}
-        </table>
+        </table>}
       </FreeBox>}
       {B.periodos.visible && <FreeBox {...common("periodos")} title="Períodos letivos">
         <div className={`cf-periodos cf-${B.periodos.style.orientation}`}>
@@ -550,6 +555,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
           ? vm.councils.items.length ? <ul className="cf-lista" style={{ columnCount: B.conselhos.style.cols }}>{vm.councils.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {i.name}</li>)}</ul>
             : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
           : <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
+        {INFO_PLACES.map((pl) => <InfoLinesAt key={pl.code} lines={info} place={pl.code} />)}
       </FreeBox>}
       {B.assinaturas.visible && <FreeBox {...common("assinaturas")} title="Assinaturas">
         {vm.signatures.length ? <div className="cf-assinaturas">{vm.signatures.slice(0, 4).map((x, i) => <div key={i}><span /><p>{x}</p></div>)}</div> : <p className="cx-vazio">Nenhuma assinatura declarada.</p>}

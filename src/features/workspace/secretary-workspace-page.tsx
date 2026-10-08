@@ -1,3 +1,5 @@
+import { Kbd } from "@/components/sigem/kbd";
+import { SEARCH_SHORTCUT_LABEL, isSearchShortcut } from "@/lib/keyboard";
 import { operationalToday, civilDateOf, operationalClock } from "@/lib/academic-date";
 /**
  * Etapa 13G/13UX — Home da Secretaria Escolar (segunda rodada de refinamento).
@@ -169,13 +171,14 @@ export function SecretaryWorkspacePage() {
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
-      if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)) {
+      if (isSearchShortcut(event)) {
         event.preventDefault();
         setCommandOpen((value) => !value);
       }
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // NKEY.1: captura roda antes da busca global, que ignora o evento já tratado — abre uma só busca.
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
   }, []);
 
   const context = useMemo(
@@ -325,9 +328,7 @@ export function SecretaryWorkspacePage() {
               >
                 <Search className="size-4" aria-hidden="true" />
                 Buscar aluno ou ação
-                <kbd className="ml-1 hidden rounded border border-border bg-muted px-1.5 text-micro font-semibold text-muted-foreground sm:block">
-                  Ctrl K
-                </kbd>
+                <Kbd className="ml-1 hidden sm:block">{SEARCH_SHORTCUT_LABEL}</Kbd>
               </Button>
             </div>
           </div>

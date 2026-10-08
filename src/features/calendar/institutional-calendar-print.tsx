@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { DayMark } from "./calendar-mark";
 import { LogoItem, observationLines } from "./calendar-document";
+import { InfoLinesAt } from "./calendar-info-lines";
 import { logosOf } from "./calendar-logos";
 import { layoutCss } from "./calendar-layout";
 import { dayTypesOf, typeInfo, weekendLetter } from "./calendar-catalog";
@@ -102,6 +103,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
           </div>
         ) : <div />}
         <div className="cd-coluna">
+          <InfoLinesAt lines={info} place="antes-periodos" />
           {doc.showPeriods !== false && (
             <div className="cd-periodos" data-cd-bloco="periodos">
               {model.periods.map((p) => (
@@ -112,17 +114,15 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
               ))}
             </div>
           )}
+          <InfoLinesAt lines={info} place="depois-periodos" />
           {doc.showAnnualTotal !== false && (
             <div className="cd-periodos cd-total-anual" data-cd-bloco="total">
               <div className="cd-periodo-linha"><span style={{ gridColumn: "1 / 4" }}>Total de dias letivos</span><span>=</span>
                 <span className="cd-periodo-numero" data-testid="total-anual"><Count c={model.total} /></span><span>Dias</span></div>
             </div>
           )}
-          {info.length > 0 && (
-            <div className="cd-informacoes" data-cd-bloco="informacoes">
-              {info.map((l, i) => <div key={i} className="cd-conselho-linha cd-info-linha"><span style={{ gridColumn: "1 / -1" }}>{l}</span></div>)}
-            </div>
-          )}
+          <InfoLinesAt lines={info} place="depois-total" />
+          <InfoLinesAt lines={info} place="depois-conselhos" />
         </div>
       </div>
       <div className="cd-assinaturas">
