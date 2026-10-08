@@ -226,3 +226,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [NBUNDLE.1 bundle e carregamento](bundle-carregamento-nbundle1.md) — Registro de lote
 - [NASSET.1 assets institucionais](assets-institucionais-nasset1.md) — Registro de lote
 - [NCROSSLINK.1 links e continuidade](links-continuidade-ncrosslink1.md) — Registro de lote
+- [NRELEASE.1 checklist de release](release-checklist-nrelease1.md) — Referência vigente
