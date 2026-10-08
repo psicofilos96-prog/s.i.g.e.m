@@ -87,7 +87,7 @@ function TermItem({ head, history, act }: { head: TermRow; history: TermRow[]; a
           <Button size="sm" variant="outline" onClick={() => act({ ...base, _status: "recusado" })}>Recusar</Button>
         </div>) : null}
       <button type="button" className="text-xs underline" aria-expanded={open} onClick={() => setOpen(!open)}>Histórico ({history.length})</button>
-      {open ? <ol className="text-xs text-muted-foreground">{history.map((h) => <li key={h.seq}>{civilDateOf(h.recorded_at)} · {LABEL[h.status]}{h.note ? ` — ${h.note}` : ""}</li>)}</ol> : null}
+      {open ? <ol className="text-xs text-muted-foreground">{history.map((h) => <li key={h.seq}>{civilDateOf(h.recorded_at)} · {knownLabel(LABEL, h.status)}{h.note ? ` — ${h.note}` : ""}</li>)}</ol> : null}
     </li>
   );
 }
