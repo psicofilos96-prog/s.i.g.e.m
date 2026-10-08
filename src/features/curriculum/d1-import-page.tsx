@@ -1,3 +1,4 @@
+import { knownLabel } from "@/config/ui-vocabulary";
 /**
  * D1 — tela do importador governado da Deliberação CME nº 3/2026.
  * Prévia/diff/validação sempre visíveis; gravação só com confirmação humana,
@@ -116,14 +117,14 @@ export function D1ImportPage() {
       {state.error && <p role="alert" className="text-sm text-destructive">Não foi possível ler o estado atual: {(state.error as Error).message}</p>}
 
       <table className="w-full text-sm" aria-label="Proposta de importação">
-        <thead><tr className="text-left text-muted-foreground"><th>Tipo</th><th>Identificador</th><th>Rótulo</th><th>Situação</th></tr></thead>
+        <caption className="sr-only">Proposta de importação: cada linha é um elemento do contrato</caption><thead><tr className="text-left text-muted-foreground"><th scope="col">Tipo</th><th scope="col">Identificador</th><th scope="col">Rótulo</th><th scope="col">Situação</th></tr></thead>
         <tbody>
           {plan.steps.map((s, k) => (
             <tr key={k} className="border-t border-border">
               <td>{s.kind === "catalogo" ? s.scheme : "matriz"}</td>
               <td><code>{s.kind === "catalogo" ? s.value : `Anexo ${s.annex}`}</code></td>
               <td>{s.kind === "catalogo" ? s.label : s.officialName}</td>
-              <td>{state.data ? STATUS_LABEL[s.status] : "—"}{s.detail ? ` · ${s.detail}` : ""}</td>
+              <td>{state.data ? knownLabel(STATUS_LABEL, s.status) : "Situação ainda não lida"}{s.detail ? ` · ${s.detail}` : ""}</td>
             </tr>
           ))}
         </tbody>

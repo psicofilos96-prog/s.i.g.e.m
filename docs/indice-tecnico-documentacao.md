@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 234. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 235. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -67,9 +67,10 @@ Documentos: 234. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `matriz-curricular-catalogos-produto.md`, `nucleo-curricular-academico.md`, `referencias-curriculares-bncc-saeb.md`, `repositorio-curricular-bncc-saeb.md`
 
-**Registros de lote (decisões e provas da etapa):** `horarios-conflito-entre-turmas-nhor4.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-matriz-catalogos-ncurr3.md`, `horarios-conflito-entre-turmas-nhor4.md`
 
 **Pendências declaradas:**
+- `auditoria-matriz-catalogos-ncurr3.md`: DEPENDE_DADO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `horarios-conflito-entre-turmas-nhor4.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `matriz-curricular-catalogos-produto.md`: DEPENDE_DADO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 

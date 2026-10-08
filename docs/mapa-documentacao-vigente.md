@@ -260,4 +260,5 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `docs/auditoria-familia-carteirinha-n925.md` — Registro de lote: auditoria final Família/Carteirinha (N9.2.5).
 - `docs/auditoria-ciece-n443.md` — Registro de lote: auditoria final do CIECE (N4.4.3).
 - `docs/auditoria-supervisao-nsup3.md` — Registro de lote: auditoria final da Supervisão (NSUP.3).
+- `docs/auditoria-matriz-catalogos-ncurr3.md` — Registro de lote: auditoria final de matrizes e catálogos (NCURR.3).
 - `docs/auditoria-docente-n1025.md` — Registro de lote: auditoria final do ambiente Docente (N10.2.5).

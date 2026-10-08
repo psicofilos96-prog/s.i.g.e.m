@@ -268,3 +268,6 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 
 ## NSUP.3 (2026-10-08)
 Supervisão: auditoria final PASS técnico; ASSIGNMENT_PENDING e INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver docs/auditoria-supervisao-nsup3.md.
+
+## NCURR.3 (2026-10-08)
+Matrizes/catálogos: auditoria final PASS técnico; DEPENDE_DADO (matriz/catálogos oficiais), homologação separada. Ver docs/auditoria-matriz-catalogos-ncurr3.md.
