@@ -221,7 +221,7 @@ function ProfessionalSearch({ school }: { school: string }) {
         <input autoComplete="off" className="rounded border bg-background p-2 text-sm" value={value} onChange={(e) => setValue(e.target.value)} aria-label="Identificador do servidor" />
         <button type="button" onClick={search} className="rounded bg-primary px-3 py-2 text-sm text-primary-foreground">Buscar</button>
       </div>
-      {res && <p className="text-sm">{lookupMessage(res.outcome)}{res.outcome === "encontrado" ? ` ${res.display_name ?? ""} — vínculos: ${res.functional_link_logical_ids?.length ?? 0}` : ""}</p>}
+      {res && <p className="text-sm">{lookupMessage(res.outcome)}{res.outcome === "encontrado" ? ` ${res.display_name ?? ""} — vínculos: ${res.functional_link_logical_ids ? res.functional_link_logical_ids.length : "não informados"}` : ""}</p>}
       {msg && <p className="text-xs">{msg}</p>}
     </section>
   );
