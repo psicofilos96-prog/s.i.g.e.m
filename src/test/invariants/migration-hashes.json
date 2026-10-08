@@ -292,5 +292,6 @@
  "drizzle/migrations/0241_nidem1_document_emission_idempotency.sql": "c9c93afdafb89179318b863583edab3ad591ea1ec9ff2081271c82cd9e700621",
  "drizzle/migrations/0242_nconc1_policy_draft_lock.sql": "66f405a7fe2cd042855afabd2004fc9142b80248d1c35f88e284aa6fce490d75",
  "drizzle/migrations/0243_ninc1_inclusion_clinical_records.sql": "8cf05d7ee8b33489a1101016816c796072d8b75dd6e149c015d995ad1af7ee7e",
- "drizzle/migrations/0244_ninc1_clinical_denial_trail_kept.sql": "adc362ae95c82706f27f9f97b65a510e57a56ba48646634a9e6c26072e4e2d9b"
+ "drizzle/migrations/0244_ninc1_clinical_denial_trail_kept.sql": "adc362ae95c82706f27f9f97b65a510e57a56ba48646634a9e6c26072e4e2d9b",
+ "drizzle/migrations/0245_nfam1_family_student_card.sql": "96085ff713b8f53aa3ebc6c8b165ae93ad0d71ba086af62d8f7bb68583432d09"
 }

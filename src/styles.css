@@ -1317,3 +1317,10 @@
 .cf-livre .cf-assinaturas > div { flex: 1; text-align: center; } .cf-livre .cf-assinaturas span { display: block; border-top: 0.2mm solid currentColor; }
 .cf-livre .cf-rodape { display: flex; align-items: center; justify-content: space-between; gap: 3mm; height: 100%; }
 @media print { .cf-livre .cf-selecionado { outline: none; } .cf-livre .cf-alca { display: none; } }
+
+/* NFAM.1 — impressão/PDF da carteirinha: só a área do cartão sai na folha. */
+@media print {
+  body:has(.card-print-area) * { visibility: hidden; }
+  .card-print-area, .card-print-area * { visibility: visible; }
+  .card-print-area { position: absolute; left: 0; top: 0; }
+}
