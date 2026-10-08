@@ -26,7 +26,7 @@ describe("NHELP.1 — O que isso significa?", () => {
     for (const m of SCREEN_MEANINGS) { for (const r of m.routes) expect(exists(r), r).toBe(true); for (const t of m.terms ?? []) expect(GLOSSARY.some((g) => g.id === t), t).toBe(true); }
   });
   it("não afirma prazo, patamar ou número institucional", () => {
-    for (const m of SCREEN_MEANINGS) expect(`${m.action["pt-BR"]} ${m.origin["pt-BR"]}`).not.toMatch(/\d/);
+    for (const m of SCREEN_MEANINGS) expect(`${m.action["pt-BR"]} ${m.origin["pt-BR"]} ${m.numbers?.["pt-BR"] ?? ""}`).not.toMatch(/\d/);
   });
   it("bloco sem violações de acessibilidade e com nomes acessíveis", async () => {
     const { container, getByText, getAllByRole } = render(<WhatThisMeans pathname="/turmas" />);
@@ -34,5 +34,15 @@ describe("NHELP.1 — O que isso significa?", () => {
     for (const b of getAllByRole("button")) expect(b.getAttribute("aria-label")).toMatch(/^O que é /);
     const r = await axe.run(container, { rules: { "color-contrast": { enabled: false }, region: { enabled: false } } });
     expect(r.violations.map((v) => v.id)).toEqual([]);
+  });
+  it("NHELP.2 — as oito telas explicam de onde vem o número, em texto curto", () => {
+    for (const m of SCREEN_MEANINGS) { expect(m.numbers, m.id).toBeTruthy(); expect(m.numbers!["pt-BR"].length, m.id).toBeLessThan(260); }
+  });
+  it("NHELP.2 — teclado: o bloco abre por um summary focável e o texto fica no leitor de tela", () => {
+    const { container, getByText } = render(<WhatThisMeans pathname="/mapa-estatistico" />);
+    const summary = container.querySelector("summary")!;
+    summary.focus(); expect(document.activeElement).toBe(summary);
+    summary.click(); expect(container.querySelector("details")!.open).toBe(true);
+    expect(getByText("De onde vem este número?").tagName).toBe("DT");
   });
 });
