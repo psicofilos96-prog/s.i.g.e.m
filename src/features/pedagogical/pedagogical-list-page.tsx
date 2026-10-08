@@ -1,3 +1,5 @@
+import { useListUrlFilters } from "@/lib/list-url-state";
+import { usePersistentState } from "@/lib/list-paging";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal } from "lucide-react";
@@ -119,8 +121,8 @@ function haystack(record: PedagogicalAssignmentRecord) {
 }
 
 export function PedagogicalListPage() {
-  const [query, setQuery] = useState("");
-  const [values, setValues] = useState<FilterValues>(initialValues);
+  const [query, setQuery] = usePersistentState("pedagogico:busca", "");
+  const [values, setValues] = useListUrlFilters(initialValues as Record<string, string>);
   const [viewState, setViewState] = useState<ViewState>("ready");
   const [selected, setSelected] = useState<string[]>([]);
 
