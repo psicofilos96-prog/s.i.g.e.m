@@ -132,7 +132,6 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Central de integrações", icon: SlidersHorizontal, to: "/central-de-integracoes", hint: "E-mail, armazenamento, identidade, importadores" },
       { label: "Assistente", icon: BookOpen, to: "/assistente", hint: "Perguntas com fonte, só leitura" },
       { label: "Ajuda", icon: BookOpen, to: "/ajuda", hint: "Central de ajuda" },
-      { label: "Padrões visuais", icon: SlidersHorizontal, to: "/design-system", hint: "Referência de design do SIGEM" },
     ],
   },
 ];

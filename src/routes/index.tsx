@@ -227,9 +227,6 @@ function HomePage() {
         <footer className="flex flex-col gap-2 py-7 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <span>{brand.displayName}</span>
           <span>Prefeitura Municipal de Itaperuna · Secretaria Municipal de Educação</span>
-          <Button asChild variant="link" className="h-auto justify-start p-0 sm:hidden">
-            <Link to="/design-system">Design System</Link>
-          </Button>
         </footer>
       </div>
     </div>

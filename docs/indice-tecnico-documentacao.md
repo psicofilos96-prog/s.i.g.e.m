@@ -152,7 +152,7 @@ Documentos: 238. Sem classe: 0. Com referência quebrada: 0.
 - `tabelas-densas-ntable1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `tokens-visuais-ncss2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `ux-sigem-design-system.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `ux-sigem-migracao-rotas.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `ux-sigem-migracao-rotas.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `vocabulario-interface-nui2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `vocabulario-telas-nui3.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
