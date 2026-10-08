@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 226. Sem classe: 0. Com referência quebrada: 2.
+Documentos: 227. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -78,9 +78,10 @@ Documentos: 226. Sem classe: 0. Com referência quebrada: 2.
 
 **Vigente:** `nei-aee-mediador-produto.md`
 
-**Registros de lote (decisões e provas da etapa):** `inclusao-ninc1.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-inclusao-n825.md`, `inclusao-ninc1.md`
 
 **Pendências declaradas:**
+- `auditoria-inclusao-n825.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `inclusao-ninc1.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, ASSIGNMENT_PENDING, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `nei-aee-mediador-produto.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
@@ -220,5 +221,4 @@ Documentos: 226. Sem classe: 0. Com referência quebrada: 2.
 
 ## Referências quebradas
 
-- `mapa-documentacao-vigente.md`: `docs/auditoria-inclusao-n825.md`
-- `matriz-completude-produto-sigem.md`: `docs/auditoria-inclusao-n825.md`
+Nenhuma.
