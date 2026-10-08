@@ -3,9 +3,11 @@
  * retry com espera crescente e flush ao sair. Só salva a última versão do rascunho; nunca perde edição
  * feita durante um salvamento em andamento.
  */
-export type AutosaveStatus = "ocioso" | "pendente" | "salvando" | "salvo" | "erro";
+export type AutosaveStatus = "ocioso" | "pendente" | "salvando" | "salvo" | "erro" | "sem-conexao";
 export type AutosaveOptions<T> = Readonly<{
   save: (value: T) => Promise<void>; debounceMs?: number; maxRetries?: number; retryBaseMs?: number;
+  /** NFORM.1 — sem conexão, nada é tentado: o rascunho fica pendente e é salvo ao voltar a conexão. */
+  isOnline?: () => boolean;
   onStatus?: (s: AutosaveStatus, error?: unknown) => void;
   timers?: { set: (f: () => void, ms: number) => unknown; clear: (h: unknown) => void };
 }>;
@@ -20,6 +22,7 @@ export function createAutosave<T>(o: AutosaveOptions<T>) {
   async function run(): Promise<void> {
     if (inFlight) { await inFlight; if (pending) return run(); return; }
     if (!pending) return;
+    if (o.isOnline && !o.isOnline()) { set("sem-conexao"); return; }
     const { v } = pending; pending = null; set("salvando");
     inFlight = o.save(v).then(() => { attempts = 0; inFlight = null; if (pending) schedule(0); else set("salvo"); },
       (e) => { inFlight = null; if (!pending) pending = { v }; attempts++;
@@ -30,6 +33,8 @@ export function createAutosave<T>(o: AutosaveOptions<T>) {
     change(v: T) { pending = { v }; attempts = 0; set("pendente"); schedule(debounce); },
     /** Salva já (ao navegar/fechar). */
     async flush() { if (timer) { t.clear(timer); timer = null; } await run(); if (inFlight) await inFlight; },
+    /** Conexão voltou: tenta salvar já o que ficou pendente. */
+    online() { if (pending) { attempts = 0; schedule(0); } },
     retry() { attempts = 0; schedule(0); },
     get status() { return status; },
     get hasUnsaved() { return pending !== null || inFlight !== null; },

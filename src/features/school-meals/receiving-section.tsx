@@ -111,7 +111,7 @@ function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m
       {err && <p role="status">{err}</p>}
       <div className="flex flex-wrap gap-2">
         {step > 0 && <Button variant="outline" onClick={() => setStep(step - 1)}>Voltar</Button>}
-        {step < 2 && <Button onClick={() => setStep(step + 1)}>Avançar</Button>}
+        {step < 2 && <Button onClick={() => setStep(step + 1)}>Continuar</Button>}
         {!confirmed && <Button variant="outline" onClick={() => void send("rascunho")}>Salvar rascunho</Button>}
         {step === 2 && <Button disabled={issues.length > 0} onClick={() => void send(confirmed ? "retificacao" : "confirmacao")}>{confirmed ? "Registrar retificação" : "Confirmar recebimento"}</Button>}
         <Button variant="ghost" onClick={onCancel}>Fechar</Button>
