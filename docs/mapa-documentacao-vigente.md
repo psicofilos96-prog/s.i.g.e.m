@@ -10,6 +10,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - Cada documento ganhou a seção "Situação atual" com classe e prevalência; o texto histórico foi preservado.
 
 ## Índice por módulo
+- Índice técnico único por domínio (vigente, lotes, pendências, histórico): `indice-tecnico-documentacao.md`.
 - Arquitetura e regras: `sigem-documentacao-canonica.md`, `invariantes-do-sigem.md`, `mapa-contratos-db-ndb2.md`, `security-definer-function-inventory.md`.
 - Verificação e release: `rotina-de-verificacao.md`, `engenharia-de-release.md`, `matriz-fluxo-teste.md`, `test-harness-institucional.md`.
 - Observabilidade: `observabilidade-nobs3.md`, `observabilidade-e-incidentes.md`, `runbook-integridade-e-recuperacao.md`.
