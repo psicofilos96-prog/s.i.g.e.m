@@ -77,11 +77,11 @@ function Field({ label, value, onChange, type = "text", hint, error }: { label: 
   const id = useId();
   const described = [hint ? `${id}-h` : "", error ? `${id}-e` : ""].filter(Boolean).join(" ") || undefined;
   return (
-    <label className="block text-sm">{label}
+    <div><label className="block text-sm">{label}
       <input type={type} aria-invalid={error ? true : undefined} aria-describedby={described} className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={value} onChange={(e) => onChange(e.target.value)} />
       {hint ? <span id={`${id}-h`} className="text-xs text-muted-foreground">{hint}</span> : null}
-      {error ? <span id={`${id}-e`} className="block text-xs text-destructive">{error}</span> : null}
     </label>
+      {error ? <span id={`${id}-e`} className="block text-xs text-destructive">{error}</span> : null}</div>
   );
 }
 
