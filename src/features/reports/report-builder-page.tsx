@@ -133,8 +133,9 @@ export function ReportBuilder() {
       {step === 3 && result && data && (
         <div className="space-y-2 text-sm">
           <p role="status">{result.rows.length} linha(s) após filtros · {data.rows.length} lidas em {data.pages} página(s){data.truncated ? " · INCOMPLETO: limite de linhas atingido; restrinja o período" : ""}. Prévia das 20 primeiras.</p>
-          <div className="overflow-x-auto"><table className="w-full text-left text-xs">
-            <thead><tr>{result.columns.map((c) => <th key={c.id} scope="col" className="border-b p-1">{c.label}</th>)}</tr></thead>
+          <div className="max-h-[60dvh] overflow-auto" role="region" aria-label="Prévia do relatório" tabIndex={0}><table className="w-full text-left text-xs">
+            <caption className="sr-only">Prévia do relatório</caption>
+            <thead className="sticky top-0 bg-muted"><tr>{result.columns.map((c) => <th key={c.id} scope="col" className="border-b p-1">{c.label}</th>)}</tr></thead>
             <tbody>{previewSlice(result).map((r, i) => <tr key={i}>{r.map((x, j) => <td key={j} className="border-b p-1">{cellText(x)}</td>)}</tr>)}</tbody>
           </table></div>
           {result.rows.length === 0 && <p className="text-muted-foreground">Nenhuma linha visível à sua conta com esses filtros.</p>}

@@ -5,7 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsUpDown,
-  LockKeyhole,
   RefreshCw,
   SearchX,
 } from "lucide-react";
@@ -170,11 +169,6 @@ export function DataGrid<TRow>({
         tone="warning"
         title={permissionTitle}
         description={permissionDescription}
-        action={
-          <Button size="sm" variant="outline">
-            <LockKeyhole /> Entendi
-          </Button>
-        }
       />
     );
   }
@@ -185,9 +179,11 @@ export function DataGrid<TRow>({
 
   const rowIds = rows.map(getRowId);
   const selectedIds = selection?.selectedIds ?? [];
-  const allSelected = rowIds.length > 0 && rowIds.every((id) => selectedIds.includes(id));
+  // NTABLE.1: Set evita custo quadrático em seleções grandes.
+  const selectedSet = new Set(selectedIds);
+  const allSelected = rowIds.length > 0 && rowIds.every((id) => selectedSet.has(id));
   // NPAG.1: o cabeçalho reflete só as linhas visíveis; marcar/desmarcar não apaga seleção de outras páginas.
-  const someSelected = rowIds.some((id) => selectedIds.includes(id));
+  const someSelected = rowIds.some((id) => selectedSet.has(id));
 
   return (
     <div className="min-w-0 overflow-hidden rounded-none border-y border-border/70 bg-card shadow-panel sm:rounded-md sm:border-x">
@@ -204,7 +200,13 @@ export function DataGrid<TRow>({
           </Button>
         </div>
       ) : null}
-      <div className={cn("overflow-auto", heightClassName)}>
+      {/* NTABLE.1: região rolável alcançável por teclado (setas rolam com zoom alto). */}
+      <div
+        className={cn("overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring", heightClassName)}
+        role="region"
+        aria-label={label}
+        tabIndex={0}
+      >
         <Table className={cn("table-fixed", minWidthClassName)}>
           <caption className="sr-only">{label}</caption>
           <TableHeader className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm shadow-[0_1px_0_var(--border)]">
@@ -278,7 +280,7 @@ export function DataGrid<TRow>({
           <TableBody>
             {rows.map((row) => {
               const id = getRowId(row);
-              const isSelected = selectedIds.includes(id);
+              const isSelected = selectedSet.has(id);
               return (
                 <TableRow
                   key={id}
@@ -324,14 +326,14 @@ export function DataGrid<TRow>({
         <footer className="flex min-h-11 flex-wrap items-center justify-between gap-2 border-t border-border/70 bg-muted/15 px-3 py-1.5 text-xs text-muted-foreground">
           <span className="min-w-0 [overflow-wrap:anywhere]">{footerSummary}</span>
           {pagination ? (
-            <div className="flex shrink-0 items-center gap-1" aria-label="Paginação">
-              <span className="mr-2 hidden sm:inline">
+            <nav className="flex shrink-0 items-center gap-1" aria-label="Paginação">
+              <span className="mr-2" aria-live="polite">
                 Página {pagination.page} de {pagination.pageCount}
               </span>
               <Button
                 variant="outline"
                 size="icon"
-                className="size-8"
+                className="size-11 sm:size-8"
                 disabled={!pagination.onPageChange || pagination.page <= 1}
                 onClick={() => pagination.onPageChange?.(pagination.page - 1)}
                 aria-label="Página anterior"
@@ -341,14 +343,14 @@ export function DataGrid<TRow>({
               <Button
                 variant="outline"
                 size="icon"
-                className="size-8"
+                className="size-11 sm:size-8"
                 disabled={!pagination.onPageChange || pagination.page >= pagination.pageCount}
                 onClick={() => pagination.onPageChange?.(pagination.page + 1)}
                 aria-label="Próxima página"
               >
                 <ChevronRight />
               </Button>
-            </div>
+            </nav>
           ) : null}
         </footer>
       ) : null}
@@ -358,6 +360,10 @@ export function DataGrid<TRow>({
 
 /** NPAG.1 — marcar todos da página acrescenta só os visíveis; desmarcar remove só os visíveis. */
 export function toggleVisibleSelection(selected: readonly string[], visible: readonly string[], checked: boolean): string[] {
-  if (checked) return [...selected, ...visible.filter((id) => !selected.includes(id))];
-  return selected.filter((id) => !visible.includes(id));
+  if (checked) {
+    const known = new Set(selected);
+    return [...selected, ...visible.filter((id) => !known.has(id))];
+  }
+  const hidden = new Set(visible);
+  return selected.filter((id) => !hidden.has(id));
 }
