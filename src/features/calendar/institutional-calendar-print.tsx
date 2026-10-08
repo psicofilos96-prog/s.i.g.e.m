@@ -121,6 +121,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
                 <span className="cd-periodo-numero" data-testid="total-anual"><Count c={model.total} /></span><span>Dias</span></div>
             </div>
           )}
+          <InfoLinesAt lines={info} place="depois-total" />
           <InfoLinesAt lines={info} place="depois-conselhos" />
         </div>
       </div>
