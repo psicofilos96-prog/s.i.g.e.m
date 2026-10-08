@@ -1,3 +1,4 @@
+import { readEffectiveCapabilitiesShared } from "@/features/authority/capabilities-cache";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 /**
  * Diário no Lovable Cloud — registro de aula, chamada, fechamento de
@@ -277,7 +278,7 @@ export async function readDiaryFromCloud(): Promise<DiaryMirror> {
     supabase.from("attendance_closing_versions").select("id, version_number, preceding_closing_id, record"),
     supabase.from("infant_experience_versions").select("id, logical_experience_id, supersedes_version_id, lesson_logical_id, record, registered_at"),
     supabase.from("diary_correction_policies").select("id, logical_policy_id, version, family_id, applies_when_official_closing, outcome, required_capabilities, requirement_codes, admissible_changes, definition"),
-    supabase.rpc("effective_capabilities"),
+    readEffectiveCapabilitiesShared(),
   ]);
   // B4.10.0c — capacidades fazem parte do lote: erro nelas recusa o lote inteiro.
   const failure = l.error ?? a.error ?? ce.error ?? cv.error ?? x.error ?? p.error ?? caps.error;
