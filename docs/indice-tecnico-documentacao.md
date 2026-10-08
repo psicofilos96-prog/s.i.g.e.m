@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 223. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 224. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -35,11 +35,12 @@ Documentos: 223. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `documentos-canonicos-por-dominio-ndocs2.md`, `documentos-escolares-motor.md`, `documentos-impressao-auditoria.md`, `familia-carteirinha-autorizacoes.md`, `secretaria-documentos-transferencias-renovacao.md`, `secretaria-escolar-produto-completo.md`, `secretaria-fluxo-real-pos-diario.md`, `secretaria-vida-escolar.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-pdfs-ndoc2.md`, `auditoria-pdfs-npdf3.md`, `familia-carteirinha-nfam1.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-pdfs-ndoc2.md`, `auditoria-pdfs-npdf3.md`, `auditoria-secretaria-n56.md`, `familia-carteirinha-nfam1.md`
 
 **Pendências declaradas:**
 - `auditoria-pdfs-ndoc2.md`: TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-pdfs-npdf3.md`: TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `auditoria-secretaria-n56.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `documentos-impressao-auditoria.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `familia-carteirinha-autorizacoes.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `familia-carteirinha-nfam1.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING

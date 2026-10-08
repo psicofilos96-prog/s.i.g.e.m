@@ -249,3 +249,5 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 - `docs/auditoria-mapa-nmap5.md` — Registro de lote (NMAP.5).
 - `docs/cal-count-1-reconciliacao.md` — Registro de lote (CAL.COUNT.1).
+
+- `docs/auditoria-secretaria-n56.md` — Registro de lote (N5.6).
