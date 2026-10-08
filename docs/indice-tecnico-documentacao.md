@@ -35,11 +35,10 @@ Documentos: 243. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `documentos-canonicos-por-dominio-ndocs2.md`, `documentos-escolares-motor.md`, `documentos-impressao-auditoria.md`, `familia-carteirinha-autorizacoes.md`, `secretaria-documentos-transferencias-renovacao.md`, `secretaria-escolar-produto-completo.md`, `secretaria-fluxo-real-pos-diario.md`, `secretaria-vida-escolar.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-familia-carteirinha-n925.md`, `auditoria-pdfs-ndoc2.md`, `auditoria-pdfs-npdf3.md`, `auditoria-secretaria-n56.md`, `familia-carteirinha-nfam1.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-familia-carteirinha-n925.md`, `auditoria-pdfs-npdf3.md`, `auditoria-secretaria-n56.md`, `familia-carteirinha-nfam1.md`
 
 **Pendências declaradas:**
 - `auditoria-familia-carteirinha-n925.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `auditoria-pdfs-ndoc2.md`: TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-pdfs-npdf3.md`: TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-secretaria-n56.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `documentos-impressao-auditoria.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -48,7 +47,7 @@ Documentos: 243. Sem classe: 0. Com referência quebrada: 0.
 - `secretaria-documentos-transferencias-renovacao.md`: TEMPLATE_INSTITUCIONAL_PENDENTE
 - `secretaria-escolar-produto-completo.md`: DEPENDE_DECISAO, TEMPLATE_INSTITUCIONAL_PENDENTE, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
-**Histórico (substituído; consultar só para contexto):** `b3-1-hardening-cadeia-matricula.md`
+**Histórico (substituído; consultar só para contexto):** `auditoria-pdfs-ndoc2.md`, `b3-1-hardening-cadeia-matricula.md`
 
 ## Diário, frequência e avaliação
 
@@ -164,11 +163,10 @@ Documentos: 243. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `ambiente-canonico-sigem.md`, `engenharia-de-release.md`, `governanca-referencias-documentais.md`, `observabilidade-e-incidentes.md`, `observabilidade-erros-recuperacao.md`, `privacidade-e-ciclo-de-vida.md`, `prontidao-operacional-recuperacao.md`, `publicacoes-verificacao-publica.md`, `release-checklist-nrelease1.md`, `rotina-de-verificacao.md`, `runbook-integridade-e-recuperacao.md`, `runbook-piloto.md`, `test-harness-institucional.md`
 
-**Registros de lote (decisões e provas da etapa):** `cal-count-1-reconciliacao.md`, `concorrencia-nconc1.md`, `concorrencia-nconc2.md`, `dependencias-ndep1.md`, `idempotencia-nidem1.md`, `observabilidade-nobs3.md`, `seguranca-verificacao-final-nsec4.md`, `superficies-publicas-npub2.md`, `superficies-publicas-nrate1.md`
+**Registros de lote (decisões e provas da etapa):** `cal-count-1-reconciliacao.md`, `concorrencia-nconc2.md`, `dependencias-ndep1.md`, `idempotencia-nidem1.md`, `observabilidade-nobs3.md`, `seguranca-verificacao-final-nsec4.md`, `superficies-publicas-npub2.md`, `superficies-publicas-nrate1.md`
 
 **Pendências declaradas:**
 - `cal-count-1-reconciliacao.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `concorrencia-nconc1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `concorrencia-nconc2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `idempotencia-nidem1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `observabilidade-nobs3.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -180,7 +178,7 @@ Documentos: 243. Sem classe: 0. Com referência quebrada: 0.
 - `superficies-publicas-nrate1.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `test-harness-institucional.md`: DEPENDE_DADO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
-**Histórico (substituído; consultar só para contexto):** `b1-3-ativacao-inicial.md`, `frente-ad2-inteligencia-rede.md`, `frente-bh-privacidade.md`, `frente-bm-inteligencia-educacional.md`, `frente-bt-writers-regras-institucionais.md`, `gate-base-real-educacional-2026.md`, `o1-auditoria-prontidao-operacional.md`, `o2-dossie-decisao-b1.md`, `preparacao-operacional-2027-fontes.md`, `r5-competencia-e1-e4.md`, `r5-gate-operacional.md`, `release-candidate-ax.md`, `simulacao-operacional-integrada.md`
+**Histórico (substituído; consultar só para contexto):** `b1-3-ativacao-inicial.md`, `concorrencia-nconc1.md`, `frente-ad2-inteligencia-rede.md`, `frente-bh-privacidade.md`, `frente-bm-inteligencia-educacional.md`, `frente-bt-writers-regras-institucionais.md`, `gate-base-real-educacional-2026.md`, `o1-auditoria-prontidao-operacional.md`, `o2-dossie-decisao-b1.md`, `preparacao-operacional-2027-fontes.md`, `r5-competencia-e1-e4.md`, `r5-gate-operacional.md`, `release-candidate-ax.md`, `simulacao-operacional-integrada.md`
 
 ## Portais públicos e família
 
@@ -212,7 +210,7 @@ Documentos: 243. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `api-de-integracao.md`, `busca-ativa-alunos-servidores.md`, `comunicacao-notificacoes.md`, `database-constraints-indexes-batch-readers.md`, `database-contracts-audit.md`, `design-system-sigem.md`, `governanca-execucao-tecnica-desenvolvimento.md`, `governanca-infraestrutura-escolar.md`, `guias-por-perfil-ba.md`, `mapa-documentacao-vigente.md`, `mapa-estatistico-2027.md`, `matriz-completude-produto-sigem.md`, `matriz-rastreabilidade.md`, `modulos-apoio-produto.md`, `necessidade-professor-calculo-canonico.md`, `op-direcao-produto.md`, `orientacao-direcao-gestao.md`, `performance-escala-sigem.md`, `storage-arquivos-privados.md`, `supervisao-escolar-produto.md`, `varredura-demonstracao-contexto-real.md`
 
-**Registros de lote (decisões e provas da etapa):** `busca-e-avisos-nsearch2.md`, `datas-fuso-ndate1.md`, `isolamento-demonstracao-ndemo2.md`, `listas-paginacao-npag1.md`, `recuperacao-erros-nobs4.md`, `revisao-busca-notificacoes.md`, `seguranca-leitura-ampla-nsec3.md`
+**Registros de lote (decisões e provas da etapa):** `busca-e-avisos-nsearch2.md`, `datas-fuso-ndate1.md`, `isolamento-demonstracao-ndemo2.md`, `listas-paginacao-npag1.md`, `recuperacao-erros-nobs4.md`, `revisao-busca-notificacoes.md`
 
 **Pendências declaradas:**
 - `busca-e-avisos-nsearch2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -228,12 +226,11 @@ Documentos: 243. Sem classe: 0. Com referência quebrada: 0.
 - `performance-escala-sigem.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `recuperacao-erros-nobs4.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `revisao-busca-notificacoes.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `seguranca-leitura-ampla-nsec3.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `storage-arquivos-privados.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `supervisao-escolar-produto.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `varredura-demonstracao-contexto-real.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 
-**Histórico (substituído; consultar só para contexto):** `b1-2-administrador-geral.md`, `b2-4-anos-e-organizacoes.md`, `b4-8-atribuicao-docente.md`, `baseline-2026-vs-operacao-2027.md`, `bq0-preflight-configuracao-2027.md`, `campanha-noturna-sigem.md`, `estado-final-do-sigem.md`, `frente-ab2-acompanhamento-2027.md`, `frente-be-network-analytics.md`, `frente-bf-administracao-governada.md`, `frente-u-organizacao-pedagogica-2027.md`, `frente-x-necessidade-professor.md`, `frente-z-planejamento-2027.md`, `hardening-prontidao-producao-2026-10-05.md`, `inventario-visual-rotas.md`, `laboratorio-6D.3.2.5-B.md`, `performance-baseline-au.md`, `piloto-e2e-escola-2026.md`, `roadmap-pos-base-real.md`, `security-hardening-final.md`, `sigem-memoria-fontes-historicas.md`
+**Histórico (substituído; consultar só para contexto):** `b1-2-administrador-geral.md`, `b2-4-anos-e-organizacoes.md`, `b4-8-atribuicao-docente.md`, `baseline-2026-vs-operacao-2027.md`, `bq0-preflight-configuracao-2027.md`, `campanha-noturna-sigem.md`, `estado-final-do-sigem.md`, `frente-ab2-acompanhamento-2027.md`, `frente-be-network-analytics.md`, `frente-bf-administracao-governada.md`, `frente-u-organizacao-pedagogica-2027.md`, `frente-x-necessidade-professor.md`, `frente-z-planejamento-2027.md`, `hardening-prontidao-producao-2026-10-05.md`, `inventario-visual-rotas.md`, `laboratorio-6D.3.2.5-B.md`, `performance-baseline-au.md`, `piloto-e2e-escola-2026.md`, `roadmap-pos-base-real.md`, `security-hardening-final.md`, `seguranca-leitura-ampla-nsec3.md`, `sigem-memoria-fontes-historicas.md`
 
 ## Referências quebradas
 

@@ -2,6 +2,7 @@
 
 ## Situação atual (NDOCS.1, 2026-10-08)
 - Classe: **Referência vigente**. Descreve contrato/fluxo em vigor; regras detalhadas prevalecem nos `AGENTS.md`.
+- NDOCS.3 (2026-10-08): o baseline de contagens vigente é o de `auditoria-dados-oficiais-ndata3.md`; os números abaixo são históricos.
 - Em conflito, prevalecem os `AGENTS.md` e `sigem-documentacao-canonica.md`; o mapa é `mapa-documentacao-vigente.md`.
 - NDATA.3 (2026-10-08): auditoria refeita; contagens iguais, exceto +2 versões de calendário em elaboração. Baseline e achados atuais em `auditoria-dados-oficiais-ndata3.md`.
 - Revisão NDOCS.2 (2026-10-08): conteúdo conferido com HEAD (rotas, nomes de função/tabela, AGENTS, decisões); nenhuma contradição encontrada.

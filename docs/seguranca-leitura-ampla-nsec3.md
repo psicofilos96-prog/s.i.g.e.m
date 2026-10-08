@@ -1,7 +1,7 @@
 # NSEC.3 — Reavaliação das leituras amplas por contas autenticadas (2026-10-08)
 
 ## Situação atual
-Classe: Registro de lote. Complementa `security-definer-function-inventory.md` (NSEC.2).
+- Classe: **Histórico** (NDOCS.3, 2026-10-08). Superado por `seguranca-verificacao-final-nsec4.md (NSEC.4)`; não use como instrução vigente.
 
 ## Resultado
 - Varredura completa antes: 26 achados (20 erro, 6 info), todos `RLS_EXPOSURE` de leitura autenticada sem filtro; nenhum dá acesso a `anon`.

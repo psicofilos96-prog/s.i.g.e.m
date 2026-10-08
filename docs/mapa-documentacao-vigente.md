@@ -13,14 +13,22 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - As 72 referências vigentes foram revisadas contra HEAD, AGENTS, migrations, rotas e decisões recentes; 15 corrigidas, original preservado como histórico.
 - Canônicos por domínio e lista de correções: `documentos-canonicos-por-dominio-ndocs2.md`.
 
+## NDOCS.3 (2026-10-08)
+- Reconciliação final com o HEAD (após NSEC.4, NDB.4, NIMPORT.4, NTEST.4, NVERIFY.2, NOPS.3, NDATA.3).
+- Rebaixados a Histórico por superação: `concorrencia-nconc1.md` (→ NCONC.2), `seguranca-leitura-ampla-nsec3.md` (→ NSEC.4), `auditoria-pdfs-ndoc2.md` (→ NPDF.3/NPRINT.4).
+- Contradição eliminada: baseline de contagens vigente é `auditoria-dados-oficiais-ndata3.md`; `qualidade-integridade-dados-oficiais.md` mantém só os contratos de verificação.
+- CAL.COUNT.1: PASS (200 dias) em `cal-count-1-reconciliacao.md`; menções a "198 sem PASS" em relatórios anteriores são históricas.
+- Canônicos finais por tema: verificação `rotina-de-verificacao.md`; segurança `seguranca-verificacao-final-nsec4.md`; schema `integridade-schema-final-ndb4.md`; arquivos `storage-arquivos-privados.md`; importações `importacoes-nimport2.md`; testes `matriz-fluxo-teste.md`; operação `prontidao-operacional-recuperacao.md`; dados `auditoria-dados-oficiais-ndata3.md`; desempenho `performance-escala-sigem.md`.
+
 ## Índice por módulo
 - Índice técnico único por domínio (vigente, lotes, pendências, histórico): `indice-tecnico-documentacao.md`.
 - Arquitetura e regras: `sigem-documentacao-canonica.md`, `invariantes-do-sigem.md`, `mapa-contratos-db-ndb2.md`, `security-definer-function-inventory.md`.
-- Verificação e release: `rotina-de-verificacao.md`, `engenharia-de-release.md`, `matriz-fluxo-teste.md`, `test-harness-institucional.md`.
+- Verificação e release: `rotina-de-verificacao.md`, `prontidao-operacional-recuperacao.md`, `engenharia-de-release.md`, `matriz-fluxo-teste.md`, `test-harness-institucional.md`.
 - Observabilidade: `observabilidade-nobs3.md`, `recuperacao-erros-nobs4.md`, `observabilidade-e-incidentes.md`, `runbook-integridade-e-recuperacao.md`.
 - Acessos e sessão: `central-de-acessos.md`, `auditoria-autenticacao-sessao-nauth2.md`, `sigem-contas-padrao.md`.
 - Calendário: `calendario-modelos-externos.md`, `b4-6-*` (histórico de construção).
 - Secretaria e documentos: `secretaria-escolar-produto-completo.md`, `documentos-escolares-motor.md`, `idempotencia-nidem1.md`.
+- Segurança, schema e dados: `seguranca-verificacao-final-nsec4.md`, `integridade-schema-final-ndb4.md`, `storage-arquivos-privados.md`, `auditoria-dados-oficiais-ndata3.md`, `performance-escala-sigem.md`.
 - Importações: `importacoes-nimport2.md`, `frente-bg-importacoes-governadas.md`.
 - Interface: `vocabulario-interface-nui2.md`, `ux-sigem-design-system.md`, `ux-sigem-migracao-rotas.md`.
 
@@ -43,7 +51,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `auditoria-exportacoes-nexp.md` | Auditoria de exportação e download (2026-10-07) | Registro de lote | sim | — |
 | `auditoria-integrada-bb-bl.md` | Auditoria integrada BB–BK (Frente BL) — 2026-10-06 | Histórico | sim | — |
 | `auditoria-integrada-pos-lotes-2.md` | Auditoria integrada pós W.2/Z.2/AA.2/AB.2/AC.2/AD.2 (2026-10-06) | Histórico | — | — |
-| `auditoria-pdfs-ndoc2.md` | NDOC.2 — Auditoria de PDFs (2026-10-07) | Registro de lote | — | — |
+| `auditoria-pdfs-ndoc2.md` | NDOC.2 — Auditoria de PDFs (2026-10-07) | Histórico | — | — |
 | `auditoria-pdfs-npdf3.md` | NPDF.3 — Revalidação de PDFs pelo harness (2026-10-08) | Registro de lote | — | — |
 | `auditoria-impressao-nprint4.md` | NPRINT.4 — Consistência final de impressão (2026-10-08) | Registro de lote | — | — |
 | `auditoria-pre-cloud-diario.md` | Auditoria pré-Cloud do Diário (somente leitura) | Histórico | — | — |
@@ -104,7 +112,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `ciece-mapa-projecao-rede.md` | CIECE / Mapa Estatístico — projeção canônica da rede | Referência vigente | — | — |
 | `ciece-operacional.md` | Frente O — CIECE operacional | Referência vigente | — | — |
 | `comunicacao-notificacoes.md` | Comunicação e notificações (migration 0077) | Referência vigente | — | — |
-| `concorrencia-nconc1.md` | NCONC.1 — Concorrência e cabeça esperada (stale-head) | Registro de lote | — | — |
+| `concorrencia-nconc1.md` | NCONC.1 — Concorrência e cabeça esperada (stale-head) | Histórico | — | — |
 | `concorrencia-nconc2.md` | NCONC.2 — Prova de concorrência com rollback | Registro de lote | — | — |
 | `database-constraints-indexes-batch-readers.md` | NDB.1.1 — Índices, FKs, constraints e readers em lote | Referência vigente | — | — |
 | `database-contracts-audit.md` | Auditoria de contratos do banco (NDB.1, 2026-10-07) | Referência vigente | sim | — |
@@ -215,7 +223,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `secretaria-escolar-produto-completo.md` | Secretaria Escolar — checklist de produto (Lote N5) | Referência vigente | — | — |
 | `secretaria-fluxo-real-pos-diario.md` | Secretaria Escolar — fluxo real pós-Diário (2026-10-05) | Referência vigente | — | — |
 | `secretaria-vida-escolar.md` | Frente N — Secretaria / Vida escolar | Referência vigente | — | — |
-| `seguranca-leitura-ampla-nsec3.md` | NSEC.3 — Leituras amplas reavaliadas (2026-10-08) | Registro de lote | — | — |
+| `seguranca-leitura-ampla-nsec3.md` | NSEC.3 — Leituras amplas reavaliadas (2026-10-08) | Histórico | — | — |
 | `seguranca-verificacao-final-nsec4.md` | NSEC.4 — Verificação final de segurança (2026-10-08) | Registro de lote | — | — |
 | `contratos-de-banco-vigentes-ndb3.md` | NDB.3 — Mapa final de contratos de banco (2026-10-08) | Registro de lote | — | — |
 | `security-definer-function-inventory.md` | Inventário das funções SECURITY DEFINER (NSEC.2) | Referência vigente | — | — |

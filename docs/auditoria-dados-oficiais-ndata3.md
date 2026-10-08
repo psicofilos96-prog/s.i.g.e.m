@@ -1,7 +1,7 @@
 # NDATA.3 — Auditoria somente leitura dos dados oficiais (2026-10-08)
 
 ## Situação atual
-- Classe: **Registro de lote**. Instantâneo de 2026-10-08; o baseline vigente está em `qualidade-integridade-dados-oficiais.md`.
+- Classe: **Registro de lote**. Instantâneo de 2026-10-08; a coluna 2026-10-08 deste relatório é o baseline vigente de contagens (substitui o de `qualidade-integridade-dados-oficiais.md`, que segue como referência dos contratos de verificação).
 - Somente leitura: nenhum fato corrigido, nenhuma gravação. Consultas: `docs/ndata1/auditoria-somente-leitura.sql` (consulta técnica) + bloco "turmas/calendários" abaixo (consulta de auditoria do backend, porque a conta técnica não lê `institutional_classes`).
 
 ## Comparação de contagens (NDATA.1 → NDATA.3)
