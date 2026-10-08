@@ -261,7 +261,7 @@ function StepYear({ fp, p, edit }: { fp: FP; p: WizardPayload; edit: Edit }) {
           </select>
         </label>
       ) : null}
-      {open.length && fp["matricula.ano"] ? <span id="wz-ano-e" className="block text-xs text-destructive">{fp["matricula.ano"]}</span> : null}
+      {open.length > 0 && fp["matricula.ano"] ? <span id="wz-ano-e" className="block text-xs text-destructive">{fp["matricula.ano"]}</span> : null}
       {open.length ? null : <p role="alert" className="rounded-md border border-warning p-3 text-sm">Nenhum ano letivo está aberto para matrícula. A abertura do ano é ato da rede; o rascunho fica salvo até lá.</p>}
       <Field label="Data de início na escola" error={fp["matricula.data"]} type="date" value={p.matricula?.data ?? ""} onChange={(v) => edit((x) => ({ ...x, matricula: { ...x.matricula, data: v }, turma: {} }))} />
     </div>
