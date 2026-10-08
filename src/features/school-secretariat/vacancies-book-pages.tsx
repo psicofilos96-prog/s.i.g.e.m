@@ -132,8 +132,8 @@ export function EnrollmentBookPage() {
               <div className="overflow-x-auto rounded-xl border border-border">
                 <table className="w-full text-sm">
                   <thead className="bg-muted text-left"><tr>
-                    <th className="p-2">Ordem</th><th className="p-2">Estudante</th><th className="p-2">Código SIGEM</th><th className="p-2">Data</th>
-                    <th className="p-2">Turma</th><th className="p-2">Situação</th><th className="p-2">Encerramento</th></tr></thead>
+                    <th scope="col" className="p-2">Ordem</th><th scope="col" className="p-2">Estudante</th><th scope="col" className="p-2">Código SIGEM</th><th scope="col" className="p-2">Data</th>
+                    <th scope="col" className="p-2">Turma</th><th scope="col" className="p-2">Situação</th><th scope="col" className="p-2">Encerramento</th></tr></thead>
                   <tbody>{bookReportRows(shown).map((r, i) => (
                     <tr key={shown[i]!.enrollment_id} className="border-t border-border">
                       <td className="p-2 tabular-nums">{r.ordem}</td><td className="p-2">{r.estudante ?? "Não disponível"}</td>

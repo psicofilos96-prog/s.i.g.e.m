@@ -312,11 +312,11 @@ export function CalendarDocument({
         </colgroup>
         <thead>
           <tr>
-            <th className="cd-mesdia">Mês/Dia</th>
+            <th scope="col" className="cd-mesdia">Mês/Dia</th>
             {Array.from({ length: 31 }, (_, i) => (
-              <th key={i}>{i + 1}</th>
+              <th scope="col" key={i}>{i + 1}</th>
             ))}
-            <th className="cd-total-cab" colSpan={2}>
+            <th scope="col" className="cd-total-cab" colSpan={2}>
               Total de
               <br />
               dias letivos

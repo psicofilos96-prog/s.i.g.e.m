@@ -69,7 +69,7 @@ export function StaffingPage() {
             <li key={r.classId} className="rounded-md border p-3">
               <button className="min-h-11 w-full text-left" aria-expanded={open === r.classId} onClick={() => setOpen(open === r.classId ? null : r.classId)}>
                 <span className="font-medium">{r.label ?? "Turma sem nome declarado"}</span> — {STATE[r.state]} · {r.cells.reduce((s, c) => s + c.lessons, 0)} aulas</button>
-              {open === r.classId && <table className="mt-2 w-full text-xs"><thead><tr><th className="text-left">Componente</th><th>Aulas</th><th>Carga</th><th>Coberta</th><th>Descoberta</th><th className="text-left">Composição</th></tr></thead>
+              {open === r.classId && <table className="mt-2 w-full text-xs"><caption className="sr-only">Componentes da turma e cobertura</caption><thead><tr><th scope="col" className="text-left">Componente</th><th scope="col">Aulas</th><th scope="col">Carga</th><th scope="col">Coberta</th><th scope="col">Descoberta</th><th scope="col" className="text-left">Composição</th></tr></thead>
                 <tbody>{r.cells.map((c) => <tr key={c.componentId ?? "-"} className="align-top border-t">
                   <td>{c.componentId ?? "Sem componente"}</td><td className="text-center">{c.lessons}</td><td className="text-center">{h(c.demandMinutes)}</td>
                   <td className="text-center"><FactValue value={h(c.coveredMinutes)} /></td><td className="text-center"><FactValue value={h(c.uncoveredMinutes)} /></td>

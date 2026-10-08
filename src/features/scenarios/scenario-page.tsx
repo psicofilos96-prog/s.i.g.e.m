@@ -58,7 +58,7 @@ export function ScenarioPage() {
           <Button size="sm" variant="outline" onClick={() => add({ kind: "grade:trocar-responsavel", classId: form.classId, blockKey: form.blockKey, engagementIds: form.eng ? [form.eng] : [] })}>Trocar responsável</Button>
         </fieldset>
         {!cmp ? <p role="alert" className="text-sm text-destructive">Alguma alteração não se aplica à base (turma ou grade não lida). Exclua e recrie o cenário.</p> :
-          <table className="w-full text-sm"><thead><tr><th className="text-left">Projeção</th><th>Base</th><th>Cenário</th><th>Diferença</th></tr></thead><tbody>
+          <table className="w-full text-sm"><caption className="sr-only">Base comparada com o cenário</caption><thead><tr><th scope="col" className="text-left">Projeção</th><th scope="col">Base</th><th scope="col">Cenário</th><th scope="col">Diferença</th></tr></thead><tbody>
             <tr><td>Aulas/semana</td><td className="text-center"><FactValue value={cmp.baseline.lessons} /></td><td className="text-center"><FactValue value={cmp.scenario.lessons} /></td><td className="text-center"><FactValue value={cmp.delta.lessons} /></td></tr>
             <tr><td>Carga semanal</td><td className="text-center"><FactValue value={h(cmp.baseline.demandMinutes)} /></td><td className="text-center"><FactValue value={h(cmp.scenario.demandMinutes)} /></td><td className="text-center"><FactValue value={h(cmp.delta.demandMinutes)} /></td></tr>
             <tr><td>Sem regência</td><td className="text-center"><FactValue value={h(cmp.baseline.uncoveredMinutes)} /></td><td className="text-center"><FactValue value={h(cmp.scenario.uncoveredMinutes)} /></td><td className="text-center"><FactValue value={h(cmp.delta.uncoveredMinutes)} /></td></tr>

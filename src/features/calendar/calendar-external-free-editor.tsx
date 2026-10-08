@@ -48,7 +48,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
     // CAL.EXT.3.1: confere a assinatura real do arquivo antes de aceitar.
     void file.arrayBuffer().then(async (buf) => { const v = validateImage(file.type, new Uint8Array(buf), { ignoreSize: true }); if ("error" in v) { setMsg(v.error); return; }
       try { const u = await shrinkImage(file); if (u.length > ASSET_MAX_CHARS) setMsg("Não foi possível reduzir a imagem."); else { setMsg(null); done(u); } }
-      catch (err) { setMsg(err instanceof Error ? err.message : "Imagem inválida."); } });
+      catch (err) { setMsg("Não foi possível usar esta imagem. Use uma foto PNG, JPEG ou WEBP."); } });
   };
   const pickPhoto = (k: "top" | "bottom" | "page") => (e: ChangeEvent<HTMLInputElement>) => readImg(e, (u) => setPhoto({ [k]: u }));
   const [selSticker, setSelSticker] = useState<string | null>(null);

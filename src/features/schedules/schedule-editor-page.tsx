@@ -757,9 +757,9 @@ export function ScheduleEditorPage({
             >
               <thead className="border-b border-border bg-muted text-xs uppercase text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2">Componente ou campo</th>
-                  <th className="px-3 py-2">Blocos</th>
-                  <th className="px-3 py-2">Tempo planejado</th>
+                  <th scope="col" className="px-3 py-2">Componente ou campo</th>
+                  <th scope="col" className="px-3 py-2">Blocos</th>
+                  <th scope="col" className="px-3 py-2">Tempo planejado</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">

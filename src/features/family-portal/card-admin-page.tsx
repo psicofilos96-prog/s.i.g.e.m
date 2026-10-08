@@ -125,7 +125,7 @@ function CardDetail({ c, schoolName, busy, onChange }: { c: CardChainView; schoo
       {c.state !== "cancelada" && <div className="card-print-area"><StudentCardView card={card} /></div>}
       {c.state !== "cancelada" && <Button type="button" variant="outline" size="sm" onClick={() => window.print()}>Imprimir ou salvar em PDF</Button>}
       <table className="w-full text-sm"><caption className="text-left font-medium">Histórico</caption>
-        <thead><tr className="text-left text-muted-foreground"><th>Versão</th><th>Ato</th><th>Válida até</th><th>Motivo</th><th>Registrado em</th></tr></thead>
+        <thead><tr className="text-left text-muted-foreground"><th scope="col">Versão</th><th scope="col">Ato</th><th scope="col">Válida até</th><th scope="col">Motivo</th><th scope="col">Registrado em</th></tr></thead>
         <tbody>{c.history.map((h) => <tr key={h.version}><td>{h.version}</td><td>{CARD_KIND_LABEL[h.kind]}</td><td>{fmtDate(h.valid_until)}</td><td>{h.reason ?? "—"}</td>
           <td>{formatDateTime(h.recorded_at)}</td></tr>)}</tbody></table>
       {c.state !== "cancelada" && (

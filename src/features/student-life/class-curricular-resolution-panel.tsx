@@ -117,7 +117,7 @@ export function SummaryView({ summary, students, positions, names, studentNames 
 
       {students.length > 0 && (
         <table className="w-full text-xs">
-          <thead><tr className="text-left"><th>Estudante</th><th>Posição curricular registrada</th><th>Resultado</th></tr></thead>
+          <thead><tr className="text-left"><th scope="col">Estudante</th><th scope="col">Posição curricular registrada</th><th scope="col">Resultado</th></tr></thead>
           <tbody>
             {students.map((st) => (
               <tr key={st.allocationId} className="border-t border-border align-top">

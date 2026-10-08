@@ -102,8 +102,8 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
       <div className="min-w-0 max-w-full overflow-x-auto rounded-lg border border-border">
         <table className="w-full table-fixed text-sm sm:table-auto">
           <thead className="bg-muted/60 text-left"><tr>
-            <th className="w-9 p-2"><span className="sr-only">Escolher</span></th>
-            <th className="p-2">Conta</th><th className="hidden p-2 sm:table-cell">Onde acessa</th><th className="hidden p-2 sm:table-cell">Situação</th><th className="hidden p-2 md:table-cell">Último acesso</th>
+            <th scope="col" className="w-9 p-2"><span className="sr-only">Escolher</span></th>
+            <th scope="col" className="p-2">Conta</th><th scope="col" className="hidden p-2 sm:table-cell">Onde acessa</th><th scope="col" className="hidden p-2 sm:table-cell">Situação</th><th scope="col" className="hidden p-2 md:table-cell">Último acesso</th>
           </tr></thead>
           <tbody>
             {shown.slice(0, 400).map((r) => (

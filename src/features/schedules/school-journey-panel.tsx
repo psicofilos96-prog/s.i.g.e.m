@@ -41,11 +41,11 @@ export function SchoolJourneyPanel({ journey }: { journey: SchoolJourney | undef
               <caption className="sr-only">Funcionamento declarado por dia</caption>
               <thead className="border-b border-border bg-muted text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2">Dia</th>
-                  <th className="px-3 py-2">Entrada</th>
-                  <th className="px-3 py-2">Saída</th>
-                  <th className="px-3 py-2">Duração declarada</th>
-                  <th className="px-3 py-2">Intervalos</th>
+                  <th scope="col" className="px-3 py-2">Dia</th>
+                  <th scope="col" className="px-3 py-2">Entrada</th>
+                  <th scope="col" className="px-3 py-2">Saída</th>
+                  <th scope="col" className="px-3 py-2">Duração declarada</th>
+                  <th scope="col" className="px-3 py-2">Intervalos</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">

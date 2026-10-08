@@ -114,7 +114,7 @@ export function InstitutionalClassesListPage() {
           <table className="w-full text-sm" aria-busy={q.isFetching}>
             <caption className="sr-only">Turmas institucionais</caption>
             <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-              <tr><th className="p-2">Turma</th><th className="p-2">Ano letivo</th><th className="p-2">Escola</th><th className="p-2">Situação</th><th className="p-2">Organização de períodos</th></tr>
+              <tr><th scope="col" className="p-2">Turma</th><th scope="col" className="p-2">Ano letivo</th><th scope="col" className="p-2">Escola</th><th scope="col" className="p-2">Situação</th><th scope="col" className="p-2">Organização de períodos</th></tr>
             </thead>
             <tbody>
               {rows.map((r) => <ClassRow key={r.classId} r={r} />)}
