@@ -220,3 +220,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 | `docs/familia-carteirinha-nfam1.md` | Registro de lote | Portal da Família e carteirinha (NFAM.1) |
 - [docs/superficies-publicas-nrate1.md](superficies-publicas-nrate1.md) — Registro de lote: verificação pública contra abuso (NRATE.1).
+- [docs/formatacao-ptbr-nformat1.md](formatacao-ptbr-nformat1.md) — Referência vigente: formatação pt-BR (NFORMAT.1).
