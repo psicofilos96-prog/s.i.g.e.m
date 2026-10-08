@@ -167,3 +167,6 @@ Resultado: NÃO PASS mantido. SIGEM_TECHNICAL_CLOSURE_AUDIT_COMPLETE não declar
 
 ## NIMPORT.3 (2026-10-08)
 IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIMPORT.2" FECHADO (Central e Censo sobre `import-kernel`). Restam 7 gaps técnicos NFINAL.7. INTERACTIVE_BROWSER_VALIDATION_PENDING; DEPENDE_DADO (leiautes oficiais). Resultado global: NÃO PASS mantido; 2027 não configurado.
+
+## NOBS.4 — Trilha de recuperação (2026-10-08)
+- Ações de recuperação (Tentar novamente, recarregar, desistir) ligadas ao correlationId do NOBS.3 em RouteErrorState, GuidedErrorState, erro raiz, AppShell, DataGrid, Unidades e rascunho de matrícula. Parte NOBS.3 do gap NFINAL.7 nº 8 FECHADA; NFORM.1 (erro por campo) segue aberto. INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver `docs/recuperacao-erros-nobs4.md`.
