@@ -18,6 +18,7 @@ export function DemoOnlyRoute({ children, what, real, realLabel }: { children: (
       laboratory={children}
       institutional={() => (
         <div className="space-y-3">
+          <h1 className="font-display text-2xl font-semibold text-foreground">Tela de demonstração</h1>
           <EmptyState
             title="Esta tela ainda não lê os dados da rede"
             description={`${what} Com login, o SIGEM não mostra dados de demonstração aqui; nenhum registro real foi omitido nem inventado.`}
