@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +20,7 @@ export function InfrastructureNetworkPage() {
     setData(null); setErr(false);
     Promise.all([
       db.from("school_infrastructure_attribute_versions").select("*"),
-      db.from("school_infrastructure_observations").select("*").limit(20000),
+      readPages<any>((a, b) => db.from("school_infrastructure_observations").select("*").order("id").range(a, b), 20000),
       db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false }),
     ]).then(([a, o, s]: any[]) => {
       if (a.error || o.error || s.error) return setErr(true);

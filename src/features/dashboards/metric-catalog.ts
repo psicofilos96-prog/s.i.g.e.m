@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 /**
  * Catálogo de métricas: só entram métricas definíveis por fatos existentes.
  * Perspectivas sem métrica definível (CIECE, Supervisão, Avaliação, Administração) apontam para
@@ -19,7 +20,10 @@ const enrollments: MetricDefinition = {
   source: "school_enrollments + school_enrollment_endings", granularity: "escola × dia", scope: "escola",
   capabilities: ["consultar-matricula-e-movimentacao"], freshnessMs: 5 * 60_000, drillRoute: "/secretaria",
   async compute(c): Promise<MetricResult> {
-    const enr = await must<any[]>(db.from("school_enrollments").select("id, supersedes_id, created_at, school_id, opened_on").eq("school_id", school(c)).limit(50000));
+    const read = await readPages<any>((a, b) => db.from("school_enrollments").select("id, supersedes_id, created_at, school_id, opened_on").eq("school_id", school(c)).order("id").range(a, b), 50000);
+    if (read.error) throw new Error(read.error.message);
+    if (read.truncated) return notAvailable("Volume acima do limite de leitura desta tela; consulte a Secretaria.");
+    const enr = read.data ?? [];
     const ids = enr.map((e) => e.id);
     const endings = ids.length ? await must<any[]>(db.from("school_enrollment_endings").select("enrollment_id, ended_on, created_at").in("enrollment_id", ids.slice(0, 1000))) : [];
     if (ids.length > 1000) return notAvailable("Volume acima do limite de leitura desta tela; consulte a Secretaria.");
@@ -35,7 +39,10 @@ const postings: MetricDefinition = {
   source: "professional_functional_links + professional_postings", granularity: "escola × dia", scope: "escola",
   capabilities: ["consultar-registro-funcional"], freshnessMs: 5 * 60_000, drillRoute: "/departamento-pessoal",
   async compute(c) {
-    const ps = await must<any[]>(db.from("professional_postings").select("*").eq("school_id", school(c)).limit(5000));
+    const pr = await readPages<any>((a, b) => db.from("professional_postings").select("*").eq("school_id", school(c)).order("id").range(a, b), 20000);
+    if (pr.error) throw new Error(pr.error.message);
+    if (pr.truncated) return notAvailable("Volume acima do limite de leitura desta tela.");
+    const ps = pr.data ?? [];
     const linkIds = [...new Set(ps.map((p) => p.functional_link_logical_id))];
     const links = linkIds.length ? await must<any[]>(db.from("professional_functional_links").select("*").in("logical_id", linkIds)) : [];
     const src: Sources = { links, postings: ps, exercises: [], qualifications: [], events: [], processes: [], engagements: [] };
