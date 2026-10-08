@@ -6,6 +6,15 @@
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+
+function appVersion(): string {
+  try {
+    return (JSON.parse(readFileSync("package.json", "utf8")).version as string | undefined) ?? "";
+  } catch {
+    return "";
+  }
+}
 
 function gitCommit(): string {
   try {
@@ -23,6 +32,7 @@ export default defineConfig({
   },
   vite: {
     define: {
+      __SIGEM_APP_VERSION__: JSON.stringify(appVersion()),
       __SIGEM_COMMIT__: JSON.stringify(gitCommit()),
       __SIGEM_BUILT_AT__: JSON.stringify(new Date().toISOString().slice(0, 10)),
     },
