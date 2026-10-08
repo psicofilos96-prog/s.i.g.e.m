@@ -224,3 +224,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [docs/menu-rotas-capacidades-nperm3.md](menu-rotas-capacidades-nperm3.md) — Registro de lote: menu × rotas × capacidades (NPERM.3).
 - [NCSS.2 tokens visuais](tokens-visuais-ncss2.md) — Registro de lote
 - [NBUNDLE.1 bundle e carregamento](bundle-carregamento-nbundle1.md) — Registro de lote
+- [NASSET.1 assets institucionais](assets-institucionais-nasset1.md) — Registro de lote

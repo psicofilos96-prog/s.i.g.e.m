@@ -44,7 +44,7 @@ function LoginPage() {
     <main className="relative isolate min-h-svh overflow-hidden bg-territory text-territory-foreground">
       <img
         src={itaperunaImage.url}
-        alt="Vista panorâmica de Itaperuna ao pôr do sol, com o Cristo Redentor em primeiro plano"
+        alt="Vista panorâmica de Itaperuna ao pôr do sol, com o Cristo de Itaperuna em primeiro plano"
         className="absolute inset-0 -z-20 size-full object-cover object-[66%_center] lg:object-center"
       />
       <div className="login-scene-overlay absolute inset-0 -z-10" aria-hidden="true" />
