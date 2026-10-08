@@ -219,3 +219,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `inclusao-ninc1.md` | NINC.1 — Fechamento técnico da Inclusão | Registro de lote | — | — |
 
 | `docs/familia-carteirinha-nfam1.md` | Registro de lote | Portal da Família e carteirinha (NFAM.1) |
+- [docs/superficies-publicas-nrate1.md](superficies-publicas-nrate1.md) — Registro de lote: verificação pública contra abuso (NRATE.1).
