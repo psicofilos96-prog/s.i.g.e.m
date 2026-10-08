@@ -21,3 +21,9 @@
 - TEMPLATE_INSTITUCIONAL_PENDENTE: PEI/PAEE/relatório NEI oficiais com assinaturas.
 - PENDENTE: mediador — carência/substituição em um passo (hoje encerrar + novo vínculo, conforme regra).
 - PROVAS_SQL_PENDENTES e INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## N8.2.4 (2026-10-08)
+- Relatório evolutivo (`evolutionReportHtml`, botão "Imprimir relatório evolutivo" em `/inclusao`): plano, relatório pedagógico e atendimento AEE em ordem de data, como escritos; sem necessidade/categoria, sem clínico, sem medida de progresso; marcado não oficial — FEITO. Relatório do estudante passou a A4 com quebra de texto.
+- PDF headless (fixtures, 60 registros longos sem espaço): 60 páginas A4, 0 overflow. Testes: `evolution-n824.test.ts`; suítes de inclusão e privacidade verdes.
+- Sem mudança (já fechados): registro clínico com fonte e histórico (0243/0244), AEE (0167–0169), mediação, fila de termos; professor só vê "há mediação vigente". Nenhuma capability nova, nenhuma inferência de condição.
+- ASSIGNMENT_PENDING (separado): capabilities de inclusão sem política homologada atribuída. Mantidos: TEMPLATE_INSTITUCIONAL_PENDENTE (PEI/PAEE oficiais), DEPENDE_DECISAO (dimensões A/B/C, carência de mediador), INTERACTIVE_BROWSER_VALIDATION_PENDING.
