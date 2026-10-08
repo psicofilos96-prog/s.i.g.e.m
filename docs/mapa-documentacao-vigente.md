@@ -13,7 +13,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - Índice técnico único por domínio (vigente, lotes, pendências, histórico): `indice-tecnico-documentacao.md`.
 - Arquitetura e regras: `sigem-documentacao-canonica.md`, `invariantes-do-sigem.md`, `mapa-contratos-db-ndb2.md`, `security-definer-function-inventory.md`.
 - Verificação e release: `rotina-de-verificacao.md`, `engenharia-de-release.md`, `matriz-fluxo-teste.md`, `test-harness-institucional.md`.
-- Observabilidade: `observabilidade-nobs3.md`, `observabilidade-e-incidentes.md`, `runbook-integridade-e-recuperacao.md`.
+- Observabilidade: `observabilidade-nobs3.md`, `recuperacao-erros-nobs4.md`, `observabilidade-e-incidentes.md`, `runbook-integridade-e-recuperacao.md`.
 - Acessos e sessão: `central-de-acessos.md`, `auditoria-autenticacao-sessao-nauth2.md`, `sigem-contas-padrao.md`.
 - Calendário: `calendario-modelos-externos.md`, `b4-6-*` (histórico de construção).
 - Secretaria e documentos: `secretaria-escolar-produto-completo.md`, `documentos-escolares-motor.md`, `idempotencia-nidem1.md`.
@@ -165,6 +165,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `o2-dossie-decisao-b1.md` | O2 — Dossiê de decisão B1 (destravar operação) | Histórico | sim | — |
 | `observabilidade-e-incidentes.md` | Observabilidade e resposta a incidentes | Referência vigente | — | complementado por `observabilidade-nobs3.md` (IDs de correlação, classificação e trilha de recuperação) |
 | `observabilidade-erros-recuperacao.md` | NOBS — Erros, observabilidade e recuperação | Referência vigente | — | complementado por `observabilidade-nobs3.md` |
+| `recuperacao-erros-nobs4.md` | NOBS.4 — Trilha de recuperação dos erros | Registro de lote | — | complementa `observabilidade-nobs3.md` |
 | `observabilidade-nobs3.md` | NOBS.3 — Observabilidade técnica (2026-10-08) | Registro de lote | — | — |
 | `op-direcao-produto.md` | OP e Direção — produto | Referência vigente | — | — |
 | `orientacao-direcao-gestao.md` | Frente Q — Orientação Pedagógica + Direção | Referência vigente | — | — |

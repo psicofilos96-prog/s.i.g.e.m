@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { governError } from "@/lib/observability/governed-errors";
+import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
 import { ErrorState } from "./states";
 
 /**
@@ -50,9 +50,11 @@ export function AccessDeniedState({ reason = "Sua conta não tem permissão para
 }
 
 /** Erro orientador: converte qualquer falha em mensagem humana + código; nunca mostra SQL cru. */
-export function GuidedErrorState({ error, onRetry, title }: { error: unknown; onRetry?: () => void; title?: string }) {
-  const g = governError(error);
-  return <ErrorState {...(title ? { title } : {})} {...(onRetry ? { onRetry } : {})} description={`${g.userMessage} (código ${g.correlationId})`} />;
+export function GuidedErrorState({ error, onRetry, title, operation }: { error: unknown; onRetry?: () => void; title?: string; operation?: string }) {
+  // NOBS.4: governado uma vez; "Tentar novamente" e o desfecho entram na trilha de recuperação.
+  const trail = useRecoveryTrail(error, { operation: operation ?? "carregar" }, { onRetry: () => onRetry?.() });
+  const g = trail.governed;
+  return <ErrorState {...(title ? { title } : {})} {...(onRetry ? { onRetry: trail.retry } : {})} description={`${g.userMessage} (código ${g.correlationId})`} />;
 }
 
 /** Campo com rótulo visível, dica e erro associados por aria-describedby. */

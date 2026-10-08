@@ -2,16 +2,20 @@
  * NOBS.2 — fronteira de erro padrão de cada rota/estação (defaultErrorComponent do router).
  * Mostra só mensagem governada + código op-…; o erro original vai inteiro ao relatório interno de erros.
  * "Tentar novamente" só refaz LEITURAS (loaders); nenhum writer é repetido.
+ * NOBS.4: cada ação registra a trilha de recuperação com o mesmo código exibido.
  */
 import { useEffect } from "react";
 import { Link, useRouter, type ErrorComponentProps } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { reportLovableError } from "@/lib/lovable-error-reporting";
-import { governError } from "@/lib/observability/governed-errors";
+import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
 
 export function RouteErrorState({ error, reset }: ErrorComponentProps) {
   const router = useRouter();
-  const g = governError(error);
+  const trail = useRecoveryTrail(error, { operation: "abrir-tela" }, {
+    onRetry: () => { reset(); void router.invalidate(); },
+  });
+  const g = trail.governed;
   useEffect(() => { reportLovableError(error, { boundary: "sigem_route_error" }); }, [error]);
   return (
     <section role="alert" className="mx-auto max-w-xl space-y-3 p-6">
@@ -19,8 +23,8 @@ export function RouteErrorState({ error, reset }: ErrorComponentProps) {
       <p className="text-sm">{g.userMessage}</p>
       <p className="text-xs text-muted-foreground">Código para o suporte: {g.correlationId}</p>
       <div className="flex flex-wrap gap-2">
-        <Button onClick={() => { reset(); void router.invalidate(); }}>Tentar novamente</Button>
-        <Button asChild variant="outline"><Link to="/">Ir para o início</Link></Button>
+        <Button onClick={trail.retry}>Tentar novamente</Button>
+        <Button asChild variant="outline"><Link to="/" onClick={trail.giveUp}>Ir para o início</Link></Button>
       </div>
     </section>
   );
