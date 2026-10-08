@@ -31,12 +31,15 @@ export const recordTemplateVersion = (a: {
 });
 
 export type EmitResult = { id: string; verification_code: string; snapshot_sha256: string; emission_number: string | null };
-/** AF: emissão v2 — fatos compostos NO BANCO; o navegador nunca envia snapshot. */
+/**
+ * AF: emissão — fatos compostos NO BANCO; o navegador nunca envia snapshot.
+ * NIDEM.1: passa por `emit_school_document_v3` com chave idempotente (mesma chave + mesmo pedido = mesma emissão).
+ */
 export const emitDocumentV2 = (a: {
-  templateVersionId: string | null; school: string; student: string; validOn: string | null;
+  idempotencyKey: string; templateVersionId: string | null; school: string; student: string; validOn: string | null;
   reproducesId?: string | null; retifiesId?: string | null; retificationReason?: string | null;
-}) => call<EmitResult>("emit_school_document_v2", {
-  _template_version_id: a.templateVersionId, _school_id: a.school, _student_id: a.student, _valid_on: a.validOn,
+}) => call<EmitResult & { replayed?: boolean }>("emit_school_document_v3", {
+  _idempotency_key: a.idempotencyKey, _template_version_id: a.templateVersionId, _school_id: a.school, _student_id: a.student, _valid_on: a.validOn,
   _reproduces_id: a.reproducesId ?? null, _retifies_id: a.retifiesId ?? null, _retification_reason: a.retificationReason ?? null,
 });
 
