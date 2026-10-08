@@ -9,7 +9,7 @@ Só apresentação/robustez; nenhuma regra de negócio alterada.
 - Erros: junto ao campo (`role="alert"`, `aria-invalid`, `aria-describedby`); nenhum erro de formulário só em aviso flutuante.
 
 ## Corrigido
-- Vocabulário: `ACTION.continuar`; "Avançar/Próximo/Seguinte" proibidos pela varredura; Recebimento passou a "Continuar". "Anterior" permanece só em paginação.
+- Vocabulário: `ACTION.continuar`; "Avançar/Seguinte" proibidos ("Próximo" segue válido para ir ao próximo item, como na grade de notas) pela varredura; Recebimento passou a "Continuar". "Anterior" permanece só em paginação.
 - Perda de conexão: autosave não tenta salvar sem conexão (estado "Sem conexão — o rascunho será salvo quando a conexão voltar") e salva a última versão ao reconectar (evento `online`), na matrícula e em todo `useAutosave`.
 - Recuperação após erro: matrícula ganhou "Tentar novamente" quando o salvamento falha.
 - Matrícula: cada etapa lista "Falta nesta etapa" junto ao conteúdo (antes só o ponto no indicador de passos).
