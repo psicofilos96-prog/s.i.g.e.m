@@ -72,9 +72,9 @@ export function AuditPage() {
   const modules = [...new Set(ADAPTERS.map((a) => a.module))];
   const set = (k: keyof typeof f) => (v: string) => { setF({ ...f, [k]: v }); setCursors([null]); setSel(null); };
 
-  if (authority.status === "signed-out") return <EmptyState title="Entre para consultar a auditoria" description="A trilha só existe com login e mostra apenas o que suas permissões alcançam." />;
-  if (q.isLoading || authority.status === "loading") return <SkeletonState label="Carregando trilha" />;
-  if (q.isError) return <EmptyState title="Não foi possível ler a trilha" description="Tente novamente em instantes." />;
+  if (authority.status === "signed-out") return <><h1 className="sr-only">Auditoria e governança de dados</h1><EmptyState title="Entre para consultar a auditoria" description="A trilha só existe com login e mostra apenas o que suas permissões alcançam." /></>;
+  if (q.isLoading || authority.status === "loading") return <><h1 className="sr-only">Auditoria e governança de dados</h1><SkeletonState label="Carregando trilha" /></>;
+  if (q.isError) return <><h1 className="sr-only">Auditoria e governança de dados</h1><EmptyState title="Não foi possível ler a trilha" description="Tente novamente em instantes." /></>;
 
   const exportable = canExport(actor?.capabilities ?? []);
   function exportCsv() {
@@ -130,7 +130,7 @@ export function AuditPage() {
           <h2 className="font-semibold">{actionLabel(sel.action)}</h2>
           <dl className="grid gap-1 sm:grid-cols-[12rem_1fr]">{minimizedDetail(sel, dir).map((r) => <div key={r.label} className="contents"><dt className="text-muted-foreground">{r.label}</dt><dd className="break-words">{r.label === "Setor do ator" ? stationLabel(r.value) : r.value}</dd></div>)}</dl>
           {originalFactLink(sel) ? <p><Link to={originalFactLink(sel)!} className="underline">Abrir a tela de origem</Link> <span className="text-muted-foreground">(a tela aplica as suas próprias permissões)</span></p> : <p className="text-muted-foreground">Sem link para o fato original: a tela de origem não é segura para abrir daqui.</p>}
-          <p>Relacionados: {correlated(all, sel).length ? correlated(all, sel).map((c) => c.action).join(", ") : "nenhum visível"}</p>
+          <p>Relacionados: {correlated(all, sel).length ? correlated(all, sel).map((c) => actionLabel(c.action)).join(", ") : "nenhum visível"}</p>
         </section>
       )}
 
