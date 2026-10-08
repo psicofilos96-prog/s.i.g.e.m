@@ -150,10 +150,10 @@ export function ClassCreateWizardPage() {
         {step === 2 && (
           <>
             <div className="grid gap-1"><Label htmlFor="w-name" className="text-sm">Nome da turma</Label>
-              <Input id="w-name" value={s.name} onChange={(e) => set({ name: e.target.value })} placeholder={s.positions.length ? `${s.positions.map((p) => p.label).join(" e ")} — A` : "Ex.: 5º ano A"} />
+              <Input id="w-name" aria-invalid={problems.length ? true : undefined} aria-describedby={problems.length ? "w-problems" : undefined} value={s.name} onChange={(e) => set({ name: e.target.value })} placeholder={s.positions.length ? `${s.positions.map((p) => p.label).join(" e ")} — A` : "Ex.: 5º ano A"} />
               <p className="text-xs text-muted-foreground">A sugestão é só um exemplo; o nome é o que você confirmar.</p></div>
             <div className="grid gap-1"><Label htmlFor="w-code" className="text-sm">Código usado pela escola (opcional)</Label>
-              <Input id="w-code" value={s.code} onChange={(e) => set({ code: e.target.value })} /></div>
+              <Input id="w-code" aria-invalid={problems.length ? true : undefined} aria-describedby={problems.length ? "w-problems" : undefined} value={s.code} onChange={(e) => set({ code: e.target.value })} /></div>
           </>
         )}
         {step === 3 && (
@@ -172,7 +172,9 @@ export function ClassCreateWizardPage() {
         )}
         {step === 4 && (
           <div className="grid gap-1"><Label htmlFor="w-cap" className="text-sm">Capacidade (opcional)</Label>
-            <Input id="w-cap" inputMode="numeric" value={s.capacity} onChange={(e) => set({ capacity: e.target.value })} placeholder="Deixe em branco se não for conhecida" />
+            {(() => { const c = parseCapacity(s.capacity); const err = c.ok ? null : c.message; return <>
+              <Input id="w-cap" inputMode="numeric" aria-invalid={err ? true : undefined} aria-describedby={err ? "w-cap-err" : undefined} value={s.capacity} onChange={(e) => set({ capacity: e.target.value })} placeholder="Deixe em branco se não for conhecida" />
+              {err ? <p id="w-cap-err" role="alert" className="text-sm text-destructive">{err}</p> : null}</>; })()}
             <p className="text-xs text-muted-foreground">Sem capacidade, a turma aparece em Vagas como "Capacidade não informada" e não é bloqueada por lotação.</p></div>
         )}
         {step === 5 && (
@@ -192,7 +194,7 @@ export function ClassCreateWizardPage() {
             <dt className="text-muted-foreground">Professores</dt><dd>Vinculados depois, na ficha</dd>
           </dl>
         )}
-        {problems.length ? <ul role="alert" className="grid gap-1 text-sm text-destructive">{problems.map((p) => <li key={p}>{p}</li>)}</ul> : null}
+        {problems.length ? <ul id="w-problems" role="alert" className="grid gap-1 text-sm text-destructive">{problems.map((p) => <li key={p}>{p}</li>)}</ul> : null}
       </section>
       <div className="sticky bottom-0 flex max-w-2xl gap-2 border-t border-border bg-background py-3">
         <Button type="button" variant="outline" disabled={step === 0 || busy} onClick={() => { setProblems([]); setStep((x) => x - 1); }}>Voltar</Button>

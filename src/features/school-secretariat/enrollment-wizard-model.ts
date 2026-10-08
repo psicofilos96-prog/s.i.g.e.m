@@ -33,6 +33,21 @@ export function missingByStep(p: WizardPayload, id: Identity): Record<number, st
   return m;
 }
 
+/** NFORM.2 — erro específico por campo (mesmas regras de `missingByStep`, nada novo). */
+export type WizardField = "aluno.nome" | "identificacao" | "matricula.ano" | "matricula.data" | "turma" | "cpf";
+export function fieldProblems(p: WizardPayload, id: Identity, cpfDraft = ""): Partial<Record<WizardField, string>> {
+  const f: Partial<Record<WizardField, string>> = {};
+  if (!id.existingStudentId) {
+    if (!p.aluno?.nome?.trim()) f["aluno.nome"] = "Informe o nome completo do aluno.";
+    if (!id.hasCpf && !id.inep) f.identificacao = "Informe o CPF ou o código INEP do aluno.";
+  }
+  if (cpfDraft.trim() && !validCpf(cpfDraft)) f.cpf = "CPF inválido: confira os 11 dígitos.";
+  if (!p.matricula?.ano) f["matricula.ano"] = "Escolha o ano letivo.";
+  if (!p.matricula?.data) f["matricula.data"] = "Informe a data de início na escola.";
+  if (!p.turma?.id) f.turma = "Escolha uma turma.";
+  return f;
+}
+
 export const canComplete = (p: WizardPayload, id: Identity) =>
   Object.values(missingByStep(p, id)).every((l) => l.length === 0);
 
