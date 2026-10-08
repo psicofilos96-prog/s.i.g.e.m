@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +7,7 @@ import { CHECKLIST_AREAS, CHECKLIST_LABEL, CODE_TEXT, checklistComplete, checkli
 import { formatDateTime, operationalToday, shiftMonthKey, operationalMonthKey } from "@/lib/academic-date";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 interface Closing { id: string; competence: string; version: number; closing_on: string; manifest_sha256: string; recorded_at: string; reason: string | null; movement_ids: string[] }
 const STATE_TEXT = { AVAILABLE: "Registrado", ZERO: "Nenhum (zero registrado)", PENDING: "Pendente", UNKNOWN: "Desconhecido", BLOCKED: "Bloqueado" } as const;
 const prevMonth = () => shiftMonthKey(operationalMonthKey(), -1);

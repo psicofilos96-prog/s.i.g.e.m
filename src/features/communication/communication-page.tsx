@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
@@ -9,7 +10,7 @@ import { formatDateTime } from "@/lib/academic-date";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 const db = supabase as unknown as { from: (t: string) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
 const CAPS = ["publicar-comunicacao-escolar", "consultar-comunicacao-escolar", "comunicar-turma-atribuida"];

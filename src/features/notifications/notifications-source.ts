@@ -1,9 +1,10 @@
+import { callRpc } from "@/lib/rpc-call";
 import { supabase } from "@/integrations/supabase/client";
 import type { MyNotification, OpenResult } from "./notifications-model";
 
 type Rpc = (fn: string, a?: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
-const call = async <T,>(fn: string, a?: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 
 export const listMyNotifications = (before: string | null) => call<MyNotification[]>("my_notifications", { _limit: 30, _before: before });
 export const unreadCount = () => call<number>("my_unread_notification_count");

@@ -1,3 +1,4 @@
+import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
@@ -12,7 +13,7 @@ import {
 } from "./reporting-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
-const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await (supabase.rpc as unknown as Rpc)(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
+const call = callRpc;
 interface Row { total: number; school_id: string; row_data: Record<string, unknown> }
 interface Drill { dataset: Dataset; key: string; filters: Filters }
 
