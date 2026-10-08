@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { ConnectionBanner } from "./connection-banner";
 /**
  * App Shell 2.0 — Etapa 13UX.
  *
@@ -498,6 +499,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         >
           <div className="app-workspace mx-auto w-full max-w-[var(--container-app)] p-4 sm:p-5 lg:p-6 print:!max-w-none print:!p-0">
+            <ConnectionBanner />
             <StationGate pathname={pathname}>
               {(() => {
                 const g = guideForPath(pathname);
