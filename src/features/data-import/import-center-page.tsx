@@ -16,8 +16,8 @@ import { formatDateTime } from "@/lib/academic-date";
 
 type Preview = CenterPreview & { adapter: ImportAdapter };
 
-export function ImportCenterPage() {
-  const [adapterId, setAdapterId] = useState(IMPORT_ADAPTERS[0]!.id);
+export function ImportCenterPage({ initialAdapter }: { initialAdapter?: string | undefined } = {}) {
+  const [adapterId, setAdapterId] = useState(initialAdapter && adapterById(initialAdapter) ? initialAdapter : IMPORT_ADAPTERS[0]!.id);
   const adapter = adapterById(adapterId)!;
   const [preview, setPreview] = useState<Preview | null>(null);
   const [sourceRef, setSourceRef] = useState("");

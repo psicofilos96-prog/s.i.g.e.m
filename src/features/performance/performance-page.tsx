@@ -6,6 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { heatmap, heatBand } from "./performance-model";
+import { EvolutionSection, ExportButtons, StationHomePanel } from "./station-sections";
+import { exportHeatmap } from "./performance-station";
 import {
   aggregate, compareTemporal, computeMetric, FORMULA_LABEL, goalStatus, perfMessage,
   type Aggregate, type AssessmentVersion, type Disclosure, type Goal, type GroupBy, type MetricValue, type MetricVersion, type ResultRow,
@@ -34,12 +36,13 @@ export function PerformancePage() {
         : !assessments ? <SkeletonState label="Carregando" />
         : assessments.length === 0 ? <EmptyState title="Nenhuma avaliação institucional registrada" description="Sem avaliação cadastrada não há resultado nem métrica a mostrar. As avaliações rotineiras do professor continuam no Diário." />
         : <>
+            <StationHomePanel assessments={assessments} disclosure={disclosure} />
             {!disclosure && <StatePanel tone="warning" title="Política de divulgação não configurada" description="Nenhum grupo é suprimido porque não existe limiar registrado. A exportação de agregados fica bloqueada até a política existir." />}
             <div className="grid gap-3 text-sm sm:grid-cols-2">
               <label>Avaliação<select className={field} value={sel} onChange={(e) => setSel(e.target.value)}><option value="">Escolha…</option>{assessments.map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)} (v{a.version})</option>)}</select></label>
               <label>Comparar com (opcional)<select className={field} value={cmp} onChange={(e) => setCmp(e.target.value)}><option value="">Nenhuma</option>{assessments.filter((a) => a.logical_id !== sel).map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)}</option>)}</select></label>
             </div>
-            {sel && <AssessmentView key={sel + cmp} a={assessments.find((x) => x.logical_id === sel)!} other={assessments.find((x) => x.logical_id === cmp) ?? null} disclosure={disclosure} />}
+            {sel && <AssessmentView key={sel + cmp} all={assessments} a={assessments.find((x) => x.logical_id === sel)!} other={assessments.find((x) => x.logical_id === cmp) ?? null} disclosure={disclosure} />}
           </>}
     </div>
   );
@@ -56,7 +59,7 @@ function useAssessmentData(a: AssessmentVersion | null) {
   return { d, err };
 }
 
-function AssessmentView({ a, other, disclosure }: { a: AssessmentVersion; other: AssessmentVersion | null; disclosure: Disclosure }) {
+function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; all: readonly AssessmentVersion[]; other: AssessmentVersion | null; disclosure: Disclosure }) {
   const { d, err } = useAssessmentData(a);
   const o = useAssessmentData(other);
   const [by, setBy] = useState<GroupBy>("escola");
@@ -107,6 +110,7 @@ function AssessmentView({ a, other, disclosure }: { a: AssessmentVersion; other:
           })}
       </section>
       {d.metrics.length > 0 ? <HeatmapPicker rows={d.results} metrics={d.metrics} a={a} disclosure={disclosure} /> : null}
+      {d.metrics.length > 0 && all.length >= 3 ? <EvolutionSection reference={d.metrics[0]!} current={a} assessments={all} disclosure={disclosure} /> : null}
       {drill && (
         <section aria-labelledby="drill" className="rounded border p-4">
           <div className="flex justify-between"><h2 id="drill" className="font-semibold">Registros de origem — {drill.title}</h2><Button variant="outline" size="sm" onClick={() => setDrill(null)}>Fechar</Button></div>
@@ -177,6 +181,7 @@ function Heatmap({ rows, metric, a, disclosure }: { rows: readonly import("./per
   return (
     <section aria-labelledby="heat" className="rounded border p-4 space-y-2">
       <h2 id="heat" className="font-semibold">Habilidade × escola — {metric.label}</h2>
+      <ExportButtons name={`mapa-habilidade-escola-${metric.logical_id}`} make={() => exportHeatmap(rows, metric, a, disclosure)} />
       <p className="text-xs text-muted-foreground">O que significa: cada quadro mostra {FORMULA_LABEL(metric.formula)} dos resultados observados daquela habilidade naquela escola; "base" é quantos entraram na conta. Quadro em branco "sem dado" quer dizer que não há resultado registrado — não é zero. Cor mais forte = valor mais alto na escala.</p>
       <div className="overflow-x-auto">
         <table className="text-xs border-collapse">
