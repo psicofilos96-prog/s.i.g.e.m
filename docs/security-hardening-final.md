@@ -25,6 +25,6 @@
 
 ## Rodada 2026-10-07
 - Armazenamento: 5 áreas de arquivos (inclusao-sensivel, planejamento-docente, avaliacao-docente, alimentacao-evidencias, fotos-estudantes), todas privadas.
-- anon: 0 tabelas com qualquer privilégio; 23 funções executáveis: 4 DEFINER públicas aceitas (portal/verificações); 17 são triggers (não chamáveis diretamente); 2 auxiliares de busca INVOKER (sem dado).
+- anon: 0 tabelas com qualquer privilégio (regrediu por privilégio padrão; corrigido de novo na 0249, ver `seguranca-verificacao-final-nsec4.md`); 23 funções executáveis: 4 DEFINER públicas aceitas (portal/verificações); 17 são triggers (não chamáveis diretamente); 2 auxiliares de busca INVOKER (sem dado).
 - Corrigido (0233): `academic_year_operational_state_at` e `class_composition_at` deixam de ser executáveis por anon (desnecessário; regra inalterada para autenticados).
 - Ainda pendente: revisão item a item dos 427 DEFINER de authenticated; testes negativos (exigem executar como pessoa real — bloqueado nesta sessão); deep e build.
