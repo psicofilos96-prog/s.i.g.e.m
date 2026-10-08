@@ -353,15 +353,14 @@ export function GuidanceWorkspacePage() {
           Acompanhamento pedagógico
         </h1>
         <p className="mt-1 max-w-prose text-sm text-muted-foreground">
-          Quem precisa da sua atenção, o que está acontecendo no percurso de cada estudante e qual é
-          o próximo acompanhamento combinado.
+          Veja quem precisa de você e registre o próximo passo.
         </p>
       </header>
 
       {activeQueue ? (
         <WorkSurface
           title="Quem precisa da sua atenção"
-          support="Cada linha é uma pessoa e um acontecimento do percurso dela. A ordem não indica gravidade: quando existe prazo combinado, ele aparece escrito."
+          support="A ordem não indica gravidade. Quando há prazo, ele aparece escrito."
           tabs={queues.map((queue) => ({
             id: queue.definition.queueDefinitionId,
             label: queue.definition.labelSnapshot,
@@ -388,8 +387,8 @@ export function GuidanceWorkspacePage() {
       ) : null}
 
       <QuietSection
-        title="Percurso de um estudante"
-        support="Procure pelo nome ou pelo identificador institucional. Só aparece quem você está autorizado a acompanhar."
+        title="Encontrar um estudante"
+        support="Digite o nome. Só aparece quem você pode acompanhar."
       >
         <div className="calm-stack gap-4">
           <div className="calm-stack gap-1.5">
@@ -527,8 +526,8 @@ export function GuidanceWorkspacePage() {
       ) : null}
 
       <QuietSection
-        title="Entrar por turma"
-        support="A turma é uma porta de entrada: quais estudantes têm acompanhamento que você pode conhecer. Taxas, gráficos e séries históricas pertencem ao CIECE."
+        title="Ver por turma"
+        support="Escolha a turma para ver quem tem acompanhamento."
       >
         <div className="calm-stack gap-3">
           <div className="flex flex-wrap gap-2">

@@ -1,3 +1,4 @@
+import { MoreFilters } from "@/components/sigem/more-filters";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 
@@ -40,7 +41,7 @@ export function PerformancePage() {
             {!disclosure && <StatePanel tone="warning" title="Política de divulgação não configurada" description="Nenhum grupo é suprimido porque não existe limiar registrado. A exportação de agregados fica bloqueada até a política existir." />}
             <div className="grid gap-3 text-sm sm:grid-cols-2">
               <label>Avaliação<select className={field} value={sel} onChange={(e) => setSel(e.target.value)}><option value="">Escolha…</option>{assessments.map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)} (v{a.version})</option>)}</select></label>
-              <label>Comparar com (opcional)<select className={field} value={cmp} onChange={(e) => setCmp(e.target.value)}><option value="">Nenhuma</option>{assessments.filter((a) => a.logical_id !== sel).map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)}</option>)}</select></label>
+              <MoreFilters active={!!cmp}><label>Comparar com (opcional)<select className={field} value={cmp} onChange={(e) => setCmp(e.target.value)}><option value="">Nenhuma</option>{assessments.filter((a) => a.logical_id !== sel).map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)}</option>)}</select></label></MoreFilters>
             </div>
             {sel && <AssessmentView key={sel + cmp} all={assessments} a={assessments.find((x) => x.logical_id === sel)!} other={assessments.find((x) => x.logical_id === cmp) ?? null} disclosure={disclosure} />}
           </>}

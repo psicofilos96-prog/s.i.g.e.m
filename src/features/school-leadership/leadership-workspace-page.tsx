@@ -319,8 +319,7 @@ export function LeadershipWorkspacePage() {
           O que depende da sua decisão
         </h1>
         <p className="mt-1.5 max-w-prose text-sm text-muted-foreground">
-          {agent.personName} · {agent.positionLabel}. Cada assunto explica por que chegou até
-          você, em quais fatos se baseia e o que acontece em cada escolha possível.
+          {agent.personName} · {agent.positionLabel}. Abra um assunto para ver o motivo e decidir.
         </p>
       </header>
 
@@ -466,7 +465,7 @@ export function LeadershipWorkspacePage() {
 
       <QuietSection
         title="Consultar um estudante"
-        support="Nada aparece fora do seu escopo e da sua finalidade: identificador técnico não é critério de atendimento."
+        support="Digite o nome. Só aparece quem está no seu alcance."
       >
         <div className="calm-stack gap-3">
           <div className="min-w-0">

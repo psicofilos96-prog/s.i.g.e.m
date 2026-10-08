@@ -662,10 +662,10 @@ export function SecretaryWorkspacePage() {
             )}
           </RailCard>
 
-          <section className="min-w-0 px-1">
-            <h3 className="font-display text-sm font-semibold text-foreground">
+          <details className="min-w-0 px-1" data-nux5="unit-info">
+            <summary className="cursor-pointer font-display text-sm font-semibold text-foreground">
               Informações da unidade
-            </h3>
+            </summary>
             <div className="mt-2">
               <PlainFacts
                 items={[
@@ -713,7 +713,7 @@ export function SecretaryWorkspacePage() {
                 />
               </InstitutionalDetails>
             </div>
-          </section>
+          </details>
         </SideRail>
       </div>
 
