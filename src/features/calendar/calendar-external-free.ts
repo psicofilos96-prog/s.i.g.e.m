@@ -1,0 +1,130 @@
+/**
+ * CAL.EXT.3 — Layout livre dos modelos externos 4 (Matriz com fundo fotográfico) e 5 (Quadro anual).
+ * Só APARÊNCIA: posição/tamanho de cada bloco em mm sobre a área útil A4 paisagem, tipografia por bloco e
+ * dimensionamento da tabela. Datas, tipos, efeitos e totais continuam vindo do calendário interno
+ * (`PrintModel` → `ExternalViewModel`); nada aqui conta ou decide dia letivo.
+ */
+export const SHEET_W = 285, SHEET_H = 197; // área útil A4 paisagem (mm), a mesma dos demais externos
+export const FREE_BLOCKS = ["cabecalho", "matriz", "periodos", "legenda", "feriados", "conselhos", "assinaturas", "rodape"] as const;
+export type FreeBlockId = (typeof FREE_BLOCKS)[number];
+export const FREE_BLOCK_LABEL: Record<FreeBlockId, string> = {
+  cabecalho: "Cabeçalho", matriz: "Tabela do calendário", periodos: "Períodos letivos", legenda: "Legenda",
+  feriados: "Feriados", conselhos: "Conselhos de Classe", assinaturas: "Assinaturas", rodape: "Rodapé",
+};
+export type Align = "esquerda" | "centro" | "direita";
+export type BlockStyle = { font: string | null; pt: number; titlePt: number; lh: number; padMm: number; bold: boolean; align: Align; fill: boolean; cols: number; orientation: "vertical" | "horizontal" };
+export type BlockBox = { x: number; y: number; w: number; h: number; visible: boolean; locked: boolean; z: number; style: BlockStyle };
+export type TableCfg = {
+  mode: "ajustar" | "manual"; cellWmm: number; cellHmm: number; monthColMm: number; totalColMm: number;
+  headPt: number; dayPt: number; monthPt: number; dividerMm: number; showDayNumbers: boolean;
+};
+export type PhotoCfg = { top: string | null; bottom: string | null; topHmm: number; bottomHmm: number; veil: string; veilStrength: number; useDefaultTop: boolean };
+export type FreeLayout = { snap: boolean; stepMm: number; allowOverlap: boolean; blocks: Record<FreeBlockId, BlockBox>; table: TableCfg; photo: PhotoCfg };
+
+export const LIMITS = {
+  pt: [3, 40], titlePt: [3, 30], lh: [0.8, 2.5], padMm: [0, 8], cols: [1, 4], stepMm: [0.5, 10],
+  cellWmm: [3, 14], cellHmm: [3, 16], monthColMm: [8, 45], totalColMm: [0, 25], headPt: [3, 16], dayPt: [3, 16], monthPt: [3, 16], dividerMm: [0, 1],
+  topHmm: [0, 110], bottomHmm: [0, 90], veilStrength: [0, 100],
+} as const;
+
+const st = (o: Partial<BlockStyle> = {}): BlockStyle => ({ font: null, pt: 7, titlePt: 7.5, lh: 1.2, padMm: 1.5, bold: false, align: "esquerda", fill: true, cols: 1, orientation: "vertical", ...o });
+const box = (x: number, y: number, w: number, h: number, z: number, s: Partial<BlockStyle> = {}): BlockBox => ({ x, y, w, h, visible: true, locked: false, z, style: st(s) });
+
+/** Padrão "Quadro anual": Períodos na coluna direita (cartões empilhados, mesma altura da tabela); faixa inferior Legenda → Feriados → Conselhos → Assinaturas (≈27/27/26/20%). */
+export function defaultFreeLayout(kind: "quadro" | "fotografico"): FreeLayout {
+  const foto = kind === "fotografico";
+  const top = foto ? 36 : 24, tableH = foto ? 108 : 126, rowY = top + tableH + 3, rowH = foto ? 38 : 35;
+  const W = SHEET_W, gap = 2, rowW = W - 3 * gap;
+  const lw = Math.round(rowW * 0.27), fw = Math.round(rowW * 0.27), cw = Math.round(rowW * 0.26), aw = rowW - lw - fw - cw;
+  return {
+    snap: true, stepMm: 1, allowOverlap: false,
+    blocks: {
+      cabecalho: box(0, 0, W, top - 2, 2, { pt: 9, titlePt: foto ? 26 : 22, align: "centro", fill: false, bold: true }),
+      matriz: box(0, top, 226, tableH, 1, { fill: !foto }),
+      periodos: box(228, top, W - 228, tableH, 1, { pt: 7, titlePt: 8, orientation: "vertical" }),
+      legenda: box(0, rowY, lw, rowH, 1, { pt: 6.5, cols: 2 }),
+      feriados: box(lw + gap, rowY, fw, rowH, 1, { pt: 6.5, cols: 2 }),
+      conselhos: box(lw + fw + 2 * gap, rowY, cw, rowH, 1, { pt: 6.5, cols: 1 }),
+      assinaturas: box(lw + fw + cw + 3 * gap, rowY, aw, rowH, 1, { pt: 6, cols: 1 }),
+      rodape: box(0, rowY + rowH + 2, W, SHEET_H - (rowY + rowH + 2), 1, { pt: 6.5, align: "centro", fill: false }),
+    },
+    table: { mode: "ajustar", cellWmm: 6, cellHmm: 7, monthColMm: 18, totalColMm: 10, headPt: 6, dayPt: 6, monthPt: 6.5, dividerMm: 0.2, showDayNumbers: false },
+    photo: { top: null, bottom: null, topHmm: foto ? 52 : 0, bottomHmm: foto ? 38 : 0, veil: "#FBF8F2", veilStrength: foto ? 90 : 0, useDefaultTop: foto },
+  };
+}
+
+const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === "object" && !Array.isArray(x);
+const num = (v: unknown, [lo, hi]: readonly [number, number], d: number) => (typeof v === "number" && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
+const bool = (v: unknown, d: boolean) => (typeof v === "boolean" ? v : d);
+const HEX = /^#[0-9a-fA-F]{6}$/;
+const IMG = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+const img = (v: unknown, max: number) => (typeof v === "string" && IMG.test(v) && v.length <= max ? v : null);
+
+/** Mantém o bloco dentro da área útil: nunca sai da folha (largura/altura mínima 4 mm). */
+export function clampBox(b: Pick<BlockBox, "x" | "y" | "w" | "h">) {
+  const w = Math.min(SHEET_W, Math.max(4, b.w)), h = Math.min(SHEET_H, Math.max(4, b.h));
+  return { w, h, x: Math.min(SHEET_W - w, Math.max(0, b.x)), y: Math.min(SHEET_H - h, Math.max(0, b.y)) };
+}
+export const snapTo = (v: number, step: number, on: boolean) => (on ? Math.round(v / step) * step : Math.round(v * 10) / 10);
+
+export function sanitizeFree(raw: unknown, d: FreeLayout, fonts: readonly string[], maxImg: number): FreeLayout {
+  const r = isObj(raw) ? raw : {};
+  const rb = isObj(r["blocks"]) ? r["blocks"] : {};
+  const blocks = Object.fromEntries(FREE_BLOCKS.map((id) => {
+    const db = d.blocks[id]; const b = isObj(rb[id]) ? rb[id] : {}; const s = isObj(b["style"]) ? b["style"] : {};
+    const pos = clampBox({ x: num(b["x"], [0, SHEET_W], db.x), y: num(b["y"], [0, SHEET_H], db.y), w: num(b["w"], [4, SHEET_W], db.w), h: num(b["h"], [4, SHEET_H], db.h) });
+    const style: BlockStyle = {
+      font: typeof s["font"] === "string" && fonts.includes(s["font"]) ? s["font"] : null,
+      pt: num(s["pt"], LIMITS.pt, db.style.pt), titlePt: num(s["titlePt"], LIMITS.titlePt, db.style.titlePt), lh: num(s["lh"], LIMITS.lh, db.style.lh),
+      padMm: num(s["padMm"], LIMITS.padMm, db.style.padMm), bold: bool(s["bold"], db.style.bold),
+      align: s["align"] === "centro" || s["align"] === "direita" || s["align"] === "esquerda" ? s["align"] : db.style.align,
+      fill: bool(s["fill"], db.style.fill), cols: Math.round(num(s["cols"], LIMITS.cols, db.style.cols)),
+      orientation: s["orientation"] === "horizontal" || s["orientation"] === "vertical" ? s["orientation"] : db.style.orientation,
+    };
+    return [id, { ...pos, visible: bool(b["visible"], db.visible), locked: bool(b["locked"], db.locked), z: Math.round(num(b["z"], [0, 50], db.z)), style }];
+  })) as Record<FreeBlockId, BlockBox>;
+  const t = isObj(r["table"]) ? r["table"] : {}; const dt = d.table;
+  const p = isObj(r["photo"]) ? r["photo"] : {}; const dp = d.photo;
+  return {
+    snap: bool(r["snap"], d.snap), stepMm: num(r["stepMm"], LIMITS.stepMm, d.stepMm), allowOverlap: bool(r["allowOverlap"], d.allowOverlap), blocks,
+    table: {
+      mode: t["mode"] === "manual" ? "manual" : t["mode"] === "ajustar" ? "ajustar" : dt.mode,
+      cellWmm: num(t["cellWmm"], LIMITS.cellWmm, dt.cellWmm), cellHmm: num(t["cellHmm"], LIMITS.cellHmm, dt.cellHmm),
+      monthColMm: num(t["monthColMm"], LIMITS.monthColMm, dt.monthColMm), totalColMm: num(t["totalColMm"], LIMITS.totalColMm, dt.totalColMm),
+      headPt: num(t["headPt"], LIMITS.headPt, dt.headPt), dayPt: num(t["dayPt"], LIMITS.dayPt, dt.dayPt), monthPt: num(t["monthPt"], LIMITS.monthPt, dt.monthPt),
+      dividerMm: num(t["dividerMm"], LIMITS.dividerMm, dt.dividerMm), showDayNumbers: bool(t["showDayNumbers"], dt.showDayNumbers),
+    },
+    photo: {
+      top: img(p["top"], maxImg), bottom: img(p["bottom"], maxImg), topHmm: num(p["topHmm"], LIMITS.topHmm, dp.topHmm), bottomHmm: num(p["bottomHmm"], LIMITS.bottomHmm, dp.bottomHmm),
+      veil: typeof p["veil"] === "string" && HEX.test(p["veil"]) ? p["veil"] : dp.veil, veilStrength: num(p["veilStrength"], LIMITS.veilStrength, dp.veilStrength),
+      useDefaultTop: bool(p["useDefaultTop"], dp.useDefaultTop),
+    },
+  };
+}
+
+/** Avisos do layout (nunca corrige sozinho): sobreposição sem permissão e tabela manual maior que o bloco. */
+export function layoutIssues(f: FreeLayout): { overlaps: [FreeBlockId, FreeBlockId][]; tableOverflow: boolean } {
+  const vis = FREE_BLOCKS.filter((id) => f.blocks[id].visible);
+  const overlaps: [FreeBlockId, FreeBlockId][] = [];
+  if (!f.allowOverlap) for (let i = 0; i < vis.length; i++) for (let j = i + 1; j < vis.length; j++) {
+    const a = f.blocks[vis[i]!], b = f.blocks[vis[j]!];
+    if (a.x < b.x + b.w - 0.01 && b.x < a.x + a.w - 0.01 && a.y < b.y + b.h - 0.01 && b.y < a.y + a.h - 0.01) overlaps.push([vis[i]!, vis[j]!]);
+  }
+  const m = f.blocks.matriz, t = f.table;
+  const tableOverflow = m.visible && t.mode === "manual" && (t.monthColMm + 31 * t.cellWmm + t.totalColMm > m.w + 0.01 || (13 * t.cellHmm) > m.h + 0.01);
+  return { overlaps, tableOverflow };
+}
+
+/** Move/redimensiona um bloco (não mexe em bloco travado), com encaixe na grade e limite da folha. */
+export function moveFreeBlock(f: FreeLayout, id: FreeBlockId, patch: Partial<Pick<BlockBox, "x" | "y" | "w" | "h">>): FreeLayout {
+  const b = f.blocks[id]; if (b.locked) return f;
+  const next = { x: patch.x ?? b.x, y: patch.y ?? b.y, w: patch.w ?? b.w, h: patch.h ?? b.h };
+  const snapped = { x: snapTo(next.x, f.stepMm, f.snap), y: snapTo(next.y, f.stepMm, f.snap), w: snapTo(next.w, f.stepMm, f.snap), h: snapTo(next.h, f.stepMm, f.snap) };
+  return { ...f, blocks: { ...f.blocks, [id]: { ...b, ...clampBox(snapped) } } };
+}
+
+/** Pilha de desfazer/refazer do editor (limitada). */
+export type History<T> = { past: T[]; present: T; future: T[] };
+export const historyPush = <T,>(h: History<T>, next: T, limit = 60): History<T> => (next === h.present ? h : { past: [...h.past, h.present].slice(-limit), present: next, future: [] });
+export const historyUndo = <T,>(h: History<T>): History<T> => (h.past.length ? { past: h.past.slice(0, -1), present: h.past[h.past.length - 1]!, future: [h.present, ...h.future] } : h);
+export const historyRedo = <T,>(h: History<T>): History<T> => (h.future.length ? { past: [...h.past, h.present], present: h.future[0]!, future: h.future.slice(1) } : h);
