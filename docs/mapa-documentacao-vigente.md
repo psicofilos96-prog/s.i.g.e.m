@@ -251,3 +251,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `docs/cal-count-1-reconciliacao.md` — Registro de lote (CAL.COUNT.1).
 
 - `docs/auditoria-secretaria-n56.md` — Registro de lote (N5.6).
+- `docs/auditoria-avaliacao-n625.md` — Registro de lote (N6.2.5).

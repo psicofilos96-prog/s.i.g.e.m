@@ -251,3 +251,7 @@ Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de pe
 ## N5.6 — Secretaria Escolar (auditoria final)
 
 - PASS técnico; 2 listas sem código cru; detalhes em `docs/auditoria-secretaria-n56.md`. Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING, TEMPLATE_INSTITUCIONAL_PENDENTE, DEPENDE_DECISAO (Livro, vagas, documentos obrigatórios).
+
+## N6.2.5 — Avaliação (auditoria final)
+
+- PASS técnico; nenhum gap técnico decidido; detalhes em `docs/auditoria-avaliacao-n625.md`. Pendências: INTERACTIVE_BROWSER_VALIDATION_PENDING, ASSIGNMENT_PENDING, DEPENDE_DADO (BNCC↔SAEB).
