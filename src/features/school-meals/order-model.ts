@@ -16,7 +16,7 @@ export const orderAllows = (s: OrderStatus, a: OrderAction) => ORDER_ACTIONS_FRO
 export const AUTHORIZED: OrderStatus[] = ["autorizado-total", "autorizado-parcial", "retificado"];
 export const isAuthorized = (s: OrderStatus) => AUTHORIZED.includes(s);
 /** Escola só edita rascunho ou devolvido; submissão congela. */
-export const schoolCanEdit = (s: OrderStatus) => s === "rascunho" || s === "devolvido";
+export const schoolCanEdit = (s: OrderStatus) => orderAllows(s, "submissao");
 
 export interface OrderLine {
   item_ref: string; unidade_ref: string; apresentacao_ref?: string; contrato_ref?: string; publico_ref?: string;
