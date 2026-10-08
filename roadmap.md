@@ -592,4 +592,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 
 ## Em andamento (2026-10-08)
 - [x] NDATE.1 — auditoria de datas/horários/timezone (só bugs técnicos)
-- [ ] Calendários externos: anexar imagem de fundo e ajustar; PNGs sobrepostos sem alterar estrutura; controle total de formatação
+- [x] Calendários externos: anexar imagem de fundo e ajustar; PNGs sobrepostos sem alterar estrutura; controle total de formatação
