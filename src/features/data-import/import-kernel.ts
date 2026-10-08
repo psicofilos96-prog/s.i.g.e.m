@@ -60,7 +60,9 @@ export function exceptionReport<T>(rows: readonly T[], view: (r: T) => { locator
     .map((r) => ({ locator: r.locator, outcome: r.outcome, reasons: r.reasons.join("; ") || "sem motivo informado" }));
 }
 
-const csvCell = (v: string) => (/[";\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+/** NIMPORT.3: neutraliza fórmula (=, +, -, @, tab, CR) como o motor de relatórios, contra CSV injection. */
+const neutralizeCell = (v: string) => (/^[=+\-@\t\r]/.test(v) ? `'${v}` : v);
+const csvCell = (raw: string) => { const v = neutralizeCell(raw); return /[";\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
 /** CSV pt-BR (separador `;`, BOM UTF-8) do relatório de exceções. */
 export function exceptionReportCsv(rows: readonly ExceptionRow[]): string {
   const lines = ["Linha;Resultado;Motivos", ...rows.map((r) => [r.locator, r.outcome, r.reasons].map(csvCell).join(";"))];

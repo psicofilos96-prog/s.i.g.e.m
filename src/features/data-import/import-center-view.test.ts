@@ -69,3 +69,9 @@ describe("NIMPORT.3 — Censo no mesmo contrato", () => {
     expect(csv).toContain('2;Rejeitada;"medida desconhecida; ver"');
   });
 });
+
+describe("NIMPORT.3 — CSV de exceções", () => {
+  it("neutraliza fórmula vinda do arquivo", () => {
+    expect(censusRejectionsCsv([{ row: 1, reason: "=HYPERLINK(1)" }])).toContain("1;Rejeitada;'=HYPERLINK(1)");
+  });
+});

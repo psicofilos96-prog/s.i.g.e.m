@@ -47,7 +47,7 @@ describe("Central de relatórios (AR)", () => {
     for (const r of REPORTS) expect(r.columns.some((c) => /cpf/i.test(c.id + c.label))).toBe(false);
     const walk = (d: string): string[] => readdirSync(d).flatMap((n) => { const p = join(d, n); return statSync(p).isDirectory() ? walk(p) : [p]; });
     const offenders = walk("src/features").filter((p) => /\.tsx?$/.test(p) && !p.includes(".test.") && !p.includes("report-engine"))
-      .filter((p) => { const s = readFileSync(p, "utf8"); return /text\/csv/.test(s) && !/toCsv|reportCsv|analyticsCsv/.test(s); });
+      .filter((p) => { const s = readFileSync(p, "utf8"); return /text\/csv/.test(s) && !/toCsv|reportCsv|analyticsCsv|exceptionReportCsv/.test(s); });
     expect(offenders).toEqual([]);
   });
 });
