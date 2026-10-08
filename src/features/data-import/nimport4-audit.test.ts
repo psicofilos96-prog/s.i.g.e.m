@@ -4,7 +4,7 @@ import { IMPORT_ADAPTERS } from "./adapters";
 import { applyConfirmed, rowStates, type EventView, type Rpc, type StagedRow } from "./import-engine";
 import { readFileSafely, idempotencyKey, compensationPlan, importTooLarge } from "./import-kernel";
 import { buildPreimportPlan } from "@/features/year-preparation/preimport-plan";
-import { buildSchoolProposal, importSelectedSchools, type SchoolStaging } from "@/features/institutional-admin/school-source-import";
+import { buildSchoolProposal, importSelectedSchools, SCHOOL_STAGING, type SchoolStaging } from "@/features/institutional-admin/school-source-import";
 
 const row = (id: string, outcome: StagedRow["outcome"]): StagedRow & { id: string } =>
   ({ id, lineRef: id, outcome, identityKey: id, values: {}, reasons: [], canonicalRef: null } as unknown as StagedRow & { id: string });
@@ -59,7 +59,7 @@ describe("NIMPORT.4", () => {
 
   it("escolas: já cadastrada nunca é regravada pela fonte", async () => {
     const e = { inep: "33000001", official_name: "E", administrative_dependency: "municipal", private_school_category: null, partnership_public_authority: null, location_kind: "urbana", active: true, phone: null, institutional_email: null, source_sheet: null, source_line: 1 };
-    const src = { escolas: [e, { ...e, inep: "33000002" }, { ...e, inep: "33000002" }, { ...e, inep: "12" }] } as unknown as SchoolStaging;
+    const src = { ...SCHOOL_STAGING, escolas: [e, { ...e, inep: "33000002" }, { ...e, inep: "33000002" }, { ...e, inep: "12" }] } as unknown as SchoolStaging;
     const rows = buildSchoolProposal(src, new Set(["33000001"]));
     expect(rows.map((r) => r.status)).toEqual(["ja-cadastrado", "novo", "duplicado-na-fonte", "inep-invalido"]);
     const writes: unknown[] = [];
