@@ -1,4 +1,5 @@
 import { operationalToday } from "@/lib/academic-date";
+import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
@@ -17,10 +18,7 @@ const SECTORS = Object.keys(SECTOR_LABEL) as Sector[];
 function save(name: string, blob: Blob) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
 
 async function schoolNames(): Promise<Map<string, string>> {
-  const r = await supabase.from("institutional_school_record_versions").select("school_id, official_name, version_number");
-  const m = new Map<string, { n: string; v: number }>();
-  for (const x of r.data ?? []) if (!m.has(x.school_id) || m.get(x.school_id)!.v < x.version_number) m.set(x.school_id, { n: x.official_name, v: x.version_number });
-  return new Map([...m].map(([k, o]) => [k, o.n]));
+  return readCurrentSchoolNames().catch(() => new Map<string, string>());
 }
 
 export function ReportBuilder() {

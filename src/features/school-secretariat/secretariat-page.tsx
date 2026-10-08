@@ -1,4 +1,5 @@
 import { operationalToday } from "@/lib/academic-date";
+import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -26,11 +27,8 @@ export function SecretariatPage() {
   const [years, setYears] = useState<YearOption[]>([]);
   const [school, setSchool] = useState(""); const [year, setYear] = useState(""); const [on, setOn] = useState(today());
   useEffect(() => {
-    supabase.from("institutional_school_record_versions").select("school_id,official_name,version_number").order("version_number", { ascending: false })
-      .then(({ data }) => {
-        const m = new Map<string, string>();
-        for (const r of (data ?? []) as { school_id: string; official_name: string }[]) if (!m.has(r.school_id)) m.set(r.school_id, r.official_name);
-        const list = [...m].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+    void readCurrentSchoolNames().then((m) => {
+        const list = sortedSchoolOptions(m);
         setSchools(list);
         if (list.length === 1) setSchool(list[0]!.id);
       });

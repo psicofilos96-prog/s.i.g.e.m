@@ -1,4 +1,5 @@
 import { importTooLarge, IMPORT_TOO_LARGE_TEXT } from "@/features/data-import/import-kernel";
+import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { readCensusSource, censusRejectionsCsv, downloadCsv } from "@/features/data-import/import-center-view";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
@@ -51,8 +52,7 @@ function SchoolView({ years }: { years: YearOption[] }) {
   const [school, setSchool] = useState(""); const [year, setYear] = useState("");
   const [data, setData] = useState<Awaited<ReturnType<typeof readSchoolPending>> | null>(null); const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
-    supabase.from("institutional_school_record_versions").select("school_id,official_name,version_number").order("version_number", { ascending: false })
-      .then(({ data: d }) => { const m = new Map<string, string>(); for (const r of (d ?? []) as { school_id: string; official_name: string }[]) if (!m.has(r.school_id)) m.set(r.school_id, r.official_name); setSchools([...m].map(([id, name]) => ({ id, name }))); });
+    void readCurrentSchoolNames().then((m) => setSchools(sortedSchoolOptions(m)), () => setSchools([]));
   }, []);
   useEffect(() => {
     setData(null); setErr(null);

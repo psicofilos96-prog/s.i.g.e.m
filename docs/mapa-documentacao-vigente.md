@@ -289,3 +289,6 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [Resiliência a conexão (NRESILIENCE.1)](resiliencia-conexao-nresilience1.md) — Registro de lote
 - [Trajetória do estudante (NSTUDENT.1)](trajetoria-estudante-nstudent1.md) — Registro de lote
 - [Trajetória do profissional (NPROF.1)](trajetoria-profissional-nprof1.md) — Registro de lote
+
+## NSCHOOL.1
+- [Unidades escolares — coerência](unidades-escolares-nschool1.md) — Registro de lote
