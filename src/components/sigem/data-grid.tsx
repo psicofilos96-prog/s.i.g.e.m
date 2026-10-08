@@ -186,7 +186,8 @@ export function DataGrid<TRow>({
   const rowIds = rows.map(getRowId);
   const selectedIds = selection?.selectedIds ?? [];
   const allSelected = rowIds.length > 0 && rowIds.every((id) => selectedIds.includes(id));
-  const someSelected = selectedIds.length > 0;
+  // NPAG.1: o cabeçalho reflete só as linhas visíveis; marcar/desmarcar não apaga seleção de outras páginas.
+  const someSelected = rowIds.some((id) => selectedIds.includes(id));
 
   return (
     <div className="min-w-0 overflow-hidden rounded-none border-y border-border/70 bg-card shadow-panel sm:rounded-md sm:border-x">
@@ -214,7 +215,7 @@ export function DataGrid<TRow>({
                     aria-label={selection.allLabel ?? "Selecionar todos os registros visíveis"}
                     checked={allSelected ? true : someSelected ? "indeterminate" : false}
                     onCheckedChange={(checked) =>
-                      selection.onSelectionChange(checked ? rowIds : [])
+                      selection.onSelectionChange(toggleVisibleSelection(selectedIds, rowIds, checked === true))
                     }
                   />
                 </TableHead>
@@ -353,4 +354,10 @@ export function DataGrid<TRow>({
       ) : null}
     </div>
   );
+}
+
+/** NPAG.1 — marcar todos da página acrescenta só os visíveis; desmarcar remove só os visíveis. */
+export function toggleVisibleSelection(selected: readonly string[], visible: readonly string[], checked: boolean): string[] {
+  if (checked) return [...selected, ...visible.filter((id) => !selected.includes(id))];
+  return selected.filter((id) => !visible.includes(id));
 }
