@@ -1,3 +1,4 @@
+import { STATE_REGISTRY, labelsOf } from "@/config/state-presentation";
 /**
  * N4.3 — Mapa Estatístico em seis estruturas (I–VI), vocabulário do fluxo e documento oficial A4.
  * Puro: só reorganiza células já montadas pelo servidor; nunca calcula, nunca cria segunda fonte.
@@ -52,10 +53,7 @@ export function originBadge(c: MapCell): "Calculado pelo SIGEM" | "Precisa revis
  */
 export type WorkflowEvent = { kind: string; at: string; reason?: string | null };
 export type WorkflowStage = "rascunho" | "enviado" | "devolvido" | "reenviado" | "aprovado" | "em-retificacao";
-export const STAGE_LABEL: Record<WorkflowStage, string> = {
-  rascunho: "Rascunho", enviado: "Enviado à Estatística", devolvido: "Devolvido para ajuste", reenviado: "Reenviado",
-  aprovado: "Aprovado (oficial)", "em-retificacao": "Em retificação",
-};
+export const STAGE_LABEL: Record<WorkflowStage, string> = labelsOf(STATE_REGISTRY.mapa);
 export function projectWorkflow(opened: boolean, events: readonly WorkflowEvent[], approvedVersions: number): { stage: WorkflowStage; revision: number; returnReason: string | null } {
   const ordered = [...events].sort((a, b) => a.at.localeCompare(b.at));
   let stage: WorkflowStage = "rascunho"; let returned = false; let reason: string | null = null; let approvals = 0;
