@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 212. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 213. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -94,10 +94,11 @@ Documentos: 212. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `ciece-inventario-fontes-censo.md`, `ciece-mapa-censo-gpe-produto.md`, `ciece-mapa-projecao-rede.md`, `ciece-operacional.md`
 
-**Registros de lote (decisões e provas da etapa):** `gerador-relatorios-nrel2.md`
+**Registros de lote (decisões e provas da etapa):** `gerador-relatorios-nrel2.md`, `relatorios-modelos-nrel3.md`
 
 **Pendências declaradas:**
 - `gerador-relatorios-nrel2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `relatorios-modelos-nrel3.md`: DEPENDE_DECISAO, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `carga-educacenso-2026-lote-1.md`, `carga-educacenso-2026-lote-2.md`, `governanca-alunos-educacenso-2026.md`, `reconciliacao-censo-escolar-2026.md`, `relatorio-interoperabilidade-nqa2.md`, `relatorio-pos-campanha-sigem.md`, `relatorio-simulacao-piloto-2026-10-05.md`
 

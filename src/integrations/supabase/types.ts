@@ -14191,6 +14191,42 @@ export type Database = {
         }
         Relationships: []
       }
+      report_template_versions: {
+        Row: {
+          archived: boolean
+          choice: Json
+          id: string
+          idempotency_key: string
+          name: string
+          owner_id: string
+          recorded_at: string
+          sector: string
+          version: number
+        }
+        Insert: {
+          archived?: boolean
+          choice: Json
+          id?: string
+          idempotency_key: string
+          name: string
+          owner_id?: string
+          recorded_at?: string
+          sector: string
+          version?: number
+        }
+        Update: {
+          archived?: boolean
+          choice?: Json
+          id?: string
+          idempotency_key?: string
+          name?: string
+          owner_id?: string
+          recorded_at?: string
+          sector?: string
+          version?: number
+        }
+        Relationships: []
+      }
       school_communication_acts: {
         Row: {
           act: string
