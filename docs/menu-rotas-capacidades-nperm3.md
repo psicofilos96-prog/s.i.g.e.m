@@ -16,3 +16,11 @@ Classe: Registro de lote (2026-10-08). Política de capacidades inalterada.
 - DEPENDE_DECISAO: catálogo rota → capacidade de leitura para contas humanas. Hoje a maioria das telas não tem capacidade de leitura própria (os dados vêm filtrados pelo banco); esconder essas opções exigiria definir a regra, o que é decisão de política.
 - PENDENTE (teste de perfis com login): os 69 perfis exigem credencial técnica privilegiada, indisponível nesta sessão; rodou só a parte sem login.
 - INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## NPERM.4 (2026-10-08) — revalidação pós-módulos
+- Varridas as telas que recusam por inteiro: Publicações (já coberta), Diagnóstico (fora do menu; exige Administrador Geral), Integrações e Central de integrações.
+- Corrigido: "Integrações" e "Central de integrações" apareciam para todos, mas o banco (`integration_require_admin`, 0091/0092) recusa sem `administrar-integracoes` em alcance de rede. O menu agora exige essa capacidade em rede (`NAV_NETWORK_SCOPE`); deep link continua recusado pela tela e pelo banco.
+- Demais telas novas (Comunicação, Inclusão, Alimentação, Transporte, Acompanhamento, Painéis) mostram dados filtrados pelo banco e estado "sem acesso" — permanecem no menu (DEPENDE_DECISAO, igual NPERM.3).
+- Matriz de permissões inalterada; nenhuma capacidade concedida.
+- Testes negativos em `nav-capabilities.test.ts` (sem capacidade, capacidade só de escola, capacidade de rede).
+- NOT RUN: harness por estação/escola com login (credencial técnica indisponível nesta sessão); INTERACTIVE_BROWSER_VALIDATION_PENDING.
