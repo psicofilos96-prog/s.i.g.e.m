@@ -173,6 +173,7 @@ Documentos: 242. Sem classe: 0. Com referência quebrada: 0.
 - `observabilidade-nobs3.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `publicacoes-verificacao-publica.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `release-checklist-nrelease1.md`: DEPENDE_DECISAO, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `rotina-de-verificacao.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `seguranca-verificacao-final-nsec4.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `superficies-publicas-npub2.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `superficies-publicas-nrate1.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
