@@ -8,12 +8,17 @@ import type { PrintCount, PrintDay, PrintModel, PrintPeriod } from "./institutio
 import type { CalendarDayRead } from "./institutional-calendar-readers";
 import type { CouncilConfiguration } from "./institutional-calendar-councils";
 import { logosOf, type CalendarLogo } from "./calendar-logos";
+import { defaultFreeLayout, sanitizeFree, type FreeLayout } from "./calendar-external-free";
 
 export const PRESENTATION_TEMPLATES = [
   { code: "interno", label: "Interno — Modelo técnico/oficial" },
   { code: "externo-panoramico", label: "Externo — Panorâmico" },
   { code: "externo-mosaico", label: "Externo — Mosaico" },
+  { code: "externo-fotografico", label: "Externo — Matriz com fundo fotográfico" },
+  { code: "externo-quadro", label: "Externo — Quadro anual (layout livre)" },
 ] as const;
+/** CAL.EXT.3 — modelos de layout livre (blocos posicionados em mm). */
+export const isFreeTemplate = (t: PresentationTemplateCode): t is "externo-fotografico" | "externo-quadro" => t === "externo-fotografico" || t === "externo-quadro";
 export type PresentationTemplateCode = (typeof PRESENTATION_TEMPLATES)[number]["code"];
 export type ExternalTemplateCode = Exclude<PresentationTemplateCode, "interno">;
 export const DEFAULT_TEMPLATE: PresentationTemplateCode = "interno";
@@ -71,6 +76,8 @@ export type ExternalProfile = {
   qrUrl: string | null;
   cardRadius: number; cardShadow: number; borderWidth: number; density: number;
   symbolOverrides: Record<string, { background?: string; foreground?: string }>;
+  /** CAL.EXT.3 — layout livre (usado só pelos modelos Fotográfico e Quadro anual). */
+  free: FreeLayout;
 };
 
 const BASE: ExternalProfile = {
@@ -98,6 +105,7 @@ const BASE: ExternalProfile = {
   show: { cabecalho: true, legenda: true, feriados: true, periodos: true, conselhos: true, assinaturas: true, branding: true, totaisMensais: true,
     imagemTopo: true, slogan: true, numeroMes: true, pilares: true, qr: true, ilustracao: true, totaisColuna: true },
   qrUrl: null, cardRadius: 2, cardShadow: 1, borderWidth: 0.3, density: 1, symbolOverrides: {},
+  free: defaultFreeLayout("quadro"),
 };
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === "object" && !Array.isArray(x);
 /** Identidade visual institucional do snapshot (somente leitura; o externo nunca a altera). */
@@ -114,6 +122,8 @@ export const inheritedLogos = (presentation: Record<string, unknown> | null | un
 export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null): ExternalProfile {
   const b = structuredClone(BASE); b.logos = inheritedLogos(presentation);
   if (t === "externo-panoramico") { b.show.conselhos = false; b.show.assinaturas = false; }
+  else if (t === "externo-quadro") { b.free = defaultFreeLayout("quadro"); }
+  else if (t === "externo-fotografico") { b.free = defaultFreeLayout("fotografico"); b.pageColor = "#FBF8F2"; b.primary = "#1F4E3D"; b.headerColor = "#173B2E"; b.accent = "#C8862A"; b.borderColor = "#D9CFBF"; b.gridColor = "#C9BCA8"; }
   else { b.periods = { ...b.periods, layout: "horizontal" }; b.infoWidths = { legenda: 0, periodos: 44, feriados: 0, extra: 28 }; b.bands = { banner: 17, body: 59, info: 16, footer: 8 }; b.pageColor = "#EEF6FD"; b.holidayColor = "#E8201B"; }
   return b;
 }
@@ -204,6 +214,7 @@ export function sanitizeProfile(t: ExternalTemplateCode, raw: unknown, presentat
     borderWidth: clamp(r["borderWidth"], 0, 1, d.borderWidth), density: clamp(r["density"], 0.85, 1.1, d.density),
     symbolOverrides: Object.fromEntries(Object.entries(ov).flatMap(([k, v]) => v && typeof v === "object"
       ? [[k, { ...(HEX.test(String(v["background"])) ? { background: String(v["background"]) } : {}), ...(HEX.test(String(v["foreground"])) ? { foreground: String(v["foreground"]) } : {}) }]] : [])),
+    free: sanitizeFree(r["free"], d.free, FONTS, ASSET_MAX_CHARS),
   };
 }
 
