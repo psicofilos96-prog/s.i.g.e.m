@@ -94,11 +94,7 @@ export function countRows(rows: readonly Pick<StagedRow, "outcome">[]): Counts {
   return c;
 }
 
-export async function sha256Hex(bytes: ArrayBuffer | Uint8Array): Promise<string> {
-  const buf = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
-  const d = await crypto.subtle.digest("SHA-256", buf as BufferSource);
-  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
+export { sha256Hex } from "./import-kernel";
 
 export type EventView = Readonly<{ row_id: string | null; kind: "confirmacao" | "aplicada" | "falhou" | "compensacao" | "descartado"; canonical_ref: string | null; detail: string | null; recorded_at: string }>;
 

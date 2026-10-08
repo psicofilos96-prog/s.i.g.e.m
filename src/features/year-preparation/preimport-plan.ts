@@ -1,3 +1,4 @@
+import { idempotencyKey, keyCounts } from "@/features/data-import/import-kernel";
 /**
  * NCFG.2 — plano de pré-importação determinístico. PURO: não grava, não abre ano, não homologa.
  * Cada linha vira uma decisão proposta (ligar | criar-candidato | rejeitar-*) com chave de idempotência
@@ -12,13 +13,12 @@ export function buildPreimportPlan(input: {
   existing: ReadonlyMap<string, string>;
 }): PlanRow[] {
   const clean = input.keys.map((k) => (k == null ? "" : String(k).trim()));
-  const count = new Map<string, number>();
-  for (const k of clean) if (k) count.set(k, (count.get(k) ?? 0) + 1);
+  const count = keyCounts(clean);
   const out: PlanRow[] = [];
   let missing = 0;
   for (const k of [...new Set(clean)].sort()) {
     if (!k) continue;
-    const idem = `${input.adapter}@${input.version}:${input.sourceSha256}:${k}`;
+    const idem = idempotencyKey(input.adapter, input.version, input.sourceSha256, k);
     if ((count.get(k) ?? 0) > 1) { out.push({ key: k, action: "rejeitar-duplicado", idempotencyKey: null, existingId: null }); continue; }
     const ex = input.existing.get(k) ?? null;
     out.push({ key: k, action: ex ? "ligar" : "criar-candidato", idempotencyKey: idem, existingId: ex });

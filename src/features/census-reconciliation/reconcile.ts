@@ -1,3 +1,4 @@
+import { stableHash } from "@/features/data-import/import-kernel";
 /**
  * Frente G — reconciliação censitária determinística (projeção derivada, nada persiste).
  * Recebe só agregados (sem PII). Ausência (`null`) nunca vira zero; diferença só é
@@ -62,9 +63,7 @@ export function summarize(rows: readonly Comparison[]) {
 /** Impressão digital estável (FNV-1a) para provar idempotência entre execuções. */
 export function fingerprint(rows: readonly Comparison[]): string {
   const s = JSON.stringify(rows.map((r) => [r.dimension, r.scope, r.metric, r.source.sha256, r.sourceValue, r.canonicalValue, r.result]));
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
-  return h.toString(16).padStart(8, "0");
+  return stableHash(s);
 }
 
 /** Literal da fonte → grupo do relatório agregado. Mapeia o literal da ETAPA declarada, nunca o nome da turma. */

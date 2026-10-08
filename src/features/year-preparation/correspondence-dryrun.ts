@@ -1,3 +1,4 @@
+import { idempotencyKey, stableHash } from "@/features/data-import/import-kernel";
 /**
  * NCFG.3 — correspondências candidatas para a preparação de 2027. PURO e somente leitura:
  * não grava, não abre ano, não cria turma, não altera política. Toda saída é CANDIDATA;
@@ -8,16 +9,9 @@ export type Candidate = { domain: string; key: string; verdict: Verdict; reason:
 
 const norm = (v: unknown) => (v == null ? "" : String(v).trim());
 
-function idem(domain: string, version: number, sha: string, key: string) {
-  return `${domain}@${version}:${sha}:${key}`;
-}
+const idem = idempotencyKey;
 
-/** Chave estável de texto (FNV-1a 32 bits, hex) — determinística, sem dependência de runtime. */
-export function stableHash(s: string): string {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
-  return h.toString(16).padStart(8, "0");
-}
+export { stableHash };
 
 /** "hh:mm" → minutos; inválido ⇒ null (nunca zero). */
 export function parseHhmm(v: unknown): number | null {
