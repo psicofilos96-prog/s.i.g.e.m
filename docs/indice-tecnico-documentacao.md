@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 262. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 263. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -166,7 +166,7 @@ Documentos: 262. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `ambiente-canonico-sigem.md`, `dependencias-ndep1.md`, `engenharia-de-release.md`, `governanca-referencias-documentais.md`, `observabilidade-e-incidentes.md`, `observabilidade-erros-recuperacao.md`, `privacidade-e-ciclo-de-vida.md`, `prontidao-operacional-recuperacao.md`, `publicacoes-verificacao-publica.md`, `release-checklist-nrelease1.md`, `release-preparacao-nrelease2.md`, `rotina-de-verificacao.md`, `runbook-integridade-e-recuperacao.md`, `runbook-piloto.md`, `test-harness-institucional.md`
 
-**Registros de lote (decisões e provas da etapa):** `cal-count-1-reconciliacao.md`, `concorrencia-nconc2.md`, `estados-de-ausencia-nempty3.md`, `idempotencia-nidem1.md`, `observabilidade-nobs3.md`, `privacidade-minimizacao-npriv1.md`, `resiliencia-conexao-nresilience1.md`, `seguranca-verificacao-final-nsec4.md`, `superficies-publicas-npub2.md`, `superficies-publicas-nrate1.md`
+**Registros de lote (decisões e provas da etapa):** `cal-count-1-reconciliacao.md`, `concorrencia-nconc2.md`, `credenciais-desenvolvimento-naccess3.md`, `estados-de-ausencia-nempty3.md`, `idempotencia-nidem1.md`, `observabilidade-nobs3.md`, `privacidade-minimizacao-npriv1.md`, `resiliencia-conexao-nresilience1.md`, `seguranca-verificacao-final-nsec4.md`, `superficies-publicas-npub2.md`, `superficies-publicas-nrate1.md`
 
 **Pendências declaradas:**
 - `cal-count-1-reconciliacao.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
