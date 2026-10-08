@@ -224,3 +224,12 @@ Resultados dos 6 PDFs reais (EJA, EJA Fase I, Ensino Regular × Panorâmico, Mos
 - Bloco: espaçamento entre letras, itálico, cor do texto, cor de fundo, espessura/cor da borda e arredondamento, somados aos controles já existentes.
 - As imagens não entram no JSON de layout exportado; importar um layout mantém as imagens atuais.
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: anexar e salvar com login real.
+
+## CAL.EXT.3.1 — hardening do editor externo (registro de lote)
+
+- Seções do editor: `calendar-external-sections.ts` (`EDITOR_SECTIONS`, `resetSection`); cada propriedade do perfil pertence a exatamente uma seção, e "Restaurar esta seção" não toca nas outras.
+- Imagens (fundo e PNGs sobrepostas) só entram se o conteúdo confere com o tipo declarado (`validateImage`: PNG/JPEG/WEBP, não vazio, ≈1,1 MB).
+- Desfazer/Refazer da sessão na barra do editor (Ctrl+Z, Ctrl+Shift+Z/Ctrl+Y fora de campos de texto); nova edição apaga o refazer; histórico de 60 passos.
+- Aviso de transbordo: `sheetIssues` (tolerância 3 px) mede a folha e o botão "Ajustar para caber" aplica `nextFitStep`; compactar é decisão do usuário.
+- Prova (2026-10-08): 6 PDFs 2027 (Regular, EJA semestral, EJA Fase I × Panorâmico e Mosaico) gerados com a folha real no navegador, em `calendarios-externos-2027-cal-ext-3-1/` (Files). Todos: 1 página A4 deitada, 200 dias letivos, 0 elementos fora da folha, 0 imagens quebradas. Só o Panorâmico da EJA semestral avisou transbordo da legenda no padrão; 1 passo de "Ajustar para caber" resolveu. Sobreposições restantes nas medições são entrelinhas apertadas (caixa de linha), conferidas visualmente sem sobreposição de texto.
+- Conteúdo do calendário e modelo interno não foram alterados. Testes: `calendar-external-ext31.test.ts`.
