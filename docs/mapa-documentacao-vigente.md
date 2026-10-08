@@ -117,7 +117,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `database-constraints-indexes-batch-readers.md` | NDB.1.1 — Índices, FKs, constraints e readers em lote | Referência vigente | — | — |
 | `database-contracts-audit.md` | Auditoria de contratos do banco (NDB.1, 2026-10-07) | Referência vigente | sim | — |
 | `departamento-pessoal-vida-funcional.md` | Dados funcionais do DP externo (migration 0076) | Referência vigente | — | — |
-| `dependencias-ndep1.md` | NDEP.1 — Auditoria de dependências (2026-10-08) | Registro de lote | — | — |
+| `dependencias-ndep1.md` | NDEP.1 — Auditoria de dependências (2026-10-08) | Referência vigente | — | — |
 | `design-system-sigem.md` | Design System SIGEM — consolidação (2026-10-05) | Referência vigente | — | ver também `ux-sigem-design-system.md` e `vocabulario-interface-nui2.md` (vocabulário vigente) |
 | `diario-gate-e2e-real.md` | Diário — gate end-to-end real (2026-10-05) | Referência vigente | — | — |
 | `diario-professor-e2e.md` | Frente L — Diário do professor E2E | Referência vigente | — | — |
