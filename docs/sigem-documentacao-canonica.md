@@ -19,14 +19,14 @@ Este é o ponto de entrada técnico vigente. Documentos de frentes e etapas ante
 
 ## Pessoa, vínculo, presença, atribuição e conta
 - **Pessoa:** pessoa natural registrada uma vez na rede.
-- **Vínculo funcional:** relação de trabalho mantida pelo DP externo. O SIGEM só a consome.
+- **Vínculo funcional:** relação de trabalho mantida pelo DP administrativo do SIGEM (decisão N12.1); folha, previdência, pensão e consignações ficam fora.
 - **Presença/lotação educacional:** onde a pessoa atua educacionalmente (atuação com escopo e vigência).
 - **Atribuição/regência:** componente de uma turma designado a uma atuação, com vigência.
 - **Conta:** login. Não é pessoa nem autorização. Conta de órgão e conta técnica não praticam ato humano.
 
 ## Fontes e importação
 - Pipeline: arquivo → hash → staging imutável → classificação → diff → confirmação → writer canônico → eventos (`frente-bg-importacoes-governadas.md`).
-- O DP é externo e a planilha oficial é a fronteira (`DP_FILE_CONTRACT_PENDING`). RH não é perfil operacional do SIGEM.
+- DP administrativo (vínculos, lotações, atos, férias/licenças, designações, PAD) é do SIGEM; só folha/previdência/pensão/consignações são externas (decisão N12.1, superou a Frente BC).
 - GPE é `EXTERNAL_INTEGRATION_UNDEFINED`: não há arquivo aguardado.
 - Educacenso: `EDUCACENSO_LAYOUT_BLOCKED_BY_OFFICIAL_SOURCE`.
 - Execução técnica estreita: as funções `technical_import_*` serviram às cargas 2026 documentadas. Não são caminho operacional.
@@ -43,3 +43,7 @@ A lista única está em `src/features/help/block-codes.ts`, testada. Cada códig
 - Integridade e recuperação: `runbook-integridade-e-recuperacao.md`.
 - Observabilidade: `observabilidade-e-incidentes.md`.
 - Desempenho: `performance-baseline-au.md`.
+- Verificação: `rotina-de-verificacao.md` (`npm run verify`).
+
+## Mapa
+Classe e vigência de cada documento: `mapa-documentacao-vigente.md`.
