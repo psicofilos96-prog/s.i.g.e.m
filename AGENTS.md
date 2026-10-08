@@ -60,3 +60,6 @@ Estado, provas e pendências das etapas B4.x: `docs/sigem-continuidade-tecnica-2
 - >1000 linhas só por `readPages` (`src/lib/list-paging.ts`, ordem estável, `truncated`), porque o servidor corta em 1000 e contagem parcial não pode parecer total.
 - Índice técnico da documentação é gerado por `scripts/docs-index.mjs` e conferido no `verify`, nunca editado à mão, porque índice manual fica stale.
 - Fronteira crítica de dados usa `parseBoundary` (src/lib/runtime-shape.ts), não só `as T`, porque tipo não confere execução.
+
+## Segurança web
+- Cabeçalhos de segurança e no-store saem só de `src/lib/security-headers.ts` via middleware em `src/start.ts`, porque cabeçalho por rota é esquecido; CSP de script fica fora até haver nonce, porque quebraria a hidratação.
