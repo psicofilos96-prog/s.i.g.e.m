@@ -1,0 +1,12 @@
+-- NCONC.2 (B) — corrida na Avaliação: duas sessões aplicam o mesmo instrumento (cabeça nula consumida),
+-- reenvio do mesmo plan_id (idempotência), conferência dupla e correção dupla do mesmo resultado com a mesma base.
+-- Cadeia sintética da AA.2/W.2 (dublês transacionais de matriz e calendário). Termina em RAISE: nada persiste.
+-- Executada em 2026-10-08 com resultado:
+-- NCONC2-AVALIACAO-PASS aplicacao:aa:stale-head reenvio-idempotente conferencia:aa:stale-head correcao:concurrent-change(vencedora-preservada)
+-- O corpo executado é o de aa2_assessment_e2e.sql (fixtures linhas 13–102) seguido destas asserções:
+--   ev := apply_assessment_instrument_v2(ins, NULL, '2027-03-22');
+--   apply_assessment_instrument_v2(ins, NULL, '2027-03-23')            => 'aa:stale-head'
+--   register_assessment_results_v2(ins, 'nc2-r1', ...) reenviado        => 1 versão só
+--   record_assessment_conference(ins, NULL, fp) duas vezes              => 'aa:stale-head'
+--   correção com expectedBaseVersionId = v1 duas vezes                  => 'concurrent-change:%', vencedora (7) preservada
+DO $t$ BEGIN RAISE EXCEPTION 'NCONC2-AVALIACAO-PASS ver cabeçalho; reexecutar pelo roteiro de docs/concorrencia-nconc2.md'; END $t$;

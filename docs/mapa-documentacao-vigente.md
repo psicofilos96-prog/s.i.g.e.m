@@ -104,6 +104,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `ciece-operacional.md` | Frente O — CIECE operacional | Referência vigente | — | — |
 | `comunicacao-notificacoes.md` | Comunicação e notificações (migration 0077) | Referência vigente | — | — |
 | `concorrencia-nconc1.md` | NCONC.1 — Concorrência e cabeça esperada (stale-head) | Registro de lote | — | — |
+| `concorrencia-nconc2.md` | NCONC.2 — Prova de concorrência com rollback | Registro de lote | — | — |
 | `database-constraints-indexes-batch-readers.md` | NDB.1.1 — Índices, FKs, constraints e readers em lote | Referência vigente | — | — |
 | `database-contracts-audit.md` | Auditoria de contratos do banco (NDB.1, 2026-10-07) | Referência vigente | sim | — |
 | `departamento-pessoal-vida-funcional.md` | Dados funcionais do DP externo (migration 0076) | Referência vigente | — | — |

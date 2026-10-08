@@ -227,3 +227,10 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 | Avaliação | PASS | PASS | PASS (1) | ASSIGNMENT_PENDING |
 | Alimentação | PASS | PASS | PASS (20) | ASSIGNMENT_PENDING |
 Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de permissões.
+
+## NCONC.2 — Concorrência com rollback (2026-10-08)
+- PASS no banco (transação com RAISE): turma, matrícula guiada, enturmação, atribuição docente, jornada, Avaliação, documentos, regras institucionais.
+- PARCIAL: calendário (tipo de dia PASS; versão RECURSO_INDISPONIVEL — falta escola ativa na janela).
+- RECURSO_INDISPONIVEL: Mapa (sem prova transacional com capacidade + regra homologada).
+- Corrigido: `draft:closed`, `institutional-rule:already-homologated`, `idempotency:key-reused` agora são "conflito".
+- Pendente: INTERACTIVE_BROWSER_VALIDATION_PENDING. Detalhes: `docs/concorrencia-nconc2.md`.
