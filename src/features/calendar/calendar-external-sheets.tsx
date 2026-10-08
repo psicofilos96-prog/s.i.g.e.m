@@ -16,7 +16,7 @@ import {
   columnTotals, countText, periodColumns, externalLegendCodes, institutionalIdentity, shortDate, WEEK_HEAD,
   type ExternalLogo, type InfoBlock, type ExternalMonth, type ExternalPillar, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
 } from "./calendar-external-model";
-import { SHEET_W, type BlockBox, type FreeBlockId } from "./calendar-external-free";
+import { SHEET_H, SHEET_W, type BlockBox, type FreeBlockId } from "./calendar-external-free";
 
 type Types = ReturnType<typeof dayTypesOf>;
 const EFFECT_TEXT: Record<PrintDay["effect"], string> = {
@@ -429,7 +429,7 @@ export function ExternalSheet(props: { template: ExternalTemplateCode; vm: Exter
 
 // ---------------- CAL.EXT.3 — modelos de layout livre ----------------
 const mm = (v: number) => `${v}mm`;
-function FreeBox({ id, b, p, title, selected, onSelect, onMove, children }: { id: FreeBlockId; b: BlockBox; p: ExternalProfile; title?: string; selected?: boolean; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; children: ReactNode }) {
+function FreeBox({ id, b, p, title, selected, onSelect, onMove, children }: { id: FreeBlockId; b: BlockBox; p: ExternalProfile; title?: string; selected?: boolean; onSelect?: ((b: FreeBlockId) => void) | undefined; onMove?: ((b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void) | undefined; children: ReactNode }) {
   const s = b.style;
   const drag = (mode: "move" | "resize") => (e: RPointerEvent<HTMLElement>) => {
     if (!onMove || b.locked) return;
