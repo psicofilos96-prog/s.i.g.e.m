@@ -499,7 +499,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <StationGate pathname={pathname}>
               {(() => {
                 const g = guideForPath(pathname);
-                return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
+                return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary && signedInForGuide ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
               })()}
               <div className="mb-4 empty:hidden print:hidden"><WhatThisMeans pathname={pathname} /></div>
               {children}
