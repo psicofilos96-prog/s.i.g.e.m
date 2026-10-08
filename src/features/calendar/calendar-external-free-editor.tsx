@@ -6,8 +6,8 @@ import { useState, type ChangeEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { ASSET_MAX_CHARS, FONT_OPTIONS, type ExternalProfile } from "./calendar-external-model";
 import {
-  FREE_BLOCKS, FREE_BLOCK_LABEL, LIMITS, layoutIssues, moveFreeBlock, sanitizeFree,
-  type BlockStyle, type FreeBlockId, type FreeLayout, type TableCfg, type PhotoCfg,
+  FREE_BLOCKS, FREE_BLOCK_LABEL, LIMITS, MAX_STICKERS, layoutIssues, moveFreeBlock, moveSticker, sanitizeFree,
+  type BlockStyle, type FreeBlockId, type FreeLayout, type ImgAdjust, type Sticker, type TableCfg, type PhotoCfg,
 } from "./calendar-external-free";
 
 const field = "w-full rounded-md border border-input bg-background px-2 py-1 text-xs";
@@ -18,6 +18,10 @@ function Num({ label, value, min, max, step = 0.5, unit, onChange, disabled }: {
         onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v)) onChange(v); }} />
     </label>
   );
+}
+function Color({ label, value, onChange }: { label: string; value: string | null; onChange: (v: string | null) => void }) {
+  return <label className="block text-xs">{label}<span className="flex items-center gap-1"><input type="color" className="h-7 w-full" value={value ?? "#000000"} onChange={(e) => onChange(e.target.value)} />
+    {value && <button type="button" className="text-xs underline" onClick={() => onChange(null)}>padrão</button>}</span></label>;
 }
 function Section({ title, children, open }: { title: string; children: ReactNode; open?: boolean }) {
   return <details open={open} className="rounded-md border border-border bg-card"><summary className="cursor-pointer px-3 py-2 text-sm font-medium">{title}</summary><div className="space-y-2 border-t border-border px-3 py-3">{children}</div></details>;
@@ -36,13 +40,28 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
   const setTable = (patch: Partial<TableCfg>) => setF({ ...f, table: { ...f.table, ...patch } });
   const setPhoto = (patch: Partial<PhotoCfg>) => setF({ ...f, photo: { ...f.photo, ...patch } });
   const issues = layoutIssues(f);
-  const pickPhoto = (k: "top" | "bottom") => (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return;
+  const readImg = (e: ChangeEvent<HTMLInputElement>, done: (u: string) => void) => {
+    const file = e.target.files?.[0]; e.target.value = ""; if (!file) return;
     if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) { setMsg("Use PNG, JPEG ou WEBP."); return; }
-    const r = new FileReader(); r.onload = () => { const u = String(r.result); if (u.length > ASSET_MAX_CHARS) setMsg("Imagem maior que o limite (≈1,1 MB)."); else { setMsg(null); setPhoto({ [k]: u }); } }; r.readAsDataURL(file);
+    const r = new FileReader(); r.onload = () => { const u = String(r.result); if (u.length > ASSET_MAX_CHARS) setMsg("Imagem maior que o limite (≈1,1 MB)."); else { setMsg(null); done(u); } }; r.readAsDataURL(file);
   };
+  const pickPhoto = (k: "top" | "bottom" | "page") => (e: ChangeEvent<HTMLInputElement>) => readImg(e, (u) => setPhoto({ [k]: u }));
+  const [selSticker, setSelSticker] = useState<string | null>(null);
+  const st = f.stickers.find((s) => s.id === selSticker) ?? null;
+  const setSticker = (patch: Partial<Sticker>) => st && setF({ ...f, stickers: f.stickers.map((s) => (s.id === st.id ? { ...s, ...patch } : s)) });
+  const addSticker = (e: ChangeEvent<HTMLInputElement>) => readImg(e, (u) => {
+    if (f.stickers.length >= MAX_STICKERS) { setMsg(`Limite de ${MAX_STICKERS} imagens avulsas.`); return; }
+    const id = `img-${Date.now().toString(36)}`;
+    setF({ ...f, stickers: [...f.stickers, { id, src: u, x: 10, y: 10, w: 25, h: 25, rot: 0, opacity: 100, z: 5, front: true, locked: false }] }); setSelSticker(id);
+  });
+  const Adj = ({ k, label }: { k: "topAdj" | "bottomAdj" | "pageAdj"; label: string }) => { const a = f.photo[k]; const set = (patch: Partial<ImgAdjust>) => setPhoto({ [k]: { ...a, ...patch } } as Partial<PhotoCfg>);
+    return <div className="grid grid-cols-2 gap-2 rounded-md border border-border p-2"><p className="col-span-2 text-xs font-medium">Ajuste — {label}</p>
+      <Num label="Foco horizontal" unit="%" value={a.fx} min={0} max={100} step={1} onChange={(v) => set({ fx: v })} />
+      <Num label="Foco vertical" unit="%" value={a.fy} min={0} max={100} step={1} onChange={(v) => set({ fy: v })} />
+      <Num label="Zoom" unit="%" value={a.zoom} min={100} max={400} step={5} onChange={(v) => set({ zoom: v })} />
+      <Num label="Opacidade" unit="%" value={a.opacity} min={0} max={100} step={5} onChange={(v) => set({ opacity: v })} /></div>; };
   const exportJson = () => {
-    const blob = new Blob([JSON.stringify({ formato: "sigem-calendario-layout/1", free: { ...f, photo: { ...f.photo, top: null, bottom: null } } }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ formato: "sigem-calendario-layout/1", free: { ...f, photo: { ...f.photo, top: null, bottom: null, page: null }, stickers: [] } }, null, 2)], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "layout-calendario.json"; a.click(); URL.revokeObjectURL(a.href);
   };
   const importJson = (e: ChangeEvent<HTMLInputElement>) => {
@@ -50,7 +69,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
     void file.text().then((txt) => {
       try { const j = JSON.parse(txt) as { formato?: string; free?: unknown };
         if (j.formato !== "sigem-calendario-layout/1") { setMsg("Arquivo não é um layout de calendário do SIGEM."); return; }
-        setF({ ...sanitizeFree(j.free, defaults, FONT_OPTIONS, ASSET_MAX_CHARS), photo: { ...sanitizeFree(j.free, defaults, FONT_OPTIONS, ASSET_MAX_CHARS).photo, top: f.photo.top, bottom: f.photo.bottom } });
+        setF({ ...sanitizeFree(j.free, defaults, FONT_OPTIONS, ASSET_MAX_CHARS), photo: { ...sanitizeFree(j.free, defaults, FONT_OPTIONS, ASSET_MAX_CHARS).photo, top: f.photo.top, bottom: f.photo.bottom, page: f.photo.page }, stickers: f.stickers });
         setMsg("Layout importado. Confira a prévia e salve.");
       } catch { setMsg("Arquivo de layout ilegível."); }
     });
@@ -111,6 +130,15 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
             <option value="esquerda">À esquerda</option><option value="centro">Centralizado</option><option value="direita">À direita</option></select></label>
           {selected === "periodos" && <label className="block text-xs">Cartões dos períodos<select className={field} value={sel.style.orientation} onChange={(e) => setStyle({ orientation: e.target.value as BlockStyle["orientation"] })}>
             <option value="vertical">Empilhados (um abaixo do outro)</option><option value="horizontal">Lado a lado</option></select></label>}
+          <div className="grid grid-cols-2 gap-2">
+            <Num label="Espaço entre letras" unit="em" value={sel.style.tracking} min={LIMITS.tracking[0]} max={LIMITS.tracking[1]} step={0.01} onChange={(v) => setStyle({ tracking: v })} />
+            <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={sel.style.italic} onChange={(e) => setStyle({ italic: e.target.checked })} />Itálico</label>
+            <Color label="Cor do texto" value={sel.style.color} onChange={(v) => setStyle({ color: v })} />
+            <Color label="Cor de fundo" value={sel.style.bg} onChange={(v) => setStyle({ bg: v })} />
+            {sel.style.fill && <><Num label="Espessura da borda" unit="mm" value={sel.style.borderMm} min={0} max={2} step={0.05} onChange={(v) => setStyle({ borderMm: v })} />
+              <Num label="Arredondamento" unit="mm" value={sel.style.radiusMm} min={0} max={10} step={0.5} onChange={(v) => setStyle({ radiusMm: v })} />
+              <Color label="Cor da borda" value={sel.style.borderColor} onChange={(v) => setStyle({ borderColor: v })} /></>}
+          </div>
         </div>}
       </Section>
 
@@ -133,6 +161,8 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
       </Section>
 
       <Section title="Fotos e véu">
+        <label className="block text-xs">Imagem de fundo da folha inteira<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={pickPhoto("page")} /></label>
+        {f.photo.page && <><Button type="button" size="sm" variant="outline" onClick={() => setPhoto({ page: null })}>Remover imagem de fundo</Button><Adj k="pageAdj" label="fundo da folha" /></>}
         <label className="block text-xs">Foto do topo<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={pickPhoto("top")} /></label>
         {f.photo.top && <Button type="button" size="sm" variant="outline" onClick={() => setPhoto({ top: null })}>Remover foto do topo</Button>}
         <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={f.photo.useDefaultTop} onChange={(e) => setPhoto({ useDefaultTop: e.target.checked })} />Usar a foto institucional da cidade quando não houver foto própria</label>
@@ -144,6 +174,32 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
           <Num label="Força do véu" unit="%" value={f.photo.veilStrength} min={0} max={100} step={5} onChange={(v) => setPhoto({ veilStrength: v })} />
           <label className="block text-xs">Cor do véu<input type="color" className="block h-7 w-full" value={f.photo.veil} onChange={(e) => setPhoto({ veil: e.target.value })} /></label>
         </div>
+        {(f.photo.top || f.photo.useDefaultTop) && <Adj k="topAdj" label="foto do topo" />}
+        {f.photo.bottom && <Adj k="bottomAdj" label="foto do rodapé" />}
+      </Section>
+
+      <Section title="Imagens avulsas (PNG, selos, ícones)">
+        <p className="text-xs text-muted-foreground">Ficam por cima ou por baixo da folha, sem mudar a tabela nem os dados. Arraste na prévia para mover; o quadradinho do canto muda o tamanho.</p>
+        <label className="block text-xs">Adicionar imagem<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={addSticker} /></label>
+        {f.stickers.length > 0 && <div className="flex flex-wrap gap-1">{f.stickers.map((s, i) => (
+          <button key={s.id} type="button" onClick={() => setSelSticker(s.id)} aria-pressed={selSticker === s.id}
+            className={`rounded-md border px-2 py-1 text-xs ${selSticker === s.id ? "border-primary bg-primary text-primary-foreground" : "border-input bg-background"}`}>Imagem {i + 1}</button>))}</div>}
+        {st && <div className="space-y-2 rounded-md border border-border p-2">
+          <div className="grid grid-cols-2 gap-2">
+            <Num label="Esquerda" unit="mm" value={st.x} min={0} max={285} disabled={st.locked} onChange={(v) => setF(moveSticker(f, st.id, { x: v }))} />
+            <Num label="Topo" unit="mm" value={st.y} min={0} max={197} disabled={st.locked} onChange={(v) => setF(moveSticker(f, st.id, { y: v }))} />
+            <Num label="Largura" unit="mm" value={st.w} min={4} max={285} disabled={st.locked} onChange={(v) => setF(moveSticker(f, st.id, { w: v }))} />
+            <Num label="Altura" unit="mm" value={st.h} min={4} max={197} disabled={st.locked} onChange={(v) => setF(moveSticker(f, st.id, { h: v }))} />
+            <Num label="Rotação" unit="°" value={st.rot} min={-180} max={180} step={1} onChange={(v) => setSticker({ rot: v })} />
+            <Num label="Opacidade" unit="%" value={st.opacity} min={0} max={100} step={5} onChange={(v) => setSticker({ opacity: v })} />
+            <Num label="Camada (z)" value={st.z} min={0} max={50} step={1} onChange={(v) => setSticker({ z: Math.round(v) })} />
+          </div>
+          <div className="flex flex-wrap gap-3 text-xs">
+            <label className="flex items-center gap-1"><input type="checkbox" checked={st.front} onChange={(e) => setSticker({ front: e.target.checked })} />Por cima dos blocos</label>
+            <label className="flex items-center gap-1"><input type="checkbox" checked={st.locked} onChange={(e) => setSticker({ locked: e.target.checked })} />Travada</label>
+          </div>
+          <Button type="button" size="sm" variant="outline" onClick={() => { setF({ ...f, stickers: f.stickers.filter((s) => s.id !== st.id) }); setSelSticker(null); }}>Remover imagem</Button>
+        </div>}
       </Section>
 
       <Section title="Grade e encaixe">
