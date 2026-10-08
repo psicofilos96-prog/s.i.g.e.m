@@ -129,11 +129,12 @@ function RowsTable({ rows, states }: { rows: readonly (StagedRow & { id?: string
   return (
     <div className="max-h-96 overflow-auto rounded border">
       <table className="w-full text-sm">
-        <thead><tr className="text-left"><th className="p-2">Linha</th><th className="p-2">Identidade</th><th className="p-2">Classificação</th>{states && <th className="p-2">Aplicação</th>}<th className="p-2">Motivos</th></tr></thead>
+        <caption className="sr-only">Linhas do arquivo e classificação</caption>
+        <thead><tr className="text-left"><th scope="col" className="p-2">Linha</th><th scope="col" className="p-2">Identidade</th><th scope="col" className="p-2">Classificação</th>{states && <th scope="col" className="p-2">Aplicação</th>}<th scope="col" className="p-2">Motivos</th></tr></thead>
         <tbody>{rows.map((r) => (
           <tr key={r.line_ref} className="border-t align-top">
-            <td className="p-2">{r.line_ref}</td><td className="p-2">{r.identity_key ?? "—"}</td><td className="p-2">{OUTCOME_LABEL[r.outcome]}</td>
-            {states && <td className="p-2">{r.id ? states.get(r.id) : ""}</td>}
+            <td className="p-2">{r.line_ref}</td><td className="p-2">{r.identity_key ?? "—"}</td><td className="p-2">{OUTCOME_LABEL[r.outcome] ?? "Situação não reconhecida"}</td>
+            {states && <td className="p-2">{(r.id && states.get(r.id)) || "Situação não reconhecida"}</td>}
             <td className="p-2">{r.reasons.join(" ")}</td>
           </tr>))}</tbody>
       </table>
@@ -176,7 +177,7 @@ function BatchPanel({ batch, onReprocess }: { batch: BatchView; onReprocess: () 
   return (
     <div className="mt-3 space-y-3">
       <p className="text-xs break-all">Arquivo sha256:{batch.source_sha256} · conteúdo guardado sha256:{batch.staged_sha256}{batch.source_ref ? ` · ${batch.source_ref}` : ""}</p>
-      <p className="text-xs text-muted-foreground break-all">Proveniência: {provenanceLabel({ adapter: batch.adapter_id, version: adapter?.version ?? 0, sourceName: batch.source_name, sourceSha256: batch.source_sha256, locator: `${d.rows.length} linha(s)` })} · chave: <code>{idempotencyKey(batch.adapter_id, adapter?.version ?? 0, batch.source_sha256, "lote")}</code></p>
+      {adapter ? <p className="text-xs text-muted-foreground break-all">Proveniência: {provenanceLabel({ adapter: batch.adapter_id, version: adapter.version, sourceName: batch.source_name, sourceSha256: batch.source_sha256, locator: `${d.rows.length} linha(s)` })} · chave: <code>{idempotencyKey(batch.adapter_id, adapter.version, batch.source_sha256, "lote")}</code></p> : <p className="text-xs text-muted-foreground">Proveniência: formato do arquivo não reconhecido nesta versão (versão não disponível).</p>}
       <Counts counts={countRows(d.rows)} />
       <RowsTable rows={d.rows} states={labels} />
       <ExceptionsBar rows={d.rows} count={d.rows.filter((r) => r.outcome !== "valida").length} name={batch.source_name} />

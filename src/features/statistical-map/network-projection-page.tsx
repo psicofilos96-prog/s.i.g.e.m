@@ -139,9 +139,9 @@ export function NetworkProjectionPage() {
           </header>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm"><caption className="sr-only">Projeção da rede por escola</caption>
               <thead><tr className="border-b border-border text-left">
-                <th className="p-2">Escola</th><th className="p-2 print:hidden">Situação</th>{MEASURE_KEYS.map((k) => <th key={k} className="p-2">{MEASURE_LABEL[k]}</th>)}
+                <th scope="col" className="p-2">Escola</th><th scope="col" className="p-2 print:hidden">Situação</th>{MEASURE_KEYS.map((k) => <th key={k} className="p-2">{MEASURE_LABEL[k]}</th>)}
               </tr></thead>
               <tbody>
                 {shown.map((s) => (
@@ -165,7 +165,7 @@ export function NetworkProjectionPage() {
                     {open === s.schoolId ? (
                       <tr><td colSpan={MEASURE_KEYS.length + 2} className="bg-muted/40 p-3">
                         {s.classRows == null ? <p className="text-xs">Turmas não disponíveis.</p> : s.classRows.length === 0 ? <p className="text-xs">Nenhuma turma registrada.</p> : (
-                          <table className="text-xs"><thead><tr><th className="p-1 text-left">Turma</th><th className="p-1">Alocados</th><th className="p-1">Entradas no mês</th><th className="p-1">Saídas no mês</th></tr></thead>
+                          <table className="text-xs"><caption className="sr-only">Turmas da escola</caption><thead><tr><th scope="col" className="p-1 text-left">Turma</th><th scope="col" className="p-1">Alocados</th><th scope="col" className="p-1">Entradas no mês</th><th scope="col" className="p-1">Saídas no mês</th></tr></thead>
                             <tbody>{s.classRows.map((c) => (
                               <tr key={c.classId}><td className="p-1">{c.className ?? `${c.classId} (sem cadastro vigente)`}</td>
                                 {(["allocated", "enteredInMonth", "leftInMonth"] as const).map((k) => (

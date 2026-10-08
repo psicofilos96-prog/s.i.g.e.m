@@ -122,7 +122,7 @@ function Item({ item, hash, reviewer, onReview }: { item: InboxItem; hash: strin
     <li className="rounded-md border p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-medium">{rule?.label ?? item.ruleId}</h3>
-        <span className="rounded border px-2 py-0.5 text-xs">{item.finding ? SIGNAL_CLASS_LABEL[classifyFinding(item.finding)] : "—"} · {STATE_LABEL[item.state]} · {sev ?? "severidade não configurada"}</span>
+        <span className="rounded border px-2 py-0.5 text-xs">{item.finding ? SIGNAL_CLASS_LABEL[classifyFinding(item.finding)] : "—"} · {STATE_LABEL[item.state] ?? "Situação não reconhecida"} · {sev ?? "severidade não configurada"}</span>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">{rule?.explain}</p>
       {item.finding && <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 text-xs">

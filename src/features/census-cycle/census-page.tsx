@@ -149,7 +149,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
       <div className="space-y-3 text-sm">
         <div className="max-h-96 overflow-auto"><table className="w-full text-xs">
           <caption className="sr-only">{DOMAIN_LABEL[d]} por escola</caption>
-          <thead><tr><th className="text-left">Escola</th>{d === "escolas" ? <th className="text-left">Cadastro ativo</th> : ms.map((k) => <th key={k} className="text-left">{MEASURE_LABEL[k] ?? k}</th>)}</tr></thead>
+          <thead><tr><th scope="col" className="text-left">Escola</th>{d === "escolas" ? <th scope="col" className="text-left">Cadastro ativo</th> : ms.map((k) => <th scope="col" key={k} className="text-left">{MEASURE_LABEL[k] ?? k}</th>)}</tr></thead>
           <tbody>{content.schools.map((s) => <tr key={s.school_id} className="border-t border-border"><td>{schoolName(names, s.school_id)}</td>
             {d === "escolas" ? <td>{s.active ? "sim" : "não"}</td> : ms.map((k) => <td key={k}>{measureText(s.measures[k])}</td>)}</tr>)}</tbody>
         </table></div>
@@ -180,7 +180,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
             : <>
                 <p>{cov.known} medidas comprovadas · {cov.unknown} desconhecidas (nunca contadas como zero).</p>
                 <table className="w-full text-xs"><caption className="sr-only">Cobertura por domínio</caption>
-                  <thead><tr><th className="text-left">Domínio</th><th className="text-left">Conhecidas</th><th className="text-left">Desconhecidas</th><th className="text-left">Inconsistências</th></tr></thead>
+                  <thead><tr><th scope="col" className="text-left">Domínio</th><th scope="col" className="text-left">Conhecidas</th><th scope="col" className="text-left">Desconhecidas</th><th scope="col" className="text-left">Inconsistências</th></tr></thead>
                   <tbody>{domainCoverage(content).map((d) => <tr key={d.domain} className="border-t border-border"><td>{DOMAIN_LABEL[d.domain]}</td><td>{d.known}</td><td>{d.unknown}</td><td>{d.findings}</td></tr>)}</tbody></table>
                 <p className="text-xs text-muted-foreground">Fora da fotografia: {content.domains_unavailable.map((d) => `${d.domain} (${d.reason})`).join("; ") || "nenhum"}</p>
               </>}
