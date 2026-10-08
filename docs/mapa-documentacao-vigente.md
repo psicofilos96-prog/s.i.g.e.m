@@ -217,3 +217,5 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `ajuda-contextual-nhelp1.md` | NHELP.1 — Ajuda contextual curta | Registro de lote | — | — |
 | `estados-rotulos-nstate1.md` | NSTATE.1 — Estados e rótulos visuais | Registro de lote | — | — |
 | `inclusao-ninc1.md` | NINC.1 — Fechamento técnico da Inclusão | Registro de lote | — | — |
+
+| `docs/familia-carteirinha-nfam1.md` | Registro de lote | Portal da Família e carteirinha (NFAM.1) |

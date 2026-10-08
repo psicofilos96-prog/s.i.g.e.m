@@ -38,7 +38,7 @@ Legenda de status: COMPLETO / PARCIAL / AUSENTE / DEPENDE_DECISAO / DEPENDE_DADO
 | NE-03 | NEI | PEI/PAEE/relatório NEI | N8.2 | versões em inclusion_records | /inclusao + impressão | — | relatório não oficial | unit | PARCIAL | modelo e assinaturas institucionais | TEMPLATE_INSTITUCIONAL_PENDENTE |
 | DO-01 | Docente | Autosave EI | N10.2 | controlador | não ligado | — | — | unit | PARCIAL | ligar às telas | TÉCNICO |
 | DO-02 | Docente | Meu Diário no celular | N10.2 | sim | sim | sim | — | sem teste mobile | PARCIAL | verificação por viewport | TÉCNICO |
-| FA-01 | Família | Carteirinha emissão/QR/PDF | N9.2 | verificação pura | visual parcial | — | ausente | unit | PARCIAL | emissão, página pública | TÉCNICO |
+| FA-01 | Família | Carteirinha emissão/QR/PDF | N9.2, NFAM.1 | verificação + estados puros | /carteirinhas + portal | 0230, 0245 | histórico append-only | unit | COMPLETO_TECNICAMENTE | ASSIGNMENT_PENDING (emitir-carteirinha-estudantil); DEPENDE_DECISAO (foto/termo de imagem) | TÉCNICO |
 | FA-02 | Família | Autorizações/portaria | N9.2 | ausente | ausente | — | — | — | AUSENTE | regras de saída sozinho | parte DECISÃO |
 | FA-03 | Família | Ficha de saúde | fora até política | — | — | — | — | — | DEPENDE_DECISAO | política de acesso | decidir quem lê |
 | AL-01 | Alimentação | NAE.0–8 | preservar | sim | sim | parcial | parcial | unit | PARCIAL | revisão visual | TÉCNICO |

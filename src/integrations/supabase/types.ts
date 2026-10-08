@@ -19835,6 +19835,19 @@ export type Database = {
           starts_on: string
         }[]
       }
+      family_student_cards: {
+        Args: { _student: string }
+        Returns: {
+          academic_year: string
+          class_label: string
+          public_id: string
+          school_name: string
+          status: string
+          student_name: string
+          valid_until: string
+          version: number
+        }[]
+      }
       family_student_summary: { Args: { _student: string }; Returns: Json }
       family_students: {
         Args: never

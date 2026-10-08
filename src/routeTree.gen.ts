@@ -27,6 +27,7 @@ import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-dese
 import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-do-professor'
 import { Route as AvisosRouteImport } from './routes/avisos'
 import { Route as BaseDeConhecimentoRouteImport } from './routes/base-de-conhecimento'
+import { Route as CarteirinhasRouteImport } from './routes/carteirinhas'
 import { Route as CensoEscolarRouteImport } from './routes/censo-escolar'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
 import { Route as CentralDeIntegracoesRouteImport } from './routes/central-de-integracoes'
@@ -311,6 +312,11 @@ const AvisosRoute = AvisosRouteImport.update({
 const BaseDeConhecimentoRoute = BaseDeConhecimentoRouteImport.update({
   id: '/base-de-conhecimento',
   path: '/base-de-conhecimento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CarteirinhasRoute = CarteirinhasRouteImport.update({
+  id: '/carteirinhas',
+  path: '/carteirinhas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CensoEscolarRoute = CensoEscolarRouteImport.update({
@@ -1393,6 +1399,7 @@ export interface FileRoutesByFullPath {
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
+  '/carteirinhas': typeof CarteirinhasRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
@@ -1605,6 +1612,7 @@ export interface FileRoutesByTo {
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
+  '/carteirinhas': typeof CarteirinhasRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
@@ -1790,6 +1798,7 @@ export interface FileRoutesById {
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
+  '/carteirinhas': typeof CarteirinhasRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
@@ -2006,6 +2015,7 @@ export interface FileRouteTypes {
     | '/avaliacoes-do-professor'
     | '/avisos'
     | '/base-de-conhecimento'
+    | '/carteirinhas'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-integracoes'
@@ -2218,6 +2228,7 @@ export interface FileRouteTypes {
     | '/avaliacoes-do-professor'
     | '/avisos'
     | '/base-de-conhecimento'
+    | '/carteirinhas'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-integracoes'
@@ -2402,6 +2413,7 @@ export interface FileRouteTypes {
     | '/avaliacoes-do-professor'
     | '/avisos'
     | '/base-de-conhecimento'
+    | '/carteirinhas'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-integracoes'
@@ -2617,6 +2629,7 @@ export interface RootRouteChildren {
   AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
   AvisosRoute: typeof AvisosRoute
   BaseDeConhecimentoRoute: typeof BaseDeConhecimentoRoute
+  CarteirinhasRoute: typeof CarteirinhasRoute
   CensoEscolarRoute: typeof CensoEscolarRoute
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
   CentralDeIntegracoesRoute: typeof CentralDeIntegracoesRoute
@@ -2816,6 +2829,13 @@ declare module '@tanstack/react-router' {
       path: '/base-de-conhecimento'
       fullPath: '/base-de-conhecimento'
       preLoaderRoute: typeof BaseDeConhecimentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/carteirinhas': {
+      id: '/carteirinhas'
+      path: '/carteirinhas'
+      fullPath: '/carteirinhas'
+      preLoaderRoute: typeof CarteirinhasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/censo-escolar': {
@@ -4868,6 +4888,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
   AvisosRoute: AvisosRoute,
   BaseDeConhecimentoRoute: BaseDeConhecimentoRoute,
+  CarteirinhasRoute: CarteirinhasRoute,
   CensoEscolarRoute: CensoEscolarRoute,
   CentralDeAcessosRoute: CentralDeAcessosRoute,
   CentralDeIntegracoesRoute: CentralDeIntegracoesRoute,
