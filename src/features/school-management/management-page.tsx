@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -13,7 +14,7 @@ import { STATE_LABEL, buildPanel, managementRows, type Block, type BlockState, t
 import { readManagementInputs } from "./management-source";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const TONE: Record<BlockState, string> = { AVAILABLE: "border-border", ZERO: "border-border", UNKNOWN: "border-dashed", UNAVAILABLE: "border-dashed opacity-80", BLOCKED: "border-destructive/50" };
 
 export function ManagementPage() {

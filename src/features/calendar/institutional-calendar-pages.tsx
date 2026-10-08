@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
  * B4.6.7 — Consulta institucional positiva do calendário (lista + detalhe com grade mensal e totais por período B2.4).
@@ -21,7 +22,7 @@ import {
   type CalendarDayEffect, type CalendarDayRead, type CalendarVersionSummary,
 } from "./institutional-calendar-readers";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 export const readerErrorText = (e: unknown) =>
   e instanceof CalendarReaderShapeError ? "A resposta do calendário veio em formato inesperado. Nada foi exibido." : calendarErrorMessage(e);
 

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * 14.3 — Ponto de entrada servidor do CIECE. Fatos e recibo bruto ficam no
  * servidor; o navegador recebe só a `AnalyticResponse` já filtrada pela fronteira.
@@ -78,7 +79,7 @@ export const describeCieceSurface = createServerFn({ method: "POST" })
     const { data: caps } = await db.rpc("effective_capabilities");
     const classIds = [...new Set((caps ?? []).filter((c) => c.capability_id === "consultar-indicador-agregado" && c.class_id).map((c) => c.class_id as string))];
     // B2.7 — rótulo da turma por class_at na data atual resolvida explicitamente; escola pelo cadastro oficial.
-    const today = new Date().toISOString().slice(0, 10);
+    const today = operationalToday();
     const { data: ident } = classIds.length
       ? await db.from("institutional_classes").select("id, school_id").in("id", classIds)
       : { data: [] as { id: string; school_id: string }[] };

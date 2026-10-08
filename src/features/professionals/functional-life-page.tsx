@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +9,7 @@ import { functionalMessage, functionalPicture, functionalTimeline, VALIDITY_LABE
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const br = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR") : "não informado");
 
 async function readAll(t: string, col: string, school: string) {

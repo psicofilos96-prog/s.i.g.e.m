@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +12,7 @@ import {
   type Trajectory, type TrajectoryDomain,
 } from "./student-trajectory-source";
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
+const todayIso = () => operationalToday();
 
 export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
   const [asOf, setAsOf] = useState(todayIso());

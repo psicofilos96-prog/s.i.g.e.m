@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSessionAuthority } from "@/features/authority/session-authority";
@@ -16,7 +17,7 @@ import { ACTIONS, NATURE_LABEL, NATURE_ORDER, classifyPending, recordStateLine, 
 import { readCatalog, readSupervisionRecords, recordSupervision, type CatalogOption } from "./supervision-source";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 export function SupervisionPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);

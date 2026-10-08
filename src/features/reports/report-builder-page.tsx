@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
@@ -59,7 +60,7 @@ export function ReportBuilder() {
     if (!src || !result || !data) return;
     const branding = { headerLines: ["SIGEM — Gerador de relatórios"], title: src.title };
     const meta = provenance(src, choice, data, SECTOR_LABEL[sector]);
-    const base = `${src.definition.id}-${new Date().toISOString().slice(0, 10)}`;
+    const base = `${src.definition.id}-${operationalToday()}`;
     if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
     else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));
     else { const w = window.open("", "_blank"); if (w) { w.document.write(toPrintableHtml(result, branding, meta)); w.document.close(); w.print(); } }

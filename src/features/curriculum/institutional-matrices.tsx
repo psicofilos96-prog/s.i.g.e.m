@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
  * B4.1 — Matrizes curriculares com sessão institucional.
@@ -33,7 +34,7 @@ import {
   loadInstitutionalMatrixDetail,
 } from "@/features/curriculum/curricular-matrix-source";
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
+const todayIso = () => operationalToday();
 
 const NO_WRITE_NOTE =
   "Sua atuação vigente não concede manter matrizes curriculares em rede (ou a política de capacidades ainda não foi homologada); a edição fica indisponível.";

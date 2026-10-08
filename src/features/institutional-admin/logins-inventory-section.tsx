@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -56,7 +57,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
   async function exportAs(fmt: "csv" | "xlsx") {
     const result = runReport(LOGINS_REPORT, { params: {} }, exportRows(shown));
     const meta = [`Gerado em ${new Date().toLocaleString("pt-BR")}`, `${shown.length} conta(s)`, "Senhas não são exportadas."];
-    const name = `logins-sigem-${new Date().toISOString().slice(0, 10)}`;
+    const name = `logins-sigem-${operationalToday()}`;
     if (fmt === "csv") download(new Blob([toCsv(result, BRANDING, meta)], { type: "text/csv;charset=utf-8" }), `${name}.csv`);
     else download(new Blob([await toXlsx(result, BRANDING, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${name}.xlsx`);
   }

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -7,7 +8,7 @@ import { duplicatedStudents, transportMessage, transportPicture, type TransportF
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const CAPS = ["consultar-transporte-escolar", "manter-transporte-escolar"];
 
 type School = { id: string; name: string; canWrite: boolean };

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { ReviewPanel } from "@/features/teacher-review/review-panel";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
@@ -14,7 +15,7 @@ import {
 } from "./authoring-model";
 import { itemKey, itemMedia, mediaUrl, saveInstrument, saveItem, schoolsOfAssignments, uploadItemMedia, visibleInstruments, visibleItems } from "./authoring-source";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const input = "w-full rounded border border-input bg-background p-2 text-sm";
 type Tab = "itens" | "instrumentos";
 

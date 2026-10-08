@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -20,7 +21,7 @@ export function StaffingPage() {
   const [schoolId, setSchoolId] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
   const [perTeacher, setPerTeacher] = useState("");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const schools = useQuery({ queryKey: ["st-schools", uid], enabled: !!uid, queryFn: listSchools });
   const data = useQuery({ queryKey: ["st", uid, schoolId, today], enabled: !!schoolId, queryFn: async () => {
     const knownAt = new Date().toISOString();

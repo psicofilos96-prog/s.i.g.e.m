@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
@@ -12,7 +13,7 @@ import {
   type PolicyRule, type PolicyVersion,
 } from "./policy-governance";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 /** Central de usuários, atuações, capacidades e políticas. Todas as gravações passam por RPC. */
 export function AccessCenterPage() {

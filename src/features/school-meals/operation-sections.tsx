@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
@@ -118,8 +119,8 @@ type Kitchen = { kitchen_id: string; version: number; name: string; host_school_
 export function KitchensSection({ names, canManage }: { names: Map<string, string>; canManage: boolean }) {
   const [rows, setRows] = useState<Kitchen[] | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", from: new Date().toISOString().slice(0, 10), kitchen: "", school: "" });
-  const today = new Date().toISOString().slice(0, 10);
+  const [form, setForm] = useState({ name: "", from: operationalToday(), kitchen: "", school: "" });
+  const today = operationalToday();
   const load = useCallback(async () => { try { setRows(await call<Kitchen[]>("meal_kitchens_at", { _on: today })); } catch (e) { setMsg(mealMessage((e as Error).message)); } }, [today]);
   useEffect(() => { void load(); }, [load]);
   const act = async (fn: string, a: Record<string, unknown>) => { setMsg(null); try { await call(fn, a); await load(); setMsg("Registrado."); } catch (e) { const t = (e as Error).message; setMsg(t === "meal:school-already-served" ? "Esta escola já é atendida por outra unidade nesse período." : mealMessage(t)); } };

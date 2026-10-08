@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -7,7 +8,7 @@ import { infrastructureQueue, type InfraQueueRow } from "./infrastructure-networ
 import type { InfraAttributeRow, InfraObservationRow } from "./school-infrastructure";
 
 const db = supabase as unknown as { from: (t: string) => any };
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 /** Lê só o que a RLS já libera à conta: escolas fora do escopo simplesmente não chegam. */
 export function InfrastructureNetworkPage() {

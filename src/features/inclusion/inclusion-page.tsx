@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { TermReviewPanel } from "./term-review-panel";
@@ -15,7 +16,7 @@ import { openInclusionAttachment, uploadInclusionAttachment } from "./inclusion-
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 const call = async <T,>(fn: string, a: Record<string, unknown>) => { const r = await rpc(fn, a); if (r.error) throw new Error(r.error.message); return r.data as T; };
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const br = (d: string | null) => (d ? new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR") : "sem término");
 const field = "mt-1 block w-full rounded border bg-background p-2";
 

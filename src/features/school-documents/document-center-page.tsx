@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useEffect, useMemo, useState } from "react";
@@ -15,7 +16,7 @@ import {
   cancelEmission, emitDocumentV2, readComposableKinds, readDocumentFacts, readStudentEmissions, readTemplates, recordTemplateVersion,
 } from "./document-source";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 export function DocumentView({ title, identity, render, footer }: {
   title: string; identity: TemplateVersion["identity"]; render: RenderResult; footer?: React.ReactNode;

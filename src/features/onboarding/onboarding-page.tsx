@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +14,7 @@ import {
 } from "./onboarding-model";
 
 const LABEL: Record<FactState, string> = { sim: "Concluído", nao: "Pendente", "nao-verificavel": "Não verificável" };
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 export function OnboardingPage() {
   const authority = useSessionAuthority();

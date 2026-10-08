@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { OWNER_DECISION_ACT_REF } from "@/features/calendar/calendar-central";
 /**
@@ -44,7 +45,7 @@ export const CAP = {
   normBuild: "construir-norma-composicao-calendario-da-rede", normHomologate: "homologar-norma-composicao-calendario-da-rede",
 } as const;
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 const errText = (e: unknown) => e instanceof CalendarWriteRefused ? e.message : e instanceof Error ? writeRefusalText(e.message) : "Falha inesperada. Nada foi confirmado.";
 const EFFECT_LABEL = (e: boolean | null) => e === true ? "conta como dia letivo" : e === false ? "não conta como dia letivo" : "efeito não declarado";
 const effectFromValue = (v: string): boolean | null => v === "true" ? true : v === "false" ? false : null;

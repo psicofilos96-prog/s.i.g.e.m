@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -26,7 +27,7 @@ export function ScenarioPage() {
   const [form, setForm] = useState({ classId: "", blockKey: "", to: "", eng: "" });
   const [perTeacher, setPerTeacher] = useState("");
   useEffect(() => { if (store && uid) setList(store.list(uid)); }, [store, uid]);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const schools = useQuery({ queryKey: ["sim-schools", uid], enabled: !!uid, queryFn: listSchools });
   const live = useQuery({ queryKey: ["sim-base", uid, schoolId, today], enabled: !!schoolId, queryFn: () => loadStaffingInputs(schoolId!, today, new Date().toISOString()) });
   const cmp = useMemo(() => { try { return current ? compare(current) : null; } catch { return null; } }, [current]);

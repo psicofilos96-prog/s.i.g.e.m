@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader, EmptyState } from "@/components/sigem/patterns";
@@ -29,7 +30,7 @@ export function PilotReadinessPage() {
   const schools = useQuery({ queryKey: ["pilot-schools", uid], enabled: !!uid, queryFn: listSchools });
   const net = useQuery({ queryKey: ["pilot-net", uid, family], enabled: !!uid, queryFn: () => loadNetwork(family) });
   const school = schools.data?.find((s) => s.id === schoolId) ?? null;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const facts = useQuery({ queryKey: ["pilot-school", uid, schoolId, today], enabled: !!school, queryFn: () => loadSchoolFacts(school!.id, school!.name, today) });
 
   if (a.status === "signed-out") return <EmptyState title="Entre para ver a prontidão" description="A verificação usa só o que sua conta pode ler." />;

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { unitKindLabel } from "./school-source-import";
 import { ADMIN_FIELDS, ADMIN_FIELD_LABEL, adminCoherenceWarnings, adminFieldArgs, resultingAdmin, type AdminField, type AdminFieldState } from "./school-admin-fields";
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
@@ -205,7 +206,7 @@ function SchoolDetail(props: {
 }) {
   const { unit, meta, links, kinds, units, name, canMaintain, mode, setMode, err, setErr, submit, reload } = props;
   const cur = currentSchoolVersion(unit);
-  const [on, setOn] = useState(new Date().toISOString().slice(0, 10));
+  const [on, setOn] = useState(operationalToday());
   const atDate = schoolVersionAt(unit, on);
   const [toggle, setToggle] = useState(false);
   const versions = [...unit.versions].sort((a, b) => b.versionNumber - a.versionNumber);
