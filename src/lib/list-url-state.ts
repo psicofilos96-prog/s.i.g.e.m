@@ -7,7 +7,7 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
  * valores iguais ao padrão saem da URL. A busca livre NUNCA vai para a URL (contém nomes de
  * pessoas): fica em `usePersistentState` (sessão do navegador).
  */
-const SAFE_VALUE = /^[\p{L}\p{N}_.:-]{1,80}$/u;
+const SAFE_VALUE = /^[\p{L}\p{N}_.:() /-]{1,80}$/u;
 
 export function readListFilters<T extends Record<string, string>>(search: Record<string, unknown>, defaults: T): T {
   const out = { ...defaults };

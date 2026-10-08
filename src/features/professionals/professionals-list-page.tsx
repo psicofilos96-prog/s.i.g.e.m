@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { usePersistentState } from "@/lib/list-paging";
+import { useListUrlFilters } from "@/lib/list-url-state";
 import { Link } from "@tanstack/react-router";
 import { MoreHorizontal } from "lucide-react";
 import { DataGrid, type DataGridColumn, type DataGridState } from "@/components/sigem/data-grid";
@@ -111,8 +113,9 @@ function searchHaystack(item: DemonstrationProfessional) {
 }
 
 export function ProfessionalsListPage() {
-  const [query, setQuery] = useState("");
-  const [values, setValues] = useState<FilterValues>(initialValues);
+  // NFILTER.1: busca livre só na sessão (contém nomes); filtros de opção na URL.
+  const [query, setQuery] = usePersistentState("profissionais:busca", "");
+  const [values, setValues] = useListUrlFilters(initialValues);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selected, setSelected] = useState<string[]>([]);
   const [viewState, setViewState] = useState<DataGridState>("ready");
