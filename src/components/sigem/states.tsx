@@ -197,5 +197,5 @@ export const ABSENCE_TEXT: Readonly<Record<AbsenceKind, { title: string; descrip
 
 export function AbsenceState({ kind, title, description, action, compact }: { kind: AbsenceKind; title?: string; description?: string; action?: ReactNode; compact?: boolean }) {
   const t = ABSENCE_TEXT[kind];
-  return <div data-absence={kind}><EmptyState title={title ?? t.title} description={description ?? t.description} action={action} compact={compact} /></div>;
+  return <div data-absence={kind}><EmptyState title={title ?? t.title} description={description ?? t.description} {...(action !== undefined ? { action } : {})} {...(compact !== undefined ? { compact } : {})} /></div>;
 }

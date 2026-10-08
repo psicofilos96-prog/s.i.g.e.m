@@ -41,7 +41,7 @@ Registrar para cada item: responsável, data, resultado, evidência.
 - [ ] REVISAR: restauração de backup nunca testada.
 
 ### 6. Bloqueios conhecidos (não resolver na homologação)
-- STOP 2027: nenhum calendário 2027 homologado (198 dias letivos < 200 — DEPENDE_DECISAO).
+- (Histórico) STOP 2027 por 198 dias foi superado: CAL.COUNT.1 PASS com 200 dias; abrir 2027 continua decisão do proprietário.
 - Gaps decididos de NFINAL.7 abertos.
 
 ## Proibido neste lote

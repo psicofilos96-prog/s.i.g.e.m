@@ -4,6 +4,8 @@ import { Link } from "@tanstack/react-router";
 import { ChevronRight, Clock3, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useContext } from "react";
+import { QueryClientContext } from "@tanstack/react-query";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { stationAllowsPath } from "@/features/authority/station-navigation";
 import {
@@ -38,10 +40,6 @@ export function OperationalPageHeader({
   };
   actions?: ReactNode;
 }) {
-  // NNAV.2 — trilha nunca vira link para área fora da estação da conta de setor.
-  const authority = useSessionAuthority();
-  const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
-  const parentAllowed = !!parent && (!principal || stationAllowsPath(principal.station, parent.to));
   return (
     <header className="grid grid-cols-1 items-end gap-4 border-b border-border/70 pb-5 sm:grid-cols-[minmax(0,1fr)_auto]">
       <div className="min-w-0">
@@ -56,13 +54,7 @@ export function OperationalPageHeader({
             {parent ? (
               <>
                 <BreadcrumbItem>
-                  {parentAllowed ? (
-                    <BreadcrumbLink asChild>
-                      <Link to={parent.to}>{parent.label}</Link>
-                    </BreadcrumbLink>
-                  ) : (
-                    <span data-breadcrumb-unlinked="true">{parent.label}</span>
-                  )}
+                  {useContext(QueryClientContext) ? <SessionParentCrumb parent={parent} /> : <ParentCrumb parent={parent} allowed />}
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
               </>
@@ -222,4 +214,21 @@ export function FutureAreaLink({ children }: { children: ReactNode }) {
       <ChevronRight className="size-4" />
     </Button>
   );
+}
+
+type CrumbParent = { label: string; to: Parameters<typeof Link>[0]["to"] & string };
+function ParentCrumb({ parent, allowed }: { parent: CrumbParent; allowed: boolean }) {
+  return allowed ? (
+    <BreadcrumbLink asChild>
+      <Link to={parent.to}>{parent.label}</Link>
+    </BreadcrumbLink>
+  ) : (
+    <span data-breadcrumb-unlinked="true">{parent.label}</span>
+  );
+}
+/** NNAV.2 — trilha nunca vira link para área fora da estação da conta de setor. */
+function SessionParentCrumb({ parent }: { parent: CrumbParent }) {
+  const authority = useSessionAuthority();
+  const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
+  return <ParentCrumb parent={parent} allowed={!principal || stationAllowsPath(principal.station, parent.to)} />;
 }
