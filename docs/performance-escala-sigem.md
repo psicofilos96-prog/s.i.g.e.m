@@ -58,3 +58,25 @@ Sem mudança de autorização. Medições = estatísticas acumuladas do banco (p
 - Teste de escala com 55/698/9.763 usando login real = INTERACTIVE_BROWSER_VALIDATION_PENDING. Regressão de autorização/temporalidade coberta por `class-names-batch.test.ts` (mesmos validOn/knownAt, falha isolada, ausência nunca vira nome) e pela suíte.
 
 Status NPERF.2: hotspots conhecidos resolvidos ou justificados.
+
+## NPERF.4 (2026-10-08)
+Sem mudança de autorização. Fonte: estatísticas acumuladas do banco (pg_stat_statements); "antes" = NPERF.1/NPERF.2, "agora" = mesma fonte em 2026-10-08 (inclui chamadas anteriores às correções, então é tendência, não prova isolada).
+
+| Consulta | NPERF.1/2 | Agora | Leitura |
+|---|---|---|---|
+| effective_capabilities() | 2.954 ch., 70 ms | 3.856 ch., 79 ms, máx 3,1 s | ainda a mais chamada; restavam leitores fora do cache da tela |
+| capability_policy_rules (lista) | 44 ch., 2.654 ms | 106 ch., 1.123 ms | 0232 surtiu efeito (média caiu à metade com mais chamadas) |
+| user_person_links | 2.611 ch., 24 ms | 3.332 ch., 30 ms | cache da sessão (NPERF.2) |
+| institutional_students (lista) | 130 ch., 0,9 s | 264 ch., 0,85 s, máx 7,9 s | RLS por linha — JUSTIFICADO (inalterado) |
+| institutional_classes (lista sem filtro) | 19 ch., 6,4 s | 21 ch., 6,6 s | RLS por linha — JUSTIFICADO (inalterado) |
+| general_admin_session() | — | 1.800 ch., 46 ms | novo no ranking; já por sessão; observar |
+
+Corrigido (com evidência no código):
+- Fechamento de período e Tarefas chamavam `effective_capabilities()` a cada carga, fora do cache da tela: agora usam `readEffectiveCapabilitiesShared` (`src/features/authority/capabilities-cache.ts`) — chave = conta, 60 s, chamadas simultâneas compartilhadas, erro nunca guardado, login/logout/troca de conta descartam. Teste: `capabilities-cache.test.ts` (4).
+- Tarefas perguntava `operational_engagement_active` em série, tarefa × atuação (N×M, repetindo o mesmo par); agora cada par atuação×escola é perguntado uma vez, em paralelo. Mesmo resultado.
+- Diário NÃO usa o cache compartilhado: sua carga é por contexto de sessão (B4.10.0c), e reaproveitar a resposta quebraria essa garantia (8 testes provaram). JUSTIFICADO.
+
+Pendente: RLS por linha de turmas/alunos (prova de equivalência como pessoa real); medição de bundle (não há build manual neste ambiente) e de payload por tela com login real — INTERACTIVE_BROWSER_VALIDATION_PENDING; o "depois" dos itens corrigidos aparece só com novas chamadas reais.
+
+Regressão: 4.619 testes (inclui suítes de acesso/autoridade) + typecheck limpos.
+Status NPERF.4: hotspots com evidência corrigidos ou justificados; não PASS para RLS de turmas/alunos.

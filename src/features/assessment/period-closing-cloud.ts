@@ -1,3 +1,4 @@
+import { readEffectiveCapabilitiesShared } from "@/features/authority/capabilities-cache";
 import { operationalToday } from "@/lib/academic-date";
 /**
  * Persistência real do fechamento de período (Lovable Cloud).
@@ -93,7 +94,7 @@ async function readClosingRows() {
  */
 export async function hydrateClosingsFromCloud(ctx: ClosingMirrorContext): Promise<boolean> {
   const seq = closingOwnership.begin();
-  const [state, capsRes] = await Promise.all([readClosingRows(), supabase.rpc("effective_capabilities")]);
+  const [state, capsRes] = await Promise.all([readClosingRows(), readEffectiveCapabilitiesShared()]);
   if (!ctx.isCurrent()) return false;
   if (capsRes.error) throw capsRes.error;
   const payload: ClosingPayload = { lastEventIds: state.lastEventIds, caps: (capsRes.data ?? []) as Cap[] };
