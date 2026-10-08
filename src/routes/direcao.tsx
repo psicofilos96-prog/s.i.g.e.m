@@ -26,5 +26,5 @@ export const Route = createFileRoute("/direcao")({
 });
 
 function Page() {
-  return <ClassRouteGate institutional={() => <SchoolFollowupPage perspective="direcao" />} laboratory={() => <LeadershipWorkspacePage />} />;
+  return <ClassRouteGate institutional={() => <SchoolFollowupPage perspective="direcao" />} laboratory={() => <LeadershipWorkspacePage />} laboratoryHasHeading />;
 }
