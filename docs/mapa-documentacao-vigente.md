@@ -295,3 +295,6 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 
 ## NPREP.1
 - [Prontidão 2027](prontidao-2027-nprep1.md) — Registro de lote
+
+## NLOGIN.2
+- [Tela de login](login-nlogin2.md) — Registro de lote
