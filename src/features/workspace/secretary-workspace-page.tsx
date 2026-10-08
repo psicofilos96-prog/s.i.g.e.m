@@ -79,6 +79,7 @@ import {
 import { isActionExecutable, projectIntegratedProfile } from "./workspace-engine";
 import { searchAuthorizedSubjects } from "./workspace-search";
 import type { OperationalQueueItem, WorkspaceActionDescriptor } from "./workspace-types";
+import { countLabel } from "@/lib/format-ptbr";
 
 const SCOPE_OPTIONS = [
   { entityId: "demo-001", label: "Instituição Educacional Demonstrativa Horizonte" },
@@ -149,7 +150,7 @@ function DeadlineTag({ item }: { item: OperationalQueueItem }) {
   if (remaining <= 10) {
     return (
       <ToneTag tone="atencao">
-        {remaining === 0 ? `${label} — é hoje` : `${label} — em ${remaining} dia(s)`}
+        {remaining === 0 ? `${label} — é hoje` : `${label} — em ${countLabel(remaining, "dia", "dias")}`}
       </ToneTag>
     );
   }

@@ -63,6 +63,7 @@ import {
   type BuilderDiagnostic,
   type SimulationScopeInput,
 } from "./standing-rule-builder";
+import { countLabel } from "@/lib/format-ptbr";
 
 const BUILDER_NOTE =
   "Toda regra é dado configurado, versionado e homologado — nunca código. O motor só executa primitivas: comparar, agregar, compor com E/OU/NÃO e produzir a consequência declarada. Enquanto não houver homologação, nenhuma situação acadêmica é determinada.";
@@ -172,7 +173,7 @@ export function StandingRuleBuilderListPage() {
               <p className="mt-3 text-xs text-muted-foreground">
                 {blocking.length === 0
                   ? "Estrutura completa: a regra pode seguir para revisão institucional."
-                  : `${blocking.length} ponto(s) a resolver antes da homologação.`}
+                  : `${countLabel(blocking.length, "ponto", "pontos")} a resolver antes da homologação.`}
               </p>
             </article>
           );
