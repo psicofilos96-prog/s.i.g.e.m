@@ -215,3 +215,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `varredura-demonstracao-contexto-real.md` | Varredura: demonstração × contexto real (2026-10-07) | Referência vigente | sim | — |
 | `vocabulario-interface-nui2.md` | NUI.2 — Vocabulário, status e microtextos | Registro de lote | — | — |
 | `ajuda-contextual-nhelp1.md` | NHELP.1 — Ajuda contextual curta | Registro de lote | — | — |
+| `estados-rotulos-nstate1.md` | NSTATE.1 — Estados e rótulos visuais | Registro de lote | — | — |
