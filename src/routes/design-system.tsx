@@ -467,7 +467,7 @@ function DesignSystemPage() {
               <EmptyState
                 compact
                 icon={SearchX}
-                title="Nenhum registro encontrado"
+                title="Nenhum registro."
                 description="Ajuste os filtros ou tente uma pesquisa diferente."
               />
             </Specimen>
