@@ -1688,6 +1688,13 @@
       "when": 1791421833358,
       "tag": "0240_calendar_external_models_4_5",
       "breakpoints": true
+    },
+    {
+      "idx": 241,
+      "version": "7",
+      "when": 1791422404070,
+      "tag": "0241_nidem1_document_emission_idempotency",
+      "breakpoints": true
     }
   ]
 }
