@@ -44,8 +44,9 @@ describe("NLINK.1 links e ações navegacionais", () => {
 
   it("topo da tela não tem botão de ícone sem ação nem destino", () => {
     const shell = fs.readFileSync(path.join(ROOT, "src/components/app-shell/app-shell.tsx"), "utf8");
-    const dead = [...shell.matchAll(/<Button\b([^>]*)>/g)]
-      .map((m) => m[1])
+    const dead = [...shell.matchAll(/(<\w+Trigger asChild>\s*)?<Button\b([^>]*)>/g)]
+      .filter((m) => !m[1])
+      .map((m) => m[2])
       .filter((attrs) => /size="icon"/.test(attrs) && !/onClick|asChild|type="submit"/.test(attrs));
     expect(dead).toEqual([]);
   });
