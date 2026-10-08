@@ -74,7 +74,7 @@ export type PrintSection = { heading: string; body: string };
 export function reviewPrintHtml(title: string, state: ReviewState, sections: readonly PrintSection[], events: readonly ReviewEvent[]): string {
   const approved = state === "aprovado";
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(title)}</title>
-<style>@page{size:A4;margin:16mm 14mm}body{font-family:serif;margin:0;overflow-wrap:anywhere}h2{font-size:14px;margin-top:16px;page-break-after:avoid}.st{border:1px solid #333;padding:6px;margin:8px 0}</style></head><body>
+<style>@page{size:A4;margin:16mm 14mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}body{font-family:serif;margin:0;overflow-wrap:anywhere}h2{font-size:14px;margin-top:16px;page-break-after:avoid}.st{border:1px solid #333;padding:6px;margin:8px 0}</style></head><body>
 <h1>${esc(title)}</h1><p class="st">${esc(REVIEW_STATE_LABEL[state])}${approved ? "" : " — documento sem aprovação vigente da Orientação Pedagógica"}</p>
 ${sections.map((s) => `<h2>${esc(s.heading || "Sem título")}</h2><p>${esc(s.body).replace(/\n/g, "<br>")}</p>`).join("\n")}
 ${events.length ? `<h2>Histórico da análise</h2><ol>${events.map((e) => `<li>${esc(reviewEventLabel(e.event))} · ${esc(formatDateTime(e.recorded_at))}${e.comment ? ` — ${esc(e.comment)}` : ""}</li>`).join("")}</ol>` : ""}

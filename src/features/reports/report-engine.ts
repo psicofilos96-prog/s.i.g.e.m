@@ -129,7 +129,7 @@ const html = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "
 export function toPrintableHtml(result: ReportResult, branding: Branding, meta: readonly string[] = [], fingerprint?: string): string {
   const logo = branding.logoUrl && /^https:\/\//.test(branding.logoUrl) ? `<img src="${html(branding.logoUrl)}" alt="" style="height:48px">` : "";
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${html(branding.title)}</title>
-<style>@page{size:A4;margin:14mm 12mm}body{font-family:serif;margin:0;overflow-wrap:anywhere}h1{font-size:16px}table{border-collapse:collapse;width:100%;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}td,th{border:1px solid #999;padding:4px;font-size:11px;text-align:left;vertical-align:top;overflow-wrap:anywhere}</style></head><body>
+<style>@page{size:A4;margin:14mm 12mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}body{font-family:serif;margin:0;overflow-wrap:anywhere}h1{font-size:16px}table{border-collapse:collapse;width:100%;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}td,th{border:1px solid #999;padding:4px;font-size:11px;text-align:left;vertical-align:top;overflow-wrap:anywhere}</style></head><body>
 ${logo}${branding.headerLines.map((l) => `<div>${html(l)}</div>`).join("")}<h1>${html(branding.title)}</h1>
 ${meta.map((m) => `<p>${html(m)}</p>`).join("")}
 <table><thead><tr>${result.columns.map((c) => `<th>${html(c.label)}</th>`).join("")}</tr></thead><tbody>

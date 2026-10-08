@@ -58,3 +58,9 @@ describe("auditoria de PDFs (NPDF.3)", () => {
   });
   it("Mapa: a mesma fotografia reproduz o mesmo documento", () => { expect(map()).toBe(map()); });
 });
+
+describe("auditoria de impressão (NPRINT.4)", () => {
+  it("todo documento A4 numera as páginas no rodapé ('Página X de Y')", () => {
+    for (const h of [...docs(), ...more()]) expect(h).toMatch(/@page\{size: ?A4[^}]*@bottom-right\{content:"Página " counter\(page\) " de " counter\(pages\)/);
+  });
+});

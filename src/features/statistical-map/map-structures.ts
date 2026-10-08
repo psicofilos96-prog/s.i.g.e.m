@@ -102,7 +102,7 @@ export function renderMapDocument(d: MapDocumentInput): string {
     </tbody></table>`}</section>`).join("");
   const obs = s.declarations.observations.trim();
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Mapa Estatístico ${esc(comp)}</title><style>
-@page{size:A4 portrait;margin:14mm 12mm}*{box-sizing:border-box}body{font:10pt/1.35 Georgia,"Times New Roman",serif;color:#111;margin:0}
+@page{size:A4 portrait;margin:14mm 12mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}*{box-sizing:border-box}body{font:10pt/1.35 Georgia,"Times New Roman",serif;color:#111;margin:0}
 header{text-align:center;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:8px}header p{margin:0;font-size:9pt;text-transform:uppercase;letter-spacing:.03em}
 h1{font-size:14pt;margin:6px 0 2px}dl{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin:6px 0 10px;font-size:9pt}dt{font-weight:bold;display:inline}dd{display:inline;margin:0}
 h2{font-size:11pt;margin:10px 0 4px;border-bottom:1px solid #999;break-after:avoid}section{break-inside:auto}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9pt}

@@ -39,7 +39,7 @@ export function schedulePrintHtml(input: {
     ? `<p class="alert">${esc(CROSS_CLASS_TEXT)}</p><ul>${input.conflicts.map((c) => `<li>${esc(input.personName(c.personId))} · ${esc(day(c.weekday))} ${esc(c.overlapStart)}–${esc(c.overlapEnd)}: ${esc(input.className(c.a.classId))} e ${esc(input.className(c.b.classId))}</li>`).join("")}</ul>`
     : `<p>${esc(NO_CROSS_CLASS_TEXT)}</p>`;
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(title)} — ${esc(input.subject)}</title><style>
-@page{size: A4;margin:14mm}body{font:11px/1.4 system-ui,sans-serif;color:#111;margin:0;overflow-wrap:anywhere}
+@page{size: A4;margin:14mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}body{font:11px/1.4 system-ui,sans-serif;color:#111;margin:0;overflow-wrap:anywhere}
 h1{font-size:15px;margin:0 0 4px}table{width:100%;border-collapse:collapse;table-layout:fixed}th,td{border:1px solid #999;padding:3px 4px;text-align:left;vertical-align:top;overflow-wrap:anywhere}
 thead{display:table-header-group}tr{break-inside:avoid}.alert{font-weight:600}.note{color:#444}
 </style></head><body><h1>${esc(title)} — ${esc(input.subject)}</h1><p class="note">Situação em ${esc(formatAcademicDate(input.validOn))}. Somente blocos registrados; não é carga horária normativa nem aula prevista.</p>

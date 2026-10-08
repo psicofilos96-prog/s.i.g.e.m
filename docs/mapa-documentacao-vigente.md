@@ -45,6 +45,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `auditoria-integrada-pos-lotes-2.md` | Auditoria integrada pós W.2/Z.2/AA.2/AB.2/AC.2/AD.2 (2026-10-06) | Histórico | — | — |
 | `auditoria-pdfs-ndoc2.md` | NDOC.2 — Auditoria de PDFs (2026-10-07) | Registro de lote | — | — |
 | `auditoria-pdfs-npdf3.md` | NPDF.3 — Revalidação de PDFs pelo harness (2026-10-08) | Registro de lote | — | — |
+| `auditoria-impressao-nprint4.md` | NPRINT.4 — Consistência final de impressão (2026-10-08) | Registro de lote | — | — |
 | `auditoria-pre-cloud-diario.md` | Auditoria pré-Cloud do Diário (somente leitura) | Histórico | — | — |
 | `auditoria-roadmap-a-r.md` | Auditoria do roadmap A–R (Cloud real, 05/10/2026) | Histórico | sim | — |
 | `auditoria-sistemica-pos-nae8.md` | Auditoria sistêmica pós-NAE.8 (Frente BN) — 2026-10-06 | Histórico | sim | — |
