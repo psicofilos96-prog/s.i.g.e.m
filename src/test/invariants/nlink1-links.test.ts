@@ -6,7 +6,7 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 const gen = fs.readFileSync(path.join(ROOT, "src/routeTree.gen.ts"), "utf8");
-const block = gen.match(/export interface FileRoutesByFullPath \{([\s\S]*?)\n\}/)![1];
+const block = gen.match(/export interface FileRoutesByFullPath \{([\s\S]*?)\n\}/)![1] ?? "";
 const routes = [...block.matchAll(/'([^']+)':/g)].map((m) => (m[1] ?? "").replace(/\/$/, "") || "/");
 const patterns = routes.map(
   (r) => new RegExp("^" + r.replace(/\/\$$/, "(/.*)?").replace(/\$[^/]+/g, "[^/]+") + "$"),
