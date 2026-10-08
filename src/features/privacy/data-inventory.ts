@@ -57,7 +57,7 @@ export const PRIVACY_PENDING = ["DATA_RETENTION_POLICY_PENDING", "LEGAL_BASIS_PO
 export const PII_COLUMN_TABLES = ["institutional_persons", "institutional_students", "student_identity_versions", "guardian_authorizations", "dietary_restrictions", "inclusion_records", "school_pedagogical_records", "school_communication_versions", "notification_template_versions", "census_snapshots", "integration_requests", "sigem_installer_designation", "sigem_installer_designation_origins", "sigem_installer_designation_versions", "institutional_school_record_versions", "institutional_visit_records", "public_publication_versions", "kb_chunks"] as const;
 
 /** Arquivos autorizados a usar armazenamento do navegador; nenhum guarda dado de estudante/responsável. */
-export const BROWSER_STORAGE_ALLOWLIST = ["src/features/calendar/", "src/features/identity/identity-store.ts", "src/routes/revisao-de-anomalias.tsx", "src/features/scenarios/scenario-page.tsx", "src/features/onboarding/onboarding-page.tsx"] as const;
+export const BROWSER_STORAGE_ALLOWLIST = ["src/features/calendar/", "src/features/identity/identity-store.ts", "src/routes/revisao-de-anomalias.tsx", "src/features/scenarios/scenario-page.tsx", "src/features/onboarding/onboarding-page.tsx", /* NPAG.1: só texto de filtro de lista, por aba (sessionStorage) */ "src/lib/list-paging.ts"] as const;
 
 /** Decisões que o sistema NÃO toma. `null` = não decidido ⇒ nada é descartado nem anonimizado. */
 export type LifecycleDecision = Readonly<{ domain: string; legalBasis: string | null; retentionDays: number | null; disposal: "eliminar" | "anonimizar" | "arquivar" | null; decidedBy: string | null }>;
