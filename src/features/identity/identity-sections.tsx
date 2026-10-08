@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { demonstrationUnits } from "@/features/units/units-data";
+import { useSessionUser } from "@/features/authority/session-authority";
 import { IdentityManager } from "./identity-manager";
 import { identityStore, type IdentityActor } from "./identity-store";
 import { useIdentityAssets } from "./institutional-logo";
@@ -90,6 +91,14 @@ export function SectorIdentitySection({ profile }: { profile: IdentityActor["pro
 
 /** Logo de uma unidade escolar, com seleção da unidade. */
 export function SchoolIdentitySection({ profile }: { profile: IdentityActor["profile"] }) {
+  // NDEMO.2: com sessão, nunca listar unidades fictícias.
+  const session = useSessionUser();
+  if (session.loading) return null;
+  if (session.user) return <p className="text-sm text-muted-foreground">Logos por escola ainda não estão ligados à lista de escolas da rede. Nenhuma escola de demonstração é mostrada com login.</p>;
+  return <DemoSchoolIdentitySection profile={profile} />;
+}
+
+function DemoSchoolIdentitySection({ profile }: { profile: IdentityActor["profile"] }) {
   const [unitId, setUnitId] = useState(demonstrationUnits[0]?.id ?? "");
   // Na demonstração, o perfil "Escola" atua como a unidade selecionada.
   const actor: IdentityActor = profile === "escola" ? { profile, unitId } : { profile };
