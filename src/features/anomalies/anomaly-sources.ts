@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 // Séries agregadas lidas com o cliente do PRÓPRIO usuário (RLS). Fonte recusada ⇒ série ausente, nunca zeros.
 import { supabase } from "@/integrations/supabase/client";
 import type { Series } from "./anomaly-core";
@@ -8,8 +9,8 @@ export async function loadSeries(): Promise<SourceResult> {
   const series: Series[] = [];
   const unavailable: string[] = [];
 
-  const imp = await supabase.from("import_batches").select("adapter_id, row_count, received_at").order("received_at").limit(2000);
-  if (imp.error) unavailable.push("Linhas por lote de importação");
+  const imp = await readPages<{ adapter_id: string; row_count: number | null; received_at: string }>((f, t) => supabase.from("import_batches").select("adapter_id, row_count, received_at").order("received_at").order("id").range(f, t), 20000);
+  if (imp.error || imp.truncated) unavailable.push("Linhas por lote de importação");
   else {
     const by = new Map<string, { key: string; value: number | null }[]>();
     for (const r of imp.data ?? []) {
@@ -20,8 +21,9 @@ export async function loadSeries(): Promise<SourceResult> {
     for (const [adapter, points] of by) series.push({ id: `importacao:${adapter}`, title: `Linhas por lote (${adapter})`, population: `Lotes do importador ${adapter} visíveis para você`, unit: "linhas", points });
   }
 
-  const req = await supabase.from("integration_requests").select("status, created_at").gte("created_at", new Date(Date.now() - 60 * 86400000).toISOString()).limit(5000);
-  if (req.error) unavailable.push("Falhas técnicas da API de integração");
+  const since = new Date(Date.now() - 60 * 86400000).toISOString();
+  const req = await readPages<{ status: number | string; created_at: string }>((f, t) => supabase.from("integration_requests").select("status, created_at").gte("created_at", since).order("created_at").order("id").range(f, t), 50000);
+  if (req.error || req.truncated) unavailable.push("Falhas técnicas da API de integração");
   else {
     const days = new Map<string, number>();
     for (const r of req.data ?? []) {

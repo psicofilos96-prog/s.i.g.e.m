@@ -124,3 +124,36 @@ Matriz reconfirmada: ver docs/ux-sigem-auditoria-final.md seção N12.5 para est
 
 ## NINC.1 — Inclusão (2026-10-08)
 NE-01 e NE-02 COMPLETO_TECNICAMENTE; NE-03 PARCIAL (TEMPLATE_INSTITUCIONAL_PENDENTE). Ver docs/inclusao-ninc1.md.
+
+## NFINAL.7 (2026-10-08) — reclassificação requisito por requisito (substitui N12.5)
+| ID | Estado NFINAL.7 |
+|---|---|
+| CI-01, CI-02 | COMPLETO_TECNICAMENTE; HOMOLOGACAO (regra do Mapa 2027) |
+| CI-03, CI-04 | DEPENDE_DECISAO |
+| SU-01 | COMPLETO_TECNICAMENTE; INTERACTIVE_BROWSER_VALIDATION_PENDING; DEPENDE_DECISAO (198 < 200 dias) |
+| SE-01, SE-02, SE-04, SE-04b, SE-05 (Turmas) | COMPLETO_TECNICAMENTE; INTERACTIVE_BROWSER_VALIDATION_PENDING; OPERATIONAL_CONFIGURATION_PENDING (2027) — gap aberto: erros por campo e persistência da "Nova turma" |
+| SE-03 | DEPENDE_DADO |
+| SE-05 (Documentos) | TEMPLATE_INSTITUCIONAL_PENDENTE |
+| DI-01, OP-01, OP-02, OP-03 | COMPLETO_TECNICAMENTE (N7.2.3); OPERATIONAL_CONFIGURATION_PENDING (capacidades/grades) |
+| OP-04 | DEPENDE_DECISAO |
+| AV-01, AV-02, AV-03 | COMPLETO_TECNICAMENTE (N6.2.3); gap aberto: status das regras avaliativas fora do registro |
+| AV-04 | DEPENDE_DADO |
+| NE-01, NE-02 | COMPLETO_TECNICAMENTE; OPERATIONAL_CONFIGURATION_PENDING — gap aberto: mediador em um passo |
+| NE-03 | TEMPLATE_INSTITUCIONAL_PENDENTE |
+| DO-01 | gap técnico aberto: autosave além da EI e recuperação após recarregar |
+| DO-02 | COMPLETO_TECNICAMENTE; INTERACTIVE_BROWSER_VALIDATION_PENDING |
+| FA-01 | COMPLETO_TECNICAMENTE (NFAM.1); OPERATIONAL_CONFIGURATION_PENDING; DEPENDE_DECISAO (foto) |
+| FA-02 | COMPLETO_TECNICAMENTE p/ autorizações (AC.2); DEPENDE_DECISAO (portaria/saída sozinho) |
+| FA-03 | DEPENDE_DECISAO |
+| AL-01 | COMPLETO_TECNICAMENTE; gap aberto: estoque/recebimento com status fora do registro |
+| TR-01, IN-01 | COMPLETO_TECNICAMENTE; OPERATIONAL_CONFIGURATION_PENDING; DEPENDE_DECISAO (elegibilidade, manutenção) |
+| DP-01 | COMPLETO_TECNICAMENTE |
+| DP-02 | DEPENDE_DECISAO |
+| RE-01 | COMPLETO_TECNICAMENTE (NREL.2) |
+| AD-01 | COMPLETO_TECNICAMENTE (NACCESS.1) |
+| UX-01 | COMPLETO_TECNICAMENTE (NROUTE.2, 0 rota principal antiga sem justificativa); gap aberto: NUX.4/vocabulário tela a tela |
+| HO-01 | COMPLETO_TECNICAMENTE (NHOR.3) |
+| IM-01 | COMPLETO_TECNICAMENTE; gap aberto: Central de Importações sem o núcleo NIMPORT.2 |
+| BU-01 | COMPLETO_TECNICAMENTE (NSEARCH.2) |
+| AU-01 | COMPLETO_TECNICAMENTE; DEPENDE_DECISAO (exportar-auditoria) |
+Resultado: NÃO PASS — 8 gaps técnicos decididos abertos, listados em `docs/ux-sigem-auditoria-final.md` (NFINAL.7).

@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 import { supabase } from "@/integrations/supabase/client";
 /**
  * Frente W.2 — acompanhamento dos Diários SOMENTE LEITURA (Direção/Secretaria da própria escola; rede por capacidade).
@@ -30,8 +31,8 @@ export function DiaryOverviewPage() {
   useEffect(() => {
     if (!school.trim()) { setClassIds([]); return; }
     let live = true;
-    (supabase as unknown as { from: (t: string) => any }).from("institutional_classes").select("id").eq("school_id", school.trim()).limit(2000)
-      .then(({ data }: { data: { id: string }[] | null }) => live && setClassIds((data ?? []).map((c) => c.id)));
+    void readPages<{ id: string }>((f, t) => (supabase as unknown as { from: (t: string) => any }).from("institutional_classes").select("id").eq("school_id", school.trim()).order("id").range(f, t), 20000)
+      .then(({ data }) => live && setClassIds((data ?? []).map((c) => c.id)));
     return () => { live = false; };
   }, [school]);
   const kind = rows?.[0]?.result_kind;

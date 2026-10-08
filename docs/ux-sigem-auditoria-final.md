@@ -78,3 +78,38 @@ INFRAESTRUTURA: backup/restauração, rate limiting, tipos por bucket.
 DEPENDE_DECISAO / ASSIGNMENT_PENDING: revisar-termos-inclusao, emitir-carteirinha, exportar-auditoria, homologar matrizes, calendário público.
 DEPENDE_DADO: BNCC↔SAEB, modelos GPE, fonte 2027 de turmas, matriz curricular oficial, catálogos.
 TEMPLATE_INSTITUCIONAL_PENDENTE: matrícula, transferência, atestado, renovação.
+
+## NFINAL.7 — auditoria de fechamento (2026-10-08) — substitui a N12.5
+**Resultado: NÃO PASS.** `SIGEM_TECHNICAL_CLOSURE_AUDIT_COMPLETE` não é declarado: ainda restam gaps técnicos já decididos, todos listados abaixo (nenhum oculto).
+
+### Gates
+- `npm run verify`: 10/10 OK (migrations, tipos, suíte, profundas, a11y, segurança SQL, segredos, diff, build, smoke de 11 rotas).
+- Após as correções desta rodada: suíte 402 arquivos / 4.296 testes; profundas 7 arquivos / 53 testes (o "31/31" de N12.4 mudou de formato); typecheck 0 erros.
+- Harness de 69 perfis: só camada **estática** — sem credencial técnica do ambiente, a camada autenticada não roda nesta sessão (INTERACTIVE_BROWSER_VALIDATION_PENDING).
+- Varredura de segurança: 26 avisos, todos de leitura ampla por quem tem login em tabelas de norma, catálogo ou estrutura (referências curriculares, homologações, tipos de movimentação, escolas, instalação, workflow). Nenhuma tem dado pessoal; a leitura é intencional e o acesso anônimo continua zero.
+- Contagens oficiais inalteradas: 55 escolas, 9.763 alunos, 698 turmas, 10.822 pessoas. Resíduo 0 (0 fixtures, 0 contas de teste); 0 carteirinhas emitidas; 0 versões de ano 2027 (STOP respeitado).
+- PDFs: os seis PDFs CAL.EXT.2.2 seguem válidos (nenhum código de calendário alterado). Exportações: nenhum caminho novo.
+
+### Corrigido nesta rodada
+- Leituras que pediam `.limit(2000/5000)` e eram cortadas em 1.000 linhas, sem aviso: anomalias, planejamento, itens/instrumentos docentes e turmas do acompanhamento do Diário. Agora usam `readPages`. No limite, falham como "indisponível" ou com aviso, nunca como lista parcial. Teste permanente: `src/test/invariants/nfinal7-silent-limit.test.ts`.
+- Reavaliados e fechados: todos os 5 envios de arquivo passam por `guardUpload`. O vínculo estudante↔ponto do transporte já tem formulário. A tela Censo/Qualidade foi entregue (N4.4.2) e o assistente de relatórios também (NREL.2). A carteirinha está completa (NFAM.1).
+
+### Gaps técnicos já decididos AINDA ABERTOS
+1. Listas de alunos e profissionais com login real fora da paginação comum (NPAG.1).
+2. Central de Importações sem `readFileSafely`/`exceptionReportCsv` (NIMPORT.2).
+3. Status de fechamentos, conselho e regras avaliativas definidos por tela, fora de `state-presentation.ts`; estoque e recebimento da alimentação com botões decididos direto pelo status (NSTATE.1).
+4. Troca de mediador em um passo (NINC.1).
+5. Autosave docente além da EI (SIPE/SIA/PEI docente) e recuperação após recarregar (N10.2.3).
+6. Revisão item a item das funções DEFINER de authenticated (a gate profunda cobre search_path e grants, não a lógica de cada uma).
+7. Primitivas NUX.4 e vocabulário aplicados tela a tela; telas que ainda propagam texto do servidor (34 arquivos leem `error.message`; sem medição de quantos exibem texto cru).
+8. Erros de validação por campo/célula e persistência da "Nova turma" (NFORM.1); botões "Tentar novamente" sem ligação com a trilha (NOBS.3).
+
+### Restante, por classe
+- INTERACTIVE_BROWSER_VALIDATION_PENDING: todas as estações com login real, impressão/PDF com login, leitor de tela, celular.
+- OPERATIONAL_CONFIGURATION_PENDING: políticas que atribuam `emitir-carteirinha-estudantil`, `revisar-termos-inclusao`, permissões de inclusão, transporte e `localizar-estudante-para-matricula`; composições das 698 turmas; grades.
+- DEPENDE_DECISAO: quem exporta a auditoria; autoridade da Busca Ativa; peso dos remanejados; carência de mediador; prazos do DP; termo de imagem/foto; numeração do Livro; fila de vagas; dimensões A/B/C; 198 dias letivos de 2027 abaixo do mínimo de 200.
+- DEPENDE_DADO: BNCC↔SAEB; modelos GPE; fonte 2027 de turmas; matriz curricular oficial; catálogos.
+- TEMPLATE_INSTITUCIONAL_PENDENTE: ficha de matrícula, transferência, atestado, renovação, PEI/PAEE/relatório NEI.
+- HOMOLOGACAO: regra do Mapa 2027 (CI-01/CI-02).
+
+STOP — 2027 não configurado oficialmente.

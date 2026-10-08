@@ -39,7 +39,7 @@ const RULES: ReadonlyArray<[RegExp, GovernedCategory]> = [
   [/regra-institucional-pendente|not-homologated|nao-homologad|rule-pending|rule-required|rule-not-defined|no-homologated-rule|homologation-rule-missing|without-rules|without-homologated-rule|ambiguous-rules|policy-pending|blocked-composition|blocked-applicability|_policy_pending|_rule_pending|institutional_rule|blocked-/, "dependencia-normativa"],
   [/source-missing|blocked_by_source|by_official_source|layout-missing|missing-source|official_source_pending|source_pending|content_source|catalog-pending|catalog_pending|_pending/, "fonte-ausente"],
   [/\bupload:(vazio|grande-demais|tipo-nao-permitido|tipo-divergente|caminho-invalido)/, "validacao"],
-  [/unavailable|indisponivel|year-unavailable|instance-unavailable/, "indisponivel"],
+  [/unavailable|indisponivel|year-unavailable|instance-unavailable|list:truncated/, "indisponivel"],
 ];
 
 /** Extrai o código canônico (`dominio:codigo` → `codigo`; código BK em MAIÚSCULAS preservado). */

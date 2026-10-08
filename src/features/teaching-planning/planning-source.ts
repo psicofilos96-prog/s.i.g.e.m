@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 import { guardUpload, safeLabel, assertSafePath } from "@/features/privacy/upload-policy";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,10 +7,18 @@ import type { CurricularRef, PlanBlock, PlanStatus, PlanVersion } from "./planni
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any; storage: any };
 const must = async <T,>(p: PromiseLike<{ data: T; error: { message: string } | null }>) => { const r = await p; if (r.error) throw new Error(r.error.message); return r.data; };
 
+/** NFINAL.7 — leitura paginada; acima do limite falha em vez de devolver lista cortada em silêncio. */
+const allPages = async <T,>(build: (f: number, t: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>, max = 20000): Promise<T[]> => {
+  const r = await readPages<T>(build, max);
+  if (r.error) throw new Error(r.error.message);
+  if (r.truncated) throw new Error("list:truncated — há mais registros do que o limite de leitura desta tela.");
+  return r.data ?? [];
+};
+
 export type Assignment = { assignment_id: string; class_id: string; component_label_snapshot: string; item_key: string; version_id: string; effective_from: string; effective_until: string | null };
 
 export const myAssignments = (on: string) => must<Assignment[]>(db.rpc("my_teaching_assignments_at", { _on: on, _known_at: new Date().toISOString() }));
-export const visiblePlans = () => must<PlanVersion[]>(db.from("teaching_plan_versions").select("id, plan_id, version, period_id, target_date, supersedes_id, assignment_id, class_id, school_id, matrix_version_id, level_value_id, covers_from, covers_until, title, blocks, curricular_refs, status, copied_from_version_id, change_reason, author_user_id, recorded_at").order("recorded_at", { ascending: false }).limit(2000));
+export const visiblePlans = () => allPages<PlanVersion>((f, t) => db.from("teaching_plan_versions").select("id, plan_id, version, period_id, target_date, supersedes_id, assignment_id, class_id, school_id, matrix_version_id, level_value_id, covers_from, covers_until, title, blocks, curricular_refs, status, copied_from_version_id, change_reason, author_user_id, recorded_at").order("recorded_at", { ascending: false }).order("id").range(f, t));
 export const matrixItemKeys = async (versionIds: string[]) => versionIds.length
   ? must<{ id: string; matrix_version_id: string }[]>(db.from("teaching_assignment_versions").select("id, matrix_version_id").in("id", versionIds))
   : [];
