@@ -1,3 +1,4 @@
+import { createActionGuard } from "@/lib/idempotency";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
