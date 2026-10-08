@@ -5,3 +5,4 @@
 - Exportação exige a capability `exportar-auditoria` (sem política atribuída) e sai pelo motor de relatórios.
 - Retenção é configuração (`RetentionConfig`); sem decisão, nada é descartado, porque prazo legal não pode nascer no código.
 - Writers × DML direto é verificado por teste sobre as migrations (`directDmlGrants`), porque busca de texto em tela não prova ausência de escrita direta.
+- NAUD.2 (`audit-timeline.ts`): natureza/setor/escola do ator vêm só de `access_center_inventory()` (titular); sem ela a natureza é "não visível", nunca presumida; detalhe mostra só proveniência e link ao fato apenas para telas que reaplicam a própria ACL, porque a auditoria não pode ampliar leitura.
