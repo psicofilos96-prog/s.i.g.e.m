@@ -7,13 +7,13 @@ import path from "node:path";
 const ROOT = process.cwd();
 const gen = fs.readFileSync(path.join(ROOT, "src/routeTree.gen.ts"), "utf8");
 const block = gen.match(/export interface FileRoutesByFullPath \{([\s\S]*?)\n\}/)![1];
-const routes = [...block.matchAll(/'([^']+)':/g)].map((m) => m[1].replace(/\/$/, "") || "/");
+const routes = [...block.matchAll(/'([^']+)':/g)].map((m) => (m[1] ?? "").replace(/\/$/, "") || "/");
 const patterns = routes.map(
   (r) => new RegExp("^" + r.replace(/\/\$$/, "(/.*)?").replace(/\$[^/]+/g, "[^/]+") + "$"),
 );
 const STATIC_ASSET = /\.(png|jpe?g|webp|svg|ico|webmanifest|pdf)$/;
 const routeExists = (raw: string) => {
-  const p = raw.split(/[?#]/)[0].replace(/\/$/, "") || "/";
+  const p = (raw.split(/[?#]/)[0] ?? "").replace(/\/$/, "") || "/";
   return STATIC_ASSET.test(p) || p.startsWith("/api/") || patterns.some((r) => r.test(p));
 };
 
@@ -36,7 +36,7 @@ describe("NLINK.1 links e ações navegacionais", () => {
     for (const f of files(path.join(ROOT, "src"))) {
       const src = fs.readFileSync(f, "utf8");
       for (const m of src.matchAll(/(?:\bto|href)\s*[:=]\s*\{?\s*["'`](\/[^"'`$]*?)["'`]/g)) {
-        if (!routeExists(m[1])) broken.push(`${path.relative(ROOT, f)} → ${m[1]}`);
+        if (!routeExists(m[1] ?? "")) broken.push(`${path.relative(ROOT, f)} → ${m[1] ?? ""}`);
       }
     }
     expect(broken).toEqual([]);
@@ -46,7 +46,7 @@ describe("NLINK.1 links e ações navegacionais", () => {
     const shell = fs.readFileSync(path.join(ROOT, "src/components/app-shell/app-shell.tsx"), "utf8");
     const dead = [...shell.matchAll(/(<\w+Trigger asChild>\s*)?<Button\b([^>]*)>/g)]
       .filter((m) => !m[1])
-      .map((m) => m[2])
+      .map((m) => m[2] ?? "")
       .filter((attrs) => /size="icon"/.test(attrs) && !/onClick|asChild|type="submit"/.test(attrs));
     expect(dead).toEqual([]);
   });
