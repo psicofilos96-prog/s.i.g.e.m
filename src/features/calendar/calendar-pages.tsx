@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 import { DAY_TYPES as DT, EDITABLE_TYPES, typeInfo, dayTypesOf } from "./calendar-catalog";
 const DAY_TYPES = new Proxy(DT, { get: (t, k: string) => typeInfo(t, k) }) as Record<string, import("./calendar-types").DayTypeInfo>;
 import { CalendarDocument, DocumentFrame, observationLines } from "./calendar-document";
+import { DEFAULT_INFO_PLACE, INFO_PLACES, parseInfoLine, serializeInfoLine, type InfoLine, type InfoPlace } from "./calendar-info-lines";
 import { CalendarPrintView } from "./calendar-print-view";
 import { CalendarAppearanceEditor } from "./calendar-layout-editor";
 import { A4OverflowNotice } from "./calendar-a4-notice";
@@ -1818,7 +1819,7 @@ function DocumentConfigEditor({
   );
 }
 
-/** Informações adicionais do documento: uma linha por item, com inclusão e remoção. */
+/** Informações adicionais do documento: uma linha por item, com lugar, negrito/itálico, ordem, inclusão e remoção. */
 function InfoLinesEditor({
   value,
   editable,
@@ -1828,56 +1829,73 @@ function InfoLinesEditor({
   editable: boolean;
   onCommit: (text: string | undefined) => void;
 }) {
-  const [lines, setLines] = useState<string[]>(() => observationLines(value));
-  const commit = (next: string[]) => {
-    const text = next.map((l) => l.trim()).filter(Boolean).join("\n") || undefined;
+  const [lines, setLines] = useState<InfoLine[]>(() => observationLines(value).map(parseInfoLine));
+  const [newPlace, setNewPlace] = useState<InfoPlace>(DEFAULT_INFO_PLACE);
+  const commit = (next: InfoLine[]) => {
+    const text = next.map(serializeInfoLine).filter(Boolean).join("\n") || undefined;
     if ((text ?? "") !== observationLines(value).join("\n")) onCommit(text);
+  };
+  const apply = (next: InfoLine[], save = true) => { setLines(next); if (save) commit(next); };
+  const patch = (i: number, p: Partial<InfoLine>, save = true) => apply(lines.map((l, j) => (j === i ? { ...l, ...p } : l)), save);
+  const insertAt = (i: number, place: InfoPlace) => apply([...lines.slice(0, i), { text: "", place, bold: false, italic: false }, ...lines.slice(i)], false);
+  const move = (i: number, d: -1 | 1) => {
+    const j = i + d; if (j < 0 || j >= lines.length) return;
+    const next = [...lines]; [next[i], next[j]] = [next[j]!, next[i]!]; apply(next);
   };
   return (
     <fieldset className="grid gap-1.5 md:col-span-2">
       <legend className="mb-1 text-xs font-semibold text-muted-foreground">
-        Informações adicionais (aparecem no documento, abaixo dos Conselhos de Classe)
+        Informações adicionais (aparecem no documento; escolha o lugar de cada linha)
       </legend>
       {lines.length === 0 ? (
         <p className="text-xs text-muted-foreground">Nenhuma informação adicional.</p>
       ) : null}
       {lines.map((line, i) => (
-        <div key={i} className="flex min-w-0 gap-2">
+        <div key={i} className="flex min-w-0 flex-wrap items-center gap-1.5">
           <input
             aria-label={`Informação ${i + 1}`}
-            value={line}
+            value={line.text}
             disabled={!editable}
-            className={`${inputCls} min-w-0 flex-1`}
-            onChange={(e) => setLines(lines.map((l, j) => (j === i ? e.target.value : l)))}
+            className={`${inputCls} min-w-0 flex-1 ${line.bold ? "font-bold" : ""} ${line.italic ? "italic" : ""}`}
+            onChange={(e) => patch(i, { text: e.target.value }, false)}
             onBlur={() => commit(lines)}
           />
+          <select
+            aria-label={`Lugar da informação ${i + 1}`}
+            className={`${inputCls} w-auto`}
+            value={line.place}
+            disabled={!editable}
+            onChange={(e) => patch(i, { place: e.target.value as InfoPlace })}
+          >
+            {INFO_PLACES.map((p) => <option key={p.code} value={p.code}>{p.label}</option>)}
+          </select>
           {editable ? (
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              aria-label={`Remover informação ${i + 1}`}
-              onClick={() => {
-                const next = lines.filter((_, j) => j !== i);
-                setLines(next);
-                commit(next);
-              }}
-            >
-              Remover
-            </Button>
+            <>
+              <Button type="button" size="sm" variant={line.bold ? "default" : "outline"} aria-pressed={line.bold}
+                aria-label={`Negrito na informação ${i + 1}`} className="font-bold" onClick={() => patch(i, { bold: !line.bold })}>N</Button>
+              <Button type="button" size="sm" variant={line.italic ? "default" : "outline"} aria-pressed={line.italic}
+                aria-label={`Itálico na informação ${i + 1}`} className="italic" onClick={() => patch(i, { italic: !line.italic })}>I</Button>
+              <Button type="button" size="sm" variant="ghost" aria-label={`Subir informação ${i + 1}`} disabled={i === 0} onClick={() => move(i, -1)}>↑</Button>
+              <Button type="button" size="sm" variant="ghost" aria-label={`Descer informação ${i + 1}`} disabled={i === lines.length - 1} onClick={() => move(i, 1)}>↓</Button>
+              <Button type="button" size="sm" variant="ghost" aria-label={`Inserir linha abaixo da informação ${i + 1}`} onClick={() => insertAt(i + 1, line.place)}>+ abaixo</Button>
+              <Button type="button" size="sm" variant="ghost" aria-label={`Remover informação ${i + 1}`} onClick={() => apply(lines.filter((_, j) => j !== i))}>Remover</Button>
+            </>
           ) : null}
         </div>
       ))}
       {editable ? (
-        <div>
-          <Button type="button" size="sm" variant="outline" onClick={() => setLines([...lines, ""])}>
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="text-xs text-muted-foreground" htmlFor="info-new-place">Adicionar em</label>
+          <select id="info-new-place" className={`${inputCls} w-auto`} value={newPlace} onChange={(e) => setNewPlace(e.target.value as InfoPlace)}>
+            {INFO_PLACES.map((p) => <option key={p.code} value={p.code}>{p.label}</option>)}
+          </select>
+          <Button type="button" size="sm" variant="outline" onClick={() => insertAt(lines.length, newPlace)}>
             Adicionar linha
           </Button>
         </div>
       ) : null}
       <p className="text-xs text-muted-foreground">
-        A aparência destas linhas é definida em “Personalizar aparência”, no bloco
-        “Informações adicionais”.
+        Tamanho e fonte destas linhas ficam em “Personalizar aparência”, no bloco “Informações adicionais”.
       </p>
     </fieldset>
   );
