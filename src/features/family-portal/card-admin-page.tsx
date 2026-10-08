@@ -94,7 +94,7 @@ export function CardAdminPage() {
                 <p className="text-sm">Estudante: <strong>{student.display_name}</strong></p>
                 <div className="flex flex-wrap items-end gap-2">
                   <label className="text-sm">Ano letivo<input inputMode="numeric" className="mt-1 block w-24 rounded border bg-background p-2" value={draft.year} onChange={(e) => setDraft({ ...draft, year: e.target.value })} /></label>
-                  <label className="text-sm">Válida até<DateInput value={draft.validUntil} onChange={(v) => setDraft({ ...draft, validUntil: v })} /></label>
+                  <label className="text-sm">Válida até<DateInput value={draft.validUntil} onChange={(e) => setDraft({ ...draft, validUntil: e.target.value })} /></label>
                   <label className="text-sm">Turma (como impressa, opcional)<input className="mt-1 block rounded border bg-background p-2" value={classLabel} onChange={(e) => setClassLabel(e.target.value)} /></label>
                   <Button type="button" disabled={busy} onClick={emit}>Emitir</Button>
                 </div>
@@ -131,7 +131,7 @@ function CardDetail({ c, schoolName, busy, onChange }: { c: CardChainView; schoo
       {c.state !== "cancelada" && (
         <div className="flex flex-wrap items-end gap-2">
           <label className="text-sm">Motivo<input className="mt-1 block rounded border bg-background p-2" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
-          <label className="text-sm">Nova validade (reemissão)<DateInput value={until} onChange={setUntil} /></label>
+          <label className="text-sm">Nova validade (reemissão)<DateInput value={until} onChange={(e) => setUntil(e.target.value)} /></label>
           <Button type="button" variant="outline" disabled={busy} onClick={() => onChange(c, "reemissao", reason, until)}>Reemitir</Button>
           <Button type="button" variant="destructive" disabled={busy} onClick={() => onChange(c, "cancelamento", reason, until)}>Cancelar carteirinha</Button>
         </div>)}
