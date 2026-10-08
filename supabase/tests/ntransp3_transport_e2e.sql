@@ -39,7 +39,6 @@ BEGIN
   PERFORM public.record_school_transport_fact(sa, 'vinculo-estudante', vinc, 0, NULL, ponto, st, NULL, '2027-02-01', '2027-06-30', false);
   BEGIN PERFORM public.record_school_transport_fact(sa, 'rota', rota, 0, NULL, NULL, NULL, 'x', '2027-02-01', NULL, false); RAISE EXCEPTION 'stale aceito'; EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'transporte:base-alterada' THEN RAISE; END IF; END;
   BEGIN PERFORM public.record_school_transport_fact(sa, 'vinculo-estudante', gen_random_uuid(), 0, NULL, ponto, 'nt3-inexistente', NULL, '2027-02-01', NULL, false); RAISE EXCEPTION 'sem matricula aceito'; EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'transporte:estudante-sem-matricula-na-escola' THEN RAISE; END IF; END;
-  BEGIN PERFORM public.record_school_transport_fact(sa, 'ponto', ponto, 1, rota, NULL, NULL, 'x', '2027-02-01', NULL, false) FROM (SELECT 1) z WHERE false; END;
   -- Revogação = nova versão; histórico preservado.
   PERFORM public.record_school_transport_fact(sa, 'vinculo-estudante', vinc, 1, NULL, ponto, st, NULL, '2027-02-01', '2027-06-30', true);
   SELECT count(*) INTO n FROM public.school_transport_facts WHERE logical_id = vinc; IF n <> 2 THEN RAISE EXCEPTION 'historico perdido'; END IF;
