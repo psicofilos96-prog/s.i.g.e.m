@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,7 +65,7 @@ function AuthPage() {
   return (
     <div data-sigem-auth className="grid min-h-dvh lg:grid-cols-[1.1fr_1fr]">
       <aside className="relative hidden overflow-hidden bg-territory text-territory-foreground lg:block">
-        <img src={cityPhoto.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
+        <img src={cityPhoto.url} onError={hideBrokenImage} ref={hideIfAlreadyBroken} alt="" className="absolute inset-0 h-full w-full object-cover opacity-60" />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-territory via-territory/70 to-transparent" />
         <div className="relative flex h-full flex-col justify-end gap-4 p-12">
           <img src={brasao.url} alt="Brasão de Itaperuna" className="self-start h-16 w-auto object-contain" />

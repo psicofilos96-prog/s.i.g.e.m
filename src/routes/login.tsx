@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Eye, EyeOff, LockKeyhole, ShieldCheck, UserRound } from "lucide-react";
 import itaperunaImage from "@/assets/itaperuna-home.png.asset.json";
+import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import logoEducacao from "@/assets/logo-educacao.png.asset.json";
 import logoPrefeitura from "@/assets/logo-prefeitura.png.asset.json";
 import logoSigem from "@/assets/logo-sigem.png.asset.json";
@@ -44,6 +45,7 @@ function LoginPage() {
     <main className="relative isolate min-h-svh overflow-hidden bg-territory text-territory-foreground">
       <img
         src={itaperunaImage.url}
+          onError={hideBrokenImage} ref={hideIfAlreadyBroken}
         alt="Vista panorâmica de Itaperuna ao pôr do sol, com o Cristo de Itaperuna em primeiro plano"
         className="absolute inset-0 -z-20 size-full object-cover object-[66%_center] lg:object-center"
       />

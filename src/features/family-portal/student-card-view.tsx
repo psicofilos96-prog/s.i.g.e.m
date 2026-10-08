@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import qrcode from "qrcode-generator";
+import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import brasao from "@/assets/brasao-itaperuna.png.asset.json";
 import cidade from "@/assets/itaperuna-home.png.asset.json";
 import sigem from "@/assets/logo-sigem.png.asset.json";
@@ -35,7 +36,7 @@ export function StudentCardView({ card }: { card: StudentCard }) {
         </div>
       </div>
       <div className={`${face} bg-primary text-primary-foreground`}>
-        <img src={cidade.url} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
+        <img src={cidade.url} onError={hideBrokenImage} ref={hideIfAlreadyBroken} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
         <div className="relative flex h-full flex-col justify-between p-3">
           <div className="flex items-center gap-2"><img src={sigem.url} alt="SIGEM" className="h-6 w-auto" /><p className="text-2xs">Itaperuna — educação para todos</p></div>
           <div className="flex items-end justify-between">
