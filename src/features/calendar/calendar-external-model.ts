@@ -15,11 +15,9 @@ export const PRESENTATION_TEMPLATES = [
   { code: "interno", label: "Interno — Modelo técnico/oficial" },
   { code: "externo-panoramico", label: "Externo — Panorâmico" },
   { code: "externo-mosaico", label: "Externo — Mosaico" },
-  { code: "externo-fotografico", label: "Externo — Matriz com fundo fotográfico" },
-  { code: "externo-quadro", label: "Externo — Quadro anual (layout livre)" },
 ] as const;
-/** CAL.EXT.3 — modelos de layout livre (blocos posicionados em mm). */
-export const isFreeTemplate = (t: PresentationTemplateCode): t is "externo-fotografico" | "externo-quadro" => t === "externo-fotografico" || t === "externo-quadro";
+/** Todo modelo externo usa o layout livre (blocos posicionados em mm), com o mesmo conteúdo do interno. */
+export const isFreeTemplate = (t: PresentationTemplateCode): t is ExternalTemplateCode => t !== "interno";
 export type PresentationTemplateCode = (typeof PRESENTATION_TEMPLATES)[number]["code"];
 export type ExternalTemplateCode = Exclude<PresentationTemplateCode, "interno">;
 export const DEFAULT_TEMPLATE: PresentationTemplateCode = "interno";
@@ -123,8 +121,6 @@ export const inheritedLogos = (presentation: Record<string, unknown> | null | un
 export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null): ExternalProfile {
   const b = structuredClone(BASE); b.logos = inheritedLogos(presentation);
   if (t === "externo-panoramico") { b.show.conselhos = false; b.show.assinaturas = false; }
-  else if (t === "externo-quadro") { b.free = defaultFreeLayout("quadro"); }
-  else if (t === "externo-fotografico") { b.free = defaultFreeLayout("fotografico"); b.pageColor = "#FBF8F2"; b.primary = "#1F4E3D"; b.headerColor = "#173B2E"; b.accent = "#C8862A"; b.borderColor = "#D9CFBF"; b.gridColor = "#C9BCA8"; }
   else { b.periods = { ...b.periods, layout: "horizontal" }; b.infoWidths = { legenda: 0, periodos: 44, feriados: 0, extra: 28 }; b.bands = { banner: 17, body: 59, info: 16, footer: 8 }; b.pageColor = "#EEF6FD"; b.holidayColor = "#E8201B"; }
   return b;
 }
