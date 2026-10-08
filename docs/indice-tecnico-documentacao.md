@@ -160,7 +160,7 @@ Documentos: 218. Sem classe: 0. Com referência quebrada: 0.
 - `release-checklist-nrelease1.md`: DEPENDE_DECISAO, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `superficies-publicas-npub2.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `superficies-publicas-nrate1.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
-- `test-harness-institucional.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `test-harness-institucional.md`: DEPENDE_DADO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `b1-3-ativacao-inicial.md`, `frente-ad2-inteligencia-rede.md`, `frente-bh-privacidade.md`, `frente-bm-inteligencia-educacional.md`, `frente-bt-writers-regras-institucionais.md`, `gate-base-real-educacional-2026.md`, `o1-auditoria-prontidao-operacional.md`, `o2-dossie-decisao-b1.md`, `preparacao-operacional-2027-fontes.md`, `r5-competencia-e1-e4.md`, `r5-gate-operacional.md`, `release-candidate-ax.md`, `simulacao-operacional-integrada.md`
 

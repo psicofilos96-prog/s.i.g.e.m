@@ -97,7 +97,7 @@ Estados: COMPLETO_TECNICAMENTE · INTERACTIVE_BROWSER_VALIDATION_PENDING · OPER
 | Segurança | anon sem privilégio; armazenamento privado; 427 funções DEFINER de authenticated sem revisão item a item = gap aberto (NSEC.1 p2) |
 | Erros/observabilidade | governError COMPLETO; 21 telas ainda exibem/propagam texto técnico do servidor = gap técnico aberto (NOBS.1 p2) |
 | Acessibilidade | primitivas NUX.4 COMPLETO; aplicação por rota pendente; INTERACTIVE_BROWSER_VALIDATION_PENDING |
-| Harness/testes | NTEST.1 COMPLETO (69/69, 0 resíduo) |
+| Harness/testes | NTEST.1 COMPLETO (69/69, 0 resíduo); NTEST.3: Supervisão, Avaliação e Alimentação na camada static (menus, rotas, exports, writers); camada autenticada ASSIGNMENT_PENDING |
 | Auditoria (exportação) | DEPENDE_DECISAO (`exportar-auditoria` sem política) |
 
 ## Gates N12.4
