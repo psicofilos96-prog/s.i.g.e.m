@@ -74,3 +74,12 @@ Arquivo: `src/test/harness/ntest3-stations.test.ts` (44 casos), dentro do mesmo 
 | Alimentação | home `/alimentacao-escolar` | `/alimentacao-escolar`, `/alimentacao-escolar/cozinha`, `/unidades` | alunos, secretaria, supervisão, avaliação, profissionais, admin | relatórios `nae-*` no registro único; ausência sai vazia, nunca zero | Cozinha: `record_meal_execution`, `record_meal_stock_movement`; sem DML direto em 5 telas | static |
 
 Pendências: ASSIGNMENT_PENDING — a política homologada v8 não tem tipo de atuação para estas três estações, então `bo_fixture_prepare` as recusa e não há usuário sintético com cleanup para a camada autenticada (não foi concedida capacidade). INTERACTIVE_BROWSER_VALIDATION_PENDING — tela com login real.
+
+## NACCESS.2 — revalidação por estação (2026-10-08)
+- Camada static: `src/test/harness/naccess2-stations.test.ts` (30 casos) — por estação, o menu só tem rotas permitidas e inclui a home; a busca só reduz o que o banco devolveu; downloads da Central só para relatórios cuja tela dona a estação já abre; rota desconhecida, `/administracao-geral` e `/central-de-acessos` recusadas; estação desconhecida recusa tudo.
+- Downloads alcançáveis pela Central (31 relatórios): CIECE 4, Supervisão 2, Alimentação 20, Avaliação 1, Secretaria 1, Direção 3, OP 0 (as exportações próprias da Avaliação saem da tela `/avaliacao-desempenho`, fora do catálogo).
+- Camada autenticada (JWT real, contas temporárias, cleanup): `bo-fixture-harness` 69/69 — rede × escola: escopo só da própria escola/turma, IDOR em outra escola recusado, capability na outra escola = false, self-grant/DML direto/edição de política recusados, conta sem pessoa = 0 capabilities, revogação imediata.
+- Achado operacional corrigido: duas execuções interrompidas por tempo limite deixaram 33 contas temporárias e 20 linhas de resíduo; removidas pela própria rotina de limpeza (`bo_fixture_cleanup`), resíduo final 0. Rodar o harness sempre sem limite que mate o processo antes do `finally`.
+- REVISAR (acessibilidade, fora do escopo de acesso): `/alunos` com login da Secretaria sem `h1` nas três larguras (smoke a11y).
+- Pendente: ASSIGNMENT_PENDING (Supervisão, Avaliação, Alimentação sem tipo de atuação na política homologada — só camada static); INTERACTIVE_BROWSER_VALIDATION_PENDING para essas três.
+- Nenhuma permissão, política ou rota foi alterada.

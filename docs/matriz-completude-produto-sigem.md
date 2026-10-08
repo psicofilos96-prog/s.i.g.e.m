@@ -215,3 +215,15 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 ## NPDF.3 — Revalidação de PDFs (2026-10-08)
 - 10 documentos PASS sem login (Mapa, Livro, Avaliação, Relatórios, Horários, Calendário 2027 do laboratório, revisão docente, relatório evolutivo, Dossiê, QR da carteirinha): 0 vazamento, sem interface do app, cabeçalho repetido, reprodução idêntica entre fusos. Relatório por documento: `docs/auditoria-pdfs-npdf3.md`.
 - Pendente: TEMPLATE_INSTITUCIONAL_PENDENTE (documentos da Secretaria — 0 modelos cadastrados); INTERACTIVE_BROWSER_VALIDATION_PENDING (PDF com dados reais e login; QR por câmera).
+
+## NACCESS.2 — acesso por estação (2026-10-08)
+| Estação | Menu/rotas | Busca | Downloads | Rede × escola (banco) |
+|---|---|---|---|---|
+| Secretaria | PASS | PASS | PASS (1) | PASS autenticado |
+| Direção | PASS | PASS | PASS (3) | PASS autenticado (escopo, IDOR) |
+| OP | PASS | PASS | PASS (0) | PASS autenticado |
+| CIECE | PASS | PASS | PASS (4) | PASS autenticado |
+| Supervisão | PASS | PASS | PASS (2) | ASSIGNMENT_PENDING |
+| Avaliação | PASS | PASS | PASS (1) | ASSIGNMENT_PENDING |
+| Alimentação | PASS | PASS | PASS (20) | ASSIGNMENT_PENDING |
+Detalhes em `docs/test-harness-institucional.md` (NACCESS.2). Sem mudança de permissões.
