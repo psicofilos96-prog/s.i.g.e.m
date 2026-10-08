@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { kindLabel } from "@/features/school-documents/document-engine";
 import { verifyDocument, type PublicVerification } from "@/features/school-documents/document-source";
 import { brand } from "@/config/branding";
+import { formatDateTime } from "@/lib/academic-date";
 
 export const Route = createFileRoute("/verificar/$codigo")({
   head: () => ({
@@ -42,7 +43,7 @@ function VerifyPage() {
           {r.status in STATUS && r.status !== "nao-encontrado" && r.status !== "invalido" && r.document_kind ? <>
             <p>{kindLabel(r.document_kind)}{r.title ? ` — ${r.title}` : ""}{r.emission_kind === "reproducao" ? " (reprodução)" : ""}</p>
             {r.emission_number ? <p>Número: {r.emission_number}</p> : null}
-            <p>Emitido em: {r.emitted_at ? new Date(r.emitted_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "—"}</p>
+            <p>Emitido em: {r.emitted_at ? formatDateTime(r.emitted_at) : "—"}</p>
             {Object.entries(r.public_fields ?? {}).map(([k, v]) => <p key={k}>{k}: {String(v)}</p>)}
             <p className="break-all text-xs text-muted-foreground">Impressão digital: {r.snapshot_sha256}</p>
             <p className="text-xs text-muted-foreground">Por proteção, notas, frequência, saúde, documentos pessoais e endereço nunca aparecem aqui.</p>

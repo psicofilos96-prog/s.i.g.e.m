@@ -19,6 +19,7 @@ import {
 import {
   advanceStage, conferSnapshot, openCycle, readCompare, readCycles, readLivePreview, readSchoolPending, readSnapshot, sha256Hex, stageSource, takeSnapshot,
 } from "./census-cycle-source";
+import { formatDateTime } from "@/lib/academic-date";
 
 const errText = (e: unknown) => censusMessage(e instanceof Error ? e.message : String(e));
 const short = (h: string | null | undefined) => (h ? `${h.slice(0, 12)}…` : "—");
@@ -189,7 +190,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
           {c.imports.length === 0 ? <p className="text-muted-foreground">Nenhuma fonte recebida neste ciclo.</p> : null}
           <ol className="space-y-2">{c.imports.map((i) => (
             <li key={i.id} className="rounded border border-border p-2">
-              <p>{new Date(i.created_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {i.origin} · {i.accepted} linha(s) aceitas · {i.rejections.length} rejeitada(s) · hash {short(i.source_sha256)}</p>
+              <p>{formatDateTime(i.created_at)} · {i.origin} · {i.accepted} linha(s) aceitas · {i.rejections.length} rejeitada(s) · hash {short(i.source_sha256)}</p>
               {i.rejections.length ? <details className="text-xs"><summary>Ver rejeições</summary><ul>{i.rejections.slice(0, 200).map((r) => <li key={r.row}>linha {r.row}: {r.reason}</li>)}</ul></details> : null}
               {head ? <Button size="sm" variant="outline" onClick={() => readCompare(head.id, i.id).then(setCmp, (e) => setMsg(errText(e)))}>Comparar com fotografia v{head.version}</Button> : null}
             </li>))}</ol>

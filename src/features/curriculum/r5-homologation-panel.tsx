@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { formatAcademicDate } from "@/lib/academic-date";
+import { formatAcademicDate, formatDateTime } from "@/lib/academic-date";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import {
   POLICY_PENDING_NOTE, canHomologate, decisionLabel, homologateCapabilityOf, humanR5Error, ledgerHead, loadLedger,
@@ -73,7 +73,7 @@ export function HomologationPanel({ kind, versionId, title }: { kind: R5Kind; ve
             <li key={h.id} className="p-2">
               <span className="font-medium text-foreground">{h.sequence}. {h.decision === "homologada" ? "Homologação" : "Revogação"}</span>
               <span className="text-muted-foreground"> · efeito desde {formatAcademicDate(h.effectiveFrom)} {h.actRef ? `· referência documental ${h.actRef}` : "· decisão interna (sem documento-fonte)"}
-                {h.reason ? ` · motivo: ${h.reason}` : ""} · registrada em {new Date(h.recordedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</span>
+                {h.reason ? ` · motivo: ${h.reason}` : ""} · registrada em {formatDateTime(h.recordedAt)}</span>
             </li>
           ))}
         </ol>

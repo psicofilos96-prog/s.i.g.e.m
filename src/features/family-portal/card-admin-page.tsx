@@ -1,4 +1,4 @@
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -127,7 +127,7 @@ function CardDetail({ c, schoolName, busy, onChange }: { c: CardChainView; schoo
       <table className="w-full text-sm"><caption className="text-left font-medium">Histórico</caption>
         <thead><tr className="text-left text-muted-foreground"><th>Versão</th><th>Ato</th><th>Válida até</th><th>Motivo</th><th>Registrado em</th></tr></thead>
         <tbody>{c.history.map((h) => <tr key={h.version}><td>{h.version}</td><td>{CARD_KIND_LABEL[h.kind]}</td><td>{fmtDate(h.valid_until)}</td><td>{h.reason ?? "—"}</td>
-          <td>{new Date(h.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}</td></tr>)}</tbody></table>
+          <td>{formatDateTime(h.recorded_at)}</td></tr>)}</tbody></table>
       {c.state !== "cancelada" && (
         <div className="flex flex-wrap items-end gap-2">
           <label className="text-sm">Motivo<input className="mt-1 block rounded border bg-background p-2" value={reason} onChange={(e) => setReason(e.target.value)} /></label>

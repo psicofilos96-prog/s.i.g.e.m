@@ -1,4 +1,4 @@
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -116,7 +116,7 @@ function AuthorizationList({ items, busy, onAct }: { items: AuthorizationView[];
         <p className="text-sm">Seções: {a.head.sections.map((s) => SECTION_LABEL[s as FamilySection] ?? s).join(", ") || "nenhuma"} · de {fmtDate(a.head.valid_from)} {a.head.valid_until ? `até ${fmtDate(a.head.valid_until)}` : "sem data de fim"}</p>
         <p className="text-xs text-muted-foreground">Parentesco: {a.head.relation_value_id ?? "não registrado (sem catálogo homologado)"}</p>
         <details className="text-xs"><summary>Histórico ({a.history.length})</summary>
-          <ol className="mt-1 space-y-1">{a.history.map((h) => <li key={h.id}>v{h.version} · {KIND_TEXT[h.event_kind]} · {new Date(h.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}{h.reason ? ` · ${h.reason}` : ""}</li>)}</ol></details>
+          <ol className="mt-1 space-y-1">{a.history.map((h) => <li key={h.id}>v{h.version} · {KIND_TEXT[h.event_kind]} · {formatDateTime(h.recorded_at)}{h.reason ? ` · ${h.reason}` : ""}</li>)}</ol></details>
         {a.state !== "revogada" && !a.legacy ? (edit?.id === a.head.id ? (
           <div className="space-y-2 border-t border-border pt-2">
             {edit.kind === "substituicao" ? <DraftFields d={edit.d} set={(d) => setEdit({ ...edit, d })} />

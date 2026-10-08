@@ -1,5 +1,5 @@
 import { createActionGuard } from "@/lib/idempotency";
-import { operationalToday } from "@/lib/academic-date";
+import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useEffect, useMemo, useState } from "react";
@@ -175,7 +175,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
                     <div>
                       <p className="font-medium">{kindLabel(h.document_kind)} {h.emission_number ? `nº ${h.emission_number}` : ""}
                         {h.emission_kind === "reproducao" ? " — reprodução" : ""}</p>
-                      <p className="text-muted-foreground">{new Date(h.emitted_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} · código {h.verification_code} ·{" "}
+                      <p className="text-muted-foreground">{formatDateTime(h.emitted_at)} · código {h.verification_code} ·{" "}
                         <StatusBadge tone={presentState("documento", st).tone}>{presentState("documento", st).label}</StatusBadge>{st !== "valida" ? ` (${h.event_reason ?? "ver original"})` : ""}</p>
                     </div>
                     <div className="flex gap-2">
