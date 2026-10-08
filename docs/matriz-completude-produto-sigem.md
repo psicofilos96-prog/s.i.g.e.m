@@ -173,3 +173,5 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 
 ## NFORM.2 — Erros por campo/célula (2026-10-08)
 - Erros ligados ao próprio campo e à célula (aria-invalid/aria-describedby) no lançamento de resultados, na matrícula e em Nova turma. Com isso, o gap NFINAL.7 nº 8 fica FECHADO tecnicamente (NOBS.4 + NFORM.2). Nova turma continua sem rascunho: falta contrato canônico (DEPENDE_DECISAO). INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver `docs/formularios-nform2.md`.
+
+- NUI.3 (2026-10-08): status desconhecido explícito em todas as telas via `knownLabel`; catálogo único; varredura `ui-vocabulary-nui3.test.ts`. Pendências: DEPENDE_DECISAO (redação descritiva por domínio), INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver docs/vocabulario-telas-nui3.md.
