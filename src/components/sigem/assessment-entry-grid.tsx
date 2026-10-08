@@ -350,6 +350,7 @@ function NumericEntryEditor(props: EditorProps) {
         autoComplete="off"
         aria-label={`Resultado de ${props.studentName} (${mode.formatLabel})`}
         aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `assessment-err-${props.studentId}` : undefined}
         data-testid={`assessment-numeric-${props.studentId}`}
         className="min-h-11 w-24 text-right tabular-nums"
         onFocus={props.onFocus}
@@ -382,7 +383,7 @@ function NumericEntryEditor(props: EditorProps) {
         }}
       />
       {error && (
-        <span className="text-xs text-destructive" role="alert">
+        <span id={`assessment-err-${props.studentId}`} className="text-xs text-destructive" role="alert">
           {error}
         </span>
       )}
@@ -533,6 +534,7 @@ function DescriptiveEntryEditor(props: EditorProps & { focal?: boolean }) {
         rows={props.focal ? 10 : 2}
         aria-label={`Registro descritivo de ${props.studentName}`}
         aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `assessment-err-${props.studentId}` : undefined}
         data-testid={`assessment-descriptive-${props.studentId}`}
         placeholder={mode.placeholder}
         className={props.focal ? "min-h-48 text-base leading-relaxed" : "min-h-11"}
@@ -577,7 +579,7 @@ function DescriptiveEntryEditor(props: EditorProps & { focal?: boolean }) {
         }}
       />
       {error && (
-        <span className="text-xs text-destructive" role="alert">
+        <span id={`assessment-err-${props.studentId}`} className="text-xs text-destructive" role="alert">
           {error}
         </span>
       )}
@@ -658,6 +660,8 @@ export function MissingEntryAction({
           className="min-h-11"
           placeholder="Motivo"
           aria-label={`Motivo de não registrado para ${studentName}`}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `assessment-missing-err-${studentId}` : undefined}
         />
       )}
       <div className="flex gap-2">
@@ -674,7 +678,7 @@ export function MissingEntryAction({
         </Button>
       </div>
       {error && (
-        <span className="text-xs text-destructive" role="alert">
+        <span id={`assessment-missing-err-${studentId}`} className="text-xs text-destructive" role="alert">
           {error}
         </span>
       )}

@@ -23,5 +23,5 @@ Só apresentação/robustez; nenhuma regra de negócio alterada.
 - `/matriculas/nova`: assistente em etapas com login; formulário único só no laboratório sem login (decisão vigente de separar demonstração). Não é monolito concorrente.
 
 ## Pendências
-- PENDENTE: mensagem por campo (não só por etapa) dentro do assistente de matrícula; `aria-describedby` nas células da grade de avaliação.
+- RESOLVIDO em NFORM.2 (`formularios-nform2.md`): mensagem por campo na matrícula e `aria-describedby` nas células.
 - INTERACTIVE_BROWSER_VALIDATION_PENDING: teclado, celular e queda de rede com login real.

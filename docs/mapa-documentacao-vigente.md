@@ -165,6 +165,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `o2-dossie-decisao-b1.md` | O2 — Dossiê de decisão B1 (destravar operação) | Histórico | sim | — |
 | `observabilidade-e-incidentes.md` | Observabilidade e resposta a incidentes | Referência vigente | — | complementado por `observabilidade-nobs3.md` (IDs de correlação, classificação e trilha de recuperação) |
 | `observabilidade-erros-recuperacao.md` | NOBS — Erros, observabilidade e recuperação | Referência vigente | — | complementado por `observabilidade-nobs3.md` |
+| `formularios-nform2.md` | NFORM.2 — Erros por campo e por célula | Registro de lote | — | complementa `formularios-assistentes-nform1.md` |
 | `recuperacao-erros-nobs4.md` | NOBS.4 — Trilha de recuperação dos erros | Registro de lote | — | complementa `observabilidade-nobs3.md` |
 | `observabilidade-nobs3.md` | NOBS.3 — Observabilidade técnica (2026-10-08) | Registro de lote | — | — |
 | `op-direcao-produto.md` | OP e Direção — produto | Referência vigente | — | — |

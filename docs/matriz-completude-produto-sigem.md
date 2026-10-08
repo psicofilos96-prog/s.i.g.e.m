@@ -170,3 +170,6 @@ IM-01: COMPLETO_TECNICAMENTE — gap "Central de Importações sem o núcleo NIM
 
 ## NOBS.4 — Trilha de recuperação (2026-10-08)
 - Ações de recuperação (Tentar novamente, recarregar, desistir) ligadas ao correlationId do NOBS.3 em RouteErrorState, GuidedErrorState, erro raiz, AppShell, DataGrid, Unidades e rascunho de matrícula. Parte NOBS.3 do gap NFINAL.7 nº 8 FECHADA; NFORM.1 (erro por campo) segue aberto. INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver `docs/recuperacao-erros-nobs4.md`.
+
+## NFORM.2 — Erros por campo/célula (2026-10-08)
+- Erros ligados ao próprio campo e à célula (aria-invalid/aria-describedby) no lançamento de resultados, na matrícula e em Nova turma. Com isso, o gap NFINAL.7 nº 8 fica FECHADO tecnicamente (NOBS.4 + NFORM.2). Nova turma continua sem rascunho: falta contrato canônico (DEPENDE_DECISAO). INTERACTIVE_BROWSER_VALIDATION_PENDING. Ver `docs/formularios-nform2.md`.
