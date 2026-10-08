@@ -44,3 +44,20 @@ Reexecução (sha256, plano, dry-run), arquivo vazio/ilegível, relatório de ex
 - Gap NFINAL.7 nº 2 (Central sem readFileSafely/exceptionReportCsv): FECHADO.
 - Pendências: Censo não tem compensação (a fonte não aplica fatos; comparação nunca corrige — não aplicável); INTERACTIVE_BROWSER_VALIDATION_PENDING (upload real com login); DEPENDE_DADO (leiautes Educacenso/GPE/DP).
 - CSV de exceções do núcleo neutraliza fórmulas como o motor de relatórios (NIMPORT.3).
+
+## NIMPORT.4 (2026-10-08) — auditoria final
+Status: **PASS técnico**; INTERACTIVE_BROWSER_VALIDATION_PENDING (arquivo real com login); DEPENDE_DADO (Educacenso matrícula, GPE, DP sem leiaute).
+
+| Importação | Núcleo | Prévia | Validação/exceções | Idempotência | Proveniência | Compensação/histórico | Corrige canônico em silêncio? |
+|---|---|---|---|---|---|---|---|
+| Escolas (Central, adaptador Censo-escolas) | sim | sim | sim | `plan_key`/eventos | sha256 + adaptador@versão | eventos append-only + compensação | não: conflito nunca aplica |
+| Escolas (fonte curada `/administracao`) | hash da fonte | sim | INEP inválido/duplicado | só `novo` grava | ato + linha da fonte | nova versão cadastral | não: já cadastrada é ignorada |
+| Alunos (Educacenso matrícula) | sim | — | recusa parse | — | — | — | não: leiaute ausente, nada lido |
+| Turmas / Pré-importação 2027 | sim | dry-run | sem chave/duplicada recusadas | chave estável | sha256 | sem gravação | não: só plano |
+| Profissionais (Educacenso / DP) | matching puro / sim | sim | sim | impressão digital | sim | sem gravação / leiaute ausente | não |
+| Censo (fonte externa) | leitura segura + teto | sim | rejeição por linha no banco | mesmo sha256 recusado | sha256 + origem | fonte não aplica fatos (n/a) | não: comparação nunca corrige |
+| Avaliações institucionais | sim | sim | sim | `plan_key` | sim | eventos | não |
+| Referência curricular / D1 | hash + teto | sim | `validateSource` / contrato | mesma edição+hash reconhecida | sha256 | nova edição encadeada | não: divergência bloqueia |
+
+Provas novas: `src/features/data-import/nimport4-audit.test.ts` (6) — writer obrigatório onde há leiaute; sem leiaute recusa parse; vazio/ilegível/>20 MB recusados; conflito/rejeitada/duplicada/já reconciliada nunca chamam writer; reexecução não regrava aplicada nem compensada; plano 2027 determinístico; escola já cadastrada nunca regravada.
+Correções: nenhuma de código nesta rodada (o teto de 20 MB entrou no NFILE.3).
