@@ -66,14 +66,12 @@ describe("Dia letivo — remoção de classificação especial", () => {
     expect(total(back)).toBe(total(base));
   });
 
-  it("não fura faixa de férias nem fim de semana", () => {
+  it("decisão do usuário: 'Dia letivo' vale também dentro de férias e no fim de semana", () => {
     const base = regular();
     const fer = base.ranges.find((r) => r.type === "FERIAS")!;
-    const withEv = set(base, fer.start, "PP");
-    expect(type(ok(restore(withEv, fer.start)), fer.start)).toBe(type(base, fer.start));
+    expect(type(ok(restore(set(base, fer.start, "PP"), fer.start)), fer.start)).toBe("VAZIO");
     const sat = "2027-03-06";
-    expect(type(ok(restore(set(base, sat, "PP"), sat)), sat)).toBe("FDS");
-    expect(restore(base, sat).ok).toBe(false); // nada pontual a remover
+    expect(type(ok(restore(base, sat)), sat)).toBe("VAZIO");
   });
 
   it("totais por período reagem", () => {
