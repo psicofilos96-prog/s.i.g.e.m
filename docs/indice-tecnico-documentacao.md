@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 221. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 223. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -152,9 +152,10 @@ Documentos: 221. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `ambiente-canonico-sigem.md`, `engenharia-de-release.md`, `governanca-referencias-documentais.md`, `observabilidade-e-incidentes.md`, `observabilidade-erros-recuperacao.md`, `privacidade-e-ciclo-de-vida.md`, `prontidao-operacional-recuperacao.md`, `publicacoes-verificacao-publica.md`, `release-checklist-nrelease1.md`, `rotina-de-verificacao.md`, `runbook-integridade-e-recuperacao.md`, `runbook-piloto.md`, `test-harness-institucional.md`
 
-**Registros de lote (decisões e provas da etapa):** `concorrencia-nconc1.md`, `concorrencia-nconc2.md`, `dependencias-ndep1.md`, `idempotencia-nidem1.md`, `observabilidade-nobs3.md`, `superficies-publicas-npub2.md`, `superficies-publicas-nrate1.md`
+**Registros de lote (decisões e provas da etapa):** `cal-count-1-reconciliacao.md`, `concorrencia-nconc1.md`, `concorrencia-nconc2.md`, `dependencias-ndep1.md`, `idempotencia-nidem1.md`, `observabilidade-nobs3.md`, `superficies-publicas-npub2.md`, `superficies-publicas-nrate1.md`
 
 **Pendências declaradas:**
+- `cal-count-1-reconciliacao.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `concorrencia-nconc1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `concorrencia-nconc2.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `idempotencia-nidem1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -175,12 +176,13 @@ Documentos: 221. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** — (sem referência vigente; ver registros de lote)
 
-**Registros de lote (decisões e provas da etapa):** `admin-busca-notificacoes-auditoria-nadm2.md`, `auditoria-central-naud2.md`, `auditoria-exportacoes-nexp.md`, `auditoria-temporal-ntemp1.md`
+**Registros de lote (decisões e provas da etapa):** `admin-busca-notificacoes-auditoria-nadm2.md`, `auditoria-central-naud2.md`, `auditoria-exportacoes-nexp.md`, `auditoria-mapa-nmap5.md`, `auditoria-temporal-ntemp1.md`
 
 **Pendências declaradas:**
 - `admin-busca-notificacoes-auditoria-nadm2.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-central-naud2.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-exportacoes-nexp.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
+- `auditoria-mapa-nmap5.md`: DEPENDE_DECISAO, HOMOLOGACAO, PROVAS_SQL_PENDENTES, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `auditoria-temporal-ntemp1.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 
 **Histórico (substituído; consultar só para contexto):** `aceite-avancado-sigem.md`, `aceite-definitivo-piloto.md`, `auditoria-do-amanhecer.md`, `auditoria-estrutural-final-pre-2027.md`, `auditoria-integrada-bb-bl.md`, `auditoria-integrada-pos-lotes-2.md`, `auditoria-roadmap-a-r.md`, `b2-b3-gate-primeira-escola.md`, `sigem-memoria-setorial-e-auditoria.md`
