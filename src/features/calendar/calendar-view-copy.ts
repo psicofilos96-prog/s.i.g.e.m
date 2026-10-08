@@ -1,4 +1,5 @@
 import { demoActors } from "./calendar-fixtures";
+import { presentState } from "@/config/state-presentation";
 import type { CalendarActor, CalendarStatus } from "./calendar-types";
 
 export type CalendarProfile = keyof typeof demoActors;
@@ -10,23 +11,23 @@ export const STATUS_COPY: Record<
   { label: string; tone: "warning" | "info" | "success" | "neutral"; text: string }
 > = {
   rascunho: {
-    label: "Rascunho",
-    tone: "warning",
+    label: presentState("calendario", "rascunho").label,
+    tone: presentState("calendario", "rascunho").tone as "info",
     text: "Em elaboração pela Supervisão. Editável; não é oficial.",
   },
   "em-revisao": {
-    label: "Em revisão",
-    tone: "info",
+    label: presentState("calendario", "em-revisao").label,
+    tone: presentState("calendario", "em-revisao").tone as "info",
     text: "Em conferência antes da homologação. Conteúdo bloqueado para edição.",
   },
   homologado: {
-    label: "Homologado",
-    tone: "success",
+    label: presentState("calendario", "homologado").label,
+    tone: presentState("calendario", "homologado").tone as "info",
     text: "Aprovado e publicado para a rede. Imutável.",
   },
   arquivado: {
-    label: "Arquivado",
-    tone: "neutral",
+    label: presentState("calendario", "arquivado").label,
+    tone: presentState("calendario", "arquivado").tone as "info",
     text: "Calendário histórico de ano encerrado. Imutável.",
   },
 };

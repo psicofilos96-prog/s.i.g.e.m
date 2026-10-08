@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
-import { filterTasks, operationalAgenda, sortTasks, type TaskView } from "@/features/tasks/task-model";
+import { presentState } from "@/config/state-presentation";
+import { taskActions, filterTasks, operationalAgenda, sortTasks, type TaskView } from "@/features/tasks/task-model";
 import { loadTasks, recordTaskEvent, type TaskLoad } from "@/features/tasks/task-source";
 
 export const Route = createFileRoute("/tarefas")({
@@ -67,7 +68,7 @@ function TaskCard({ t, onAct }: { t: TaskView; onAct: (t: TaskView, k: "status" 
     <article className="space-y-2 rounded-lg border border-border bg-card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-medium">{t.title}</h2>
-        <span className="text-xs text-muted-foreground">{t.origin === "workflow" ? "Processo" : "Tarefa"} · {t.status}</span>
+        <span className="text-xs text-muted-foreground">{t.origin === "workflow" ? "Processo" : "Tarefa"} · {t.origin === "manual" ? presentState("servico", t.status).label : t.status}</span>
       </div>
       <p className="text-xs text-muted-foreground">
         Prazo: {t.dueOn ?? "não definido"}{t.priority ? ` · Prioridade: ${t.priority.label}` : ""}{t.recurrence ? ` · Repete: ${t.recurrence}` : ""}{t.source && t.origin === "manual" ? ` · Origem: ${t.source.kind}` : ""}
@@ -78,14 +79,13 @@ function TaskCard({ t, onAct }: { t: TaskView; onAct: (t: TaskView, k: "status" 
       ) : t.open && (
         <div className="space-y-2">
           <div className="flex gap-2">
-            {t.status === "aberta" && <Button size="sm" variant="outline" onClick={() => onAct(t, "status", "em-andamento")}>Iniciar</Button>}
-            <Button size="sm" onClick={() => onAct(t, "status", "concluida")}>Concluir</Button>
+            {taskActions(t.status).map((a) => <Button key={a.to} size="sm" variant={a.to === "concluida" ? "default" : "outline"} onClick={() => onAct(t, "status", a.to)}>{a.label}</Button>)}
           </div>
           <Textarea aria-label="Comentário" value={c} onChange={(e) => setC(e.target.value)} maxLength={2000} />
           <Button size="sm" variant="outline" disabled={!c.trim()} onClick={() => { onAct(t, "comentario", c); setC(""); }}>Comentar</Button>
         </div>
       )}
-      {t.history.length > 0 && <details className="text-xs"><summary className="cursor-pointer">Histórico ({t.history.length})</summary><ol className="mt-1 list-decimal pl-5">{t.history.map((h) => <li key={h.seq}>{h.recordedAt.slice(0, 16).replace("T", " ")} — {h.kind}{h.status ? `: ${h.status}` : ""}{h.comment ? `: ${h.comment}` : ""}</li>)}</ol></details>}
+      {t.history.length > 0 && <details className="text-xs"><summary className="cursor-pointer">Histórico ({t.history.length})</summary><ol className="mt-1 list-decimal pl-5">{t.history.map((h) => <li key={h.seq}>{h.recordedAt.slice(0, 16).replace("T", " ")} — {h.kind}{h.status ? `: ${presentState("servico", h.status).label}` : ""}{h.comment ? `: ${h.comment}` : ""}</li>)}</ol></details>}
     </article>
   );
 }

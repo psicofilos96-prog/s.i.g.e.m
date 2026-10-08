@@ -3,6 +3,13 @@
 import type { Pending } from "@/features/workflows/workflow-model";
 
 export type TaskStatus = "aberta" | "em-andamento" | "concluida" | "cancelada";
+/** NSTATE.2 — transições que a tela oferece por estado canônico; terminal não oferece nada. */
+export const TASK_ACTIONS_FROM: Readonly<Record<TaskStatus, readonly { to: TaskStatus; label: string }[]>> = {
+  aberta: [{ to: "em-andamento", label: "Iniciar" }, { to: "concluida", label: "Concluir" }],
+  "em-andamento": [{ to: "concluida", label: "Concluir" }],
+  concluida: [], cancelada: [],
+};
+export const taskActions = (s: string) => (TASK_ACTIONS_FROM as Record<string, readonly { to: TaskStatus; label: string }[]>)[s] ?? [];
 export type TaskEvent = { seq: number; kind: "atribuicao" | "status" | "comentario"; assigneeEngagement: string | null; status: TaskStatus | null; comment: string | null; actor: string; recordedAt: string };
 export type ManualTaskRow = { id: string; schoolId: string; title: string; description: string | null; priorityId: string | null; dueOn: string | null; recurrence: unknown; sourceKind: string | null; sourceRef: string | null; createdAt: string };
 export type Priority = { id: string; label: string; ordinal: number };

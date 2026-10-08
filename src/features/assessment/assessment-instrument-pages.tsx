@@ -1,3 +1,4 @@
+import { presentState } from "@/config/state-presentation";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
 import { periodSourcePresentation } from "./period-source-presentation";
@@ -242,8 +243,8 @@ export function InstrumentsSection({ classId, search }: { classId: string; searc
                             </span>
                           </span>
                           <span className="flex flex-wrap items-center gap-2 text-xs">
-                            <StatusBadge tone={applied ? "info" : "neutral"}>
-                              {applied ? "Abrir pauta" : "Planejado"}
+                            <StatusBadge tone={presentState("avaliacao", i.status).tone}>
+                              {presentState("avaliacao", i.status).label}
                             </StatusBadge>
                             <span className="tabular-nums text-muted-foreground">
                               {registered} {registered === 1 ? "registrado" : "registrados"}
