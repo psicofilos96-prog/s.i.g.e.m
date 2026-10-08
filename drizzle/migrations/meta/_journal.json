@@ -1751,6 +1751,13 @@
       "when": 1791484450566,
       "tag": "0249_nsec4_revoke_anon_table_privileges",
       "breakpoints": true
+    },
+    {
+      "idx": 250,
+      "version": "7",
+      "when": 1791486055018,
+      "tag": "0250_ndb4_drop_exact_duplicate_indexes_revoke_deprecated_install",
+      "breakpoints": true
     }
   ]
 }
