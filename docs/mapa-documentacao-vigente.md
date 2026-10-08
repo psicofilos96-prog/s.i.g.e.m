@@ -214,4 +214,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `ux-sigem-migracao-rotas.md` | Migração visual das rotas (N3.2 — inventário automático) | Referência vigente | sim | — |
 | `varredura-demonstracao-contexto-real.md` | Varredura: demonstração × contexto real (2026-10-07) | Referência vigente | sim | — |
 | `vocabulario-interface-nui2.md` | NUI.2 — Vocabulário, status e microtextos | Registro de lote | — | — |
-| `docs/ajuda-contextual-nhelp1.md` | Registro de lote | NHELP.1 — ajuda contextual curta |
+| `ajuda-contextual-nhelp1.md` | NHELP.1 — Ajuda contextual curta | Registro de lote | — | — |
