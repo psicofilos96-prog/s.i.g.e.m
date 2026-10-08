@@ -289,5 +289,6 @@
  "drizzle/migrations/0238_ndb2_revoke_deprecated_diary_policy.sql": "e59d7f7e960bba473f6d1ea2fcdfb13dc5aba3ed791263d60b0ccb5d29d455b0",
  "drizzle/migrations/0239_naccess1_account_detail.sql": "09af74fca757e3b0c458f96fe4560cb6a2af4b8fbd403b4256b91b75622ea6e6",
  "drizzle/migrations/0240_calendar_external_models_4_5.sql": "63d01faf4def2cc0da2c7a97d70fd1b4fd991d48c2cb8c02efa348f0e2b16b27",
- "drizzle/migrations/0241_nidem1_document_emission_idempotency.sql": "c9c93afdafb89179318b863583edab3ad591ea1ec9ff2081271c82cd9e700621"
+ "drizzle/migrations/0241_nidem1_document_emission_idempotency.sql": "c9c93afdafb89179318b863583edab3ad591ea1ec9ff2081271c82cd9e700621",
+ "drizzle/migrations/0242_nconc1_policy_draft_lock.sql": "66f405a7fe2cd042855afabd2004fc9142b80248d1c35f88e284aa6fce490d75"
 }
