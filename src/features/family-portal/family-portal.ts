@@ -1,4 +1,5 @@
 import { governError } from "@/lib/observability/governed-errors";
+import { isShapeError, SHAPE_MESSAGE } from "@/lib/runtime-shape";
 /**
  * Portal da Família — projeção read-only. O banco decide quem vê o quê (family_students / family_student_summary);
  * esta camada só apresenta. Nada aqui concede acesso, infere vínculo ou converte ausência em zero.
@@ -52,5 +53,6 @@ export const fmtDate = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12
 export function familyMessage(raw: string): string {
   if (raw.includes("session-required")) return "Sua sessão expirou. Entre novamente.";
   if (raw.includes("family:not-authorized")) return "Não há autorização vigente para você consultar este educando.";
+  if (isShapeError(raw)) return SHAPE_MESSAGE;
   return governError(raw).userMessage;
 }
