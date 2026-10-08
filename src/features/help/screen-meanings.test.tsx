@@ -14,7 +14,7 @@ const exists = (r: string) => { const f = r.slice(1).replace(/\//g, "."); return
 describe("NHELP.1 — O que isso significa?", () => {
   it("cobre as oito telas pedidas", () => {
     for (const [path, id] of [["/mapa-estatistico", "mapa"], ["/regras-avaliativas", "avaliacao"], ["/calendario-escolar/x", "calendario"], ["/matriculas/nova", "matricula"], ["/turmas/nova", "turmas"], ["/diario/chamadas", "diario"], ["/inclusao", "aee"], ["/relatorios", "relatorios"]])
-      expect(meaningForRoute(path)?.id, path).toBe(id);
+      expect(meaningForRoute(path!)?.id, path).toBe(id);
   });
   it("prefixo mais específico vence; rota sem ajuda não mostra bloco", () => {
     expect(meaningForRoute("/diario/turmas/1/avaliacao")?.id).toBe("avaliacao");
