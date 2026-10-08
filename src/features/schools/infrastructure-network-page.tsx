@@ -5,7 +5,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
-import { infrastructureQueue, type InfraQueueRow } from "./infrastructure-network-queue";
+import { infrastructureQueue, infrastructureReportRows, INFRAESTRUTURA_COBERTURA, type InfraQueueRow } from "./infrastructure-network-queue";
+import { ExportButtons } from "@/features/performance/station-sections";
+import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
 import type { InfraAttributeRow, InfraObservationRow } from "./school-infrastructure";
 
 const db = supabase as unknown as { from: (t: string) => any };
@@ -32,12 +34,13 @@ export function InfrastructureNetworkPage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Rede" title="Infraestrutura das escolas" description="O que cada escola já informou e o que falta informar. O SIGEM não avalia condição nem define prioridade de obra: isso depende de regra institucional." />
       <label className="block max-w-xs text-sm print:hidden">Situação na data<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
+      {data && data.rows.length > 0 && data.rows[0]!.total > 0 && <div className="print:hidden"><ExportButtons name={`infraestrutura-cobertura-${on}`} make={() => { const b = { headerLines: ["SIGEM — Infraestrutura"], title: `${INFRAESTRUTURA_COBERTURA.title} — ${on}` }; const r = runReport(INFRAESTRUTURA_COBERTURA, { params: { on } }, infrastructureReportRows(data.rows, data.names)); const m = ["Só o que foi informado; não avalia condição nem prioridade de obra."]; return { ok: true as const, csv: toCsv(r, b, m), html: toPrintableHtml(r, b, m) }; }} /></div>}
       {err ? <StatePanel tone="danger" title="Não foi possível consultar" description="Nenhum dado substituto é exibido. Tente de novo em instantes." />
         : !data ? <SkeletonState label="Carregando infraestrutura da rede" />
         : data.rows.length === 0 || data.rows[0]!.total === 0 ? <EmptyState title="Nada a mostrar" description="Nenhuma escola visível para sua conta ou nenhum item de infraestrutura cadastrado na rede." />
         : <table className="w-full text-sm">
             <caption className="sr-only">Cobertura da infraestrutura por escola</caption>
-            <thead><tr className="text-left"><th>Escola</th><th>Informados</th><th>Falta informar</th></tr></thead>
+            <thead><tr className="text-left"><th scope="col">Escola</th><th scope="col">Informados</th><th scope="col">Falta informar</th></tr></thead>
             <tbody>{data.rows.map((r) => (
               <tr key={r.schoolId} className="border-t align-top">
                 <td className="py-1">{data.names.get(r.schoolId) ?? "Escola sem nome registrado"}</td>
