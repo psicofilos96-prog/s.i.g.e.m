@@ -89,7 +89,7 @@ export function OnboardingPage() {
           <div className="flex flex-wrap gap-2 border-t border-border pt-3">
             <Button variant="outline" disabled={idx === 0} onClick={() => go(STEPS[idx - 1]!.id)}>Voltar</Button>
             <a href={step.fix} className="inline-flex min-h-9 items-center rounded-md border border-border px-4 text-sm">Abrir tela oficial</a>
-            {step.id === "alunos-matriculas" && <a href="/importacoes" className="inline-flex min-h-9 items-center rounded-md border border-border px-4 text-sm">Importação governada</a>}
+            {step.id === "alunos-matriculas" && <Link to="/importacoes" className="inline-flex min-h-9 items-center rounded-md border border-border px-4 text-sm">Importação governada</Link>}
             <Button disabled={idx === STEPS.length - 1 || !school} onClick={() => go(STEPS[idx + 1]!.id)}>Marcar como revisada e avançar</Button>
           </div>
         </section>
