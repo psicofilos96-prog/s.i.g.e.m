@@ -181,7 +181,7 @@ const footerPlain = (s: string, f: Facts, missing: Set<string>) => s.replace(TOK
 
 export type RenderOutput = { html: string; missing: string[]; pageBreaks: number };
 
-export function renderStudio(a: { title: string; blocks: readonly StudioBlock[]; page: PageSetup; facts: Facts; draftLabel: string | null; assets?: Record<string, string> }): RenderOutput {
+export function renderStudio(a: { title: string; blocks: readonly StudioBlock[]; page: PageSetup; facts: Facts; draftLabel: string | null; assets?: Record<string, string>; qrImage?: string | null }): RenderOutput {
   const missing = new Set<string>(); let breaks = 0;
   const src = (asset: string) => asset.startsWith("asset:") ? a.assets?.[asset.slice(6)] ?? "" : asset;
   const one = (b: StudioBlock): string => {
@@ -202,7 +202,8 @@ export function renderStudio(a: { title: string; blocks: readonly StudioBlock[];
       case "columns": return `<div class="cols" style="grid-template-columns:repeat(${b.columns.length},1fr)">${b.columns.map((c) => `<div>${c.map(one).join("")}</div>`).join("")}</div>`;
       case "line": return `<hr>`;
       case "qr": { const code = a.facts["documento.codigo_verificacao"]; if (!isPresent(code)) missing.add("documento.codigo_verificacao");
-        return `<div class="qr"><div class="qrbox" aria-label="${esc(b.label)}">${isPresent(code) ? esc(String(code)) : "sem código"}</div><small>${esc(b.label)}</small></div>`; }
+        const img = a.qrImage && /^data:image\/(gif|png);base64,[A-Za-z0-9+/=]+$/.test(a.qrImage) ? `<img class="qrimg" src="${a.qrImage}" alt="QR de verificação" width="96" height="96">` : "";
+        return `<div class="qr">${img}<div class="qrbox" aria-label="${esc(b.label)}">${isPresent(code) ? esc(String(code)) : "sem código"}</div><small>${esc(b.label)}</small></div>`; }
       case "signature": return `<div class="sig"><div class="sigline"></div><div>${fill(b.label, a.facts, missing)}</div>${b.role ? `<small>${esc(b.role)}</small>` : ""}</div>`;
       case "date-place": { const d = a.facts["documento.data_de_referencia"]; if (!isPresent(d)) missing.add("documento.data_de_referencia");
         return `<p class="dateplace">${esc(b.place)}, ${isPresent(d) ? esc(String(d)) : '<span class="ausente">[data: sem registro]</span>'}.</p>`; }
