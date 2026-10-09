@@ -114,7 +114,7 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
       {/* INT.7: matrícula em uma única página (antes: 8 telas e 7 cliques em "Continuar"). */}
       <nav aria-label="Seções da matrícula" className="sticky top-[var(--topbar-height)] z-10 rounded-lg border bg-card/95 p-3 backdrop-blur">
         <p className="mb-2 text-sm">
-          {(() => { const n = Object.values(missing).flat().length; return n ? <span>Faltam <strong>{n}</strong> {n === 1 ? "informação obrigatória" : "informações obrigatórias"}</span> : <strong>Tudo pronto para concluir</strong>; })()}
+          {(() => { const n = Object.values(missing).flat().length; return n ? <span>Faltam {n} {n === 1 ? "informação obrigatória" : "informações obrigatórias"}</span> : <strong>Tudo pronto para concluir</strong>; })()}
         </p>
         <ol className="flex flex-wrap gap-1 text-xs">
           {WIZARD_STEPS.filter((s) => s.n < 8).map((s) => (
