@@ -1883,6 +1883,7 @@ export type Database = {
       }
       attendance_occurrence_types: {
         Row: {
+          attendance_effect: string | null
           code: string
           created_at: string
           description: string
@@ -1896,6 +1897,7 @@ export type Database = {
           version: number
         }
         Insert: {
+          attendance_effect?: string | null
           code: string
           created_at?: string
           description?: string
@@ -1909,6 +1911,7 @@ export type Database = {
           version: number
         }
         Update: {
+          attendance_effect?: string | null
           code?: string
           created_at?: string
           description?: string
@@ -16670,6 +16673,63 @@ export type Database = {
           },
         ]
       }
+      teacher_diary_approvals: {
+        Row: {
+          approved_at: string
+          approver_station: string
+          assignment_id: string
+          author_person_id: string | null
+          author_principal_id: string | null
+          author_user_id: string
+          class_id: string
+          collegial_minute_id: string
+          id: string
+          period_id: string
+          school_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_station: string
+          assignment_id: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
+          author_user_id: string
+          class_id: string
+          collegial_minute_id: string
+          id?: string
+          period_id: string
+          school_id: string
+        }
+        Update: {
+          approved_at?: string
+          approver_station?: string
+          assignment_id?: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
+          author_user_id?: string
+          class_id?: string
+          collegial_minute_id?: string
+          id?: string
+          period_id?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_diary_approvals_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_diary_approvals_collegial_minute_id_fkey"
+            columns: ["collegial_minute_id"]
+            isOneToOne: false
+            referencedRelation: "collegial_minute_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_instrument_versions: {
         Row: {
           assignment_id: string
@@ -18121,6 +18181,15 @@ export type Database = {
         }
         Returns: string
       }
+      approve_teacher_diary: {
+        Args: {
+          _assignment: string
+          _minute_id: string
+          _period: string
+          _role: string
+        }
+        Returns: string
+      }
       assessment_analysis_definitions_at: {
         Args: { _known_at: string }
         Returns: {
@@ -18972,6 +19041,10 @@ export type Database = {
           value_version: number
           version: number
         }[]
+      }
+      class_period_any_diary_closed: {
+        Args: { _class: string; _period: string }
+        Returns: boolean
       }
       class_period_link_boundary: {
         Args: { _new_org: string; _old_org: string; _on: string }
@@ -25242,6 +25315,19 @@ export type Database = {
           _year?: string
         }
         Returns: Json
+      }
+      teacher_diary_closed: {
+        Args: { _assignment: string; _period: string }
+        Returns: boolean
+      }
+      teacher_diary_state_at: {
+        Args: { _assignment: string; _on?: string; _period: string }
+        Returns: {
+          council_minute_id: string
+          direcao_approved_at: string
+          orientacao_approved_at: string
+          state: string
+        }[]
       }
       teacher_work_review_queue: {
         Args: { _school: string }

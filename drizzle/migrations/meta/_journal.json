@@ -1793,6 +1793,13 @@
       "when": 1791511177372,
       "tag": "0255_bq1_revoke_identity_direct_dml",
       "breakpoints": true
+    },
+    {
+      "idx": 256,
+      "version": "7",
+      "when": 1791513224999,
+      "tag": "0256_bq5_institutional_academic_rules",
+      "breakpoints": true
     }
   ]
 }
