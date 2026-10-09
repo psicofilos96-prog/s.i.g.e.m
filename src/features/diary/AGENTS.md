@@ -113,3 +113,7 @@
 - Writers v1 aposentados (EXECUTE revogado); DML direto revogado de anon/authenticated/service_role nas tabelas do Diário.
 - W.2 (`0149`): política de correção do Diário é resolvida na data da aula (`applicable_diary_policy_on`), nunca no relógio civil; professor lê só a própria regência (`my_diary_slots_at`, `my_diary_lessons`) e gestão lê `diary_school_overview_at` (existência/versões/contagens, sem texto nem marcações), porque leitura administrativa não pode virar autoria nem exposição.
 - Prova positiva do Diário: `supabase/tests/w2_diary_e2e.sql`, executado pelo `supabase--run_sql` (o psql do sandbox não grava tabelas institucionais); termina em RAISE, nada persiste.
+
+## Dia do professor (NDOC.UX — `teacher-day.ts`, `DiaryHomePage`)
+
+- A home segue `TEACHER_DAY_STEPS` (próxima aula → registrar → chamada → planejamento → pendências) e os filtros de contexto ficam recolhidos, porque o professor entra pelo dia, não pela configuração; a sequência só navega, nenhuma regra é decidida nela.

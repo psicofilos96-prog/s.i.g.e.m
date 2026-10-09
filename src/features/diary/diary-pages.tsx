@@ -13,6 +13,7 @@ import {
 import { diaryClassCalendar, useComposedCalendarRefresh } from "./diary-calendar";
 import { diaryReference } from "./diary-session-state";
 import { NextLessonCard } from "./next-lesson-card";
+import { TEACHER_DAY_STEPS } from "./teacher-day";
 import { TeachingSupportNotice } from "@/features/teacher-diary/teaching-support-notice";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -101,6 +102,43 @@ function ContextControls({
   );
 }
 
+/** NDOC.UX — o dia em sequência: cada passo leva à seção da própria tela. */
+function TeacherDaySteps() {
+  const go = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    (el.closest("[tabindex]") as HTMLElement | null ?? el).focus?.({ preventScroll: true });
+  };
+  return (
+    <nav aria-label="Seu dia de aula">
+      <ol className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {TEACHER_DAY_STEPS.map((step, i) => {
+          const body = (
+            <>
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground" aria-hidden="true">{i + 1}</span>
+              <span className="min-w-0">
+                <span className="block text-sm font-medium text-foreground">{step.label}</span>
+                <span className="block text-xs text-muted-foreground">{step.hint}</span>
+              </span>
+            </>
+          );
+          const cls = "flex min-h-11 w-full items-center gap-2 rounded-md border border-border/70 bg-card p-2 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+          return (
+            <li key={step.id}>
+              {step.to ? (
+                <Link to={step.to} className={cls}>{body}</Link>
+              ) : (
+                <a href={`#${step.anchor}`} className={cls} onClick={(e) => { e.preventDefault(); go(step.anchor!); }}>{body}</a>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
 export function DiaryHomePage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
   const assignments = filteredAssignments(search);
@@ -126,13 +164,21 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
           </Button>
         )}
       </DiaryHeader>
-      <ContextControls search={search} base="/diario" />
+      <TeacherDaySteps />
       {selected ? (
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{selected.unitName}</span> ·{" "}
           {selected.className} · {selected.field}
         </p>
       ) : null}
+      <details className="rounded-md border border-border/70 px-3 py-2">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">
+          Trocar escola, turma ou componente
+        </summary>
+        <div className="pt-3">
+          <ContextControls search={search} base="/diario" />
+        </div>
+      </details>
       {!context.assignments.length ? (
         <StatePanel
           tone="warning"
@@ -140,13 +186,22 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
           description="Não há atuação vigente para esta data. O Diário só apresenta turmas associadas a atuações pedagógicas válidas; lotação na escola não concede acesso a turmas."
         />
       ) : null}
-      <NextLessonCard assignments={context.assignments} date={context.referenceDate} />
+      <div id="proxima-aula" tabIndex={-1} className="scroll-mt-20 focus:outline-none">
+        <NextLessonCard assignments={context.assignments} date={context.referenceDate} />
+      </div>
       <TeachingSupportNotice date={context.referenceDate} classes={context.assignments} />
       <ResumeSection search={journeySearch} />
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(17rem,.8fr)]">
-        <DailyAgenda search={search} />
-        <PendingSection search={journeySearch} />
-      </div>
+      <DailyAgenda search={search} />
+      <section aria-labelledby="plan-title" className="flex flex-col gap-2 rounded-md border border-border/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 id="plan-title" className="text-base font-semibold text-foreground">Planejamento</h2>
+          <p className="text-sm text-muted-foreground">Prepare as próximas aulas. Planejar não marca conteúdo como dado.</p>
+        </div>
+        <Button asChild size="sm" variant="outline" className="shrink-0">
+          <Link to="/planejamento">Abrir planejamento <ArrowRight /></Link>
+        </Button>
+      </section>
+      <PendingSection search={journeySearch} />
       <section>
         <SectionHeader
           title="Turmas sob sua responsabilidade"
@@ -175,8 +230,7 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
                     <span className="font-normal text-muted-foreground">· {item.field}</span>
                   </p>
                   <p className="break-words text-xs text-muted-foreground">
-                    {item.unitName} · {item.stage} · {item.record.role} · Vínculo{" "}
-                    {item.record.linkId}
+                    {item.unitName} · {item.stage} · {item.record.role}
                   </p>
                 </div>
                 <Button asChild size="sm" variant="ghost">
