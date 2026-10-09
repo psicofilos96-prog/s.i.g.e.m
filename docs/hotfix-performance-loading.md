@@ -42,7 +42,7 @@ As leituras acima de 1 s (Alunos e Matrículas com contagem, Admin em rede ~9,6 
 vêm da contagem sob RLS; a página em si chega abaixo de 2 s.
 
 ## Gates
-Suíte completa: 4.808 testes passaram, 1 falha encontrada e corrigida (teste de Turmas atualizado
+Suíte completa: 4.809 testes passaram (503 arquivos), após corrigir 1 falha (teste de Turmas atualizado
 para a leitura paginada); 106 verificações de arquitetura; typecheck limpo; resíduo de fixtures 0.
 
 ## Pendências reais
