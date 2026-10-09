@@ -2,6 +2,7 @@ import { confirmAction } from "@/components/sigem/confirm-action";
 import { FactValue } from "@/components/sigem/states";
 import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
 import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
+import { mirrorTargets } from "./calendar-mirror";
 import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
 import { centralErrorText, homologateCentralCalendar, saveCentralCalendar, type CentralEntry } from "./calendar-central";
 import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
@@ -1069,8 +1070,25 @@ export function CalendarWorkspacePage({
                       reason: entry ? "Alteração salva no editor do calendário" : provenance === "fonte-projeto" ? "Calendário 2027 registrado no projeto, reconhecido pelo usuário como calendário real" : null,
                     }).then(async (r) => {
                       repo.commitCentral?.(cal.id, current);
+                      // Espelho (Regular → EJA Fase I): o calendário espelhado também é salvo no banco.
+                      const mirrored: string[] = [];
+                      for (const t of mirrorTargets(current, repo.list())) {
+                        if (!repo.hasUnsavedChanges(t.id)) continue;
+                        const tCur = repo.get(t.id)!;
+                        const tEntry = central ? centralEntryOf(central, t.id) : null;
+                        try {
+                          const tr = await saveCentralCalendar({
+                            cal: tCur, sourceKey: t.id, expectedBaseVersionId: tEntry?.latest.versionId ?? null,
+                            sourceKind: "edicao-institucional", reason: "Alteração espelhada do calendário Regular",
+                          });
+                          repo.commitCentral?.(t.id, tCur);
+                          mirrored.push(`${tCur.title} · versão ${tr.version}`);
+                        } catch (e) {
+                          mirrored.push(`${tCur.title}: não foi salvo (${centralErrorText(e)})`);
+                        }
+                      }
                       await loadCentral(repo);
-                      setMessage(`Salvo no banco · versão ${r.version}.${entry?.homologated ? " A versão homologada continua em vigor até você homologar esta." : " Ainda não homologado."}`);
+                      setMessage(`Salvo no banco · versão ${r.version}.${entry?.homologated ? " A versão homologada continua em vigor até você homologar esta." : " Ainda não homologado."}${mirrored.length ? ` Também salvo: ${mirrored.join("; ")}.` : ""}`);
                     }, (e: unknown) => {
                       setMessage(`Não foi salvo no banco: ${centralErrorText(e)} Suas alterações continuam na tela.`);
                     }).finally(() => setBusy(false));
@@ -1121,7 +1139,7 @@ export function CalendarWorkspacePage({
               variant="outline"
               data-sigem-build="b4.6.10-homologar-central"
               disabled={busy || unsaved || central?.status !== "lido" || !entry || entry.latest.lastHomologation?.decision === "homologada"}
-              title={unsaved ? "Salve as alterações antes de homologar" : !entry ? "Salve no banco antes de homologar" : undefined}
+              title={unsaved ? "Salve as alterações antes de homologar" : !entry ? "Salve no banco antes de homologar" : entry.latest.lastHomologation?.decision === "homologada" ? "Esta versão já está homologada. Altere e salve para homologar uma nova versão." : undefined}
               onClick={() => {
                 if (!entry) return;
                 if (critical && !confirmCritical) {
