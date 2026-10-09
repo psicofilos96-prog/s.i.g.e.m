@@ -1863,6 +1863,13 @@
       "when": 1791539327208,
       "tag": "0265_perf_loading_3_active_enrollments_reader",
       "breakpoints": true
+    },
+    {
+      "idx": 266,
+      "version": "7",
+      "when": 1791545038730,
+      "tag": "0266_docs_pro_3_studio_persistence",
+      "breakpoints": true
     }
   ]
 }

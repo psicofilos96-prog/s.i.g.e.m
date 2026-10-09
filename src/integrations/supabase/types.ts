@@ -16805,6 +16805,186 @@ export type Database = {
           },
         ]
       }
+      studio_emission_events: {
+        Row: {
+          actor_id: string
+          at: string
+          emission_id: string
+          id: string
+          kind: string
+          reason: string
+          replaced_by: string | null
+        }
+        Insert: {
+          actor_id: string
+          at?: string
+          emission_id: string
+          id?: string
+          kind: string
+          reason: string
+          replaced_by?: string | null
+        }
+        Update: {
+          actor_id?: string
+          at?: string
+          emission_id?: string
+          id?: string
+          kind?: string
+          reason?: string
+          replaced_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "studio_emission_events_emission_id_fkey"
+            columns: ["emission_id"]
+            isOneToOne: true
+            referencedRelation: "studio_emissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "studio_emission_events_replaced_by_fkey"
+            columns: ["replaced_by"]
+            isOneToOne: false
+            referencedRelation: "studio_emissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      studio_emissions: {
+        Row: {
+          actor_id: string
+          id: string
+          issued_at: string
+          issuer_label: string
+          school_id: string | null
+          snapshot: Json
+          snapshot_sha256: string
+          template_version_id: string
+          title: string
+          verification_code: string
+        }
+        Insert: {
+          actor_id: string
+          id?: string
+          issued_at?: string
+          issuer_label: string
+          school_id?: string | null
+          snapshot: Json
+          snapshot_sha256: string
+          template_version_id: string
+          title: string
+          verification_code: string
+        }
+        Update: {
+          actor_id?: string
+          id?: string
+          issued_at?: string
+          issuer_label?: string
+          school_id?: string | null
+          snapshot?: Json
+          snapshot_sha256?: string
+          template_version_id?: string
+          title?: string
+          verification_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "studio_emissions_template_version_id_fkey"
+            columns: ["template_version_id"]
+            isOneToOne: false
+            referencedRelation: "studio_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      studio_template_events: {
+        Row: {
+          actor_id: string
+          at: string
+          id: string
+          kind: string
+          note: string | null
+          version_id: string
+        }
+        Insert: {
+          actor_id: string
+          at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          version_id: string
+        }
+        Update: {
+          actor_id?: string
+          at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "studio_template_events_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "studio_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      studio_template_versions: {
+        Row: {
+          author_id: string
+          base_template_id: string | null
+          blocks: Json
+          content_sha256: string
+          created_at: string
+          id: string
+          page: Json
+          sector: string
+          supersedes_id: string | null
+          template_id: string
+          title: string
+          version_no: number
+        }
+        Insert: {
+          author_id: string
+          base_template_id?: string | null
+          blocks: Json
+          content_sha256: string
+          created_at?: string
+          id?: string
+          page: Json
+          sector: string
+          supersedes_id?: string | null
+          template_id: string
+          title: string
+          version_no: number
+        }
+        Update: {
+          author_id?: string
+          base_template_id?: string | null
+          blocks?: Json
+          content_sha256?: string
+          created_at?: string
+          id?: string
+          page?: Json
+          sector?: string
+          supersedes_id?: string | null
+          template_id?: string
+          title?: string
+          version_no?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "studio_template_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "studio_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       teacher_diary_approvals: {
         Row: {
           approved_at: string
@@ -25517,6 +25697,42 @@ export type Database = {
         }
         Returns: Json
       }
+      studio_can: { Args: { _what: string }; Returns: boolean }
+      studio_emit: {
+        Args: { _facts: Json; _school_id?: string; _version: string }
+        Returns: {
+          emission_id: string
+          snapshot_sha256: string
+          verification_code: string
+        }[]
+      }
+      studio_is_admin: { Args: never; Returns: boolean }
+      studio_save_version: {
+        Args: {
+          _base_template_id?: string
+          _blocks: Json
+          _expected_version: number
+          _page: Json
+          _sector: string
+          _template_id: string
+          _title: string
+        }
+        Returns: string
+      }
+      studio_transition: {
+        Args: { _kind: string; _note?: string; _version: string }
+        Returns: string
+      }
+      studio_version_state: { Args: { _v: string }; Returns: string }
+      studio_void_emission: {
+        Args: {
+          _emission: string
+          _kind: string
+          _reason: string
+          _replaced_by?: string
+        }
+        Returns: undefined
+      }
       teacher_diary_closed: {
         Args: { _assignment: string; _period: string }
         Returns: boolean
@@ -25748,6 +25964,7 @@ export type Database = {
           student_name: string
         }[]
       }
+      verify_studio_document: { Args: { _code: string }; Returns: Json }
       workflow_can_read: {
         Args: { _definition: string; _opened_by: string; _school: string }
         Returns: boolean
