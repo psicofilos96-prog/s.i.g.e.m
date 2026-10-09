@@ -63,3 +63,6 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Studio de documentos
 - Regras em `src/features/document-studio/AGENTS.md`.
+
+## Navegação × capacidades (NACL.UI.1)
+- Menu, paleta, busca, cards de início e deep link decidem só por `pathAllowed` (`src/features/authority/nav-capabilities.ts`: estação × capacidade exigida pela tela; autoridade incompleta ⇒ nada), porque regras paralelas voltam a oferecer área inutilizável.

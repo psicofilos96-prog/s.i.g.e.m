@@ -36,7 +36,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { requiresSessionBeforeRead } from "@/features/authority/session-read-gate";
-import { navItemAllowed } from "@/features/authority/nav-capabilities";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { STATION_HOME, STATION_LABEL, stationAllowsPath } from "@/features/authority/station-navigation";
 import { Kbd } from "@/components/sigem/kbd";
 import { SEARCH_SHORTCUT_LABEL, isSearchShortcut } from "@/lib/keyboard";
@@ -120,11 +120,8 @@ function SidebarNavigation({
   // Lote 2.1: enquanto a autoridade carrega, o menu fica vazio (antes mostrava tudo por um instante a contas de setor).
   const groups = authority.status === "loading" ? [] : provisionalNavigation
     .filter((group) => principal !== null || compact || showAdvanced || !ADVANCED_GROUPS.includes(group.label))
-    .map((group) =>
-      principal ? { ...group, items: group.items.filter((item) => stationAllowsPath(principal.station, item.to)) } : group,
-    )
-    // NPERM.3: opção cuja tela inteira exige capacidade some para quem não a tem.
-    .map((group) => authority.status === "signed-in" ? { ...group, items: group.items.filter((item) => navItemAllowed(item.to, authority.capabilities)) } : group)
+    // NACL.UI.1: mesma regra de estação × capacidade usada por paleta, busca, cards e deep link.
+    .map((group) => authority.status === "signed-in" ? { ...group, items: group.items.filter((item) => pathAllowed(authority, item.to)) } : group)
     .filter((group) => group.items.length > 0);
   const generalAdminLink = (
     <Link
@@ -295,8 +292,8 @@ function GlobalResults({ query, onPick }: { query: string; onPick: (to: string, 
   if (session.status !== "signed-in" || debounced.trim().length < MIN_QUERY) return null;
   if (r.isError) return <p role="alert" className="px-3 py-2 text-sm text-destructive">A pesquisa não respondeu. Tente novamente.</p>;
   if (r.isLoading) return <p role="status" className="px-3 py-2 text-sm text-muted-foreground">Pesquisando…</p>;
-  const principal = session.principal ?? null;
-  const groups = groupHits(stationScopedHits(r.data?.hits ?? [], principal ? (p) => stationAllowsPath(principal.station, p) : null));
+  // NACL.UI.1: busca nunca oferece destino que a sessão não pode abrir.
+  const groups = groupHits(stationScopedHits(r.data?.hits ?? [], (p) => pathAllowed(session, p)));
   return (
     <>
       {groups.length === 0 && page === 0 && <p role="status" className="px-3 py-2 text-sm text-muted-foreground">Nenhum registro ao seu alcance corresponde a “{debounced.trim()}”.</p>}
@@ -326,13 +323,18 @@ function GlobalResults({ query, onPick }: { query: string; onPick: (to: string, 
 function SystemSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  const authority = useSessionAuthority();
+  // NACL.UI.1: atalhos da paleta seguem a mesma regra; autoridade incompleta ⇒ nenhum atalho.
+  const shortcutGroups = provisionalNavigation
+    .map((g) => ({ ...g, items: g.items.filter((i) => pathAllowed(authority, i.to)) }))
+    .filter((g) => g.items.length > 0);
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="Buscar estudante, turma, unidade, matriz… ou ir para uma área" value={query} onValueChange={setQuery} />
       <CommandList>
         <CommandEmpty>Nenhum resultado.</CommandEmpty>
         <GlobalResults query={query} onPick={(to, params) => { onOpenChange(false); void navigate({ to, params } as never); }} />
-        {provisionalNavigation.map((group) => (
+        {shortcutGroups.map((group) => (
           <CommandGroup key={group.label} heading={group.label}>
             {group.items.map((item) => (
               <CommandItem
@@ -578,7 +580,17 @@ function StationGate({ pathname, children }: { pathname: string; children: React
     );
   }
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
-  if (!principal || stationAllowsPath(principal.station, pathname)) return <>{children}</>;
+  if (authority.status !== "signed-in" || pathAllowed(authority, pathname)) return <>{children}</>;
+  // NACL.UI.1: deep link sem a capacidade exigida pela tela ⇒ AccessDenied (o servidor recusa de todo modo).
+  if (!principal || stationAllowsPath(principal.station, pathname)) {
+    return (
+      <section role="alert" data-sigem-access-denied="capability" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
+        <h1 className="font-display text-xl font-semibold text-foreground">Você não tem acesso a esta área</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Sua atuação não inclui a permissão que esta página exige. Se precisar dela, peça à administração da rede.</p>
+        <Button asChild size="lg" className="mt-6"><Link to={principal ? STATION_HOME[principal.station] : "/"}>Voltar ao início</Link></Button>
+      </section>
+    );
+  }
   return (
     <section role="alert" data-sigem-station-gate="blocked" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
       <div aria-hidden className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-accent text-accent-foreground">

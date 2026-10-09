@@ -5,6 +5,7 @@
  * (RLS/writers) e a recusa da tela seguem valendo para deep link.
  */
 import type { EffectiveCapability } from "./session-authority";
+import { stationAllowsPath, type SectorPrincipal } from "./station-navigation";
 
 export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>> = {
   // publications-admin-page.tsx: sem a capacidade ⇒ "Sem permissão para publicar".
@@ -20,8 +21,28 @@ export const NAV_NETWORK_SCOPE: ReadonlySet<string> = new Set(["/integracoes", "
 
 /** Sem regra ⇒ visível; com regra ⇒ exige ao menos uma das capacidades efetivas. */
 export function navItemAllowed(path: string, caps: readonly EffectiveCapability[]): boolean {
-  const need = NAV_REQUIRED_CAPABILITY[path];
-  if (!need) return true;
-  const network = NAV_NETWORK_SCOPE.has(path);
+  // NACL.UI.1: deep link (`/rota/123`) obedece à regra da rota base.
+  const base = Object.keys(NAV_REQUIRED_CAPABILITY).find((r) => path === r || path.startsWith(`${r}/`));
+  if (!base) return true;
+  const need = NAV_REQUIRED_CAPABILITY[base]!;
+  const network = NAV_NETWORK_SCOPE.has(base);
   return caps.some((c) => need.includes(c.capabilityId) && (!network || (c.schoolId === null && c.classId === null)));
+}
+
+/**
+ * NACL.UI.1 — regra ÚNICA de "esta área pode ser oferecida/aberta" para menu, paleta, busca,
+ * cards de início e deep link: estação do principal setorial (se houver) E capacidade exigida
+ * pela tela. Capacidades = união de todas as atuações (lidas por inteiro, sem corte em 1000).
+ * Autoridade ainda não completa ⇒ nada é oferecido. Nunca é segurança: o banco recusa de todo modo.
+ */
+export type PathAuthority =
+  | { status: "loading" | "signed-out" }
+  | { status: "signed-in"; principal?: SectorPrincipal | null; capabilities: readonly EffectiveCapability[] };
+
+export function pathAllowed(authority: PathAuthority, path: string): boolean {
+  if (authority.status !== "signed-in") return false;
+  const clean = path.replace(/\/\$[a-z]+$/i, "");
+  const principal = authority.principal ?? null;
+  if (principal && !stationAllowsPath(principal.station, clean)) return false;
+  return navItemAllowed(clean, authority.capabilities);
 }
