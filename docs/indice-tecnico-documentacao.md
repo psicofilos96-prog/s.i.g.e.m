@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 277. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 278. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -109,7 +109,7 @@ Documentos: 277. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `ciece-inventario-fontes-censo.md`, `ciece-mapa-censo-gpe-produto.md`, `ciece-mapa-projecao-rede.md`, `ciece-operacional.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-ciece-n443.md`, `gerador-relatorios-nrel2.md`, `n2026-import-4-censo-snapshot-oficial.md`, `n2026-reconciliacao-censo.md`, `relatorios-modelos-nrel3.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-ciece-n443.md`, `gerador-relatorios-nrel2.md`, `gerador-universal-relatorios.md`, `n2026-import-4-censo-snapshot-oficial.md`, `n2026-reconciliacao-censo.md`, `relatorios-modelos-nrel3.md`
 
 **Pendências declaradas:**
 - `auditoria-ciece-n443.md`: DEPENDE_DADO, HOMOLOGACAO, INTERACTIVE_BROWSER_VALIDATION_PENDING

@@ -83,6 +83,14 @@ export const BUILDER_SOURCES: readonly BuilderSource[] = [
   pending("gerador-avaliacao", "Avaliação — resultados por habilidade", ["avaliacao"], "Os resultados saem pela tela de Desempenho, com a política de supressão dela; leitura transversal ainda não liberada."),
   pending("gerador-dp", "DP — vínculos funcionais", ["dp"], "Sem leitor transversal autorizado para dados funcionais; use a estação do DP."),
   pending("gerador-censo", "CIECE — fotografia do Censo", ["ciece"], "Use a aba Relatórios do Censo Escolar, que exporta a fotografia oficializada."),
+  pending("gerador-infraestrutura", "Infraestrutura das escolas", ["supervisao", "ciece"], "Sem adaptador governado de infraestrutura no gerador; use Unidades Escolares."),
+  pending("gerador-alunos", "Alunos e matrículas", ["secretaria"], "Dado nominal de estudante: leitura transversal exige reader com supressão por campo ainda não registrado."),
+  pending("gerador-movimentacoes", "Movimentações", ["secretaria"], "Depende de enturmação 2026 (ENROLLMENT_EPISODES_2026_PENDING) e de reader de movimentações."),
+  pending("gerador-mapa", "Mapa Estatístico", ["supervisao", "secretaria"], "O Mapa exporta pelas próprias células oficializadas; não há reader transversal."),
+  pending("gerador-jornadas", "Jornadas e horários", ["op-direcao"], "Sem fonte de jornada profissional (PROFESSIONAL_SCHEDULE_SOURCE_ABSENT)."),
+  pending("gerador-frequencia", "Diário e frequência", ["op-direcao"], "Frequência só com fechamento homologado; sem reader transversal."),
+  pending("gerador-inclusao", "Inclusão / AEE / Mediador", ["op-direcao"], "Dado sensível: sem reader com política de supressão aprovada."),
+  pending("gerador-auditoria", "Auditoria", ["admin"], "Exige capability exportar-auditoria (não atribuída)."),
 ];
 
 export const sourceById = (id: string) => BUILDER_SOURCES.find((s) => s.id === id) ?? null;
