@@ -30,7 +30,9 @@ describe("CAL.ASSET.1 — imagens de personalização", () => {
     expect(safeImageSrc(`data:image/png;base64,${PNG_ALPHA_B64}`)).not.toBeNull();
     expect(safeImageSrc("data:image/svg+xml;base64,PHN2Zy8+")).toBeNull();
     expect(safeImageSrc("javascript:alert(1)")).toBeNull();
-    expect(safeImageSrc("https://exemplo.com/a.png")).toBeNull();
+    expect(safeImageSrc("http://exemplo.com/a.png")).toBeNull();
+    expect(safeImageSrc("//exemplo.com/a.png")).toBeNull();
+    expect(safeImageSrc("https://x/brasao.png")).toBe("https://x/brasao.png"); // snapshot histórico
     expect(safeImageSrc(`data:image/png;base64,${"A".repeat(1_572_864)}`)).toBeNull();
   });
 

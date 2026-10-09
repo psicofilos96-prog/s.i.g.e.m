@@ -11,9 +11,16 @@ import { shrinkImage } from "./calendar-image-shrink";
 
 const SAFE_IMG = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
 
-/** Só data URL PNG/JPEG/WEBP dentro do limite do banco; o resto não é desenhado. */
+/**
+ * Na reabertura/impressão: data URL PNG/JPEG/WEBP no limite do banco, ou endereço https/
+ * da própria aplicação já gravado em snapshot histórico (reprodução fiel do PDF antigo).
+ * SVG/HTML embutido, javascript:, http e demais esquemas não são desenhados.
+ */
 export function safeImageSrc(v: unknown): string | null {
-  return typeof v === "string" && v.length <= ASSET_MAX_CHARS && SAFE_IMG.test(v) ? v : null;
+  if (typeof v !== "string" || v.length > ASSET_MAX_CHARS) return null;
+  if (SAFE_IMG.test(v)) return v;
+  if (/^https:\/\/[^\s"'<>]+$/.test(v) || /^\/(?!\/)[^\s"'<>]*$/.test(v)) return v;
+  return null;
 }
 
 /** Confere assinatura real, reduz se preciso (PNG/WEBP preservam alfa) e devolve a data URL. */
