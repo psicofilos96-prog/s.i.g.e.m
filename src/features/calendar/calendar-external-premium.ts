@@ -14,7 +14,7 @@ import type { BlockBox, BlockStyle, FreeLayout } from "./calendar-external-free"
 import type { ImageLayer, Layer, TextLayer, WaveLayer } from "./calendar-external-layers";
 
 export const PREMIUM_NAME = "Itaperuna Premium — Cinematográfico";
-const NAVY = "#0A2F63", NAVY2 = "#123F80", GOLD = "#E3B04B", PANEL = "#FFFFFF", GLASS = "#EEF4FBE0";
+const NAVY = "#0A2F63", NAVY2 = "#123F80", GOLD = "#E3B04B", PANEL = "#FFFFFF", GLASS = "#F2F7FD";
 const SERIF = "'Playfair Display', Georgia, serif", SANS = "'Montserrat', 'Segoe UI', sans-serif";
 
 const base = { visible: true, locked: false, opacity: 100, rot: 0 };
