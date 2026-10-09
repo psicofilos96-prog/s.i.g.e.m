@@ -67,7 +67,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
       <Num label="Zoom" unit="%" value={a.zoom} min={100} max={400} step={5} onChange={(v) => set({ zoom: v })} />
       <Num label="Opacidade" unit="%" value={a.opacity} min={0} max={100} step={5} onChange={(v) => set({ opacity: v })} /></div>; };
   const exportJson = () => {
-    const blob = new Blob([JSON.stringify({ formato: "sigem-calendario-layout/1", free: { ...f, photo: { ...f.photo, top: null, bottom: null, page: null }, stickers: [] } }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ formato: "sigem-calendario-layout/1", free: { ...f, photo: { ...f.photo, top: null, bottom: null, page: null }, stickers: [], layers: f.layers.filter((l) => !(l.kind === "imagem" && l.src.startsWith("data:"))) } }, null, 2)], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "layout-calendario.json"; a.click(); URL.revokeObjectURL(a.href);
   };
   const importJson = (e: ChangeEvent<HTMLInputElement>) => {
