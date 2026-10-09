@@ -54,12 +54,27 @@ export function translateMutation(m: CalendarMutation, source: NetworkCalendar, 
  */
 export function mirrorContent(source: NetworkCalendar, target: NetworkCalendar): NetworkCalendar {
   if (target.status === "homologado" || target.status === "arquivado") return target;
+  // Períodos e grupos mantêm os IDs do ALVO (pela ordem): o banco vincula período por ID,
+  // e IDs do Regular criariam períodos duplicados no EJA Fase I e o salvamento seria recusado.
+  const srcGroups = source.periodGroups ?? [];
+  const tgtGroups = target.periodGroups ?? [];
+  const groupId = new Map<string, string>();
+  srcGroups.forEach((g, i) => groupId.set(g.id, tgtGroups[i]?.id ?? `${target.id}-grupo-${i + 1}`));
+  const tgtByOrder = new Map(target.periods.map((p) => [p.order, p.id]));
+  const used = new Set<string>();
+  const periods = source.periods.map((p) => {
+    let id = tgtByOrder.get(p.order);
+    if (!id || used.has(id)) id = `${target.id}-periodo-${p.order}`;
+    used.add(id);
+    return { ...p, id, ...(p.groupId ? { groupId: groupId.get(p.groupId) ?? p.groupId } : {}) };
+  });
+  const periodGroups = srcGroups.map((g) => ({ ...g, id: groupId.get(g.id)! }));
   return {
     ...target,
     ranges: source.ranges,
     events: source.events,
-    periods: source.periods,
-    periodGroups: source.periodGroups,
+    periods,
+    periodGroups: (source.periodGroups ? periodGroups : source.periodGroups) as NetworkCalendar["periodGroups"],
     overrides: source.overrides,
     inheritedHolidays: source.inheritedHolidays,
     rules: source.rules,
@@ -75,6 +90,30 @@ export function mirrorContent(source: NetworkCalendar, target: NetworkCalendar):
 
 const CONTENT_KEYS = ["ranges", "events", "periods", "periodGroups", "overrides", "inheritedHolidays", "rules", "legendHidden", "customLegend", "symbology", "symbologyPrint", "dayTypeCatalog"] as const;
 export function mirrorDiffers(source: NetworkCalendar, target: NetworkCalendar): boolean {
+  const next = mirrorContent(source, target);
+  if (next === target) return false;
+  // Períodos/grupos comparados com os IDs do alvo (o banco vincula por ID); demais itens ignoram IDs.
+  const exact = (v: unknown) => JSON.stringify(v ?? null);
   const norm = (v: unknown) => JSON.stringify(v ?? null, (key, x) => (key === "id" || key === "groupId" ? undefined : x));
-  return CONTENT_KEYS.some((k) => norm(source[k]) !== norm(target[k]));
+  return CONTENT_KEYS.some((k) => (k === "periods" || k === "periodGroups" ? exact(next[k]) !== exact(target[k]) : norm(next[k]) !== norm(target[k])));
+}
+
+/**
+ * Antes de salvar no banco: período cujo ID não existe no calendário salvo recebe o ID do
+ * período salvo de mesma ordem (rascunho antigo do espelho trazia IDs do Regular).
+ */
+export function alignPeriodKeys(cal: NetworkCalendar, saved: NetworkCalendar | null | undefined): NetworkCalendar {
+  if (!saved) return cal;
+  const known = new Set(saved.periods.map((p) => p.id));
+  if (cal.periods.every((p) => known.has(p.id))) return cal;
+  const byOrder = [...saved.periods].sort((a, b) => a.order - b.order);
+  const ordered = [...cal.periods].sort((a, b) => a.order - b.order);
+  const used = new Set(cal.periods.filter((p) => known.has(p.id)).map((p) => p.id));
+  const remap = new Map<string, string>();
+  ordered.forEach((p, i) => {
+    if (known.has(p.id)) return;
+    const cand = byOrder.find((s) => s.order === p.order && !used.has(s.id)) ?? byOrder.filter((s) => !used.has(s.id))[0] ?? byOrder[i];
+    if (cand && !used.has(cand.id)) { remap.set(p.id, cand.id); used.add(cand.id); }
+  });
+  return { ...cal, periods: cal.periods.map((p) => (remap.has(p.id) ? { ...p, id: remap.get(p.id)! } : p)) };
 }
