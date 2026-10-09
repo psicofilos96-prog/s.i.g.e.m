@@ -9,8 +9,8 @@
   --text-2xs--line-height: 0.875rem;
   --text-micro: 0.6875rem;
   --text-micro--line-height: 1rem;
-  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Instrument Sans", "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", "Georgia", ui-serif, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --radius-sm: calc(var(--radius) - 3px);
   --radius-md: calc(var(--radius) - 1px);
@@ -60,21 +60,21 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.982 0.005 247);
-  --foreground: oklch(0.215 0.04 254);
+  --radius: 0.5rem;
+  --background: oklch(0.977 0.008 85);
+  --foreground: oklch(0.23 0.03 238);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.035 252);
+  --card-foreground: oklch(0.23 0.03 238);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.035 252);
-  --primary: oklch(0.5 0.16 257);
+  --popover-foreground: oklch(0.23 0.03 238);
+  --primary: oklch(0.43 0.095 232);
   --primary-foreground: oklch(0.99 0.002 250);
-  --secondary: oklch(0.95 0.018 249);
-  --secondary-foreground: oklch(0.28 0.06 251);
-  --muted: oklch(0.961 0.009 247);
-  --muted-foreground: oklch(0.47 0.028 252);
-  --accent: oklch(0.93 0.035 248);
-  --accent-foreground: oklch(0.31 0.096 255);
+  --secondary: oklch(0.945 0.016 80);
+  --secondary-foreground: oklch(0.3 0.05 236);
+  --muted: oklch(0.955 0.01 82);
+  --muted-foreground: oklch(0.46 0.022 240);
+  --accent: oklch(0.94 0.035 78);
+  --accent-foreground: oklch(0.36 0.07 60);
   --destructive: oklch(0.56 0.2 26);
   --destructive-foreground: oklch(0.99 0.002 250);
   --success: oklch(0.52 0.13 157);
@@ -83,22 +83,22 @@
   --warning-foreground: oklch(0.4 0.1 63);
   --info: oklch(0.59 0.14 244);
   --info-foreground: oklch(0.34 0.1 247);
-  --border: oklch(0.915 0.011 250);
-  --input: oklch(0.86 0.022 249);
-  --ring: oklch(0.6 0.15 240);
-  --institutional: oklch(0.276 0.065 251);
+  --border: oklch(0.905 0.014 80);
+  --input: oklch(0.85 0.02 75);
+  --ring: oklch(0.58 0.11 232);
+  --institutional: oklch(0.27 0.055 236);
   --institutional-foreground: oklch(0.97 0.008 231);
   --hero-foreground: oklch(0.99 0.004 225);
   --hero-muted: oklch(0.88 0.025 224);
   --hero-border: oklch(0.95 0.018 220 / 0.22);
   --hero-surface: oklch(0.16 0.045 252 / 0.7);
-  --territory: oklch(0.18 0.052 251);
+  --territory: oklch(0.2 0.04 236);
   --territory-foreground: oklch(0.985 0.008 230);
-  --territory-accent: oklch(0.78 0.13 199);
-  --sidebar: oklch(0.2 0.05 256);
+  --territory-accent: oklch(0.76 0.13 75);
+  --sidebar: oklch(0.21 0.035 236);
   --sidebar-foreground: oklch(0.94 0.012 239);
   --sidebar-muted: oklch(0.7 0.035 239);
-  --sidebar-accent: oklch(0.28 0.06 254);
+  --sidebar-accent: oklch(0.29 0.045 234);
   --sidebar-border: oklch(0.66 0.04 245 / 0.22);
   --shadow-panel:
     0 1px 1px color-mix(in oklab, var(--foreground) 3%, transparent),
@@ -148,9 +148,12 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    letter-spacing: -0.012em;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    letter-spacing: -0.015em;
     text-wrap: balance;
   }
+  h1 { font-variation-settings: "SOFT" 30, "WONK" 0; }
   table { font-variant-numeric: tabular-nums; }
   button,
   input,
@@ -181,10 +184,10 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--primary);
+  color: var(--accent-foreground);
   &::before {
     content: "";
-    width: 0.875rem;
+    width: 1.25rem;
     height: 2px;
     border-radius: 999px;
     background: var(--territory-accent);
