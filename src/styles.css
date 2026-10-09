@@ -1408,3 +1408,8 @@
 .cx-periodos { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr)) !important; }
 .cx-periodo + .cx-periodo { border-left: 0; box-shadow: -0.2mm 0 0 var(--cx-border); }
 .cx-total-anual { white-space: normal; }
+
+/* CAL.EXT.5 — rodapé único da tabela (total anual, vindo do calendário interno). */
+.cf-livre .cf-matriz .cf-col-total { font-size: 0.82em; line-height: 1.05; white-space: normal; }
+.cf-livre .cf-matriz tfoot .cf-total-geral th { text-align: right; padding: 0 2mm; background: var(--cx-header); color: #fff; font-weight: 700; letter-spacing: 0.06em; }
+.cf-livre .cf-matriz tfoot .cf-total-geral td { background: var(--cx-header); color: #fff; font-weight: 800; }

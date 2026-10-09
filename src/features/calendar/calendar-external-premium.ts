@@ -29,14 +29,16 @@ export function premiumLayers(): Layer[] {
   return [
     img("foto-topo", "Foto do topo (Cristo e pôr do sol)", fotoTopo.url, 0, 0, 285, 66, 1, { fy: 40, fade: "baixo", fadeMm: 10 }),
     img("foto-rodape", "Foto do rodapé (rio e ponte)", fotoRodape.url, 0, 160, 285, 37, 1, { fy: 55, fade: "cima", fadeMm: 14 }),
-    wave("onda-topo", "Onda azul do título", 0, 40, 285, 26, 3, { amp: 45, crest: 30, tilt: 18, fill: NAVY, fill2: NAVY2, stroke: GOLD, strokeMm: 0.7 }),
-    wave("faixa-tabela", "Faixa azul atrás da tabela", 0, 64, 285, 68, 2, { amp: 0, fill: NAVY, opacity: 92 }),
+    wave("onda-brilho", "Curva dourada de fundo", 0, 36, 285, 22, 2, { amp: 55, crest: 62, tilt: 22, fill: GOLD, fill2: "#F6D98A", opacity: 55 }),
+    wave("onda-topo", "Onda azul do título", 0, 39, 285, 27, 3, { amp: 55, crest: 58, tilt: 22, fill: NAVY, fill2: NAVY2, stroke: GOLD, strokeMm: 0.8 }),
+    wave("faixa-tabela", "Faixa azul atrás da tabela", 0, 64, 285, 74, 2, { amp: 0, fill: NAVY, opacity: 94 }),
     wave("onda-rodape", "Onda azul do rodapé", 0, 176, 285, 21, 3, { amp: 40, crest: 65, tilt: -20, fill: NAVY, fill2: NAVY2, stroke: GOLD, strokeMm: 0.6 }),
     img("brasao", "Brasão de Itaperuna", brasao.url, 6, 5, 22, 22, 12, { fit: "conter" }),
-    img("logo-prefeitura", "Logo da Prefeitura", logoPrefeitura.url, 31, 8, 60, 17, 12, { fit: "conter" }),
+    img("logo-prefeitura", "Logo da Prefeitura", logoPrefeitura.url, 31, 6, 60, 15, 12, { fit: "conter" }),
+    text("orgao", "Secretaria / Supervisão", "SECRETARIA MUNICIPAL DE EDUCAÇÃO\nSUPERVISÃO DE ENSINO", 32, 21, 70, 7, 13, { pt: 6.5, bold: true, align: "esquerda", color: NAVY, lh: 1.1 }),
     img("logo-educacao", "Logo da Educação", logoEducacao.url, 222, 6, 57, 18, 12, { fit: "conter" }),
-    text("titulo", "Título", "CALENDÁRIO ESCOLAR {ano}", 30, 45, 225, 12, 14, { font: SERIF, pt: 30, bold: true, shadow: true }),
-    text("subtitulo", "Subtítulo", "{subtitulo}", 40, 57, 205, 5, 14, { pt: 9, tracking: 0.35, color: "#FFFFFF" }),
+    text("titulo", "Título", "CALENDÁRIO ESCOLAR {ano}", 30, 44, 225, 13, 14, { font: SERIF, pt: 30, bold: true, shadow: true }),
+    text("subtitulo", "Subtítulo", "{subtitulo}", 40, 57, 205, 5, 14, { pt: 9, tracking: 0.4, color: "#FFFFFF" }),
   ];
 }
 
@@ -51,17 +53,17 @@ export function premiumLayout(d: FreeLayout): FreeLayout {
     ...d, allowOverlap: false,
     blocks: {
       cabecalho: place(B.cabecalho, 0, 0, 30, 10, {}, false),
-      matriz: place(B.matriz, 5, 66, 275, 64, { fill: true, bg: PANEL, radiusMm: 1, borderMm: 0.3, borderColor: NAVY, padMm: 0.6 }),
-      legenda: place(B.legenda, 5, 133, 92, 42, { ...panel, pt: 6.5, titlePt: 8, cols: 1 }),
-      feriados: place(B.feriados, 99, 133, 92, 42, { ...panel, pt: 6.2, titlePt: 8, cols: 1 }),
-      periodos: place(B.periodos, 193, 133, 87, 17, { ...panel, pt: 6.5, titlePt: 7.5, orientation: "vertical" }),
-      conselhos: place(B.conselhos, 193, 151, 87, 24, { ...panel, pt: 6.2, titlePt: 7.5, cols: 1 }),
-      assinaturas: place(B.assinaturas, 10, 182, 265, 13, { fill: false, color: "#FFFFFF", pt: 6.5, titlePt: 6, align: "centro" }),
+      matriz: place(B.matriz, 5, 65, 275, 72, { fill: true, bg: PANEL, radiusMm: 1, borderMm: 0.3, borderColor: NAVY, padMm: 0.6 }),
+      legenda: place(B.legenda, 5, 140, 92, 38, { ...panel, pt: 6.5, titlePt: 8, cols: 1 }),
+      feriados: place(B.feriados, 99, 140, 92, 38, { ...panel, pt: 6.2, titlePt: 8, cols: 1 }),
+      periodos: place(B.periodos, 193, 140, 87, 17, { ...panel, pt: 6.5, titlePt: 7.5, orientation: "vertical" }),
+      conselhos: place(B.conselhos, 193, 158, 87, 20, { ...panel, pt: 6.2, titlePt: 7.5, cols: 1 }),
+      assinaturas: place(B.assinaturas, 10, 184, 265, 12, { fill: false, color: "#FFFFFF", pt: 6.5, titlePt: 6, align: "centro" }),
       rodape: place(B.rodape, 0, 190, 20, 7, {}, false),
     },
     photo: { ...d.photo, top: null, bottom: null, useDefaultTop: false, topHmm: 0, bottomHmm: 0, veilStrength: 0, page: null },
     // Folha A4: 7/7.5/6.3 pt equivalem a ~10/10.6/9 pt em A3 (mesma diagramação em mm, razão 1,41).
-    table: { ...d.table, mode: "ajustar", headPt: 7, monthPt: 7.5, dayPt: 6.3, monthColMm: 19, totalColMm: 11, dividerMm: 0.15 },
+    table: { ...d.table, mode: "ajustar", headPt: 7, monthPt: 7.5, dayPt: 6.3, monthColMm: 19, totalColMm: 15, dividerMm: 0.15 },
     layers: premiumLayers(),
   };
 }
