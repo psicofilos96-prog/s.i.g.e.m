@@ -268,3 +268,7 @@ Fundação premium (tokens, AppShell, PageHeader, Card, Table) descrita em `ux-p
 - Barra superior: trilha "domínio do menu › página" (`breadcrumbForPath`, teste `src/config/breadcrumb.test.ts`); rota fora do menu mostra só a página.
 - Homes de estação (Admin, CIECE, Supervisão, Secretaria, Direção, OP, Avaliação, Alimentação, Docente, NEI, Família): já seguem tarefas por estação dos lotes NSEC/NAVAL/CIECE/admin/docente; reestruturação visual para "mesa de trabalho" premium NÃO migrada.
 - Screenshots das homes: não produzidos — ambiente sem sessão autenticada.
+
+## UX.PREMIUM.2 (2026-10-09) — PARCIAL
+- Controles: botão padrão e campo de texto com 40px e raio da fundação (todas as telas de formulário herdam).
+- Fluxos de Secretaria, Docente, OP/Direção, CIECE, Avaliação, Alimentação e NEI: NÃO migrados individualmente; harness e screenshots autenticados não executados (sem sessão).
