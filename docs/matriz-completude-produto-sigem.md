@@ -299,3 +299,41 @@ Aplicada: ver `docs/bq1-matriz-autoridades-institucionais.md` (canônico; substi
 | Enturmação 2026 | Pendente de decisão (operação técnica) |
 | Referência 2027 | Seção "Referência 2026" em `/preparacao-2027`, só leitura |
 | Consumidores (N2026.IMPORT.5) | Não executado |
+
+## NPRODUCT.FINAL.1 — auditoria final de prontidão (2026-10-09)
+Veredito: NÃO PASS — SIGEM_PRODUCT_TECHNICALLY_READY_FOR_OPERATIONAL_2027_CONFIGURATION. Restam gaps TÉCNICOS (classe GAP_TECNICO, não reclassificáveis).
+
+### Gates
+| Gate | Resultado |
+|---|---|
+| Full suite | 4.808 testes; 4 falhas corrigidas em NZEROERROR.1 (arquivos afetados 34/34); reexecução completa pendente |
+| Build | OK (2026-10-09 08:28) |
+| Deep checks / migrations / diff | 106/106 em N2026.IMPORT.FINAL; sem migration nova desde então |
+| Smoke sem sessão | 119 rotas, 0 5xx/pageerror |
+| Harness/perfis, smoke autenticado, mobile, performance | NÃO executados neste ambiente (sem login) |
+| PDFs | Studio 45 PDFs validados; demais renderizadores não rasterizados |
+| E2E transversal | não executado (writers bloqueados) |
+| Fixture residue | 0 (HOMO.REAL.1); 4 entradas em technical_payload_staging |
+
+### Por estação
+| Estação | Classe do que resta |
+|---|---|
+| Admin | GAP_TECNICO: menu mostra estações sem capability (HOMO.REAL.1) |
+| CIECE | GAP_TECNICO: Qualidade não lê snapshot Educacenso; DEPENDE_HOMOLOGACAO_HUMANA: atuação CIECE |
+| Supervisão | DEPENDE_HOMOLOGACAO_HUMANA: capabilities sem regra concedida |
+| Secretaria | DEPENDE_CONFIGURACAO_2027 (ano operacional); DEPENDE_HOMOLOGACAO_HUMANA (tipos de movimentação, modelos) |
+| Direção | DEPENDE_DADO_OFICIAL: gestores sem identificador forte |
+| OP | DEPENDE_DADO_OFICIAL: atuações OP; DEPENDE_HOMOLOGACAO_HUMANA: BQ.5 |
+| Avaliação | DEPENDE_DADO_OFICIAL: programas/resultados |
+| Alimentação | DEPENDE_DADO_OFICIAL: catálogos/cozinhas; DEPENDE_HOMOLOGACAO_HUMANA: capabilities |
+| Docente | GAP_TECNICO: autosave servidor, 7 PDFs do Diário; DEPENDE_CONFIGURACAO_2027: grade/atribuições |
+| Inclusão/NEI, Mediador | DEPENDE_DADO_OFICIAL: vínculos nominais |
+| Família | DEPENDE_DADO_OFICIAL: responsáveis; DEPENDE_HOMOLOGACAO_HUMANA: publicação de notas/frequência |
+| Calendário | DEPENDE_HOMOLOGACAO_HUMANA: homologação 2027 pela Supervisão |
+| Mapa | DEPENDE_HOMOLOGACAO_HUMANA: regra de competência; GAP_TECNICO: integração no Report Builder |
+| Documentos | GAP_TECNICO: ciclo de vida persistido no banco, QR em imagem; DEPENDE_HOMOLOGACAO_HUMANA: modelos |
+| Relatórios | GAP_TECNICO: UI dos 54 pacotes (REPORT_UI_PENDING), assistente 10 etapas incompleto, XLSX multiaba |
+| Censo/Importações | GAP_TECNICO: carga 2026 fora do kernel comum; DEPENDE_DADO_OFICIAL: lotações/jornadas |
+| Horários | DEPENDE_CONFIGURACAO_2027: grade publicada |
+| PDFs | GAP_TECNICO: rasterização dos renderizadores não-Studio |
+| Transversal | GAP_TECNICO: 8 rotas leem antes do portão de sessão (401 ruído) |
