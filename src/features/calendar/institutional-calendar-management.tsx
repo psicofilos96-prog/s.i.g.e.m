@@ -307,7 +307,7 @@ function PresentationState({ read }: { read: PresentationRead }) {
     : read.snapshot.sourceKind === "referencia-codigo" ? "REFERÊNCIA do sistema, com declaração" : "edição institucional"}).</p>;
   if (read.kind === "sem-snapshot") return <p role="alert" className="text-xs text-destructive">Esta versão está sem apresentação anexada.</p>;
   if (read.kind === "acesso-negado") return <p className="text-xs text-muted-foreground">Apresentação não disponível para a sua conta.</p>;
-  return <p role="alert" className="text-xs text-destructive">Resposta da apresentação em formato inesperado ({read.reason}); nada foi assumido.</p>;
+  return <p role="alert" className="text-xs text-destructive">Não foi possível ler a aparência salva deste calendário. Nada foi alterado; tente abrir de novo.</p>;
 }
 
 /** Nova tentativa do anexo SEM nova versão: reaproveita o pacote pendente desta aba ou uma apresentação mínima declarada. */

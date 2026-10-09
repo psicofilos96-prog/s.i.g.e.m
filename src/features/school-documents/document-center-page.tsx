@@ -142,7 +142,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
           </select>
         )}
         {tpl && composable && !composable.includes(tpl.document_kind) ? (
-          <p role="status" className="text-sm text-warning">DOCUMENT_TEMPLATE_PENDING — este tipo depende de regra, fechamento ou modelo oficial ainda não disponível. A prévia é ilustrativa e a emissão será recusada.</p>
+          <p role="status" className="text-sm text-warning">Este tipo de documento ainda não tem modelo oficial: depende de regra, fechamento ou modelo oficial ainda não disponível. A prévia é ilustrativa e a emissão será recusada.</p>
         ) : null}
         {facts && facts.eligibility !== "ok" ? (
           <p role="status" className="text-sm text-warning">Documento não elegível nesta data: {facts.eligibility.includes("ambig") ? "há mais de um vínculo ativo" : "sem vínculo ativo com início efetivo declarado nesta escola"}.</p>
