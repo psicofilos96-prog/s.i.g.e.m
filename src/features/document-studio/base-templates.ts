@@ -71,7 +71,61 @@ export const BASE_TEMPLATES: readonly BaseTemplate[] = [
   { id: "lista-documentos-matricula", sector: "secretaria", title: "Documentos necessários para matrícula", source: "MATRÍCULA_2026_-_documentos_necessários_2.docx", page: page(""),
     blocks: [header, { type: "title", text: "DOCUMENTOS NECESSÁRIOS PARA MATRÍCULA" },
       { type: "list", ordered: false, items: ["Cópia da certidão de nascimento", "1 foto 3x4 atualizada", "Cópia do comprovante de residência", "Cópia da identidade e CPF do aluno", "Cópia da identidade e CPF do responsável"] }] },
+  ...sectorPack(),
 ];
+
+/**
+ * DOCS.PRO.2 — pacote por setor. Sem modelo oficial no acervo, cada item é
+ * modelo-base editável: campos só do catálogo, áreas em branco para preencher,
+ * nenhum texto normativo inventado e nenhum dado clínico.
+ */
+function sectorPack(): BaseTemplate[] {
+  const box = (title: string): StudioBlock => ({ type: "box", title, children: [{ type: "rich", runs: [{ text: " " }] }] });
+  const mk = (sector: string, id: string, title: string, source: string | null, sections: string[], signs: string[], opts: { landscape?: boolean; qr?: boolean; school?: boolean } = {}): BaseTemplate => ({
+    id, sector, title, source,
+    page: { ...page(`${title} — SIGEM`), orientation: opts.landscape ? "paisagem" : "retrato" },
+    blocks: [
+      opts.school === false ? { type: "header", logoAsset: null, lines: ["Prefeitura Municipal de Itaperuna", "Secretaria Municipal de Educação"] } : header,
+      { type: "document-number" }, { type: "title", text: title.toUpperCase() },
+      ...(opts.school === false ? [] : [{ type: "field", label: "Escola", fact: "escola.nome" } as StudioBlock]),
+      { type: "field", label: "Ano letivo", fact: "ano_letivo.nome" },
+      ...sections.map(box),
+      { type: "date-place", place: "Itaperuna" },
+      ...signs.map((label): StudioBlock => ({ type: "signature", label })),
+      ...(opts.qr ? [{ type: "qr", label: "Verifique a autenticidade pelo código" } as StudioBlock] : []),
+    ],
+  });
+  const net = { school: false } as const;
+  return [
+    mk("secretaria", "historico-vida-escolar", "Histórico / Vida Escolar", null, ["Anos cursados", "Observações"], ["Secretário(a) escolar", "Direção"], { qr: true }),
+    mk("direcao", "dossie-escolar", "Dossiê da Escola", null, ["Fatos registrados", "Providências", "Adendos"], ["Direção"]),
+    mk("direcao", "ata-conselho-de-classe", "Ata do Conselho de Classe", null, ["Turma e período", "Presentes", "Deliberações registradas"], ["Orientação Pedagógica", "Direção"]),
+    mk("orientacao", "encaminhamento-pedagogico", "Encaminhamento Pedagógico", null, ["Motivo do encaminhamento", "Destino", "Retorno esperado"], ["Orientação Pedagógica"]),
+    mk("direcao", "registro-de-decisao", "Registro de Decisão", null, ["Fato considerado", "Alternativas", "Decisão e fundamento"], ["Direção"]),
+    mk("orientacao", "acompanhamento-pedagogico", "Registro de Acompanhamento Pedagógico", null, ["Situação observada", "Intervenção", "Próximo passo"], ["Orientação Pedagógica"]),
+    mk("docente", "diario-do-periodo", "Diário do Período", null, ["Turma, componente e período", "Aulas previstas e registradas", "Observações"], ["Professor(a)", "Orientação Pedagógica", "Direção"], { landscape: true }),
+    mk("docente", "frequencia-chamada", "Frequência / Chamada", null, ["Turma e período", "Lista nominal com Presente / Falta"], ["Professor(a)"], { landscape: true }),
+    mk("docente", "registro-de-aulas", "Registro de Aulas", null, ["Data e aula", "Conteúdo", "Estratégias", "Observações"], ["Professor(a)"]),
+    mk("docente", "planejamento", "Planejamento", null, ["Período", "Objetivos / habilidades", "Sequência de atividades"], ["Professor(a)"]),
+    mk("docente", "notas-avaliacoes", "Notas e Avaliações", null, ["Instrumentos", "Resultados por estudante"], ["Professor(a)"], { landscape: true }),
+    mk("docente", "sipe-sia", "SIPE / SIA", null, ["Situação", "Estado de revisão da OP", "Comentários"], ["Professor(a)", "Orientação Pedagógica"]),
+    mk("ciece", "mapa-estatistico-capa", "Mapa Estatístico — Folha de Envio", "Mapa oficial (PDF próprio em /mapa-estatistico)", ["Competência", "Situação do envio", "Observações"], ["Secretário(a) escolar", "Direção"]),
+    mk("ciece", "censo-qualidade", "Relatório de Censo e Qualidade", null, ["Fonte e data", "Cobertura", "Inconsistências e como corrigir"], ["CIECE"], net),
+    mk("ciece", "reconciliacao", "Relatório de Reconciliação", null, ["Fontes comparadas", "Diferenças (sem correção automática)"], ["CIECE"], net),
+    mk("ciece", "relatorio-de-rede", "Relatório de Rede", null, ["Recorte e data de referência", "Tabela", "Metodologia"], ["CIECE"], { ...net, landscape: true }),
+    mk("avaliacao", "resultados-avaliacao", "Resultados de Avaliação", null, ["Programa e edição", "Resultados", "Supressão aplicada"], ["Coordenação de Avaliação"], net),
+    mk("avaliacao", "metodologia-avaliacao", "Nota Metodológica", null, ["Métrica e fórmula registradas", "População", "Limitações"], ["Coordenação de Avaliação"], net),
+    mk("alimentacao", "solicitacao-alimentacao", "Solicitação de Alimentação", null, ["Itens solicitados", "Justificativa"], ["Direção"]),
+    mk("alimentacao", "recebimento-alimentacao", "Termo de Recebimento", null, ["Entrega", "Itens e quantidades conferidos", "Divergências"], ["Responsável pelo recebimento"]),
+    mk("alimentacao", "estoque-alimentacao", "Relatório de Estoque e Movimentação", null, ["Saldo derivado", "Entradas e saídas"], ["Responsável pela unidade"], { landscape: true }),
+    mk("alimentacao", "fechamento-alimentacao", "Fechamento da Competência", null, ["Competência", "Contagem e diferenças"], ["Responsável pela unidade", "Núcleo de Alimentação"]),
+    mk("inclusao", "relatorio-acompanhamento-inclusao", "Relatório de Acompanhamento (Inclusão/Mediação)", null, ["Período e vigência da mediação", "Registros pedagógicos (sem dado clínico)"], ["Mediador(a)", "NEI"]),
+    mk("familia", "comprovante-responsavel", "Comprovante ao Responsável", null, ["Assunto", "Informação ao responsável"], ["Secretário(a) escolar"], { qr: true }),
+    mk("familia", "carteirinha-estudante", "Carteirinha do Estudante (frente/verso)", "Carteirinha (emissão em /carteirinhas)", ["Frente", "Verso"], [], { qr: true }),
+    mk("admin", "inventario-de-acessos", "Inventário de Acessos", null, ["Contas e estados (sem credencial)"], ["Administração Geral"], net),
+    mk("admin", "prontidao-configuracao", "Prontidão e Configuração", null, ["Itens prontos / pendentes com motivo"], ["Administração Geral"], net),
+  ];
+}
 
 /** Setores que já emitem documentos pelo próprio módulo (incorporados por referência). */
 export const SECTOR_DOCUMENTS: readonly { sector: string; document: string; route: string }[] = [
