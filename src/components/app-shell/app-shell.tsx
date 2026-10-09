@@ -159,7 +159,7 @@ function SidebarNavigation({
       {groups.map((group) => (
         <div className="mb-5" key={group.label}>
           {!compact && (
-            <p className="mb-2 px-2.5 text-2xs font-semibold uppercase tracking-wide text-sidebar-muted">
+            <p className="mb-1.5 px-2.5 text-2xs font-semibold uppercase tracking-[0.1em] text-sidebar-muted/80">
               {group.label}
             </p>
           )}
@@ -171,9 +171,9 @@ function SidebarNavigation({
               const content = (
                 <div
                   className={cn(
-                    "relative flex min-h-11 items-center gap-3 rounded-lg px-2.5 text-sm font-medium transition-colors",
+                    "relative flex min-h-10 items-center gap-3 rounded-lg px-2.5 text-[0.875rem] font-medium transition-colors duration-150",
                     isActive
-                      ? "bg-sidebar-accent text-sidebar-foreground before:absolute before:inset-y-2.5 before:left-0 before:w-0.5 before:rounded-full before:bg-territory-accent"
+                      ? "bg-sidebar-accent text-sidebar-foreground shadow-[inset_0_0_0_1px_var(--sidebar-border)] before:absolute before:inset-y-2 before:-left-3 before:w-[3px] before:rounded-r-full before:bg-territory-accent"
                       : "text-sidebar-muted hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
                     compact && "justify-center px-0",
                   )}

@@ -90,7 +90,7 @@ function LoginPage() {
         </section>
         <section className="relative flex min-h-svh items-center px-4 py-5 sm:px-8 lg:px-8 lg:py-10 xl:px-10">
           <div
-            className="login-architectural-plate absolute inset-y-[13%] -left-7 right-3 hidden rounded-[1.75rem] lg:block"
+            className="login-architectural-plate absolute inset-y-[13%] -left-7 right-3 hidden rounded-[1.75rem]"
             aria-hidden="true"
           />
           <div className="login-access pilot-page relative mx-auto w-full max-w-md rounded-[1.35rem] px-6 py-7 sm:px-9 sm:py-9 lg:px-10 lg:py-11">
