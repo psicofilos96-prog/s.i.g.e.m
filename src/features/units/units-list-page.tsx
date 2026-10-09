@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { Plus, PencilLine } from "lucide-react";
 import {
   NOT_INFORMED,
   emptyUnitFilters,
@@ -28,6 +30,9 @@ export function UnitsListPage() {
   const rows = useMemo(() => (registry.status === "ready" ? unitListRows(registry.units) : []), [registry]);
   const options = useMemo(() => unitFilterOptions(rows), [rows]);
   const shown = useMemo(() => filterUnitRows(rows, filters), [rows, filters]);
+  const authority = useSessionAuthority();
+  const canMaintain = authority.status === "signed-in" && authority.capabilities.includes("manter-cadastro-unidade-escolar");
+  const composition = useMemo(() => unitComposition(rows), [rows]);
   const set = (k: keyof UnitFilters) => (v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
   return (
@@ -37,7 +42,11 @@ export function UnitsListPage() {
         title="Unidades escolares"
         lede="Cada escola da rede com versão vigente, INEP e situação. Abra uma unidade para ver turmas, estudantes e pessoal."
         count={registry.status === "ready" ? <>{rows.length}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">unidades</span></> : undefined}
+        actions={canMaintain ? (
+          <Button asChild size="sm"><Link to="/administracao" search={{ retorno: "/unidades" }}><Plus className="mr-1 h-4 w-4" aria-hidden />Nova escola</Link></Button>
+        ) : undefined}
       />
+      {registry.status === "ready" && rows.length > 0 && <CompositionStrip items={composition} />}
 
       {registry.status === "loading" && <SkeletonState label="Carregando unidades do cadastro institucional" />}
       {registry.status === "no-session" && (
@@ -79,7 +88,7 @@ export function UnitsListPage() {
                 <table className="w-full text-sm" aria-label="Unidades escolares do cadastro institucional">
                   <thead>
                     <tr>
-                      {["Nome oficial", "INEP", "Tipo de unidade", "Localização", "Situação", "Vigência"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}
+                      {["Nome oficial", "INEP", "Tipo de unidade", "Localização", "Situação", "Vigência", ...(canMaintain ? ["Ações"] : [])].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}
                     </tr>
                   </thead>
                   <tbody>
@@ -91,6 +100,7 @@ export function UnitsListPage() {
                         <td className={registryTd}>{r.location ?? NOT_INFORMED}</td>
                         <td className={registryTd}><Situation active={r.active} /></td>
                         <td className={`${registryTd} text-muted-foreground`}>{r.validFrom ? `desde ${formatAcademicDate(r.validFrom)}` : NOT_INFORMED}</td>
+                        {canMaintain && <td className={registryTd}><EditLink name={r.name} /></td>}
                       </tr>
                     ))}
                   </tbody>
@@ -102,6 +112,7 @@ export function UnitsListPage() {
                   <CardFact label="Situação"><Situation active={r.active} /></CardFact>
                   <CardFact label="Tipo">{unitKindText(r)}</CardFact>
                   <CardFact label="Localização">{r.location ?? NOT_INFORMED}</CardFact>
+                  {canMaintain && <div className="pt-1"><EditLink name={r.name} /></div>}
                 </RegistryCard>
               ))}
             />
@@ -128,5 +139,43 @@ function FilterSelect(p: { id: string; label: string; all: string; value: string
         ))}
       </select>
     </div>
+  );
+}
+
+type CompositionItem = { label: string; value: number; total: number };
+
+/** Composição observada nas linhas lidas; valor ausente nunca é contado como zero de uma categoria. */
+export function unitComposition(rows: { active: boolean | null; location: string | null }[]): CompositionItem[] {
+  const total = rows.length;
+  const items: CompositionItem[] = [{ label: "Ativas", value: rows.filter((r) => r.active === true).length, total }];
+  const locs = new Map<string, number>();
+  for (const r of rows) if (r.location) locs.set(r.location, (locs.get(r.location) ?? 0) + 1);
+  for (const [label, value] of [...locs].sort((a, b) => b[1] - a[1])) items.push({ label, value, total });
+  const missing = rows.filter((r) => !r.location).length;
+  if (missing > 0) items.push({ label: "Localização não informada", value: missing, total });
+  return items;
+}
+
+function CompositionStrip({ items }: { items: CompositionItem[] }) {
+  return (
+    <section aria-label="Composição da rede" className="grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-4">
+      {items.slice(0, 4).map((it) => (
+        <div key={it.label} className="bg-card px-5 py-4">
+          <p className="text-2xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{it.label}</p>
+          <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-foreground">{it.value}<span className="ml-1 text-sm font-normal text-muted-foreground">de {it.total}</span></p>
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden>
+            <div className="h-full rounded-full bg-primary" style={{ width: `${it.total ? (it.value / it.total) * 100 : 0}%` }} />
+          </div>
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function EditLink({ name }: { name: string }) {
+  return (
+    <Link to="/administracao" search={{ retorno: "/unidades" }} aria-label={`Editar ${name}`} className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+      <PencilLine className="h-3.5 w-3.5" aria-hidden />Editar
+    </Link>
   );
 }
