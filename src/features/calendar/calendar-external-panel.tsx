@@ -25,7 +25,7 @@ import { ExternalPresetsBar } from "./calendar-external-presets-bar";
 import { resetSection, validateImage } from "./calendar-external-sections";
 import { shrinkImage } from "./calendar-image-shrink";
 import { readCalendarList } from "./institutional-calendar-readers";
-import { historyPush, historyRedo, historyUndo, layoutIssues, moveFreeBlock, moveSticker, type FreeBlockId, type History } from "./calendar-external-free";
+import { historyPush, historyRedo, historyUndo, layoutIssues, moveFreeBlock, moveSticker, separateOverlaps, FREE_BLOCK_LABEL, type FreeBlockId, type History } from "./calendar-external-free";
 
 /** Resumo, em palavras, do que "Ajustar para caber" mudou. */
 function fitSummary(a: ExternalProfile, b: ExternalProfile): string {
@@ -425,6 +425,11 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => setDraft(defaultProfile(template, presentation))}>Restaurar padrão</Button>}
         {editing && free && <span className="self-center text-xs text-muted-foreground">Salvar grava este layout como o padrão do município para este modelo.</span>}
       </div>
+      {freeIssues && (freeIssues.overlaps.length > 0 || freeIssues.tableOverflow) && <div role="alert" className="space-y-1 text-xs text-destructive">
+        {freeIssues.overlaps.map(([a, b]) => <p key={a + b}>A impressão está bloqueada: {FREE_BLOCK_LABEL[a]} está sobre {FREE_BLOCK_LABEL[b]}.</p>)}
+        {freeIssues.tableOverflow && <p>A impressão está bloqueada: a tabela é maior que o seu quadro.</p>}
+        {canEdit && freeIssues.overlaps.length > 0 && <Button type="button" size="sm" variant="outline" onClick={() => { setEditing(true); setDraft({ ...draft, free: separateOverlaps(draft.free) }); setMsg("Blocos separados no rascunho. Confira e clique em \"Salvar personalização\"."); }}>Separar blocos sobrepostos</Button>}
+      </div>}
       {vm.unmappedTypes.length > 0 && <p role="alert" className="text-xs text-destructive">Tipos sem vínculo visual nesta versão: {vm.unmappedTypes.join(", ")}. Revise o vínculo de tipos antes de imprimir.</p>}
       {msg && <p role="status" className="text-xs">{msg}</p>}
       <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
