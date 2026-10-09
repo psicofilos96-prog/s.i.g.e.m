@@ -932,8 +932,17 @@ export function finalCouncilForPeriod(r: ResolvedCalendar, p: CalendarPeriod): I
   return found;
 }
 
+/** Todos os dias do período com o papel de conselho indicado (em ordem). */
+export function councilDaysForPeriod(r: ResolvedCalendar, p: CalendarPeriod, role: "conselho" | "conselho-final"): IsoDate[] {
+  const out: IsoDate[] = [];
+  if (p.end < p.start) return out;
+  for (let d = p.start; d <= p.end && r.byDate.has(d); d = shiftDays(d, 1))
+    if (typeInfo(r.types, r.byDate.get(d)!).councilRole === role) out.push(d);
+  return out;
+}
+
 export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolveCalendar(cal)) {
-  const out: Array<{ key: string; periodId: string; date: IsoDate; label: string; final: boolean }> =
+  const out: Array<{ key: string; periodId: string; date: IsoDate; dates: IsoDate[]; label: string; final: boolean }> =
     [];
   for (const period of [...cal.periods].sort((a, b) => a.order - b.order)) {
     const date = councilForPeriod(r, period);
@@ -942,6 +951,7 @@ export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolve
         key: `${period.id}-cc`,
         periodId: period.id,
         date,
+        dates: councilDaysForPeriod(r, period, "conselho"),
         label: period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`,
         final: false,
       });
@@ -951,6 +961,7 @@ export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolve
         key: `${period.id}-cf`,
         periodId: period.id,
         date: fin,
+        dates: councilDaysForPeriod(r, period, "conselho-final"),
         label: period.finalCouncilLabel!.trim(),
         final: true,
       });
