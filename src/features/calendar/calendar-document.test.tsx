@@ -49,3 +49,17 @@ describe("documento Calendário Escolar", () => {
     expect(container.querySelector('[data-date="2027-02-04"]')).toBeTruthy();
   });
 });
+
+describe("conselhos no rodapé", () => {
+  it("cada dia de conselho marcado vira uma linha própria", () => {
+    const [regular] = createCalendarFixtures();
+    const cal = regular!;
+    const ccDate = cal.overrides.concat(cal.events).find((o) => o.date.endsWith("-12-10"))!;
+    const extra = { ...cal, overrides: [...cal.overrides.filter((o) => o.date !== "2027-09-21"), { date: "2027-09-21", type: ccDate.type }] };
+    render(<CalendarDocument cal={extra} />);
+    const lines = [...document.querySelectorAll(".cd-conselho-linha b")].map((b) => b.textContent);
+    expect(lines).toContain("21/09");
+    expect(lines).toContain("10/12");
+    expect(lines.every((t) => !t!.includes(" e "))).toBe(true);
+  });
+});
