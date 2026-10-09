@@ -21,7 +21,7 @@ export function DiaryPrintsPanel({ classId, assignmentId, periodId }: { classId:
       const w = window.open("", "_blank");
       if (!w) { setMsg("O navegador bloqueou a janela de impressão. Permita janelas para este endereço."); return; }
       w.document.write(r.html); w.document.close(); w.focus(); w.print();
-    } catch (e) { setMsg(e instanceof Error ? e.message : "Não foi possível gerar a impressão."); }
+    } catch (e) { void e; setMsg("Não foi possível gerar a impressão. Tente de novo."); }
     finally { setBusy(null); }
   };
   return (

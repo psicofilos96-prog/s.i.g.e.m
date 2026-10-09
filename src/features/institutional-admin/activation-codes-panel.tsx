@@ -26,8 +26,8 @@ export function ActivationCodesPanel({ selected }: { selected: InventoryRow[] })
   function csv() {
     if (!items) return;
     const lines = ["login;codigo;valido_ate", ...items.filter((i) => i.code).map((i) => `${i.login};${i.code};${new Date(i.expiresAt!).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`)];
-    const url = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" }));
-    const a = document.createElement("a"); a.href = url; a.download = "codigos-de-acesso.csv"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const url = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" }));
+    const a = document.createElement("a"); a.href = url; a.download = "codigos-de-acesso.txt"; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   return (
@@ -50,7 +50,7 @@ export function ActivationCodesPanel({ selected }: { selected: InventoryRow[] })
               </li>
             ))}
           </ul>
-          <Button variant="outline" size="sm" onClick={csv}><Download className="size-4" aria-hidden />Baixar lista (CSV)</Button>
+          <Button variant="outline" size="sm" onClick={csv}><Download className="size-4" aria-hidden />Baixar lista</Button>
         </div>
       )}
     </div>
