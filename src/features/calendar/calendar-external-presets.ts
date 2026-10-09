@@ -42,15 +42,19 @@ export function copyName(name: string, taken: readonly string[]): string {
   for (let i = 2; ; i++) { const n = `${name} (cópia ${i})`.slice(0, 80); if (!taken.includes(n)) return n; }
 }
 
-/** Seções do perfil que diferem do padrão do modelo (comparação legível). */
-const SECTION_LABEL: Partial<Record<keyof ExternalProfile, string>> = {
-  free: "Layout livre", show: "Blocos visíveis", logos: "Logos", type: "Tamanhos de texto", bands: "Faixas da folha",
+/** Grupos do perfil que diferem do padrão do modelo (comparação legível). */
+const GROUPS: Record<string, readonly (keyof ExternalProfile)[]> = {
+  "Cores": ["primary", "secondary", "headerColor", "borderColor", "gridColor", "cardColor", "pageColor", "accent", "lightColor", "holidayColor", "textColor", "symbolOverrides"],
+  "Fontes e tamanhos": ["titleFont", "bodyFont", "scriptFont", "titlePt", "subtitlePt", "textScale", "minFitPt", "typeScale", "lineGap"],
+  "Imagens": ["coverImage", "coverFocusY", "coverFocusX", "coverZoom", "coverOpacity", "coverOverlay", "footerImage", "pageImage", "pageFocusX", "pageFocusY", "pageZoom", "pageOpacity", "coverFit", "logos"],
+  "Textos visuais": ["visualTitle", "subtitle", "slogan", "footerText", "footerPhrase", "qrText", "feriasText", "pillars", "qrUrl"],
+  "Blocos visíveis": ["show"],
+  "Disposição e espaçamento": ["blockOrder", "boxPad", "periods", "infoWidths", "bands", "gapMm", "gridWidth", "cardRadius", "cardShadow", "borderWidth", "density"],
+  "Layout livre": ["free"],
 };
 export function diffFromDefault(p: ExternalProfile, d: ExternalProfile): string[] {
-  const out: string[] = [];
-  for (const k of Object.keys(d) as (keyof ExternalProfile)[])
-    if (JSON.stringify(p[k]) !== JSON.stringify(d[k])) out.push(SECTION_LABEL[k] ?? String(k));
-  return out;
+  const eq = (k: keyof ExternalProfile) => JSON.stringify(p[k]) === JSON.stringify(d[k]);
+  return Object.entries(GROUPS).filter(([, ks]) => ks.some((k) => !eq(k))).map(([g]) => g);
 }
 
 const newKey = () => `pr-${crypto.randomUUID()}`;
