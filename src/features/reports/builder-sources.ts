@@ -5,6 +5,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { CellValue, ColumnDef, ReportDefinition } from "./report-engine";
 import type { BuilderSource, Page } from "./report-builder";
+import { structureOf } from "@/features/statistical-map/map-structures";
+import { DIVERGENCE_LABEL, MEASURE_LABEL, classify, coverage as censusCoverage, difference } from "@/features/data-quality/census-official";
 import { REPORTING_REPORTS, toReportRow, type Dataset } from "@/features/school-meals/reporting-model";
 
 const C = (id: string, label: string, kind: ColumnDef["kind"] = "text"): ColumnDef => ({ id, label, kind });
@@ -159,6 +161,67 @@ const DIARY_SOURCES: BuilderSource[] = [
     finalize: (rows) => headsBy(rows as Raw[], "_k", "_v") as Record<string, CellValue>[] },
 ];
 
+// NCIECE.FINAL.2 — Mapa Estatístico e Censo oficial no gerador. Leitura com a sessão (RLS por escola);
+// Mapa: só versões gravadas (oficializadas/retificadas), uma linha por célula da versão vigente.
+const MAP_DEF: ReportDefinition = {
+  id: "gerador-mapa", version: 1, title: "Mapa Estatístico", description: "Células da versão vigente de cada Mapa oficializado, por estrutura I–VI, com calculado × ajustado.",
+  source: "statistical_maps + statistical_map_versions (cabeça por Mapa) + statistical_map_events + statistical_map_cell_adjustments", params: [],
+  columns: [C("school", "Escola"), C("competence", "Competência"), C("structure", "Estrutura"), C("cell", "Item"), C("calculated", "Calculado"), C("value", "Valor efetivo"), C("adjusted", "Ajustado"), C("state", "Estado da célula"), C("status", "Situação do Mapa"), C("version", "Versão", "number")],
+  formats: ["csv", "xlsx", "pdf"], reproducible: true, syncRowLimit: 50000,
+};
+export function mapRows(maps: Raw[], versions: Raw[], events: Raw[]): Record<string, CellValue>[] {
+  const head = headsBy(versions, "map_id", "version");
+  const byMap = new Map(maps.map((m) => [String(m["id"]), m]));
+  const lastEvent = new Map<string, string>();
+  for (const e of [...events].sort((a, b) => String(a["recorded_at"]).localeCompare(String(b["recorded_at"])))) lastEvent.set(String(e["map_id"]), String(e["kind"]));
+  return head.flatMap((ver) => {
+    const m = byMap.get(String(ver["map_id"])); if (!m) return [];
+    const cells = (((ver["snapshot"] ?? {}) as { cells?: Record<string, unknown>[] }).cells ?? []);
+    return cells.map((c) => {
+      const adj = c["adjustment"] as { calculatedValue?: unknown; adjustedValue?: unknown } | undefined;
+      return {
+        school: v(m["school_id"]), competence: `${m["competence_year"]}-${String(m["competence_month"]).padStart(2, "0")}`,
+        structure: structureOf({ cellId: String(c["cellId"]), sectionId: String(c["sectionId"] ?? "") }), cell: v(c["label"]),
+        calculated: v(adj ? adj.calculatedValue : c["value"]), value: v(c["value"]), adjusted: adj ? "sim" : "não", state: v(c["state"]),
+        status: v(ver["correction_reason"] ? "retificado" : lastEvent.get(String(ver["map_id"])) ?? "oficializado"), version: v(ver["version"]),
+      };
+    });
+  });
+}
+const CENSUS_DEF: ReportDefinition = {
+  id: "gerador-censo", version: 1, title: "Censo oficial × base operacional", description: "Por escola e medida: recibo Educacenso importado, base operacional, diferença, cobertura e classificação.",
+  source: "census_official_reconciliation (recibos census_official_receipt_snapshots × turmas/matrículas/enturmações)", params: [],
+  columns: [C("school", "Escola"), C("inep", "INEP"), C("measure", "Medida"), C("official", "Censo oficial", "number"), C("operational", "Base operacional", "number"), C("diff", "Diferença", "number"), C("coverage", "Cobertura (%)", "number"), C("divergence", "Classificação"), C("issued", "Emissão do recibo", "date")],
+  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
+};
+const CIECE_SOURCES: BuilderSource[] = [
+  { id: "gerador-mapa", title: "Mapa Estatístico", sectors: ["ciece", "supervisao", "secretaria"], definition: MAP_DEF,
+    methodology: "Uma linha por célula da versão vigente de cada Mapa gravado. Remanejados é grupo próprio da Estrutura IV e não altera o total. \"Calculado\" é o valor do servidor; \"Valor efetivo\" difere só quando há ajuste auditável. Mapa em rascunho não entra.",
+    acl: "RLS do Mapa por capability de escola com a sessão de quem gera.", period: false, pageSize: 1000, filterable: ["school", "competence", "structure", "status", "adjusted", "state"],
+    load: async ({ offset, limit }) => {
+      if (offset > 0) return { rows: [], total: null };
+      const [m, ver, ev] = await Promise.all([
+        tdb.from("statistical_maps").select("id, school_id, competence_year, competence_month").range(0, 999),
+        tdb.from("statistical_map_versions").select("map_id, version, snapshot, correction_reason").range(0, 999),
+        tdb.from("statistical_map_events").select("map_id, kind, recorded_at").range(0, 999),
+      ]);
+      if (m.error || ver.error || ev.error) fail();
+      if ([m, ver, ev].some((r) => (r.data ?? []).length >= 1000)) throw new Error("Há mais Mapas do que esta leitura comporta; filtre pela tela do Mapa.");
+      const rows = mapRows(m.data ?? [], ver.data ?? [], ev.data ?? []);
+      return { rows: rows.slice(0, limit), total: rows.length };
+    } },
+  { id: "gerador-censo", title: "CIECE — Censo oficial × base operacional", sectors: ["ciece", "supervisao"], definition: CENSUS_DEF,
+    methodology: "Matrículas = vínculos aluno × turma (semântica do recibo Educacenso); alunos = pessoas com matrícula; turmas = turmas registradas. Base não legível ou ausente fica \"não disponível\", nunca zero.",
+    acl: "Recibos e bases com a RLS de quem gera.", period: false, pageSize: 5000, filterable: ["school", "measure", "divergence"],
+    load: async ({ offset }) => {
+      if (offset > 0) return { rows: [], total: null };
+      const r = await (supabase.rpc as unknown as (f: string, p: object) => Promise<{ data: Raw[] | null; error: unknown }>)("census_official_reconciliation", { _known_at: new Date().toISOString() });
+      if (r.error) fail();
+      const rows = (r.data ?? []).map((x) => { const o = x["official_value"] == null ? null : Number(x["official_value"]); const b = x["operational_value"] == null ? null : Number(x["operational_value"]);
+        return { school: v(x["school_id"]), inep: v(x["inep"]), measure: v(MEASURE_LABEL[String(x["measure"])] ?? "Medida não reconhecida"), official: o, operational: b, diff: difference(o, b), coverage: censusCoverage(o, b), divergence: DIVERGENCE_LABEL[classify(o, b)], issued: v(String(x["issued_at"] ?? "").slice(0, 10)) }; });
+      return { rows, total: rows.length };
+    }, schoolIdColumn: "school" },
+];
 export const BUILDER_SOURCES: readonly BuilderSource[] = [
   { id: "gerador-escolas", title: "Cadastro das escolas", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"], definition: SCHOOLS_DEF,
     methodology: "Uma linha por escola: a versão de cadastro mais recente que a conta pode ler. Campo não informado sai como \"não disponível\".",
@@ -173,13 +236,12 @@ export const BUILDER_SOURCES: readonly BuilderSource[] = [
   ...(["pedidos", "entregas", "nao-conformidades", "movimentos", "execucoes"] as const).map(mealSource),
   pending("gerador-avaliacao", "Avaliação — resultados por habilidade", ["avaliacao"], "Os resultados saem pela tela de Desempenho, com a política de supressão dela; leitura transversal ainda não liberada."),
   pending("gerador-dp", "DP — vínculos funcionais", ["dp"], "Sem leitor transversal autorizado para dados funcionais; use a estação do DP."),
-  pending("gerador-censo", "CIECE — fotografia do Censo", ["ciece"], "Use a aba Relatórios do Censo Escolar, que exporta a fotografia oficializada."),
   pending("gerador-infraestrutura", "Infraestrutura das escolas", ["supervisao", "ciece"], "Sem adaptador governado de infraestrutura no gerador; use Unidades Escolares."),
   pending("gerador-alunos", "Alunos (nominal)", ["secretaria"], "Dado nominal de estudante: leitura transversal exige reader com supressão por campo ainda não registrado."),
   pending("gerador-movimentacoes", "Movimentações", ["secretaria"], "Depende de enturmação 2026 (ENROLLMENT_EPISODES_2026_PENDING) e de reader de movimentações."),
-  pending("gerador-mapa", "Mapa Estatístico", ["supervisao", "secretaria"], "O Mapa exporta pelas próprias células oficializadas; não há reader transversal."),
   pending("gerador-jornadas", "Jornadas e horários", ["op-direcao"], "Sem fonte de jornada profissional (PROFESSIONAL_SCHEDULE_SOURCE_ABSENT)."),
   ...DIARY_SOURCES,
+  ...CIECE_SOURCES,
   pending("gerador-inclusao", "Inclusão / AEE / Mediador", ["op-direcao"], "Dado sensível: sem reader com política de supressão aprovada."),
   pending("gerador-auditoria", "Auditoria", ["admin"], "Exige capability exportar-auditoria (não atribuída)."),
 ];
