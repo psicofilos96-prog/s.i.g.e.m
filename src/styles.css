@@ -60,19 +60,19 @@
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.976 0.008 247);
-  --foreground: oklch(0.205 0.046 252);
+  --radius: 0.625rem;
+  --background: oklch(0.982 0.005 247);
+  --foreground: oklch(0.215 0.04 254);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.22 0.035 252);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.035 252);
-  --primary: oklch(0.535 0.176 256);
+  --primary: oklch(0.5 0.16 257);
   --primary-foreground: oklch(0.99 0.002 250);
   --secondary: oklch(0.95 0.018 249);
   --secondary-foreground: oklch(0.28 0.06 251);
   --muted: oklch(0.961 0.009 247);
-  --muted-foreground: oklch(0.49 0.029 251);
+  --muted-foreground: oklch(0.47 0.028 252);
   --accent: oklch(0.93 0.035 248);
   --accent-foreground: oklch(0.31 0.096 255);
   --destructive: oklch(0.56 0.2 26);
@@ -83,9 +83,9 @@
   --warning-foreground: oklch(0.4 0.1 63);
   --info: oklch(0.59 0.14 244);
   --info-foreground: oklch(0.34 0.1 247);
-  --border: oklch(0.895 0.016 249);
+  --border: oklch(0.915 0.011 250);
   --input: oklch(0.86 0.022 249);
-  --ring: oklch(0.535 0.176 256);
+  --ring: oklch(0.6 0.15 240);
   --institutional: oklch(0.276 0.065 251);
   --institutional-foreground: oklch(0.97 0.008 231);
   --hero-foreground: oklch(0.99 0.004 225);
@@ -95,14 +95,26 @@
   --territory: oklch(0.18 0.052 251);
   --territory-foreground: oklch(0.985 0.008 230);
   --territory-accent: oklch(0.78 0.13 199);
-  --sidebar: oklch(0.18 0.056 252);
+  --sidebar: oklch(0.2 0.05 256);
   --sidebar-foreground: oklch(0.94 0.012 239);
   --sidebar-muted: oklch(0.7 0.035 239);
-  --sidebar-accent: oklch(0.3 0.082 249);
+  --sidebar-accent: oklch(0.28 0.06 254);
   --sidebar-border: oklch(0.66 0.04 245 / 0.22);
   --shadow-panel:
-    0 1px 2px color-mix(in oklab, var(--foreground) 4%, transparent),
-    0 8px 28px -24px color-mix(in oklab, var(--institutional) 24%, transparent);
+    0 1px 1px color-mix(in oklab, var(--foreground) 3%, transparent),
+    0 4px 16px -10px color-mix(in oklab, var(--institutional) 14%, transparent);
+  /* UX.PREMIUM.0 — escalas da fundação (docs/ux-premium-sigem-2027.md) */
+  --elevation-0: none;
+  --elevation-1: var(--shadow-panel);
+  --elevation-2: 0 12px 32px -16px color-mix(in oklab, var(--institutional) 22%, transparent);
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem;
+  --space-6: 1.5rem; --space-8: 2rem; --space-12: 3rem;
+  --page-gap: 2rem;
+  --content-max: 88rem;
+  --content-reading: 46rem;
+  --table-row: 3rem;
+  --table-row-compact: 2.5rem;
+  --motion-ease: cubic-bezier(0.2, 0, 0, 1);
   --shadow-float: 0 24px 64px color-mix(in oklab, var(--territory) 24%, transparent);
   --space-shell: 1.25rem;
   --density-control: 2.25rem;
@@ -136,8 +148,10 @@
   h2,
   h3 {
     font-family: var(--font-display);
-    letter-spacing: 0;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
   }
+  table { font-variant-numeric: tabular-nums; }
   button,
   input,
   textarea,
@@ -158,6 +172,28 @@
   border: 1px solid color-mix(in oklab, var(--institutional) 5%, var(--border));
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel);
+}
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
+  &::before {
+    content: "";
+    width: 0.875rem;
+    height: 2px;
+    border-radius: 999px;
+    background: var(--territory-accent);
+  }
+}
+@utility page-container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
 }
 @utility text-tabular {
   font-variant-numeric: tabular-nums;

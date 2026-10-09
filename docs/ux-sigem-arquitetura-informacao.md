@@ -12,3 +12,6 @@
 
 ## N3.2 — PARTIAL (CONTINUE_FROM=N3.2.1)
 Inventário de rotas em docs/ux-sigem-migracao-rotas.md (classificação heurística). Homes de estação, sidebar/topbar, migração das rotas ANTIGA e regressão visual por breakpoint pendentes.
+
+## UX.PREMIUM.0 (2026-10-09)
+Fundação premium (tokens, AppShell, PageHeader, Card, Table) descrita em `ux-premium-sigem-2027.md`; migração das rotas piloto pendente (UX.PREMIUM.1).
