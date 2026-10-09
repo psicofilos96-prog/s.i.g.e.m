@@ -941,30 +941,18 @@ export function councilDaysForPeriod(r: ResolvedCalendar, p: CalendarPeriod, rol
   return out;
 }
 
+/** Uma linha por DIA de conselho: dez dias marcados ⇒ dez linhas. */
 export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolveCalendar(cal)) {
-  const out: Array<{ key: string; periodId: string; date: IsoDate; dates: IsoDate[]; label: string; final: boolean }> =
+  const out: Array<{ key: string; periodId: string; date: IsoDate; label: string; final: boolean }> =
     [];
   for (const period of [...cal.periods].sort((a, b) => a.order - b.order)) {
-    const date = councilForPeriod(r, period);
-    if (date)
-      out.push({
-        key: `${period.id}-cc`,
-        periodId: period.id,
-        date,
-        dates: councilDaysForPeriod(r, period, "conselho"),
-        label: period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`,
-        final: false,
-      });
-    const fin = period.finalCouncilLabel?.trim() ? finalCouncilForPeriod(r, period) : null;
-    if (fin)
-      out.push({
-        key: `${period.id}-cf`,
-        periodId: period.id,
-        date: fin,
-        dates: councilDaysForPeriod(r, period, "conselho-final"),
-        label: period.finalCouncilLabel!.trim(),
-        final: true,
-      });
+    const label = period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`;
+    for (const date of councilDaysForPeriod(r, period, "conselho"))
+      out.push({ key: `${period.id}-cc-${date}`, periodId: period.id, date, label, final: false });
+    const finLabel = period.finalCouncilLabel?.trim();
+    if (finLabel)
+      for (const date of councilDaysForPeriod(r, period, "conselho-final"))
+        out.push({ key: `${period.id}-cf-${date}`, periodId: period.id, date, label: finLabel, final: true });
   }
   return out;
 }
