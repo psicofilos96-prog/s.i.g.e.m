@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 /** CAL.PRESET.1 — gestão de presets pessoais no editor externo. Só troca o rascunho da tela. */
 import { useEffect, useState } from "react";
 import { confirmAction } from "@/components/sigem/confirm-action";
@@ -18,12 +19,12 @@ export function ExternalPresetsBar({ template, draft, defaults, presentation, on
   const [name, setName] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const reload = async () => { try { setList(await listPresets(template, presentation)); } catch (e) { setMsg((e as Error).message); setList([]); } };
+  const reload = async () => { try { setList(await listPresets(template, presentation)); } catch (e) { setMsg(userErrorText(e)); setList([]); } };
   useEffect(() => { void reload(); }, [template]); // eslint-disable-line react-hooks/exhaustive-deps
   const cur = list?.find((p) => p.key === sel) ?? null;
   const run = async (f: () => Promise<unknown>, ok: string) => {
     setBusy(true); setMsg(null);
-    try { await f(); await reload(); setMsg(ok); } catch (e) { setMsg((e as Error).message); } finally { setBusy(false); }
+    try { await f(); await reload(); setMsg(ok); } catch (e) { setMsg(userErrorText(e)); } finally { setBusy(false); }
   };
   const diff = diffFromDefault(draft, defaults);
   return (

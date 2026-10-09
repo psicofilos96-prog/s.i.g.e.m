@@ -164,7 +164,7 @@ function RootComponent() {
       <AppShell>
         <Outlet />
       </AppShell>
-      <Toaster position="bottom-right" richColors closeButton />
+      <Toaster position="bottom-right" richColors closeButton duration={8000} visibleToasts={3} />
       <ConfirmHost />
     </QueryClientProvider>
   );

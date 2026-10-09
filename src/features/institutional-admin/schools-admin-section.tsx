@@ -334,7 +334,7 @@ function SchoolForm({ title, base, lockedIds, onSubmit, onCancel, err, statusOnl
   return (
     <form onSubmit={onSubmit} className="mb-4 grid gap-3 rounded-md border border-border p-3 sm:grid-cols-2">
       <h3 className="font-display text-base font-semibold sm:col-span-2">{title}</h3>
-      {statusOnly && <p className="text-sm text-muted-foreground sm:col-span-2">A mudança de situação cria nova versão; as anteriores e os fatos já registrados permanecem.</p>}
+      {statusOnly && <p role="status" className="text-sm text-muted-foreground sm:col-span-2">A mudança de situação cria nova versão; as anteriores e os fatos já registrados permanecem.</p>}
       <div className={`${hide} sm:col-span-2`}><F id="oname" label="Nome oficial" required defaultValue={base?.officialName} /></div>
       <div className={hide}><F id="inep" label="INEP" inputMode="numeric" defaultValue={lockedIds?.inep ?? ""} disabled={!!lockedIds?.inep} /></div>
       <div className={hide}><F id="code" label="Código da rede" defaultValue={lockedIds?.code ?? ""} disabled={!!lockedIds?.code} /></div>
@@ -354,7 +354,7 @@ function SchoolForm({ title, base, lockedIds, onSubmit, onCancel, err, statusOnl
       <F id="act" label="Referência documental/fonte (opcional)" />
       {base && <div className="sm:col-span-2"><F id="just" label="Justificativa" required /></div>}
       <div className="flex flex-wrap gap-2 sm:col-span-2"><Button type="submit" size="sm">Registrar</Button><Button type="button" size="sm" variant="ghost" onClick={onCancel}>Cancelar</Button></div>
-      {err && <p className="text-sm text-destructive sm:col-span-2">{err}</p>}
+      {err && <p role="alert" className="text-sm text-destructive sm:col-span-2">{err}</p>}
     </form>
   );
 }

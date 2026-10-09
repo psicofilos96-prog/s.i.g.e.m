@@ -70,7 +70,7 @@ export function GovernanceStationPage() {
       </section>
 
       <section><h2 className="mb-2 font-medium text-foreground">Quem exerce cada ato</h2>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         {!error && !matrix && <SkeletonState label="Carregando" />}
         {policy === null && !error && <p className="text-sm text-muted-foreground">Nenhuma política homologada vigente legível por esta sessão.</p>}
         {matrix && (
