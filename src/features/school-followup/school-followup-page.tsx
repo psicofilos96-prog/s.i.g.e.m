@@ -7,6 +7,8 @@ import { DateInput } from "@/components/sigem/date-input";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { buildPanel, clinicalWarning, display, followupMessage, visibleRecords, type FollowupRecord, type Measure } from "./followup-panel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FOLLOWUP_AREAS, QUEUE_PRESENTATION, deadlineText, type FollowupArea } from "./followup-queue";
 import { readCategories, readPanel, readRecords, schoolsInScope, writeRecord } from "./followup-source";
 
 const today = () => operationalToday();
@@ -53,20 +55,19 @@ export function SchoolFollowupPage({ perspective }: { perspective: "orientacao" 
               <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Consultar como estava antes</summary>
                 <label className="mt-1 block">Registrado até<input type="datetime-local" className="mt-1 block rounded border bg-background p-2" value={knownAt} onChange={(e) => setKnownAt(e.target.value)} /></label></details>
             </div>
-            <nav aria-label="Ações principais" className="flex flex-wrap gap-2">
-              {cfg.actions.map((a) => <Button key={a.to} asChild variant="outline"><Link to={a.to}>{a.label}</Link></Button>)}
-            </nav>
-            {school && <SchoolView key={`${school}|${validOn}|${knownAt}`} school={school} validOn={validOn} knownAt={knownAt ? new Date(knownAt).toISOString() : null} />}
+            {school && <SchoolView key={`${school}|${validOn}|${knownAt}`} perspective={perspective} school={school} validOn={validOn} knownAt={knownAt ? new Date(knownAt).toISOString() : null} />}
           </>)}
     </div>
   );
 }
 
-function SchoolView({ school, validOn, knownAt }: { school: string; validOn: string; knownAt: string | null }) {
+function SchoolView({ perspective, school, validOn, knownAt }: { perspective: "orientacao" | "direcao"; school: string; validOn: string; knownAt: string | null }) {
   const [panel, setPanel] = useState<ReturnType<typeof buildPanel> | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [drill, setDrill] = useState<{ label: string; records: readonly string[] } | null>(null);
-  const [subject, setSubject] = useState<{ kind: "escola" | "turma" | "estudante"; id: string; label: string }>({ kind: "escola", id: school, label: "Escola" });
+  const [area, setArea] = useState<FollowupArea>("revisar");
+  const [subject, setSubjectRaw] = useState<{ kind: "escola" | "turma" | "estudante"; id: string; label: string }>({ kind: "escola", id: school, label: "Escola" });
+  const setSubject = (x: { kind: "escola" | "turma" | "estudante"; id: string; label: string }) => { setSubjectRaw(x); setArea("acompanhar"); };
   useEffect(() => { readPanel(school, { validOn, knownAt }).then((i) => setPanel(buildPanel(i)), (e: Error) => setErr(followupMessage(e.message))); }, [school, validOn, knownAt]);
   if (err) return <StatePanel tone="danger" title="Não foi possível carregar o painel" description={err} />;
   if (!panel) return <SkeletonState label="Carregando" />;
@@ -74,10 +75,45 @@ function SchoolView({ school, validOn, knownAt }: { school: string; validOn: str
     <button className="rounded border bg-card p-3 text-left disabled:opacity-70" disabled={v.value === null} onClick={() => setDrill({ label, records: v.records })} aria-label={`${label}: ${display(v.value)}. Ver registros`}>
       <span className="block text-xs text-muted-foreground">{label}</span><span className="text-lg font-semibold">{display(v.value)}</span>
     </button>);
+  const cfg = PERSPECTIVE[perspective];
   return (
-    <div className="flex flex-col gap-6">
+    <Tabs value={area} onValueChange={(v) => setArea(v as FollowupArea)} className="space-y-4">
+      <TabsList aria-label="O que você quer fazer" className="grid h-auto w-full grid-cols-2 sm:grid-cols-4">
+        {FOLLOWUP_AREAS.map((a) => <TabsTrigger key={a.id} value={a.id} className="min-h-11">{a.label}</TabsTrigger>)}
+      </TabsList>
+      {FOLLOWUP_AREAS.map((a) => <p key={a.id} hidden={area !== a.id} className="text-sm text-muted-foreground">{a.hint}</p>)}
+
+      <TabsContent value="revisar" className="space-y-6">
+      <section aria-labelledby="pend" className="space-y-3">
+        <h2 id="pend" className="text-lg font-semibold">Pendências da escola</h2>
+        {panel.pending.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhuma pendência encontrada nos registros que você pode ler. Isso não quer dizer que tudo está em ordem: o que você não pode ler não aparece aqui.</p> : (
+          <ul className="space-y-3">
+            {(Object.keys(QUEUE_PRESENTATION) as (keyof typeof QUEUE_PRESENTATION)[]).map((kind) => {
+              const q = QUEUE_PRESENTATION[kind];
+              const items = panel.pending.filter((p) => p.kind === kind);
+              if (!items.length) return null;
+              return (
+                <li key={kind} className="rounded-lg border border-l-4 border-l-warning bg-card p-4">
+                  <p className="font-semibold">{q.title} <span className="font-normal text-muted-foreground">· {items.length}</span></p>
+                  <dl className="mt-1 grid gap-1 text-sm sm:grid-cols-[8rem_1fr]">
+                    <dt className="text-muted-foreground">Motivo</dt><dd>{q.reason}</dd>
+                    <dt className="text-muted-foreground">Prazo</dt><dd>{deadlineText(q.deadline)}</dd>
+                    <dt className="text-muted-foreground">Próxima ação</dt><dd className="font-medium">{q.next}</dd>
+                  </dl>
+                  <details className="mt-2 text-sm"><summary className="cursor-pointer">Ver itens</summary>
+                    <ul className="mt-1 max-h-48 space-y-1 overflow-auto">{items.map((p, i) => (
+                      <li key={i}>{kind === "matricula-sem-turma"
+                        ? <button className="underline" onClick={() => setSubject({ kind: "estudante", id: p.subjectId, label: "Aluno sem turma" })}>Acompanhar aluno</button>
+                        : p.label.split(":")[0]}</li>))}</ul></details>
+                </li>);
+            })}
+          </ul>)}
+      </section>
+      <details className="rounded-lg border p-3">
+        <summary className="cursor-pointer font-medium">Números e turmas da escola</summary>
+        <div className="mt-3">
       <section aria-labelledby="painel" className="space-y-3">
-        <h2 id="painel" className="font-semibold">Números da escola</h2>
+        <h2 id="painel" className="sr-only">Números da escola</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Cell label="Turmas" v={panel.totals.classes} /><Cell label="Matrículas vigentes" v={panel.totals.enrollments} /><Cell label="Estudantes em turma" v={panel.totals.allocated} />
         </div>
@@ -100,32 +136,35 @@ function SchoolView({ school, validOn, knownAt }: { school: string; validOn: str
             {drill.records.length === 0 ? <p>Nenhum registro.</p> : <ul className="mt-1 max-h-48 overflow-auto font-mono text-xs">{drill.records.map((r) => <li key={r}>{r}</li>)}</ul>}
           </div>)}
       </section>
-      <section aria-labelledby="pend" className="order-first space-y-3">
-        <h2 id="pend" className="text-lg font-semibold">Pendências da escola</h2>
-        {panel.pending.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhuma pendência encontrada nos registros que você pode ler. Isso não quer dizer que tudo está em ordem: o que você não pode ler não aparece aqui.</p> : (
-          <div className="grid gap-3 md:grid-cols-3">
-            {([["matricula-sem-turma", "Alunos sem turma"], ["turma-sem-fechamento-de-frequencia", "Turmas sem frequência fechada"], ["turma-sem-fechamento-avaliativo", "Turmas sem notas fechadas"]] as const).map(([kind, title]) => {
-              const items = panel.pending.filter((p) => p.kind === kind);
-              return (
-                <div key={kind} className={`rounded-lg border bg-card p-4 ${items.length ? "border-l-4 border-l-warning" : ""}`}>
-                  <p className="text-sm text-muted-foreground">{title}</p>
-                  <p className="text-2xl font-semibold">{items.length}</p>
-                  {items.length === 0 ? <p className="text-xs text-muted-foreground">Nada a fazer aqui</p> : (
-                    <details className="mt-1 text-sm"><summary className="cursor-pointer">Ver lista</summary>
-                      <ul className="mt-1 max-h-48 space-y-1 overflow-auto">{items.map((p, i) => (
-                        <li key={i}>{kind === "matricula-sem-turma"
-                          ? <button className="underline" onClick={() => setSubject({ kind: "estudante", id: p.subjectId, label: "Aluno sem turma" })}>Acompanhar aluno</button>
-                          : p.label.split(":")[0]}</li>))}</ul></details>)}
-                </div>);
-            })}
-          </div>)}
-      </section>
-      <Records school={school} subject={subject} knownAt={knownAt} onBack={() => setSubject({ kind: "escola", id: school, label: "Escola" })} />
-    </div>
+        </div>
+      </details>
+      </TabsContent>
+
+      <TabsContent value="acompanhar">
+        <Records school={school} subject={subject} knownAt={knownAt} mode="acompanhar" onBack={() => setSubjectRaw({ kind: "escola", id: school, label: "Escola" })} />
+      </TabsContent>
+
+      <TabsContent value="decidir" className="space-y-3">
+        <h2 className="text-lg font-semibold">Decidir</h2>
+        <p className="text-sm text-muted-foreground">Cada decisão é feita na tela própria, com as permissões dela.</p>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {cfg.actions.map((a) => <li key={a.to}><Link to={a.to} className="flex min-h-11 items-center rounded-lg border bg-card px-4 py-3 font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{a.label}</Link></li>)}
+        </ul>
+        {panel.classes.length > 0 && (
+          <details className="rounded-lg border p-3 text-sm"><summary className="cursor-pointer font-medium">Conselho de Classe por turma</summary>
+            <ul className="mt-2 grid gap-1 sm:grid-cols-2">{panel.classes.map((c) => (
+              <li key={c.classId}><Link to="/diario/turmas/$turmaId/avaliacao/conselho" params={{ turmaId: c.classId }} className="underline">{c.name}</Link></li>))}</ul>
+          </details>)}
+      </TabsContent>
+
+      <TabsContent value="historico">
+        <Records school={school} subject={subject} knownAt={knownAt} mode="historico" onBack={() => setSubjectRaw({ kind: "escola", id: school, label: "Escola" })} />
+      </TabsContent>
+    </Tabs>
   );
 }
 
-function Records({ school, subject, knownAt, onBack }: { school: string; subject: { kind: "escola" | "turma" | "estudante"; id: string; label: string }; knownAt: string | null; onBack: () => void }) {
+function Records({ school, subject, knownAt, onBack, mode }: { mode: "acompanhar" | "historico"; school: string; subject: { kind: "escola" | "turma" | "estudante"; id: string; label: string }; knownAt: string | null; onBack: () => void }) {
   const [rs, setRs] = useState<FollowupRecord[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [cats, setCats] = useState<{ value_id: string; label: string }[] | null>(null);
@@ -155,8 +194,8 @@ function Records({ school, subject, knownAt, onBack }: { school: string; subject
     try { setHistory({ logical, items: await readRecords({ school, logicalId: logical }) }); } catch (e) { setMsg(followupMessage((e as Error).message)); }
   }
   return (
-    <section aria-labelledby="reg" className="space-y-3">
-      <div className="flex items-center justify-between"><h2 id="reg" className="font-semibold">Acompanhamento — {subject.label}</h2>
+    <section aria-labelledby={`reg-${mode}`} className="space-y-3">
+      <div className="flex items-center justify-between"><h2 id={`reg-${mode}`} className="font-semibold">{mode === "historico" ? "Histórico" : "Acompanhamento"} — {subject.label}</h2>
         {subject.kind !== "escola" && <Button size="sm" variant="ghost" onClick={onBack}>Voltar à escola</Button>}</div>
       {err ? <StatePanel tone="warning" title="Acompanhamentos não disponíveis" description={err} />
         : !rs ? <SkeletonState label="Carregando" />
@@ -166,15 +205,15 @@ function Records({ school, subject, knownAt, onBack }: { school: string; subject
               <p className="text-xs text-muted-foreground">{new Date(`${r.occurred_on}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {catLabel(r.category_value_id)} · {r.visibility === "autoria" ? "visível só para quem registrou" : "acompanhamento da escola"}{r.version > 1 ? ` · versão ${r.version}` : ""}</p>
               <p className="whitespace-pre-wrap">{r.body}</p>
               <div className="mt-1 flex gap-2">
-                <Button size="sm" variant="ghost" onClick={() => void save(r, "retificacao")}>Corrigir</Button>
-                <Button size="sm" variant="ghost" onClick={() => void save(r, "anulacao")}>Anular</Button>
+                {mode === "acompanhar" && <><Button size="sm" variant="ghost" onClick={() => void save(r, "retificacao")}>Corrigir</Button>
+                <Button size="sm" variant="ghost" onClick={() => void save(r, "anulacao")}>Anular</Button></>}
                 {r.version > 1 && <Button size="sm" variant="ghost" onClick={() => void openHistory(r.logical_id)}>Histórico</Button>}
               </div>
             </li>))}</ul>}
       {history && <div className="rounded border p-2 text-xs" role="region" aria-label="Histórico do registro">
         <div className="flex justify-between"><strong>Histórico</strong><Button size="sm" variant="ghost" onClick={() => setHistory(null)}>Fechar</Button></div>
         <ol>{history.items.sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {formatDateTime(h.recorded_at)}{h.reason ? ` · motivo: ${h.reason}` : ""} — {h.body}</li>)}</ol></div>}
-      {!err && (
+      {!err && mode === "acompanhar" && (
         <div className="space-y-2 rounded border p-3 text-sm">
           <h3 className="font-medium">Novo registro</h3>
           {cats && cats.length === 0 ? <p className="text-muted-foreground">Nenhuma categoria de acompanhamento aprovada no catálogo. Sem categoria, não é possível registrar.</p> : (
