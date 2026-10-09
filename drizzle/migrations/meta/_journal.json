@@ -1919,6 +1919,13 @@
       "when": 1791573598860,
       "tag": "0273_intervencao1_broad_sector_rules_v5",
       "breakpoints": true
+    },
+    {
+      "idx": 274,
+      "version": "7",
+      "when": 1791573838529,
+      "tag": "0274_intervencao2_2026_operational_year",
+      "breakpoints": true
     }
   ]
 }
