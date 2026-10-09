@@ -133,6 +133,7 @@ import { Route as TurmasDesignacaoPreviaRouteImport } from './routes/turmas.desi
 import { Route as TurmasNovaRouteImport } from './routes/turmas.nova'
 import { Route as UnidadesIndexRouteImport } from './routes/unidades.index'
 import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
+import { Route as UnidadesNovaRouteImport } from './routes/unidades.nova'
 import { Route as VerificarCodigoRouteImport } from './routes/verificar.$codigo'
 import { Route as VinculosLetivosNovoRouteImport } from './routes/vinculos-letivos.novo'
 import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
@@ -159,6 +160,7 @@ import { Route as RegrasAvaliativasRegraIdCompararRouteImport } from './routes/r
 import { Route as RegrasAvaliativasRegraIdEditarRouteImport } from './routes/regras-avaliativas.$regraId.editar'
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as TurmasOfertaIdRouteImport } from './routes/turmas.oferta.$id'
+import { Route as UnidadesEditarIdRouteImport } from './routes/unidades.editar.$id'
 import { Route as VerificarCarteirinhaCodigoRouteImport } from './routes/verificar.carteirinha.$codigo'
 import { Route as VerificarDocumentoCodigoRouteImport } from './routes/verificar.documento.$codigo'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
@@ -854,6 +856,11 @@ const UnidadesIdRoute = UnidadesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => UnidadesRoute,
 } as any)
+const UnidadesNovaRoute = UnidadesNovaRouteImport.update({
+  id: '/nova',
+  path: '/nova',
+  getParentRoute: () => UnidadesRoute,
+} as any)
 const VerificarCodigoRoute = VerificarCodigoRouteImport.update({
   id: '/verificar/$codigo',
   path: '/verificar/$codigo',
@@ -995,6 +1002,11 @@ const TurmasOfertaIdRoute = TurmasOfertaIdRouteImport.update({
   id: '/oferta/$id',
   path: '/oferta/$id',
   getParentRoute: () => TurmasRoute,
+} as any)
+const UnidadesEditarIdRoute = UnidadesEditarIdRouteImport.update({
+  id: '/editar/$id',
+  path: '/editar/$id',
+  getParentRoute: () => UnidadesRoute,
 } as any)
 const VerificarCarteirinhaCodigoRoute =
   VerificarCarteirinhaCodigoRouteImport.update({
@@ -1511,6 +1523,7 @@ export interface FileRoutesByFullPath {
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/unidades/nova': typeof UnidadesNovaRoute
   '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
@@ -1544,6 +1557,7 @@ export interface FileRoutesByFullPath {
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
+  '/unidades/editar/$id': typeof UnidadesEditarIdRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
@@ -1714,6 +1728,7 @@ export interface FileRoutesByTo {
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/unidades/nova': typeof UnidadesNovaRoute
   '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos': typeof AlunosIndexRoute
@@ -1742,6 +1757,7 @@ export interface FileRoutesByTo {
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
+  '/unidades/editar/$id': typeof UnidadesEditarIdRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/calendario-escolar/$calendarioId': typeof CalendarioEscolarCalendarioIdIndexRoute
@@ -1916,6 +1932,7 @@ export interface FileRoutesById {
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
   '/turmas/nova': typeof TurmasNovaRoute
   '/unidades/$id': typeof UnidadesIdRoute
+  '/unidades/nova': typeof UnidadesNovaRoute
   '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
@@ -1949,6 +1966,7 @@ export interface FileRoutesById {
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
+  '/unidades/editar/$id': typeof UnidadesEditarIdRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
@@ -2136,6 +2154,7 @@ export interface FileRouteTypes {
     | '/turmas/designacao-previa'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/unidades/nova'
     | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos/'
@@ -2169,6 +2188,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
+    | '/unidades/editar/$id'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/calendario-escolar/$calendarioId/'
@@ -2339,6 +2359,7 @@ export interface FileRouteTypes {
     | '/turmas/designacao-previa'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/unidades/nova'
     | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos'
@@ -2367,6 +2388,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
+    | '/unidades/editar/$id'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/calendario-escolar/$calendarioId'
@@ -2540,6 +2562,7 @@ export interface FileRouteTypes {
     | '/turmas/designacao-previa'
     | '/turmas/nova'
     | '/unidades/$id'
+    | '/unidades/nova'
     | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos/'
@@ -2573,6 +2596,7 @@ export interface FileRouteTypes {
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
+    | '/unidades/editar/$id'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/calendario-escolar/$calendarioId/'
@@ -3613,6 +3637,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnidadesIdRouteImport
       parentRoute: typeof UnidadesRoute
     }
+    '/unidades/nova': {
+      id: '/unidades/nova'
+      path: '/nova'
+      fullPath: '/unidades/nova'
+      preLoaderRoute: typeof UnidadesNovaRouteImport
+      parentRoute: typeof UnidadesRoute
+    }
     '/verificar/$codigo': {
       id: '/verificar/$codigo'
       path: '/verificar/$codigo'
@@ -3794,6 +3825,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/turmas/oferta/$id'
       preLoaderRoute: typeof TurmasOfertaIdRouteImport
       parentRoute: typeof TurmasRoute
+    }
+    '/unidades/editar/$id': {
+      id: '/unidades/editar/$id'
+      path: '/editar/$id'
+      fullPath: '/unidades/editar/$id'
+      preLoaderRoute: typeof UnidadesEditarIdRouteImport
+      parentRoute: typeof UnidadesRoute
     }
     '/verificar/carteirinha/$codigo': {
       id: '/verificar/carteirinha/$codigo'
@@ -4906,12 +4944,16 @@ const TurmasRouteWithChildren =
 
 interface UnidadesRouteChildren {
   UnidadesIdRoute: typeof UnidadesIdRoute
+  UnidadesNovaRoute: typeof UnidadesNovaRoute
   UnidadesIndexRoute: typeof UnidadesIndexRoute
+  UnidadesEditarIdRoute: typeof UnidadesEditarIdRoute
 }
 
 const UnidadesRouteChildren: UnidadesRouteChildren = {
   UnidadesIdRoute: UnidadesIdRoute,
+  UnidadesNovaRoute: UnidadesNovaRoute,
   UnidadesIndexRoute: UnidadesIndexRoute,
+  UnidadesEditarIdRoute: UnidadesEditarIdRoute,
 }
 
 const UnidadesRouteWithChildren = UnidadesRoute._addFileChildren(
