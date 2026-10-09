@@ -24,6 +24,7 @@ export function structureOf(c: Pick<MapCell, "cellId" | "sectionId">): Structure
     case "identificacao": return "I";
     case "movimentacao": return ENTRY_EXIT.test(c.cellId) ? "IV" : "II";
     case "turmas": return ENTRY_EXIT.test(c.cellId) ? "IV" : "III";
+    case "entrada-saida": return "IV";
     case "pessoal": return "V";
     case "visitas": return "VI";
     default: return ENTRY_EXIT.test(c.cellId) ? "IV" : "II";
