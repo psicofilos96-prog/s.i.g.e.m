@@ -35,12 +35,12 @@ describe("DOCS.PRO.3 — Document Studio persistido", () => {
     const vs = [v("a", 1), v("b", 2)];
     expect(versionStates(vs, [])).toEqual({ a: "rascunho", b: "rascunho" });
     const e1 = [ev("a", "enviar-revisao", "1"), ev("a", "homologar", "2")];
-    expect(versionStates(vs, e1).a).toBe("homologado");
+    expect(versionStates(vs, e1)["a"]).toBe("homologado");
     const e2 = [...e1, ev("b", "enviar-revisao", "3"), ev("b", "homologar", "4")];
     expect(versionStates(vs, e2)).toEqual({ a: "substituido", b: "homologado" });
     expect(library(vs, versionStates(vs, e2))[0]!.current!.id).toBe("b");
-    expect(versionStates(vs, [...e2, ev("b", "arquivar", "5")]).b).toBe("arquivado");
-    expect(versionStates(vs, [ev("a", "enviar-revisao", "1"), ev("a", "devolver", "2")]).a).toBe("rascunho");
+    expect(versionStates(vs, [...e2, ev("b", "arquivar", "5")])["b"]).toBe("arquivado");
+    expect(versionStates(vs, [ev("a", "enviar-revisao", "1"), ev("a", "devolver", "2")])["a"]).toBe("rascunho");
   });
   it("comparar versões aponta bloco alterado, incluído e removido", () => {
     const d = diffVersions([{ type: "title", text: "A" }, { type: "line" }], [{ type: "title", text: "B" }, { type: "line" }, { type: "page-break" }]);
