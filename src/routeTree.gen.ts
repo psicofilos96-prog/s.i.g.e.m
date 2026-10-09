@@ -63,6 +63,7 @@ import { Route as PendenciasRouteImport } from './routes/pendencias'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
 import { Route as Preparacao2027RouteImport } from './routes/preparacao-2027'
 import { Route as PreparacaoAnoRouteImport } from './routes/preparacao-ano'
+import { Route as PrimeiroAcessoRouteImport } from './routes/primeiro-acesso'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ProntidaoPilotoRouteImport } from './routes/prontidao-piloto'
 import { Route as PublicacoesRouteImport } from './routes/publicacoes'
@@ -494,6 +495,11 @@ const Preparacao2027Route = Preparacao2027RouteImport.update({
 const PreparacaoAnoRoute = PreparacaoAnoRouteImport.update({
   id: '/preparacao-ano',
   path: '/preparacao-ano',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrimeiroAcessoRoute = PrimeiroAcessoRouteImport.update({
+  id: '/primeiro-acesso',
+  path: '/primeiro-acesso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfissionaisRoute = ProfissionaisRouteImport.update({
@@ -1448,6 +1454,7 @@ export interface FileRoutesByFullPath {
   '/planejamento': typeof PlanejamentoRoute
   '/preparacao-2027': typeof Preparacao2027Route
   '/preparacao-ano': typeof PreparacaoAnoRoute
+  '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
@@ -1659,6 +1666,7 @@ export interface FileRoutesByTo {
   '/planejamento': typeof PlanejamentoRoute
   '/preparacao-2027': typeof Preparacao2027Route
   '/preparacao-ano': typeof PreparacaoAnoRoute
+  '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
   '/quadro-docente': typeof QuadroDocenteRoute
@@ -1851,6 +1859,7 @@ export interface FileRoutesById {
   '/planejamento': typeof PlanejamentoRoute
   '/preparacao-2027': typeof Preparacao2027Route
   '/preparacao-ano': typeof PreparacaoAnoRoute
+  '/primeiro-acesso': typeof PrimeiroAcessoRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
@@ -2070,6 +2079,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/preparacao-2027'
     | '/preparacao-ano'
+    | '/primeiro-acesso'
     | '/profissionais'
     | '/prontidao-piloto'
     | '/publicacoes'
@@ -2281,6 +2291,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/preparacao-2027'
     | '/preparacao-ano'
+    | '/primeiro-acesso'
     | '/prontidao-piloto'
     | '/publicacoes'
     | '/quadro-docente'
@@ -2472,6 +2483,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/preparacao-2027'
     | '/preparacao-ano'
+    | '/primeiro-acesso'
     | '/profissionais'
     | '/prontidao-piloto'
     | '/publicacoes'
@@ -2690,6 +2702,7 @@ export interface RootRouteChildren {
   PlanejamentoRoute: typeof PlanejamentoRoute
   Preparacao2027Route: typeof Preparacao2027Route
   PreparacaoAnoRoute: typeof PreparacaoAnoRoute
+  PrimeiroAcessoRoute: typeof PrimeiroAcessoRoute
   ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
   ProntidaoPilotoRoute: typeof ProntidaoPilotoRoute
   PublicacoesRoute: typeof PublicacoesRoute
@@ -3108,6 +3121,13 @@ declare module '@tanstack/react-router' {
       path: '/preparacao-ano'
       fullPath: '/preparacao-ano'
       preLoaderRoute: typeof PreparacaoAnoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/primeiro-acesso': {
+      id: '/primeiro-acesso'
+      path: '/primeiro-acesso'
+      fullPath: '/primeiro-acesso'
+      preLoaderRoute: typeof PrimeiroAcessoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profissionais': {
@@ -4965,6 +4985,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlanejamentoRoute: PlanejamentoRoute,
   Preparacao2027Route: Preparacao2027Route,
   PreparacaoAnoRoute: PreparacaoAnoRoute,
+  PrimeiroAcessoRoute: PrimeiroAcessoRoute,
   ProfissionaisRoute: ProfissionaisRouteWithChildren,
   ProntidaoPilotoRoute: ProntidaoPilotoRoute,
   PublicacoesRoute: PublicacoesRoute,
