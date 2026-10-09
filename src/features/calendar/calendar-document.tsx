@@ -15,6 +15,7 @@ import {
 import { InstitutionalLogo } from "@/features/identity/institutional-logo";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
 import { logosOf, type CalendarLogo } from "./calendar-logos";
+import { safeImageSrc } from "./calendar-image-asset";
 import {
   deriveCalendarProjection,
   shiftDays,
@@ -41,8 +42,11 @@ export function LogoItem({ raw, printContext }: { raw: CalendarLogo; printContex
     opacity: l.opacity ?? 1,
   } as const;
   if (l.source.kind === "identity") return <InstitutionalLogo kind={l.source.identityKind} />;
-  if (l.source.kind === "asset")
-    return <img src={l.source.assetId} alt={l.label} style={{ ...style, maxWidth: "100%", maxHeight: "100%" }} />;
+  if (l.source.kind === "asset") {
+    const src = safeImageSrc(l.source.assetId);
+    if (!src) return null;
+    return <img src={src} alt={l.label} style={{ ...style, maxWidth: "100%", maxHeight: "100%" }} />;
+  }
   return null;
 }
 
