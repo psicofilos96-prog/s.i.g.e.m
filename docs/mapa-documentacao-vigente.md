@@ -106,6 +106,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `n2026-reconciliacao-censo.md` | N2026 — reconciliação Censo × base individualizada | Registro de lote | sim | — |
 | `n2026-referencia-2027.md` | N2026.REFERENCE.2027 — 2026 como referência de 2027 | Referência vigente | sim | — |
 | `homologacao-real-por-perfil.md` | HOMO.REAL.1 — homologação operacional por perfil | Registro de lote | sim | — |
+| `central-documentos-institucionais.md` | DOCS.PRO.1 — Central de Documentos e modelos | Registro de lote | sim | — |
 | `bq0-preflight-configuracao-2027.md` | BQ.0 — Pré-flight da configuração institucional controlada 2027 | Histórico | sim | — |
 | `bq1-contas-estacoes-setoriais.md` | BQ.1 — Contas institucionais/setoriais e estações (estado: PARTIAL) | Histórico | sim | — |
 | `busca-ativa-alunos-servidores.md` | Busca ativa de alunos e servidores | Referência vigente | — | — |

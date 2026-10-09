@@ -60,3 +60,7 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Fronteira crítica de dados usa `parseBoundary` (src/lib/runtime-shape.ts), não só `as T`, porque tipo não confere execução.
 
 - Cabeçalhos de segurança/no-store só via `src/lib/security-headers.ts` (middleware em `src/start.ts`), porque cabeçalho por rota é esquecido.
+
+## Studio de documentos (`src/features/document-studio/`)
+- Modelo é dado declarativo (blocos fechados, estilos de lista fechada, tokens só do catálogo de readers); renderização sempre escapa, porque HTML/JS de usuário ou SQL em template ampliaria acesso.
+- Estado do modelo é projeção de eventos e emissão congela versão+fatos+hash e exige homologado, porque editar o modelo não pode alterar documento já emitido.
