@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 268. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 269. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -120,7 +120,7 @@ Documentos: 268. Sem classe: 0. Com referência quebrada: 0.
 
 ## Importações e dados
 
-**Vigente:** `importacoes-interoperabilidade.md`, `qualidade-integridade-dados-oficiais.md`
+**Vigente:** `importacoes-interoperabilidade.md`, `n2026-importacao-base-oficial.md`, `qualidade-integridade-dados-oficiais.md`
 
 **Registros de lote (decisões e provas da etapa):** `auditoria-dados-oficiais-ndata3.md`, `importacoes-nimport2.md`, `integridade-schema-final-ndb4.md`, `qualidade-dados-filas-ndata2.md`
 

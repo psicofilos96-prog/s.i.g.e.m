@@ -98,6 +98,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `b4-8-atribuicao-docente.md` | B4.8 — Atribuição docente (turma ↔ elemento curricular ↔ profissional) | Histórico | — | — |
 | `b4-v1-fechamento-oferta.md` | Frente V.1 — Fechamento da oferta/grade/regência 2027 | Histórico | sim | — |
 | `baseline-2026-vs-operacao-2027.md` | Baseline 2026 × Operação 2027 | Histórico | sim | — |
+| `n2026-importacao-base-oficial.md` | N2026.IMPORT.0 — inventário e plano de carga 2026 | Referência vigente | sim | — |
 | `bq0-preflight-configuracao-2027.md` | BQ.0 — Pré-flight da configuração institucional controlada 2027 | Histórico | sim | — |
 | `bq1-contas-estacoes-setoriais.md` | BQ.1 — Contas institucionais/setoriais e estações (estado: PARTIAL) | Histórico | sim | — |
 | `busca-ativa-alunos-servidores.md` | Busca ativa de alunos e servidores | Referência vigente | — | — |
