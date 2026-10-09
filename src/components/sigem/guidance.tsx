@@ -13,11 +13,11 @@ import { ErrorState } from "./states";
 export function TaskGuide({ where, todo, next, action }: { where: string; todo: string; next?: string; action?: ReactNode }) {
   const id = useId();
   return (
-    <section aria-labelledby={`${id}-t`} className="rounded-lg border bg-card p-4 text-card-foreground">
-      <h2 id={`${id}-t`} className="text-base font-semibold">Você está em: {where}</h2>
-      <p className="mt-1 text-sm">{todo}</p>
+    <section aria-labelledby={`${id}-t`} className="border-l-2 border-territory-accent py-1 pl-4 text-foreground">
+      <h2 id={`${id}-t`} className="font-sans text-xs font-semibold uppercase tracking-wide text-accent-foreground">Você está em: {where}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{todo}</p>
       {next && (
-        <p className="mt-2 flex items-start gap-1.5 text-sm text-muted-foreground">
+        <p className="mt-1 flex items-start gap-1.5 text-sm text-muted-foreground">
           <ArrowRight className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
           <span>Próximo passo: {next}</span>
         </p>
