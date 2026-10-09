@@ -31,7 +31,7 @@ export function UnitsListPage() {
   const options = useMemo(() => unitFilterOptions(rows), [rows]);
   const shown = useMemo(() => filterUnitRows(rows, filters), [rows, filters]);
   const authority = useSessionAuthority();
-  const canMaintain = authority.status === "signed-in" && authority.capabilities.includes("manter-cadastro-unidade-escolar");
+  const canMaintain = authority.status === "signed-in" && authority.capabilities.some((c) => String((c as { capability?: string }).capability ?? c) === "manter-cadastro-unidade-escolar");
   const composition = useMemo(() => unitComposition(rows), [rows]);
   const set = (k: keyof UnitFilters) => (v: string) => setFilters((f) => ({ ...f, [k]: v }));
 
