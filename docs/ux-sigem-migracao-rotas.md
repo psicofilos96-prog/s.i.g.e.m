@@ -263,3 +263,8 @@ Inventário automático (`route-visual-inventory.test.ts`) verde: nenhuma rota p
 
 ## UX.PREMIUM.0 (2026-10-09)
 Fundação premium (tokens, AppShell, PageHeader, Card, Table) descrita em `ux-premium-sigem-2027.md`; migração das rotas piloto pendente (UX.PREMIUM.1).
+
+## UX.PREMIUM.1 (2026-10-09) — PARCIAL
+- Barra superior: trilha "domínio do menu › página" (`breadcrumbForPath`, teste `src/config/breadcrumb.test.ts`); rota fora do menu mostra só a página.
+- Homes de estação (Admin, CIECE, Supervisão, Secretaria, Direção, OP, Avaliação, Alimentação, Docente, NEI, Família): já seguem tarefas por estação dos lotes NSEC/NAVAL/CIECE/admin/docente; reestruturação visual para "mesa de trabalho" premium NÃO migrada.
+- Screenshots das homes: não produzidos — ambiente sem sessão autenticada.

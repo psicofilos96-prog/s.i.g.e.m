@@ -28,3 +28,8 @@ AppShell (menu lateral com item ativo por barra de acento + superfície), PageHe
 
 ## Rotas ainda não migradas individualmente
 Admin/Visão Geral, Secretaria, CIECE, Avaliação, Meu Diário, Alunos/Profissionais, Matrícula/Nova Turma, Mapa, Calendário (chrome) — recebem só a fundação compartilhada; reestruturação de "mesa de trabalho" por estação fica para UX.PREMIUM.1. Impressões/PDFs não foram tocados.
+
+## UX.PREMIUM.1 (2026-10-09) — PARCIAL
+- Barra superior: trilha "domínio do menu › página" (`breadcrumbForPath`, teste `src/config/breadcrumb.test.ts`); rota fora do menu mostra só a página.
+- Homes de estação (Admin, CIECE, Supervisão, Secretaria, Direção, OP, Avaliação, Alimentação, Docente, NEI, Família): já seguem tarefas por estação dos lotes NSEC/NAVAL/CIECE/admin/docente; reestruturação visual para "mesa de trabalho" premium NÃO migrada.
+- Screenshots das homes: não produzidos — ambiente sem sessão autenticada.
