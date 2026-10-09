@@ -1,7 +1,7 @@
 import { operationalToday } from "@/lib/academic-date";
 import { unitKindLabel } from "./school-source-import";
 import { ADMIN_FIELDS, ADMIN_FIELD_LABEL, adminCoherenceWarnings, adminFieldArgs, resultingAdmin, type AdminField, type AdminFieldState } from "./school-admin-fields";
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { loadSchoolRegistryRows } from "@/features/units/school-registry-source";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -54,14 +54,23 @@ const opt = (s: FormDataEntryValue | null) => { const t = String(s ?? "").trim()
 const triBool = (s: FormDataEntryValue | null) => (s === "sim" ? true : s === "nao" ? false : null);
 const selectCls = "h-10 rounded-md border border-input bg-background px-3 text-sm";
 
-export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
+/**
+ * `focus` (ONDA 2): abre direto em "nova" (schoolId null) ou "editar" de uma unidade,
+ * sem a lista lateral; ao salvar ou cancelar chama `onExit`. O writer é o mesmo.
+ */
+export function SchoolsAdminSection({ canMaintain, focus, onExit }: { canMaintain: boolean; focus?: { schoolId: string | null }; onExit?: (saved: boolean) => void }) {
   const [units, setUnits] = useState<SchoolUnit[]>([]);
   const [meta, setMeta] = useState<Record<string, VersionMeta>>({});
   const [links, setLinks] = useState<LinkRow[]>([]);
   const [kinds, setKinds] = useState<LinkKind[]>([]);
   const [q, setQ] = useState("");
-  const [sel, setSel] = useState<string | null>(null);
-  const [mode, setMode] = useState<"view" | "new" | "edit">("view");
+  const [sel, setSel] = useState<string | null>(focus?.schoolId ?? null);
+  const [mode, setModeRaw] = useState<"view" | "new" | "edit">(focus ? (focus.schoolId ? "edit" : "new") : "view");
+  const savedRef = useRef(false);
+  const setMode = useCallback((m: "view" | "new" | "edit") => {
+    if (focus && m === "view") { onExit?.(savedRef.current); return; }
+    setModeRaw(m);
+  }, [focus, onExit]);
   const [err, setErr] = useState<string | null>(null);
   const [loadErr, setLoadErr] = useState(false);
 
@@ -123,6 +132,7 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
     });
     if (error) return setErr(human(error.message));
     setErr(null);
+    savedRef.current = true;
     await load();
     if (!base && data) {
       const r = await supabase.from("institutional_school_record_versions").select("school_id").eq("id", data).maybeSingle();
@@ -141,6 +151,14 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
       {mode === "new" && canMaintain && (
         <SchoolForm title="Nova unidade" onSubmit={(e) => submit(e, null)} onCancel={() => setMode("view")} err={err} />
       )}
+      {focus ? (
+        focus.schoolId && (unit ? (
+          <SchoolDetail
+            unit={unit} meta={meta} links={links} kinds={kinds} units={units} name={name} canMaintain={canMaintain}
+            mode={mode} setMode={setMode} err={err} setErr={setErr} submit={submit} reload={load}
+          />
+        ) : <p className="text-sm text-muted-foreground">{loadErr ? "" : "Carregando a unidade…"}</p>)
+      ) : (
       <div className="grid gap-4 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
         <div className="min-w-0">
           <Input placeholder="Localizar por nome, INEP ou código" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Localizar unidade" className="mb-2" />
@@ -169,6 +187,7 @@ export function SchoolsAdminSection({ canMaintain }: { canMaintain: boolean }) {
           )}
         </div>
       </div>
+      )}
     </section>
   );
 }

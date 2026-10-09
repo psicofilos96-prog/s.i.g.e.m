@@ -6,7 +6,8 @@
 import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { OperationalPageHeader } from "@/components/sigem/operational";
+import { RegistryHero, RegistryToolbar, RegistryList, RegistryCard, CardFact, registryTh, registryTd, registryRow } from "@/components/sigem/registry-layout";
+import { Label } from "@/components/ui/label";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,14 +28,14 @@ function ListStates({ q, noun, emptyAll, searching, children }: { q: Q; noun: st
     const timeout = q.error instanceof ListTimeoutError;
     const denied = (q.error as { code?: string } | null)?.code === "42501";
     return (
-      <section role="alert" className="rounded-lg border border-border bg-card p-6 text-center text-sm">
+      <section role="alert" className="rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm">
         <p className="font-medium text-foreground">{denied ? `Você não tem acesso a ${noun}.` : timeout ? `A lista de ${noun} demorou demais para responder.` : `Não foi possível carregar ${noun}.`}</p>
         {!denied && <Button className="mt-3" size="sm" onClick={() => void q.refetch()}>Tentar novamente</Button>}
       </section>
     );
   }
   if (q.data && q.data.items.length === 0)
-    return <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">{searching ? `Nenhum resultado para a pesquisa.` : emptyAll}</p>;
+    return <p className="rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">{searching ? `Nenhum resultado para a pesquisa.` : emptyAll}</p>;
   return <>{children}</>;
 }
 
@@ -57,6 +58,18 @@ function Pager({ q, page, setPage, noun }: { q: Q; page: number; setPage: (p: nu
 
 type StudentRow = { id: string; display_name: string; institutional_identifier: string | null };
 
+const NR = "Não registrado";
+const countOf = (q: Q, noun: string) => q.data?.total != null ? <>{q.data.total.toLocaleString("pt-BR")}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">{noun}</span></> : undefined;
+
+function SearchField({ id, label, placeholder, value, onChange }: { id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="grid min-w-0 flex-1 gap-1 sm:max-w-sm">
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} aria-label={label} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} className="h-9" />
+    </div>
+  );
+}
+
 export function InstitutionalStudentsListPage() {
   const [query, setQueryRaw] = useState(""); const [page, setPage] = useState(1);
   const term = ilikeTerm(useDebounced(query, 300));
@@ -72,23 +85,41 @@ export function InstitutionalStudentsListPage() {
     ]);
     return { data: rows.data, error: rows.error ?? count.error, count: typeof count.data === "number" ? count.data : null };
   });
+  const items = q.data?.items ?? [];
   return (
-    <div className="grid gap-4">
-      <OperationalPageHeader title="Alunos" description="Base institucional da rede no seu escopo de acesso." />
-      <Input aria-label="Pesquisar alunos" placeholder="Pesquisar por nome ou identificador" value={query} onChange={(e) => setQuery(e.target.value)} className="max-w-sm" />
+    <div className="space-y-6">
+      <RegistryHero
+        eyebrow="Rede Municipal de Itaperuna · Estudantes 2026"
+        title="Alunos e matrículas"
+        lede="Estudantes da base institucional no seu alcance de acesso. Abra um nome para ver a ficha longitudinal com matrícula, turma e percurso."
+        count={term ? undefined : countOf(q as Q, "alunos")}
+        actions={<Button asChild size="sm" variant="outline"><Link to="/matriculas">Ver matrículas</Link></Button>}
+      />
+      <RegistryToolbar summary={term && q.data?.total != null ? <>{q.data.total.toLocaleString("pt-BR")} resultado(s) para a pesquisa</> : <>Ordem alfabética · {LIST_PAGE_SIZE} por página</>}>
+        <SearchField id="students-search" label="Pesquisar alunos" placeholder="Nome ou identificador" value={query} onChange={setQuery} />
+      </RegistryToolbar>
       <ListStates q={q as Q} noun="alunos" emptyAll="Nenhum aluno registrado no seu escopo." searching={!!term}>
+        <RegistryList
+          label="Alunos"
+          table={
+            <table className="w-full text-sm" aria-busy={q.isFetching}>
+              <caption className="sr-only">Alunos</caption>
+              <thead><tr><th scope="col" className={registryTh}>Nome</th><th scope="col" className={registryTh}>Identificador</th><th scope="col" className={registryTh}><span className="sr-only">Ação</span></th></tr></thead>
+              <tbody>{items.map((r) => (
+                <tr key={r.id} className={registryRow}>
+                  <td className={registryTd}><Link to="/ficha-longitudinal/$id" params={{ id: r.id }} className="font-medium text-foreground hover:text-primary hover:underline">{r.display_name}</Link></td>
+                  <td className={`${registryTd} font-mono text-xs tabular-nums text-muted-foreground`}>{r.institutional_identifier ?? NR}</td>
+                  <td className={`${registryTd} text-right`}><Link to="/ficha-longitudinal/$id" params={{ id: r.id }} aria-label={`Abrir ficha de ${r.display_name}`} className="text-sm font-medium text-primary hover:underline">Abrir ficha</Link></td>
+                </tr>))}</tbody>
+            </table>
+          }
+          cards={items.map((r) => (
+            <RegistryCard key={r.id} title={<Link to="/ficha-longitudinal/$id" params={{ id: r.id }} className="text-foreground hover:text-primary hover:underline">{r.display_name}</Link>}>
+              <CardFact label="Identificador"><span className="tabular-nums">{r.institutional_identifier ?? NR}</span></CardFact>
+            </RegistryCard>
+          ))}
+        />
         <Pager q={q as Q} page={page} setPage={setPage} noun="alunos" />
-        <div className="overflow-x-auto rounded-lg border border-border bg-card">
-          <table className="w-full text-sm" aria-busy={q.isFetching}>
-            <caption className="sr-only">Alunos</caption>
-            <thead className="bg-muted/50 text-left text-xs text-muted-foreground"><tr><th scope="col" className="p-2">Nome</th><th scope="col" className="p-2">Identificador</th></tr></thead>
-            <tbody>{q.data?.items.map((r) => (
-              <tr key={r.id} className="border-t border-border">
-                <td className="p-2 font-medium"><Link to="/ficha-longitudinal/$id" params={{ id: r.id }} className="text-primary hover:underline">{r.display_name}</Link></td>
-                <td className="p-2 text-muted-foreground">{r.institutional_identifier ?? "Não registrado"}</td>
-              </tr>))}</tbody>
-          </table>
-        </div>
       </ListStates>
     </div>
   );
@@ -96,32 +127,57 @@ export function InstitutionalStudentsListPage() {
 
 type ProfRow = { id: string; display_name: string; professional_census_declarations: { function_literal: string | null }[] };
 
+export const declaredFunctions = (r: ProfRow) => [...new Set(r.professional_census_declarations.map((l) => l.function_literal).filter((x): x is string => !!x))];
+
 export function InstitutionalProfessionalsListPage() {
-  const [query, setQueryRaw] = useState(""); const [page, setPage] = useState(1);
+  const [query, setQueryRaw] = useState(""); const [fn, setFnRaw] = useState(""); const [page, setPage] = useState(1);
   const term = ilikeTerm(useDebounced(query, 300));
+  const fnTerm = ilikeTerm(useDebounced(fn, 300));
   const setQuery = (v: string) => { setQueryRaw(v); setPage(1); };
-  const q = useServerPage<ProfRow>(["inst-professionals", term], page, ({ from, to, signal }) => {
+  const setFn = (v: string) => { setFnRaw(v); setPage(1); };
+  const q = useServerPage<ProfRow>(["inst-professionals", term, fnTerm], page, ({ from, to, signal }) => {
     let b = supabase.from("institutional_persons").select("id, display_name, professional_census_declarations!professional_census_declarations_person_id_fkey!inner(function_literal)", { count: "estimated" });
     if (term) b = b.ilike("display_name", term);
+    if (fnTerm) b = b.ilike("professional_census_declarations.function_literal", fnTerm);
     return b.order("display_name").order("id").range(from, to).abortSignal(signal) as unknown as PromiseLike<{ data: ProfRow[] | null; error: { message: string } | null; count: number | null }>;
   });
+  const items = q.data?.items ?? [];
+  const searching = !!term || !!fnTerm;
   return (
-    <div className="grid gap-4">
-      <OperationalPageHeader title="Profissionais" description="Profissionais declarados na base oficial 2026 (Censo), no seu escopo de acesso." />
-      <Input aria-label="Pesquisar profissionais" placeholder="Pesquisar pelo nome" value={query} onChange={(e) => setQuery(e.target.value)} className="max-w-sm" />
-      <ListStates q={q as Q} noun="profissionais" emptyAll="Nenhum profissional visível no seu escopo." searching={!!term}>
+    <div className="space-y-6">
+      <RegistryHero
+        eyebrow="Rede Municipal de Itaperuna · Pessoal 2026"
+        title="Profissionais"
+        lede="Pessoas declaradas na base oficial 2026 (Censo Escolar), no seu alcance de acesso. A função mostrada é a declarada no Censo; ela não concede acesso ao SIGEM."
+        count={searching || q.data?.total == null ? undefined : <>≈ {q.data.total.toLocaleString("pt-BR")}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">profissionais</span></>}
+      />
+      <RegistryToolbar summary={searching ? <Button variant="link" size="sm" className="h-auto p-0" onClick={() => { setQuery(""); setFn(""); }}>Limpar pesquisa</Button> : <>Ordem alfabética · {LIST_PAGE_SIZE} por página</>}>
+        <SearchField id="prof-search" label="Pesquisar profissionais" placeholder="Nome" value={query} onChange={setQuery} />
+        <SearchField id="prof-fn" label="Função declarada" placeholder="Ex.: docente, auxiliar" value={fn} onChange={setFn} />
+      </RegistryToolbar>
+      <ListStates q={q as Q} noun="profissionais" emptyAll="Nenhum profissional visível no seu escopo." searching={searching}>
+        <RegistryList
+          label="Profissionais"
+          table={
+            <table className="w-full text-sm" aria-busy={q.isFetching}>
+              <caption className="sr-only">Profissionais</caption>
+              <thead><tr><th scope="col" className={registryTh}>Nome</th><th scope="col" className={registryTh}>Função declarada (Censo 2026)</th><th scope="col" className={registryTh}>Declarações</th></tr></thead>
+              <tbody>{items.map((r) => { const f = declaredFunctions(r); return (
+                <tr key={r.id} className={registryRow}>
+                  <td className={`${registryTd} font-medium text-foreground`}>{r.display_name}</td>
+                  <td className={`${registryTd} text-muted-foreground`}>{f.join(", ") || "Não declarada"}</td>
+                  <td className={`${registryTd} tabular-nums text-muted-foreground`}>{r.professional_census_declarations.length}</td>
+                </tr>); })}</tbody>
+            </table>
+          }
+          cards={items.map((r) => (
+            <RegistryCard key={r.id} title={r.display_name}>
+              <CardFact label="Função declarada">{declaredFunctions(r).join(", ") || "Não declarada"}</CardFact>
+              <CardFact label="Declarações"><span className="tabular-nums">{r.professional_census_declarations.length}</span></CardFact>
+            </RegistryCard>
+          ))}
+        />
         <Pager q={q as Q} page={page} setPage={setPage} noun="profissionais" />
-        <div className="overflow-x-auto rounded-lg border border-border bg-card">
-          <table className="w-full text-sm" aria-busy={q.isFetching}>
-            <caption className="sr-only">Profissionais</caption>
-            <thead className="bg-muted/50 text-left text-xs text-muted-foreground"><tr><th scope="col" className="p-2">Nome</th><th scope="col" className="p-2">Função declarada (Censo 2026)</th></tr></thead>
-            <tbody>{q.data?.items.map((r) => (
-              <tr key={r.id} className="border-t border-border">
-                <td className="p-2 font-medium">{r.display_name}</td>
-                <td className="p-2 text-muted-foreground">{[...new Set(r.professional_census_declarations.map((l) => l.function_literal).filter(Boolean))].join(", ") || "Não declarada"}</td>
-              </tr>))}</tbody>
-          </table>
-        </div>
       </ListStates>
     </div>
   );

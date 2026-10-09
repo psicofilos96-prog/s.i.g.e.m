@@ -43,7 +43,7 @@ export function UnitsListPage() {
         lede="Cada escola da rede com versão vigente, INEP e situação. Abra uma unidade para ver turmas, estudantes e pessoal."
         count={registry.status === "ready" ? <>{rows.length}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">unidades</span></> : undefined}
         actions={canMaintain ? (
-          <Button asChild size="sm"><Link to="/administracao" search={{ retorno: "/unidades" }}><Plus className="mr-1 h-4 w-4" aria-hidden />Nova escola</Link></Button>
+          <Button asChild size="sm"><Link to="/unidades/nova"><Plus className="mr-1 h-4 w-4" aria-hidden />Nova escola</Link></Button>
         ) : undefined}
       />
       {registry.status === "ready" && rows.length > 0 && <CompositionStrip items={composition} />}
@@ -100,7 +100,7 @@ export function UnitsListPage() {
                         <td className={registryTd}>{r.location ?? NOT_INFORMED}</td>
                         <td className={registryTd}><Situation active={r.active} /></td>
                         <td className={`${registryTd} text-muted-foreground`}>{r.validFrom ? `desde ${formatAcademicDate(r.validFrom)}` : NOT_INFORMED}</td>
-                        {canMaintain && <td className={registryTd}><EditLink name={r.name} /></td>}
+                        {canMaintain && <td className={registryTd}><EditLink name={r.name} id={r.schoolId} /></td>}
                       </tr>
                     ))}
                   </tbody>
@@ -112,7 +112,7 @@ export function UnitsListPage() {
                   <CardFact label="Situação"><Situation active={r.active} /></CardFact>
                   <CardFact label="Tipo">{unitKindText(r)}</CardFact>
                   <CardFact label="Localização">{r.location ?? NOT_INFORMED}</CardFact>
-                  {canMaintain && <div className="pt-1"><EditLink name={r.name} /></div>}
+                  {canMaintain && <div className="pt-1"><EditLink name={r.name} id={r.schoolId} /></div>}
                 </RegistryCard>
               ))}
             />
@@ -172,9 +172,9 @@ function CompositionStrip({ items }: { items: CompositionItem[] }) {
   );
 }
 
-function EditLink({ name }: { name: string }) {
+function EditLink({ name, id }: { name: string; id: string }) {
   return (
-    <Link to="/administracao" search={{ retorno: "/unidades" }} aria-label={`Editar ${name}`} className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+    <Link to="/unidades/editar/$id" params={{ id }} aria-label={`Editar ${name}`} className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
       <PencilLine className="h-3.5 w-3.5" aria-hidden />Editar
     </Link>
   );
