@@ -30,6 +30,7 @@ import { Route as BaseDeConhecimentoRouteImport } from './routes/base-de-conheci
 import { Route as CarteirinhasRouteImport } from './routes/carteirinhas'
 import { Route as CensoEscolarRouteImport } from './routes/censo-escolar'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
+import { Route as CentralDeDocumentosRouteImport } from './routes/central-de-documentos'
 import { Route as CentralDeIntegracoesRouteImport } from './routes/central-de-integracoes'
 import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as ComunicacaoEscolarRouteImport } from './routes/comunicacao-escolar'
@@ -327,6 +328,11 @@ const CensoEscolarRoute = CensoEscolarRouteImport.update({
 const CentralDeAcessosRoute = CentralDeAcessosRouteImport.update({
   id: '/central-de-acessos',
   path: '/central-de-acessos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CentralDeDocumentosRoute = CentralDeDocumentosRouteImport.update({
+  id: '/central-de-documentos',
+  path: '/central-de-documentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CentralDeIntegracoesRoute = CentralDeIntegracoesRouteImport.update({
@@ -1402,6 +1408,7 @@ export interface FileRoutesByFullPath {
   '/carteirinhas': typeof CarteirinhasRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
+  '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
@@ -1615,6 +1622,7 @@ export interface FileRoutesByTo {
   '/carteirinhas': typeof CarteirinhasRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
+  '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
@@ -1801,6 +1809,7 @@ export interface FileRoutesById {
   '/carteirinhas': typeof CarteirinhasRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
+  '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
@@ -2018,6 +2027,7 @@ export interface FileRouteTypes {
     | '/carteirinhas'
     | '/censo-escolar'
     | '/central-de-acessos'
+    | '/central-de-documentos'
     | '/central-de-integracoes'
     | '/ciece'
     | '/comunicacao-escolar'
@@ -2231,6 +2241,7 @@ export interface FileRouteTypes {
     | '/carteirinhas'
     | '/censo-escolar'
     | '/central-de-acessos'
+    | '/central-de-documentos'
     | '/central-de-integracoes'
     | '/ciece'
     | '/comunicacao-escolar'
@@ -2416,6 +2427,7 @@ export interface FileRouteTypes {
     | '/carteirinhas'
     | '/censo-escolar'
     | '/central-de-acessos'
+    | '/central-de-documentos'
     | '/central-de-integracoes'
     | '/ciece'
     | '/comunicacao-escolar'
@@ -2632,6 +2644,7 @@ export interface RootRouteChildren {
   CarteirinhasRoute: typeof CarteirinhasRoute
   CensoEscolarRoute: typeof CensoEscolarRoute
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
+  CentralDeDocumentosRoute: typeof CentralDeDocumentosRoute
   CentralDeIntegracoesRoute: typeof CentralDeIntegracoesRoute
   CieceRoute: typeof CieceRoute
   ComunicacaoEscolarRoute: typeof ComunicacaoEscolarRoute
@@ -2850,6 +2863,13 @@ declare module '@tanstack/react-router' {
       path: '/central-de-acessos'
       fullPath: '/central-de-acessos'
       preLoaderRoute: typeof CentralDeAcessosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/central-de-documentos': {
+      id: '/central-de-documentos'
+      path: '/central-de-documentos'
+      fullPath: '/central-de-documentos'
+      preLoaderRoute: typeof CentralDeDocumentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/central-de-integracoes': {
@@ -4891,6 +4911,7 @@ const rootRouteChildren: RootRouteChildren = {
   CarteirinhasRoute: CarteirinhasRoute,
   CensoEscolarRoute: CensoEscolarRoute,
   CentralDeAcessosRoute: CentralDeAcessosRoute,
+  CentralDeDocumentosRoute: CentralDeDocumentosRoute,
   CentralDeIntegracoesRoute: CentralDeIntegracoesRoute,
   CieceRoute: CieceRoute,
   ComunicacaoEscolarRoute: ComunicacaoEscolarRoute,
