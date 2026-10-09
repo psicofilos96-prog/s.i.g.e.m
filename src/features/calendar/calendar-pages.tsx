@@ -2,6 +2,7 @@ import { confirmAction } from "@/components/sigem/confirm-action";
 import { FactValue } from "@/components/sigem/states";
 import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
 import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
+import { mirrorTargets } from "./calendar-mirror";
 import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
 import { centralErrorText, homologateCentralCalendar, saveCentralCalendar, type CentralEntry } from "./calendar-central";
 import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
