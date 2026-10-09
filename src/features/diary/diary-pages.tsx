@@ -126,13 +126,21 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
           </Button>
         )}
       </DiaryHeader>
-      <ContextControls search={search} base="/diario" />
+      <TeacherDaySteps />
       {selected ? (
         <p className="text-sm text-muted-foreground">
           <span className="font-medium text-foreground">{selected.unitName}</span> ·{" "}
           {selected.className} · {selected.field}
         </p>
       ) : null}
+      <details className="rounded-md border border-border/70 px-3 py-2">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">
+          Trocar escola, turma ou componente
+        </summary>
+        <div className="pt-3">
+          <ContextControls search={search} base="/diario" />
+        </div>
+      </details>
       {!context.assignments.length ? (
         <StatePanel
           tone="warning"
@@ -140,17 +148,27 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
           description="Não há atuação vigente para esta data. O Diário só apresenta turmas associadas a atuações pedagógicas válidas; lotação na escola não concede acesso a turmas."
         />
       ) : null}
-      <NextLessonCard assignments={context.assignments} date={context.referenceDate} />
+      <div id="proxima-aula" tabIndex={-1} className="scroll-mt-20 focus:outline-none">
+        <NextLessonCard assignments={context.assignments} date={context.referenceDate} />
+      </div>
       <TeachingSupportNotice date={context.referenceDate} classes={context.assignments} />
       <ResumeSection search={journeySearch} />
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.6fr)_minmax(17rem,.8fr)]">
-        <DailyAgenda search={search} />
-        <PendingSection search={journeySearch} />
-      </div>
-      <section>
-        <SectionHeader
+      <DailyAgenda search={search} />
+      <section aria-labelledby="plan-title" className="flex flex-col gap-2 rounded-md border border-border/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 id="plan-title" className="text-base font-semibold text-foreground">Planejamento</h2>
+          <p className="text-sm text-muted-foreground">Prepare as próximas aulas. Planejar não marca conteúdo como dado.</p>
+        </div>
+        <Button asChild size="sm" variant="outline" className="shrink-0">
+          <Link to="/planejamento">Abrir planejamento <ArrowRight /></Link>
+        </Button>
+      </section>
+      <PendingSection search={journeySearch} />
+      <details className="group">
+        <summary className="cursor-pointer list-none">
+      <SectionHeader
           title="Turmas sob sua responsabilidade"
-          description="Atuações vigentes na data consultada."
+          description="Atuações vigentes na data consultada. Toque para abrir."
           action={
             <Button asChild variant="ghost" size="sm">
               <Link to="/diario/turmas" search={search}>
@@ -159,6 +177,8 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
             </Button>
           }
         />
+        </summary>
+
         {assignments.length ? (
           <ul
             className="mt-2 divide-y divide-border/70"
