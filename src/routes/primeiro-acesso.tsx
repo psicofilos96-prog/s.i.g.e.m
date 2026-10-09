@@ -7,19 +7,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
-import { redeemActivationCode } from "@/features/institutional-admin/activation.functions";
+import { redeemActivationLink } from "@/features/institutional-admin/activation.functions";
 import { PASSWORD_MIN } from "@/features/institutional-admin/activation-code";
 import cityPhoto from "@/assets/itaperuna-home.png.asset.json";
 import brasao from "@/assets/brasao-itaperuna.png.asset.json";
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
 
 export const Route = createFileRoute("/primeiro-acesso")({
+  validateSearch: (s: Record<string, unknown>) => ({ convite: typeof s["convite"] === "string" ? s["convite"] : undefined }),
   head: () => ({
     meta: [
       { title: "Primeiro acesso e nova senha — SIGEM Itaperuna" },
-      { name: "description", content: "Ative sua conta institucional do SIGEM ou defina uma nova senha com seu código individual." },
+      { name: "description", content: "Ative sua conta institucional do SIGEM ou defina uma nova senha pelo seu link individual." },
       { property: "og:title", content: "Primeiro acesso — SIGEM Itaperuna" },
-      { property: "og:description", content: "Ativação de conta institucional com código individual de uso único." },
+      { property: "og:description", content: "Ativação de conta institucional por link individual de uso único." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -29,9 +30,9 @@ export const Route = createFileRoute("/primeiro-acesso")({
 
 function FirstAccessPage() {
   const router = useRouter();
-  const redeem = useServerFn(redeemActivationCode);
-  const [login, setLogin] = useState("");
-  const [code, setCode] = useState("");
+  const redeem = useServerFn(redeemActivationLink);
+  const { convite } = Route.useSearch();
+  const token = (convite ?? "").trim();
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
@@ -41,10 +42,10 @@ function FirstAccessPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!login.trim() || !code.trim()) return setMsg("Informe o login e o código de acesso.");
+    if (!token) return;
     setBusy(true); setMsg(null);
     try {
-      const r = await redeem({ data: { login, code, password, confirm } });
+      const r = await redeem({ data: { token, password, confirm } });
       if (!r.ok) return setMsg(r.error);
       setDone(true);
       const s = await supabase.auth.signInWithPassword({ email: r.login, password });
@@ -81,24 +82,20 @@ function FirstAccessPage() {
         <div className="w-full max-w-sm">
           <img src={sigemLogo.url} alt="SIGEM" className="h-10 w-auto object-contain" />
           <h1 className="mt-8 flex items-center gap-2 font-display text-3xl font-semibold text-foreground"><KeyRound className="h-7 w-7 text-primary" aria-hidden />Primeiro acesso</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Também serve para criar uma nova senha se você esqueceu a sua. Use o código individual que recebeu da administração.</p>
-          {done ? (
+          <p className="mt-2 text-sm text-muted-foreground">Crie a sua senha pessoal. Também serve para quem esqueceu a senha: abra o link individual que você recebeu.</p>
+          {!token && !done ? (
+            <div role="status" className="mt-8 space-y-3 rounded-lg border border-border bg-muted p-4 text-sm">
+              <p className="font-medium text-foreground">Abra o link de ativação que você recebeu.</p>
+              <p className="text-muted-foreground">O primeiro acesso e a troca de senha esquecida são feitos só pelo link individual, que vale uma vez por 3 dias. Se o seu expirou ou você não recebeu, peça um novo a quem administra as contas.</p>
+              <Link to="/auth" className="font-medium text-primary hover:underline">Já tenho senha — entrar</Link>
+            </div>
+          ) : done ? (
             <div role="status" className="mt-8 space-y-4 rounded-lg border border-border bg-muted p-4 text-sm">
               <p className="flex items-center gap-2 font-medium text-foreground"><CheckCircle2 className="h-5 w-5 text-primary" aria-hidden />Senha definida. Abrindo o SIGEM…</p>
               <Link to="/auth" className="font-medium text-primary hover:underline">Ir para a tela de entrada</Link>
             </div>
           ) : (
             <form onSubmit={submit} className="mt-8 space-y-5" noValidate aria-busy={busy}>
-              <div className="space-y-2">
-                <Label htmlFor="login">Login</Label>
-                <Input id="login" autoComplete="username" inputMode="email" className="h-12 text-base" value={login} onChange={(e) => setLogin(e.target.value)} disabled={busy} />
-                <p className="text-xs text-muted-foreground">Termina em @sigem.itap.gov.br.</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="codigo">Código de acesso</Label>
-                <Input id="codigo" autoComplete="one-time-code" className="h-12 font-mono text-base uppercase tracking-widest" placeholder="XXXX-XXXX-XXXX" value={code} onChange={(e) => setCode(e.target.value)} disabled={busy} />
-                <p className="text-xs text-muted-foreground">Vale uma única vez, por 3 dias.</p>
-              </div>
               {pwField("senha", "Nova senha", password, setPassword, "new-password")}
               {pwField("confirmar", "Repita a nova senha", confirm, setConfirm, "new-password")}
               <p className="text-xs text-muted-foreground">Pelo menos {PASSWORD_MIN} caracteres. Uma frase fácil de lembrar funciona bem.</p>
