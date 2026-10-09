@@ -316,9 +316,6 @@ export function createInMemoryCalendarRepository(
     hydrate: () => {
       if (hydrated) return;
       hydrated = true;
-      try { return hydrateInner(); } finally { syncMirrors(); }
-    },
-    hydrateUnused: () => {
       const r: StorageRead = storage?.read
         ? storage.read()
         : (() => { const l = storage?.load(); return l ? { state: "lido", calendars: l } as StorageRead : { state: "ausente" } as StorageRead; })();
