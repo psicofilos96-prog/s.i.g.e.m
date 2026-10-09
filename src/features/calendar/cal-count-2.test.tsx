@@ -75,10 +75,15 @@ describe("CAL.COUNT.1 — casos de sobreposição", () => {
     expect(total(c)).toBe(200);
     expect(resolveCalendar(c).countConflicts?.size).toBe(0);
   });
-  it("dia não letivo + marcador letivo: não letivo vence pela natureza, não pela ordem", () => {
-    const fer = "2027-04-21"; // Tiradentes
+  it("dia não letivo + marcador: só muda se o marcador declarar efeito próprio", () => {
+    const fer = "2027-04-21"; // Tiradentes (feriado, não letivo)
+    // Marcador não letivo sobre feriado: continua não letivo.
+    const a = withEdits({ events: [...base.events, { id: "x", type: "PP", date: fer }] });
+    expect(countSchoolDays(resolveCalendar(a), fer, fer)).toBe(0);
+    // Evento é declaração explícita do dia (precedência por natureza): o efeito é o do evento, nunca o da ordem.
+    const b = withEdits({ events: [{ id: "x", type: "CC", date: fer }, ...base.events] });
     const c = withEdits({ events: [...base.events, { id: "x", type: "CC", date: fer }] });
-    expect(countSchoolDays(resolveCalendar(c), fer, fer)).toBe(countSchoolDays(resolveCalendar(base), fer, fer));
+    expect(countSchoolDays(resolveCalendar(b), fer, fer)).toBe(countSchoolDays(resolveCalendar(c), fer, fer));
   });
   it("marcadores com efeitos opostos na mesma data: bloqueia, independente da ordem", () => {
     const a = withEdits({ events: [...base.events, { id: "x1", type: "CC", date: D }, { id: "x2", type: "MESTRE", date: D }] });
