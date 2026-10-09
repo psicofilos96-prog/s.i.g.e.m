@@ -7,7 +7,7 @@ import { INFO_PLACES, InfoLinesAt } from "./calendar-info-lines";
 import { observationLines } from "./calendar-document";
 import { weekendLetter } from "./calendar-catalog";
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { BookOpen, CalendarDays, GraduationCap, Users } from "lucide-react";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
@@ -67,7 +67,7 @@ function DayCell({ d, n, types, p, weekend, mode, band }: { d: PrintDay | undefi
 function themeVars(p: ExternalProfile, t: ExternalTemplateCode): CSSProperties {
   const v: Record<string, string> = {
     "--cx-primary": p.primary, "--cx-secondary": p.secondary, "--cx-header": p.headerColor, "--cx-accent": p.accent,
-    "--cx-border": p.borderColor, "--cx-grid": p.gridColor, "--cx-gw": `${p.gridWidth}mm`, "--cx-card": p.cardColor, "--cx-page": p.pageColor, "--cx-light": p.lightColor,
+    "--cx-border": p.borderColor, "--cx-grid": p.gridColor, "--cx-gw": `${Math.max(p.gridWidth, 0.25)}mm`, "--cx-card": p.cardColor, "--cx-page": p.pageColor, "--cx-light": p.lightColor,
     "--cx-holiday": p.holidayColor, "--cx-text": p.textColor,
     "--cx-title-font": p.titleFont, "--cx-body-font": p.bodyFont, "--cx-script-font": p.scriptFont,
     "--cx-title-pt": `${p.titlePt}pt`, "--cx-subtitle-pt": `${p.subtitlePt}pt`, "--cx-k": String(p.textScale * p.density),
@@ -492,6 +492,8 @@ function fadeMask(l: Extract<Layer, { kind: "imagem" }>): string | undefined {
 }
 /** CAL.EXT.4 — camada visual independente (foto, logo, onda vetorial, texto). Só aparência. */
 function LayerView({ l, ctx, selected, onSelect, onMove }: { l: Layer; ctx: { year: number | null; title: string | null; subtitle: string | null }; selected: boolean; onSelect?: ((id: string) => void) | undefined; onMove?: LayerMove | undefined }) {
+  // Id único por cópia: a prévia (oculta na impressão) e a folha impressa não podem compartilhar o degradê.
+  const uid = useId().replace(/:/g, "");
   if (!l.visible) return null;
   const drag = (mode: "move" | "resize") => (e: RPointerEvent<HTMLElement>) => {
     if (!onMove || l.locked) return;
@@ -514,7 +516,7 @@ function LayerView({ l, ctx, selected, onSelect, onMove }: { l: Layer; ctx: { ye
       filter: l.brightness !== 100 || l.contrast !== 100 || l.saturate !== 100 ? `brightness(${l.brightness}%) contrast(${l.contrast}%) saturate(${l.saturate}%)` : undefined,
       ...(mask ? { maskImage: mask, WebkitMaskImage: mask } : {}), printColorAdjust: "exact", WebkitPrintColorAdjust: "exact" }} />;
   } else if (l.kind === "onda") {
-    const gid = `cx-onda-${l.id}`;
+    const gid = `cx-onda-${l.id}-${uid}`;
     inner = <svg width="100%" height="100%" viewBox={`0 0 ${l.w} ${l.h}`} preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }}>
       {l.fill2 && <defs><linearGradient id={gid} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={l.fill} /><stop offset="1" stopColor={l.fill2} /></linearGradient></defs>}
       <path d={wavePath(l)} fill={l.fill2 ? `url(#${gid})` : l.fill} />
