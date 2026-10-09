@@ -127,9 +127,9 @@ function AuthPage() {
           </form>
           <p className="mt-8 text-sm text-muted-foreground">
             Primeiro acesso ou esqueceu a senha?{" "}
-            <Link to="/primeiro-acesso" className="font-medium text-primary underline-offset-4 hover:underline">Use seu código de acesso</Link>.
+            <Link to="/primeiro-acesso" className="font-medium text-primary underline-offset-4 hover:underline">Use o link individual que você recebeu</Link>.
           </p>
-          <p className="mt-2 text-xs text-muted-foreground">O código individual é entregue por quem administra as contas. O login não recebe e-mail.</p>
+          <p className="mt-2 text-xs text-muted-foreground">O link de ativação é entregue por quem administra as contas e vale uma única vez.</p>
           </>)}
         </div>
         </main>
