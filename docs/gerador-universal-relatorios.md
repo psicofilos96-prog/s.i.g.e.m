@@ -28,3 +28,16 @@ Situação: parcial (PASS — SECTOR_REPORT_AND_CHART_PACKS_COMPLETE não declar
 - Bloqueados (43) com motivo por extenso: matrículas/movimentação (enturmação 2026), Mapa, Censo, qualidade, Diário/frequência, Avaliação, OP, Docente, Inclusão (CID/laudo nunca entram), vagas, Livro, documentos, saúde do sistema, acessos, auditoria, fechamento NAE.
 - Sem linhas, o gráfico fica vazio — nenhum número é inventado (teste).
 - Pendente: a tela da Central ainda não lista os pacotes nem os abre no gerador (REPORT_UI_PENDING).
+
+## REPORT.PRO.3 — Central no produto (2026-10-09)
+Situação: parcial. UNIVERSAL_REPORT_BUILDER_COMPLETE e SECTOR_REPORT_AND_CHART_PACKS_COMPLETE **não declarados** (fontes e validação com login real pendentes).
+- `/relatorios` expõe as 10 etapas: Assunto → Filtros → Colunas → Agrupamentos (até 4, subtotais, total, pivot com 2 níveis) → Cálculos (lista fechada + derivados) → Gráficos (SVG + tabela equivalente) → Layout → Prévia → Salvar → Exportar.
+- 54 pacotes listados por setor com disponibilidade, motivo e "Abrir no assistente" (abre cópia; o pacote original não muda).
+- Novo assunto real: Matrículas (`school_enrollments` com a sessão do usuário, sem dado nominal, registro substituído por correção sai). Pacotes CIECE/Secretaria de matrículas agora prontos (13 prontos, 41 indisponíveis).
+- Modelos (só com login, na conta, append-only): salvar nova versão, duplicar, renomear (nova + arquivar antiga), favoritar, excluir rascunho (= versão arquivada; relatório não gera emissão dependente). Modelo institucional e compartilhar: desabilitados com motivo (sem capability).
+- XLSX: abas Relatório, Filtros, Metodologia e fonte, Resumo, Dados do gráfico. PDF: HTML imprimível A4/A3, retrato/paisagem, capa, gráfico, tabelas, metodologia, assinaturas, paginação, sem menus do sistema. QR não oferecido (sem endpoint).
+- Correção: exatamente 50.000 linhas não é mais marcado como incompleto.
+- Testes: `report-studio.test.ts` (12).
+
+### Fontes ainda sem reader governado (REPORT_SOURCES_PENDING)
+Alunos nominais, movimentações, Mapa, Censo/Qualidade, Diário/frequência, Avaliação, Direção/OP, DP, Auditoria, Livro, Vagas (reader existe só por escola+ano), Documentos emitidos. Cada uma exige reader estreito com decisão de supressão/capability antes de entrar.

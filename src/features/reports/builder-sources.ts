@@ -43,6 +43,27 @@ async function loadClasses({ from, to, offset, limit }: { from: string | null; t
   return { rows: (r.data ?? []).map((x) => ({ school: v(x.school_label_snapshot), year: v(x.academic_year_label), name: v(x.name), code: v(x.code), stage: v(x.stage_label_snapshot), valid_from: v(x.valid_from), valid_until: v(x.valid_until) })), total: r.count ?? null };
 }
 
+const ENROLL_DEF: ReportDefinition = {
+  id: "gerador-matriculas", version: 1, title: "Matrículas", description: "Registros de matrícula vigentes (sem correção posterior) visíveis à conta, sem dado nominal.",
+  source: "school_enrollments (registro sem versão substituta)", params: [{ id: "from", label: "Abertas a partir de", type: "date", required: false }, { id: "to", label: "Até", type: "date", required: false }],
+  columns: [C("school", "Escola"), C("year", "Ano letivo"), C("offer", "Oferta"), C("opened_on", "Aberta em", "date")],
+  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 50000,
+};
+
+async function loadEnrollments({ from, to, offset, limit }: { from: string | null; to: string | null; offset: number; limit: number }): Promise<Page> {
+  let q = supabase.from("school_enrollments").select("id, school_id, academic_year_id, educational_offer_value_id, opened_on, supersedes_id", { count: "exact" });
+  if (from) q = q.gte("opened_on", from);
+  if (to) q = q.lte("opened_on", to);
+  const r = await q.order("id").range(offset, offset + limit - 1);
+  if (r.error) fail();
+  return { rows: (r.data ?? []).map((x) => ({ _id: x.id, _sup: v(x.supersedes_id), school: v(x.school_id), year: v(x.academic_year_id), offer: v(x.educational_offer_value_id), opened_on: v(x.opened_on) })), total: r.count ?? null };
+}
+/** Mantém só o registro corrente: descarta os que foram substituídos por correção. */
+export function dropSuperseded(rows: readonly Record<string, CellValue>[]): Record<string, CellValue>[] {
+  const sup = new Set<CellValue>(rows.map((r) => r["_sup"] ?? null).filter((x) => x !== null));
+  return rows.filter((r) => !sup.has(r["_id"] ?? null));
+}
+
 function mealSource(ds: Dataset): BuilderSource {
   const def = REPORTING_REPORTS[ds];
   return {
@@ -79,12 +100,16 @@ export const BUILDER_SOURCES: readonly BuilderSource[] = [
   { id: "gerador-turmas", title: "Turmas", sectors: ["secretaria", "ciece", "op-direcao", "supervisao"], definition: CLASSES_DEF,
     methodology: "Uma linha por turma registrada; o período filtra pela data de início da turma. Nada é inferido.",
     acl: "RLS de turmas com a sessão de quem gera (escola vê só as próprias).", period: true, pageSize: 1000, filterable: ["school", "year", "stage"], load: loadClasses },
+  { id: "gerador-matriculas", title: "Matrículas", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"], definition: ENROLL_DEF,
+    methodology: "Uma linha por matrícula corrente (registro sem correção posterior); o período filtra pela data de abertura. Sem nome, documento ou dado pessoal.",
+    acl: "RLS de matrículas com a sessão de quem gera (escola vê só as próprias).", period: true, pageSize: 1000, filterable: ["school", "year", "offer"],
+    load: loadEnrollments, finalize: (r) => dropSuperseded(r), schoolIdColumn: "school" },
   ...(["pedidos", "entregas", "nao-conformidades", "movimentos", "execucoes"] as const).map(mealSource),
   pending("gerador-avaliacao", "Avaliação — resultados por habilidade", ["avaliacao"], "Os resultados saem pela tela de Desempenho, com a política de supressão dela; leitura transversal ainda não liberada."),
   pending("gerador-dp", "DP — vínculos funcionais", ["dp"], "Sem leitor transversal autorizado para dados funcionais; use a estação do DP."),
   pending("gerador-censo", "CIECE — fotografia do Censo", ["ciece"], "Use a aba Relatórios do Censo Escolar, que exporta a fotografia oficializada."),
   pending("gerador-infraestrutura", "Infraestrutura das escolas", ["supervisao", "ciece"], "Sem adaptador governado de infraestrutura no gerador; use Unidades Escolares."),
-  pending("gerador-alunos", "Alunos e matrículas", ["secretaria"], "Dado nominal de estudante: leitura transversal exige reader com supressão por campo ainda não registrado."),
+  pending("gerador-alunos", "Alunos (nominal)", ["secretaria"], "Dado nominal de estudante: leitura transversal exige reader com supressão por campo ainda não registrado."),
   pending("gerador-movimentacoes", "Movimentações", ["secretaria"], "Depende de enturmação 2026 (ENROLLMENT_EPISODES_2026_PENDING) e de reader de movimentações."),
   pending("gerador-mapa", "Mapa Estatístico", ["supervisao", "secretaria"], "O Mapa exporta pelas próprias células oficializadas; não há reader transversal."),
   pending("gerador-jornadas", "Jornadas e horários", ["op-direcao"], "Sem fonte de jornada profissional (PROFESSIONAL_SCHEDULE_SOURCE_ABSENT)."),
