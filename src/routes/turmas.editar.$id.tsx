@@ -1,5 +1,5 @@
+import { SignInRequired } from "@/components/sigem/sign-in-required";
 import { createFileRoute } from "@tanstack/react-router";
-import { ClassWorkspacePage } from "@/features/classes/class-workspace-page";
 import { brand } from "@/config/branding";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
 import * as Inst from "@/features/classes/institutional-classes-pages";
@@ -27,5 +27,5 @@ export const Route = createFileRoute("/turmas/editar/$id")({
 
 function EditClassRoute() {
   const { id } = Route.useParams();
-  return <ClassRouteGate institutional={() => <Inst.InstitutionalClassEditPage id={id} />} laboratory={() => <ClassWorkspacePage mode="edicao" originId={id} />} />;
+  return <ClassRouteGate laboratoryHasHeading institutional={() => <Inst.InstitutionalClassEditPage id={id} />} laboratory={() => <SignInRequired title="Editar turma" what="e editar turmas" />} />;
 }

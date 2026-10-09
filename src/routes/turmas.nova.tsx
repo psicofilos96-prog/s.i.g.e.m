@@ -1,5 +1,5 @@
+import { SignInRequired } from "@/components/sigem/sign-in-required";
 import { createFileRoute } from "@tanstack/react-router";
-import { ClassWorkspacePage } from "@/features/classes/class-workspace-page";
 import { brand } from "@/config/branding";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
 import { ClassCreateWizardPage } from "@/features/classes/class-wizard-page";
@@ -22,5 +22,5 @@ export const Route = createFileRoute("/turmas/nova")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <ClassRouteGate institutional={() => <ClassCreateWizardPage />} laboratory={() => <ClassWorkspacePage mode="nova" />} />,
+  component: () => <ClassRouteGate laboratoryHasHeading institutional={() => <ClassCreateWizardPage />} laboratory={() => <SignInRequired title="Nova turma" what="e cadastrar turmas" />} />,
 });

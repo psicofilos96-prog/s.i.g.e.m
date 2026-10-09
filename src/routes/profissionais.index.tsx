@@ -1,8 +1,8 @@
+import { SignInRequired } from "@/components/sigem/sign-in-required";
 import { createFileRoute } from "@tanstack/react-router";
 import { brand } from "@/config/branding";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
 import { InstitutionalProfessionalsListPage } from "@/features/students/institutional-lists";
-import { ProfessionalsListPage } from "@/features/professionals/professionals-list-page";
 
 export const Route = createFileRoute("/profissionais/")({
   head: () => ({
@@ -24,5 +24,5 @@ export const Route = createFileRoute("/profissionais/")({
     ],
   }),
   // PERF.LOADING.2: com sessão, só a base institucional paginada no servidor; demonstração apenas sem sessão.
-  component: () => <ClassRouteGate laboratoryHasHeading institutional={() => <InstitutionalProfessionalsListPage />} laboratory={() => <ProfessionalsListPage />} />,
+  component: () => <ClassRouteGate laboratoryHasHeading institutional={() => <InstitutionalProfessionalsListPage />} laboratory={() => <SignInRequired title="Profissionais" what="os profissionais da rede" />} />,
 });
