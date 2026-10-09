@@ -4,6 +4,7 @@ import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { supervisionHome, TOOL_STATE_LABEL } from "./supervision-home";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
@@ -177,7 +178,8 @@ function Records({ school, schoolName, knownAt }: { school: string; schoolName: 
 function SupervisionHome() {
   const authority = useSessionAuthority();
   const held = new Set(authority.status === "signed-in" ? authority.capabilities.map((c) => c.capabilityId) : []);
-  const tools = supervisionHome(held);
+  // NACL.UI.1: card só aparece se a sessão pode abrir o destino (mesma regra do menu).
+  const tools = supervisionHome(held).filter((t) => pathAllowed(authority, t.to));
   return (
     <section aria-labelledby="sup-home" className="space-y-2">
       <h2 id="sup-home" className="font-semibold">O que depende da Supervisão</h2>
