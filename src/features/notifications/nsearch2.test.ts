@@ -10,8 +10,8 @@ const hits = [hit("aluno", "a1"), hit("turma", "t1"), hit("matriz", "m1"), hit("
 describe("NSEARCH.2 — busca por estação", () => {
   it("Secretaria vê estudantes e turmas, não matrizes nem pessoas", () =>
     expect(stationScopedHits(hits, (p) => stationAllowsPath("secretaria_escolar", p)).map((h) => h.category)).toEqual(["aluno", "turma"]));
-  it("CIECE não vê estudantes nem turmas", () =>
-    expect(stationScopedHits(hits, (p) => stationAllowsPath("ciece", p)).map((h) => h.category)).toEqual([]));
+  it("BQ.1: CIECE (rede) vê estudantes e turmas para correção cadastral governada", () =>
+    expect(stationScopedHits(hits, (p) => stationAllowsPath("ciece", p)).map((h) => h.category)).toEqual(["aluno", "turma"]));
   it("conta humana (Admin transversal) recebe o que o banco devolveu pela sua capability", () => expect(stationScopedHits(hits, null)).toHaveLength(4));
   it("resultado sem destino nunca aparece para conta de setor", () =>
     expect(stationScopedHits([hit("desconhecida", "x")], () => true)).toEqual([]));

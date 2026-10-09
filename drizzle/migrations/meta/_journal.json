@@ -1772,6 +1772,27 @@
       "when": 1791505793271,
       "tag": "0252_cal_preset_1_personal_external_presets",
       "breakpoints": true
+    },
+    {
+      "idx": 253,
+      "version": "7",
+      "when": 1791510767670,
+      "tag": "0253_bq1_institutional_authority_matrix",
+      "breakpoints": true
+    },
+    {
+      "idx": 254,
+      "version": "7",
+      "when": 1791511142179,
+      "tag": "0254_bq1_actor_accepts_declared_institutional_organ",
+      "breakpoints": true
+    },
+    {
+      "idx": 255,
+      "version": "7",
+      "when": 1791511177372,
+      "tag": "0255_bq1_revoke_identity_direct_dml",
+      "breakpoints": true
     }
   ]
 }

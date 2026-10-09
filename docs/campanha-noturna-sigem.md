@@ -221,3 +221,6 @@ Ver `docs/secretaria-documentos-transferencias-renovacao.md`. Técnico: PASS na 
 
 ## CAL.EXT.2.1
 Editor dos modelos externos fechado (ordem dos blocos, tamanhos por bloco, aviso que bloqueia salvar/imprimir quando não cabe). 6 PDFs 2027 reais: 1 página A4 cada, overflow 0; corrigido corte do número de dias no Panorâmico. PASS — CALENDAR_EXTERNAL_PERSONALIZATION_REFINEMENT_TECHNICALLY_COMPLETE; INTERACTIVE_BROWSER_VALIDATION_PENDING. CONTINUE_FROM=CAL.EXT.2.2.
+
+## BQ.1 — matriz real de autoridades (2026-10-09)
+Aplicada: ver `docs/bq1-matriz-autoridades-institucionais.md` (canônico; substitui diretrizes históricas conflitantes). Pendência: ACCOUNT_IDENTIFIER_PENDING — INCLUSAO_NEI_CENTRAL. CONTINUE_FROM=BQ.5.

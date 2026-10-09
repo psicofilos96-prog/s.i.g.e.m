@@ -627,8 +627,9 @@ export type Database = {
         Row: {
           algorithm: string
           algorithm_version: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           input_refs: Json
@@ -643,8 +644,9 @@ export type Database = {
         Insert: {
           algorithm: string
           algorithm_version: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           id?: string
           input_refs: Json
@@ -659,8 +661,9 @@ export type Database = {
         Update: {
           algorithm?: string
           algorithm_version?: string
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           id?: string
           input_refs?: Json
@@ -752,9 +755,10 @@ export type Database = {
       }
       assessment_edition_cycle_events: {
         Row: {
-          actor_engagement: string
-          actor_person_id: string
+          actor_engagement: string | null
+          actor_person_id: string | null
           actor_user_id: string
+          author_principal_id: string | null
           edition_logical_id: string
           from_state: string | null
           id: string
@@ -764,9 +768,10 @@ export type Database = {
           to_state: string
         }
         Insert: {
-          actor_engagement: string
-          actor_person_id: string
+          actor_engagement?: string | null
+          actor_person_id?: string | null
           actor_user_id: string
+          author_principal_id?: string | null
           edition_logical_id: string
           from_state?: string | null
           id?: string
@@ -776,9 +781,10 @@ export type Database = {
           to_state: string
         }
         Update: {
-          actor_engagement?: string
-          actor_person_id?: string
+          actor_engagement?: string | null
+          actor_person_id?: string | null
           actor_user_id?: string
+          author_principal_id?: string | null
           edition_logical_id?: string
           from_state?: string | null
           id?: string
@@ -791,8 +797,9 @@ export type Database = {
       }
       assessment_edition_versions: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           cycle_label: string | null
           event_kind: string
@@ -810,8 +817,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           cycle_label?: string | null
           event_kind: string
@@ -829,8 +837,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           cycle_label?: string | null
           event_kind?: string
@@ -1388,8 +1397,9 @@ export type Database = {
       }
       assessment_metric_comparability: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           logical_id: string
@@ -1403,8 +1413,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           id?: string
           logical_id: string
@@ -1418,8 +1429,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           id?: string
           logical_id?: string
@@ -1510,8 +1522,9 @@ export type Database = {
       assessment_program_versions: {
         Row: {
           application_responsibility: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           correction_responsibility: string
           event_kind: string
@@ -1528,8 +1541,9 @@ export type Database = {
         }
         Insert: {
           application_responsibility: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           correction_responsibility: string
           event_kind: string
@@ -1546,8 +1560,9 @@ export type Database = {
         }
         Update: {
           application_responsibility?: string
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           correction_responsibility?: string
           event_kind?: string
@@ -7403,7 +7418,8 @@ export type Database = {
       }
       dietary_restrictions: {
         Row: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           handling_note: string | null
@@ -7420,7 +7436,8 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           event_kind: string
           handling_note?: string | null
@@ -7437,7 +7454,8 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           event_kind?: string
           handling_note?: string | null
@@ -8453,7 +8471,8 @@ export type Database = {
         Row: {
           assessment_logical_id: string
           assessment_version_id: string
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           class_id: string | null
           event_kind: string
@@ -8475,7 +8494,8 @@ export type Database = {
         Insert: {
           assessment_logical_id: string
           assessment_version_id: string
-          author_engagement: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           class_id?: string | null
           event_kind: string
@@ -8497,7 +8517,8 @@ export type Database = {
         Update: {
           assessment_logical_id?: string
           assessment_version_id?: string
-          author_engagement?: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           class_id?: string | null
           event_kind?: string
@@ -8537,7 +8558,8 @@ export type Database = {
         Row: {
           applied_from: string
           applied_to: string
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           id: string
@@ -8556,7 +8578,8 @@ export type Database = {
         Insert: {
           applied_from: string
           applied_to: string
-          author_engagement: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           event_kind: string
           id?: string
@@ -8575,7 +8598,8 @@ export type Database = {
         Update: {
           applied_from?: string
           applied_to?: string
-          author_engagement?: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           event_kind?: string
           id?: string
@@ -10504,7 +10528,8 @@ export type Database = {
       intelligence_dashboard_versions: {
         Row: {
           audience_capability: string | null
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           filters: Json
@@ -10520,7 +10545,8 @@ export type Database = {
         }
         Insert: {
           audience_capability?: string | null
-          author_engagement: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           event_kind: string
           filters?: Json
@@ -10536,7 +10562,8 @@ export type Database = {
         }
         Update: {
           audience_capability?: string | null
-          author_engagement?: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           event_kind?: string
           filters?: Json
@@ -10941,7 +10968,8 @@ export type Database = {
       meal_content_staging_events: {
         Row: {
           action: string
-          author_person_id: string
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           reason: string | null
@@ -10950,7 +10978,8 @@ export type Database = {
         }
         Insert: {
           action: string
-          author_person_id: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           id?: string
           reason?: string | null
@@ -10959,7 +10988,8 @@ export type Database = {
         }
         Update: {
           action?: string
-          author_person_id?: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           id?: string
           reason?: string | null
@@ -10978,7 +11008,8 @@ export type Database = {
       }
       meal_content_stagings: {
         Row: {
-          author_person_id: string
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           context_key: string
           id: string
@@ -10989,7 +11020,8 @@ export type Database = {
           source_name: string | null
         }
         Insert: {
-          author_person_id: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           context_key: string
           id?: string
@@ -11000,7 +11032,8 @@ export type Database = {
           source_name?: string | null
         }
         Update: {
-          author_person_id?: string
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           context_key?: string
           id?: string
@@ -11014,8 +11047,9 @@ export type Database = {
       }
       meal_daily_executions: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           count_basis: string | null
           deviation: string | null
@@ -11040,8 +11074,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           count_basis?: string | null
           deviation?: string | null
@@ -11066,8 +11101,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           count_basis?: string | null
           deviation?: string | null
@@ -11112,8 +11148,9 @@ export type Database = {
         Row: {
           action: string
           apresentacao_ref: string | null
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           competence: string
           contrato_ref: string | null
@@ -11134,8 +11171,9 @@ export type Database = {
         Insert: {
           action: string
           apresentacao_ref?: string | null
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           competence: string
           contrato_ref?: string | null
@@ -11156,8 +11194,9 @@ export type Database = {
         Update: {
           action?: string
           apresentacao_ref?: string | null
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           competence?: string
           contrato_ref?: string | null
@@ -11194,8 +11233,9 @@ export type Database = {
       }
       meal_demand_consolidations: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           competence: string
           id: string
@@ -11206,8 +11246,9 @@ export type Database = {
           snapshot: Json
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           competence: string
           id?: string
@@ -11218,8 +11259,9 @@ export type Database = {
           snapshot: Json
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           competence?: string
           id?: string
@@ -11233,8 +11275,9 @@ export type Database = {
       }
       meal_evidence_attachments: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           id: string
@@ -11253,8 +11296,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           event_kind: string
           id?: string
@@ -11273,8 +11317,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           event_kind?: string
           id?: string
@@ -11333,8 +11378,9 @@ export type Database = {
       }
       meal_fiscal_documents: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           issued_on: string | null
@@ -11352,8 +11398,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           id?: string
           issued_on?: string | null
@@ -11371,8 +11418,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           id?: string
           issued_on?: string | null
@@ -11408,7 +11456,8 @@ export type Database = {
       }
       meal_forecasts: {
         Row: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           basis: string
           event_kind: string
@@ -11424,7 +11473,8 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           basis: string
           event_kind: string
@@ -11440,7 +11490,8 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           basis?: string
           event_kind?: string
@@ -11467,8 +11518,9 @@ export type Database = {
       }
       meal_inventory_movements: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           contract_ref: string | null
           delivery_schedule_ref: string | null
@@ -11500,8 +11552,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           contract_ref?: string | null
           delivery_schedule_ref?: string | null
@@ -11533,8 +11586,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           contract_ref?: string | null
           delivery_schedule_ref?: string | null
@@ -11577,8 +11631,9 @@ export type Database = {
       }
       meal_kitchen_school_links: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           id: string
@@ -11593,8 +11648,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           event_kind: string
           id?: string
@@ -11609,8 +11665,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           event_kind?: string
           id?: string
@@ -11643,8 +11700,9 @@ export type Database = {
       }
       meal_kitchen_versions: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           host_school_id: string | null
           id: string
@@ -11658,8 +11716,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           host_school_id?: string | null
           id?: string
@@ -11673,8 +11732,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           host_school_id?: string | null
           id?: string
@@ -11721,8 +11781,9 @@ export type Database = {
       }
       meal_master_records: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           kind: string
@@ -11739,8 +11800,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           id?: string
           kind: string
@@ -11757,8 +11819,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           id?: string
           kind?: string
@@ -11794,8 +11857,9 @@ export type Database = {
       meal_menu_publications: {
         Row: {
           action: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           menu_logical_id: string
@@ -11807,8 +11871,9 @@ export type Database = {
         }
         Insert: {
           action: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           id?: string
           menu_logical_id: string
@@ -11820,8 +11885,9 @@ export type Database = {
         }
         Update: {
           action?: string
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           id?: string
           menu_logical_id?: string
@@ -11843,7 +11909,8 @@ export type Database = {
       }
       meal_menu_versions: {
         Row: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           ends_on: string
           entries: Json
@@ -11859,7 +11926,8 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           ends_on: string
           entries: Json
@@ -11875,7 +11943,8 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           ends_on?: string
           entries?: Json
@@ -11902,8 +11971,9 @@ export type Database = {
       }
       meal_nonconformities: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           deadline_rule_ref: string | null
           evidence_refs: string[]
@@ -11924,8 +11994,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           deadline_rule_ref?: string | null
           evidence_refs?: string[]
@@ -11946,8 +12017,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           deadline_rule_ref?: string | null
           evidence_refs?: string[]
@@ -11986,7 +12058,8 @@ export type Database = {
       }
       meal_operational_records: {
         Row: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           field_values: Json
@@ -12003,7 +12076,8 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           event_kind: string
           field_values: Json
@@ -12020,7 +12094,8 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           event_kind?: string
           field_values?: Json
@@ -12055,8 +12130,9 @@ export type Database = {
       }
       meal_order_opinions: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           opinion: string
@@ -12064,8 +12140,9 @@ export type Database = {
           recorded_at: string
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           id?: string
           opinion: string
@@ -12073,8 +12150,9 @@ export type Database = {
           recorded_at?: string
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           id?: string
           opinion?: string
@@ -12093,8 +12171,9 @@ export type Database = {
       }
       meal_order_versions: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           competence: string
           id: string
@@ -12109,8 +12188,9 @@ export type Database = {
           window_version_id: string
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           competence: string
           id?: string
@@ -12125,8 +12205,9 @@ export type Database = {
           window_version_id: string
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           competence?: string
           id?: string
@@ -12167,8 +12248,9 @@ export type Database = {
       meal_order_windows: {
         Row: {
           action: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           basis: string
           closes_at: string
@@ -12186,8 +12268,9 @@ export type Database = {
         }
         Insert: {
           action: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           basis: string
           closes_at: string
@@ -12205,8 +12288,9 @@ export type Database = {
         }
         Update: {
           action?: string
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           basis?: string
           closes_at?: string
@@ -12235,8 +12319,9 @@ export type Database = {
       meal_receipts: {
         Row: {
           accepted_qty: number
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           brand_observed: string | null
           checklist: Json
@@ -12265,8 +12350,9 @@ export type Database = {
         }
         Insert: {
           accepted_qty: number
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           brand_observed?: string | null
           checklist?: Json
@@ -12295,8 +12381,9 @@ export type Database = {
         }
         Update: {
           accepted_qty?: number
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           brand_observed?: string | null
           checklist?: Json
@@ -12372,7 +12459,8 @@ export type Database = {
       }
       meal_service_records: {
         Row: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           id: string
@@ -12389,7 +12477,8 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           event_kind: string
           id?: string
@@ -12406,7 +12495,8 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
+          author_engagement?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           event_kind?: string
           id?: string
@@ -12434,8 +12524,9 @@ export type Database = {
       }
       meal_stock_closings: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           balances: Json
           closing_on: string
@@ -12451,8 +12542,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           balances: Json
           closing_on: string
@@ -12468,8 +12560,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           balances?: Json
           closing_on?: string
@@ -12503,8 +12596,9 @@ export type Database = {
       }
       meal_stock_counts: {
         Row: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           counted_on: string
           id: string
@@ -12518,8 +12612,9 @@ export type Database = {
           version: number
         }
         Insert: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id: string
           counted_on: string
           id?: string
@@ -12533,8 +12628,9 @@ export type Database = {
           version: number
         }
         Update: {
-          author_engagement?: string
-          author_person_id?: string
+          author_engagement?: string | null
+          author_person_id?: string | null
+          author_principal_id?: string | null
           author_user_id?: string
           counted_on?: string
           id?: string
@@ -15393,6 +15489,24 @@ export type Database = {
           },
         ]
       }
+      sigem_capability_catalog: {
+        Row: {
+          capability_id: string
+          origin: string
+          recorded_at: string
+        }
+        Insert: {
+          capability_id: string
+          origin: string
+          recorded_at?: string
+        }
+        Update: {
+          capability_id?: string
+          origin?: string
+          recorded_at?: string
+        }
+        Relationships: []
+      }
       sigem_installation_acts: {
         Row: {
           act_ref: string | null
@@ -16166,6 +16280,7 @@ export type Database = {
           originating_act_ref: string | null
           recorded_by: string
           recorded_by_person_id: string | null
+          recorded_by_principal_id: string | null
           recorded_via_engagement_id: string | null
           sex_scheme_id: string
           sex_value_id: string | null
@@ -16184,6 +16299,7 @@ export type Database = {
           originating_act_ref?: string | null
           recorded_by: string
           recorded_by_person_id?: string | null
+          recorded_by_principal_id?: string | null
           recorded_via_engagement_id?: string | null
           sex_scheme_id?: string
           sex_value_id?: string | null
@@ -16202,6 +16318,7 @@ export type Database = {
           originating_act_ref?: string | null
           recorded_by?: string
           recorded_by_person_id?: string | null
+          recorded_by_principal_id?: string | null
           recorded_via_engagement_id?: string | null
           sex_scheme_id?: string
           sex_value_id?: string | null
@@ -18009,8 +18126,9 @@ export type Database = {
         Returns: {
           algorithm: string
           algorithm_version: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           input_refs: Json
@@ -18042,8 +18160,9 @@ export type Database = {
       assessment_editions_at: {
         Args: { _known_at: string; _program: string }
         Returns: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           cycle_label: string | null
           event_kind: string
@@ -18078,8 +18197,9 @@ export type Database = {
       assessment_metric_comparability_at: {
         Args: { _known_at: string }
         Returns: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           logical_id: string
@@ -18103,8 +18223,9 @@ export type Database = {
         Args: { _known_at: string }
         Returns: {
           application_responsibility: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           correction_responsibility: string
           event_kind: string
@@ -19604,7 +19725,8 @@ export type Database = {
       dietary_restrictions_at: {
         Args: { _known_at: string; _on: string; _school: string }
         Returns: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           handling_note: string | null
@@ -19899,6 +20021,10 @@ export type Database = {
           version: number
           version_id: string
         }[]
+      }
+      family_enrollment_school: {
+        Args: { _on: string; _student: string }
+        Returns: string
       }
       family_published_menus: {
         Args: { _on: string; _student: string }
@@ -20366,7 +20492,8 @@ export type Database = {
         Returns: {
           assessment_logical_id: string
           assessment_version_id: string
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           class_id: string | null
           event_kind: string
@@ -20397,7 +20524,8 @@ export type Database = {
         Returns: {
           assessment_logical_id: string
           assessment_version_id: string
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           class_id: string | null
           event_kind: string
@@ -20428,7 +20556,8 @@ export type Database = {
         Returns: {
           applied_from: string
           applied_to: string
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           id: string
@@ -20504,6 +20633,7 @@ export type Database = {
             Returns: string
           }
       installation_review: { Args: never; Returns: Json }
+      institutional_actor_person: { Args: never; Returns: string }
       institutional_class_register_core: {
         Args: {
           _academic_year_id: string
@@ -20685,7 +20815,8 @@ export type Database = {
         Args: never
         Returns: {
           audience_capability: string | null
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           filters: Json
@@ -20927,8 +21058,9 @@ export type Database = {
       meal_executions_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           count_basis: string | null
           deviation: string | null
@@ -20977,7 +21109,8 @@ export type Database = {
       meal_forecasts_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           basis: string
           event_kind: string
@@ -21011,8 +21144,9 @@ export type Database = {
       meal_inventory_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           contract_ref: string | null
           delivery_schedule_ref: string | null
@@ -21089,8 +21223,9 @@ export type Database = {
       meal_master_head: {
         Args: { _logical: string }
         Returns: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           id: string
           kind: string
@@ -21155,7 +21290,8 @@ export type Database = {
           _to: string
         }
         Returns: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           ends_on: string
           entries: Json
@@ -21247,7 +21383,8 @@ export type Database = {
       meal_operational_records_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           field_values: Json
@@ -21289,8 +21426,9 @@ export type Database = {
         Args: { _competence: string; _school: string }
         Returns: {
           action: string
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           basis: string
           closes_at: string
@@ -21394,7 +21532,8 @@ export type Database = {
       meal_services_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
-          author_engagement: string
+          author_engagement: string | null
+          author_principal_id: string | null
           author_user_id: string
           event_kind: string
           id: string
@@ -21449,8 +21588,9 @@ export type Database = {
       meal_stock_closings_at: {
         Args: { _school: string }
         Returns: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           balances: Json
           closing_on: string
@@ -21475,8 +21615,9 @@ export type Database = {
       meal_stock_counts_at: {
         Args: { _school: string }
         Returns: {
-          author_engagement: string
-          author_person_id: string
+          author_engagement: string | null
+          author_person_id: string | null
+          author_principal_id: string | null
           author_user_id: string
           counted_on: string
           id: string

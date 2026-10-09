@@ -314,3 +314,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `revisao-final-pos-fila-2026-10-09.md` — Registro de lote: revisão final pós-fila, verificação e pendências externas.
 - `credenciais-desenvolvimento-naccess3.md` — Registro de lote: senhas temporárias no desenvolvimento.
 - `isolamento-setorial-nsector4.md` — Registro de lote: matriz de isolamento por setor e escola.
+- `docs/bq1-matriz-autoridades-institucionais.md` — Canônico — matriz real de autoridades (BQ.1).

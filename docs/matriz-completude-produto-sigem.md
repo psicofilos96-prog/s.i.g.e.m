@@ -286,3 +286,6 @@ IM-01: COMPLETO_TECNICAMENTE — auditoria final das 8 importações (docs/impor
 
 ## NDOCS.3 (2026-10-08)
 Documentação reconciliada com o HEAD: 3 relatórios superados rebaixados a Histórico; baseline de dados único (NDATA.3); CAL.COUNT.1 PASS confirmado. Pendências abertas sem mudança: ASSIGNMENT_PENDING (Supervisão/Avaliação/Alimentação), INTERACTIVE_BROWSER_VALIDATION_PENDING, DEPENDE_DECISAO (regras do Mapa), DEPENDE_DADO (Educacenso matrícula, GPE, DP), TEMPLATE_INSTITUCIONAL_PENDENTE, INFRAESTRUTURA_PENDENTE (backup completo). Resultado global: NÃO PASS mantido.
+
+## BQ.1 — matriz real de autoridades (2026-10-09)
+Aplicada: ver `docs/bq1-matriz-autoridades-institucionais.md` (canônico; substitui diretrizes históricas conflitantes). Pendência: ACCOUNT_IDENTIFIER_PENDING — INCLUSAO_NEI_CENTRAL. CONTINUE_FROM=BQ.5.
