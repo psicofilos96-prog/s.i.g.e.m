@@ -3586,6 +3586,138 @@ export type Database = {
           },
         ]
       }
+      census_official_panel_snapshots: {
+        Row: {
+          census_year: string
+          content_sha256: string
+          id: string
+          measures: Json
+          panel_updated_at: string
+          recorded_at: string
+          scope_kind: string
+          scope_ref: string
+          source_ref: string
+          source_sha256: string
+          technical_operation_id: string
+        }
+        Insert: {
+          census_year: string
+          content_sha256: string
+          id?: string
+          measures: Json
+          panel_updated_at: string
+          recorded_at?: string
+          scope_kind: string
+          scope_ref: string
+          source_ref: string
+          source_sha256: string
+          technical_operation_id: string
+        }
+        Update: {
+          census_year?: string
+          content_sha256?: string
+          id?: string
+          measures?: Json
+          panel_updated_at?: string
+          recorded_at?: string
+          scope_kind?: string
+          scope_ref?: string
+          source_ref?: string
+          source_sha256?: string
+          technical_operation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "census_official_panel_snapshots_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      census_official_receipt_snapshots: {
+        Row: {
+          census_year: string
+          closed_at: string | null
+          content_sha256: string
+          id: string
+          inep: string
+          issued_at: string
+          measures: Json
+          receipt_code_sha256: string | null
+          recorded_at: string
+          school_declared: Json
+          school_id: string
+          source_locator: string
+          source_ref: string
+          source_sha256: string
+          supersedes_id: string | null
+          technical_operation_id: string
+          version: number
+        }
+        Insert: {
+          census_year: string
+          closed_at?: string | null
+          content_sha256: string
+          id?: string
+          inep: string
+          issued_at: string
+          measures: Json
+          receipt_code_sha256?: string | null
+          recorded_at?: string
+          school_declared: Json
+          school_id: string
+          source_locator: string
+          source_ref: string
+          source_sha256: string
+          supersedes_id?: string | null
+          technical_operation_id: string
+          version: number
+        }
+        Update: {
+          census_year?: string
+          closed_at?: string | null
+          content_sha256?: string
+          id?: string
+          inep?: string
+          issued_at?: string
+          measures?: Json
+          receipt_code_sha256?: string | null
+          recorded_at?: string
+          school_declared?: Json
+          school_id?: string
+          source_locator?: string
+          source_ref?: string
+          source_sha256?: string
+          supersedes_id?: string | null
+          technical_operation_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "census_official_receipt_snapshots_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "census_official_receipt_snapshots_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "census_official_receipt_snapshots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "census_official_receipt_snapshots_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       census_snapshot_conferences: {
         Row: {
           created_at: string
@@ -18781,6 +18913,34 @@ export type Database = {
       census_head_seq: { Args: { _cycle: string }; Returns: number }
       census_live_preview: { Args: { _cycle: string }; Returns: Json }
       census_natural_person: { Args: never; Returns: string }
+      census_official_receipts_at: {
+        Args: { _known_at: string }
+        Returns: {
+          census_year: string
+          closed_at: string | null
+          content_sha256: string
+          id: string
+          inep: string
+          issued_at: string
+          measures: Json
+          receipt_code_sha256: string | null
+          recorded_at: string
+          school_declared: Json
+          school_id: string
+          source_locator: string
+          source_ref: string
+          source_sha256: string
+          supersedes_id: string | null
+          technical_operation_id: string
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "census_official_receipt_snapshots"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       census_open_cycle: {
         Args: { _reason: string; _reference_date: string; _year: string }
         Returns: string
@@ -25474,6 +25634,14 @@ export type Database = {
       }
       technical_cpf_hmac: { Args: { _cpf: string }; Returns: string }
       technical_cpf_valid: { Args: { _cpf: string }; Returns: boolean }
+      technical_import_educacenso_2026_census_panel: {
+        Args: { _operation_kind: string; _payload: Json; _source_hash: string }
+        Returns: string
+      }
+      technical_import_educacenso_2026_census_receipts: {
+        Args: { _operation_kind: string; _payload: Json; _source_hash: string }
+        Returns: string
+      }
       technical_import_educacenso_2026_classes: {
         Args: {
           _operation_kind: string
