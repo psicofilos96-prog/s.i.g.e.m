@@ -33,7 +33,7 @@ export function SupportPage() {
   const run = async () => {
     setBusy(true);
     const db = await probe(() => supabase.from("institutional_academic_years").select("id", { head: true, count: "exact" }));
-    const caps = await probe(() => supabase.rpc("effective_capabilities"));
+    const caps = await probe(() => supabase.rpc("effective_capabilities").range(0, 0));
     setProbes({ db, caps });
     // AW: só leitura com a própria sessão (RLS); detecta, nunca corrige.
     const sv = await supabase.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id");

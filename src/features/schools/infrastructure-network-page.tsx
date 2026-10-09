@@ -1,14 +1,13 @@
-import { readPages } from "@/lib/list-paging";
 import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
-import { infrastructureQueue, infrastructureReportRows, INFRAESTRUTURA_COBERTURA, type InfraQueueRow } from "./infrastructure-network-queue";
+import { infrastructureQueueFromCoverage, infrastructureReportRows, INFRAESTRUTURA_COBERTURA, type InfraQueueRow } from "./infrastructure-network-queue";
 import { ExportButtons } from "@/features/performance/station-sections";
 import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
-import type { InfraAttributeRow, InfraObservationRow } from "./school-infrastructure";
+import type { InfraAttributeRow } from "./school-infrastructure";
 
 const db = supabase as unknown as { from: (t: string) => any };
 const today = () => operationalToday();
@@ -20,15 +19,19 @@ export function InfrastructureNetworkPage() {
   const [err, setErr] = useState(false);
   useEffect(() => {
     setData(null); setErr(false);
+    // PERF.LOADING.3 — cobertura agregada no servidor (55 linhas) em vez de todas as observações; troca de data cancela a anterior.
+    const ctl = new AbortController();
     Promise.all([
-      db.from("school_infrastructure_attribute_versions").select("*"),
-      readPages<any>((a, b) => db.from("school_infrastructure_observations").select("*").order("id").range(a, b), 20000),
-      db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false }),
+      db.from("school_infrastructure_attribute_versions").select("id, attribute_id, version_number, label, value_type, catalog_values, unit_label, source_field").abortSignal(ctl.signal),
+      db.rpc("infrastructure_coverage_at", { _on: on }).abortSignal(ctl.signal),
+      db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false }).abortSignal(ctl.signal),
     ]).then(([a, o, s]: any[]) => {
+      if (ctl.signal.aborted) return;
       if (a.error || o.error || s.error) return setErr(true);
       const names = new Map<string, string>(); for (const r of s.data ?? []) if (!names.has(r.school_id)) names.set(r.school_id, r.official_name);
-      setData({ rows: infrastructureQueue([...names.keys()], a.data as InfraAttributeRow[], o.data as InfraObservationRow[], on), names });
-    }, () => setErr(true));
+      setData({ rows: infrastructureQueueFromCoverage([...names.keys()], a.data as InfraAttributeRow[], o.data ?? []), names });
+    }, () => { if (!ctl.signal.aborted) setErr(true); });
+    return () => ctl.abort();
   }, [on]);
   return (
     <div className="space-y-6">

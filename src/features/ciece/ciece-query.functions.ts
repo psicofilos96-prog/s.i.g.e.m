@@ -1,3 +1,4 @@
+import { readAllEffectiveCapabilities } from "@/features/authority/read-all-capabilities";
 import { operationalToday } from "@/lib/academic-date";
 /**
  * 14.3 — Ponto de entrada servidor do CIECE. Fatos e recibo bruto ficam no
@@ -32,7 +33,7 @@ export const queryCieceIndicator = createServerFn({ method: "POST" })
     const data = raw as AnalyticQuery & { filters: Record<string, string | number | boolean> };
     const db = context.supabase;
     const { data: link } = await db.from("user_person_links").select("person_id").maybeSingle();
-    const [{ data: caps }, { data: scopeCaps }] = await Promise.all([db.rpc("effective_capabilities"), db.rpc("effective_scope_capabilities")]);
+    const [{ data: caps }, { data: scopeCaps }] = await Promise.all([readAllEffectiveCapabilities(db, {}, "class") as unknown as Promise<{ data: Array<{ capability_id: string; engagement_id: string; policy_id: string; policy_version: number; school_id: string | null; class_id: string | null; component_id: string | null; period_id: string | null }> | null }>, db.rpc("effective_scope_capabilities")]);
     const grants: AnalyticGrant[] = [
       ...(caps ?? []).map((c) => ({
         capabilityId: c.capability_id, engagementId: c.engagement_id, policyId: c.policy_id, policyVersion: c.policy_version,
@@ -76,7 +77,7 @@ export const describeCieceSurface = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = context.supabase;
-    const { data: caps } = await db.rpc("effective_capabilities");
+    const { data: caps } = await (readAllEffectiveCapabilities(db, {}, "class") as unknown as Promise<{ data: Array<{ capability_id: string; engagement_id: string; policy_id: string; policy_version: number; school_id: string | null; class_id: string | null; component_id: string | null; period_id: string | null }> | null }>);
     const classIds = [...new Set((caps ?? []).filter((c) => c.capability_id === "consultar-indicador-agregado" && c.class_id).map((c) => c.class_id as string))];
     // B2.7 — rótulo da turma por class_at na data atual resolvida explicitamente; escola pelo cadastro oficial.
     const today = operationalToday();

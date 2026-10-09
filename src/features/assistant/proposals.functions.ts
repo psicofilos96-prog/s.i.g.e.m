@@ -4,7 +4,7 @@ import { z } from "zod";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 async function userCtx(sb: any, route: string) {
-  const caps = await sb.rpc("effective_capabilities", {});
+  const caps = await (await import("@/features/authority/read-all-capabilities")).readAllEffectiveCapabilities(sb);
   return { capabilities: (caps.data ?? []).map((c: any) => ({ capability_id: c.capability_id, school_id: c.school_id ?? null })), route };
 }
 

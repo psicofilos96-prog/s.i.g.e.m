@@ -61,10 +61,16 @@ export function InstitutionalStudentsListPage() {
   const [query, setQueryRaw] = useState(""); const [page, setPage] = useState(1);
   const term = ilikeTerm(useDebounced(query, 300));
   const setQuery = (v: string) => { setQueryRaw(v); setPage(1); };
-  const q = useServerPage<StudentRow>(["inst-students", term], page, ({ from, to, signal }) => {
-    let b = supabase.from("institutional_students").select("id, display_name, institutional_identifier", { count: "estimated" });
-    if (term) b = b.or(`display_name.ilike.${term},institutional_identifier.ilike.${term}`);
-    return b.order("display_name").order("id").range(from, to).abortSignal(signal);
+  const q = useServerPage<StudentRow>(["inst-students", term], page, async ({ from, to, signal }) => {
+    // PERF.LOADING.3 — contagem EXATA: sem busca, pelo leitor de contagem por conjunto (mesmo alcance da RLS,
+    // calculado uma vez); com busca, count exato do próprio filtro (conjunto pequeno).
+    if (term) return supabase.from("institutional_students").select("id, display_name, institutional_identifier", { count: "exact" })
+      .or(`display_name.ilike.${term},institutional_identifier.ilike.${term}`).order("display_name").order("id").range(from, to).abortSignal(signal);
+    const [rows, count] = await Promise.all([
+      supabase.from("institutional_students").select("id, display_name, institutional_identifier").order("display_name").order("id").range(from, to).abortSignal(signal),
+      supabase.rpc("readable_students_count").abortSignal(signal),
+    ]);
+    return { data: rows.data, error: rows.error ?? count.error, count: typeof count.data === "number" ? count.data : null };
   });
   return (
     <div className="grid gap-4">

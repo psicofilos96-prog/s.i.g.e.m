@@ -14,6 +14,23 @@ export function infrastructureQueue(schoolIds: readonly string[], attrs: readonl
   return rows.sort((a, b) => b.missing.length - a.missing.length || a.schoolId.localeCompare(b.schoolId));
 }
 
+/**
+ * PERF.LOADING.3 — mesma fila a partir da cobertura agregada no servidor (`infrastructure_coverage_at`):
+ * por escola, os atributos com observação vigente. Evita trazer todas as observações ao navegador.
+ */
+export function infrastructureQueueFromCoverage(schoolIds: readonly string[], attrs: readonly InfraAttributeRow[], coverage: readonly { school_id: string; informed_attribute_ids: string[] | null }[]): InfraQueueRow[] {
+  const latest = new Map<string, InfraAttributeRow>();
+  for (const a of attrs) { const p = latest.get(a.attribute_id); if (!p || a.version_number > p.version_number) latest.set(a.attribute_id, a); }
+  const labels = [...latest.values()].sort((a, b) => a.label.localeCompare(b.label, "pt-BR"));
+  const informed = new Map(coverage.map((c) => [c.school_id, new Set(c.informed_attribute_ids ?? [])]));
+  const rows = schoolIds.map((id) => {
+    const have = informed.get(id) ?? new Set<string>();
+    const missing = labels.filter((a) => !have.has(a.attribute_id)).map((a) => a.label);
+    return { schoolId: id, informed: labels.length - missing.length, total: labels.length, missing };
+  });
+  return rows.sort((a, b) => b.missing.length - a.missing.length || a.schoolId.localeCompare(b.schoolId));
+}
+
 import type { ReportDefinition, CellValue } from "@/features/reports/report-engine";
 /** Relatório de cobertura: só o que a escola informou × falta informar; não avalia condição nem prioridade. */
 export const INFRAESTRUTURA_COBERTURA: ReportDefinition = {

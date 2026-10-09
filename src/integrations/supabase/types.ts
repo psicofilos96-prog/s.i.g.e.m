@@ -20009,6 +20009,27 @@ export type Database = {
           school_id: string
         }[]
       }
+      effective_capability_grants: {
+        Args: { _on?: string }
+        Returns: {
+          capability_id: string
+          class_id: string
+          component_id: string
+          engagement_id: string
+          period_id: string
+          policy_id: string
+          policy_version: number
+          school_id: string
+          scope_level: string
+        }[]
+      }
+      effective_capability_scope_classes: {
+        Args: { _on?: string }
+        Returns: {
+          class_id: string
+          school_id: string
+        }[]
+      }
       effective_scope_capabilities: {
         Args: { _on?: string }
         Returns: {
@@ -20719,6 +20740,13 @@ export type Database = {
           seq: number
           status: string
           term_logical_id: string
+        }[]
+      }
+      infrastructure_coverage_at: {
+        Args: { _on: string }
+        Returns: {
+          informed_attribute_ids: string[]
+          school_id: string
         }[]
       }
       inst_assessment_result_history: {
@@ -22360,6 +22388,8 @@ export type Database = {
         }[]
       }
       readable_class_ids: { Args: never; Returns: string[] }
+      readable_enrollments_count: { Args: never; Returns: number }
+      readable_students_count: { Args: never; Returns: number }
       record_academic_year_operational_state: {
         Args: {
           _academic_year_id: string
