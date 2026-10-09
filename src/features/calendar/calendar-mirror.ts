@@ -97,3 +97,23 @@ export function mirrorDiffers(source: NetworkCalendar, target: NetworkCalendar):
   const norm = (v: unknown) => JSON.stringify(v ?? null, (key, x) => (key === "id" || key === "groupId" ? undefined : x));
   return CONTENT_KEYS.some((k) => (k === "periods" || k === "periodGroups" ? exact(next[k]) !== exact(target[k]) : norm(next[k]) !== norm(target[k])));
 }
+
+/**
+ * Antes de salvar no banco: período cujo ID não existe no calendário salvo recebe o ID do
+ * período salvo de mesma ordem (rascunho antigo do espelho trazia IDs do Regular).
+ */
+export function alignPeriodKeys(cal: NetworkCalendar, saved: NetworkCalendar | null | undefined): NetworkCalendar {
+  if (!saved) return cal;
+  const known = new Set(saved.periods.map((p) => p.id));
+  if (cal.periods.every((p) => known.has(p.id))) return cal;
+  const byOrder = [...saved.periods].sort((a, b) => a.order - b.order);
+  const ordered = [...cal.periods].sort((a, b) => a.order - b.order);
+  const used = new Set(cal.periods.filter((p) => known.has(p.id)).map((p) => p.id));
+  const remap = new Map<string, string>();
+  ordered.forEach((p, i) => {
+    if (known.has(p.id)) return;
+    const cand = byOrder.find((s) => s.order === p.order && !used.has(s.id)) ?? byOrder.filter((s) => !used.has(s.id))[0] ?? byOrder[i];
+    if (cand && !used.has(cand.id)) { remap.set(p.id, cand.id); used.add(cand.id); }
+  });
+  return { ...cal, periods: cal.periods.map((p) => (remap.has(p.id) ? { ...p, id: remap.get(p.id)! } : p)) };
+}
