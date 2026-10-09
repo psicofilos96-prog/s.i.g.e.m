@@ -1,3 +1,4 @@
+import { DiaryPrintsPanel } from "./diary-prints-panel";
 import { CompositionLine } from "@/features/classes/class-composition-views";
 import { todayIso } from "@/features/classes/institutional-class-source";
 import { rosterStudents } from "@/features/students/institutional-roster";

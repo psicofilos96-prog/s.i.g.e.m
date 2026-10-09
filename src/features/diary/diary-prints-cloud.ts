@@ -5,6 +5,14 @@
 import { supabase } from "@/integrations/supabase/client";
 import { reviewsOf } from "@/features/teacher-review/teacher-work-review";
 import type { DiaryPrintData } from "./diary-prints";
+import { readPages } from "@/lib/list-paging";
+
+/** Lê tudo em páginas; impressão incompleta é recusada, nunca impressa como se fosse total. */
+async function all(build: (f: number, t: number) => PromiseLike<Q>, max: number): Promise<Q> {
+  const r = await readPages(build as never, max);
+  if (r.truncated) return { data: null, error: { message: "truncated" } };
+  return r as Q;
+}
 
 /** Mantém só a maior versão de cada chave lógica. */
 export function heads<T>(rows: readonly T[], key: (r: T) => string, version: (r: T) => number): T[] {
@@ -27,11 +35,11 @@ export async function loadDiaryPrintData(a: { classId: string; assignmentId: str
   const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, p: object) => any };
   const [cls, eps, les, att, pl, ass] = await Promise.all([
     db.from("institutional_classes").select("name, school_label_snapshot").eq("id", a.classId).limit(1),
-    db.from("class_enrollment_episodes").select("student_id").eq("class_id", a.classId).limit(1000),
-    db.from("lesson_record_versions").select("logical_record_id, version_number, lesson_date, facts").eq("class_id", a.classId).gte("lesson_date", a.period.from).lte("lesson_date", a.period.to).limit(5000),
-    db.from("attendance_record_versions").select("logical_attendance_id, lesson_logical_id, version_number, marks").eq("class_id", a.classId).limit(5000),
-    db.from("teaching_plan_versions").select("plan_id, version, title, status, covers_from, covers_until").eq("class_id", a.classId).limit(2000),
-    db.from("assessment_entry_versions").select("logical_entry_id, version_number, instrument_id, student_id, value_label, value, period_id").eq("class_id", a.classId).limit(20000),
+    all((f, t) => db.from("class_enrollment_episodes").select("student_id").eq("class_id", a.classId).order("id").range(f, t), 1000),
+    all((f, t) => db.from("lesson_record_versions").select("logical_record_id, version_number, lesson_date, facts").eq("class_id", a.classId).gte("lesson_date", a.period.from).lte("lesson_date", a.period.to).order("id").range(f, t), 5000),
+    all((f, t) => db.from("attendance_record_versions").select("logical_attendance_id, lesson_logical_id, version_number, marks").eq("class_id", a.classId).order("id").range(f, t), 5000),
+    all((f, t) => db.from("teaching_plan_versions").select("plan_id, version, title, status, covers_from, covers_until").eq("class_id", a.classId).order("id").range(f, t), 2000),
+    all((f, t) => db.from("assessment_entry_versions").select("logical_entry_id, version_number, instrument_id, student_id, value_label, value, period_id").eq("class_id", a.classId).order("id").range(f, t), 20000),
   ]);
   const c = ok(cls, "a turma")[0] ?? {};
   const studentIds = [...new Set(ok(eps, "a enturmação").map((r) => String(r["student_id"])))];
