@@ -611,4 +611,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] NKEY.1 atalhos de teclado e foco
 
 - [x] Calendário externo: excluir Panorâmico/Mosaico e criar modelo único de layout livre com imagem só no topo.
-- [ ] N2026.IMPORT.5 — consumidores da base 2026 (próximo lote).
+- [ ] N2026.IMPORT.5 — consumidores da base 2026 (não executado; pedido em seguida ao REFERENCE)
+- [x] N2026.REFERENCE.2027 — Referência 2026 na Preparação 2027
