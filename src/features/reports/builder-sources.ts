@@ -60,7 +60,7 @@ async function loadEnrollments({ from, to, offset, limit }: { from: string | nul
 }
 /** Mantém só o registro corrente: descarta os que foram substituídos por correção. */
 export function dropSuperseded(rows: readonly Record<string, CellValue>[]): Record<string, CellValue>[] {
-  const sup = new Set<CellValue>(rows.map((r) => r["_sup"]).filter((x) => x !== null));
+  const sup = new Set<CellValue>(rows.map((r) => r["_sup"] ?? null).filter((x) => x !== null));
   return rows.filter((r) => !sup.has(r["_id"] ?? null));
 }
 
