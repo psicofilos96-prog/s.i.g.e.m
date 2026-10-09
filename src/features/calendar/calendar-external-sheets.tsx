@@ -374,7 +374,7 @@ function bandsOf(m: ExternalMonth, types: Types, p: ExternalProfile): Map<number
     let e = n; while (e + 1 <= m.daysInMonth && m.byDay.get(e + 1)?.symbolCode === code) e++;
     const len = e - n + 1;
     if (len >= 3) {
-      const text = kind === "ferias" ? p.feriasText : visualOf(code, types, p).label.toUpperCase();
+      const text = kind === "ferias" ? p.feriasText : (visualOf(code, types, p).mark || visualOf(code, types, p).label.toUpperCase());
       for (let k = n; k <= e; k++) out.set(k, { role: k === n ? "ini" : k === e ? "fim" : "meio", len, text });
     }
     n = e + 1;
@@ -581,10 +581,8 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
               <th scope="row" style={{ fontSize: `${t.monthPt}pt` }}>{m.name}</th>
               {cols.map((n) => n > m.daysInMonth ? <td key={n} className="cx-dia cx-inexistente" aria-hidden />
                 : <DayCell key={n} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={[0, 6].includes((m.firstWeekday + n - 1) % 7)} mode={t.showDayNumbers ? "numero" : "sigla"} band={t.showDayNumbers ? null : bands.get(n) ?? null} />)}
-              {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total" data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{countText(m.total)}</td>}
+              {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total" data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{m.split ? <span className="cx-split"><span>{m.split[0]}</span><span>{m.split[1]}</span></span> : countText(m.total)}</td>}
             </tr>; })}</tbody>
-          {p.show.totaisColuna && <tfoot><tr><th scope="row">Letivos</th>{colTotals.map((v, i) => <td key={i}>{v === null ? "—" : v}</td>)}
-            {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total cx-total-geral" title={vm.total.reason ?? ""}>{countText(vm.total)}</td>}</tr></tfoot>}
         </table>}
       </FreeBox>}
       {B.periodos.visible && <FreeBox {...common("periodos")} title="Períodos letivos">
