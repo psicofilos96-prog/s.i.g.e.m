@@ -1,3 +1,4 @@
+import { CensusOfficialPanel } from "./census-official-panel";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
@@ -90,6 +91,7 @@ export function DataQualityPage() {
             </label>))}
         </fieldset>
       </div>
+      {uid ? <CensusOfficialPanel uid={uid} schoolNames={new Map((schools.data ?? []).map((x) => [x.id, x.name]))} /> : null}
 
       {!schoolId ? <EmptyState title="Escolha uma escola" description="A caixa de entrada é sempre por escola." />
         : data.isLoading ? <p role="status">Verificando…</p>
