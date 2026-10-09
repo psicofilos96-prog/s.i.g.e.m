@@ -13,7 +13,7 @@ export async function stageBatch(a: { adapterId: string; adapterVersion: number;
     _rows: a.rows, _reprocesses_id: a.reprocessesId, _source_ref: a.sourceRef,
   });
   if (error) throw new Error(error.message);
-  return data as { id: string; already_staged: boolean };
+  return data as { id: string | null; already_staged: boolean; adopted_technical_import?: boolean };
 }
 
 export async function listBatches(): Promise<BatchView[]> {
