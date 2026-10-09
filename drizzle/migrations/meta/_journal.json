@@ -1912,6 +1912,13 @@
       "when": 1791548821296,
       "tag": "0272_nimport_standard_1_technical_adoptions",
       "breakpoints": true
+    },
+    {
+      "idx": 273,
+      "version": "7",
+      "when": 1791573598860,
+      "tag": "0273_intervencao1_broad_sector_rules_v5",
+      "breakpoints": true
     }
   ]
 }
