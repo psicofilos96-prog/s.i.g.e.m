@@ -15,3 +15,14 @@ describe("fila de infraestrutura da rede", () => {
     expect(infrastructureQueue(["A"], attrs, [obs("A", "agua", "2027-01-01")], "2026-03-01")[0]!.informed).toBe(0);
   });
 });
+
+import { infrastructureQueueFromCoverage } from "./infrastructure-network-queue";
+describe("PERF.LOADING.3 — fila pela cobertura agregada no servidor", () => {
+  it("dá o mesmo resultado que a projeção sobre todas as observações", () => {
+    const attrs = [attr("agua"), attr("rampa"), attr("luz")];
+    const all = [obs("A", "agua"), obs("A", "rampa"), obs("B", "agua"), obs("C", "luz", "2027-01-01")];
+    const on = "2026-03-01";
+    const coverage = ["A", "B", "C"].map((s) => ({ school_id: s, informed_attribute_ids: [...new Set(all.filter((o) => o.school_id === s && o.valid_from <= on).map((o) => o.attribute_id))] }));
+    expect(infrastructureQueueFromCoverage(["A", "B", "C", "D"], attrs, coverage)).toEqual(infrastructureQueue(["A", "B", "C", "D"], attrs, all, on));
+  });
+});

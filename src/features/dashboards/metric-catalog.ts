@@ -6,7 +6,7 @@ import { readPages } from "@/lib/list-paging";
  */
 import { supabase } from "@/integrations/supabase/client";
 import { functionalPicture, type Sources } from "@/features/professionals/functional-life";
-import { activeEnrollments, notAvailable, servedTotal, type Ctx, type MetricDefinition, type MetricResult } from "./metric-engine";
+import { notAvailable, servedTotal, type Ctx, type MetricDefinition, type MetricResult } from "./metric-engine";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const must = async <T,>(p: PromiseLike<{ data: T; error: { message: string } | null }>) => { const r = await p; if (r.error) throw new Error(r.error.message); return r.data; };
@@ -20,15 +20,11 @@ const enrollments: MetricDefinition = {
   source: "school_enrollments + school_enrollment_endings", granularity: "escola × dia", scope: "escola",
   capabilities: ["consultar-matricula-e-movimentacao"], freshnessMs: 5 * 60_000, drillRoute: "/secretaria",
   async compute(c): Promise<MetricResult> {
-    const read = await readPages<any>((a, b) => db.from("school_enrollments").select("id, supersedes_id, created_at, school_id, opened_on").eq("school_id", school(c)).order("id").range(a, b), 50000);
-    if (read.error) throw new Error(read.error.message);
-    if (read.truncated) return notAvailable("Volume acima do limite de leitura desta tela; consulte a Secretaria.");
-    const enr = read.data ?? [];
-    const ids = enr.map((e) => e.id);
-    const endings = ids.length ? await must<any[]>(db.from("school_enrollment_endings").select("enrollment_id, ended_on, created_at").in("enrollment_id", ids.slice(0, 1000))) : [];
-    if (ids.length > 1000) return notAvailable("Volume acima do limite de leitura desta tela; consulte a Secretaria.");
-    const r = activeEnrollments(enr, endings, school(c), c.validOn, c.knownAt);
-    return { status: "disponivel", value: r.active.length, unit: "matrículas", refs: r.active, note: r.undated.length ? `${r.undated.length} matrícula(s) sem data de abertura não entram na contagem.` : null };
+    // PERF.LOADING.3 — calculado no servidor (active_enrollments_at, RLS da sessão): mesma regra de
+    // activeEnrollments, sem trazer as matrículas ao navegador e sem recusa acima de 1000.
+    const rows = await must<{ active_ids: string[] | null; undated_count: number | null }[]>(db.rpc("active_enrollments_at", { _school: school(c), _on: c.validOn, _known_at: c.knownAt ?? null }));
+    const active = rows[0]?.active_ids ?? []; const undated = Number(rows[0]?.undated_count ?? 0);
+    return { status: "disponivel", value: active.length, unit: "matrículas", refs: active, note: undated ? `${undated} matrícula(s) sem data de abertura não entram na contagem.` : null };
   },
 };
 

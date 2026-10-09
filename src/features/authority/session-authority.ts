@@ -6,6 +6,7 @@
  * Cargo nunca concede capacidade. Qualquer elo ausente ⇒ nenhuma capacidade.
  * A tela usa isto só para mostrar/ocultar ações; a gravação revalida no banco.
  */
+import { readAllEffectiveCapabilities } from "./read-all-capabilities";
 import { useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
@@ -166,7 +167,7 @@ export function useSessionAuthority(): SessionAuthority {
         const a = (actorRows ?? [])[0];
         if (!a || a.actor_kind !== "institutional" || !a.institutional_principal_id || !a.station_code)
           return { person: null, principal: null, capabilities: [] as EffectiveCapability[] };
-        const { data: caps, error } = await supabase.rpc("effective_capabilities");
+        const { data: caps, error } = await readAllEffectiveCapabilities(supabase);
         if (error) throw error;
         return {
           person: null,
@@ -176,12 +177,12 @@ export function useSessionAuthority(): SessionAuthority {
             scope: a.scope_kind === "school" ? ("school" as const) : ("network" as const),
             schoolId: a.school_id ?? null,
           },
-          capabilities: mapCaps(caps),
+          capabilities: mapCaps(caps as CapRow[] | null),
         };
       }
       const [{ data: person, error: personError }, { data: caps, error }, actorRes] = await Promise.all([
         supabase.from("institutional_persons").select("id, display_name").eq("id", link.person_id).maybeSingle(),
-        supabase.rpc("effective_capabilities"),
+        readAllEffectiveCapabilities(supabase),
         supabase.rpc("current_actor"),
       ]);
       if (personError) throw personError;
@@ -201,7 +202,7 @@ export function useSessionAuthority(): SessionAuthority {
       return {
         person: person ? { id: person.id, displayName: person.display_name } : null,
         principal: linkedPrincipal,
-        capabilities: mapCaps(caps),
+        capabilities: mapCaps(caps as CapRow[] | null),
       };
     },
   });

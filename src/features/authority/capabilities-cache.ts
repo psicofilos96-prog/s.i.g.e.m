@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { readAllEffectiveCapabilities } from "./read-all-capabilities";
 
 /**
  * NPERF.4 — leitura compartilhada de `effective_capabilities()` para leitores em lote fora do
@@ -15,9 +16,9 @@ export function clearSharedCapabilities(): void { entry = null; }
 export async function readEffectiveCapabilitiesShared(now: () => number = Date.now): Promise<Result> {
   const auth = (supabase as { auth?: { getSession?: () => Promise<{ data: { session: { user?: { id?: string } } | null } }> } }).auth;
   const key = auth?.getSession ? ((await auth.getSession()).data?.session?.user?.id ?? "") : "";
-  if (!key) return (await supabase.rpc("effective_capabilities")) as unknown as Result;
+  if (!key) return (await readAllEffectiveCapabilities(supabase)) as Result;
   if (entry && entry.key === key && now() - entry.at < CAPABILITIES_TTL_MS) return entry.promise;
-  const promise = (async () => (await supabase.rpc("effective_capabilities")) as unknown as Result)();
+  const promise = (async () => (await readAllEffectiveCapabilities(supabase)) as Result)();
   const mine = { key, at: now(), promise };
   entry = mine;
   const r = await promise;

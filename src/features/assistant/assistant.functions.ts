@@ -15,7 +15,7 @@ export const askAssistant = createServerFn({ method: "POST" })
     const sb = context.supabase as any;
     const { answer } = await import("./assistant-core");
     const { serverReaders, lovableProvider } = await import("./assistant.server");
-    const caps = await sb.rpc("effective_capabilities", {});
+    const caps = await (await import("@/features/authority/read-all-capabilities")).readAllEffectiveCapabilities(sb);
     const user = { capabilities: (caps.data ?? []).map((c: any) => ({ capability_id: c.capability_id, school_id: c.school_id ?? null })), route: data.route };
     const key = process.env["LOVABLE_API_KEY"];
     return answer(data.question, user, serverReaders(sb), key ? (s) => lovableProvider(key) : null, { classId: data.classId, schoolId: data.schoolId });
