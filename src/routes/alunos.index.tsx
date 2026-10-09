@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { StudentsListPage } from "@/features/students/students-list-page";
 import { brand } from "@/config/branding";
+import { ClassRouteGate } from "@/features/classes/class-route-gate";
+import { InstitutionalStudentsListPage } from "@/features/students/institutional-lists";
 
 export const Route = createFileRoute("/alunos/")({
   head: () => ({
@@ -21,5 +23,6 @@ export const Route = createFileRoute("/alunos/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: StudentsListPage,
+  // PERF.LOADING.2: com sessão, só a base institucional paginada no servidor; demonstração apenas sem sessão.
+  component: () => <ClassRouteGate laboratoryHasHeading institutional={() => <InstitutionalStudentsListPage />} laboratory={() => <StudentsListPage />} />,
 });

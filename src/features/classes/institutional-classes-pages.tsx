@@ -1,7 +1,9 @@
 import { StatusBadge } from "@/components/sigem/patterns";
 import { presentState } from "@/config/state-presentation";
-import { paginate, stableSort, usePersistentState } from "@/lib/list-paging";
 import { ListPager } from "@/components/sigem/list-pager";
+import { LIST_PAGE_SIZE, ListTimeoutError, useServerPage } from "@/lib/server-page";
+import { ilikeTerm } from "@/features/students/institutional-lists";
+import { useDebounced } from "@/features/global-search/global-search";
 /**
  * B2.5.4 — Administração institucional de Turmas (sessão real).
  * Só lê pela fonte institucional e só grava pelos escritores do banco.
@@ -29,7 +31,7 @@ import {
 } from "./institutional-class-contract";
 import {
   academicYears, canMaintainPeriodLink, canMaintainRegistry, classLinkHistory, classRecordHistory,
-  getInstitutionalClass, humanClassError, listInstitutionalClasses, organizationsForYear,
+  getInstitutionalClass, humanClassError, listInstitutionalClassesPage, organizationsForYear,
   recordClassVersion, recordPeriodLink, registerClass, schoolNames, schoolsWithCapability, todayIso,
   type ClassOperation, type InstitutionalClassSummary, type LinkOperation,
 } from "./institutional-class-source";
@@ -82,14 +84,16 @@ function ErrorLine({ text }: { text: string | null }) {
 export function InstitutionalClassesListPage() {
   const caps = useCaps();
   const validOn = todayIso();
-  const q = useQuery({ queryKey: ["inst-classes", validOn], queryFn: () => listInstitutionalClasses({ validOn }) });
-  const [query, setQueryRaw] = usePersistentState("turmas:busca", "");
+  const [query, setQueryRaw] = useState("");
   const [pageNo, setPageNo] = useState(1);
+  const term = ilikeTerm(useDebounced(query, 300));
   const setQuery = (v: string) => { setQueryRaw(v); setPageNo(1); };
   const canCreate = schoolsWithCapability(caps, CLASS_REGISTRY_CAPABILITY).length > 0;
-  const nameOf = (r: NonNullable<typeof q.data>[number]) => (r.record.kind === "one" ? r.record.value.name : "");
-  const filtered = stableSort((q.data ?? []).filter((r) => nameOf(r).toLocaleLowerCase("pt-BR").includes(query.toLocaleLowerCase("pt-BR"))), nameOf, (r) => r.classId);
-  const pg = paginate(filtered, pageNo, 50);
+  // PERF.LOADING.2: página lida no servidor (50 por vez), com tempo-limite e nova tentativa manual.
+  const q = useServerPage<InstitutionalClassSummary>(["inst-classes", validOn, term], pageNo, ({ from, to, signal }) => listInstitutionalClassesPage({ validOn, from, to, term, signal }));
+  const total = q.data?.total ?? null;
+  const pg = { items: q.data?.items ?? [], page: pageNo, pageCount: Math.max(1, Math.ceil((total ?? 0) / LIST_PAGE_SIZE)), total: total ?? 0,
+    from: q.data?.items.length ? (pageNo - 1) * LIST_PAGE_SIZE + 1 : 0, to: (pageNo - 1) * LIST_PAGE_SIZE + (q.data?.items.length ?? 0), truncated: false };
   const rows = pg.items;
   return (
     <div className="grid gap-4">
@@ -101,14 +105,19 @@ export function InstitutionalClassesListPage() {
         ) : undefined}
       />
       <Input aria-label="Pesquisar turmas" placeholder="Pesquisar pelo nome" value={query} onChange={(e) => setQuery(e.target.value)} className="max-w-sm" />
-      {q.isLoading ? <SkeletonState label="Carregando turmas" /> : null}
-      {q.error ? <ErrorLine text="Não foi possível consultar as turmas institucionais." /> : null}
+      {q.isPending ? <SkeletonState label="Carregando turmas" /> : null}
+      {q.isError ? (
+        <div role="alert" className="grid gap-2 text-sm text-destructive">
+          <p>{q.error instanceof ListTimeoutError ? "A lista de turmas demorou demais para responder." : "Não foi possível consultar as turmas institucionais."}</p>
+          <Button size="sm" variant="outline" className="w-fit" onClick={() => void q.refetch()}>Tentar novamente</Button>
+        </div>
+      ) : null}
       {q.data && rows.length === 0 ? (
         <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          {(q.data.length > 0) ? "Nenhuma turma corresponde à pesquisa." : "Nenhuma turma institucional registrada no seu escopo."}
+          {term ? "Nenhuma turma corresponde à pesquisa." : "Nenhuma turma institucional registrada no seu escopo."}
         </p>
       ) : null}
-      {q.data && q.data.length > 0 ? <ListPager r={pg} onPage={setPageNo} noun="turmas" /> : null}
+      {q.data && rows.length > 0 ? <ListPager r={pg} onPage={setPageNo} noun="turmas" /> : null}
       {rows.length > 0 ? (
         <div className="overflow-x-auto rounded-lg border border-border bg-card">
           <table className="w-full text-sm" aria-busy={q.isFetching}>

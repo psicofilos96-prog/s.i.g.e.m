@@ -1821,6 +1821,13 @@
       "when": 1791535138941,
       "tag": "0259_perf_loading_set_based_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 260,
+      "version": "7",
+      "when": 1791536055342,
+      "tag": "0260_perf_loading_classes_reader_set",
+      "breakpoints": true
     }
   ]
 }
