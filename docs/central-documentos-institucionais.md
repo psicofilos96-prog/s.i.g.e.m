@@ -16,3 +16,6 @@
 - DOCS_PDF_RASTER_PENDING: pageCount/overflow/raster não testados; PDF = impressão do navegador.
 - Permissão por setor para editar modelos: depende da capability no banco (não criada).
 - ACL/temporalidade/a11y/full suite autenticados não executados neste lote.
+
+## DOCS.PRO.2 — pacote por setor (2026-10-09)
++27 modelos-base (total 41) em `base-templates.ts` (`sectorPack`), cobrindo Secretaria (vida escolar), Direção/OP (Dossiê, Conselho, encaminhamento, decisão, acompanhamento), Docente (diário, frequência Presente/Falta, registro, planejamento, notas, SIPE/SIA), CIECE (folha do Mapa, Censo/Qualidade, reconciliação, rede), Avaliação (resultados, metodologia), Alimentação (solicitação, recebimento, estoque, fechamento), Inclusão (sem campo clínico), Família (comprovante, carteirinha) e Admin (acessos, prontidão). Todos "Rascunho institucional — não homologado"; nenhum oficial. Teste `sector-pack.test.ts` (cobertura, validação, ids, sem campo clínico). Pendências mantidas: homologação no banco (DOCS_LIFECYCLE_DB_PENDING), QR como imagem, PDF rasterizado.
