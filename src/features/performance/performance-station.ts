@@ -128,3 +128,19 @@ export const STATION_REPORTS: readonly ReportDefinition[] = [
   { id: "avaliacao-bncc-saeb", version: 1, title: "Correspondência BNCC × SAEB", description: "Leitura por habilidade entre matrizes.", source: "—", params: [], columns: [], formats: [], reproducible: false, syncRowLimit: 0, dependency: "DEPENDE_DADO: sem fonte homologada de equivalência BNCC↔SAEB." },
 ];
 export const IMPORT_ADAPTER_ID = "resultado-avaliacao-institucional";
+
+/** NAVAL.UX — leitura textual do gráfico: mesma ordem dos dados (não é ranking), sem recalcular. */
+export function chartTextSummary(data: readonly { label: string; value: number; base: number }[], unit: string | null | undefined): string {
+  const n = (v: number) => v.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+  return data.map((d) => `${d.label}: ${n(d.value)}${unit ? ` ${unit}` : ""} (base ${d.base})`).join("; ") + ".";
+}
+
+/** NAVAL.UX — frase da comparação: a diferença já calculada pelo motor, com sentido explícito. */
+export function comparisonText(delta: number | null, otherTitle: string): string {
+  if (delta === null) return "Comparação possível, mas um dos lados não tem base.";
+  const n = Math.abs(delta).toLocaleString("pt-BR", { maximumFractionDigits: 3 });
+  if (delta === 0) return `Igual a ${otherTitle}.`;
+  return `${delta > 0 ? "Acima" : "Abaixo"} de ${otherTitle} em ${n}.`;
+}
+
+export const RESULT_STATUS_LABEL: Record<string, string> = { observado: "Com resultado", ausente: "Ausente", "nao-aplicado": "Não aplicado" };

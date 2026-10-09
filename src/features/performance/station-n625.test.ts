@@ -34,3 +34,16 @@ describe("N6.2.5 — exports de teste da estação Avaliação", () => {
     expect(STATION_REPORTS.find((r) => r.id === "avaliacao-bncc-saeb")!.formats).toEqual([]);
   });
 });
+
+import { chartTextSummary, comparisonText, RESULT_STATUS_LABEL } from "./performance-station";
+describe("NAVAL.UX — leitura textual e comparação", () => {
+  it("gráfico em texto mantém a ordem dos dados e a base", () => {
+    expect(chartTextSummary([{ label: "B", value: 2, base: 3 }, { label: "A", value: 9.5, base: 4 }], "pts")).toBe("B: 2 pts (base 3); A: 9,5 pts (base 4).");
+  });
+  it("comparação diz o sentido sem recalcular", () => {
+    expect(comparisonText(0.25, "2025")).toBe("Acima de 2025 em 0,25.");
+    expect(comparisonText(-1, "2025")).toBe("Abaixo de 2025 em 1.");
+    expect(comparisonText(null, "2025")).toMatch(/não tem base/);
+  });
+  it("situação do registro em linguagem comum", () => { expect(RESULT_STATUS_LABEL["nao-aplicado"]).toBe("Não aplicado"); });
+});

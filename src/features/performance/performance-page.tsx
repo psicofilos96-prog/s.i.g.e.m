@@ -1,3 +1,4 @@
+import { chartTextSummary, comparisonText, RESULT_STATUS_LABEL } from "./performance-station";
 import { callRpc } from "@/lib/rpc-call";
 import { MoreFilters } from "@/components/sigem/more-filters";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -33,7 +34,7 @@ export function PerformancePage() {
   }, []);
   return (
     <div className="space-y-6">
-      <PageHeader title="Avaliação e Desempenho" description="Avaliações institucionais e externas da rede. Dado observado, métrica calculada e meta aparecem separados; nenhum índice existe sem fórmula, versão e fonte declaradas." />
+      <PageHeader title="Avaliação e Desempenho" description="Resultados das avaliações da rede. Escolha uma avaliação para ver os números." />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !assessments ? <SkeletonState label="Carregando" />
         : assessments.length === 0 ? <EmptyState title="Nenhuma avaliação institucional registrada" description="Sem avaliação cadastrada não há resultado nem métrica a mostrar. As avaliações rotineiras do professor continuam no Diário." />
@@ -41,7 +42,7 @@ export function PerformancePage() {
             <StationHomePanel assessments={assessments} disclosure={disclosure} />
             {!disclosure && <StatePanel tone="warning" title="Política de divulgação não configurada" description="Nenhum grupo é suprimido porque não existe limiar registrado. A exportação de agregados fica bloqueada até a política existir." />}
             <div className="grid gap-3 text-sm sm:grid-cols-2">
-              <label>Avaliação<select className={field} value={sel} onChange={(e) => setSel(e.target.value)}><option value="">Escolha…</option>{assessments.map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)} (v{a.version})</option>)}</select></label>
+              <label>Qual avaliação?<select className={field} value={sel} onChange={(e) => setSel(e.target.value)}><option value="">Escolha…</option>{assessments.map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)} (v{a.version})</option>)}</select></label>
               <MoreFilters active={!!cmp}><label>Comparar com (opcional)<select className={field} value={cmp} onChange={(e) => setCmp(e.target.value)}><option value="">Nenhuma</option>{assessments.filter((a) => a.logical_id !== sel).map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)}</option>)}</select></label></MoreFilters>
             </div>
             {sel && <AssessmentView key={sel + cmp} all={assessments} a={assessments.find((x) => x.logical_id === sel)!} other={assessments.find((x) => x.logical_id === cmp) ?? null} disclosure={disclosure} />}
@@ -66,6 +67,8 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
   const o = useAssessmentData(other);
   const [by, setBy] = useState<GroupBy>("escola");
   const [drill, setDrill] = useState<{ title: string; ids: readonly string[] } | null>(null);
+  // NAVAL.UX: drill-down previsível — abre logo abaixo, leva o foco ao título e "Fechar" devolve ao topo das métricas.
+  const openDrill = (x: { title: string; ids: readonly string[] }) => { setDrill(x); setTimeout(() => document.getElementById("drill")?.focus(), 0); };
   if (err) return <StatePanel tone="danger" title="Resultados indisponíveis" description={`${err} A consulta da rede inteira exige alcance de rede; com alcance escolar, use a escola da sua atuação.`} />;
   if (!d) return <SkeletonState label="Carregando resultados" />;
   const observed = d.results.filter((r) => r.event_kind !== "revogacao");
@@ -96,28 +99,35 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
             return (
               <div key={m.id} className="rounded border p-3">
                 <p className="font-medium">{m.label} <span className="text-xs text-muted-foreground">v{m.version}</span></p>
-                <p className="text-xs text-muted-foreground">Fórmula: {FORMULA_LABEL(m.formula)} · População: {m.population_key} · Fonte: {m.source_note}</p>
-                <p className="mt-1 text-lg">{fmt(total)} {total.status === "calculada" && m.unit_label}<button className="ml-2 text-sm underline" onClick={() => setDrill({ title: m.label, ids: total.resultIds })}>ver registros</button></p>
-                {c && <p className="text-sm">{c.comparable ? (c.delta === null ? "Comparável, mas um dos lados não tem base." : `Variação em relação a ${other!.title}: ${c.delta.toLocaleString("pt-BR", { maximumFractionDigits: 3 })}`) : `Sem comparação: ${c.reason}`}</p>}
+                <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Como é calculado</summary><p className="mt-1">Fórmula: {FORMULA_LABEL(m.formula)} · População: {m.population_key} · Fonte: {m.source_note}. Ausentes e não aplicados não contam como zero.</p></details>
+                <p className="mt-1 text-lg">{fmt(total)} {total.status === "calculada" && m.unit_label}<button className="ml-2 text-sm underline" onClick={() => openDrill({ title: m.label, ids: total.resultIds })}>ver os registros que formam este número</button></p>
+                {c && <p className="text-sm"><strong>Comparação:</strong> {c.comparable ? comparisonText(c.delta, other!.title) : `não é possível comparar — ${c.reason}`}</p>}
                 <Coverage v={total} />
                 <Goals metric={m} value={total} />
                 <GroupChart groups={groups} unit={m.unit_label} />
                 <table className="mt-2 w-full text-sm"><caption className="sr-only">Métrica por grupo</caption>
                   <thead><tr className="text-left"><th scope="col">Grupo</th><th scope="col">Estudantes</th><th scope="col">Valor</th></tr></thead>
                   <tbody>{groups.map((g) => <tr key={g.key} className="border-t"><td>{g.label}</td><td>{g.disclosed ? g.students : "—"}</td>
-                    <td>{g.disclosed ? <button className="underline" onClick={() => setDrill({ title: `${m.label} — ${g.label}`, ids: g.metric.resultIds })}>{fmt(g.metric)}</button> : <span title={g.suppressedReason ?? ""}>Suprimido</span>}</td></tr>)}</tbody>
+                    <td>{g.disclosed ? <button className="underline" onClick={() => openDrill({ title: `${m.label} — ${g.label}`, ids: g.metric.resultIds })}>{fmt(g.metric)}</button> : <span title={g.suppressedReason ?? ""}>Suprimido</span>}</td></tr>)}</tbody>
                 </table>
               </div>
             );
           })}
       </section>
-      {d.metrics.length > 0 ? <HeatmapPicker rows={d.results} metrics={d.metrics} a={a} disclosure={disclosure} /> : null}
-      {d.metrics.length > 0 && all.length >= 3 ? <EvolutionSection reference={d.metrics[0]!} current={a} assessments={all} disclosure={disclosure} /> : null}
+      {d.metrics.length > 0 && (
+        <details className="rounded border p-4">
+          <summary className="cursor-pointer font-semibold">Análises avançadas: habilidade × escola{all.length >= 3 ? " e evolução entre edições" : ""}</summary>
+          <div className="mt-3 space-y-4">
+            <HeatmapPicker rows={d.results} metrics={d.metrics} a={a} disclosure={disclosure} />
+            {all.length >= 3 ? <EvolutionSection reference={d.metrics[0]!} current={a} assessments={all} disclosure={disclosure} /> : null}
+          </div>
+        </details>
+      )}
       {drill && (
         <section aria-labelledby="drill" className="rounded border p-4">
-          <div className="flex justify-between"><h2 id="drill" className="font-semibold">Registros de origem — {drill.title}</h2><Button variant="outline" size="sm" onClick={() => setDrill(null)}>Fechar</Button></div>
+          <div className="flex justify-between"><h2 id="drill" tabIndex={-1} className="font-semibold">Registros de origem — {drill.title}</h2><Button variant="outline" size="sm" onClick={() => { setDrill(null); document.getElementById("met")?.scrollIntoView(); }}>Fechar</Button></div>
           <table className="mt-2 w-full text-sm"><caption className="sr-only">Registros de origem</caption><thead><tr className="text-left"><th scope="col">Nº</th><th scope="col">Item</th><th scope="col">Situação</th><th scope="col">Valor bruto</th><th scope="col">Versão</th></tr></thead>
-            <tbody>{d.results.filter((r) => drill.ids.includes(r.id)).slice(0, 500).map((r, i) => <tr key={r.id} className="border-t"><td>{i + 1}</td><td>{r.item_id ? "Item da avaliação" : "Resultado geral"}</td><td>{r.status}</td><td>{r.raw_value ?? "não informado"}</td><td>v{r.version}</td></tr>)}</tbody></table>
+            <tbody>{d.results.filter((r) => drill.ids.includes(r.id)).slice(0, 500).map((r, i) => <tr key={r.id} className="border-t"><td>{i + 1}</td><td>{r.item_id ? "Item da avaliação" : "Resultado geral"}</td><td>{RESULT_STATUS_LABEL[r.status] ?? "Situação não reconhecida"}</td><td>{r.raw_value ?? "não informado"}</td><td>v{r.version}</td></tr>)}</tbody></table>
         </section>
       )}
     </div>
@@ -150,11 +160,12 @@ function GroupChart({ groups, unit }: { groups: readonly Aggregate[]; unit: stri
   if (data.length < 2) return null;
   return (
     <figure className="mt-3" aria-label="Gráfico de comparação entre grupos">
-      <div className="h-64 w-full">
+      <div className="h-64 w-full" aria-hidden="true">
         <Suspense fallback={<SkeletonState label="Carregando gráfico" />}>
           <GroupBarChart data={data} unit={unit} />
         </Suspense>
       </div>
+      <p className="mt-1 text-sm"><span className="font-medium">Em texto: </span>{chartTextSummary(data, unit)}</p>
       <figcaption className="text-xs text-muted-foreground">Comparação descritiva entre grupos, não é ranking. Grupos suprimidos ou sem base ficam fora do gráfico; a tabela abaixo mostra todos.</figcaption>
     </figure>
   );
