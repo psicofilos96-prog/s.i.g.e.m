@@ -56,7 +56,7 @@ export function premiumLayout(d: FreeLayout): FreeLayout {
       feriados: place(B.feriados, 99, 133, 92, 42, { ...panel, pt: 6.2, titlePt: 8, cols: 1 }),
       periodos: place(B.periodos, 193, 133, 87, 17, { ...panel, pt: 6.5, titlePt: 7.5, orientation: "vertical" }),
       conselhos: place(B.conselhos, 193, 151, 87, 24, { ...panel, pt: 6.2, titlePt: 7.5, cols: 1 }),
-      assinaturas: place(B.assinaturas, 10, 182, 265, 13, { fill: false, color: "#FFFFFF", pt: 6.5, titlePt: 0.1, align: "centro" }),
+      assinaturas: place(B.assinaturas, 10, 182, 265, 13, { fill: false, color: "#FFFFFF", pt: 6.5, titlePt: 6, align: "centro" }),
       rodape: place(B.rodape, 0, 190, 20, 7, {}, false),
     },
     photo: { ...d.photo, top: null, bottom: null, useDefaultTop: false, topHmm: 0, bottomHmm: 0, veilStrength: 0, page: null },
