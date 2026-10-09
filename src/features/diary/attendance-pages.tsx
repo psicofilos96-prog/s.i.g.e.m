@@ -96,7 +96,7 @@ function MarkLabel({ mark }: { mark: AttendanceMark | null | undefined }) {
   if (mark === "Ausente")
     return (
       <span className="inline-flex items-center gap-1 text-destructive">
-        <X className="size-4" aria-hidden /> Ausente (F)
+        <X className="size-4" aria-hidden /> Falta (F)
       </span>
     );
   return (
@@ -231,7 +231,7 @@ export function AttendancePage({
  */
 const MARK_OPTIONS: readonly SpeedMarkOption[] = [
   { value: "Presente", label: "Presente", shortLabel: "P", shortcut: "p" },
-  { value: "Ausente", label: "Ausente", shortLabel: "F", shortcut: "f" },
+  { value: "Ausente", label: "Falta", shortLabel: "F", shortcut: "f" },
 ];
 
 /**
