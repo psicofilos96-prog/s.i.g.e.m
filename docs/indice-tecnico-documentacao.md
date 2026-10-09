@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 272. Sem classe: 0. Com referência quebrada: 1.
+Documentos: 275. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -109,7 +109,7 @@ Documentos: 272. Sem classe: 0. Com referência quebrada: 1.
 
 **Vigente:** `ciece-inventario-fontes-censo.md`, `ciece-mapa-censo-gpe-produto.md`, `ciece-mapa-projecao-rede.md`, `ciece-operacional.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-ciece-n443.md`, `gerador-relatorios-nrel2.md`, `relatorios-modelos-nrel3.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-ciece-n443.md`, `gerador-relatorios-nrel2.md`, `n2026-import-4-censo-snapshot-oficial.md`, `n2026-reconciliacao-censo.md`, `relatorios-modelos-nrel3.md`
 
 **Pendências declaradas:**
 - `auditoria-ciece-n443.md`: DEPENDE_DADO, HOMOLOGACAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -164,7 +164,7 @@ Documentos: 272. Sem classe: 0. Com referência quebrada: 1.
 
 ## Operação, release e observabilidade
 
-**Vigente:** `ambiente-canonico-sigem.md`, `bq1-matriz-autoridades-institucionais.md`, `dependencias-ndep1.md`, `engenharia-de-release.md`, `governanca-referencias-documentais.md`, `observabilidade-e-incidentes.md`, `observabilidade-erros-recuperacao.md`, `privacidade-e-ciclo-de-vida.md`, `prontidao-operacional-recuperacao.md`, `publicacoes-verificacao-publica.md`, `release-checklist-nrelease1.md`, `release-preparacao-nrelease2.md`, `rotina-de-verificacao.md`, `runbook-integridade-e-recuperacao.md`, `runbook-piloto.md`, `test-harness-institucional.md`
+**Vigente:** `ambiente-canonico-sigem.md`, `bq1-matriz-autoridades-institucionais.md`, `dependencias-ndep1.md`, `engenharia-de-release.md`, `governanca-referencias-documentais.md`, `n2026-referencia-2027.md`, `observabilidade-e-incidentes.md`, `observabilidade-erros-recuperacao.md`, `privacidade-e-ciclo-de-vida.md`, `prontidao-operacional-recuperacao.md`, `publicacoes-verificacao-publica.md`, `release-checklist-nrelease1.md`, `release-preparacao-nrelease2.md`, `rotina-de-verificacao.md`, `runbook-integridade-e-recuperacao.md`, `runbook-piloto.md`, `test-harness-institucional.md`
 
 **Registros de lote (decisões e provas da etapa):** `cal-count-1-reconciliacao.md`, `concorrencia-nconc2.md`, `credenciais-desenvolvimento-naccess3.md`, `estados-de-ausencia-nempty3.md`, `idempotencia-nidem1.md`, `observabilidade-nobs3.md`, `privacidade-minimizacao-npriv1.md`, `resiliencia-conexao-nresilience1.md`, `seguranca-verificacao-final-nsec4.md`, `superficies-publicas-npub2.md`, `superficies-publicas-nrate1.md`
 
@@ -247,4 +247,4 @@ Documentos: 272. Sem classe: 0. Com referência quebrada: 1.
 
 ## Referências quebradas
 
-- `mapa-documentacao-vigente.md`: `n2026-import-4-censo-snapshot-oficial.md`
+Nenhuma.
