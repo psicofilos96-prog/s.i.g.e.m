@@ -23,6 +23,6 @@ institutional_engagements 2 (nenhuma Direção registrada; GESTORES_MATRIZ_DECIS
 Direção não altera o Diário; participa e registra presença no Conselho; aprova após o Conselho; fechamento só com OP + Direção; Direção não reabre.
 
 ## Decisões necessárias
-1. Gestores da Matriz → atuações de Direção registradas (quem dirige cada escola).
+1. Gestores da Matriz → Direção: autorizado pelo proprietário em 2026-10-09. Tentativa: 44 linhas "Diretor(a)" (aba Gestores, SHA-256 dfe1593e…); 43 escolas casadas por INEP, mas 0 pessoas casadas por CPF (nenhum diretor está na base de pessoas; a planilha não traz INEP-pessoa). Nada foi gravado: criar pessoa nova poderia duplicar profissional já cadastrado só com INEP-pessoa. 12 linhas "Outro cargo" não viram Direção. Cópia temporária removida. Pendência: DIRECTION_PERSON_MATCH_PENDING — confirmar se é permitido cadastrar os diretores como pessoas novas pelo CPF.
 2. Homologar a regra BQ.5 pelo fluxo rascunho → homologação.
 3. Testes autenticados em 2 escolas — ambiente sem login.
