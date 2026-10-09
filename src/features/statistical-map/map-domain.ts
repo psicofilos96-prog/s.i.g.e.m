@@ -1,3 +1,4 @@
+import { classifyMovements, dedupeRemanejados, reconcileIIxIV, structureIVCells, type IVGroupRule, type MovementEvent } from "./map-movements";
 /**
  * 14.10 — Mapa Estatístico: domínio puro (regra de competência, montagem, conferência, situação).
  *
@@ -154,6 +155,8 @@ export type MapCompetenceRuleDefinition = {
   adjustableCellIds?: readonly string[];
   /** N4.3 — abertura exige a competência anterior oficializada (validado no banco). */
   requirePreviousCompetenceOfficial?: boolean;
+  /** NMAP.FINAL.1 — tipos de movimentação homologados por grupo da Estrutura IV. Nada declarado ⇒ grupo sem regra. */
+  structureIVGroups?: IVGroupRule;
 };
 
 export type MapCompetenceRule = {
@@ -290,6 +293,8 @@ export type AssemblyInput = {
   adjustments?: readonly MapAdjustmentRow[];
   /** >1 regra lógica homologada aplicável ⇒ ambiguidade, sem escolher "a mais nova". */
   ruleAmbiguous?: boolean;
+  /** NMAP.FINAL.1 — movimentações e encerramentos por remanejamento da escola; null = não lidos. */
+  movements?: readonly MovementEvent[] | null;
 };
 
 /** T — herança travada: valor vem do snapshot oficial anterior; sem predecessor, ausência explícita (nunca zero). */
@@ -490,7 +495,22 @@ export function assembleMapSnapshot(input: AssemblyInput): MapSnapshot {
   }
 
   // T — herança travada do mês anterior.
-  cells.push(previousMonthCell(applicable, input.previousOfficial));
+  const prevCell = previousMonthCell(applicable, input.previousOfficial);
+  cells.push(prevCell);
+
+  // NMAP.FINAL.1 — Estrutura IV (cinco grupos) e reconciliação II × IV.
+  const ivCells = structureIVCells(input.movements === undefined ? null : input.movements, applicable?.definition.structureIVGroups ?? null, window);
+  cells.push(...ivCells);
+  {
+    const curId = applicable?.definition.previousMonthEnrollmentCellId;
+    const cur = curId ? cells.find((x) => x.cellId === curId) : undefined;
+    const rem = input.movements ? dedupeRemanejados(classifyMovements(input.movements, applicable?.definition.structureIVGroups ?? null, window).byGroup.remanejados) : [];
+    const rec = reconcileIIxIV({ previous: prevCell.state === "disponivel" && typeof prevCell.value === "number" ? prevCell.value : null,
+      current: cur?.state === "disponivel" && typeof cur.value === "number" ? cur.value : null, iv: ivCells, schoolId: c.schoolId, remanejados: rem });
+    cells.push(base({ cellId: "reconciliacao-ii-iv", sectionId: "movimentacao", label: "Reconciliação II × IV", origin: "calculado",
+      state: rec.state === "indeterminado" ? "indeterminado" : "disponivel", value: rec.state === "indeterminado" ? null : rec.state === "reconciliado" ? "reconciliado" : `diferença ${rec.difference}`,
+      notes: [rec.reason, ...(rec.expected !== null ? [`Esperado pela movimentação: ${rec.expected}; matrícula atual: ${rec.actual}.`] : [])] }));
+  }
 
   // T — regentes: só atribuição docente real (B4.8) na data; lotação nunca cria regência.
   if (!at || input.teaching == null) {
