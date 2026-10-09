@@ -115,13 +115,18 @@ function SidebarNavigation({
       ),
     );
   const [showAdvanced, setShowAdvanced] = useState(inAdvanced);
+  const [menuQuery, setMenuQuery] = useState("");
+  const [closedGroups, setClosedGroups] = useState<ReadonlySet<string>>(new Set());
+  const fold = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  const q = fold(menuQuery.trim());
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
   // BQ.1 Lote 2 — conta de setor vê só a própria estação; humanos inalterados.
   // Lote 2.1: enquanto a autoridade carrega, o menu fica vazio (antes mostrava tudo por um instante a contas de setor).
   const groups = authority.status === "loading" ? [] : provisionalNavigation
-    .filter((group) => principal !== null || compact || showAdvanced || !ADVANCED_GROUPS.includes(group.label))
+    .filter((group) => principal !== null || compact || showAdvanced || q !== "" || !ADVANCED_GROUPS.includes(group.label))
     // NACL.UI.1: mesma regra de estação × capacidade usada por paleta, busca, cards e deep link.
     .map((group) => authority.status === "signed-in" ? { ...group, items: group.items.filter((item) => pathAllowed(authority, item.to)) } : group)
+    .map((group) => (q ? { ...group, items: group.items.filter((item) => fold(item.label).includes(q)) } : group))
     .filter((group) => group.items.length > 0);
   const generalAdminLink = (
     <Link
@@ -155,14 +160,39 @@ function SidebarNavigation({
     );
   return (
     <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-4">
-      {groups.map((group) => (
-        <div className="mb-5" key={group.label}>
+      {!compact && (
+        <div className="mb-4 px-0.5">
+          <label htmlFor="sidebar-menu-search" className="sr-only">Procurar no menu</label>
+          <input
+            id="sidebar-menu-search"
+            type="search"
+            value={menuQuery}
+            onChange={(e) => setMenuQuery(e.target.value)}
+            placeholder="Procurar no menu…"
+            className="h-9 w-full rounded-lg border border-sidebar-border bg-sidebar-accent/30 px-3 text-sm text-sidebar-foreground placeholder:text-sidebar-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+          />
+        </div>
+      )}
+      {!compact && q && groups.length === 0 && (
+        <p role="status" className="px-2.5 text-sm text-sidebar-muted">Nenhuma área do seu acesso tem esse nome.</p>
+      )}
+      {groups.map((group) => {
+        const groupActive = group.items.some((item) => item.to === pathname || (item.to !== "/" && pathname.startsWith(`${item.to}/`)));
+        const open = compact || q !== "" || groupActive || !closedGroups.has(group.label);
+        return (
+        <div className="mb-4" key={group.label}>
           {!compact && (
-            <p className="mb-1.5 px-2.5 text-2xs font-semibold uppercase tracking-[0.1em] text-sidebar-muted/80">
-              {group.label}
-            </p>
+            <button
+              type="button"
+              aria-expanded={open}
+              onClick={() => setClosedGroups((prev) => { const n = new Set(prev); if (n.has(group.label)) n.delete(group.label); else n.add(group.label); return n; })}
+              className="mb-1 flex w-full items-center justify-between rounded-md px-2.5 py-1 text-2xs font-semibold uppercase tracking-[0.1em] text-sidebar-muted/80 hover:text-sidebar-foreground"
+            >
+              <span>{group.label}</span>
+              <ChevronDown className={cn("size-3.5 transition-transform", !open && "-rotate-90")} aria-hidden="true" />
+            </button>
           )}
-          <ul className="space-y-1">
+          {open && <ul className="space-y-1">
             {group.items.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -200,9 +230,10 @@ function SidebarNavigation({
                 </li>
               );
             })}
-          </ul>
+          </ul>}
         </div>
-      ))}
+        );
+      })}
       {generalAdmin.status === "general-admin" ? (
         <div className="mb-5">
           {!compact && (
