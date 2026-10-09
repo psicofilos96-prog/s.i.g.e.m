@@ -36,3 +36,21 @@ export const NETWORK_RULE_SCREENS: readonly NetworkRuleScreen[] = [
   { id: "calendario", title: "Calendário escolar", what: "Dias letivos, períodos e eventos da rede.", to: "/calendario-escolar" },
   { id: "matrizes", title: "Matrizes curriculares", what: "Componentes e cargas por ano e escola.", to: "/matrizes-curriculares" },
 ];
+
+/** NADM.UX — pendências de configuração em frase simples. Leitura indisponível vira pendência "não foi possível conferir", nunca "tudo certo". */
+export type ConfigPending = { id: string; text: string; to: "/central-de-acessos" };
+export function configPendencies(h: AdminHome): ConfigPending[] {
+  const out: ConfigPending[] = [];
+  const p = (n: number, one: string, many: string) => (n === 1 ? one : many.replace("#", String(n)));
+  if (!h.policies) out.push({ id: "pol-na", text: "Não foi possível conferir a política de acessos.", to: "/central-de-acessos" });
+  else {
+    if (h.policies.latestHomologated === null) out.push({ id: "pol-none", text: "Nenhuma política de acessos homologada.", to: "/central-de-acessos" });
+    if (h.policies.drafts > 0) out.push({ id: "pol-draft", text: p(h.policies.drafts, "1 rascunho de política aguardando revisão.", "# rascunhos de política aguardando revisão."), to: "/central-de-acessos" });
+  }
+  if (!h.accounts) out.push({ id: "acc-na", text: "Não foi possível conferir as contas.", to: "/central-de-acessos" });
+  else {
+    if (h.accounts.blocked > 0) out.push({ id: "acc-blocked", text: p(h.accounts.blocked, "1 conta bloqueada.", "# contas bloqueadas."), to: "/central-de-acessos" });
+    if (h.accounts.mustChangePassword > 0) out.push({ id: "acc-pwd", text: p(h.accounts.mustChangePassword, "1 conta precisa trocar a senha.", "# contas precisam trocar a senha."), to: "/central-de-acessos" });
+  }
+  return out;
+}

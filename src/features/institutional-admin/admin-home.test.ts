@@ -22,3 +22,17 @@ describe("NADM.4 home Admin", () => {
     }
   });
 });
+
+import { configPendencies } from "./admin-home";
+describe("NADM.UX — pendências de configuração", () => {
+  it("leitura indisponível nunca vira 'sem pendências'", () => {
+    expect(configPendencies({ accounts: null, policies: null }).map((x) => x.id)).toEqual(["pol-na", "acc-na"]);
+  });
+  it("zero lido não gera pendência", () => {
+    expect(configPendencies({ accounts: { total: 3, blocked: 0, mustChangePassword: 0, neverSignedIn: 1 }, policies: { latestHomologated: 2, drafts: 0 } })).toEqual([]);
+  });
+  it("sem política homologada e com rascunhos", () => {
+    expect(configPendencies({ accounts: { total: 1, blocked: 2, mustChangePassword: 0, neverSignedIn: 0 }, policies: { latestHomologated: null, drafts: 1 } }).map((x) => x.text))
+      .toEqual(["Nenhuma política de acessos homologada.", "1 rascunho de política aguardando revisão.", "2 contas bloqueadas."]);
+  });
+});
