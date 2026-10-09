@@ -173,6 +173,12 @@ const css = (st?: TextStyle) => !st ? "" : ` style="${[
   st.italic && "font-style:italic", st.align && `text-align:${st.align}`, st.color && `color:${COLOR_CSS[st.color]}`,
   st.spacingAfter !== undefined && `margin-bottom:${st.spacingAfter}pt`].filter(Boolean).join(";")}"`;
 
+/** Rodapé vai à margem da página (@page), nunca sobre o conteúdo; texto puro escapado para CSS. */
+const cssString = (t: string) => t.replace(/[\\'"\n\r<>]/g, (c) => `\\${c.charCodeAt(0).toString(16)} `);
+const footerPlain = (s: string, f: Facts, missing: Set<string>) => s.replace(TOKEN, (_, k: string) => {
+  const v = f[k]; if (isPresent(v) && !Array.isArray(v)) return String(v); missing.add(k); return `[${k}: sem registro]`;
+});
+
 export type RenderOutput = { html: string; missing: string[]; pageBreaks: number };
 
 export function renderStudio(a: { title: string; blocks: readonly StudioBlock[]; page: PageSetup; facts: Facts; draftLabel: string | null; assets?: Record<string, string> }): RenderOutput {
@@ -207,17 +213,16 @@ export function renderStudio(a: { title: string; blocks: readonly StudioBlock[];
   };
   const p = a.page; const m = p.marginsMm;
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(a.title)}</title><style>
-@page{size:A4 ${p.orientation === "paisagem" ? "landscape" : "portrait"};margin:${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm;${p.pageNumbers ? "@bottom-right{content:'Página ' counter(page) ' de ' counter(pages)}" : ""}}
+@page{size:A4 ${p.orientation === "paisagem" ? "landscape" : "portrait"};margin:${m.top}mm ${m.right}mm ${m.bottom}mm ${m.left}mm;${p.pageNumbers ? "@bottom-right{content:'Página ' counter(page) ' de ' counter(pages)}" : ""}${p.footerText ? `@bottom-center{content:'${cssString(footerPlain(p.footerText, a.facts, missing))}';font-size:8pt;color:#5b6475}` : ""}}
 body{font-family:'${p.baseFont}',serif;font-size:${p.baseSize}pt;color:#14213d;line-height:1.45}
 h1{font-size:15pt;text-align:center;margin:10pt 0}.inst{display:flex;gap:10pt;align-items:center;border-bottom:1px solid #1d4f91;padding-bottom:6pt;margin-bottom:8pt}.logo{height:48pt}
 table{width:100%;border-collapse:collapse;page-break-inside:auto}thead{display:table-header-group}tr{page-break-inside:avoid}th,td{border:1px solid #9aa3b2;padding:3pt 5pt;text-align:left}
 .box.bordered{border:1px solid #9aa3b2;padding:6pt;margin:6pt 0}.box.soft{background:#f3f5f8}.cols{display:grid;gap:10pt}
-.sig{margin-top:28pt;text-align:center;page-break-inside:avoid}.sigline{border-top:1px solid #14213d;width:60%;margin:0 auto 3pt}
+.dateplace{break-after:avoid}.sig+.sig,.sig+.qr{break-before:avoid}.sig{margin-top:28pt;text-align:center;page-break-inside:avoid}.sigline{border-top:1px solid #14213d;width:60%;margin:0 auto 3pt}
 .qr{display:inline-block;text-align:center}.qrbox{border:1px solid #14213d;padding:6pt;font-family:monospace}
 .ausente{color:#9a3412;font-style:italic}.pb{page-break-after:always}.draft{border:2px solid #9a3412;color:#9a3412;padding:4pt;text-align:center;font-weight:700;margin-bottom:8pt}
 ${p.watermark ? `body::before{content:'${esc(p.watermark)}';position:fixed;top:45%;left:10%;font-size:48pt;opacity:.08;transform:rotate(-30deg)}` : ""}
-footer.rod{position:fixed;bottom:0;left:0;right:0;font-size:8pt;color:#5b6475;text-align:center}
-</style></head><body>${a.draftLabel ? `<div class="draft" role="note">${esc(a.draftLabel)}</div>` : ""}${a.blocks.map(one).join("")}${p.footerText ? `<footer class="rod">${fill(p.footerText, a.facts, missing)}</footer>` : ""}</body></html>`;
+</style></head><body>${a.draftLabel ? `<div class="draft" role="note">${esc(a.draftLabel)}</div>` : ""}${a.blocks.map(one).join("")}</body></html>`;
   return { html, missing: [...missing].sort(), pageBreaks: breaks };
 }
 
