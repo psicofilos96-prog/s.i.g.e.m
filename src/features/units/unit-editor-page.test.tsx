@@ -25,7 +25,7 @@ describe("Nova/Editar unidade", () => {
   it("com a capacidade, edita a unidade pedida e volta à lista ao salvar", () => {
     caps = [{ capabilityId: "manter-cadastro-unidade-escolar" }];
     render(<UnitEditorPage schoolId="inep-33000000" />);
-    expect(section.mock.calls[0][0].focus).toEqual({ schoolId: "inep-33000000" });
+    expect(section.mock.calls[0]?.[0].focus).toEqual({ schoolId: "inep-33000000" });
     screen.getByText("salvar").click();
     expect(navigate).toHaveBeenCalledWith({ to: "/unidades" });
   });

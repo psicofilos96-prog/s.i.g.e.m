@@ -244,7 +244,6 @@ function SchoolDetail(props: {
     });
     if (error) return setErr(human(error.message));
     setErr(null);
-    savedRef.current = true;
     await reload();
   }
 
