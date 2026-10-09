@@ -20,3 +20,11 @@ Assistente Assunto → Filtros → Colunas → Prévia → Exportar; CSV/XLSX/PD
 - REPORT_XLSX_SHEETS_PENDING: XLSX com abas de metadados/gráficos.
 - REPORT_QR_PENDING: endpoint de verificação.
 - Testes autenticados (duas escolas reais, rede) e PDF renderizado não executados.
+
+## REPORT.PRO.2 — pacotes por setor (`sector-packs.ts`)
+Situação: parcial (PASS — SECTOR_REPORT_AND_CHART_PACKS_COMPLETE não declarado).
+- 54 pacotes nos 9 setores; cada um é só uma escolha pré-montada (assunto, colunas, agrupamento, cálculo, gráfico, layout), relida com a sessão de quem gera e personalizável.
+- Prontos (11), validados contra as colunas reais por teste: CIECE turmas por escola/etapa e escolas por dependência/localização; Secretaria turmas; Direção panorama de turmas e execução da alimentação; Alimentação solicitações, recebimentos, estoque, não conformidades e cobertura de execução; Admin cadastro das escolas. Todos com gráfico e tabela equivalente.
+- Bloqueados (43) com motivo por extenso: matrículas/movimentação (enturmação 2026), Mapa, Censo, qualidade, Diário/frequência, Avaliação, OP, Docente, Inclusão (CID/laudo nunca entram), vagas, Livro, documentos, saúde do sistema, acessos, auditoria, fechamento NAE.
+- Sem linhas, o gráfico fica vazio — nenhum número é inventado (teste).
+- Pendente: a tela da Central ainda não lista os pacotes nem os abre no gerador (REPORT_UI_PENDING).
