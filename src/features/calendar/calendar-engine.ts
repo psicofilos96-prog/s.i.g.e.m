@@ -519,6 +519,7 @@ function monthRow(
   to: number,
   cut?: number,
   vacationDisplay: "texto" | "marcador" = "texto",
+  periods: readonly CalendarPeriod[] = [],
 ): GridMonthRow {
   const nd = daysIn(r.year, month);
   const cells: GridCell[] = [];
@@ -551,8 +552,17 @@ function monthRow(
       tooltip: `${day}/${month} — ${info.label}`,
     });
   }
-  const sub = (a: number, b: number) =>
-    b < a ? 0 : countSchoolDays(r, iso(r.year, month, a), iso(r.year, month, b));
+  // Mesma regra do total: dia letivo fora de qualquer período não entra na coluna Total
+  // (aparece como aviso na validação), para que a coluna sempre some o total exibido.
+  const inPeriod = (d: IsoDate) => !periods.length || periods.some((p) => p.start <= d && p.end >= d);
+  const sub = (a: number, b: number) => {
+    let n = 0;
+    for (let day = a; day <= b; day++) {
+      const d = iso(r.year, month, day);
+      if (inPeriod(d) && countSchoolDays(r, d, d) === 1) n++;
+    }
+    return n;
+  };
   const row: GridMonthRow = {
     kind: "mes",
     month,
@@ -584,7 +594,7 @@ export function buildGrid(
   if (named.length === 0) {
     const cuts = totalColumnCuts(cal.periods, cal.year);
     for (let m = 1; m <= 12; m++)
-      rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m), cal.document.vacationDisplay ?? "texto"));
+      rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m), cal.document.vacationDisplay ?? "texto", cal.periods));
     rows.push({
       kind: "total",
       label: "TOTAL DE DIAS LETIVOS",
@@ -611,6 +621,7 @@ export function buildGrid(
           m === z.m ? z.d : daysIn(cal.year, m),
           undefined,
           cal.document.vacationDisplay ?? "texto",
+          cal.periods,
         ),
       );
     rows.push({
