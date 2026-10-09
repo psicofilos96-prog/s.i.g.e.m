@@ -40,7 +40,7 @@ describe("matrícula guiada — tela", () => {
   it("rascunho, retomada, foto, turma sem capacidade, recusa sem texto técnico e conclusão confirmada", async () => {
     const u = render(<EnrollmentWizard />);
     fireEvent.click(await screen.findByRole("button", { name: "Começar nova matrícula" }));
-    expect(screen.getByText("Etapa 1 de 8")).toBeTruthy();
+    expect(screen.getByRole("navigation", { name: "Seções da matrícula" })).toBeTruthy();
     expect(screen.getByText(/Faltam 5 informações obrigatórias/)).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Nome completo"), { target: { value: "E2E Aluno" } });
     // foto: arquivo falso recusado pelo conteúdo, JPEG real aceito
@@ -53,8 +53,6 @@ describe("matrícula guiada — tela", () => {
     expect(db.uploads[0]).toMatch(/^inep-A\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.jpg$/);
     await waitFor(() => expect((db.payload["foto"] as { path: string }).path).toBe(db.uploads[0]));
     expect(await screen.findByLabelText("Trocar foto")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
-    await waitFor(() => expect(db.step).toBe(2));
     fireEvent.click(screen.getByRole("button", { name: "Sair e continuar depois" }));
     await waitFor(() => expect(screen.getByText("Continuar de onde parou")).toBeTruthy());
     u.unmount();
@@ -63,16 +61,12 @@ describe("matrícula guiada — tela", () => {
     render(<EnrollmentWizard />);
     expect(await screen.findByText("E2E Aluno")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
-    expect(screen.getByText("Etapa 2 de 8")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "6. Ano letivo •" }));
     const sel = await screen.findByLabelText("Ano letivo");
     await waitFor(() => expect(sel.querySelectorAll("option").length).toBe(2));
     fireEvent.change(sel, { target: { value: "ano-x" } });
     fireEvent.change(screen.getByLabelText("Data de início na escola"), { target: { value: "2027-02-01" } });
-    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     expect(await screen.findByText("Capacidade não informada · 4 enturmado(s)")).toBeTruthy();
     fireEvent.click(screen.getByText("1º ANO A"));
-    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     expect(screen.getByText(/Tudo pronto para concluir/)).toBeTruthy();
     // recusa do banco: mensagem simples, nada técnico, rascunho continua
     db.failNext = "secretariat:class-invalid";
