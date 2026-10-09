@@ -31,7 +31,7 @@ BEGIN
 
   -- 2) Avaliação: writer do programa avaliativo com autoria = principal; consulta individual permitida.
   PERFORM set_config('request.jwt.claims', json_build_object('sub', ava, 'role', 'authenticated')::text, true);
-  rid := public.record_assessment_program(NULL, 'registro', 'BQ1 programa de prova', 'rede', 'rede', 'rede', 'rede', 'prova BQ.1', NULL);
+  rid := public.record_assessment_program(NULL, 'registro', 'BQ1 programa de prova', 'interna', 'rede', 'rede', 'registro-na-rede', 'prova BQ.1', NULL);
   SELECT * INTO rec FROM public.assessment_program_versions WHERE id = rid;
   IF rec.author_principal_id IS DISTINCT FROM ava_p OR rec.author_person_id IS NOT NULL THEN RAISE EXCEPTION 'avaliacao-authorship-wrong'; END IF;
   IF NOT public.has_network_capability('consultar-identidade-cadastral-do-estudante') OR NOT public.has_network_capability('manter-painel-inteligencia')
@@ -106,7 +106,7 @@ BEGIN
   IF NOT (public.has_network_capability('exportar-auditoria') AND public.has_network_capability('oficializar-mapa-estatistico')
       AND public.has_network_capability('acompanhar-educacao-inclusiva-rede') AND public.has_network_capability('manter-matricula-e-enturmacao')
       AND public.has_network_capability('realizar-conferencia-escolar') AND public.has_network_capability('registrar-acompanhamento-da-supervisao')) THEN RAISE EXCEPTION 'admin-station-caps'; END IF;
-  rid := public.record_assessment_program(NULL, 'registro', 'BQ1 programa admin', 'rede', 'rede', 'rede', 'rede', 'prova BQ.1', NULL);
+  rid := public.record_assessment_program(NULL, 'registro', 'BQ1 programa admin', 'interna', 'rede', 'rede', 'registro-na-rede', 'prova BQ.1', NULL);
   SELECT * INTO rec FROM public.assessment_program_versions WHERE id = rid;
   IF rec.author_person_id IS NULL OR rec.author_principal_id IS NOT NULL THEN RAISE EXCEPTION 'admin-authorship-not-human'; END IF;
   rid := public.record_meal_kitchen(NULL, NULL, 'Cozinha admin BQ1', schB, CURRENT_DATE, NULL, NULL);
