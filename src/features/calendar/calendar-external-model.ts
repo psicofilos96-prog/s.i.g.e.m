@@ -220,6 +220,8 @@ export type ExternalMonth = Readonly<{
   key: string; index: number; name: string; daysInMonth: number; firstWeekday: number;
   /** Mapa 1..31 → dia lido (undefined = data não lida/inexistente; nunca inventado). */
   byDay: ReadonlyMap<number, PrintDay>; total: PrintCount;
+  /** Mês com passagem de período (um termina e outro começa nele): letivos de cada lado, como no interno. */
+  split?: readonly [number, number];
   /** Grade semanal D..S: null = célula vazia antes/depois do mês. */
   weeks: readonly (readonly (number | null)[])[];
 }>;
@@ -274,12 +276,25 @@ export function buildExternalViewModel(model: PrintModel, presentation: Record<s
     while (cells.length % 7) cells.push(null);
     const weeks: (number | null)[][] = []; for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
     return { key: m.key, index: mi, name: MONTH_NAMES[mi]!, daysInMonth: dim, firstWeekday: first,
-      byDay: new Map(m.days.map((d) => [Number(d.on.slice(8, 10)), d])), total: m.total, weeks };
+      byDay: new Map(m.days.map((d) => [Number(d.on.slice(8, 10)), d])), total: m.total, weeks, ...splitOf(m.key, m.days, model.periods) };
   });
   const days = model.months.flatMap((m) => m.days);
   const councils = councilsOf(council);
   return { year, title: model.title, months, periods: model.periods, total: model.total, holidays: model.holidays,
     legendCodes: model.legendCodes, unmappedTypes: model.unmappedTypes, mismatches: model.mismatches, signatures: model.signatures, councils, days };
+}
+
+function splitOf(key: string, days: readonly PrintDay[], periods: readonly PrintPeriod[]): { split?: readonly [number, number] } {
+  const ps = [...periods].sort((a, b) => a.startsOn.localeCompare(b.startsOn));
+  for (let i = 0; i + 1 < ps.length; i++) {
+    const end = ps[i]!.endsOn, next = ps[i + 1]!.startsOn;
+    if (end.slice(0, 7) !== key || next.slice(0, 7) !== key) continue;
+    const inAny = (on: string) => ps.some((p) => p.startsOn <= on && p.endsOn >= on);
+    let a = 0, b = 0;
+    for (const d of days) if (d.effect === "letivo" && inAny(d.on)) { if (d.on <= end) a++; else b++; }
+    return { split: [a, b] };
+  }
+  return {};
 }
 
 export const countText = (c: PrintCount) => (c.schoolDays === null ? "indeterminado" : String(c.schoolDays));
