@@ -941,18 +941,30 @@ export function councilDaysForPeriod(r: ResolvedCalendar, p: CalendarPeriod, rol
   return out;
 }
 
-/** Uma linha por DIA de conselho: dez dias marcados ⇒ dez linhas. */
+/**
+ * Uma linha por DIA de conselho do ano inteiro: dez dias marcados ⇒ dez linhas.
+ * Dia fora de qualquer período (ex.: Conselho Final depois do fim do último período)
+ * pertence ao período anterior mais próximo — nunca some da lista.
+ */
 export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolveCalendar(cal)) {
   const out: Array<{ key: string; periodId: string; date: IsoDate; label: string; final: boolean }> =
     [];
-  for (const period of [...cal.periods].sort((a, b) => a.order - b.order)) {
-    const label = period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`;
-    for (const date of councilDaysForPeriod(r, period, "conselho"))
-      out.push({ key: `${period.id}-cc-${date}`, periodId: period.id, date, label, final: false });
-    const finLabel = period.finalCouncilLabel?.trim();
-    if (finLabel)
-      for (const date of councilDaysForPeriod(r, period, "conselho-final"))
-        out.push({ key: `${period.id}-cf-${date}`, periodId: period.id, date, label: finLabel, final: true });
+  const periods = [...cal.periods].filter((p) => p.start <= p.end).sort((a, b) => (a.start < b.start ? -1 : a.start > b.start ? 1 : a.order - b.order));
+  if (!periods.length) return out;
+  const owner = (d: IsoDate) =>
+    periods.find((p) => p.start <= d && d <= p.end) ??
+    [...periods].reverse().find((p) => p.end < d) ??
+    periods[0]!;
+  const dates = [...r.byDate.keys()].sort();
+  for (const date of dates) {
+    const role = typeInfo(r.types, r.byDate.get(date)!).councilRole;
+    if (role !== "conselho" && role !== "conselho-final") continue;
+    const period = owner(date);
+    const final = role === "conselho-final";
+    const label = final
+      ? period.finalCouncilLabel?.trim() || "Conselho de Classe Final"
+      : period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`;
+    out.push({ key: `${period.id}-${final ? "cf" : "cc"}-${date}`, periodId: period.id, date, label, final });
   }
   return out;
 }

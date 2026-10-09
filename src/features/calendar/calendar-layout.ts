@@ -474,7 +474,8 @@ function layerCss(scope: string, doc: CalendarDocumentConfig, pageScope = scope)
     if (def.title) rule(def.title, textDecl(r.title));
     if (def.row) {
       const d: string[] = [];
-      if (inLimit(r.rows.heightPt, "heightPt")) d.push(`height:${pt(r.rows.heightPt)}`, "box-sizing:content-box");
+      // min-height: a linha nunca fica menor que o texto (altura fixa sobrepunha linhas).
+      if (inLimit(r.rows.heightPt, "heightPt")) d.push(`height:auto`, `min-height:${pt(r.rows.heightPt)}`, "box-sizing:content-box");
       const pads = [
         ["padding-top", r.rows.padTopPt],
         ["padding-bottom", r.rows.padBottomPt],
