@@ -144,3 +144,11 @@ export function studioMessage(e: unknown): string {
   if (m.includes("studio:invalid-transition")) return "Essa mudança de estado não é permitida a partir do estado atual.";
   return "Não foi possível concluir. Tente novamente.";
 }
+
+/** Chaves de fato que o modelo usa (campos e tokens {{x}}), para o formulário de emissão. */
+export function factKeys(blocks: readonly StudioBlock[]): string[] {
+  const s = JSON.stringify(blocks); const out = new Set<string>();
+  for (const m of s.matchAll(/"fact":"([^"]+)"/g)) out.add(m[1]!);
+  for (const m of s.matchAll(/\{\{\s*([a-z0-9_.]+)\s*\}\}/gi)) out.add(m[1]!);
+  return [...out].sort();
+}
