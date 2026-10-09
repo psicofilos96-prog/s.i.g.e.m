@@ -1,3 +1,4 @@
+import { SECRETARIAT_TASKS } from "./secretariat-tasks";
 import { operationalToday } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -53,7 +54,7 @@ export function SecretariatPage() {
         <label className="text-sm">Data de referência<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
       </section>
       {ready ? <Station key={`${school}|${year}|${on}`} school={school} year={year} on={on} />
-        : <EmptyState title="Escolha escola, ano e data" description="A estação mostra apenas a escola escolhida; não há lista da rede." />}
+        : <EmptyState title="Escolha a escola e o ano" description="Depois disso aparecem as tarefas da sua escola." />}
     </div>
   );
 }
@@ -104,21 +105,27 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
       </section>
       <section aria-label="Trabalho de hoje" className="grid gap-4 sm:grid-cols-3">
         <WorkCard tone={ov.allocations.enrollments_without_class ? "attention" : "ok"} value={ov.allocations.enrollments_without_class}
-          title="Alunos sem turma" hint="Abra o aluno na lista abaixo e use Enturmar." />
+          title="Alunos sem turma" hint="Ache o aluno e coloque-o numa turma." />
         <WorkCard tone={pending?.length ? "attention" : "ok"} value={pending?.length ?? null}
           title="Pendências de cadastro" hint="Cada item mostra o que falta para concluir." />
         <WorkCard tone={ov.enrollments.start_unknown ? "attention" : "ok"} value={ov.enrollments.start_unknown}
           title="Matrículas sem data de início" hint="Não entram na contagem de ativos até ter a data." />
       </section>
-      <section aria-label="Ações rápidas" className="flex flex-wrap gap-3">
-        <Button asChild size="lg"><Link to="/matriculas/nova">Nova matrícula</Link></Button>
-        <Button asChild size="lg" variant="outline"><Link to="/documentos-escolares" search={{ escola: school }}>Emitir documento</Link></Button>
-        <Button asChild size="lg" variant="outline"><Link to="/mapa-estatistico">Mapa do mês</Link></Button>
-        <Button asChild size="lg" variant="outline"><Link to="/turmas">Turmas</Link></Button>
-        <Button asChild size="lg" variant="outline"><Link to="/secretaria/vagas">Vagas</Link></Button>
-        <Button asChild size="lg" variant="outline"><Link to="/secretaria/livro-matricula">Livro de Matrícula</Link></Button>
-        <Button asChild size="lg" variant="outline"><Link to="/secretaria/servicos">Serviços da escola</Link></Button>
+      <section aria-labelledby="tarefas" className="space-y-2">
+        <h2 id="tarefas" className="font-semibold">O que você quer fazer?</h2>
+        <ul className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          {SECRETARIAT_TASKS.map((t) => {
+            const body = <><span className="block font-semibold">{t.title}</span><span className="block text-sm text-muted-foreground">{t.hint}</span></>;
+            const cls = "block min-h-16 rounded-xl border border-border bg-card p-4 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+            return <li key={t.id}>{t.target.kind === "route"
+              ? (t.target.to === "/documentos-escolares" ? <Link to="/documentos-escolares" search={{ escola: school }} className={cls}>{body}</Link> : <Link to={t.target.to} className={cls}>{body}</Link>)
+              : <a href="#busca" className={cls} onClick={() => setTimeout(() => document.getElementById("busca-valor")?.focus(), 0)}>{body}</a>}</li>;
+          })}
+        </ul>
+        <p className="text-sm"><span className="text-muted-foreground">Outras áreas: </span>
+          <Link className="underline" to="/turmas">Turmas</Link> · <Link className="underline" to="/mapa-estatistico">Mapa do mês</Link> · <Link className="underline" to="/secretaria/servicos">Serviços da escola</Link></p>
       </section>
+      <Lookup school={school} year={year} onFound={setStudent} />
       <details className="rounded-2xl border border-border bg-card p-4">
         <summary className="cursor-pointer font-semibold">Ver números da escola</summary>
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
@@ -149,7 +156,6 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
               {pending.length > 200 ? <li className="p-2 text-muted-foreground">Mais {pending.length - 200} pendências; use a busca exata.</li> : null}
             </ul>}
       </section>
-      <Lookup school={school} year={year} onFound={setStudent} />
       {student ? <SchoolLife key={student.id} school={school} year={year} on={on} student={student} onChanged={load} /> : null}
     </div>
   );
@@ -169,14 +175,14 @@ function Lookup({ school, year, onFound }: { school: string; year: string; onFou
   }
   return (
     <section aria-labelledby="busca" className="space-y-2">
-      <h2 id="busca" className="font-semibold">Encontrar um aluno</h2>
+      <h2 id="busca" className="scroll-mt-20 font-semibold">Achar aluno</h2>
       <div className="flex flex-wrap gap-2">
-        <select aria-label="Identificador" className="rounded-md border border-input bg-background p-2 text-sm" value={kind} onChange={(e) => setKind(e.target.value as StudentLookupKind)}>
+        <select aria-label="Buscar por" className="rounded-md border border-input bg-background p-2 text-sm" value={kind} onChange={(e) => setKind(e.target.value as StudentLookupKind)}>
           <option value="cpf">CPF</option><option value="inep">INEP</option></select>
-        <Input className="max-w-xs" aria-label="Valor" value={value} onChange={(e) => setValue(e.target.value)} />
-        <Button onClick={go}>Localizar</Button>
+        <Input id="busca-valor" className="max-w-xs" aria-label="Número do documento" inputMode="numeric" value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void go(); }} />
+        <Button onClick={go}>Buscar</Button>
       </div>
-      <p className="text-xs text-muted-foreground">Sem busca por nome. Cada busca é registrada sem guardar o valor.</p>
+      <p className="text-xs text-muted-foreground">Digite o CPF ou o INEP do aluno. Não há busca por nome.</p>
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
     </section>
   );
@@ -204,7 +210,7 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
               <span className="font-medium">{lifeKindLabel(r.kind)}</span> · {r.occurred_on ?? "data não declarada"} · {r.label}
               {r.school_id && r.school_id !== school ? " (outra escola)" : ""}
             </li>))}</ol>}
-      <p className="text-xs text-muted-foreground">Transferência encerra a origem e registra o destino; a história nunca é movida. O destino constitui o próprio vínculo.</p>
+      <p className="text-xs text-muted-foreground">Na transferência, a matrícula aqui é encerrada e a história do aluno fica guardada.</p>
       {current ? <Actions school={school} year={year} enrollment={current.ref_id} episode={episode} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
       {rows ? <DocumentPendenciesPanel school={school} student={student.id} enrollment={current?.ref_id ?? null} on={on} /> : null}
     </section>
@@ -225,7 +231,7 @@ function Actions({ school, year, enrollment, episode, on, onDone }: { school: st
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <fieldset className="space-y-2 rounded-md border border-border p-3 text-sm">
-        <legend className="font-medium">Enturmar</legend>
+        <legend className="font-medium">Colocar em turma ou trocar de turma</legend>
         {classes === null ? <SkeletonState label="Carregando turmas" />
           : classes.length === 0 ? <p className="text-muted-foreground">Nenhuma turma ativa desta escola e ano na data escolhida.</p>
           : <div role="radiogroup" aria-label="Turma" className="max-h-56 space-y-1 overflow-y-auto">
@@ -245,7 +251,7 @@ function Actions({ school, year, enrollment, episode, on, onDone }: { school: st
           : types.length === 0 ? <p className="text-muted-foreground">Nenhum tipo de movimentação homologado. A saída fica indisponível até a homologação.</p>
           : <>
             <select aria-label="Tipo" className="w-full rounded-md border border-input bg-background p-2" value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="">Tipo homologado</option>{types.map((x) => <option key={`${x.id}@${x.version}`} value={`${x.id}@${x.version}`}>{x.label}</option>)}</select>
+              <option value="">Escolha o tipo de saída</option>{types.map((x) => <option key={`${x.id}@${x.version}`} value={`${x.id}@${x.version}`}>{x.label}</option>)}</select>
             <Input aria-label="Escola de destino" placeholder="Escola de destino (opcional)" value={dest} onChange={(e) => setDest(e.target.value)} />
             <Button size="sm" variant="destructive" disabled={!t || !reason.trim()} onClick={() => t && run(() => recordExit({ enrollment, effectiveOn: from, movementType: t.id, typeVersion: t.version, destinationSchool: dest.trim() || null, reason: reason.trim() }), "Saída registrada; a origem foi preservada.")}>Registrar saída</Button>
           </>}
