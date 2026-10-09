@@ -148,3 +148,11 @@ describe("Espelho Regular → EJA Fase I", () => {
     expect(repo.get("cal-rede-2027-eja-fase-1")!.title).not.toBe(repo.get("cal-rede-2027-regular")!.title);
   });
 });
+
+describe("Conselho fora do período", () => {
+  it("dias de Conselho Final depois do fim do último período ainda aparecem, um por linha", () => {
+    const cal = byId("cal-rede-2027-regular");
+    const withExtra = { ...cal, overrides: [...cal.overrides, { date: "2027-12-20", type: "CF" as const }, { date: "2027-12-21", type: "CF" as const }] };
+    expect(councilDates(withExtra).filter((c) => c.final).map((c) => c.date)).toEqual(["2027-12-17", "2027-12-20", "2027-12-21"]);
+  });
+});
