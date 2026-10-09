@@ -85,3 +85,7 @@ Status: **PASS técnico**; INFRAESTRUTURA_PENDENTE (tipos por área no armazenam
 Correções técnicas:
 - Importações lidas no navegador (layout do calendário, referência curricular, Censo, Central de Importações) não tinham teto de tamanho: agora recusam acima de 20 MB (`IMPORT_MAX_BYTES` em `import-kernel.ts`, teste `import-size.test.ts`), sem gravar nada. É limite técnico, não norma.
 - Anexo de inclusão e anexo de planejamento não indicavam ao seletor os tipos aceitos; agora indicam JPG/PNG/WEBP/PDF, os mesmos da política (que continua sendo a garantia).
+
+## NMIME.1 (2026-10-09) — limites na camada de armazenamento
+- Tamanho: aplicado pela ferramenta suportada da plataforma, igual a `upload-policy.ts` — fotos-estudantes 5 MB; inclusao-sensivel, planejamento-docente, avaliacao-docente, alimentacao-evidencias 10 MB. Prova real: arquivo acima do limite recusado pelo armazenamento nos 5; arquivo pequeno aceito; envio anônimo recusado nos 5.
+- Tipos (JPG/PNG/WEBP/PDF): INFRAESTRUTURA_PENDENTE. Não há ferramenta suportada para restringir tipos no armazenamento e alteração direta da configuração por SQL é recusada; nada improvisado. Defesa vigente: `file-guard.ts` confere a assinatura real do arquivo (não a extensão nem o tipo declarado) antes do envio, e as políticas de acesso por pasta continuam valendo.
