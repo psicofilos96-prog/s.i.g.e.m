@@ -1856,6 +1856,13 @@
       "when": 1791539191985,
       "tag": "0264_perf_loading_3_infra_coverage_reader",
       "breakpoints": true
+    },
+    {
+      "idx": 265,
+      "version": "7",
+      "when": 1791539327208,
+      "tag": "0265_perf_loading_3_active_enrollments_reader",
+      "breakpoints": true
     }
   ]
 }

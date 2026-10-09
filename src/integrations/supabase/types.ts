@@ -18108,6 +18108,13 @@ export type Database = {
         }
         Returns: string
       }
+      active_enrollments_at: {
+        Args: { _known_at?: string; _on: string; _school: string }
+        Returns: {
+          active_ids: string[]
+          undated_count: number
+        }[]
+      }
       admin_account_overview: {
         Args: never
         Returns: {
