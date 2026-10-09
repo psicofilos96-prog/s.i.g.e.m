@@ -152,13 +152,7 @@ describe("Espelho Regular → EJA Fase I", () => {
 describe("Conselho fora do período", () => {
   it("dias de Conselho Final depois do fim do último período ainda aparecem, um por linha", () => {
     const cal = byId("cal-rede-2027-regular");
-    const cf = Object.entries(createCalendarFixtures()[0]!.dayTypeCatalog ?? {}).length;
-    void cf;
-    const ev = cal.events[0]!;
-    const extra = ["2027-12-20", "2027-12-21"].map((d, i) => ({ ...ev, id: `x${i}`, start: d, end: d, type: "CF" }));
-    const withExtra = { ...cal, events: [...cal.events, ...extra] } as typeof cal;
-    const l = councilDates(withExtra).map((c) => c.date.slice(5));
-    expect(l).toContain("12-20");
-    expect(l).toContain("12-21");
+    const withExtra = { ...cal, overrides: [...cal.overrides, { date: "2027-12-20", type: "CF" as const }, { date: "2027-12-21", type: "CF" as const }] };
+    expect(councilDates(withExtra).filter((c) => c.final).map((c) => c.date)).toEqual(["2027-12-17", "2027-12-20", "2027-12-21"]);
   });
 });
