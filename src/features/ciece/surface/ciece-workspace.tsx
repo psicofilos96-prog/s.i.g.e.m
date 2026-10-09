@@ -235,7 +235,7 @@ function ExplainPanel({ entry, source, catalog, classId, reference }: {
   );
 }
 
-export function CieceWorkspace({ source, catalog, initialReference }: { source: CieceSource; catalog: CieceCatalog; initialReference: CieceReference }) {
+export function CieceWorkspace({ source, catalog, initialReference, tasks }: { source: CieceSource; catalog: CieceCatalog; initialReference: CieceReference; tasks?: React.ReactNode }) {
   const [classId, setClassId] = useState<string | null>(catalog.scopes[0]?.classId ?? null);
   const [reference, setReference] = useState<CieceReference>(initialReference);
   const [selected, setSelected] = useState<string | null>(null);
@@ -251,6 +251,21 @@ export function CieceWorkspace({ source, catalog, initialReference }: { source: 
         <StatePanel tone="warning" title="Laboratório demonstrativo" description="Todos os números desta página são fictícios e simulados. Nada é lido ou gravado no banco institucional." />
       )}
 
+      {tasks}
+
+      <details className="rounded-md border border-border/70 px-3 py-2">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">Como os números são formados</summary>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+          <li>Cada número vem de registros oficiais do sistema, contados por uma regra publicada.</li>
+          <li>“0” quer dizer que os registros foram lidos e nada foi encontrado. Quando não há dado, aparece o motivo por extenso, nunca zero.</li>
+          <li>Em cada indicador, “Como este número foi formado?” mostra a origem, a regra e a cobertura.</li>
+          <li>Grupos muito pequenos podem ser ocultados para proteger as pessoas.</li>
+        </ul>
+      </details>
+
+      <details className="group rounded-md border border-border/70 p-3">
+        <summary className="cursor-pointer text-base font-semibold text-foreground">Consultar indicadores</summary>
+        <div className="mt-3 space-y-6">
       {catalog.scopes.length === 0 ? (
         <StatePanel tone="neutral" title={STATE_PRESENTATION["nao-autorizado"].label} description="Nenhuma turma está no seu escopo analítico. Uma atuação vigente com a capacidade de consulta agregada, concedida por política homologada, é necessária." />
       ) : (
@@ -275,6 +290,8 @@ export function CieceWorkspace({ source, catalog, initialReference }: { source: 
           )}
         </>
       )}
+        </div>
+      </details>
 
       <Sheet open={!!entry} onOpenChange={(o) => !o && setSelected(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
