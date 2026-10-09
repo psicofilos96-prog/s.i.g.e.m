@@ -7,6 +7,7 @@ import type { CellValue, ColumnDef, ReportDefinition } from "./report-engine";
 import type { BuilderSource, Page } from "./report-builder";
 import { structureOf } from "@/features/statistical-map/map-structures";
 import { DIVERGENCE_LABEL, MEASURE_LABEL, classify, coverage as censusCoverage, difference } from "@/features/data-quality/census-official";
+import { panoramaRows, type ReconRow } from "./cross-reports";
 import { REPORTING_REPORTS, toReportRow, type Dataset } from "@/features/school-meals/reporting-model";
 
 const C = (id: string, label: string, kind: ColumnDef["kind"] = "text"): ColumnDef => ({ id, label, kind });
@@ -222,6 +223,49 @@ const CIECE_SOURCES: BuilderSource[] = [
       return { rows, total: rows.length };
     }, schoolIdColumn: "school" },
 ];
+const PANORAMA_DEF: ReportDefinition = {
+  id: "gerador-panorama-escolas", version: 1, title: "Panorama 2026 por escola", description: "Escola × turmas × matrículas × alunos distintos × registros de pessoal, conferido com o Censo.",
+  source: "census_official_reconciliation (base operacional) + institutional_school_record_versions + staff_administrative_records", params: [],
+  columns: [C("school", "Escola"), C("inep", "INEP"), C("classes", "Turmas", "number"), C("enrollments", "Matrículas (vínculos aluno × turma)", "number"), C("students", "Alunos distintos", "number"), C("enrollments_per_class", "Matrículas por turma", "number"), C("staff_records", "Registros de pessoal (planilha ago–set)", "number"), C("census_match", "Confere com o Censo")],
+  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
+};
+const STAFF_DEF: ReportDefinition = {
+  id: "gerador-pessoal", version: 1, title: "Pessoal por escola e setor", description: "Registros administrativos das planilhas de pessoal 2026 (escolas ago–set e SEMED por setor).",
+  source: "staff_administrative_records", params: [],
+  columns: [C("place", "Escola / setor"), C("cargo", "Cargo"), C("funcao", "Função"), C("vinculo", "Vínculo"), C("grupo", "Grupo da planilha"), C("situacao", "Situação"), { id: "name", label: "Nome", kind: "text", sensitive: true }, C("source", "Fonte"), C("reference", "Referência")],
+  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
+};
+async function readAll<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: unknown }>): Promise<T[]> {
+  const out: T[] = [];
+  for (let off = 0; ; off += 1000) { const r = await page(off, off + 999); if (r.error) fail(); out.push(...(r.data ?? [])); if ((r.data ?? []).length < 1000) return out; }
+}
+const CROSS_SOURCES: BuilderSource[] = [
+  { id: "gerador-panorama-escolas", title: "Panorama 2026 por escola", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"], definition: PANORAMA_DEF,
+    methodology: "Unidades: turmas registradas; matrículas = vínculos aluno × turma (um aluno em duas turmas conta duas); alunos = pessoas distintas. Base operacional do dia da geração, conferida com o recibo Educacenso 2026. Pessoal = linhas das planilhas de pessoal, que não são atuação no SIGEM. Total só quando todas as escolas têm o dado.",
+    acl: "Cada parte é lida com a RLS de quem gera; o que a conta não pode ler sai \"não disponível\".", period: false, pageSize: 5000, filterable: ["school", "census_match"],
+    load: async ({ offset }) => {
+      if (offset > 0) return { rows: [], total: null };
+      const rec = await (supabase.rpc as unknown as (f: string, p: object) => Promise<{ data: ReconRow[] | null; error: unknown }>)("census_official_reconciliation", { _known_at: new Date().toISOString() });
+      if (rec.error) fail();
+      const sv = await readAll<{ school_id: string; official_name: string | null; version_number: number }>((a, b) => supabase.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("school_id").order("version_number", { ascending: false }).range(a, b));
+      const names = new Map<string, string>(); for (const x of sv) if (!names.has(x.school_id) && x.official_name) names.set(x.school_id, x.official_name);
+      let staff: Map<string, number> | null = null;
+      try {
+        const st = await readAll<{ school_id: string | null }>((a, b) => tdb.from("staff_administrative_records").select("school_id").not("school_id", "is", null).order("id").range(a, b));
+        staff = new Map(); for (const x of st) if (x.school_id) staff.set(x.school_id, (staff.get(x.school_id) ?? 0) + 1);
+      } catch { staff = null; }
+      const rows = panoramaRows(rec.data ?? [], names, staff).map((r) => ({ ...r }));
+      return { rows, total: rows.length };
+    } },
+  { id: "gerador-pessoal", title: "Pessoal por escola e setor", sectors: ["dp", "supervisao", "op-direcao", "admin"], definition: STAFF_DEF,
+    methodology: "Uma linha por pessoa listada nas planilhas de pessoal 2026, com a aba de origem (em atuação, afastados, a conferir). Registro administrativo: não concede acesso nem prova atuação. O nome é dado pessoal e só sai se você incluir a coluna.",
+    acl: "RLS do quadro de pessoal: rede ou a própria escola, com a sessão de quem gera.", period: false, pageSize: 1000, filterable: ["place", "cargo", "funcao", "vinculo", "situacao", "grupo"],
+    load: async ({ offset, limit }) => {
+      const r = await tdb.from("staff_administrative_records").select("school_name_source, sector, cargo, funcao, vinculo, grupo, situacao, full_name, source_file, reference_period", { count: "exact" }).order("id").range(offset, offset + limit - 1);
+      if (r.error) fail();
+      return { rows: ((r.data ?? []) as Raw[]).map((x) => ({ place: v(x["school_name_source"] ?? x["sector"]), cargo: v(x["cargo"]), funcao: v(x["funcao"]), vinculo: v(x["vinculo"]), grupo: v(x["grupo"]), situacao: v(x["situacao"]), name: v(x["full_name"]), source: v(x["source_file"]), reference: v(x["reference_period"]) })), total: r.count ?? null };
+    } },
+];
 export const BUILDER_SOURCES: readonly BuilderSource[] = [
   { id: "gerador-escolas", title: "Cadastro das escolas", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"], definition: SCHOOLS_DEF,
     methodology: "Uma linha por escola: a versão de cadastro mais recente que a conta pode ler. Campo não informado sai como \"não disponível\".",
@@ -235,7 +279,7 @@ export const BUILDER_SOURCES: readonly BuilderSource[] = [
     load: loadEnrollments, finalize: (r) => dropSuperseded(r), schoolIdColumn: "school" },
   ...(["pedidos", "entregas", "nao-conformidades", "movimentos", "execucoes"] as const).map(mealSource),
   pending("gerador-avaliacao", "Avaliação — resultados por habilidade", ["avaliacao"], "Os resultados saem pela tela de Desempenho, com a política de supressão dela; leitura transversal ainda não liberada."),
-  pending("gerador-dp", "DP — vínculos funcionais", ["dp"], "Sem leitor transversal autorizado para dados funcionais; use a estação do DP."),
+  ...CROSS_SOURCES,
   pending("gerador-infraestrutura", "Infraestrutura das escolas", ["supervisao", "ciece"], "Sem adaptador governado de infraestrutura no gerador; use Unidades Escolares."),
   pending("gerador-alunos", "Alunos (nominal)", ["secretaria"], "Dado nominal de estudante: leitura transversal exige reader com supressão por campo ainda não registrado."),
   pending("gerador-movimentacoes", "Movimentações", ["secretaria"], "Depende de enturmação 2026 (ENROLLMENT_EPISODES_2026_PENDING) e de reader de movimentações."),
