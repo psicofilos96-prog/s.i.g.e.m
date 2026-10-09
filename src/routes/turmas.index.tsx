@@ -1,5 +1,5 @@
+import { SignInRequired } from "@/components/sigem/sign-in-required";
 import { createFileRoute } from "@tanstack/react-router";
-import { ClassesListPage } from "@/features/classes/classes-list-page";
 import { brand } from "@/config/branding";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
 import * as Inst from "@/features/classes/institutional-classes-pages";
@@ -22,5 +22,5 @@ export const Route = createFileRoute("/turmas/")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <ClassRouteGate institutional={() => <Inst.InstitutionalClassesListPage />} laboratory={() => <ClassesListPage />} />,
+  component: () => <ClassRouteGate laboratoryHasHeading institutional={() => <Inst.InstitutionalClassesListPage />} laboratory={() => <SignInRequired title="Turmas" what="as turmas" />} />,
 });
