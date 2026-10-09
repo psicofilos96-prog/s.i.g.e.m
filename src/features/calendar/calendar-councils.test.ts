@@ -121,3 +121,13 @@ describe("persistência do Salvar", () => {
     expect(migrateCouncils(hom, ref)).toBe(hom);
   });
 });
+
+describe("Conselho em vários dias", () => {
+  it("lista todos os dias marcados como Conselho Final, não só o último", () => {
+    const cal = byId("cal-rede-2027-regular");
+    const cf = cal.days.find((d) => d.date === "2027-12-17")!;
+    const withTwo = { ...cal, days: [...cal.days.filter((d) => d.date !== "2027-12-16"), { ...cf, date: "2027-12-16" }] };
+    const fin = councilDates(withTwo).find((c) => c.final)!;
+    expect(fin.dates).toEqual(["2027-12-16", "2027-12-17"]);
+  });
+});
