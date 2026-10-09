@@ -35,7 +35,7 @@ function usePanorama(enabled: boolean) {
     retry: 1,
     queryFn: async () => {
       const src = BUILDER_SOURCES.find((s) => s.id === "gerador-panorama-escolas");
-      if (!src) throw new Error("fonte indisponível");
+      if (!src?.load) throw new Error("fonte indisponível");
       const r = await src.load({ offset: 0, limit: 5000 } as never);
       return r.rows as unknown as PanoramaRow[];
     },
