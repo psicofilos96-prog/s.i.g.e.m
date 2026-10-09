@@ -158,3 +158,12 @@ export function pageTitleForPath(pathname: string): string {
   if (pathname.startsWith("/preparacao-2027")) return "Preparação de 2027";
   return "SIGEM";
 }
+
+/** UX.PREMIUM.1 — trilha da barra superior: domínio do menu › página. Sem grupo conhecido, só a página. */
+export function breadcrumbForPath(pathname: string): { group: string | null; page: string } {
+  const page = pageTitleForPath(pathname);
+  const group = provisionalNavigation.find((g) =>
+    g.items.some((i) => i.to !== "/" && (pathname === i.to || pathname.startsWith(`${i.to}/`))),
+  );
+  return { group: group && group.label !== page ? group.label : null, page };
+}

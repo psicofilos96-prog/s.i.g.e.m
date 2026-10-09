@@ -15,6 +15,7 @@ import {
   Building2,
   Check,
   ChevronDown,
+  ChevronRight,
   CircleHelp,
   Menu,
   PanelLeftClose,
@@ -26,7 +27,7 @@ import { institution } from "@/config/institution";
 import { isPublicPath } from "@/features/public-portal/public-paths";
 import { markVoluntarySignOut, safeRedirect } from "@/features/authority/session-lifecycle";
 import { brand } from "@/config/branding";
-import { pageTitleForPath, provisionalNavigation } from "@/config/navigation";
+import { breadcrumbForPath, pageTitleForPath, provisionalNavigation } from "@/config/navigation";
 import { guideForPath } from "@/config/route-guides";
 import { TaskGuide } from "@/components/sigem/guidance";
 import { cn } from "@/lib/utils";
@@ -370,6 +371,7 @@ function Topbar({
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const pageName = pageTitleForPath(pathname);
+  const crumb = breadcrumbForPath(pathname);
   const session = useSessionAuthority();
   return (
     <header
@@ -398,9 +400,19 @@ function Topbar({
           </SheetContent>
         </Sheet>
 
-        <p className="min-w-0 truncate font-display text-base font-semibold text-foreground lg:text-lg">
-          {pageName}
-        </p>
+        <nav aria-label="Você está em" className="min-w-0">
+          <ol className="flex min-w-0 items-center gap-1.5 text-sm">
+            {crumb.group && (
+              <li className="hidden shrink-0 items-center gap-1.5 text-muted-foreground md:flex">
+                <span>{crumb.group}</span>
+                <ChevronRight className="size-3.5 opacity-60" aria-hidden="true" />
+              </li>
+            )}
+            <li aria-current="page" className="min-w-0 truncate font-display text-[0.9375rem] font-semibold text-foreground lg:text-base">
+              {pageName}
+            </li>
+          </ol>
+        </nav>
 
         <button
           type="button"
