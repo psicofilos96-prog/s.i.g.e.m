@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 271. Sem classe: 0. Com referência quebrada: 1.
+Documentos: 272. Sem classe: 0. Com referência quebrada: 1.
 
 ## Arquitetura, regras e invariantes
 
@@ -35,7 +35,7 @@ Documentos: 271. Sem classe: 0. Com referência quebrada: 1.
 
 **Vigente:** `documentos-canonicos-por-dominio-ndocs2.md`, `documentos-escolares-motor.md`, `documentos-impressao-auditoria.md`, `familia-carteirinha-autorizacoes.md`, `secretaria-documentos-transferencias-renovacao.md`, `secretaria-escolar-produto-completo.md`, `secretaria-fluxo-real-pos-diario.md`, `secretaria-vida-escolar.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-familia-carteirinha-n925.md`, `auditoria-pdfs-npdf3.md`, `auditoria-secretaria-n56.md`, `familia-carteirinha-nfam1.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-familia-carteirinha-n925.md`, `auditoria-pdfs-npdf3.md`, `auditoria-secretaria-n56.md`, `familia-carteirinha-nfam1.md`, `n2026-import-3-turmas-alunos-matriculas.md`
 
 **Pendências declaradas:**
 - `auditoria-familia-carteirinha-n925.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -247,4 +247,4 @@ Documentos: 271. Sem classe: 0. Com referência quebrada: 1.
 
 ## Referências quebradas
 
-- `mapa-documentacao-vigente.md`: `n2026-import-3-turmas-alunos-matriculas.md`
+- `mapa-documentacao-vigente.md`: `n2026-import-4-censo-snapshot-oficial.md`
