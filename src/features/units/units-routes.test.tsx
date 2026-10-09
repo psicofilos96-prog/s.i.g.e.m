@@ -4,6 +4,7 @@ import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 const state = vi.hoisted(() => ({ session: true as boolean, fail: false as boolean, schools: [] as { id: string }[], ids: [] as unknown[], versions: [] as unknown[] }));
+vi.mock("@/features/authority/session-authority", () => ({ useSessionAuthority: () => ({ status: "signed-in", capabilities: [] }) }));
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: { getSession: () => Promise.resolve({ data: { session: state.session ? {} : null } }) },
