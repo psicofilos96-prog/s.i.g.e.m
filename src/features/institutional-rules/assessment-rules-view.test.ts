@@ -11,10 +11,10 @@ describe("NAVRULES.1 regras de Avaliação", () => {
     expect(assessmentRulesState({ kind: "acesso-negado" }).kind).toBe("acesso-negado");
   });
   it("histórico decrescente e vigente só pelo estado do banco", () => {
-    const [g] = groupRules([row(1, "superada"), row(3, "rascunho"), row(2, "vigente")]);
+    const g = groupRules([row(1, "superada"), row(3, "rascunho"), row(2, "vigente")])[0]!;
     expect(g.versions.map((v) => v.version)).toEqual([3, 2, 1]);
     expect(g.current?.version).toBe(2);
-    expect(groupRules([row(1, "rascunho")])[0].current).toBeNull();
+    expect(groupRules([row(1, "rascunho")])[0]!.current).toBeNull();
   });
   it("ações só com as capacidades do domínio", () => {
     expect(assessmentRuleActions([])).toEqual({ draft: false, homologate: false });
