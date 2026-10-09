@@ -120,3 +120,20 @@ ${sections}
 <footer>Documento gerado pelo SIGEM em ${esc(d.generatedAt)} a partir da fotografia ${d.revision ? "aprovada" : "dinâmica (não oficial)"} desta competência.</footer>
 </body></html>`;
 }
+
+/** NMAP.UX — valor em tela: zero lido é "0"; ausência nunca vira zero nem traço mudo. */
+export function cellValueText(value: string | number | boolean | null | undefined): string {
+  if (value === null || value === undefined || value === "") return "Não informado";
+  if (typeof value === "boolean") return value ? "Sim" : "Não";
+  return String(value);
+}
+
+/** NMAP.UX — próxima ação por etapa do fluxo; só orienta, não decide nem libera ato. */
+export const STAGE_NEXT_STEP: Record<WorkflowStage, string> = {
+  rascunho: "A escola revisa as estruturas I–VI e envia o Mapa para a Estatística.",
+  enviado: "Aguardando a Estatística aprovar ou devolver.",
+  reenviado: "Reenviado após ajuste. Aguardando a Estatística.",
+  devolvido: "A escola corrige o que o motivo da devolução aponta e envia de novo.",
+  aprovado: "Mapa aprovado. Mudanças só por retificação (nova revisão).",
+  "em-retificacao": "Retificação aberta: revise, envie e aguarde nova aprovação.",
+};

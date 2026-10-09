@@ -17,7 +17,7 @@ import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report
 import { type CellState, type MapCell } from "./map-domain";
 import { snapshotReasonText } from "./map-domain";
 import { SchoolCompositionStructure } from "@/features/classes/class-composition-views";
-import { STAGE_LABEL, groupByStructure, originBadge, projectWorkflow, renderMapDocument } from "./map-structures";
+import { STAGE_LABEL, STAGE_NEXT_STEP, cellValueText, groupByStructure, originBadge, projectWorkflow, renderMapDocument } from "./map-structures";
 import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, returnStatisticalMap, adjustMapCell, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
@@ -65,9 +65,9 @@ type AdjustProps = { info: MapView["adjustable"][number]; canAdjust: boolean; bu
 function AdjustBox({ c, info, canAdjust, busy, onSubmit }: AdjustProps & { c: MapCell }) {
   const [val, setVal] = useState(""); const [why, setWhy] = useState("");
   return (
-    <details className="mt-2 text-xs">
+    <details className="mt-2 text-xs print:hidden">
       <summary className="cursor-pointer font-medium">Ajuste manual{info.history.length ? ` (${info.history.length} registro${info.history.length > 1 ? "s" : ""})` : ""}</summary>
-      {c.adjustment && <p className="mt-1">Calculado pelo SIGEM: <strong>{c.adjustment.calculated ?? "—"}</strong> · Valor efetivo: <strong>{c.adjustment.adjusted ?? "—"}</strong> · Motivo: {c.adjustment.reason}</p>}
+      {c.adjustment && <p className="mt-1">Calculado pelo SIGEM: <strong>{cellValueText(c.adjustment.calculated)}</strong> · Valor efetivo: <strong>{cellValueText(c.adjustment.adjusted)}</strong> · Motivo: {c.adjustment.reason}</p>}
       {info.history.length > 0 && <ol className="mt-1 list-decimal pl-4">{info.history.map((h) => <li key={h.at}>{formatDateTime(h.at)} — {h.kind === "anulacao" ? "ajuste anulado" : `ajustado para ${h.adjusted}`} pela {h.side === "escola" ? "escola" : "Estatística"}: {h.reason}</li>)}</ol>}
       {canAdjust && (
         <div className="mt-2 space-y-1">
@@ -88,7 +88,7 @@ function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }
   const st = STATE[c.state];
   const ref = c.reference?.at ? `em ${fmtDate(c.reference.at)}` : c.reference?.from ? `de ${fmtDate(c.reference.from)} a ${fmtDate(c.reference.to)}` : null;
   return (
-    <li className="rounded-md border border-border bg-card p-3">
+    <li className="break-inside-avoid rounded-md border border-border bg-card p-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-sm font-medium break-words">{c.label}</p>
@@ -98,11 +98,12 @@ function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }
         <span className={cn("rounded-md border px-2 py-0.5 text-xs font-medium", st.tone)}>{st.label}</span>
       </div>
       {c.state === "disponivel" && (
-        <p className="mt-2 text-lg font-semibold break-words">{c.value === null ? "—" : String(c.value)}{c.unit ? <span className="ml-1 text-sm font-normal text-muted-foreground">{c.unit}</span> : null}</p>
+        <p className="mt-2 text-lg font-semibold break-words">{cellValueText(c.value)}{c.unit ? <span className="ml-1 text-sm font-normal text-muted-foreground">{c.unit}</span> : null}</p>
       )}
       {c.groups && c.groups.length > 0 && (
-        <ul className="mt-2 space-y-0.5 text-sm">{c.groups.map((g) => <li key={g.key ?? "—"}>{g.key ?? "(sem valor)"}: {g.value ?? "—"}</li>)}</ul>
+        <ul className="mt-2 space-y-0.5 text-sm">{c.groups.map((g) => <li key={g.key ?? "—"}>{g.key ?? "Sem classificação"}: {cellValueText(g.value)}</li>)}</ul>
       )}
+      {c.adjustment && <p className="mt-1 text-xs">Ajustado de <strong>{cellValueText(c.adjustment.calculated)}</strong> para <strong>{cellValueText(c.adjustment.adjusted)}</strong> — motivo: {c.adjustment.reason}</p>}
       {c.notes.length > 0 && <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">{c.notes.map((n) => <li key={n}>{n}</li>)}</ul>}
       {c.coverage && !c.coverage.complete && <p className="mt-1 text-xs text-muted-foreground">Cobertura incompleta: {c.coverage.observed} de {c.coverage.eligible} com registro.</p>}
       {(c.source || c.recordRefs.length > 0 || c.ruleRef) && (
@@ -189,7 +190,11 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           {"correctionInProgress" in v.status && v.status.correctionInProgress ? " · correção em preparação" : ""}
         </p>
         {(() => { const wf = projectWorkflow(v.opened, v.workflowEvents, v.versions.length); return (
-          <p className="mt-1 text-sm">Fluxo: <strong>{knownLabel(STAGE_LABEL, wf.stage)}</strong>{wf.revision ? ` · revisão ${wf.revision}` : ""}{wf.returnReason ? ` · motivo: ${wf.returnReason}` : ""}</p>
+          <div role="status" data-map-stage={wf.stage} className="mt-2 rounded-md border border-border bg-muted/40 p-3 text-sm">
+            <p>Envio: <strong>{knownLabel(STAGE_LABEL, wf.stage)}</strong>{wf.revision ? ` · revisão ${wf.revision}` : ""}</p>
+            {wf.returnReason && <p className="mt-1">Motivo informado: {wf.returnReason}</p>}
+            <p className="mt-1 text-muted-foreground">Próximo passo: {STAGE_NEXT_STEP[wf.stage] ?? "—"}</p>
+          </div>
         ); })()}
         {v.versions.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2 print:hidden">
@@ -201,7 +206,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
         <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
           <div><dt className="inline text-muted-foreground">Competência: </dt><dd className="inline">{MONTHS[competence.month - 1]} de {competence.year}</dd></div>
           <div><dt className="inline text-muted-foreground">Período: </dt><dd className="inline">{fmtDate(s.competence.window.from)} a {fmtDate(s.competence.window.to)}</dd></div>
-          <div><dt className="inline text-muted-foreground">Data da fotografia: </dt><dd className="inline">{s.snapshotDate ? `${fmtDate(s.snapshotDate)} (último dia letivo do mês pelo calendário oficial)` : (snapshotReasonText(s.snapshotDateBasis?.reason ?? null) || "não definida")}</dd></div>
+          <div><dt className="inline text-muted-foreground">Data de referência: </dt><dd className="inline">{s.snapshotDate ? `${fmtDate(s.snapshotDate)} (último dia letivo do mês pelo calendário oficial)` : (snapshotReasonText(s.snapshotDateBasis?.reason ?? null) || "não definida")}</dd></div>
           <div><dt className="inline text-muted-foreground">Regra: </dt><dd className="inline">{v.rule ? `${v.rule.id} v${v.rule.version}${v.rule.homologationActRef ? ` (${v.rule.homologationActRef})` : ""}` : "aguardando regra homologada que cubra esta escola"}</dd></div>
           <div><dt className="inline text-muted-foreground">Ano letivo: </dt><dd className="inline">{YEAR_STATE[v.yearState ?? ""] ?? "estado não pôde ser lido"}</dd></div>
           <div><dt className="inline text-muted-foreground">Natureza: </dt><dd className="inline">{officialized && v.status.id === "oficializado" ? "Fotografia oficial congelada" : "Dinâmico — não oficial"}</dd></div>
@@ -227,16 +232,25 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
         <p className="font-bold">MAPA ESTATÍSTICO — {MONTHS[competence.month - 1]!.toUpperCase()}/{competence.year}</p>
       </header>
 
-      <nav aria-label="Estruturas do Mapa" className="sticky top-0 z-10 flex flex-wrap gap-1 rounded-lg border border-border bg-background/95 p-2 print:hidden">
-        {groupByStructure(currentCells(v)).map((g) => (
-          <a key={g.id} href={`#est-${g.id}`} className="rounded-md px-2 py-1 text-sm hover:bg-muted">{g.id} · {g.title}{g.needsReview ? ` (${g.needsReview} a revisar)` : ""}</a>
-        ))}
+      <nav aria-label="Estruturas do Mapa (I a VI)" className="sticky top-0 z-10 rounded-lg border border-border bg-background/95 p-2 print:hidden">
+        <p className="px-1 pb-1 text-xs text-muted-foreground">Revise cada estrutura. As marcadas “a revisar” têm item sem registro.</p>
+        <ol className="flex gap-1 overflow-x-auto sm:flex-wrap">
+          {groupByStructure(s.cells).map((g) => (
+            <li key={g.id} className="shrink-0">
+              <a href={`#est-${g.id}`} className="flex min-h-11 items-center gap-2 rounded-md border border-border px-2 py-1 text-sm hover:bg-muted">
+                <strong>{g.id}</strong><span className="max-w-[12rem] truncate">{g.title}</span>
+                <span className={cn("rounded px-1.5 text-xs", g.needsReview ? "state-warning" : "state-success")}>{g.needsReview ? `${g.needsReview} a revisar` : "ok"}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
       </nav>
       {groupByStructure(s.cells).map((g) => (
-        <section key={g.id} id={`est-${g.id}`} aria-labelledby={`h-est-${g.id}`} className="scroll-mt-16">
+        <section key={g.id} id={`est-${g.id}`} aria-labelledby={`h-est-${g.id}`} className="scroll-mt-28 print:break-inside-auto">
           <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
             <h2 id={`h-est-${g.id}`} className="text-base font-semibold">{g.id} — {g.title}</h2>
-            <span className="text-xs text-muted-foreground">{g.cells.length} itens · {g.needsReview ? `${g.needsReview} precisam revisar` : "nada a revisar"} · {g.action}</span>
+            <span className="text-xs text-muted-foreground">{g.cells.length} {g.cells.length === 1 ? "item" : "itens"} · {g.needsReview ? `${g.needsReview} a revisar` : "nada a revisar"}</span>
+            <p className="w-full text-sm">O que fazer: {g.action}</p>
           </div>
           {g.cells.length === 0
             ? <p className="text-sm text-muted-foreground">Nenhum dado com fonte no SIGEM para esta estrutura ainda.</p>
@@ -284,7 +298,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           {(!correcting || v.openCorrection) && (
             <div className="mt-3 flex flex-wrap gap-2">
               {v.capabilities.confer
-                ? <Button variant="outline" disabled={run.isPending || v.failedSources.length > 0} onClick={() => run.mutate(() => confer({ data: competence }))}>Conferir fotografia</Button>
+                ? <Button variant="outline" disabled={run.isPending || v.failedSources.length > 0} onClick={() => run.mutate(() => confer({ data: competence }))}>Enviar para a Estatística (conferir)</Button>
                 : <span className="text-sm text-muted-foreground">Sem autorização para conferir.</span>}
               {v.capabilities.officialize ? (
                 <Button disabled={run.isPending || v.status.id !== "conferido" || v.conferredMatches !== true || v.blocks.length > 0}
