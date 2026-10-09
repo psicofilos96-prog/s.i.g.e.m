@@ -575,7 +575,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
         <table className={`cf-matriz${manual ? " cf-manual" : ""}`} style={tableStyle}>
           <colgroup><col style={{ width: mm(t.monthColMm) }} />{cols.map((c) => <col key={c} />)}{p.show.totaisMensais && t.totalColMm > 0 && <col style={{ width: mm(t.totalColMm) }} />}</colgroup>
           <thead style={{ fontSize: `${t.headPt}pt` }}><tr><th scope="col">Mês / Dia</th>{cols.map((c) => <th key={c} scope="col" style={cell ? { width: cell.width, minWidth: cell.minWidth } : undefined}>{c}</th>)}
-            {p.show.totaisMensais && t.totalColMm > 0 && <th scope="col">Total</th>}</tr></thead>
+            {p.show.totaisMensais && t.totalColMm > 0 && <th scope="col" className="cf-col-total">Total de<br />dias letivos</th>}</tr></thead>
           <tbody>{vm.months.map((m) => { const bands = bandsOf(m, types, p);
             return <tr key={m.key} data-month={m.key} style={cell ? { height: cell.height } : undefined}>
               <th scope="row" style={{ fontSize: `${t.monthPt}pt` }}>{m.name}</th>
@@ -583,6 +583,9 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
                 : <DayCell key={n} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={[0, 6].includes((m.firstWeekday + n - 1) % 7)} mode={t.showDayNumbers ? "numero" : "sigla"} band={t.showDayNumbers ? null : bands.get(n) ?? null} />)}
               {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total" data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{m.split ? <span className="cx-split"><span>{m.split[0]}</span><span>{m.split[1]}</span></span> : countText(m.total)}</td>}
             </tr>; })}</tbody>
+          {p.show.totaisMensais && t.totalColMm > 0 && <tfoot><tr className="cf-total-geral">
+            <th scope="row" colSpan={cols.length + 1}>TOTAL DE DIAS LETIVOS</th>
+            <td className="cx-total" data-testid="cx-total-geral" title={vm.total.reason ?? ""}>{countText(vm.total)}</td></tr></tfoot>}
         </table>}
       </FreeBox>}
       {B.periodos.visible && <FreeBox {...common("periodos")} title="Períodos letivos">
