@@ -71,7 +71,7 @@ export function ReportBuilder() {
     setChoice({ sourceId: id, from: null, to: null, columns: s ? columnsOf(s).map((c) => c.id) : [], filters: [], sort: [] });
     setSpec(emptySpec(s?.title ?? ""));
   }
-  function usePack(id: string) {
+  function openPackById(id: string) {
     const p = SECTOR_PACKS.find((x) => x.id === id); if (!p) return;
     try {
       const opened = openPack(p);
@@ -146,7 +146,7 @@ export function ReportBuilder() {
               {sources.length === 0 && <li className="text-sm text-muted-foreground">Ainda não há assunto com dados disponíveis para este setor.</li>}
             </ul>
           </div>
-          <PacksPanel sector={packSector} onSector={setPackSector} onOpen={usePack} />
+          <PacksPanel sector={packSector} onSector={setPackSector} onOpen={openPackById} />
         </div>)}
 
       {step === 1 && src && (
@@ -203,7 +203,7 @@ export function ReportBuilder() {
             <label className="flex flex-col gap-1">b<select className={sel} value={d.b ?? ""} onChange={(e) => setOrg({ ...org, derived: org.derived.map((x, j) => j === i ? { ...x, b: e.target.value || null } : x) })}>{org.measures.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}</select></label>
             <Button variant="ghost" size="sm" onClick={() => setOrg({ ...org, derived: org.derived.filter((_, j) => j !== i) })}>Remover</Button>
           </li>)}</ul>
-          <Button variant="outline" size="sm" disabled={org.measures.length < 2 && org.derived.length === 0 && false} onClick={() => setOrg({ ...org, derived: [...org.derived, { id: `d${org.derived.length + 1}`, label: `Cálculo ${org.derived.length + 1}`, op: "percentual", a: org.measures[0]!.id, b: org.measures[1]?.id ?? org.measures[0]!.id }] })}>Adicionar cálculo derivado</Button>
+          <Button variant="outline" size="sm" onClick={() => setOrg({ ...org, derived: [...org.derived, { id: `d${org.derived.length + 1}`, label: `Cálculo ${org.derived.length + 1}`, op: "percentual", a: org.measures[0]!.id, b: org.measures[1]?.id ?? org.measures[0]!.id }] })}>Adicionar cálculo derivado</Button>
           <label className="flex max-w-xs flex-col gap-1 pt-2">Ordenar grupos por
             <select className={sel} value={org.sort[0] ? `${org.sort[0].key}|${org.sort[0].dir}` : ""} onChange={(e) => { const [key, dir] = e.target.value.split("|"); setOrg({ ...org, sort: key ? [{ key: key!, dir: dir as "asc" | "desc" }] : [] }); }}>
               <option value="">Nome do grupo</option>{valueIds.flatMap((v) => [<option key={v.id + "d"} value={`${v.id}|desc`}>{v.label} (maior primeiro)</option>, <option key={v.id + "a"} value={`${v.id}|asc`}>{v.label} (menor primeiro)</option>])}</select></label>

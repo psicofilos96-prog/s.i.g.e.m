@@ -15,7 +15,7 @@ export function ReportsCatalogPage() {
   const tips = suggestReports(CATALOG, ask);
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Relatórios" title="Qual relatório você precisa?" description="Escolha o assunto e abra o relatório na tela onde os dados vivem. Você só exporta o que sua conta já pode ver." />
+      <PageHeader eyebrow="Relatórios" title="Qual relatório você precisa?" description="Monte relatórios com agrupamentos, cálculos e gráficos, ou comece por um pacote pronto do seu setor. Você só exporta o que sua conta já pode ver." />
       <ReportBuilder />
       <section aria-label="Assistente de relatórios" className="space-y-2 rounded-md border border-border bg-card p-4">
         <label className="flex flex-col gap-1 text-sm font-medium">Descreva o que você quer saber
