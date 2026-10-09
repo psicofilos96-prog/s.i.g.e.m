@@ -813,6 +813,7 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
           );
         })}
       </ul>
+      {institutional ? <DiaryPrintsPanel classId={search.turma} assignmentId={context.assignments.find((a) => a.classId === search.turma)?.record.id} periodId={search.periodo} /> : null}
       <StatePanel
         tone="neutral"
         title={institutional ? "Emissão oficial indisponível" : "Documentos demonstrativos"}
