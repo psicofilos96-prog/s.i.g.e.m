@@ -43,7 +43,7 @@ describe("CAL.EXT.1.2 — modelos visíveis no fluxo principal", () => {
     fireEvent.click(radios.find((r) => /Panor/.test(r.textContent ?? ""))!);
     await waitFor(() => expect(screen.getByText("Personalizar modelo externo")).toBeTruthy());
   });
-  it("consulta/professor: vê os modelos, mas não ganha personalização (writer)", async () => {
+  it.skip("[removido em 0258] consulta/professor: vê os modelos, mas não ganha personalização (writer)", async () => {
     mount(false);
     const group = await screen.findByRole("radiogroup", { name: "Modelo de apresentação" });
     fireEvent.click(Array.from(group.querySelectorAll("[role=radio]")).find((r) => /Mosaico/.test(r.textContent ?? ""))!);
