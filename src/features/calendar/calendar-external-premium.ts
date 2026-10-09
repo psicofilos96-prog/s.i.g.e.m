@@ -60,7 +60,8 @@ export function premiumLayout(d: FreeLayout): FreeLayout {
       rodape: place(B.rodape, 0, 190, 20, 7, {}, false),
     },
     photo: { ...d.photo, top: null, bottom: null, useDefaultTop: false, topHmm: 0, bottomHmm: 0, veilStrength: 0, page: null },
-    table: { ...d.table, mode: "ajustar", headPt: 6.5, monthPt: 7, dayPt: 6.5 },
+    // Folha A4: 7/7.5/6.3 pt equivalem a ~10/10.6/9 pt em A3 (mesma diagramação em mm, razão 1,41).
+    table: { ...d.table, mode: "ajustar", headPt: 7, monthPt: 7.5, dayPt: 6.3, monthColMm: 19, totalColMm: 11, dividerMm: 0.15 },
     layers: premiumLayers(),
   };
 }

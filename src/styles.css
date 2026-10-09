@@ -1364,6 +1364,17 @@
 .cf-livre .cf-assinaturas { display: flex; gap: 3mm; height: 100%; align-items: flex-end; }
 .cf-livre .cf-assinaturas > div { flex: 1; text-align: center; } .cf-livre .cf-assinaturas span { display: block; border-top: 0.2mm solid currentColor; }
 .cf-livre .cf-rodape { display: flex; align-items: center; justify-content: space-between; gap: 3mm; height: 100%; }
+/* Grade do calendário externo: tipografia física (pt/mm), sem escala, sem espaçamento negativo, sem fonte condensada. */
+.cf-livre .cf-matriz { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; font-stretch: normal; letter-spacing: 0; }
+.cf-livre .cf-matriz thead th { background: var(--cx-header); color: #fff; font-weight: 700; line-height: 1; padding: 0.5mm 0; border-color: color-mix(in srgb, var(--cx-header) 60%, #fff); }
+.cf-livre .cf-matriz thead th:first-child { text-align: left; padding-left: 1.2mm; }
+.cf-livre .cf-matriz tbody th { background: var(--cx-light); color: var(--cx-header); font-weight: 700; padding-left: 1.2mm; }
+.cf-livre .cf-matriz td.cx-dia { font-size: 1em; vertical-align: middle; }
+.cf-livre .cf-matriz .cx-sigla, .cf-livre .cf-matriz .cx-num { font-weight: 600; letter-spacing: 0; overflow: visible; line-height: 1; }
+.cf-livre .cf-matriz .cx-sigla-longa { font-size: 0.82em !important; letter-spacing: 0; }
+.cf-livre .cf-matriz .cx-faixa-txt { font-family: inherit; font-size: 1em; font-weight: 700; letter-spacing: 0.08em; }
+.cf-livre .cf-matriz td.cx-total { font-size: 1.1em; font-weight: 700; color: var(--cx-header); }
+.cf-livre .cf-matriz .cx-inexistente { background: color-mix(in srgb, var(--cx-header) 12%, #fff); border-color: var(--cx-grid); }
 @media print { .cf-livre .cf-selecionado { outline: none; } .cf-livre .cf-alca { display: none; } }
 
 /* NFAM.1 — impressão/PDF da carteirinha: só a área do cartão sai na folha. */
