@@ -223,7 +223,7 @@ describe("navegação do Diário com chamada", () => {
     fireEvent.click(within(rows[0]!).getByRole("button", { name: /^Presente ·/ }));
     expect(screen.getByRole("button", { name: /Concluir chamada/ })).toBeDisabled();
     expect(screen.getByText(/ainda está sem marcação|ainda estão sem marcação/)).toBeInTheDocument();
-    fireEvent.click(within(rows[1]!).getByRole("button", { name: /^Ausente ·/ }));
+    fireEvent.click(within(rows[1]!).getByRole("button", { name: /^Falta ·/ }));
     fireEvent.click(screen.getByRole("button", { name: /Concluir chamada/ }));
     expect(attendanceStore.get("aul-003")?.concluded).toBe(true);
   });
@@ -239,7 +239,7 @@ describe("navegação do Diário com chamada", () => {
     renderDiary("/diario/chamada/aul-003?professor=pro-009");
     const row = (await screen.findAllByRole("row"))[0]!;
     fireEvent.keyDown(row, { key: "f" });
-    expect(within(row).getByRole("button", { name: /^Ausente ·/ })).toHaveAttribute(
+    expect(within(row).getByRole("button", { name: /^Falta ·/ })).toHaveAttribute(
       "aria-pressed",
       "true",
     );
