@@ -67,7 +67,7 @@ function DayCell({ d, n, types, p, weekend, mode, band }: { d: PrintDay | undefi
 function themeVars(p: ExternalProfile, t: ExternalTemplateCode): CSSProperties {
   const v: Record<string, string> = {
     "--cx-primary": p.primary, "--cx-secondary": p.secondary, "--cx-header": p.headerColor, "--cx-accent": p.accent,
-    "--cx-border": p.borderColor, "--cx-grid": p.gridColor, "--cx-gw": `${p.gridWidth}mm`, "--cx-card": p.cardColor, "--cx-page": p.pageColor, "--cx-light": p.lightColor,
+    "--cx-border": p.borderColor, "--cx-grid": p.gridColor, "--cx-gw": `${Math.max(p.gridWidth, 0.25)}mm`, "--cx-card": p.cardColor, "--cx-page": p.pageColor, "--cx-light": p.lightColor,
     "--cx-holiday": p.holidayColor, "--cx-text": p.textColor,
     "--cx-title-font": p.titleFont, "--cx-body-font": p.bodyFont, "--cx-script-font": p.scriptFont,
     "--cx-title-pt": `${p.titlePt}pt`, "--cx-subtitle-pt": `${p.subtitlePt}pt`, "--cx-k": String(p.textScale * p.density),

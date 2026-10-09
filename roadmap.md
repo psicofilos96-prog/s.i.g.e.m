@@ -613,4 +613,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Calendário externo: excluir Panorâmico/Mosaico e criar modelo único de layout livre com imagem só no topo.
 - [ ] N2026.IMPORT.5 — consumidores da base 2026 (não executado; pedido em seguida ao REFERENCE)
 - [x] N2026.REFERENCE.2027 — Referência 2026 na Preparação 2027
-- [ ] Linhas da tabela do calendário externo visíveis no PDF em qualquer zoom
+- [x] Linhas da tabela do calendário externo visíveis no PDF em qualquer zoom
