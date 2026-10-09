@@ -2,7 +2,7 @@ import { confirmAction } from "@/components/sigem/confirm-action";
 import { FactValue } from "@/components/sigem/states";
 import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
 import { centralEntryOf, loadCentral, useCentralState } from "./calendar-central-state";
-import { mirrorTargets } from "./calendar-mirror";
+import { alignPeriodKeys, mirrorTargets } from "./calendar-mirror";
 import { CalendarApplicabilityPanel } from "./calendar-applicability-panel";
 import { centralErrorText, homologateCentralCalendar, saveCentralCalendar, type CentralEntry } from "./calendar-central";
 import { formatAcademicDate, civilDateOf } from "@/lib/academic-date";
@@ -1065,7 +1065,7 @@ export function CalendarWorkspacePage({
                     setBusy(true);
                     setMessage("Salvando no banco…");
                     void saveCentralCalendar({
-                      cal: current, sourceKey: cal.id, expectedBaseVersionId: entry?.latest.versionId ?? null,
+                      cal: alignPeriodKeys(current, entry?.calendar), sourceKey: cal.id, expectedBaseVersionId: entry?.latest.versionId ?? null,
                       sourceKind: entry || provenance === "fonte-projeto" ? "edicao-institucional" : "importacao-navegador",
                       reason: entry ? "Alteração salva no editor do calendário" : provenance === "fonte-projeto" ? "Calendário 2027 registrado no projeto, reconhecido pelo usuário como calendário real" : null,
                     }).then(async (r) => {
@@ -1078,7 +1078,7 @@ export function CalendarWorkspacePage({
                         const tEntry = central ? centralEntryOf(central, t.id) : null;
                         try {
                           const tr = await saveCentralCalendar({
-                            cal: tCur, sourceKey: t.id, expectedBaseVersionId: tEntry?.latest.versionId ?? null,
+                            cal: alignPeriodKeys(tCur, tEntry?.calendar), sourceKey: t.id, expectedBaseVersionId: tEntry?.latest.versionId ?? null,
                             sourceKind: "edicao-institucional", reason: "Alteração espelhada do calendário Regular",
                           });
                           repo.commitCentral?.(t.id, tCur);
