@@ -90,7 +90,7 @@ export const SECTOR_PACKS: readonly SectorPack[] = [
   blocked("doc-2", "docente", "Conteúdos", "diario-aulas", "O texto dos conteúdos sai pela impressão \"Registro de aulas\" do Diário; o gerador não exporta texto livre."),
   ready("doc-3", "docente", "Avaliações", "diario-avaliacoes", ["class", "period", "instrument", "value"], org(["instrument"]), { kind: "barras", category: "instrument", measures: ["n"], title: "Lançamentos por instrumento" }),
   ready("doc-4", "docente", "Planejamento", "diario-planejamento", ["class", "title", "status", "from", "until"], org(["status"]), { kind: "barras", category: "status", measures: ["n"], title: "Planos por situação" }),
-  ready("doc-5", "docente", "Visão da turma", "diario-cobertura", ["class", "date", "chamada"], org(["chamada"]), { kind: "pizza", category: "chamada", measures: ["n"], title: "Aulas com chamada" }),
+  ready("doc-5", "docente", "Visão da turma", "diario-cobertura", ["class", "date", "chamada"], org(["chamada"]), { kind: "donut", category: "chamada", measures: ["n"], title: "Aulas com chamada" }),
   // Avaliação
   ...["Desempenho por escola/turma/componente", "Evolução", "Distribuição", "Cobertura", "Mapa de calor", "Comparações"].map((t, i) =>
     blocked(`aval-${i}`, "avaliacao", t, "gerador-avaliacao", R.assess)),
