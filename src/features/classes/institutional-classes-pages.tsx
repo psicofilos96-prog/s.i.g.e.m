@@ -15,7 +15,6 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, History, Building2, CalendarRange, Layers, ArrowLeft } from "lucide-react";
-import { OperationalPageHeader } from "@/components/sigem/operational";
 import { useSchoolRegistry, unitListRows } from "@/features/units/school-registry-source";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -312,7 +311,7 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
 function NotAvailable() {
   return (
     <div className="grid gap-4">
-      <OperationalPageHeader title="Turma indisponível" description="A turma não existe ou está fora do seu escopo autorizado." parent={{ label: "Turmas", to: "/turmas" }} />
+      <ClassHero title="Turma indisponível" lede="A turma não existe ou está fora do seu escopo autorizado." />
     </div>
   );
 }
