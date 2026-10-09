@@ -118,7 +118,7 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
             const body = <><span className="block font-semibold">{t.title}</span><span className="block text-sm text-muted-foreground">{t.hint}</span></>;
             const cls = "block min-h-16 rounded-xl border border-border bg-card p-4 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
             return <li key={t.id}>{t.target.kind === "route"
-              ? <Link to={t.target.to} search={t.target.to === "/documentos-escolares" ? { escola: school } : undefined} className={cls}>{body}</Link>
+              ? (t.target.to === "/documentos-escolares" ? <Link to="/documentos-escolares" search={{ escola: school }} className={cls}>{body}</Link> : <Link to={t.target.to} className={cls}>{body}</Link>)
               : <a href="#busca" className={cls} onClick={() => setTimeout(() => document.getElementById("busca-valor")?.focus(), 0)}>{body}</a>}</li>;
           })}
         </ul>
