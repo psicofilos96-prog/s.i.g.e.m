@@ -47,6 +47,8 @@ import {
   dayType,
   resolveCalendar,
   WEEKDAY_NAMES,
+  isWeekend,
+  weekday,
 } from "./calendar-engine";
 import { calendarCapabilities, type CalendarMutation } from "./calendar-governance";
 import { useNetworkCalendars, useProvenance, useStorageState, useUnsavedChanges, type CalendarProvenance } from "./calendar-store";
