@@ -14,7 +14,7 @@ BEGIN
   SELECT auth_user_id, id INTO ali, ali_p FROM public.institutional_sector_principals WHERE station_code = 'alimentacao';
   SELECT auth_user_id, school_id INTO dirA, schA FROM public.institutional_sector_principals WHERE station_code = 'direcao_escolar' ORDER BY school_id LIMIT 1;
   SELECT school_id INTO schB FROM public.institutional_sector_principals WHERE station_code = 'direcao_escolar' AND school_id <> schA ORDER BY school_id LIMIT 1;
-  SELECT u.id INTO adm FROM auth.users u WHERE u.email = 'admin@sigem.itap.gov.br';
+  SELECT l.user_id INTO adm FROM public.user_person_links l JOIN public.institutional_engagements e ON e.person_id = l.person_id WHERE e.engagement_kind_id = 'administrador-geral-do-sigem' LIMIT 1;
   IF sup IS NULL OR ava IS NULL OR cie IS NULL OR ali IS NULL OR dirA IS NULL OR schB IS NULL OR adm IS NULL THEN RAISE EXCEPTION 'fixtures-missing'; END IF;
 
   -- Admin cobre o catálogo inteiro e toda regra de estação (sem curinga).
