@@ -125,9 +125,10 @@ describe("persistência do Salvar", () => {
 describe("Conselho em vários dias", () => {
   it("lista todos os dias marcados como Conselho Final, não só o último", () => {
     const cal = byId("cal-rede-2027-regular");
-    const cf = cal.days.find((d) => d.date === "2027-12-17")!;
-    const withTwo = { ...cal, days: [...cal.days.filter((d) => d.date !== "2027-12-16"), { ...cf, date: "2027-12-16" }] };
-    const fin = councilDates(withTwo).find((c) => c.final)!;
-    expect(fin.dates).toEqual(["2027-12-16", "2027-12-17"]);
+    const fin0 = councilDates(cal).find((c) => c.final)!;
+    const type = [...cal.overrides, ...cal.events].find((o) => o.date === fin0.date)!.type;
+    const prev = `2027-12-${String(Number(fin0.date.slice(8)) - 1).padStart(2, "0")}`;
+    const withTwo = { ...cal, overrides: [...cal.overrides.filter((o) => o.date !== prev), { date: prev, type }] };
+    expect(councilDates(withTwo).find((c) => c.final)!.dates).toEqual([prev, fin0.date]);
   });
 });
