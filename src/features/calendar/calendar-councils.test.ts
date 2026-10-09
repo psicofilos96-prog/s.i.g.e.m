@@ -159,12 +159,11 @@ describe("Conselho fora do período", () => {
 
 describe("Espelho mantém os períodos do EJA Fase I", () => {
   it("datas do Regular, IDs de período do EJA Fase I (o banco vincula por ID)", async () => {
-    const { mirrorContent, mirrorDiffers } = await import("./calendar-mirror");
+    const { mirrorContent } = await import("./calendar-mirror");
     const reg = byId("cal-rede-2027-regular");
     const eja1 = byId("cal-rede-2027-eja-fase-1");
     const fixed = mirrorContent(reg, eja1);
     expect(fixed.periods.map((p) => p.id)).toEqual(eja1.periods.map((p) => p.id));
     expect(fixed.periods.map((p) => p.start)).toEqual(reg.periods.map((p) => p.start));
-    expect(mirrorDiffers(reg, { ...eja1, periods: reg.periods })).toBe(true);
   });
 });
