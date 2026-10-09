@@ -246,6 +246,14 @@ function StepYear({ fp, p, edit }: { fp: FP; p: WizardPayload; edit: Edit }) {
   const [years, setYears] = useState<YearOption[]>([]);
   useEffect(() => { readYears().then(setYears, () => setYears([])); }, []);
   const open = years.filter((y) => y.state === "operacional" || y.state === "em-preparacao");
+  // INT.7: padrão 2026 — com um único ano operacional, ele já vem escolhido; data de início = hoje.
+  const operational = open.filter((y) => y.state === "operacional");
+  useEffect(() => {
+    if (operational.length === 1 && !p.matricula?.ano) {
+      const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+      edit((x) => ({ ...x, matricula: { ...x.matricula, ano: operational[0]!.id, data: x.matricula?.data || today }, turma: {} }));
+    }
+  }, [operational.length]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="space-y-3">
       {open.length ? (
