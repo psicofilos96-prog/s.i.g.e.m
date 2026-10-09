@@ -519,6 +519,7 @@ function monthRow(
   to: number,
   cut?: number,
   vacationDisplay: "texto" | "marcador" = "texto",
+  periods: readonly CalendarPeriod[] = [],
 ): GridMonthRow {
   const nd = daysIn(r.year, month);
   const cells: GridCell[] = [];
@@ -551,8 +552,17 @@ function monthRow(
       tooltip: `${day}/${month} — ${info.label}`,
     });
   }
-  const sub = (a: number, b: number) =>
-    b < a ? 0 : countSchoolDays(r, iso(r.year, month, a), iso(r.year, month, b));
+  // Mesma regra do total: dia letivo fora de qualquer período não entra na coluna Total
+  // (aparece como aviso na validação), para que a coluna sempre some o total exibido.
+  const inPeriod = (d: IsoDate) => !periods.length || periods.some((p) => p.start <= d && p.end >= d);
+  const sub = (a: number, b: number) => {
+    let n = 0;
+    for (let day = a; day <= b; day++) {
+      const d = iso(r.year, month, day);
+      if (inPeriod(d) && countSchoolDays(r, d, d) === 1) n++;
+    }
+    return n;
+  };
   const row: GridMonthRow = {
     kind: "mes",
     month,
@@ -574,13 +584,6 @@ function monthRow(
  * - sem agrupamentos: 12 meses com divisão da coluna Total nas fronteiras
  *   dos períodos e a linha de total anual.
  */
-/** Linha de total da grade = soma dos meses exibidos acima dela (o que a pessoa lê e confere). */
-function sumMonthRows(rows: GridRow[]): number {
-  let n = 0;
-  for (const row of rows) if (row.kind === "mes") n += row.total ?? (row.splitTotal ? row.splitTotal[0] + row.splitTotal[1] : 0);
-  return n;
-}
-
 export function buildGrid(
   cal: NetworkCalendar,
   r: ResolvedCalendar = resolveCalendar(cal),
@@ -591,11 +594,11 @@ export function buildGrid(
   if (named.length === 0) {
     const cuts = totalColumnCuts(cal.periods, cal.year);
     for (let m = 1; m <= 12; m++)
-      rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m), cal.document.vacationDisplay ?? "texto"));
+      rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m), cal.document.vacationDisplay ?? "texto", cal.periods));
     rows.push({
       kind: "total",
       label: "TOTAL DE DIAS LETIVOS",
-      total: sumMonthRows(rows),
+      total: annualSchoolDays(cal, r, blocks),
     });
     return rows;
   }
@@ -603,7 +606,6 @@ export function buildGrid(
   const yearEnd = iso(cal.year, 12, 31);
   let from = yearStart;
   named.forEach((b, i) => {
-    const firstRow = rows.length;
     const nextStart = named[i + 1]?.start;
     let to = nextStart ? shiftDays(nextStart, -1) : yearEnd;
     if (to < from) to = from;
@@ -619,12 +621,13 @@ export function buildGrid(
           m === z.m ? z.d : daysIn(cal.year, m),
           undefined,
           cal.document.vacationDisplay ?? "texto",
+          cal.periods,
         ),
       );
     rows.push({
       kind: "total",
       label: b.group!.totalLabel ?? `TOTAL DE DIAS LETIVOS — ${b.group!.name}`,
-      total: sumMonthRows(rows.slice(firstRow)),
+      total: b.total,
       groupId: b.group!.id,
     });
     from = to < yearEnd ? shiftDays(to, 1) : yearEnd;
