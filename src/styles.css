@@ -1426,3 +1426,7 @@
 .cf-livre .cf-per-lista .cf-per-num { font-weight: 800; white-space: nowrap; }
 .cf-livre .cf-per-lista .cf-total { text-align: center; padding: 0.3em 0; border-top: 0.2mm solid var(--cx-border); border-bottom: 0.2mm solid var(--cx-border); }
 .cf-livre .cf-per-cons th { color: var(--cx-text); }
+/* CAL.EXT.5 — assinaturas do rodapé premium: linhas finas espaçadas, nome abaixo. */
+.cf-livre .cf-assinaturas { gap: 30mm; justify-content: space-between; }
+.cf-livre .cf-assinaturas > div { max-width: 80mm; } .cf-livre .cf-assinaturas p { margin: 0.6mm 0 0; font-weight: 600; }
+.cf-livre [data-free-block="assinaturas"] .cf-titulo { display: none; }
