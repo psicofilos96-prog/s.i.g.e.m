@@ -168,8 +168,6 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
       </Section>
 
       <Section title="Fotos e véu">
-        <label className="block text-xs">Imagem de fundo da folha inteira<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={pickPhoto("page")} /></label>
-        {f.photo.page && <><Button type="button" size="sm" variant="outline" onClick={() => setPhoto({ page: null })}>Remover imagem de fundo</Button>{adjFields("pageAdj", "fundo da folha")}</>}
         <label className="block text-xs">Foto do topo<input className={field} type="file" accept="image/png,image/jpeg,image/webp" onChange={pickPhoto("top")} /></label>
         {f.photo.top && <Button type="button" size="sm" variant="outline" onClick={() => setPhoto({ top: null })}>Remover foto do topo</Button>}
         <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={f.photo.useDefaultTop} onChange={(e) => setPhoto({ useDefaultTop: e.target.checked })} />Usar a foto institucional da cidade quando não houver foto própria</label>

@@ -609,3 +609,6 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] "Externo - Panorâmico" e "Externo - Mosaico" iguais aos modelos internos e com layout livre
 - [ ] Planilhas/PDFs enviados sem instrução: aguardam orientação (não importados)
 - [x] NKEY.1 atalhos de teclado e foco
+
+- [x] Calendário externo: excluir Panorâmico/Mosaico e criar modelo único de layout livre com imagem só no topo.
+- [ ] N2026.IMPORT.5 — consumidores da base 2026 (próximo lote).

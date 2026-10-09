@@ -35,7 +35,7 @@ describe("CAL.EXT.1.1 — conselhos pela configuração explícita da versão", 
   });
   it("b) não configurada ≠ nenhum", () => {
     expect(councilsOf(cfg({ kind: "nao-configurada" })).state).toBe("nao-configurada");
-    const html = render(<PanoramicSheet vm={buildExternalViewModel(model, presentation, cfg({ kind: "nao-configurada" }))} p={{ ...defaultProfile("externo-panoramico", presentation), show: { ...defaultProfile("externo-panoramico", presentation).show, conselhos: true } }} presentation={presentation} />).container.innerHTML;
+    const html = render(<PanoramicSheet vm={buildExternalViewModel(model, presentation, cfg({ kind: "nao-configurada" }))} p={{ ...defaultProfile("externo-livre", presentation), show: { ...defaultProfile("externo-livre", presentation).show, conselhos: true } }} presentation={presentation} />).container.innerHTML;
     // N2: no Panorâmico o bloco de conselhos é opcional (guia: 3 caixas); quando ligado, o estado continua explícito.
     expect(html).toMatch(/Conselhos de Classe não configurados para esta versão/);
   });
@@ -55,11 +55,11 @@ describe("CAL.EXT.1.1 — conselhos pela configuração explícita da versão", 
 describe("CAL.EXT.1.1 — QR real", () => {
   it("com URL existe SVG QR; sem URL não existe", () => {
     const vm = buildExternalViewModel(model, presentation);
-    const p = sanitizeProfile("externo-mosaico", { qrUrl: "https://sigem.example/cal" }, presentation);
+    const p = sanitizeProfile("externo-livre", { qrUrl: "https://sigem.example/cal" }, presentation);
     const a = render(<MosaicSheet vm={vm} p={p} presentation={presentation} />).container;
     expect(a.querySelector("[data-testid=cx-qr-svg] path")?.getAttribute("d")?.length).toBeGreaterThan(100);
     expect(a.textContent).toContain("https://sigem.example/cal");
-    const b = render(<MosaicSheet vm={vm} p={defaultProfile("externo-mosaico", presentation)} presentation={presentation} />).container;
+    const b = render(<MosaicSheet vm={vm} p={defaultProfile("externo-livre", presentation)} presentation={presentation} />).container;
     expect(b.querySelector("[data-testid=cx-qr-svg]")).toBeNull();
   });
   it("matriz QR determinística com padrões de posição", () => {
@@ -72,9 +72,9 @@ describe("CAL.EXT.1.1 — QR real", () => {
 
 describe("CAL.EXT.1.1 — identidade institucional herdada", () => {
   it("padrão herda cabeçalho e logos do snapshot; restaurar volta à herança", () => {
-    const d = defaultProfile("externo-panoramico", presentation);
+    const d = defaultProfile("externo-livre", presentation);
     expect(d.logos.map((l) => l.ref)).toEqual(["logo-brasao", "logo-x"]);
-    expect(sanitizeProfile("externo-panoramico", { primary: "#123456" }, presentation).logos).toEqual(inheritedLogos(presentation));
+    expect(sanitizeProfile("externo-livre", { primary: "#123456" }, presentation).logos).toEqual(inheritedLogos(presentation));
     const box = render(<PanoramicSheet vm={buildExternalViewModel(model, presentation)} p={d} presentation={presentation} />).container;
     const html = box.innerHTML;
     expect(box.querySelector(".cx-ident-txt")!.textContent).toContain("SECRETARIA MUNICIPAL DE EDUCAÇÃO");
@@ -83,9 +83,9 @@ describe("CAL.EXT.1.1 — identidade institucional herdada", () => {
   });
   it("mudar perfil externo não muda presentation.document.layout.logos", () => {
     const before = JSON.stringify(presentation);
-    const p = defaultProfile("externo-mosaico", presentation);
+    const p = defaultProfile("externo-livre", presentation);
     p.logos[0]!.hidden = true; p.logos.reverse(); p.logos[0]!.position = "direita";
-    sanitizeProfile("externo-mosaico", p, presentation);
+    sanitizeProfile("externo-livre", p, presentation);
     render(<MosaicSheet vm={buildExternalViewModel(model, presentation)} p={p} presentation={presentation} />);
     expect(JSON.stringify(presentation)).toBe(before);
   });

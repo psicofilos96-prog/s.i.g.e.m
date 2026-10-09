@@ -47,10 +47,10 @@ describe("CAL.COUNT.1 — identidade em todas as apresentações (3 calendários
       const periods = cal.periods.reduce((a, p) => a + periodSchoolDays(r, p), 0);
       const { model, presentation } = institutionalDays(cal);
       const vm = buildExternalViewModel(model, presentation);
-      const pan = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
+      const pan = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
       const panTotal = pan.getAllByTestId("cx-total-anual").at(-1)!.textContent;
       pan.unmount();
-      const mos = render(<MosaicSheet vm={vm} p={defaultProfile("externo-mosaico")} presentation={presentation} />);
+      const mos = render(<MosaicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
       const mosTotal = mos.getAllByTestId("cx-total-anual").at(-1)!.textContent;
       mos.unmount();
       const values = {

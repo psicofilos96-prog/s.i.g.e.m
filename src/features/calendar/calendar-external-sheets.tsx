@@ -78,7 +78,7 @@ function themeVars(p: ExternalProfile, t: ExternalTemplateCode): CSSProperties {
     "--cx-h-footer": `${p.show.branding ? p.bands.footer : 0}fr`,
   };
   const style = v as CSSProperties;
-  if (t === "externo-mosaico" && p.pageImage) Object.assign(style, { backgroundImage: `linear-gradient(color-mix(in srgb, ${p.pageColor} ${100 - p.pageOpacity}%, transparent), color-mix(in srgb, ${p.pageColor} ${100 - p.pageOpacity}%, transparent)), url(${p.pageImage})`, backgroundSize: p.pageZoom === 100 ? "cover" : `cover, ${p.pageZoom}%`, backgroundPosition: `${p.pageFocusX}% ${p.pageFocusY}%`, backgroundRepeat: "no-repeat" });
+  if (false && t && p.pageImage) Object.assign(style, { backgroundImage: `linear-gradient(color-mix(in srgb, ${p.pageColor} ${100 - p.pageOpacity}%, transparent), color-mix(in srgb, ${p.pageColor} ${100 - p.pageOpacity}%, transparent)), url(${p.pageImage})`, backgroundSize: p.pageZoom === 100 ? "cover" : `cover, ${p.pageZoom}%`, backgroundPosition: `${p.pageFocusX}% ${p.pageFocusY}%`, backgroundRepeat: "no-repeat" });
   return style;
 }
 
@@ -126,7 +126,7 @@ function Banner({ vm, p, presentation, template }: { vm: ExternalViewModel; p: E
         </div>
         <div className="cx-banner-dir">
           {right.length > 0 && <div className="cx-logos">{right.map((l) => <ExtLogo key={l.id} l={l} inherited={id.logos} />)}</div>}
-          {template === "externo-panoramico" && p.show.slogan && p.slogan && (
+          {false && p.show.slogan && p.slogan && (
             <p className="cx-slogan">{p.slogan}<svg viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden><path d="M2 9 C 50 2, 120 14, 198 5" /><path d="M10 12 C 70 7, 130 13, 190 9" /></svg></p>)}
         </div>
       </div>
@@ -305,7 +305,7 @@ function Sheet({ className, p, template, vm, children }: { className: string; p:
   }, [p.minFitPt]);
   return (
     <article ref={ref} className={`cx-folha ${className}`} style={themeVars(p, template)} data-testid={`external-sheet-${template}`}
-      aria-label={`Calendário ${vm.year ?? ""} — modelo ${template === "externo-mosaico" ? "mosaico" : "panorâmico"}`}>{children}</article>
+      aria-label={`Calendário ${vm.year ?? ""} — modelo layout livre`}>{children}</article>
   );
 }
 
@@ -334,8 +334,8 @@ export function PanoramicSheet({ vm, p, presentation }: { vm: ExternalViewModel;
   const widthOf = (b: InfoBlock) => b === "legenda" ? p.infoWidths.legenda : b === "periodos" ? p.infoWidths.periodos : b === "feriados" ? p.infoWidths.feriados : p.infoWidths.extra;
   const render = (b: InfoBlock) => renderBlock(b, vm, types, p, { holidayCols: 2 });
   return (
-    <Sheet className="cx-panoramico" p={p} template="externo-panoramico" vm={vm}>
-      <Banner vm={vm} p={p} presentation={presentation} template="externo-panoramico" />
+    <Sheet className="cx-panoramico" p={p} template="externo-livre" vm={vm}>
+      <Banner vm={vm} p={p} presentation={presentation} template="externo-livre" />
       <div className="cx-corpo cx-meses">
         <Notices vm={vm} />
         {vm.months.map((m) => <MonthCard key={m.key} m={m} types={types} p={p} />)}
@@ -387,8 +387,8 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
   const cols = Array.from({ length: 31 }, (_, i) => i + 1);
   const colTotals = columnTotals(vm.months);
   return (
-    <Sheet className="cx-mosaico" p={p} template="externo-mosaico" vm={vm}>
-      <Banner vm={vm} p={p} presentation={presentation} template="externo-mosaico" />
+    <Sheet className="cx-mosaico" p={p} template="externo-livre" vm={vm}>
+      <Banner vm={vm} p={p} presentation={presentation} template="externo-livre" />
       <div className="cx-corpo">
         <div className="cx-matriz-moldura">
           <Notices vm={vm} />
@@ -486,7 +486,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
   const cols = Array.from({ length: 31 }, (_, i) => i + 1);
   const colTotals = columnTotals(vm.months);
   const foto = false;
-  const cards = template === "externo-panoramico";
+  const cards = false;
   const info = observationLines(typeof presentation["observations"] === "string" ? presentation["observations"] : undefined);
   const topImg = f.photo.top ?? (f.photo.useDefaultTop ? homeImage.url : null);
   const title = p.visualTitle ?? "CALENDÁRIO ESCOLAR";
@@ -499,7 +499,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
   const logos = p.logos.filter((l) => !l.hidden);
   return (
     <Sheet className={`cf-livre ${foto ? "cf-fotografico" : "cf-quadro"} ${cards ? "cf-panoramico" : "cf-mosaico"}`} p={p} template={template} vm={vm}>
-      {f.photo.page && <div className="cf-foto cf-foto-pagina" aria-hidden style={{ position: "absolute", inset: 0, ...adjustedBg(f.photo.page, f.photo.pageAdj) }} />}
+      {false && !!f.photo.page && <div className="cf-foto cf-foto-pagina" aria-hidden style={{ position: "absolute", inset: 0, ...adjustedBg(f.photo.page ?? "", f.photo.pageAdj) }} />}
       {topImg && f.photo.topHmm > 0 && <div className="cf-foto cf-foto-topo" aria-hidden style={{ height: mm(f.photo.topHmm), ...adjustedBg(topImg, f.photo.topAdj) }} />}
       {f.photo.bottom && f.photo.bottomHmm > 0 && <div className="cf-foto cf-foto-rodape" aria-hidden style={{ height: mm(f.photo.bottomHmm), ...adjustedBg(f.photo.bottom, f.photo.bottomAdj) }} />}
       {f.photo.veilStrength > 0 && <div className="cf-veu" aria-hidden style={{ background: `linear-gradient(to bottom, transparent 0mm, transparent 45mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) 55mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) ${SHEET_H - Math.max(8, f.photo.bottomHmm)}mm, transparent ${SHEET_H}mm)` }} />}

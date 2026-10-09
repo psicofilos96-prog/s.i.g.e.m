@@ -145,7 +145,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
       <Group onReset={() => onChange(resetSection(profile, def, "identidade"))} title="1. Modelo e identidade" hint="Título, subtítulo, frase e logos" open>
         {text("visualTitle", "Título principal", "CALENDÁRIO ESCOLAR + ano")}{text("subtitle", "Subtítulo", "título do calendário")}
         {text("slogan", "Frase institucional")}{text("footerText", "Texto ao lado do logo SIGEM")}
-        {fixed("footerPhrase", "Frase do rodapé")}{template === "externo-mosaico" && fixed("feriasText", "Texto da faixa de férias")}
+        {fixed("footerPhrase", "Frase do rodapé")}{false && fixed("feriasText", "Texto da faixa de férias")}
         <div className="space-y-1"><p className="text-xs font-medium">Logos</p>
           {profile.logos.map((l, i) => (
             <div key={l.id} className="flex flex-wrap items-center gap-1 rounded-md border border-border p-1 text-xs">
@@ -174,9 +174,9 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
         <div className="flex flex-wrap gap-1">
           {profile.coverImage && <Button type="button" size="sm" variant="outline" onClick={() => set("coverImage", null)}>Remover imagem (volta à padrão)</Button>}
         </div>
-        {template === "externo-mosaico" && imageInput("Imagem de fundo da folha", (u) => set("pageImage", u))}
+        {false && imageInput("Imagem de fundo da folha", (u) => set("pageImage", u))}
         {profile.pageImage && <Button type="button" size="sm" variant="outline" onClick={() => set("pageImage", null)}>Remover fundo da folha</Button>}
-        {template === "externo-mosaico" && profile.pageImage && <>{range("pageFocusX", "Fundo: posição horizontal", 0, 100, 1, "%")}{range("pageFocusY", "Fundo: posição vertical", 0, 100, 1, "%")}{range("pageZoom", "Fundo: zoom", 100, 250, 5, "%")}{range("pageOpacity", "Fundo: opacidade", 0, 100, 5, "%")}
+        {false && profile.pageImage && <>{range("pageFocusX", "Fundo: posição horizontal", 0, 100, 1, "%")}{range("pageFocusY", "Fundo: posição vertical", 0, 100, 1, "%")}{range("pageZoom", "Fundo: zoom", 100, 250, 5, "%")}{range("pageOpacity", "Fundo: opacidade", 0, 100, 5, "%")}
           <Button type="button" size="sm" variant="outline" onClick={() => onChange({ ...profile, pageFocusX: def.pageFocusX, pageFocusY: def.pageFocusY, pageZoom: def.pageZoom, pageOpacity: def.pageOpacity })}>Resetar posição do fundo</Button></>}
         {imageInput("Imagem decorativa do rodapé", (u) => set("footerImage", u))}
         {profile.footerImage && <Button type="button" size="sm" variant="outline" onClick={() => set("footerImage", null)}>Remover imagem do rodapé</Button>}
@@ -262,10 +262,10 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
                 <Button type="button" size="sm" variant="outline" aria-label={`Subir ${BLOCK_LABEL[b]}`} disabled={i === 0} onClick={() => set("blockOrder", moveBlock(profile.blockOrder, b, -1))}>↑</Button>
                 <Button type="button" size="sm" variant="outline" aria-label={`Descer ${BLOCK_LABEL[b]}`} disabled={i === profile.blockOrder.length - 1} onClick={() => set("blockOrder", moveBlock(profile.blockOrder, b, 1))}>↓</Button>
               </span></li>))}</ol>
-          {template === "externo-mosaico" && <p className="text-xs text-muted-foreground">No Mosaico, Legenda e Feriados ficam na lateral; os demais, na faixa inferior — sempre nesta ordem.</p>}
+          {false && <p className="text-xs text-muted-foreground">No Mosaico, Legenda e Feriados ficam na lateral; os demais, na faixa inferior — sempre nesta ordem.</p>}
         </div>
         <div className="grid gap-1 sm:grid-cols-2">{(Object.keys(profile.show) as (keyof ExternalProfile["show"])[]).filter((k) => k !== "imagemTopo").map(toggle)}</div>
-        {template === "externo-panoramico" && <div className="space-y-2"><p className="text-xs font-medium">Largura dos blocos da faixa de informações</p>
+        {false && <div className="space-y-2"><p className="text-xs font-medium">Largura dos blocos da faixa de informações</p>
           {width("legenda", "Legenda")}{width("periodos", "Períodos letivos")}{width("feriados", "Feriados")}{width("extra", "Conselhos / Assinaturas")}</div>}
         <div className="space-y-2 rounded-md border border-border p-2">
           <p className="text-xs font-medium">Períodos letivos</p>
@@ -279,8 +279,8 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
           <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={per.autoScale} onChange={(e) => setPer({ autoScale: e.target.checked })} />Reduzir a letra só se necessário para não sobrepor</label>
         </div>
         {range("gridWidth", "Espessura das linhas da grade", 0.1, 0.6, 0.05, " mm")}{range("density", "Compactação geral", 0.85, 1.1, 0.05, "×")}{range("gapMm", "Respiro entre blocos", 0.5, 5, 0.5, " mm")}
-        {band("banner", "Altura do topo", 10, 25)}{band("info", template === "externo-mosaico" ? "Altura da faixa inferior" : "Altura da faixa de informações", 8, 28)}{band("footer", "Altura do rodapé", 0, 14)}
-        <p className="text-xs text-muted-foreground">{template === "externo-mosaico" ? "Matriz" : "Grade de meses"}: {profile.bands.body}% (ajusta sozinha; soma sempre 100%).</p>
+        {band("banner", "Altura do topo", 10, 25)}{band("info", false ? "Altura da faixa inferior" : "Altura da faixa de informações", 8, 28)}{band("footer", "Altura do rodapé", 0, 14)}
+        <p className="text-xs text-muted-foreground">{false ? "Matriz" : "Grade de meses"}: {profile.bands.body}% (ajusta sozinha; soma sempre 100%).</p>
         {profile.pillars.map((pl, i) => (
           <div key={i} className="flex gap-1">
             <input className={field} aria-label={`Pilar ${i + 1}: título`} value={pl.title} maxLength={40} onChange={(e) => set("pillars", profile.pillars.map((x, j) => j === i ? { ...x, title: e.target.value } : x))} />
