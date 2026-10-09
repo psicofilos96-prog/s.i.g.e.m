@@ -537,12 +537,12 @@ function LayerView({ l, ctx, selected, onSelect, onMove }: { l: Layer; ctx: { ye
 
 type Count = { schoolDays: number | null; reason: string | null };
 /** Soma dos totais mensais do motor; qualquer mês indeterminado torna o semestre indeterminado (nunca zero). */
-export function semesterTotal(months: ExternalMonth[]): Count {
+export function semesterTotal(months: readonly ExternalMonth[]): Count {
   if (months.some((m) => m.total.schoolDays === null)) return { schoolDays: null, reason: "Há mês com total indeterminado neste semestre." };
   return { schoolDays: months.reduce((a, m) => a + (m.total.schoolDays ?? 0), 0), reason: null };
 }
 /** Agrupa períodos pelo semestre da data de início (jan–jun = 1º, jul–dez = 2º). */
-export function periodSemesters<P extends Count & { startsOn: string }>(periods: P[]) {
+export function periodSemesters<P extends Count & { startsOn: string }>(periods: readonly P[]) {
   return [1, 2].map((n) => { const ps = periods.filter((p) => (Number(p.startsOn.slice(5, 7)) <= 6 ? 1 : 2) === n);
     const total: Count = ps.some((p) => p.schoolDays === null) ? { schoolDays: null, reason: "Há período com total indeterminado." } : { schoolDays: ps.reduce((a, p) => a + (p.schoolDays ?? 0), 0), reason: null };
     return { key: `s${n}`, label: `${n}º semestre`, periods: ps, total }; }).filter((g) => g.periods.length > 0);
