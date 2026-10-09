@@ -224,3 +224,6 @@ Editor dos modelos externos fechado (ordem dos blocos, tamanhos por bloco, aviso
 
 ## BQ.1 — matriz real de autoridades (2026-10-09)
 Aplicada: ver `docs/bq1-matriz-autoridades-institucionais.md` (canônico; substitui diretrizes históricas conflitantes). Pendência: ACCOUNT_IDENTIFIER_PENDING — INCLUSAO_NEI_CENTRAL. CONTINUE_FROM=BQ.5.
+
+## Campanha N2026 (2026-10-09)
+IMPORT.0 plano · IMPORT.1 escolas/infra (já no banco) · IMPORT.2 profissionais (parcial) · IMPORT.3 turmas/alunos (enturmação pendente) · IMPORT.4 Censo (0257) · IMPORT.5 não executado · REFERENCE.2027 pronto · FINAL: PASS parcial. Detalhe em `n2026-importacao-base-oficial.md` §9.

@@ -289,3 +289,13 @@ Documentação reconciliada com o HEAD: 3 relatórios superados rebaixados a His
 
 ## BQ.1 — matriz real de autoridades (2026-10-09)
 Aplicada: ver `docs/bq1-matriz-autoridades-institucionais.md` (canônico; substitui diretrizes históricas conflitantes). Pendência: ACCOUNT_IDENTIFIER_PENDING — INCLUSAO_NEI_CENTRAL. CONTINUE_FROM=BQ.5.
+
+## Base oficial 2026 (N2026.IMPORT.FINAL, 2026-10-09)
+| Domínio | Estado |
+|---|---|
+| Escolas, infraestrutura, turmas, alunos, matrículas | Importado e reconciliado com o Censo (55/55) |
+| Censo oficial (recibos + painel) | Snapshot versionado, append-only |
+| Profissionais | 1.057 pessoas; lotação, jornada e início do vínculo pendentes de fonte |
+| Enturmação 2026 | Pendente de decisão (operação técnica) |
+| Referência 2027 | Seção "Referência 2026" em `/preparacao-2027`, só leitura |
+| Consumidores (N2026.IMPORT.5) | Não executado |
