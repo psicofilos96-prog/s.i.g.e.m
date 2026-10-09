@@ -80,7 +80,7 @@ export function structureIVCells(events: readonly MovementEvent[] | null, rule: 
     return cell(`iv-${g.id}`, g.label, {
       value: list.length, reference: window, recordRefs: list.map((e) => `${e.source}:${e.id}`),
       notes: g.id === "remanejados" ? ["Explica a movimentação; não soma nem subtrai o total — o total vem da alocação vigente na data."] : [],
-      groups: g.id === "remanejados" ? list.map((e) => ({ key: `${e.origin ?? "origem não informada"} → ${e.destination ?? "destino não informado"} (${e.effectiveOn})`, value: 1, state: "disponivel" })) : undefined,
+      ...(g.id === "remanejados" ? { groups: list.map((e) => ({ key: `${e.origin ?? "origem não informada"} → ${e.destination ?? "destino não informado"} (${e.effectiveOn})`, value: 1, state: "disponivel" })) } : {}),
     });
   });
   if (cl.unclassified.length) out.push(cell("iv-nao-classificados", "Movimentações sem grupo na regra", { state: "indeterminado", value: cl.unclassified.length, notes: ["Tipo homologado não mapeado para nenhum grupo; revise a regra."] }));
