@@ -2,8 +2,8 @@ import { RecoveryRetryButton } from "@/components/sigem/recovery-retry-button";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { OperationalPageHeader } from "@/components/sigem/operational";
-import { EmptyState, StatusBadge } from "@/components/sigem/patterns";
+import { StatusBadge } from "@/components/sigem/patterns";
+import { RegistryHero, RegistryToolbar, RegistryList, RegistryCard, CardFact, RegistryEmpty, registryTh, registryTd, registryRow } from "@/components/sigem/registry-layout";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -32,39 +32,36 @@ export function UnitsListPage() {
 
   return (
     <div className="space-y-6">
-      <OperationalPageHeader
+      <RegistryHero
+        eyebrow="Rede Municipal de Itaperuna · Cadastro institucional"
         title="Unidades escolares"
-        description="Consulta oficial do cadastro institucional de unidades da rede, com versão vigente e identificadores."
+        lede="Cada escola da rede com versão vigente, INEP e situação. Abra uma unidade para ver turmas, estudantes e pessoal."
+        count={registry.status === "ready" ? <>{rows.length}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">unidades</span></> : undefined}
       />
 
       {registry.status === "loading" && <SkeletonState label="Carregando unidades do cadastro institucional" />}
       {registry.status === "no-session" && (
-        <EmptyState title="Acesso restrito" description="Entre no SIGEM para consultar o cadastro institucional de unidades." />
+        <RegistryEmpty title="Acesso restrito" description="Entre no SIGEM para consultar o cadastro institucional de unidades." />
       )}
       {registry.status === "error" && (
-        <EmptyState
+        <RegistryEmpty
           title="Não foi possível consultar as unidades"
           description="A consulta ao cadastro institucional falhou ou não foi autorizada. Nenhum dado substituto é exibido."
           action={<RecoveryRetryButton variant="outline" operation="consultar-unidades" onRetry={registry.reload} />}
         />
       )}
       {registry.status === "ready" && rows.length === 0 && (
-        <EmptyState title="Nenhuma unidade cadastrada" description="O cadastro institucional ainda não possui unidades registradas." />
+        <RegistryEmpty title="Nenhuma unidade cadastrada" description="O cadastro institucional ainda não possui unidades registradas." />
       )}
 
       {registry.status === "ready" && rows.length > 0 && (
         <>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="grid gap-1">
+          <RegistryToolbar
+            summary={<>{shown.length} de {rows.length} unidades{shown.length !== rows.length && <Button variant="link" size="sm" className="ml-2 h-auto p-0" onClick={() => setFilters(emptyUnitFilters)}>Limpar filtros</Button>}</>}
+          >
+            <div className="grid min-w-0 flex-1 gap-1 sm:max-w-xs">
               <Label htmlFor="units-search">Pesquisar unidades</Label>
-              <Input
-                id="units-search"
-                aria-label="Pesquisar unidades"
-                placeholder="Nome ou INEP"
-                value={filters.query}
-                onChange={(e) => set("query")(e.target.value)}
-                className="h-9 w-72"
-              />
+              <Input id="units-search" aria-label="Pesquisar unidades" placeholder="Nome ou INEP" value={filters.query} onChange={(e) => set("query")(e.target.value)} className="h-9" />
             </div>
             <FilterSelect id="f-sit" label="Situação" all="Todas" value={filters.situation} options={options.situation} onChange={set("situation")} />
             <FilterSelect id="f-dep" label="Dependência administrativa" all="Todas" value={filters.dependency} options={options.dependency} onChange={set("dependency")} />
@@ -72,48 +69,52 @@ export function UnitsListPage() {
             {options.privateCategory.length > 0 && (
               <FilterSelect id="f-cat" label="Categoria (privada)" all="Todas" value={filters.privateCategory} options={options.privateCategory} onChange={set("privateCategory")} />
             )}
-          </div>
-          <p role="status" className="text-sm text-muted-foreground">
-            {shown.length} de {rows.length} unidades
-          </p>
-          <div className="overflow-x-auto rounded-md border border-border">
-            <table className="w-full text-sm" aria-label="Unidades escolares do cadastro institucional">
-              <thead className="bg-muted/50 text-left">
-                <tr>
-                  <th scope="col" className="p-2">Nome oficial</th>
-                  <th scope="col" className="p-2">INEP</th>
-                  <th scope="col" className="p-2">Tipo de unidade</th>
-                  <th scope="col" className="p-2">Localização</th>
-                  <th scope="col" className="p-2">Situação</th>
-                  <th scope="col" className="p-2">Vigência</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((r) => (
-                  <tr key={r.schoolId} className="border-t border-border">
-                    <td className="p-2">
-                      <Link to="/unidades/$id" params={{ id: r.schoolId }} className="font-medium text-primary hover:underline">
-                        {r.name}
-                      </Link>
-                    </td>
-                    <td className="p-2 tabular-nums">{r.inep ?? NOT_INFORMED}</td>
-                    <td className="p-2">{unitKindText(r)}</td>
-                    <td className="p-2">{r.location ?? NOT_INFORMED}</td>
-                    <td className="p-2">
-                      {r.active == null ? NOT_INFORMED : (
-                        <StatusBadge tone={r.active ? "success" : "neutral"}>{r.active ? "Ativa" : "Inativa"}</StatusBadge>
-                      )}
-                    </td>
-                    <td className="p-2">{r.validFrom ? `desde ${formatAcademicDate(r.validFrom)}` : NOT_INFORMED}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          </RegistryToolbar>
+          {shown.length === 0 ? (
+            <RegistryEmpty title="Nenhuma unidade com esses filtros" description="Mude a pesquisa ou limpe os filtros para ver todas as unidades." action={<Button variant="outline" size="sm" onClick={() => setFilters(emptyUnitFilters)}>Limpar filtros</Button>} />
+          ) : (
+            <RegistryList
+              label="Unidades escolares"
+              table={
+                <table className="w-full text-sm" aria-label="Unidades escolares do cadastro institucional">
+                  <thead>
+                    <tr>
+                      {["Nome oficial", "INEP", "Tipo de unidade", "Localização", "Situação", "Vigência"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {shown.map((r) => (
+                      <tr key={r.schoolId} className={registryRow}>
+                        <td className={registryTd}><Link to="/unidades/$id" params={{ id: r.schoolId }} className="font-medium text-foreground hover:text-primary hover:underline">{r.name}</Link></td>
+                        <td className={`${registryTd} font-mono text-xs tabular-nums text-muted-foreground`}>{r.inep ?? NOT_INFORMED}</td>
+                        <td className={registryTd}>{unitKindText(r)}</td>
+                        <td className={registryTd}>{r.location ?? NOT_INFORMED}</td>
+                        <td className={registryTd}><Situation active={r.active} /></td>
+                        <td className={`${registryTd} text-muted-foreground`}>{r.validFrom ? `desde ${formatAcademicDate(r.validFrom)}` : NOT_INFORMED}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              }
+              cards={shown.map((r) => (
+                <RegistryCard key={r.schoolId} title={<Link to="/unidades/$id" params={{ id: r.schoolId }} className="text-foreground hover:text-primary hover:underline">{r.name}</Link>}>
+                  <CardFact label="INEP"><span className="tabular-nums">{r.inep ?? NOT_INFORMED}</span></CardFact>
+                  <CardFact label="Situação"><Situation active={r.active} /></CardFact>
+                  <CardFact label="Tipo">{unitKindText(r)}</CardFact>
+                  <CardFact label="Localização">{r.location ?? NOT_INFORMED}</CardFact>
+                </RegistryCard>
+              ))}
+            />
+          )}
         </>
       )}
     </div>
   );
+}
+
+function Situation({ active }: { active: boolean | null | undefined }) {
+  if (active == null) return <>{NOT_INFORMED}</>;
+  return <StatusBadge tone={active ? "success" : "neutral"}>{active ? "Ativa" : "Inativa"}</StatusBadge>;
 }
 
 function FilterSelect(p: { id: string; label: string; all: string; value: string; options: string[]; onChange: (v: string) => void }) {

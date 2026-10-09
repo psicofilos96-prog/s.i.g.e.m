@@ -1,4 +1,5 @@
 import { StatusBadge } from "@/components/sigem/patterns";
+import { RegistryHero, RegistryToolbar, RegistryList, RegistryCard, CardFact, RegistryEmpty, registryTh, registryTd, registryRow } from "@/components/sigem/registry-layout";
 import { presentState } from "@/config/state-presentation";
 import { ListPager } from "@/components/sigem/list-pager";
 import { LIST_PAGE_SIZE, ListTimeoutError, useServerPage } from "@/lib/server-page";
@@ -96,40 +97,56 @@ export function InstitutionalClassesListPage() {
     from: q.data?.items.length ? (pageNo - 1) * LIST_PAGE_SIZE + 1 : 0, to: (pageNo - 1) * LIST_PAGE_SIZE + (q.data?.items.length ?? 0), truncated: false };
   const rows = pg.items;
   return (
-    <div className="grid gap-4">
-      <OperationalPageHeader
+    <div className="grid gap-6">
+      <RegistryHero
+        eyebrow="Rede Municipal de Itaperuna · Organização escolar"
         title="Turmas"
-        description={`Cadastro institucional vigente em ${formatAcademicDate(validOn)}.`}
+        lede={`Cadastro institucional vigente em ${formatAcademicDate(validOn)}. Abra uma turma para ver composição, turno e organização de períodos.`}
+        count={total != null ? <>{total.toLocaleString("pt-BR")}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">turmas no seu escopo</span></> : undefined}
         actions={canCreate ? (
-          <Button asChild size="sm"><Link to="/turmas/nova"><Plus className="size-4" />Nova turma</Link></Button>
+          <Button asChild><Link to="/turmas/nova"><Plus className="size-4" />Nova turma</Link></Button>
         ) : undefined}
       />
-      <Input aria-label="Pesquisar turmas" placeholder="Pesquisar pelo nome" value={query} onChange={(e) => setQuery(e.target.value)} className="max-w-sm" />
+      <RegistryToolbar summary={q.data && rows.length > 0 ? <ListPager r={pg} onPage={setPageNo} noun="turmas" /> : undefined}>
+        <div className="grid min-w-0 flex-1 gap-1 sm:max-w-sm">
+          <Label htmlFor="classes-search">Pesquisar turmas</Label>
+          <Input id="classes-search" aria-label="Pesquisar turmas" placeholder="Nome da turma" value={query} onChange={(e) => setQuery(e.target.value)} className="h-9" />
+        </div>
+      </RegistryToolbar>
       {q.isPending ? <SkeletonState label="Carregando turmas" /> : null}
       {q.isError ? (
-        <div role="alert" className="grid gap-2 text-sm text-destructive">
-          <p>{q.error instanceof ListTimeoutError ? "A lista de turmas demorou demais para responder." : "Não foi possível consultar as turmas institucionais."}</p>
-          <Button size="sm" variant="outline" className="w-fit" onClick={() => void q.refetch()}>Tentar novamente</Button>
-        </div>
+        <RegistryEmpty
+          title={q.error instanceof ListTimeoutError ? "A lista de turmas demorou demais para responder" : "Não foi possível consultar as turmas"}
+          description="Nenhum dado substituto é exibido. Tente de novo em instantes."
+          action={<Button size="sm" variant="outline" onClick={() => void q.refetch()}>Tentar novamente</Button>}
+        />
       ) : null}
       {q.data && rows.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-          {term ? "Nenhuma turma corresponde à pesquisa." : "Nenhuma turma institucional registrada no seu escopo."}
-        </p>
+        <RegistryEmpty
+          title={term ? "Nenhuma turma corresponde à pesquisa" : "Nenhuma turma no seu escopo"}
+          description={term ? "Confira a grafia ou pesquise só parte do nome." : "Ainda não há turma institucional registrada nas escolas do seu acesso."}
+          action={canCreate && !term ? <Button asChild size="sm"><Link to="/turmas/nova"><Plus className="size-4" />Nova turma</Link></Button> : undefined}
+        />
       ) : null}
-      {q.data && rows.length > 0 ? <ListPager r={pg} onPage={setPageNo} noun="turmas" /> : null}
       {rows.length > 0 ? (
-        <div className="overflow-x-auto rounded-lg border border-border bg-card">
-          <table className="w-full text-sm" aria-busy={q.isFetching}>
-            <caption className="sr-only">Turmas institucionais</caption>
-            <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
-              <tr><th scope="col" className="p-2">Turma</th><th scope="col" className="p-2">Ano letivo</th><th scope="col" className="p-2">Escola</th><th scope="col" className="p-2">Situação</th><th scope="col" className="p-2">Organização de períodos</th></tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => <ClassRow key={r.classId} r={r} />)}
-            </tbody>
-          </table>
-        </div>
+        <RegistryList
+          label="Turmas institucionais"
+          table={
+            <table className="w-full text-sm" aria-busy={q.isFetching}>
+              <caption className="sr-only">Turmas institucionais</caption>
+              <thead><tr>{["Turma", "Ano letivo", "Escola", "Situação", "Organização de períodos"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
+              <tbody>{rows.map((r) => <ClassRow key={r.classId} r={r} />)}</tbody>
+            </table>
+          }
+          cards={rows.map((r) => (
+            <RegistryCard key={r.classId} title={<Link to="/turmas/$id" params={{ id: r.classId }} className="text-foreground hover:text-primary hover:underline"><RecordName r={r} /></Link>}>
+              <CardFact label="Escola">{r.schoolName ?? <Missing>Não registrada</Missing>}</CardFact>
+              <CardFact label="Ano letivo">{r.academicYearName ?? <Missing>Não registrado</Missing>}</CardFact>
+              <CardFact label="Situação"><StatusCell r={r} /></CardFact>
+              <CardFact label="Períodos"><LinkCell r={r} /></CardFact>
+            </RegistryCard>
+          ))}
+        />
       ) : null}
     </div>
   );
@@ -149,12 +166,12 @@ function LinkCell({ r }: { r: InstitutionalClassSummary }) {
 }
 function ClassRow({ r }: { r: InstitutionalClassSummary }) {
   return (
-    <tr className="border-t border-border">
-      <td className="p-2 font-medium"><Link to="/turmas/$id" params={{ id: r.classId }} className="text-primary hover:underline"><RecordName r={r} /></Link></td>
-      <td className="p-2">{r.academicYearName ?? <Missing>Não registrado</Missing>}</td>
-      <td className="p-2">{r.schoolName ?? <Missing>Não registrada</Missing>}</td>
-      <td className="p-2"><StatusCell r={r} /></td>
-      <td className="p-2"><LinkCell r={r} /></td>
+    <tr className={registryRow}>
+      <td className={`${registryTd} font-medium`}><Link to="/turmas/$id" params={{ id: r.classId }} className="text-foreground hover:text-primary hover:underline"><RecordName r={r} /></Link></td>
+      <td className={registryTd}>{r.academicYearName ?? <Missing>Não registrado</Missing>}</td>
+      <td className={registryTd}>{r.schoolName ?? <Missing>Não registrada</Missing>}</td>
+      <td className={registryTd}><StatusCell r={r} /></td>
+      <td className={registryTd}><LinkCell r={r} /></td>
     </tr>
   );
 }
