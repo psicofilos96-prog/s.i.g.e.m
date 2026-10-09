@@ -47,8 +47,9 @@ export async function collectAll(src: BuilderSource, from: string | null, to: st
     const p = await src.load({ from, to, offset: rows.length, limit: src.pageSize });
     pages++; total = p.total ?? total;
     rows.push(...p.rows);
-    if (rows.length >= cap) return { rows: rows.slice(0, cap), pages, total, truncated: true };
-    if (p.rows.length < src.pageSize || (total !== null && rows.length >= total)) break;
+    const exhausted = p.rows.length < src.pageSize || (total !== null && rows.length >= total);
+    if (rows.length > cap || (rows.length === cap && !exhausted)) return { rows: rows.slice(0, cap), pages, total, truncated: true };
+    if (exhausted) break;
   }
   return { rows: src.finalize ? src.finalize(rows) : rows, pages, total, truncated: false };
 }
