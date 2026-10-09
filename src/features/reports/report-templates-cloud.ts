@@ -58,3 +58,47 @@ export async function saveCloudTemplate(t: SavedTemplate, sources: readonly Buil
   if (r.error) { if (r.error.code === "23505") return "ja-gravado"; throw r.error; }
   return "gravado";
 }
+
+/* REPORT.PRO.3 — ações sobre modelos pessoais. Tudo é nova versão append-only; nada é apagado fisicamente. */
+/** Modelo institucional do setor: só com capability definida. Hoje não há ⇒ desabilitado com motivo. */
+export const INSTITUTIONAL_TEMPLATE_CAPABILITY: string | null = null;
+export const INSTITUTIONAL_DISABLED_REASON = "Modelo institucional do setor ainda não está disponível: não há permissão definida para publicá-lo.";
+
+type Spec = { favorite?: boolean } & Record<string, unknown>;
+const studioOf = (t: SavedTemplate): Spec => ((t.choice as { studio?: Spec }).studio ?? {}) as Spec;
+export const isFavorite = (t: SavedTemplate) => studioOf(t).favorite === true;
+
+export function nameTaken(name: string, existing: readonly SavedTemplate[]) {
+  const n = name.trim().toLocaleLowerCase("pt-BR");
+  return existing.some((t) => t.name.trim().toLocaleLowerCase("pt-BR") === n);
+}
+export function duplicateName(name: string, existing: readonly SavedTemplate[]) {
+  for (let i = 1; i < 100; i++) { const c = `${name} (cópia${i > 1 ? ` ${i}` : ""})`.slice(0, 80); if (!nameTaken(c, existing)) return c; }
+  throw new Error("Nomes de cópia esgotados.");
+}
+export function withFavorite(t: SavedTemplate, fav: boolean): SavedTemplate {
+  return { ...t, choice: { ...t.choice, studio: { ...studioOf(t), favorite: fav } } as SavedTemplate["choice"] };
+}
+
+export async function duplicateCloudTemplate(t: SavedTemplate, existing: readonly SavedTemplate[], sources: readonly BuilderSource[]) {
+  return saveCloudTemplate({ ...t, name: duplicateName(t.name, existing), savedAt: new Date().toISOString() }, sources, newIdempotencyKey());
+}
+/** Renomear = gravar sob o novo nome + arquivar o antigo (histórico preservado). */
+export async function renameCloudTemplate(t: SavedTemplate, newName: string, existing: readonly SavedTemplate[], sources: readonly BuilderSource[]) {
+  if (!newName.trim()) throw new Error("Dê um nome ao modelo.");
+  if (nameTaken(newName, existing.filter((x) => x.name !== t.name))) throw new Error("Já existe um modelo com esse nome.");
+  await saveCloudTemplate({ ...t, name: newName }, sources, newIdempotencyKey());
+  await saveCloudTemplate(t, sources, newIdempotencyKey(), true);
+}
+export async function favoriteCloudTemplate(t: SavedTemplate, fav: boolean, sources: readonly BuilderSource[]) {
+  return saveCloudTemplate(withFavorite(t, fav), sources, newIdempotencyKey());
+}
+/** Excluir rascunho pessoal = versão arquivada. Relatório não gera emissão oficial, logo não há dependente. */
+export async function deleteCloudTemplate(t: SavedTemplate, sources: readonly BuilderSource[]) {
+  return saveCloudTemplate(t, sources, newIdempotencyKey(), true);
+}
+export async function loadTemplateHistory(sector: Sector, name: string): Promise<{ version: number; archived: boolean; recorded_at: string }[]> {
+  const r = await supabase.from("report_template_versions").select("version,archived,recorded_at").eq("sector", sector).eq("name", name).order("version", { ascending: false }).limit(50);
+  if (r.error) throw r.error;
+  return (r.data ?? []) as { version: number; archived: boolean; recorded_at: string }[];
+}

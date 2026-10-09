@@ -30,6 +30,8 @@ export type BuilderSource = Readonly<{
   load?: (ctx: LoadCtx) => Promise<Page>;
   /** Pós-processamento após TODAS as páginas (ex.: versão mais recente por escola). */
   finalize?: (rows: readonly Record<string, CellValue>[]) => Record<string, CellValue>[];
+  /** Coluna que chega como id de escola e é traduzida para o nome visível à conta. */
+  schoolIdColumn?: string;
 }>;
 
 export const HARD_ROW_CAP = 50_000;
