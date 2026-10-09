@@ -505,7 +505,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             compact ? "lg:pl-[var(--sidebar-collapsed-width)]" : "lg:pl-[var(--sidebar-width)]",
           )}
         >
-          <div className="app-workspace mx-auto w-full max-w-[var(--container-app)] p-4 sm:p-5 lg:p-6 print:!max-w-none print:!p-0">
+          <div className="app-workspace mx-auto w-full max-w-[var(--content-max)] px-4 py-5 sm:px-6 sm:py-6 lg:px-10 lg:py-8 print:!max-w-none print:!p-0">
             <ConnectionBanner />
             <StationGate pathname={pathname}>
               {(() => {

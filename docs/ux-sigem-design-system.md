@@ -37,3 +37,6 @@ Primitivas em `src/components/sigem/guidance.tsx` (teste `guidance.test.tsx`, ax
 - Migrados: remover agrupamento e remover período (calendário), encerrar vínculo docente.
 - `window.confirm` restante só em bloqueio de navegação ("sair sem salvar"), que exige resposta síncrona.
 - Pendente: aplicar catálogo tela a tela; 21 telas com error.message cru; revisão visual = INTERACTIVE_BROWSER_VALIDATION_PENDING.
+
+## UX.PREMIUM.0 (2026-10-09)
+Fundação premium (tokens, AppShell, PageHeader, Card, Table) descrita em `ux-premium-sigem-2027.md`; migração das rotas piloto pendente (UX.PREMIUM.1).

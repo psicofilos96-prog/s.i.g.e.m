@@ -260,3 +260,6 @@ Inventário automático (`route-visual-inventory.test.ts`) verde: nenhuma rota p
 - REVISAR/DEPENDE_DECISAO: breadcrumbs não são padrão do produto (componente existe, 0 telas usam); navegação = menu lateral + título da página. Adotar exige decisão.
 - ASSIGNMENT_PENDING: Supervisão, Avaliação e Alimentação sem perfil sintético; smoke não as cobre com login.
 - Smoke não reexecutado após as correções; INTERACTIVE_BROWSER_VALIDATION_PENDING com logins reais.
+
+## UX.PREMIUM.0 (2026-10-09)
+Fundação premium (tokens, AppShell, PageHeader, Card, Table) descrita em `ux-premium-sigem-2027.md`; migração das rotas piloto pendente (UX.PREMIUM.1).
