@@ -7,7 +7,7 @@ import { INFO_PLACES, InfoLinesAt } from "./calendar-info-lines";
 import { observationLines } from "./calendar-document";
 import { weekendLetter } from "./calendar-catalog";
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { BookOpen, CalendarDays, GraduationCap, Users } from "lucide-react";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";

@@ -6,7 +6,7 @@ import { shrinkImage } from "./calendar-image-shrink";
  * dimensionamento da tabela, fotos, encaixe na grade, JSON exportar/importar. Só aparência.
  */
 import { LayersSection } from "./calendar-external-layers-editor";
-import { applyPremium, PREMIUM_NAME } from "./calendar-external-premium";
+import { applyPremium, applyPremiumEja, PREMIUM_EJA_NAME, PREMIUM_NAME } from "./calendar-external-premium";
 import { useState, type ChangeEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { ASSET_MAX_CHARS, FONT_OPTIONS, type ExternalProfile } from "./calendar-external-model";
@@ -94,6 +94,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
           <Button type="button" size="sm" variant="outline" disabled={!canRedo} onClick={onRedo}>Refazer</Button>
           <Button type="button" size="sm" variant="outline" onClick={() => setF(defaults)}>Restaurar layout padrão</Button>
           <Button type="button" size="sm" onClick={() => { onChange(applyPremium(profile)); setMsg(`Modelo “${PREMIUM_NAME}” aplicado ao rascunho. Datas e totais continuam vindo do calendário interno. Confira e salve.`); }}>Aplicar modelo Itaperuna Premium</Button>
+          <Button type="button" size="sm" variant="outline" onClick={() => { onChange(applyPremiumEja(profile)); setMsg(`Modelo “${PREMIUM_EJA_NAME}” aplicado ao rascunho. Datas e totais continuam vindo do calendário interno. Confira e salve.`); }}>Aplicar modelo EJA Semestral</Button>
           <Button type="button" size="sm" variant="outline" onClick={exportJson}>Exportar layout</Button>
           <label className="inline-flex cursor-pointer items-center rounded-md border border-input px-2 text-xs">Importar layout<input type="file" accept="application/json" className="sr-only" onChange={importJson} /></label>
         </div>
