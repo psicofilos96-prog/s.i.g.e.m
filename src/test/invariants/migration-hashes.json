@@ -299,5 +299,6 @@
  "drizzle/migrations/0248_ndb3_revoke_superseded_emit_school_document_v2.sql": "e501731f41ec06e1a3291c32ab24b8b956a97578cdf29d2503691c2e442eb1a2",
  "drizzle/migrations/0249_nsec4_revoke_anon_table_privileges.sql": "26cc5d6049895d15b851253e8a98968b009a3411bb67b991f9b6ba1aad0126c8",
  "drizzle/migrations/0250_ndb4_drop_exact_duplicate_indexes_revoke_deprecated_install.sql": "c4cf6ef012ecf2575f843153101747ecedf24af123837b37dac80cb7367e4e64",
- "drizzle/migrations/0251_nstudent1_episode_endings_in_readers.sql": "31bda69225456499e19af2e3ddcc895c5edbb6873c663711571aea40bc5dee96"
+ "drizzle/migrations/0251_nstudent1_episode_endings_in_readers.sql": "31bda69225456499e19af2e3ddcc895c5edbb6873c663711571aea40bc5dee96",
+ "drizzle/migrations/0252_cal_preset_1_personal_external_presets.sql": "4db8287807f5f919675f07a4c8772d970a8c1e30281ff2db353c6a56b33e70ad"
 }
