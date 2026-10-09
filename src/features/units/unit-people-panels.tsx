@@ -49,8 +49,8 @@ export function UnitClassesPanel({ schoolId }: { schoolId: string }) {
     <div className="space-y-2">
       <p className="text-sm"><strong>{classes.length}</strong> turmas · <strong>{total}</strong> alunos enturmados hoje</p>
       <div className="overflow-x-auto rounded-md border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted text-left"><tr><th className="p-2">Turma</th><th className="p-2 text-right">Alunos enturmados</th><th className="p-2 text-right">Saídas registradas</th></tr></thead>
+        <table className="w-full text-sm"><caption className="sr-only">Lista</caption>
+          <thead className="bg-muted text-left"><tr><th scope="col" className="p-2">Turma</th><th scope="col" className="p-2 text-right">Alunos enturmados</th><th scope="col" className="p-2 text-right">Saídas registradas</th></tr></thead>
           <tbody>{classes.map((c) => (
             <tr key={c.id} className="border-t"><td className="p-2">{c.label}</td><td className="p-2 text-right tabular-nums">{c.active.size}</td><td className="p-2 text-right tabular-nums">{c.ended.size}</td></tr>
           ))}</tbody>
@@ -80,8 +80,8 @@ export function UnitStaffPanel({ schoolId }: { schoolId: string }) {
       <p className="text-sm"><strong>{new Set(active.map((r) => r.full_name)).size}</strong> pessoas em atuação · {s.rows.length - active.length} afastadas ou fora da lista</p>
       <Input aria-label="Buscar profissional" placeholder="Buscar por nome, função ou cargo" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm" />
       <div className="overflow-x-auto rounded-md border">
-        <table className="w-full text-sm">
-          <thead className="bg-muted text-left"><tr><th className="p-2">Nome</th><th className="p-2">Função</th><th className="p-2">Cargo</th><th className="p-2">Vínculo</th><th className="p-2">Situação</th></tr></thead>
+        <table className="w-full text-sm"><caption className="sr-only">Lista</caption>
+          <thead className="bg-muted text-left"><tr><th scope="col" className="p-2">Nome</th><th scope="col" className="p-2">Função</th><th scope="col" className="p-2">Cargo</th><th scope="col" className="p-2">Vínculo</th><th scope="col" className="p-2">Situação</th></tr></thead>
           <tbody>{rows.map((r) => (
             <tr key={r.id} className="border-t"><td className="p-2">{r.full_name}</td><td className="p-2">{r.funcao ?? "—"}</td><td className="p-2">{r.cargo ?? "—"}</td><td className="p-2">{r.vinculo ?? "—"}</td><td className="p-2">{r.situacao}</td></tr>
           ))}</tbody>
