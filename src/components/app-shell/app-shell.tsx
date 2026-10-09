@@ -371,6 +371,7 @@ function Topbar({
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const pageName = pageTitleForPath(pathname);
+  const crumb = breadcrumbForPath(pathname);
   const session = useSessionAuthority();
   return (
     <header
