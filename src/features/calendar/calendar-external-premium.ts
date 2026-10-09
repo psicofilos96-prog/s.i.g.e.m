@@ -74,3 +74,14 @@ export function applyPremium(p: ExternalProfile): ExternalProfile {
   return { ...p, free: premiumLayout(p.free), headerColor: NAVY, primary: NAVY, secondary: NAVY2, accent: GOLD, borderColor: "#C9D6E8", gridColor: "#4F78AD", gridWidth: 0.35, titleFont: SERIF,
     subtitle: p.subtitle ?? null };
 }
+
+export const PREMIUM_EJA_NAME = "Itaperuna Premium — EJA Semestral";
+/** Variante EJA semestral: mesmo design; duas tabelas (jan–jun, jul–dez) com total por semestre e textos de identificação próprios. */
+export function applyPremiumEja(p: ExternalProfile): ExternalProfile {
+  const q = applyPremium(p); const f = q.free; const B = f.blocks;
+  const layers = f.layers.map((l) => l.id === "subtitulo" && l.kind === "texto" ? { ...l, text: "EJA — EDUCAÇÃO DE JOVENS E ADULTOS", y: 56.5 } : l)
+    .concat([text("identificacao", "Identificação do curso", "CURSO SEMESTRAL — PERÍODOS 1º E 2º", 40, 61.5, 205, 4, 14, { pt: 7.5, tracking: 0.5, color: GOLD, bold: true })]);
+  return { ...q, free: { ...f, layers,
+    blocks: { ...B, matriz: { ...B.matriz, y: 66, h: 84 } , legenda: { ...B.legenda, y: 152, h: 31 }, feriados: { ...B.feriados, y: 152, h: 31 }, periodos: { ...B.periodos, y: 152, h: 31 }, conselhos: { ...B.conselhos, y: 168, h: 15 } },
+    table: { ...f.table, semesters: true, headPt: 6.6, monthPt: 7, dayPt: 6 } } };
+}

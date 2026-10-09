@@ -1430,3 +1430,6 @@
 .cf-livre .cf-assinaturas { gap: 30mm; justify-content: space-between; }
 .cf-livre .cf-assinaturas > div { max-width: 80mm; } .cf-livre .cf-assinaturas p { margin: 0.6mm 0 0; font-weight: 600; }
 .cf-livre [data-free-block="assinaturas"] .cf-titulo { display: none; }
+.cf-livre .cf-per-lista .cf-sem-rot th { text-align: left; padding-top: 0.8mm; font-weight: 800; color: var(--cx-header); text-transform: uppercase; letter-spacing: 0.04em; }
+.cf-livre .cf-per-lista .cf-sem-total th { text-align: right; font-weight: 700; }
+.cf-livre .cf-per-lista .cf-sem-total td { font-weight: 800; }

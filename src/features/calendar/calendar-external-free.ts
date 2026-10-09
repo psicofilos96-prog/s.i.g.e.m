@@ -19,7 +19,7 @@ export type BlockStyle = { font: string | null; pt: number; titlePt: number; lh:
 export type BlockBox = { x: number; y: number; w: number; h: number; visible: boolean; locked: boolean; z: number; style: BlockStyle };
 export type TableCfg = {
   mode: "ajustar" | "manual"; cellWmm: number; cellHmm: number; monthColMm: number; totalColMm: number;
-  headPt: number; dayPt: number; monthPt: number; dividerMm: number; showDayNumbers: boolean;
+  headPt: number; dayPt: number; monthPt: number; dividerMm: number; showDayNumbers: boolean; semesters: boolean;
 };
 /** Ajuste de imagem: foco (%), zoom (%) e opacidade (%). */
 export type ImgAdjust = { fx: number; fy: number; zoom: number; opacity: number };
@@ -61,7 +61,7 @@ export function defaultFreeLayout(kind: "quadro" | "fotografico"): FreeLayout {
       assinaturas: box(lw + fw + cw + 3 * gap, rowY, aw, rowH, 1, { pt: 6, cols: 1 }),
       rodape: box(0, rowY + rowH + 2, W, SHEET_H - (rowY + rowH + 2), 1, { pt: 6.5, align: "centro", fill: false }),
     },
-    table: { mode: "ajustar", cellWmm: 6, cellHmm: 7, monthColMm: 18, totalColMm: 10, headPt: 6, dayPt: 6, monthPt: 6.5, dividerMm: 0.2, showDayNumbers: false },
+    table: { mode: "ajustar", cellWmm: 6, cellHmm: 7, monthColMm: 18, totalColMm: 10, headPt: 6, dayPt: 6, monthPt: 6.5, dividerMm: 0.2, showDayNumbers: false, semesters: false },
     photo: { top: null, bottom: null, topHmm: foto ? 52 : 0, bottomHmm: foto ? 38 : 0, veil: "#FBF8F2", veilStrength: foto ? 90 : 0, useDefaultTop: foto,
       topAdj: ADJ, bottomAdj: ADJ, page: null, pageAdj: { ...ADJ, opacity: 35 } },
     stickers: [],
@@ -113,7 +113,7 @@ export function sanitizeFree(raw: unknown, d: FreeLayout, fonts: readonly string
       cellWmm: num(t["cellWmm"], LIMITS.cellWmm, dt.cellWmm), cellHmm: num(t["cellHmm"], LIMITS.cellHmm, dt.cellHmm),
       monthColMm: num(t["monthColMm"], LIMITS.monthColMm, dt.monthColMm), totalColMm: num(t["totalColMm"], LIMITS.totalColMm, dt.totalColMm),
       headPt: num(t["headPt"], LIMITS.headPt, dt.headPt), dayPt: num(t["dayPt"], LIMITS.dayPt, dt.dayPt), monthPt: num(t["monthPt"], LIMITS.monthPt, dt.monthPt),
-      dividerMm: num(t["dividerMm"], LIMITS.dividerMm, dt.dividerMm), showDayNumbers: bool(t["showDayNumbers"], dt.showDayNumbers),
+      dividerMm: num(t["dividerMm"], LIMITS.dividerMm, dt.dividerMm), showDayNumbers: bool(t["showDayNumbers"], dt.showDayNumbers), semesters: bool(t["semesters"], dt.semesters),
     },
     photo: {
       top: img(p["top"], maxImg), bottom: img(p["bottom"], maxImg), topHmm: num(p["topHmm"], LIMITS.topHmm, dp.topHmm), bottomHmm: num(p["bottomHmm"], LIMITS.bottomHmm, dp.bottomHmm),
@@ -140,7 +140,7 @@ export function layoutIssues(f: FreeLayout): { overlaps: [FreeBlockId, FreeBlock
     if (a.x < b.x + b.w - 0.01 && b.x < a.x + a.w - 0.01 && a.y < b.y + b.h - 0.01 && b.y < a.y + a.h - 0.01) overlaps.push([vis[i]!, vis[j]!]);
   }
   const m = f.blocks.matriz, t = f.table;
-  const tableOverflow = m.visible && t.mode === "manual" && (t.monthColMm + 31 * t.cellWmm + t.totalColMm > m.w + 0.01 || (13 * t.cellHmm) > m.h + 0.01);
+  const tableOverflow = m.visible && t.mode === "manual" && (t.monthColMm + 31 * t.cellWmm + t.totalColMm > m.w + 0.01 || ((t.semesters ? 16 : 13) * t.cellHmm) > m.h + 0.01);
   return { overlaps, tableOverflow };
 }
 

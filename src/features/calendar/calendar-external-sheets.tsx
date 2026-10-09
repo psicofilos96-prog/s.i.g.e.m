@@ -7,7 +7,7 @@ import { INFO_PLACES, InfoLinesAt } from "./calendar-info-lines";
 import { observationLines } from "./calendar-document";
 import { weekendLetter } from "./calendar-catalog";
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
-import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
+import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { BookOpen, CalendarDays, GraduationCap, Users } from "lucide-react";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
@@ -535,6 +535,18 @@ function LayerView({ l, ctx, selected, onSelect, onMove }: { l: Layer; ctx: { ye
     {onMove && selected && !l.locked && <span className="cf-alca" aria-hidden onPointerDown={drag("resize")} />}</div>;
 }
 
+type Count = { schoolDays: number | null; reason: string | null };
+/** Soma dos totais mensais do motor; qualquer mês indeterminado torna o semestre indeterminado (nunca zero). */
+export function semesterTotal(months: readonly ExternalMonth[]): Count {
+  if (months.some((m) => m.total.schoolDays === null)) return { schoolDays: null, reason: "Há mês com total indeterminado neste semestre." };
+  return { schoolDays: months.reduce((a, m) => a + (m.total.schoolDays ?? 0), 0), reason: null };
+}
+/** Agrupa períodos pelo semestre da data de início (jan–jun = 1º, jul–dez = 2º). */
+export function periodSemesters<P extends Count & { startsOn: string }>(periods: readonly P[]) {
+  return [1, 2].map((n) => { const ps = periods.filter((p) => (Number(p.startsOn.slice(5, 7)) <= 6 ? 1 : 2) === n);
+    const total: Count = ps.some((p) => p.schoolDays === null) ? { schoolDays: null, reason: "Há período com total indeterminado." } : { schoolDays: ps.reduce((a, p) => a + (p.schoolDays ?? 0), 0), reason: null };
+    return { key: `s${n}`, label: `${n}º semestre`, periods: ps, total }; }).filter((g) => g.periods.length > 0);
+}
 export function FreeSheet({ vm, p, presentation, template, selected, onSelect, onMove, onMoveSticker, selectedLayer, onSelectLayer, onMoveLayer }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; template: ExternalTemplateCode; selectedLayer?: string | null; onSelectLayer?: (id: string) => void; onMoveLayer?: LayerMove; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
   const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
   const f = p.free; const B = f.blocks; const t = f.table;
@@ -576,11 +588,14 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
         <Notices vm={vm} />
         {cards ? <div className="cx-meses cf-meses" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "1.5mm", height: "100%" }}>
           {vm.months.map((m) => <MonthCard key={m.key} m={m} types={types} p={p} />)}</div> :
-        <table className={`cf-matriz${manual ? " cf-manual" : ""}`} style={tableStyle}>
+        <div className={t.semesters ? "cf-semestres" : undefined} style={t.semesters ? { display: "flex", flexDirection: "column", gap: "1.2mm", height: "100%" } : undefined}>
+        {(t.semesters ? [{ months: vm.months.slice(0, 6), label: "TOTAL DE DIAS LETIVOS DO 1º SEMESTRE", key: "s1" }, { months: vm.months.slice(6), label: "TOTAL DE DIAS LETIVOS DO 2º SEMESTRE", key: "s2" }]
+          : [{ months: vm.months, label: "TOTAL DE DIAS LETIVOS", key: "geral" }]).map((g) => { const tot = g.key === "geral" ? vm.total : semesterTotal(g.months);
+          return <table key={g.key} className={`cf-matriz${manual ? " cf-manual" : ""}`} style={{ ...tableStyle, ...(t.semesters && !manual ? { flex: 1, height: "auto" } : {}) }}>
           <colgroup><col style={{ width: mm(t.monthColMm) }} />{cols.map((c) => <col key={c} />)}{p.show.totaisMensais && t.totalColMm > 0 && <col style={{ width: mm(t.totalColMm) }} />}</colgroup>
           <thead style={{ fontSize: `${t.headPt}pt` }}><tr><th scope="col">Mês / Dia</th>{cols.map((c) => <th key={c} scope="col" style={cell ? { width: cell.width, minWidth: cell.minWidth } : undefined}>{c}</th>)}
             {p.show.totaisMensais && t.totalColMm > 0 && <th scope="col" className="cf-col-total">Total de<br />dias letivos</th>}</tr></thead>
-          <tbody>{vm.months.map((m) => { const bands = bandsOf(m, types, p);
+          <tbody>{g.months.map((m) => { const bands = bandsOf(m, types, p);
             return <tr key={m.key} data-month={m.key} style={cell ? { height: cell.height } : undefined}>
               <th scope="row" style={{ fontSize: `${t.monthPt}pt` }}>{m.name}</th>
               {cols.map((n) => n > m.daysInMonth ? <td key={n} className="cx-dia cx-inexistente" aria-hidden />
@@ -588,15 +603,20 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
               {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total" data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{m.split ? <span className="cx-split"><span>{m.split[0]}</span><span>{m.split[1]}</span></span> : countText(m.total)}</td>}
             </tr>; })}</tbody>
           {p.show.totaisMensais && t.totalColMm > 0 && <tfoot><tr className="cf-total-geral">
-            <th scope="row" colSpan={cols.length + 1}>TOTAL DE DIAS LETIVOS</th>
-            <td className="cx-total" data-testid="cx-total-geral" title={vm.total.reason ?? ""}>{countText(vm.total)}</td></tr></tfoot>}
-        </table>}
+            <th scope="row" colSpan={cols.length + 1}>{g.label}</th>
+            <td className="cx-total" data-testid={`cx-total-${g.key}`} title={tot.reason ?? ""}>{countText(tot)}</td></tr></tfoot>}
+          </table>; })}
+        </div>}
       </FreeBox>}
       {B.periodos.visible && <FreeBox {...common("periodos")} title="Períodos letivos">
         {B.periodos.style.orientation === "lista" ? <div className="cf-per-lista">
-          <table><tbody>{vm.periods.map((pp) => <tr key={pp.name}><th scope="row">{pp.name}</th><td>—</td><td>{shortDate(pp.startsOn)} a {shortDate(pp.endsOn)}</td><td>=</td>
-            <td className="cf-per-num" title={pp.reason ?? ""}>{countText(pp)}{pp.schoolDays !== null ? " dias" : ""}</td></tr>)}</tbody></table>
-          <p className="cf-total">Total de dias letivos = <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b>{vm.total.schoolDays !== null ? " dias" : ""}</p>
+          <table><tbody>{(t.semesters ? periodSemesters(vm.periods) : [{ key: "todos", label: null, periods: vm.periods, total: null }]).map((g) => <Fragment key={g.key}>
+            {g.label && <tr className="cf-sem-rot"><th scope="rowgroup" colSpan={5}>{g.label}</th></tr>}
+            {g.periods.map((pp) => <tr key={pp.name}><th scope="row">{pp.name}</th><td>—</td><td>{shortDate(pp.startsOn)} a {shortDate(pp.endsOn)}</td><td>=</td>
+            <td className="cf-per-num" title={pp.reason ?? ""}>{countText(pp)}{pp.schoolDays !== null ? " dias" : ""}</td></tr>)}
+            {g.total && <tr className="cf-sem-total"><th scope="row" colSpan={4}>Total do {g.label?.toLowerCase()}</th><td className="cf-per-num" title={g.total.reason ?? ""}>{countText(g.total)}{g.total.schoolDays !== null ? " dias" : ""}</td></tr>}
+          </Fragment>)}</tbody></table>
+          <p className="cf-total">{t.semesters ? "Total anual" : "Total de dias letivos"} = <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b>{vm.total.schoolDays !== null ? " dias" : ""}</p>
           {!B.conselhos.visible && vm.councils.state === "configurada" && vm.councils.items.length > 0 && <table className="cf-per-cons"><tbody>
             {vm.councils.items.map((i) => <tr key={i.on + i.role}><th scope="row">{shortDate(i.on)}</th><td>—</td><td>{i.name}</td></tr>)}</tbody></table>}
           {!B.conselhos.visible && vm.councils.state !== "configurada" && <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
