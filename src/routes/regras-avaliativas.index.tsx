@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { AssessmentRulesRealPage } from "@/features/institutional-rules/assessment-rules-page";
+import { useSessionAuthority } from "@/features/authority/session-authority";
 import { AssessmentRuleListPage } from "@/features/assessment/assessment-rule-pages";
 
 export const Route = createFileRoute("/regras-avaliativas/")({
@@ -24,5 +26,9 @@ export const Route = createFileRoute("/regras-avaliativas/")({
 
 function Page() {
   const { perfil } = Route.useSearch();
+  const authority = useSessionAuthority();
+  // NAVRULES.1: com sessão, só a regra real do banco; o laboratório fica para quem não entrou.
+  if (authority.status === "signed-in") return <AssessmentRulesRealPage />;
+  if (authority.status === "loading") return <p role="status" className="text-sm">Carregando…</p>;
   return <AssessmentRuleListPage profile={perfil} />;
 }
