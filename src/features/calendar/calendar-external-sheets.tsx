@@ -588,10 +588,10 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
         <Notices vm={vm} />
         {cards ? <div className="cx-meses cf-meses" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "1.5mm", height: "100%" }}>
           {vm.months.map((m) => <MonthCard key={m.key} m={m} types={types} p={p} />)}</div> :
-        <div className={t.semesters ? "cf-semestres" : "cf-matriz-wrap"} style={{ display: "flex", flexDirection: "column", gap: "1.2mm", height: "100%" }}>
+        <div className={t.semesters ? "cf-semestres" : "cf-matriz-wrap"} style={{ display: "flex", flexDirection: "column", gap: "1.2mm", flex: 1, minHeight: 0, height: "100%" }}>
         {(t.semesters ? [{ months: vm.months.slice(0, 6), label: "TOTAL DE DIAS LETIVOS DO 1º SEMESTRE", key: "s1" }, { months: vm.months.slice(6), label: "TOTAL DE DIAS LETIVOS DO 2º SEMESTRE", key: "s2" }]
           : [{ months: vm.months, label: "TOTAL DE DIAS LETIVOS", key: "geral" }]).map((g) => { const tot = g.key === "geral" ? vm.total : semesterTotal(g.months);
-          return <table key={g.key} className={`cf-matriz${manual ? " cf-manual" : ""}`} style={{ ...tableStyle, ...(!manual ? { flex: 1, height: "auto" } : {}) }}>
+          return <table key={g.key} className={`cf-matriz${manual ? " cf-manual" : ""}`} style={{ ...tableStyle, ...(!manual ? { height: t.semesters ? "calc(50% - 0.6mm)" : "100%" } : {}) }}>
           <colgroup><col style={{ width: mm(t.monthColMm) }} />{cols.map((c) => <col key={c} />)}{p.show.totaisMensais && t.totalColMm > 0 && <col style={{ width: mm(t.totalColMm) }} />}</colgroup>
           <thead style={{ fontSize: `${t.headPt}pt` }}><tr><th scope="col">Mês / Dia</th>{cols.map((c) => <th key={c} scope="col" style={cell ? { width: cell.width, minWidth: cell.minWidth } : undefined}>{c}</th>)}
             {p.show.totaisMensais && t.totalColMm > 0 && <th scope="col" className="cf-col-total">Total de<br />dias letivos</th>}</tr></thead>
