@@ -19,6 +19,7 @@ import {
   columnTotals, countText, periodColumns, externalLegendCodes, institutionalIdentity, shortDate, WEEK_HEAD,
   type ExternalLogo, type InfoBlock, type ExternalMonth, type ExternalPillar, type ExternalProfile, type ExternalTemplateCode, type ExternalViewModel,
 } from "./calendar-external-model";
+import { resolveLayerText, wavePath, type Layer } from "./calendar-external-layers";
 import { SHEET_H, SHEET_W, adjustedBg, type BlockBox, type FreeBlockId, type Sticker } from "./calendar-external-free";
 
 type Types = ReturnType<typeof dayTypesOf>;
@@ -425,7 +426,7 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
   );
 }
 
-export function ExternalSheet(props: { template: ExternalTemplateCode; vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
+export function ExternalSheet(props: { template: ExternalTemplateCode; vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void; selectedLayer?: string | null; onSelectLayer?: (id: string) => void; onMoveLayer?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
   return <FreeSheet {...props} template={props.template} />;
 }
 
@@ -479,7 +480,58 @@ function StickerImg({ s, onMove }: { s: Sticker; onMove?: ((id: string, patch: {
   );
 }
 
-export function FreeSheet({ vm, p, presentation, template, selected, onSelect, onMove, onMoveSticker }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; template: ExternalTemplateCode; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
+type LayerMove = (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void;
+function fadeMask(l: Extract<Layer, { kind: "imagem" }>): string | undefined {
+  if (l.fade === "nenhum" || l.fadeMm <= 0) return undefined;
+  const f = `${Math.min(l.fadeMm, l.h / 2)}mm`;
+  if (l.fade === "baixo") return `linear-gradient(to bottom, #000 calc(100% - ${f}), transparent)`;
+  if (l.fade === "cima") return `linear-gradient(to top, #000 calc(100% - ${f}), transparent)`;
+  return `linear-gradient(to bottom, transparent, #000 ${f}, #000 calc(100% - ${f}), transparent)`;
+}
+/** CAL.EXT.4 — camada visual independente (foto, logo, onda vetorial, texto). Só aparência. */
+function LayerView({ l, ctx, selected, onSelect, onMove }: { l: Layer; ctx: { year: number | null; title: string | null; subtitle: string | null }; selected: boolean; onSelect?: ((id: string) => void) | undefined; onMove?: LayerMove | undefined }) {
+  if (!l.visible) return null;
+  const drag = (mode: "move" | "resize") => (e: RPointerEvent<HTMLElement>) => {
+    if (!onMove || l.locked) return;
+    e.preventDefault(); e.stopPropagation(); onSelect?.(l.id);
+    const sheet = (e.currentTarget as HTMLElement).closest<HTMLElement>(".cx-folha"); if (!sheet) return;
+    const k = sheet.getBoundingClientRect().width / SHEET_W; const sx = e.clientX, sy = e.clientY;
+    const move = (ev: PointerEvent) => { const dx = (ev.clientX - sx) / k, dy = (ev.clientY - sy) / k;
+      onMove(l.id, mode === "move" ? { x: l.x + dx, y: l.y + dy } : { w: l.w + dx, h: l.h + dy }); };
+    const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); };
+    window.addEventListener("pointermove", move); window.addEventListener("pointerup", up);
+  };
+  const box: CSSProperties = { position: "absolute", left: mm(l.x), top: mm(l.y), width: mm(l.w), height: mm(l.h), zIndex: l.z, opacity: l.opacity / 100,
+    transform: l.rot ? `rotate(${l.rot}deg)` : undefined, cursor: onMove && !l.locked ? "move" : undefined,
+    outline: selected ? "0.4mm dashed currentColor" : undefined, pointerEvents: onMove ? "auto" : "none" };
+  let inner: ReactNode = null;
+  if (l.kind === "imagem") {
+    const mask = fadeMask(l);
+    inner = <div style={{ width: "100%", height: "100%", backgroundImage: `url(${l.src})`, backgroundRepeat: "no-repeat", backgroundPosition: `${l.fx}% ${l.fy}%`,
+      backgroundSize: l.fit === "conter" ? "contain" : l.zoom === 100 ? "cover" : `${l.zoom}%`,
+      filter: l.brightness !== 100 || l.contrast !== 100 || l.saturate !== 100 ? `brightness(${l.brightness}%) contrast(${l.contrast}%) saturate(${l.saturate}%)` : undefined,
+      ...(mask ? { maskImage: mask, WebkitMaskImage: mask } : {}), printColorAdjust: "exact", WebkitPrintColorAdjust: "exact" }} />;
+  } else if (l.kind === "onda") {
+    const gid = `cx-onda-${l.id}`;
+    inner = <svg width="100%" height="100%" viewBox={`0 0 ${l.w} ${l.h}`} preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }}>
+      {l.fill2 && <defs><linearGradient id={gid} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={l.fill} /><stop offset="1" stopColor={l.fill2} /></linearGradient></defs>}
+      <path d={wavePath(l)} fill={l.fill2 ? `url(#${gid})` : l.fill} />
+      {l.stroke && l.strokeMm > 0 && <path d={wavePath({ ...l, side: l.side }).split(" L ")[0]} fill="none" stroke={l.stroke} strokeWidth={l.strokeMm} vectorEffect="non-scaling-stroke" />}
+    </svg>;
+  } else {
+    const parts = resolveLayerText(l.text, ctx);
+    inner = <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: l.align === "centro" ? "center" : l.align === "direita" ? "flex-end" : "flex-start",
+      fontFamily: l.font ?? undefined, fontSize: `${l.pt}pt`, fontWeight: l.bold ? 700 : 400, fontStyle: l.italic ? "italic" : undefined, color: l.color,
+      letterSpacing: l.tracking ? `${l.tracking}em` : undefined, lineHeight: l.lh, whiteSpace: "pre-wrap", textAlign: l.align === "centro" ? "center" : l.align === "direita" ? "right" : "left",
+      textShadow: l.shadow ? "0 0.3mm 0.8mm rgba(0,0,0,0.45)" : undefined }}>
+      <span>{parts.map((p, i) => <span key={i} style={p.accent ? { color: l.accent } : undefined}>{p.t}</span>)}</span></div>;
+  }
+  return <div className="cf-camada" data-layer={l.id} data-layer-kind={l.kind} aria-hidden style={box}
+    onPointerDown={onMove ? drag("move") : undefined}>{inner}
+    {onMove && selected && !l.locked && <span className="cf-alca" aria-hidden onPointerDown={drag("resize")} />}</div>;
+}
+
+export function FreeSheet({ vm, p, presentation, template, selected, onSelect, onMove, onMoveSticker, selectedLayer, onSelectLayer, onMoveLayer }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown>; template: ExternalTemplateCode; selectedLayer?: string | null; onSelectLayer?: (id: string) => void; onMoveLayer?: LayerMove; selected?: FreeBlockId | null; onSelect?: (b: FreeBlockId) => void; onMove?: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void; onMoveSticker?: (id: string, patch: { x?: number; y?: number; w?: number; h?: number }) => void }) {
   const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
   const f = p.free; const B = f.blocks; const t = f.table;
   const id = institutionalIdentity(presentation);
@@ -503,6 +555,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
       {topImg && f.photo.topHmm > 0 && <div className="cf-foto cf-foto-topo" aria-hidden style={{ height: mm(f.photo.topHmm), ...adjustedBg(topImg, f.photo.topAdj) }} />}
       {f.photo.bottom && f.photo.bottomHmm > 0 && <div className="cf-foto cf-foto-rodape" aria-hidden style={{ height: mm(f.photo.bottomHmm), ...adjustedBg(f.photo.bottom, f.photo.bottomAdj) }} />}
       {f.photo.veilStrength > 0 && <div className="cf-veu" aria-hidden style={{ background: `linear-gradient(to bottom, transparent 0mm, transparent 45mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) 55mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) ${SHEET_H - Math.max(8, f.photo.bottomHmm)}mm, transparent ${SHEET_H}mm)` }} />}
+      {f.layers.map((l) => <LayerView key={l.id} l={l} ctx={{ year: vm.year, title: p.visualTitle ?? "CALENDÁRIO ESCOLAR", subtitle: p.subtitle ?? (vm.title ?? "").toUpperCase() }} selected={selectedLayer === l.id} onSelect={onSelectLayer} onMove={onMoveLayer} />)}
       {f.stickers.map((s) => <StickerImg key={s.id} s={s} onMove={onMoveSticker} />)}
       {B.cabecalho.visible && <FreeBox {...common("cabecalho")}>
         <div className="cf-cab">

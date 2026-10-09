@@ -4,6 +4,7 @@
  * dimensionamento da tabela. Datas, tipos, efeitos e totais continuam vindo do calendário interno
  * (`PrintModel` → `ExternalViewModel`); nada aqui conta ou decide dia letivo.
  */
+import { sanitizeLayers, type Layer } from "./calendar-external-layers";
 export const SHEET_W = 285, SHEET_H = 197; // área útil A4 paisagem (mm), a mesma dos demais externos
 export const FREE_BLOCKS = ["cabecalho", "matriz", "periodos", "legenda", "feriados", "conselhos", "assinaturas", "rodape"] as const;
 export type FreeBlockId = (typeof FREE_BLOCKS)[number];
@@ -27,7 +28,9 @@ export type PhotoCfg = { top: string | null; bottom: string | null; topHmm: numb
 /** Imagem avulsa (PNG com ou sem transparência) sobre a folha: não altera a estrutura nem os dados. */
 export type Sticker = { id: string; src: string; x: number; y: number; w: number; h: number; rot: number; opacity: number; z: number; front: boolean; locked: boolean };
 export const MAX_STICKERS = 12;
-export type FreeLayout = { snap: boolean; stepMm: number; allowOverlap: boolean; blocks: Record<FreeBlockId, BlockBox>; table: TableCfg; photo: PhotoCfg; stickers: Sticker[] };
+export type FreeLayout = { snap: boolean; stepMm: number; allowOverlap: boolean; blocks: Record<FreeBlockId, BlockBox>; table: TableCfg; photo: PhotoCfg; stickers: Sticker[];
+  /** CAL.EXT.4 — camadas visuais independentes (fotos, logos, ondas, textos); ausência = []. */
+  layers: Layer[] };
 
 export const LIMITS = {
   pt: [3, 40], titlePt: [3, 30], lh: [0.8, 2.5], padMm: [0, 8], cols: [1, 4], stepMm: [0.5, 10],
@@ -62,6 +65,7 @@ export function defaultFreeLayout(kind: "quadro" | "fotografico"): FreeLayout {
     photo: { top: null, bottom: null, topHmm: foto ? 52 : 0, bottomHmm: foto ? 38 : 0, veil: "#FBF8F2", veilStrength: foto ? 90 : 0, useDefaultTop: foto,
       topAdj: ADJ, bottomAdj: ADJ, page: null, pageAdj: { ...ADJ, opacity: 35 } },
     stickers: [],
+    layers: [],
   };
 }
 
@@ -123,6 +127,7 @@ export function sanitizeFree(raw: unknown, d: FreeLayout, fonts: readonly string
       return [{ id: typeof s["id"] === "string" && /^[a-z0-9-]{1,40}$/.test(s["id"]) ? s["id"] : `img-${i}`, src, ...pos,
         rot: num(s["rot"], LIMITS.rot, 0), opacity: num(s["opacity"], LIMITS.opacity, 100), z: Math.round(num(s["z"], [0, 50], 5)), front: bool(s["front"], true), locked: bool(s["locked"], false) }];
     }).slice(0, MAX_STICKERS),
+    layers: sanitizeLayers(r["layers"], fonts, maxImg),
   };
 }
 
