@@ -16,6 +16,16 @@ export function generateCode(rand: (n: number) => Uint8Array = (n) => crypto.get
   return `${s.slice(0, 4)}-${s.slice(4, 8)}-${s.slice(8)}`;
 }
 
+/** Link individual: 32 símbolos aleatórios (~160 bits), sem digitação; vai na URL de /primeiro-acesso. */
+export const LINK_TOKEN_LENGTH = 32;
+export function generateLinkToken(rand: (n: number) => Uint8Array = (n) => crypto.getRandomValues(new Uint8Array(n))): string {
+  const bytes = rand(LINK_TOKEN_LENGTH);
+  let s = "";
+  for (let i = 0; i < LINK_TOKEN_LENGTH; i++) s += CODE_ALPHABET[bytes[i]! % CODE_ALPHABET.length];
+  return s;
+}
+export const activationLink = (origin: string, token: string) => `${origin.replace(/\/$/, "")}/primeiro-acesso?convite=${encodeURIComponent(token)}`;
+
 export function normalizeCode(input: string): string {
   return input.toUpperCase().replace(/[^A-Z0-9]/g, "");
 }
@@ -49,8 +59,8 @@ export function decideCode(row: CodeRow | null, hash: string, now: Date): CodeDe
 }
 
 export const DECISION_TEXT: Record<Exclude<CodeDecision, "ok">, string> = {
-  invalid: "Login ou código não conferem. Confira e tente de novo.",
-  expired: "Este código expirou. Peça um novo a quem administra as contas.",
-  used: "Este código já foi usado. Entre com a sua senha ou peça um novo código.",
-  locked: "Muitas tentativas com este código. Peça um novo a quem administra as contas.",
+  invalid: "Este link de ativação não é válido ou foi substituído por um mais novo. Peça um novo link.",
+  expired: "Este link expirou. Peça um novo link a quem administra as contas.",
+  used: "Este link já foi usado. Entre com a sua senha ou peça um novo link.",
+  locked: "Este link foi bloqueado. Peça um novo link a quem administra as contas.",
 };
