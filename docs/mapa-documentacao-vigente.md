@@ -329,3 +329,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | docs/alimentacao-escolar-produto-final.md | Registro de lote |
 | docs/secretaria-escolar-produto-final.md | Registro de lote |
 | docs/direcao-escolar-produto-final.md | Registro de lote |
+| docs/orientacao-pedagogica-produto-final.md | Registro de lote |
