@@ -18882,6 +18882,7 @@ export type Database = {
         Args: { _policy: string; _valid_from: string }
         Returns: string
       }
+      capability_unbound: { Args: { _capability: string }; Returns: boolean }
       census_advance_stage: {
         Args: {
           _cycle: string
@@ -22356,6 +22357,7 @@ export type Database = {
           supersedes: string
         }[]
       }
+      readable_class_ids: { Args: never; Returns: string[] }
       record_academic_year_operational_state: {
         Args: {
           _academic_year_id: string

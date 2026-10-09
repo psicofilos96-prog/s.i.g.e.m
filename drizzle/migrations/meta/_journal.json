@@ -1814,6 +1814,13 @@
       "when": 1791528005761,
       "tag": "0258_calendar_external_free_template",
       "breakpoints": true
+    },
+    {
+      "idx": 259,
+      "version": "7",
+      "when": 1791535138941,
+      "tag": "0259_perf_loading_set_based_rls",
+      "breakpoints": true
     }
   ]
 }
