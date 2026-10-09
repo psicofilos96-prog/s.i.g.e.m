@@ -1926,6 +1926,13 @@
       "when": 1791573838529,
       "tag": "0274_intervencao2_2026_operational_year",
       "breakpoints": true
+    },
+    {
+      "idx": 275,
+      "version": "7",
+      "when": 1791574061879,
+      "tag": "0275_intervencao3_account_activation",
+      "breakpoints": true
     }
   ]
 }

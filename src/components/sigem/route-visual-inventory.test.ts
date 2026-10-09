@@ -9,7 +9,7 @@ import { dirname, join, normalize } from "node:path";
  */
 const NEW =
   /PageHeader|WorkspaceHero|StationHome|WorkSurface|DecisionDesk|FollowUpWorkspace|ReviewQueue|DiaryHeader|SectionHeader|StatePanel|GuidedErrorState|SkeletonState|EmptyState/;
-const EXCEPTION = /impressao|documento\.tsx|verificar|publico|^login|^auth/;
+const EXCEPTION = /impressao|documento\.tsx|verificar|publico|^login|^auth|^primeiro-acesso/;
 /** Rotas com visual próprio documentado em docs/inventario-visual-rotas.md. */
 const DOCUMENTED = new Set([
   "index.tsx", // página inicial com imagem de capa própria, só tokens semânticos

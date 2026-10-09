@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -125,9 +125,11 @@ function AuthPage() {
               {busy ? "Entrando…" : "Entrar"}
             </Button>
           </form>
-          <p className="mt-8 text-xs text-muted-foreground">
-            Esqueceu a senha? Peça uma nova a quem administra as contas do SIGEM. O login não recebe e-mail.
+          <p className="mt-8 text-sm text-muted-foreground">
+            Primeiro acesso ou esqueceu a senha?{" "}
+            <Link to="/primeiro-acesso" className="font-medium text-primary underline-offset-4 hover:underline">Use seu código de acesso</Link>.
           </p>
+          <p className="mt-2 text-xs text-muted-foreground">O código individual é entregue por quem administra as contas. O login não recebe e-mail.</p>
           </>)}
         </div>
         </main>

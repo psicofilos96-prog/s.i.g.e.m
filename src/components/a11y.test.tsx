@@ -54,7 +54,7 @@ describe("auditoria estática transversal", () => {
   it("shell tem link de pular conteúdo e um único main", () => {
     const shell = readFileSync("src/components/app-shell/app-shell.tsx", "utf8");
     expect(shell).toContain('href="#conteudo"'); expect(shell.match(/<main\b/g)).toHaveLength(1);
-    expect(files.filter(([p, s]) => !["src/components/app-shell/app-shell.tsx", "src/routes/login.tsx", "src/routes/auth.tsx", "src/components/ui/sidebar.tsx", "src/features/public-portal/public-layout.tsx"].includes(p) && /<main\b/.test(s)).map(([p]) => p)).toEqual([]);
+    expect(files.filter(([p, s]) => !["src/components/app-shell/app-shell.tsx", "src/routes/login.tsx", "src/routes/auth.tsx", "src/routes/primeiro-acesso.tsx", "src/components/ui/sidebar.tsx", "src/features/public-portal/public-layout.tsx"].includes(p) && /<main\b/.test(s)).map(([p]) => p)).toEqual([]);
   });
   it("PWA: manifest instalável e nenhum service worker", () => {
     const m = JSON.parse(readFileSync("public/manifest.webmanifest", "utf8"));

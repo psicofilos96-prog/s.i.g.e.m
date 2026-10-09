@@ -498,7 +498,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  if (pathname === "/login" || pathname === "/auth" || isPublicPath(pathname)) return <>{children}</>;
+  if (pathname === "/login" || pathname === "/auth" || pathname === "/primeiro-acesso" || isPublicPath(pathname)) return <>{children}</>;
 
   return (
     <TooltipProvider delayDuration={250}>

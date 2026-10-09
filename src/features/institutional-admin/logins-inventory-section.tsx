@@ -13,6 +13,7 @@ import {
 } from "./access-inventory";
 import { resetAccessPasswords } from "./access-reset.functions";
 import { DevCredentialsPanel } from "./dev-credentials-panel";
+import { ActivationCodesPanel } from "./activation-codes-panel";
 
 const BRANDING = { headerLines: ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO"], title: LOGINS_REPORT.title };
 
@@ -99,6 +100,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
         {picked.size > 0 && <Button variant="ghost" size="sm" onClick={() => setPicked(new Set())}>Limpar seleção</Button>}
         <Button variant="ghost" size="sm" onClick={() => setPicked(new Set(shown.filter((r) => r.account_kind === "setorial" && !r.revoked).map((r) => r.user_id)))}>Selecionar contas de setor filtradas</Button>
       </div>
+      {picked.size > 0 && <ActivationCodesPanel selected={selected} />}
       {picked.size > 0 && <DevCredentialsPanel selected={selected} />}
       {resetOpen && <ResetPanel selected={selected} onClose={() => setResetOpen(false)} onDone={() => setPicked(new Set())} />}
       <div className="min-w-0 max-w-full overflow-x-auto rounded-lg border border-border">
