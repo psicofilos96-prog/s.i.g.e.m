@@ -8071,6 +8071,65 @@ export type Database = {
           },
         ]
       }
+      import_technical_adoptions: {
+        Row: {
+          adapter_id: string
+          adapter_version: number
+          adopted_at: string
+          adoption_basis: string
+          executed_at: string
+          id: string
+          idempotency_key: string
+          logical_batch_key: string
+          parser_ref: string
+          reported_result: Json
+          source_name: string
+          source_sha256: string
+          target_counts: Json
+          technical_operation_id: string
+        }
+        Insert: {
+          adapter_id: string
+          adapter_version?: number
+          adopted_at?: string
+          adoption_basis: string
+          executed_at: string
+          id?: string
+          idempotency_key: string
+          logical_batch_key: string
+          parser_ref: string
+          reported_result: Json
+          source_name: string
+          source_sha256: string
+          target_counts: Json
+          technical_operation_id: string
+        }
+        Update: {
+          adapter_id?: string
+          adapter_version?: number
+          adopted_at?: string
+          adoption_basis?: string
+          executed_at?: string
+          id?: string
+          idempotency_key?: string
+          logical_batch_key?: string
+          parser_ref?: string
+          reported_result?: Json
+          source_name?: string
+          source_sha256?: string
+          target_counts?: Json
+          technical_operation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_technical_adoptions_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: true
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inclusion_access_events: {
         Row: {
           at: string
@@ -20806,6 +20865,27 @@ export type Database = {
         }[]
       }
       import_grant: { Args: never; Returns: string }
+      import_source_recognition: {
+        Args: { _source_sha256: string }
+        Returns: Json
+      }
+      import_technical_adoptions_list: {
+        Args: never
+        Returns: {
+          adapter_id: string
+          adapter_version: number
+          adopted_at: string
+          executed_at: string
+          id: string
+          idempotency_key: string
+          logical_batch_key: string
+          parser_ref: string
+          reported_result: Json
+          source_name: string
+          source_sha256: string
+          target_counts: Json
+        }[]
+      }
       inclusion_access_trail: {
         Args: { _attachment: string }
         Returns: {

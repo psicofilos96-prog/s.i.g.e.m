@@ -1905,6 +1905,13 @@
       "when": 1791546825874,
       "tag": "0271_nciece_final_2_census_reconciliation_semantics",
       "breakpoints": true
+    },
+    {
+      "idx": 272,
+      "version": "7",
+      "when": 1791548821296,
+      "tag": "0272_nimport_standard_1_technical_adoptions",
+      "breakpoints": true
     }
   ]
 }
