@@ -134,7 +134,7 @@ export function StatusBadge({
   tone: "success" | "warning" | "danger" | "info" | "neutral";
   children: ReactNode;
 }) {
-  return <Badge className={cn("font-medium", `badge-${tone}`)}>{children}</Badge>;
+  return <Badge className={cn("gap-1.5 rounded-full px-2.5 py-0.5 text-micro font-medium before:size-1.5 before:rounded-full before:bg-current before:opacity-70 before:content-['']", `badge-${tone}`)}>{children}</Badge>;
 }
 
 export function EmptyState({

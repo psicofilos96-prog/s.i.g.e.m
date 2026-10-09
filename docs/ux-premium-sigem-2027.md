@@ -37,3 +37,7 @@ Admin/Visão Geral, Secretaria, CIECE, Avaliação, Meu Diário, Alunos/Profissi
 ## UX.PREMIUM.2 (2026-10-09) — PARCIAL
 - Controles: botão padrão e campo de texto com 40px e raio da fundação (todas as telas de formulário herdam).
 - Fluxos de Secretaria, Docente, OP/Direção, CIECE, Avaliação, Alimentação e NEI: NÃO migrados individualmente; harness e screenshots autenticados não executados (sem sessão).
+
+## UX.PREMIUM.3 (2026-10-09) — PARCIAL
+- Selos de situação (`StatusBadge`): formato pílula discreto com ponto de cor, texto menor; cor nunca é o único sinal (texto mantido).
+- Tabelas já herdam o padrão da fundação (UX.PREMIUM.0). CIECE, Mapa, Avaliação, Auditoria, Relatórios (assistente Assunto→Filtros→Colunas→Prévia→Exportar), Central de Acessos, Qualidade e Histórico NÃO migrados; sem verificação autenticada.
