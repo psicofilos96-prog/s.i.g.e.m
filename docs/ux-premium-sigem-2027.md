@@ -41,3 +41,6 @@ Admin/Visão Geral, Secretaria, CIECE, Avaliação, Meu Diário, Alunos/Profissi
 ## UX.PREMIUM.3 (2026-10-09) — PARCIAL
 - Selos de situação (`StatusBadge`): formato pílula discreto com ponto de cor, texto menor; cor nunca é o único sinal (texto mantido).
 - Tabelas já herdam o padrão da fundação (UX.PREMIUM.0). CIECE, Mapa, Avaliação, Auditoria, Relatórios (assistente Assunto→Filtros→Colunas→Prévia→Exportar), Central de Acessos, Qualidade e Histórico NÃO migrados; sem verificação autenticada.
+
+## UX.PREMIUM.4 (2026-10-09) — NÃO CONCLUÍDO
+Inventário completo em `ux-premium-inventario-rotas.md`: 214 arquivos; 204 AINDA_ANTIGA (só fundação herdada), 5 DOCUMENTO/IMPRESSÃO, 5 TÉCNICA, 0 PREMIUM_MIGRADA.

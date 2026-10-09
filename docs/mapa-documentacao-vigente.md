@@ -30,7 +30,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - Secretaria e documentos: `secretaria-escolar-produto-completo.md`, `documentos-escolares-motor.md`, `idempotencia-nidem1.md`.
 - Segurança, schema e dados: `seguranca-verificacao-final-nsec4.md`, `integridade-schema-final-ndb4.md`, `storage-arquivos-privados.md`, `auditoria-dados-oficiais-ndata3.md`, `performance-escala-sigem.md`.
 - Importações: `importacoes-nimport2.md`, `frente-bg-importacoes-governadas.md`.
-- Interface: `vocabulario-interface-nui2.md`, `ux-sigem-design-system.md`, `ux-sigem-migracao-rotas.md`, `ux-premium-sigem-2027.md` (registro UX.PREMIUM.0).
+- Interface: `vocabulario-interface-nui2.md`, `ux-sigem-design-system.md`, `ux-sigem-migracao-rotas.md`, `ux-premium-sigem-2027.md` (registro UX.PREMIUM.0), `ux-premium-inventario-rotas.md` (inventário UX.PREMIUM.4).
 
 ## Todos os documentos
 | Documento | Título | Classe | Contagens instantâneas | Atualização |
