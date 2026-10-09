@@ -1,15 +1,14 @@
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { Download, KeyRound, Search, ShieldAlert, Users } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Download, Search, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { runReport, toCsv, toXlsx } from "@/features/reports/report-engine";
 import {
-  LOGINS_REPORT, STATE_LABEL, STATION_LABEL, KIND_LABEL, accessState, exportRows, filterInventory, humanizeAccessError,
-  kindLabel, actorLabel, isInstitutionalPrincipal, groupDetail, HISTORY_LABEL, type DetailEntry, passwordProblem, resetEligibility, scopeLabel, stationLabel, type AccessState, type InventoryRow,
+  LOGINS_REPORT, STATE_LABEL, STATION_LABEL, KIND_LABEL, accessState, exportRows, filterInventory,
+  kindLabel, actorLabel, isInstitutionalPrincipal, groupDetail, HISTORY_LABEL, type DetailEntry, scopeLabel, stationLabel, type AccessState, type InventoryRow,
 } from "./access-inventory";
 import { DevCredentialsPanel } from "./dev-credentials-panel";
 import { ActivationCodesPanel } from "./activation-codes-panel";
