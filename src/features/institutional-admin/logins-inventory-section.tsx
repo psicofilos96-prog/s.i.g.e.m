@@ -11,7 +11,6 @@ import {
   LOGINS_REPORT, STATE_LABEL, STATION_LABEL, KIND_LABEL, accessState, exportRows, filterInventory, humanizeAccessError,
   kindLabel, actorLabel, isInstitutionalPrincipal, groupDetail, HISTORY_LABEL, type DetailEntry, passwordProblem, resetEligibility, scopeLabel, stationLabel, type AccessState, type InventoryRow,
 } from "./access-inventory";
-import { resetAccessPasswords } from "./access-reset.functions";
 import { DevCredentialsPanel } from "./dev-credentials-panel";
 import { ActivationCodesPanel } from "./activation-codes-panel";
 
@@ -49,7 +48,6 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
   const [station, setStation] = useState(""); const [school, setSchool] = useState("");
   const [kind, setKind] = useState(""); const [state, setState] = useState<AccessState | "">(""); const [text, setText] = useState("");
   const [picked, setPicked] = useState<Set<string>>(new Set());
-  const [resetOpen, setResetOpen] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const shown = useMemo(() => filterInventory(rows, { station, school, kind, state: state || undefined, text }), [rows, station, school, kind, state, text]);
   const schools = useMemo(() => [...new Map(rows.filter((r) => r.school_id).map((r) => [r.school_id!, `${r.school_name ?? r.school_id}${r.inep ? ` (${r.inep})` : ""}`])).entries()].sort((a, b) => a[1].localeCompare(b[1], "pt-BR")), [rows]);
@@ -96,13 +94,11 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
         {(station || school || kind || state || text) && <Button variant="ghost" size="sm" onClick={() => { setStation(""); setSchool(""); setKind(""); setState(""); setText(""); }}>Limpar filtros</Button>}
       </div>
       <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
-        <Button variant="outline" disabled={picked.size === 0} onClick={() => setResetOpen(true)}><KeyRound className="size-4" aria-hidden />Redefinir senha ({picked.size})</Button>
         {picked.size > 0 && <Button variant="ghost" size="sm" onClick={() => setPicked(new Set())}>Limpar seleção</Button>}
         <Button variant="ghost" size="sm" onClick={() => setPicked(new Set(shown.filter((r) => r.account_kind === "setorial" && !r.revoked).map((r) => r.user_id)))}>Selecionar contas de setor filtradas</Button>
       </div>
       {picked.size > 0 && <ActivationCodesPanel selected={selected} />}
       {picked.size > 0 && <DevCredentialsPanel selected={selected} />}
-      {resetOpen && <ResetPanel selected={selected} onClose={() => setResetOpen(false)} onDone={() => setPicked(new Set())} />}
       <div className="min-w-0 max-w-full overflow-x-auto rounded-lg border border-border">
         <table className="w-full table-fixed text-sm sm:table-auto">
           <thead className="bg-muted/60 text-left"><tr>
@@ -127,46 +123,6 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
         {shown.length === 0 && <p className="p-4 text-muted-foreground">Nenhuma conta com esses filtros. Use “Limpar filtros” ou outra busca.</p>}
         {shown.length > 400 && <p className="p-2 text-xs text-muted-foreground">Mostrando 400 de {shown.length}. Use os filtros ou exporte a lista completa.</p>}
       </div>
-    </div>
-  );
-}
-
-function ResetPanel({ selected, onClose, onDone }: { selected: InventoryRow[]; onClose: () => void; onDone: () => void }) {
-  const reset = useServerFn(resetAccessPasswords);
-  const qc = useQueryClient();
-  const [p, setP] = useState(""); const [c, setC] = useState(""); const [ok, setOk] = useState(false);
-  const [busy, setBusy] = useState(false); const [msg, setMsg] = useState<string | null>(null);
-  const elig = resetEligibility(selected);
-  const problem = p || c ? passwordProblem(p, c) : null;
-  async function go() {
-    setBusy(true); setMsg(null);
-    try {
-      const r = await reset({ data: { userIds: selected.map((s) => s.user_id), password: p } });
-      if (!r.ok) setMsg(humanizeAccessError(r.error));
-      else if (r.weakRejected) setMsg("Essa senha é conhecida em vazamentos e foi recusada. Escolha outra.");
-      else { setMsg(`Senha nova definida em ${r.succeeded} de ${r.requested} conta(s).${r.audited ? "" : " Atenção: o registro de auditoria falhou."}`); onDone(); qc.invalidateQueries({ queryKey: ["access-center"] }); }
-    } catch { setMsg("Não foi possível concluir. Nada foi alterado."); }
-    finally { setP(""); setC(""); setOk(false); setBusy(false); }
-  }
-  return (
-    <div role="dialog" aria-labelledby="reset-title" className="grid gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-4">
-      <h3 id="reset-title" className="flex items-center gap-2 font-semibold"><ShieldAlert className="size-5" aria-hidden />Redefinir senha de {selected.length} conta(s)</h3>
-      <p className="text-sm">A senha atual não pode ser consultada. Você pode definir uma nova senha que conheça.</p>
-      <p className="text-sm text-muted-foreground">O que acontece: a senha antiga deixa de funcionar na hora. Quem usa essas contas precisará da nova. O SIGEM não guarda a senha: anote-a em local seguro.</p>
-      {!elig.ok ? <p role="alert" className="text-destructive">{elig.reason}</p> : (
-        <>
-          <ul className="max-h-24 overflow-auto text-xs text-muted-foreground">{selected.map((s) => <li key={s.user_id}>{s.login}</li>)}</ul>
-          <label className="grid gap-1 text-sm">Nova senha<input type="password" autoComplete="new-password" className="h-10 rounded-md border border-input bg-background px-2" value={p} onChange={(e) => setP(e.target.value)} /></label>
-          <label className="grid gap-1 text-sm">Repita a nova senha<input type="password" autoComplete="new-password" className="h-10 rounded-md border border-input bg-background px-2" value={c} onChange={(e) => setC(e.target.value)} /></label>
-          {problem && <p className="text-sm text-destructive">{problem}</p>}
-          <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} className="size-4" />Entendo que a senha antiga dessas {selected.length} conta(s) deixa de valer.</label>
-        </>
-      )}
-      <div className="flex gap-2">
-        <Button variant="destructive" disabled={!elig.ok || !!problem || !p || !ok || busy} onClick={go}><KeyRound className="size-4" aria-hidden />{busy ? "Redefinindo…" : "Definir nova senha"}</Button>
-        <Button variant="ghost" onClick={onClose}>Fechar</Button>
-      </div>
-      {msg && <p role="status" className="text-sm font-medium">{msg}</p>}
     </div>
   );
 }
