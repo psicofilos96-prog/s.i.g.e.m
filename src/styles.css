@@ -1389,3 +1389,22 @@
 .cx-split { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
 .cx-split > span { text-align: center; }
 .cx-split > span + span { border-left: 0.15mm solid color-mix(in srgb, currentColor 45%, transparent); }
+
+/* CAL.EXT.5 — quadros acomodam letras maiores: texto quebra por palavra (com hifenização pt-BR), títulos
+   quebram em linhas equilibradas, colunas de legenda/feriados reduzem sozinhas quando a letra cresce e
+   espaçamentos internos acompanham o tamanho (em), em vez de cortar ou espremer. */
+.cx-caixa, .cx-cartao, .cf-livre .cf-bloco { hyphens: auto; -webkit-hyphens: auto; }
+.cx-caixa h2, .cx-cartao h2, .cf-livre .cf-titulo { white-space: normal; text-wrap: balance; line-height: 1.1; overflow-wrap: break-word; }
+.cx-caixa-corpo { padding: 0.35em 0.6em; }
+.cx-legenda { grid-template-columns: repeat(auto-fill, minmax(min(100%, 15em), 1fr)); }
+.cx-legenda.cx-uma-coluna { grid-template-columns: 1fr; }
+.cx-legenda li { align-items: flex-start; gap: 0.5em; }
+.cx-legenda li > span:last-child, .cx-feriados span { overflow-wrap: break-word; text-wrap: pretty; }
+.cx-chip { margin-top: -0.1em; }
+.cx-feriados.cx-duas { columns: 14em 2; }
+.cx-feriados li { gap: 0.45em; }
+.cx-periodo { white-space: normal; padding: 0.2em 0.3em; }
+.cx-periodo p { line-height: 1.1; text-wrap: balance; }
+.cx-periodos { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr)) !important; }
+.cx-periodo + .cx-periodo { border-left: 0; box-shadow: -0.2mm 0 0 var(--cx-border); }
+.cx-total-anual { white-space: normal; }

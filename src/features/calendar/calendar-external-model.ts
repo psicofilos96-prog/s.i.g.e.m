@@ -133,7 +133,11 @@ const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim().slice(
 const img = (v: unknown) => (typeof v === "string" && IMG.test(v) && v.length <= ASSET_MAX_CHARS ? v : null);
 const col = (v: unknown, d: string) => (typeof v === "string" && HEX.test(v) ? v : d);
 const FONTS = ["'Barlow Condensed', 'Arial Narrow', sans-serif", "'Oswald', 'Arial Narrow', sans-serif", "'Barlow', 'Segoe UI', sans-serif",
-  "'Montserrat', 'Segoe UI', sans-serif", "'Source Sans 3', 'Segoe UI', sans-serif", "'Playfair Display', Georgia, serif", "'Merriweather', Georgia, serif"];
+  "'Montserrat', 'Segoe UI', sans-serif", "'Source Sans 3', 'Segoe UI', sans-serif", "'Playfair Display', Georgia, serif", "'Merriweather', Georgia, serif",
+  "Arial, Helvetica, sans-serif", "'Times New Roman', Times, serif", "Georgia, 'Times New Roman', serif", "Verdana, Geneva, sans-serif",
+  "Tahoma, Verdana, sans-serif", "'Trebuchet MS', Arial, sans-serif", "'Carlito', Calibri, sans-serif", "'Inter', Arial, sans-serif",
+  "'Roboto', Arial, sans-serif", "'Open Sans', Arial, sans-serif", "'Lato', Arial, sans-serif", "'Poppins', Arial, sans-serif",
+  "'Raleway', Arial, sans-serif", "'Lora', Georgia, serif", "'EB Garamond', Garamond, serif", "'Cinzel', Georgia, serif"];
 export const FONT_OPTIONS = FONTS;
 export const SCRIPT_FONT_OPTIONS = ["'Caveat', cursive", "'Kalam', cursive"];
 const font = (v: unknown, d: string, list = FONTS) => (typeof v === "string" && list.includes(v) ? v : d);
