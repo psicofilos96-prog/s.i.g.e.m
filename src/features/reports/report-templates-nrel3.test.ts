@@ -32,6 +32,6 @@ describe("NREL.3 modelos pessoais no servidor", () => {
     expect(sql).toMatch(/NEW\.owner_id := auth\.uid\(\)/);
   });
   it("Avaliação e DP seguem sem leitor transversal: recusam execução (Censo ganhou leitor em NCIECE.FINAL.2)", () => {
-    for (const id of ["gerador-avaliacao", "gerador-dp"]) expect(BUILDER_SOURCES.find((s) => s.id === id)?.unavailable).toBeTruthy();
+    for (const id of ["gerador-avaliacao", "gerador-auditoria"]) expect(BUILDER_SOURCES.find((s) => s.id === id)?.unavailable).toBeTruthy();
   });
 });

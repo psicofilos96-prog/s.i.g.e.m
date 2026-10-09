@@ -23,3 +23,11 @@ describe("panorama por escola", () => {
     expect(panoramaRows(recon, new Map(), null)[0]!.staff_records).toBeNull();
   });
 });
+import { BUILDER_SOURCES } from "./builder-sources";
+describe("INT.12 assuntos cruzados", () => {
+  it("panorama e pessoal estão disponíveis e o nome do profissional é sensível", () => {
+    expect(BUILDER_SOURCES.find((s) => s.id === "gerador-panorama-escolas")?.unavailable).toBeFalsy();
+    const st = BUILDER_SOURCES.find((s) => s.id === "gerador-pessoal")!;
+    expect(st.definition.columns.find((c) => c.id === "name")?.sensitive).toBe(true);
+  });
+});
