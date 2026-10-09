@@ -346,9 +346,9 @@ function DayEditor({
           onChange={(e) => setType(e.target.value as DayTypeCode | "")}
         >
           <option value="">Dia letivo</option>
-          {type === "FDS" ? (
-            <option value="FDS" disabled>
-              Sábado / Domingo (automático)
+          {type === "FDS" || isWeekend(date) ? (
+            <option value="FDS">
+              {weekday(date) === 6 ? "Sábado (S)" : weekday(date) === 0 ? "Domingo (D)" : "Sábado / Domingo"}
             </option>
           ) : null}
           {selectableTypes.map((t) => (

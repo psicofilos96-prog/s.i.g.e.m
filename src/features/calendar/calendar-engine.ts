@@ -305,7 +305,9 @@ export function resolveCalendar(cal: NetworkCalendar): ResolvedCalendar {
     if (!eventsByDate.has(e.date)) eventsByDate.set(e.date, e);
     eventTypes.set(e.date, [...(eventTypes.get(e.date) ?? []), e.type]);
   }
-  for (const h of cal.inheritedHolidays) vote(h.date, h.type, INHERITED_PRIORITY);
+  // Feriado herdado que cai em sábado/domingo não apaga o fim de semana (ex.: 20/11/2027 é sábado);
+  // a Supervisão ainda pode marcar o feriado por ajuste manual ou evento.
+  for (const h of cal.inheritedHolidays) if (!isWeekend(h.date)) vote(h.date, h.type, INHERITED_PRIORITY);
   const overrides = new Map(cal.overrides.map((o) => [o.date, o.type]));
 
   const byDate = new Map<IsoDate, DayTypeCode>();
