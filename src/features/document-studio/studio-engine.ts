@@ -174,7 +174,7 @@ const css = (st?: TextStyle) => !st ? "" : ` style="${[
   st.spacingAfter !== undefined && `margin-bottom:${st.spacingAfter}pt`].filter(Boolean).join(";")}"`;
 
 /** Rodapé vai à margem da página (@page), nunca sobre o conteúdo; texto puro escapado para CSS. */
-const cssString = (t: string) => t.replace(/[\\'\n\r]/g, (c) => `\\${c.charCodeAt(0).toString(16)} `);
+const cssString = (t: string) => t.replace(/[\\'"\n\r<>]/g, (c) => `\\${c.charCodeAt(0).toString(16)} `);
 const footerPlain = (s: string, f: Facts, missing: Set<string>) => s.replace(TOKEN, (_, k: string) => {
   const v = f[k]; if (isPresent(v) && !Array.isArray(v)) return String(v); missing.add(k); return `[${k}: sem registro]`;
 });
