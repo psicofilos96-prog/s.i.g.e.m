@@ -76,7 +76,7 @@ BEGIN
   PERFORM set_config('request.jwt.claims', '{}', true);
   INSERT INTO public.school_enrollments(id, student_id, school_id, opened_on, logical_id) VALUES (e1, stu, schA, CURRENT_DATE - 30, e1);
   INSERT INTO public.guardian_authorizations(logical_id, version, event_kind, student_id, guardian_user_id, school_id, sections, valid_from, recorded_by, recorded_engagement)
-  VALUES (gen_random_uuid(), 1, 'concessao', stu, fam, schA, ARRAY['matricula'], CURRENT_DATE - 30, adm, gen_random_uuid());
+  VALUES (gen_random_uuid(), 1, 'constituicao', stu, fam, schA, ARRAY['matricula'], CURRENT_DATE - 30, adm, gen_random_uuid());
   PERFORM set_config('request.jwt.claims', json_build_object('sub', fam, 'role', 'authenticated')::text, true);
   a := public.family_authorization(stu);
   IF a.id IS NULL OR a.school_id <> schA THEN RAISE EXCEPTION 'family-no-access-while-enrolled'; END IF;
