@@ -39,7 +39,7 @@ Não existe no acervo planilha de jornada/horário de profissional. Por isso `pr
 | escola sem correspondência segura | 149 |
 | homônimo na mesma escola | 0 |
 
-1.555 nomes distintos; 71 aparecem em mais de uma escola (múltiplas lotações possíveis, a confirmar). Vínculo: 871 contratados, 708 efetivos, 23 permutados, mistos/cedidos. Situação: 1.610 em atividade, 18 licença, 6 férias. As abas "Afastados" (103) e "Fora da lista" (62: remanejados, exonerados, rescisões) são eventos funcionais a registrar pelo DP, não inferidos.
+1.555 nomes distintos; 71 aparecem em mais de uma escola (múltiplas lotações possíveis, a confirmar). Vínculo: 871 contratados, 708 efetivos, 23 permutados, mistos/cedidos. Situação: 1.610 em atividade, 18 licença, 6 férias. As abas "Afastados" (102) e "Fora da lista" (61: remanejados, exonerados, rescisões) são eventos funcionais a registrar pelo DP, não inferidos.
 
 ## Censo nominal × agregado
 - Docentes: Mapas Estatísticos × Censo nominal divergem em 28 das 38 escolas identificadas (ex.: CIEP 467: 51 × 39). Diferença esperada — o mapa conta toda a equipe docente, o Censo só quem está em turma. Reportado, não corrigido.
