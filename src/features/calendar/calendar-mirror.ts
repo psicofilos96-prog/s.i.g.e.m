@@ -54,12 +54,27 @@ export function translateMutation(m: CalendarMutation, source: NetworkCalendar, 
  */
 export function mirrorContent(source: NetworkCalendar, target: NetworkCalendar): NetworkCalendar {
   if (target.status === "homologado" || target.status === "arquivado") return target;
+  // Períodos e grupos mantêm os IDs do ALVO (pela ordem): o banco vincula período por ID,
+  // e IDs do Regular criariam períodos duplicados no EJA Fase I e o salvamento seria recusado.
+  const srcGroups = source.periodGroups ?? [];
+  const tgtGroups = target.periodGroups ?? [];
+  const groupId = new Map<string, string>();
+  srcGroups.forEach((g, i) => groupId.set(g.id, tgtGroups[i]?.id ?? `${target.id}-grupo-${i + 1}`));
+  const tgtByOrder = new Map(target.periods.map((p) => [p.order, p.id]));
+  const used = new Set<string>();
+  const periods = source.periods.map((p) => {
+    let id = tgtByOrder.get(p.order);
+    if (!id || used.has(id)) id = `${target.id}-periodo-${p.order}`;
+    used.add(id);
+    return { ...p, id, ...(p.groupId ? { groupId: groupId.get(p.groupId) ?? p.groupId } : {}) };
+  });
+  const periodGroups = srcGroups.map((g) => ({ ...g, id: groupId.get(g.id)! }));
   return {
     ...target,
     ranges: source.ranges,
     events: source.events,
-    periods: source.periods,
-    periodGroups: source.periodGroups,
+    periods,
+    periodGroups: (source.periodGroups ? periodGroups : source.periodGroups) as NetworkCalendar["periodGroups"],
     overrides: source.overrides,
     inheritedHolidays: source.inheritedHolidays,
     rules: source.rules,
