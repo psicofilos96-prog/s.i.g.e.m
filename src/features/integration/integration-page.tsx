@@ -31,7 +31,7 @@ export function IntegrationPage() {
 
   const load = useCallback(async () => {
     const r = await rpc("integration_overview");
-    if (r.error) { setError(r.error.message.includes("capability-missing") ? "Sua conta não tem a permissão administrar-integracoes." : "Não foi possível ler as integrações."); return; }
+    if (r.error) { setError(r.error.message.includes("capability-missing") ? "Sua conta não tem a permissão administrar-integracoes." : userErrorText(r.error)); return; }
     setError(null); setData(r.data as Overview);
   }, []);
   useEffect(() => { void load(); }, [load]);

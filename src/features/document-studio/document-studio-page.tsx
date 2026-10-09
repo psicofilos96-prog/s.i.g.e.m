@@ -103,7 +103,7 @@ export function DocumentStudioPage() {
       <section aria-labelledby="acv" className="space-y-2">
         <h2 id="acv" className="text-lg font-semibold">Acervo analisado ({ACERVO.length})</h2>
         <div className="overflow-x-auto"><table className="w-full text-sm">
-          <thead><tr className="text-left"><th className="p-2">Documento</th><th className="p-2">Setor</th><th className="p-2">Finalidade</th><th className="p-2">Assinaturas</th><th className="p-2">Classe</th></tr></thead>
+          <thead><tr className="text-left"><th scope="col" className="p-2">Documento</th><th scope="col" className="p-2">Setor</th><th scope="col" className="p-2">Finalidade</th><th scope="col" className="p-2">Assinaturas</th><th scope="col" className="p-2">Classe</th></tr></thead>
           <tbody>{ACERVO.map((a) => <tr key={a.file + a.name} className="border-t border-border"><td className="p-2">{a.name}</td><td className="p-2">{a.sector}</td><td className="p-2">{a.purpose}</td><td className="p-2">{a.signatures.join(", ") || "—"}</td><td className="p-2">{a.klass}</td></tr>)}</tbody>
         </table></div>
       </section>

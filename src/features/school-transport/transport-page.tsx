@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { readPages } from "@/lib/list-paging";
 import { operationalToday } from "@/lib/academic-date";
 import { useCallback, useEffect, useState } from "react";
@@ -33,7 +34,7 @@ export function TransportPage() {
       const ids = net ? [...names.keys()] : [...new Set<string>(mine.map((c: any) => c.school_id).filter(Boolean))];
       const write = (id: string) => mine.some((c: any) => c.capability_id === "manter-transporte-escolar" && (c.school_id === id || c.scope_level === "rede"));
       return ids.map((id) => ({ id, name: names.get(id) ?? "Escola sem nome registrado", canWrite: write(id) })).sort((a, b) => a.name.localeCompare(b.name));
-    })().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!.id); }, (e: Error) => setErr(transportMessage(e.message)));
+    })().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!.id); }, (e: Error) => setErr(userErrorText(e)));
   }, []);
   const current = schools?.find((s) => s.id === school);
   return (

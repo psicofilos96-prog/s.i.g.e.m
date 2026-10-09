@@ -334,3 +334,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | docs/portal-familia-produto-final.md | Registro de lote |
 | docs/ciece-produto-final.md | Registro de lote |
 | docs/integracao-transversal-final.md | Registro de lote |
+| docs/campanha-zero-erros.md | Registro de lote |
