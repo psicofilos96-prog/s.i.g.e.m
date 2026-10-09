@@ -54,18 +54,21 @@ export function attendanceTotals(data: DiaryPrintData) {
   });
 }
 
-function table(head: string[], rows: string[][], caption: string) {
-  return `<table><caption>${esc(caption)}</caption><thead><tr>${head.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${
-    rows.length ? rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${head.length}">Nenhum registro no período.</td></tr>`
+// NPRINT.FINAL.2: célula curta (número, marca, data dd/mm) nunca quebra letra a letra.
+const SHORT = /^[\dPF—–\-/v,.]{1,6}$/;
+const cls = (c: string) => (SHORT.test(c) ? ` class="k"` : "");
+function table(head: string[], rows: string[][], caption: string, klass = "") {
+  return `<table${klass ? ` class="${klass}"` : ""}><caption>${esc(caption)}</caption><thead><tr>${head.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${
+    rows.length ? rows.map((r) => `<tr>${r.map((c) => `<td${cls(c)}>${esc(c)}</td>`).join("")}</tr>`).join("") : `<tr><td colspan="${head.length}">Nenhum registro no período.</td></tr>`
   }</tbody></table>`;
 }
 
 function frequencyTable(data: DiaryPrintData) {
   const cols = [...data.attendance].sort((a, b) => a.date.localeCompare(b.date));
   const tot = new Map(attendanceTotals(data).map((t) => [t.id, t]));
-  return table(["Nº", "Estudante", ...cols.map((c) => d(c.date).slice(0, 5)), "P", "F", "Sem marcação"],
+  return table(["Nº", "Estudante", ...cols.map((c) => d(c.date).slice(0, 5)), "P", "F", "Sem marc."],
     data.students.map((s, i) => { const t = tot.get(s.id)!; return [String(i + 1), or(s.name), ...cols.map((c) => markLabel(c.marks[s.id])), String(t.presencas), String(t.faltas), String(t.semMarcacao)]; }),
-    "Frequência por aula (P = presente, F = falta, — = sem marcação)");
+    "Frequência por aula (P = presente, F = falta, — = sem marcação)", "freq");
 }
 const lessonsTable = (data: DiaryPrintData) => table(["Data", "Aulas", "Conteúdo ou atividade", "Versão"],
   [...data.lessons].sort((a, b) => a.date.localeCompare(b.date)).map((l) => [d(l.date), String(l.quantity), or(l.content), `v${l.version}`]), "Registros de aula concluídos");
@@ -96,7 +99,7 @@ export function renderDiaryPrint(kind: DiaryPrintKind, data: DiaryPrintData, iss
   const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(meta.title)}</title><style>
 @page{size:A4 ${meta.orientation};margin:12mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:8px sans-serif}}
 body{font:10px/1.35 sans-serif;margin:0;overflow-wrap:anywhere}h1{font-size:15px;margin:0}table{width:100%;border-collapse:collapse;margin-top:8px;page-break-inside:auto}
-tr{page-break-inside:avoid}thead{display:table-header-group}th,td{border:1px solid #444;padding:2px 3px;text-align:left}caption{text-align:left;font-weight:bold;padding:4px 0}.st{border:1px solid #444;padding:4px}
+tr{page-break-inside:avoid}thead{display:table-header-group}th,td{border:1px solid #444;padding:2px 3px;text-align:left}caption{text-align:left;font-weight:bold;padding:4px 0}.k{white-space:nowrap;overflow-wrap:normal}.freq td:nth-child(2){min-width:42mm}.freq th{font-size:8px;padding:1px}th{overflow-wrap:normal;hyphens:auto}.st{border:1px solid #444;padding:4px}
 footer{margin-top:10px;font-size:8px}</style></head><body>${header}${kind === "sipe-sia" ? "" : closing}${body}<footer>Gerado em ${esc(d(issuedAt))} a partir dos registros lidos com o acesso de quem imprime. Campo sem dado aparece como "${NA}".</footer></body></html>`;
   return { ok: true, html };
 }

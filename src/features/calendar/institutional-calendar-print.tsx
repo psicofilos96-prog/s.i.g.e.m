@@ -50,6 +50,8 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
       {model.unmappedTypes.length > 0 && <p role="note">Tipos sem símbolo vinculado na apresentação: {model.unmappedTypes.join(", ")}.</p>}
       {model.mismatches.length > 0 && <p role="note">Símbolo da fonte diverge do efeito institucional em: {model.mismatches.map(short).join(", ")} (vale o efeito institucional).</p>}
       <table className="cd-grade">
+        {/* NPRINT.FINAL.2: mesmas colunas da folha do laboratório; sem elas o nome do mês era cortado. */}
+        <colgroup><col className="cd-col-mes" />{Array.from({ length: 31 }, (_, i) => <col key={i} className="cd-col-dia" />)}<col className="cd-col-total" /><col className="cd-col-total" /></colgroup>
         <thead><tr><th scope="col" className="cd-mesdia">Mês/Dia</th>{Array.from({ length: 31 }, (_, i) => <th scope="col" key={i}>{i + 1}</th>)}<th scope="col" className="cd-total-cab" colSpan={2}>Total de<br />dias letivos</th></tr></thead>
         <tbody>
           {model.months.map((m) => {

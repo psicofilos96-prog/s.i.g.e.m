@@ -578,12 +578,15 @@
   display: grid;
   grid-template-columns: var(--cd-col-data, 44px) 1fr;
   gap: 6px;
-  height: 17px;
+  min-height: 17px;
   color: #00386b;
   font-size: 12.83px;
 }
 .cd-feriado-nome {
-  white-space: nowrap;
+  /* NPRINT.FINAL.2: nome longo quebra dentro da coluna (antes invadia o bloco de períodos). */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 0;
   color: #4a1d6b;
 }
 .cd-periodos {
@@ -827,7 +830,8 @@
   }
   .cd-a4 .cd-feriado-linha {
     grid-template-columns: var(--cd-col-data, 10mm) 1fr;
-    height: 3.6mm;
+    height: auto;
+    min-height: 3.6mm;
   }
   .cd-a4 .cd-periodos {
     font-size: 8pt;
@@ -1363,6 +1367,7 @@
 /* NFAM.1 — impressão/PDF da carteirinha: só a área do cartão sai na folha. */
 @media print {
   body:has(.card-print-area) * { visibility: hidden; }
-  .card-print-area, .card-print-area * { visibility: visible; }
+  /* NPRINT.FINAL.2: `body:has(.x) *` tem especificidade maior que `.x *`; sem !important o cartão saía em branco. */
+  .card-print-area, .card-print-area * { visibility: visible !important; }
   .card-print-area { position: absolute; left: 0; top: 0; }
 }
