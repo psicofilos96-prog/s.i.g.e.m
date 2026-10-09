@@ -10,7 +10,8 @@ export type SectorStation =
   | "avaliacao"
   | "secretaria_escolar"
   | "direcao_escolar"
-  | "orientacao_pedagogica";
+  | "orientacao_pedagogica"
+  | "inclusao_nei";
 
 export type SectorPrincipal = {
   id: string;
@@ -30,6 +31,7 @@ export const STATION_LABEL: Record<SectorStation, string> = {
   secretaria_escolar: "Secretaria Escolar",
   direcao_escolar: "Direção Escolar",
   orientacao_pedagogica: "Orientação Pedagógica",
+  inclusao_nei: "Inclusão — NEI (central)",
 };
 
 export const STATION_HOME: Record<SectorStation, string> = {
@@ -40,16 +42,18 @@ export const STATION_HOME: Record<SectorStation, string> = {
   secretaria_escolar: "/secretaria",
   direcao_escolar: "/direcao",
   orientacao_pedagogica: "/orientacao",
+  inclusao_nei: "/inclusao",
 };
 
 const STATION_ROUTES: Record<SectorStation, readonly string[]> = {
-  ciece: ["/ciece", "/mapa-estatistico", "/mapa-estatistico-rede", "/qualidade-dos-dados", "/revisao-de-anomalias", "/paineis", "/relatorios", "/integracoes", "/central-de-integracoes", "/unidades", "/base-de-conhecimento", "/censo-escolar"],
+  ciece: ["/ciece", "/mapa-estatistico", "/mapa-estatistico-rede", "/qualidade-dos-dados", "/revisao-de-anomalias", "/paineis", "/relatorios", "/integracoes", "/central-de-integracoes", "/unidades", "/base-de-conhecimento", "/censo-escolar", "/alunos", "/turmas"],
   supervisao: ["/supervisao-escolar", "/unidades"],
-  alimentacao: ["/alimentacao-escolar", "/unidades"],
-  avaliacao: ["/avaliacao-desempenho", "/paineis"],
+  alimentacao: ["/alimentacao-escolar", "/unidades", "/relatorios"],
+  avaliacao: ["/avaliacao-desempenho", "/acompanhamento-avaliacao", "/paineis", "/relatorios", "/alunos", "/turmas"],
   secretaria_escolar: ["/secretaria", "/alunos", "/turmas", "/enturmacoes", "/mapa-estatistico", "/documentos-escolares", "/horarios"],
-  direcao_escolar: ["/direcao", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-estatistico", "/horarios", "/paineis"],
+  direcao_escolar: ["/direcao", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar"],
   orientacao_pedagogica: ["/orientacao", "/planejamento", "/alunos", "/turmas", "/horarios"],
+  inclusao_nei: ["/inclusao", "/unidades", "/relatorios", "/alunos"],
 };
 
 const matches = (path: string, route: string) =>
