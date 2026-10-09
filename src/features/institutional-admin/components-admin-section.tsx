@@ -128,7 +128,7 @@ export function ComponentsAdminSection({ canMaintain }: { canMaintain: boolean }
           <div className="sm:col-span-2"><Button type="submit">Cadastrar componente</Button></div>
         </form>
       )}
-      {err && <p className="mt-2 text-sm text-destructive">{err}</p>}
+      {err && <p role="alert" className="mt-2 text-sm text-destructive">{err}</p>}
     </section>
   );
 }

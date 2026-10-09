@@ -138,7 +138,7 @@ function CandidateRow({ c, school, fromYear, toYear, onDone }: { c: Candidate; s
           <button key={d} type="button" disabled={state === d} onClick={() => act(d)} className="rounded border px-2 py-1 text-sm hover:bg-accent disabled:opacity-50">{DECISION_LABEL[d]}</button>
         ))}
       </div>
-      {msg && <p className="text-xs text-destructive">{msg}</p>}
+      {msg && <p role="alert" className="text-xs text-destructive">{msg}</p>}
     </li>
   );
 }
@@ -189,7 +189,7 @@ function StudentSearch({ school, toYear, onDone }: { school: string; toYear: str
           }}>Cadastrar e matricular</button>
         </div>
       )}
-      {msg && <p className="text-xs">{msg}</p>}
+      {msg && <p role="status" className="text-xs">{msg}</p>}
     </section>
   );
 }
@@ -218,7 +218,7 @@ function ProfessionalSearch({ school }: { school: string }) {
         <button type="button" onClick={search} className="rounded bg-primary px-3 py-2 text-sm text-primary-foreground">Buscar</button>
       </div>
       {res && <p className="text-sm">{lookupMessage(res.outcome)}{res.outcome === "encontrado" ? ` ${res.display_name ?? ""} — vínculos: ${res.functional_link_logical_ids ? res.functional_link_logical_ids.length : "não informados"}` : ""}</p>}
-      {msg && <p className="text-xs">{msg}</p>}
+      {msg && <p role="status" className="text-xs">{msg}</p>}
     </section>
   );
 }

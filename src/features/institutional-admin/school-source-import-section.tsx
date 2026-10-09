@@ -76,7 +76,7 @@ export function SchoolSourceImportSection({ canMaintain }: { canMaintain: boolea
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div><Label htmlFor="ssi-act">Referência documental/fonte (opcional)</Label><Input id="ssi-act" value={act} onChange={(e) => setAct(e.target.value)} /></div>
               <div><Label htmlFor="ssi-from">Início da vigência</Label><DateInput id="ssi-from" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
-              {err && <p className="text-sm text-destructive sm:col-span-2">{err}</p>}
+              {err && <p role="alert" className="text-sm text-destructive sm:col-span-2">{err}</p>}
               <Button className="sm:col-span-2" disabled={busy || sel.size === 0} onClick={run}>Registrar {sel.size} unidade(s) selecionada(s)</Button>
             </div>
           )}
