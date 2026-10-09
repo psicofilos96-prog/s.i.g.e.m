@@ -203,6 +203,15 @@ export function createInMemoryCalendarRepository(
   const listeners = new Set<() => void>();
   const transient = new Map<string, NetworkCalendar>();
   const emit = () => listeners.forEach((l) => l());
+  /** Espelho Regular → EJA Fase I também ao abrir: diferença antiga vira alteração não salva do espelho. */
+  const syncMirrors = () => {
+    for (const src of items)
+      for (const t of mirrorTargets(src, items))
+        if (mirrorDiffers(src, t)) {
+          const next = mirrorContent(src, t);
+          items = items.map((c) => (c.id === t.id ? next : c));
+        }
+  };
   const replace = (res: MutationResult) => {
     if (res.ok) {
       const exists = items.some((c) => c.id === res.calendar.id);
@@ -323,10 +332,10 @@ export function createInMemoryCalendarRepository(
       if (r.state === "ausente" && options.exact && options.projectSource) {
         // Ausência real: base de trabalho = calendário 2027 registrado no projeto (sem gravar nada).
         loadProjectSource();
-        emit();
+        syncMirrors(); emit();
         return;
       }
-      if (r.state !== "lido") { emit(); return; }
+      if (r.state !== "lido") { syncMirrors(); emit(); return; }
       if (options.exact) {
         // Artefato exato: nada de fixtures, migração ou regravação.
         items = [...r.calendars];
@@ -340,10 +349,10 @@ export function createInMemoryCalendarRepository(
             items.push(c); saved.set(c.id, c); fromSource.add(c.id);
           }
         }
-        emit();
+        syncMirrors(); emit();
         return;
       }
-      if (!r.calendars.length) { emit(); return; }
+      if (!r.calendars.length) { syncMirrors(); emit(); return; }
       const seedById = new Map(seed.map((c) => [c.id, c]));
       let migrated = false;
       const stored = r.calendars.map((c) => {
@@ -359,7 +368,7 @@ export function createInMemoryCalendarRepository(
         ...items.map((c) => saved.get(c.id) ?? c),
         ...stored.filter((c) => !ids.has(c.id)),
       ];
-      emit();
+      syncMirrors(); emit();
     },
     subscribe: (fn) => {
       listeners.add(fn);
