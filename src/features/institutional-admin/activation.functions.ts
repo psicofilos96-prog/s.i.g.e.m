@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { CODE_TTL_HOURS, DECISION_TEXT, decideCode, generateCode, hashCode, normalizeLogin, passwordIssue, type CodeRow } from "./activation-code";
+import { CODE_TTL_HOURS, DECISION_TEXT, decideCode, generateLinkToken, hashCode, normalizeLogin, passwordIssue, type CodeRow } from "./activation-code";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -30,33 +30,27 @@ export const issueActivationCodes = createServerFn({ method: "POST" })
       if (preserved.has(id)) { out.push({ userId: id, login, code: null, expiresAt: null, skipped: "conta especial preservada" }); continue; }
       if (data.purpose === "ativacao" && activated.has(id)) { out.push({ userId: id, login, code: null, expiresAt: null, skipped: "já ativada — use recuperação" }); continue; }
       await sb.from("account_activation_codes").update({ revoked_at: new Date().toISOString() }).eq("user_id", id).is("consumed_at", null).is("revoked_at", null);
-      const code = generateCode();
+      const code = generateLinkToken();
       const ins = await sb.from("account_activation_codes").insert({ user_id: id, login, purpose: data.purpose, code_hash: await hashCode(code), expires_at: expiresAt, issued_by: context.userId });
       out.push(ins.error ? { userId: id, login, code: null, expiresAt: null, skipped: "falha ao registrar" } : { userId: id, login, code, expiresAt });
     }
     return { ok: true as const, items: out };
   });
 
-/** Ativação/recuperação pública: login + código de uso único + nova senha. Nunca revela se o login existe. */
-export const redeemActivationCode = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ login: z.string().min(3).max(200), code: z.string().min(4).max(40), password: z.string().max(200), confirm: z.string().max(200) }).parse(d))
+/** Ativação/recuperação pública pelo link individual: o convite identifica a conta; nada é digitado além da senha. */
+export const redeemActivationLink = createServerFn({ method: "POST" })
+  .inputValidator((d) => z.object({ token: z.string().min(20).max(80), password: z.string().max(200), confirm: z.string().max(200) }).parse(d))
   .handler(async ({ data }) => {
     const pw = passwordIssue(data.password, data.confirm);
     if (pw) return { ok: false as const, error: pw };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const sb = supabaseAdmin as any;
-    const login = normalizeLogin(data.login);
-    const { data: rows } = await sb.from("account_activation_codes").select("id, user_id, purpose, code_hash, expires_at, consumed_at, revoked_at, attempts")
-      .eq("login", login).is("revoked_at", null).order("created_at", { ascending: false }).limit(1);
-    const row = (rows?.[0] ?? null) as (CodeRow & { id: string; user_id: string; purpose: string }) | null;
-    const hash = await hashCode(data.code);
+    const hash = await hashCode(data.token);
+    const { data: rows } = await sb.from("account_activation_codes").select("id, user_id, login, purpose, code_hash, expires_at, consumed_at, revoked_at, attempts").eq("code_hash", hash).limit(1);
+    const row = (rows?.[0] ?? null) as (CodeRow & { id: string; user_id: string; login: string; purpose: string }) | null;
     const decision = decideCode(row, hash, new Date());
-    if (decision !== "ok") {
-      if (decision === "invalid" && row && !row.consumed_at) await sb.from("account_activation_codes").update({ attempts: row.attempts + 1 }).eq("id", row.id);
-      return { ok: false as const, error: DECISION_TEXT[decision] };
-    }
-    // Consome antes de trocar a senha (corrida = só um vence); devolve se o Auth recusar.
-    const claim = await sb.from("account_activation_codes").update({ consumed_at: new Date().toISOString() }).eq("id", row!.id).is("consumed_at", null).select("id");
+    if (decision !== "ok") return { ok: false as const, error: DECISION_TEXT[decision] };
+    const claim = await sb.from("account_activation_codes").update({ consumed_at: new Date().toISOString() }).eq("id", row!.id).is("consumed_at", null).is("revoked_at", null).select("id");
     if (claim.error || !claim.data?.length) return { ok: false as const, error: DECISION_TEXT.used };
     const upd = await supabaseAdmin.auth.admin.updateUserById(row!.user_id, { password: data.password });
     if (upd.error) {
@@ -65,5 +59,5 @@ export const redeemActivationCode = createServerFn({ method: "POST" })
       return { ok: false as const, error: weak ? "Essa senha é conhecida ou fraca demais. Escolha outra." : "Não foi possível definir a senha agora. Tente de novo." };
     }
     await sb.from("account_activations").upsert({ user_id: row!.user_id, method: "codigo", code_id: row!.id }, { onConflict: "user_id", ignoreDuplicates: true });
-    return { ok: true as const, login };
+    return { ok: true as const, login: row!.login };
   });
