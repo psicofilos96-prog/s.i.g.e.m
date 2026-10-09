@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 269. Sem classe: 0. Com referência quebrada: 1.
+Documentos: 271. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -93,7 +93,7 @@ Documentos: 269. Sem classe: 0. Com referência quebrada: 1.
 
 **Vigente:** `central-de-acessos.md`, `departamento-pessoal-vida-funcional.md`, `matriz-de-acesso-az.md`, `sigem-contas-padrao.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-autenticacao-nauth3.md`, `auditoria-autenticacao-sessao-nauth2.md`, `menu-rotas-capacidades-nperm3.md`, `trajetoria-profissional-nprof1.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-autenticacao-nauth3.md`, `auditoria-autenticacao-sessao-nauth2.md`, `menu-rotas-capacidades-nperm3.md`, `n2026-import-2-profissionais-jornadas.md`, `trajetoria-profissional-nprof1.md`
 
 **Pendências declaradas:**
 - `auditoria-autenticacao-nauth3.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -122,7 +122,7 @@ Documentos: 269. Sem classe: 0. Com referência quebrada: 1.
 
 **Vigente:** `importacoes-interoperabilidade.md`, `n2026-importacao-base-oficial.md`, `qualidade-integridade-dados-oficiais.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-dados-oficiais-ndata3.md`, `importacoes-nimport2.md`, `integridade-schema-final-ndb4.md`, `qualidade-dados-filas-ndata2.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-dados-oficiais-ndata3.md`, `importacoes-nimport2.md`, `integridade-schema-final-ndb4.md`, `n2026-import-1-escolas-infraestrutura.md`, `qualidade-dados-filas-ndata2.md`
 
 **Pendências declaradas:**
 - `auditoria-dados-oficiais-ndata3.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -247,4 +247,4 @@ Documentos: 269. Sem classe: 0. Com referência quebrada: 1.
 
 ## Referências quebradas
 
-- `mapa-documentacao-vigente.md`: `n2026-import-1-escolas-infraestrutura.md`
+Nenhuma.
