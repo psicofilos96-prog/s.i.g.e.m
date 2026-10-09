@@ -25,18 +25,21 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header data-sigem-page-header className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 pb-6 pt-1">
+    <header
+      data-sigem-page-header
+      className="mb-6 flex flex-col gap-4 border-b border-border/70 pb-5 pt-1 sm:flex-row sm:items-end sm:justify-between"
+    >
       <div className="min-w-0">
         {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
-        <h1 className="font-display text-[1.75rem] font-semibold leading-[1.15] text-foreground sm:text-[2rem]">
+        <h1 className="text-balance font-display text-[1.625rem] font-semibold leading-[1.15] tracking-[-0.015em] text-foreground sm:text-[2rem]">
           {title}
         </h1>
         {description && (
-          <p className="mt-2 max-w-[var(--content-reading)] text-[0.9375rem] leading-relaxed text-muted-foreground">{description}</p>
+          <p className="mt-2 max-w-[var(--content-reading)] text-pretty text-[0.9375rem] leading-relaxed text-muted-foreground">{description}</p>
         )}
       </div>
       {actions && (
-        <div className="hidden min-w-0 flex-wrap items-center justify-end gap-2 sm:flex">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
           {actions}
         </div>
       )}
