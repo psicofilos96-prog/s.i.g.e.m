@@ -2548,6 +2548,45 @@ export type Database = {
           },
         ]
       }
+      calendar_external_preset_versions: {
+        Row: {
+          archived: boolean
+          id: string
+          idempotency_key: string
+          name: string
+          owner_id: string
+          preset_key: string
+          profile: Json
+          recorded_at: string
+          template_code: string
+          version: number
+        }
+        Insert: {
+          archived?: boolean
+          id?: string
+          idempotency_key: string
+          name: string
+          owner_id?: string
+          preset_key: string
+          profile: Json
+          recorded_at?: string
+          template_code: string
+          version?: number
+        }
+        Update: {
+          archived?: boolean
+          id?: string
+          idempotency_key?: string
+          name?: string
+          owner_id?: string
+          preset_key?: string
+          profile?: Json
+          recorded_at?: string
+          template_code?: string
+          version?: number
+        }
+        Relationships: []
+      }
       calendar_external_profile_revisions: {
         Row: {
           base_revision_id: string | null
