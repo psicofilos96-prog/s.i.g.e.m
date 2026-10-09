@@ -25,7 +25,9 @@ describe("NPERM.3 — menu × rota × capacidade", () => {
     for (const [st, home] of Object.entries(STATION_HOME)) {
       expect(stationAllowsPath(st, home)).toBe(true);
       for (const other of Object.keys(STATION_HOME)) if (other !== st && !home.startsWith("/unidades")) {
-        if (stationAllowsPath(other, home)) expect(["/mapa-estatistico", "/paineis"].some((r) => home.startsWith(r))).toBe(true);
+        // BQ.1: Direção opera a Alimentação da própria escola (o banco restringe à escola).
+        const shared = other === "direcao_escolar" && st === "alimentacao";
+        if (stationAllowsPath(other, home) && !shared) expect(["/mapa-estatistico", "/paineis"].some((r) => home.startsWith(r))).toBe(true);
       }
     }
     expect(stationAllowsPath("desconhecida", "/")).toBe(false);
