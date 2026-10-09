@@ -107,3 +107,10 @@ O serviço de autenticação recusa a senha pedida por estar em listas de senhas
 
 ## BQ.1 — matriz real de autoridades (2026-10-09)
 Aplicada: ver `docs/bq1-matriz-autoridades-institucionais.md` (canônico; substitui diretrizes históricas conflitantes). Pendência: ACCOUNT_IDENTIFIER_PENDING — INCLUSAO_NEI_CENTRAL. CONTINUE_FROM=BQ.5.
+
+## PERF.LOADING.3 — leitura das capacidades pela tela (2026-10-09)
+- A tela não lê mais `effective_capabilities()` direto (uma linha por turma; cortada em 1000 pelo servidor).
+  Lê `effective_capability_grants()` + `effective_capability_scope_classes()` paginados e expande em
+  `src/features/authority/read-all-capabilities.ts`; o conjunto é idêntico (provado no harness, 0 faltando).
+- Estação/principal setorial: as concessões de `sector_station_grants` entram na mesma forma compacta.
+- O banco continua a garantia (`effective_capabilities`/`has_capability`/RLS/writers não mudaram).
