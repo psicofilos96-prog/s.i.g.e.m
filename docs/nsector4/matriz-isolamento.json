@@ -1,0 +1,2805 @@
+[
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/ciece",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/supervisao-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/alimentacao-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/avaliacao-desempenho",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/secretaria",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/secretaria",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/secretaria",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/secretaria",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/secretaria",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/alunos",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/alunos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/alunos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/alunos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/alunos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/turmas",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/turmas",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/turmas",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/turmas",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/turmas",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/enturmacoes",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/enturmacoes",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/enturmacoes",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/enturmacoes",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/enturmacoes",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/documentos-escolares",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/documentos-escolares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/documentos-escolares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/documentos-escolares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/documentos-escolares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/direcao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/direcao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/direcao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/direcao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/direcao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/gestao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/gestao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/gestao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/gestao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/gestao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/profissionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/profissionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/profissionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/profissionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/profissionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/orientacao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/orientacao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/orientacao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/orientacao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/orientacao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/planejamento",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/planejamento",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/planejamento",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/planejamento",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/planejamento",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/horarios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/horarios",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/horarios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/horarios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/horarios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/mapa-estatistico",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/mapa-estatistico",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/mapa-estatistico",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/mapa-estatistico",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/mapa-estatistico",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/paineis",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/mapa-estatistico-rede",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/paineis",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/paineis",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/paineis",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/paineis",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/relatorios",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/qualidade-dos-dados",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/unidades",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/unidades",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/censo-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/unidades",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/unidades",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/unidades",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "supervisao",
+  "station": "supervisao",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/avisos",
+   "/calendario-escolar",
+   "/supervisao-escolar",
+   "/tarefas",
+   "/unidades"
+  ]
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "alimentacao",
+  "station": "alimentacao",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/alimentacao-escolar",
+   "/avisos",
+   "/calendario-escolar",
+   "/tarefas",
+   "/unidades"
+  ]
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "ciece",
+  "station": "ciece",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/avisos",
+   "/base-de-conhecimento",
+   "/calendario-escolar",
+   "/ciece",
+   "/mapa-estatistico",
+   "/mapa-estatistico-rede",
+   "/paineis",
+   "/qualidade-dos-dados",
+   "/relatorios",
+   "/revisao-de-anomalias",
+   "/tarefas",
+   "/unidades"
+  ]
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "avalia",
+  "station": "avaliacao",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/avaliacao-desempenho",
+   "/avisos",
+   "/calendario-escolar",
+   "/paineis",
+   "/tarefas"
+  ]
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.A",
+  "station": "secretaria_escolar",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/alunos",
+   "/avisos",
+   "/calendario-escolar",
+   "/documentos-escolares",
+   "/horarios",
+   "/mapa-estatistico",
+   "/secretaria",
+   "/tarefas",
+   "/turmas"
+  ]
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/ajuda",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/calendario-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/ciece",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/supervisao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/alimentacao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/avaliacao-desempenho",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/secretaria",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/secretaria",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/secretaria",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/secretaria",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/secretaria",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/alunos",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/alunos",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/alunos",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/alunos",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/alunos",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/turmas",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/turmas",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/turmas",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/turmas",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/turmas",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/enturmacoes",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/enturmacoes",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/enturmacoes",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/enturmacoes",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/enturmacoes",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/documentos-escolares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/matriculas/nova",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/documentos-escolares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/documentos-escolares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/documentos-escolares",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/documentos-escolares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/direcao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/direcao",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/direcao",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/direcao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/gestao-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/gestao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/direcao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/gestao-escolar",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/gestao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/profissionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/profissionais",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/gestao-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/profissionais",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/profissionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/orientacao",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/orientacao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/profissionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/orientacao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/orientacao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/planejamento",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/planejamento",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/orientacao",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/planejamento",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/planejamento",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/horarios",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/horarios",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/horarios",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/horarios",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/planejamento",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/mapa-estatistico",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/mapa-estatistico",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/mapa-estatistico",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/horarios",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/mapa-estatistico",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/mapa-estatistico",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/paineis",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/paineis",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/paineis",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/mapa-estatistico-rede",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/paineis",
+  "allowed": true,
+  "blocked": false,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/paineis",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/relatorios",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/unidades",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/unidades",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/qualidade-dos-dados",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/unidades",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/censo-escolar",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/unidades",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/unidades",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/diario",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/departamento-pessoal",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/administracao",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.B",
+  "station": "direcao_escolar",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/alunos",
+   "/avisos",
+   "/calendario-escolar",
+   "/direcao",
+   "/gestao-escolar",
+   "/horarios",
+   "/mapa-estatistico",
+   "/paineis",
+   "/profissionais",
+   "/tarefas",
+   "/turmas"
+  ]
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/administracao-geral",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.B",
+  "station": "orientacao_pedagogica",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/alunos",
+   "/avisos",
+   "/calendario-escolar",
+   "/horarios",
+   "/orientacao",
+   "/planejamento",
+   "/tarefas",
+   "/turmas"
+  ]
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "sec.B",
+  "station": "secretaria_escolar",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/alunos",
+   "/avisos",
+   "/calendario-escolar",
+   "/documentos-escolares",
+   "/horarios",
+   "/mapa-estatistico",
+   "/secretaria",
+   "/tarefas",
+   "/turmas"
+  ]
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/central-de-acessos",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "diresc.A",
+  "station": "direcao_escolar",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/alunos",
+   "/avisos",
+   "/calendario-escolar",
+   "/direcao",
+   "/gestao-escolar",
+   "/horarios",
+   "/mapa-estatistico",
+   "/paineis",
+   "/profissionais",
+   "/tarefas",
+   "/turmas"
+  ]
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/regras-institucionais",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "path": "/matrizes-curriculares",
+  "allowed": false,
+  "blocked": true,
+  "ok": true
+ },
+ {
+  "k": "orientaped.A",
+  "station": "orientacao_pedagogica",
+  "menu": [
+   "/",
+   "/ajuda",
+   "/alunos",
+   "/avisos",
+   "/calendario-escolar",
+   "/horarios",
+   "/orientacao",
+   "/planejamento",
+   "/tarefas",
+   "/turmas"
+  ]
+ }
+]
