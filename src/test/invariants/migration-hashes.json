@@ -303,5 +303,7 @@
  "drizzle/migrations/0252_cal_preset_1_personal_external_presets.sql": "4db8287807f5f919675f07a4c8772d970a8c1e30281ff2db353c6a56b33e70ad",
  "drizzle/migrations/0253_bq1_institutional_authority_matrix.sql": "a4878098e7b4345a31efeb5b13b46f0e0f21aef6353b57c3cf8b4540525a3321",
  "drizzle/migrations/0254_bq1_actor_accepts_declared_institutional_organ.sql": "386cd6d0422f9f42dc8d5e89de5251e6eae2783e8f0b6fd6f3c22f88bcd65e2f",
- "drizzle/migrations/0255_bq1_revoke_identity_direct_dml.sql": "1ab9506852a91130f0b77bd2cca0f158be5cbebd6544a48ae94e4703a3d45005"
+ "drizzle/migrations/0255_bq1_revoke_identity_direct_dml.sql": "1ab9506852a91130f0b77bd2cca0f158be5cbebd6544a48ae94e4703a3d45005",
+ "drizzle/migrations/0256_bq5_institutional_academic_rules.sql": "512a95c7eff2959ea522cbf3bbcb6434944b8e493dd40ad6b98b5ae896df3c58",
+ "drizzle/migrations/0257_n2026_census_official_receipt_snapshots.sql": "68619b783dc397b8b8f6d391be497976e7e5b94422ab7f734999bf0cced17b37"
 }
