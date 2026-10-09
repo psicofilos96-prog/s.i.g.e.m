@@ -21,7 +21,7 @@ const src = (p: string) => readFileSync(p, "utf8");
 
 const CASES = [
   { station: "supervisao", home: "/supervisao-escolar", allowed: ["/supervisao-escolar", "/unidades"], denied: ["/alunos", "/secretaria", "/ciece", "/alimentacao-escolar", "/avaliacao-desempenho", "/profissionais", "/administracao-geral"] },
-  { station: "avaliacao", home: "/avaliacao-desempenho", allowed: ["/avaliacao-desempenho", "/paineis"], denied: ["/alunos", "/secretaria", "/supervisao-escolar", "/alimentacao-escolar", "/profissionais", "/administracao-geral"] },
+  { station: "avaliacao", home: "/avaliacao-desempenho", allowed: ["/avaliacao-desempenho", "/paineis", "/alunos"], denied: ["/secretaria", "/supervisao-escolar", "/alimentacao-escolar", "/profissionais", "/administracao-geral"] },
   { station: "alimentacao", home: "/alimentacao-escolar", allowed: ["/alimentacao-escolar", "/alimentacao-escolar/cozinha", "/unidades"], denied: ["/alunos", "/secretaria", "/supervisao-escolar", "/avaliacao-desempenho", "/profissionais", "/administracao-geral"] },
 ] as const;
 
