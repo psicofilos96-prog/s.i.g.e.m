@@ -10,8 +10,9 @@ import { stationAllowsPath, STATION_HOME } from "@/features/authority/station-na
 const sql = readFileSync("drizzle/migrations/0253_bq1_institutional_authority_matrix.sql", "utf8");
 const rules = new Map<string, Set<string>>();
 for (const m of sql.matchAll(/\('([a-z_]+)','([a-z0-9-]+)'\)/g)) {
-  if (!rules.has(m[1])) rules.set(m[1], new Set());
-  rules.get(m[1])!.add(m[2]);
+  const [, st = "", cap = ""] = m;
+  if (!rules.has(st)) rules.set(st, new Set());
+  rules.get(st)!.add(cap);
 }
 const has = (s: string, c: string) => rules.get(s)?.has(c) ?? false;
 
