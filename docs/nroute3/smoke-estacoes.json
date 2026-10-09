@@ -21,7 +21,7 @@
   "status": 200,
   "title": "Secretaria Escolar — SIGEM",
   "h1": [
-   "O que precisa de você hoje"
+   "Secretaria"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -36,7 +36,7 @@
   "status": 200,
   "title": "Alunos — SIGEM",
   "h1": [
-   "Tela de demonstração"
+   "Alunos"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -53,7 +53,7 @@
   "h1": [
    "Turmas"
   ],
-  "breadcrumb": true,
+  "breadcrumb": false,
   "notFound": false,
   "bad": [],
   "hscroll": false,
@@ -111,7 +111,7 @@
   "status": 200,
   "title": "Início — SIGEM",
   "h1": [
-   "Educação pública com contexto e clareza."
+   "Início"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -126,7 +126,7 @@
   "status": 200,
   "title": "Portal da Direção Escolar — SIGEM",
   "h1": [
-   "O que depende de você hoje"
+   "Direção"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -141,7 +141,7 @@
   "status": 200,
   "title": "Gestão escolar — SIGEM",
   "h1": [
-   "Estação da gestão escolar"
+   "Gestão escolar"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -156,7 +156,7 @@
   "status": 200,
   "title": "Profissionais — SIGEM",
   "h1": [
-   "Tela de demonstração"
+   "Profissionais"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -215,9 +215,7 @@
   "path": "/planejamento",
   "status": 200,
   "title": "Planejamento docente — SIGEM",
-  "h1": [
-   "Planejamento"
-  ],
+  "h1": [],
   "breadcrumb": false,
   "notFound": false,
   "bad": [],
@@ -230,9 +228,7 @@
   "path": "/avaliacoes-do-professor",
   "status": 200,
   "title": "Avaliações do professor — SIGEM",
-  "h1": [
-   "Avaliações do professor"
-  ],
+  "h1": [],
   "breadcrumb": false,
   "notFound": false,
   "bad": [],
@@ -276,7 +272,7 @@
   "status": 200,
   "title": "Acompanhamento dos diários — SIGEM",
   "h1": [
-   "Acompanhamento de diários"
+   "Acompanhamento dos diários"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -291,9 +287,9 @@
   "status": 200,
   "title": "Horários escolares — SIGEM",
   "h1": [
-   "Horários"
+   "Horários escolares"
   ],
-  "breadcrumb": false,
+  "breadcrumb": true,
   "notFound": false,
   "bad": [],
   "hscroll": false,
@@ -366,7 +362,7 @@
   "status": 200,
   "title": "Relatórios — SIGEM",
   "h1": [
-   "Qual relatório você precisa?"
+   "Relatórios"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -396,7 +392,7 @@
   "status": 200,
   "title": "CIECE — Informação e Estatística — SIGEM",
   "h1": [
-   "CIECE — Informação e Estatística"
+   "Informação e Estatística"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -411,7 +407,7 @@
   "status": 200,
   "title": "Matrizes curriculares — SIGEM",
   "h1": [
-   "Matrizes curriculares institucionais"
+   "Matrizes curriculares"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -486,7 +482,7 @@
   "status": 200,
   "title": "Administração Geral — SIGEM",
   "h1": [
-   "Administração Geral"
+   "SIGEM"
   ],
   "breadcrumb": false,
   "notFound": false,
@@ -591,7 +587,7 @@
   "status": 200,
   "title": "Vida funcional — DP administrativo — SIGEM",
   "h1": [
-   "Profissionais da escola"
+   "Departamento Pessoal"
   ],
   "breadcrumb": false,
   "notFound": false,
