@@ -516,7 +516,7 @@ function LayerView({ l, ctx, selected, onSelect, onMove }: { l: Layer; ctx: { ye
       filter: l.brightness !== 100 || l.contrast !== 100 || l.saturate !== 100 ? `brightness(${l.brightness}%) contrast(${l.contrast}%) saturate(${l.saturate}%)` : undefined,
       ...(mask ? { maskImage: mask, WebkitMaskImage: mask } : {}), printColorAdjust: "exact", WebkitPrintColorAdjust: "exact" }} />;
   } else if (l.kind === "onda") {
-    const gid = `cx-onda-${l.id}`;
+    const gid = `cx-onda-${l.id}-${uid}`;
     inner = <svg width="100%" height="100%" viewBox={`0 0 ${l.w} ${l.h}`} preserveAspectRatio="none" style={{ display: "block", overflow: "visible" }}>
       {l.fill2 && <defs><linearGradient id={gid} x1="0" y1="0" x2="1" y2="0"><stop offset="0" stopColor={l.fill} /><stop offset="1" stopColor={l.fill2} /></linearGradient></defs>}
       <path d={wavePath(l)} fill={l.fill2 ? `url(#${gid})` : l.fill} />
