@@ -199,3 +199,6 @@ O STILL_TECHNICAL do item I.2 está **resolvido**. Detalhes em `docs/frente-bt-w
   - smoke de `/regras-institucionais` sem erros;
   - dados preservados: 55 escolas, 9.763 alunos, 10.822 pessoas, 2 atuações, 8 políticas, 7 versões e 7 homologações de calendário, 0 regras nas seis tabelas.
 - O Gate 2 da BP ("nenhuma configuração exige bypass") agora vale também para esses domínios. 2027 continua **não configurado**. BQ.1 depende das decisões 1–7, e BQ.5 depende das regras que a SEMED decidir.
+
+## BQ.1 — matriz real de autoridades (2026-10-09)
+Aplicada: ver `docs/bq1-matriz-autoridades-institucionais.md` (canônico; substitui diretrizes históricas conflitantes). Pendência: ACCOUNT_IDENTIFIER_PENDING — INCLUSAO_NEI_CENTRAL. CONTINUE_FROM=BQ.5.

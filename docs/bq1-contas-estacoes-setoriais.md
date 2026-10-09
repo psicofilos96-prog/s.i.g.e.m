@@ -104,3 +104,6 @@ O serviço de autenticação recusa a senha pedida por estar em listas de senhas
 - Busca global (migration 0207): `global_search` filtra por estação na base — categoria só entra se a estação tiver a capacidade correspondente; conta de escola só recebe a própria escola. Leitura de unidades restrita à própria escola para contas escolares (políticas RESTRICTIVE). Prova real: `scripts/bq1-station-isolation-proof.mjs` 94/94.
 - Menu: enquanto a autoridade carrega, o menu fica vazio e a página não é montada (antes havia um instante com todas as áreas visíveis).
 - Exportações e painéis: saem do mesmo leitor da tela (RLS de quem consulta) pelo motor de relatórios; não há endpoint próprio de exportação. Prova em navegador: cada conta abriu todas as áreas do próprio menu, sem nome da outra escola na tela nem na busca.
+
+## BQ.1 — matriz real de autoridades (2026-10-09)
+Aplicada: ver `docs/bq1-matriz-autoridades-institucionais.md` (canônico; substitui diretrizes históricas conflitantes). Pendência: ACCOUNT_IDENTIFIER_PENDING — INCLUSAO_NEI_CENTRAL. CONTINUE_FROM=BQ.5.
