@@ -146,6 +146,14 @@ function SidebarNavigation({
   ) : (
     generalAdminLink
   );
+  // NLOADING.2: enquanto a autoridade é lida, reserva o espaço do menu (sem piscar opções de outro setor).
+  if (authority.status === "loading" && !authority.error)
+    return (
+      <nav aria-label="Navegação principal" aria-busy="true" data-sigem-nav-skeleton className="flex-1 overflow-y-auto px-3 py-4">
+        <span className="sr-only">Carregando menu</span>
+        <ul className="space-y-2">{[0, 1, 2, 3, 4].map((i) => <li key={i} aria-hidden className="h-9 animate-pulse rounded-lg bg-sidebar-accent/40" />)}</ul>
+      </nav>
+    );
   return (
     <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-4">
       {groups.map((group) => (

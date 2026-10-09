@@ -1,3 +1,4 @@
+import { useLatestRequest } from "@/lib/latest-request";
 import { OffsetPager } from "@/components/sigem/list-pager";
 import { callRpc } from "@/lib/rpc-call";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -31,12 +32,15 @@ export function NucleoHome({ names }: { names: Map<string, string> }) {
   const [competence, setCompetence] = useState(today.slice(0, 7));
   const [rows, setRows] = useState<SummaryRow[] | null>(null); const [quality, setQuality] = useState<SummaryRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const latest = useLatestRequest();
   const load = useCallback(async () => {
+    const current = latest();
     try {
-      setRows(await call<SummaryRow[]>("meal_network_action_summary", { _on: today, _competence: competence }));
-      setQuality(await call<SummaryRow[]>("meal_network_data_quality", { _on: today }).catch(() => null)); setErr(null);
-    } catch (e) { setRows(null); setErr(nucleoMessage((e as Error).message)); }
-  }, [today, competence]);
+      const r = await call<SummaryRow[]>("meal_network_action_summary", { _on: today, _competence: competence });
+      const q = await call<SummaryRow[]>("meal_network_data_quality", { _on: today }).catch(() => null);
+      if (!current()) return; setRows(r); setQuality(q); setErr(null);
+    } catch (e) { if (!current()) return; setRows(null); setErr(nucleoMessage((e as Error).message)); }
+  }, [today, competence, latest]);
   useEffect(() => { void load(); }, [load]);
   const ind = indicators(rows); const queue = workQueue(ind);
   return (
