@@ -313,5 +313,7 @@
  "drizzle/migrations/0262_perf_loading_3_capability_grants.sql": "3105e6b0bd604d1c6a03fb3d68a48c1f674220ebc601aa2b7967281a4a558483",
  "drizzle/migrations/0263_perf_loading_3_count_readers.sql": "5473c4231cf7faf4ad072b01b6259dacf44d7aac2e8af3e99d1649a1d0cf09e7",
  "drizzle/migrations/0264_perf_loading_3_infra_coverage_reader.sql": "afca6ece6894791e11f95c75037103282933c3daeef1b9468a81f6267be0a510",
- "drizzle/migrations/0265_perf_loading_3_active_enrollments_reader.sql": "ca3f105393a1d9140aec8ab3bb9447d001d8838e22875488c39f2085bccfa714"
+ "drizzle/migrations/0265_perf_loading_3_active_enrollments_reader.sql": "ca3f105393a1d9140aec8ab3bb9447d001d8838e22875488c39f2085bccfa714",
+ "drizzle/migrations/0266_docs_pro_3_studio_persistence.sql": "2adbdc4e07d4c0babcccc168b750a61d4a04ecda2e52a385af8e002101732dae",
+ "drizzle/migrations/0267_docs_pro_3_studio_fixture_cleanup.sql": "04fd080e437bee474a204bb6c57218502847746f947f85621e63595f2f25f02d"
 }
