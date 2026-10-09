@@ -307,5 +307,7 @@
  "drizzle/migrations/0256_bq5_institutional_academic_rules.sql": "512a95c7eff2959ea522cbf3bbcb6434944b8e493dd40ad6b98b5ae896df3c58",
  "drizzle/migrations/0257_n2026_census_official_receipt_snapshots.sql": "68619b783dc397b8b8f6d391be497976e7e5b94422ab7f734999bf0cced17b37",
  "drizzle/migrations/0258_calendar_external_free_template.sql": "c7a646d74e73413796fb89ca483b678c10abded5ba7b8cdfdb021a3791d36a41",
- "drizzle/migrations/0259_perf_loading_set_based_rls.sql": "b893f6d7c481ded1ffdcda11deb0083e278a494305d199cf50916cdb95ad2e93"
+ "drizzle/migrations/0259_perf_loading_set_based_rls.sql": "b893f6d7c481ded1ffdcda11deb0083e278a494305d199cf50916cdb95ad2e93",
+ "drizzle/migrations/0260_perf_loading_classes_reader_set.sql": "7b92d1fc65952416b4b3dd28917ebc2d65f95d844083c9286bf79b5ff9bc2ff0",
+ "drizzle/migrations/0261_perf_loading_census_professionals_set.sql": "a0195c434732a3db42da9ac8bc2582202c8da4d06e9196c51b8a00661192c237"
 }

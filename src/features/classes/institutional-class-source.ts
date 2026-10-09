@@ -121,7 +121,26 @@ export async function listInstitutionalClasses(q: ClassTemporalQuery): Promise<I
   const args = { _valid_on: q.validOn, ...(q.knownAt ? { _known_at: q.knownAt } : {}) };
   const { data, error } = await supabase.rpc("classes_with_period_link_at", args);
   if (error) throw error;
-  const rows = ((data ?? []) as { class_id: string; school_id: string; academic_year_id: string; record: unknown; link: unknown }[]).map((c) => {
+  return summarizeClassRows(data ?? []);
+}
+
+/**
+ * PERF.LOADING.2 — página da lista de turmas lida no servidor (range + contagem), mesmo reader
+ * temporal e mesma ACL; busca pelo nome vigente no próprio servidor.
+ */
+export async function listInstitutionalClassesPage(q: ClassTemporalQuery & { from: number; to: number; term: string | null; signal?: AbortSignal }) {
+  const args = { _valid_on: q.validOn, ...(q.knownAt ? { _known_at: q.knownAt } : {}) };
+  let b = supabase.rpc("classes_with_period_link_at", args, { count: "exact" });
+  if (q.term) b = b.ilike("record->0->>name", q.term);
+  b = b.order("class_id").range(q.from, q.to);
+  if (q.signal) b = b.abortSignal(q.signal);
+  const { data, error, count } = await b;
+  if (error) return { data: null, error, count: null };
+  return { data: await summarizeClassRows(data ?? []), error: null, count };
+}
+
+async function summarizeClassRows(data: unknown[]): Promise<InstitutionalClassSummary[]> {
+  const rows = (data as { class_id: string; school_id: string; academic_year_id: string; record: unknown; link: unknown }[]).map((c) => {
     const r = projectSingle(c.record as ClassRecordRow[]);
     const l = projectSingle(c.link as ClassLinkRow[]);
     return {

@@ -1,44 +1,55 @@
-# Hotfix PERF.LOADING.1 — páginas presas em "Carregando"
+# Hotfix PERF.LOADING.1/2 — páginas presas em "Carregando"
 
 Situação atual: Registro de lote (2026-10-09).
 
-## Causa raiz (medida em pg_stat_statements, não estimada)
-As regras de acesso de várias tabelas grandes chamavam, **para cada linha**, funções que recalculam
-`effective_capabilities()` (que já cruza atuações × regras × 698 turmas). Custo quadrático:
-
-| Leitura (baseline) | Chamadas | Média | Máx |
-|---|---|---|---|
-| `institutional_classes` (school_id, 698 linhas) | 36 | 6.633 ms | 7.586 ms |
-| `institutional_classes` (id, school_id) | 25 | 6.603 ms | 7.950 ms |
-| `institutional_classes` por `id = ANY` | 80 | 2.495 ms | 3.888 ms |
-| `school_enrollments` por ano | 3 | 4.096 ms | 7.106 ms |
-| `professional_census_declarations` | 3 | 3.803 ms | 6.960 ms |
-| `institutional_students` (página) | 320 | 834 ms | 7.878 ms |
-| `effective_capabilities()` | 4.862 | 81 ms | 3.063 ms |
-
-Leituras em páginas de 1000 (`readPages`) multiplicavam isso de forma sequencial, e qualquer tela
-que lê turmas (ou tabelas cuja regra consulta turmas: declarações do Censo, identificadores,
-observações) herdava 6–8 s por requisição — com novas tentativas, a tela parecia nunca terminar.
+## Causa raiz (medida, não estimada)
+As regras de acesso (e o leitor temporal de turmas) chamavam, **para cada linha**, funções que
+recalculam `effective_capabilities()` — que já cruza atuações × regras × 698 turmas. Custo
+quadrático: 698 turmas levavam 6–8 s; listas em lotes de 1.000 multiplicavam isso em sequência,
+e com novas tentativas a tela parecia nunca terminar.
 
 ## Correções
-1. Migration `0259_perf_loading_set_based_rls`: mesmas regras, avaliadas **uma vez por consulta**:
-   - `readable_class_ids()` (conjunto de turmas legíveis; avalia oferta/matrícula por escola e por
-     ano, não por turma) substitui as duas regras de `institutional_classes` e de
-     `institutional_class_record_versions`;
-   - `school_enrollments`, `student_school_day_observations`, `professional_exercises`: capacidade
-     escolar por conjunto (`school_capability_schools`), equivalente exato de `has_school_capability`;
-   - capacidade por turma via `capability_classes` + `capability_unbound` (equivalente a `has_capability`);
-   - `institutional_persons` "Own person" com `current_person_id()` em subplano.
-   Nenhuma permissão foi ampliada; índices existentes (student_id, enrollment_id, school_id) já cobriam os JOINs — nenhum índice novo sem evidência.
-2. Portão de sessão: as 8 rotas que liam antes da sessão (`session-read-gate.ts`) não montam sem
-   sessão; mostram "Entre para abrir esta página". Teste: `session-read-gate.test.ts`.
+- `0259_perf_loading_set_based_rls`: turmas, cadastro de turmas, matrículas, dias letivos,
+  exercícios funcionais e "pessoa própria" com conjunto avaliado uma vez por consulta
+  (`readable_class_ids`, `school_capability_schools`, `capability_classes`, `capability_unbound`).
+- `0260_perf_loading_classes_reader_set`: `classes_with_period_link_at` usa o mesmo conjunto.
+- `0261_perf_loading_census_professionals_set`: declarações do Censo de profissionais por conjunto
+  (`own_engagement_network_now`, `own_engagement_schools_now`) + índice em `person_id`.
+- Mesma semântica de ACL em todas; nenhuma permissão ampliada.
+- Portão de sessão: 8 rotas não montam sem sessão (`session-read-gate.ts`).
+- `src/lib/server-page.ts`: paginação no servidor (50 por página, `range` + contagem estimada),
+  busca no servidor, tempo-limite de 15 s, no máximo 1 nova tentativa automática, cancelamento ao
+  trocar filtro/página, erro legível com "Tentar novamente".
+- Alunos, Profissionais e Turmas com sessão mostram só a base institucional (sem demonstração);
+  demonstração apenas sem sessão. Profissionais vêm das declarações oficiais do Censo 2026
+  (1.057 pessoas), porque vínculos funcionais só são legíveis via lotação (0 lotações).
 
-## Números depois
-A medição autenticada não pôde rodar aqui (o ambiente não consegue entrar com uma conta sem
-aprovação). Os tempos depois da correção devem ser lidos de novo em pg_stat_statements após uso real.
+## Benchmark autenticado (harness, JWT real de conta sintética, mediana de 3; inclui ~200 ms de rede)
+Script: `scripts/perf-loading-bench.mjs` (cleanup obrigatório; resíduo 0).
+
+| Leitura | Antes | Depois (Admin) | Depois (Secretaria) |
+|---|---|---|---|
+| Turmas (698), RLS | 6.633 ms (máx 7.950) | 513 ms | 760 ms |
+| Tela de Turmas (leitor temporal) | 3.640 ms Admin · 6.753 Secretaria · 7.799 CIECE | 527 ms (1ª página) | 694 ms |
+| Matrículas, 1.000 linhas | 4.096 ms (máx 7.106) | 1.071 ms | 264 ms |
+| Matrículas, 1ª página + contagem | — | 1.306 ms | 355 ms |
+| Declarações do Censo (turma) | 3.803 ms (máx 6.960) | 349 ms | 713 ms |
+| Alunos, 1ª página + contagem | 834 ms (máx 7.878) | 1.287 ms | 298 ms |
+| Alunos, busca no servidor | — | 943 ms | 356 ms |
+| Profissionais (tela nova) | estouro de 8 s (statement timeout) | 238 ms | 581 ms |
+
+As leituras acima de 1 s (Alunos e Matrículas com contagem, Admin em rede ~9,6 mil linhas)
+vêm da contagem sob RLS; a página em si chega abaixo de 2 s.
+
+## Gates
+Suíte completa: 4.809 testes passaram (503 arquivos), após corrigir 1 falha (teste de Turmas atualizado
+para a leitura paginada); 106 verificações de arquitetura; typecheck limpo; resíduo de fixtures 0.
 
 ## Pendências reais
-- Medição antes/depois autenticada por rota (shell, primeira lista, requisições) — sem login no ambiente.
-- Paginação no servidor nas listas que ainda usam `readPages` até milhares de linhas.
-- Tempo-limite técnico com "Tentar novamente" em todas as consultas (hoje: 2 novas tentativas e erro governado).
-- `/alunos`, `/profissionais`, `/turmas` de listagem ainda exibem dados demonstrativos, não a base 2026.
+- Outras telas que ainda usam `readPages` (transporte, infraestrutura, painéis, anomalias,
+  planejamento) leem até o limite antes de exibir; agora são rápidas por causa das regras, mas não
+  estão paginadas no servidor.
+- `effective_capabilities` de Admin em rede passa de 1.000 linhas e é cortado pelo servidor na
+  leitura da sessão (a tela usa só capability/escola; o banco continua decidindo).
+- Secretaria não vê Profissionais: a regra de pessoas exige capability de manutenção de pessoas.
+- Smoke em navegador autenticado não roda sem aprovação de sessão; a prova é na camada autenticada.

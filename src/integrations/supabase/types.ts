@@ -22124,6 +22124,8 @@ export type Database = {
         Returns: boolean
       }
       operational_task_assignee: { Args: { _task: string }; Returns: string }
+      own_engagement_network_now: { Args: never; Returns: boolean }
+      own_engagement_schools_now: { Args: never; Returns: string[] }
       password_change_required: { Args: never; Returns: boolean }
       perf_grant: {
         Args: { _capability: string; _school: string }

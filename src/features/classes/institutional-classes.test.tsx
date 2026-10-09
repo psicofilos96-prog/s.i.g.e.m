@@ -41,12 +41,20 @@ import { ClassRouteGate } from "./class-route-gate";
 const rec = { id: "v1", class_id: "c1", version: 1, supersedes_id: null, code: "A", name: "1º ano A", administrative_status: "ativa", valid_from: "2026-02-01", valid_until: null, change_reason: null, originating_act_ref: "Port. 1", recorded_by: "u", recorded_by_person_id: "p", recorded_via_engagement_id: "e", created_at: "2026-01-10T00:00:00Z" };
 const wrap = (n: ReactNode) => render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>{n}</QueryClientProvider>);
 
+const ranges: Array<[number, number]> = [];
+/** Resposta encadeável (order/range/ilike/abortSignal) como o cliente real. */
+function chain(v: { data: unknown; error: null; count?: number }) {
+  const p = Promise.resolve(v) as Promise<unknown> & Record<string, unknown>;
+  for (const k of ["order", "ilike", "abortSignal"]) p[k] = () => p;
+  p["range"] = (a: number, b: number) => { ranges.push([a, b]); return p; };
+  return p;
+}
 beforeEach(() => {
-  rpc.mockReset();
-  rpc.mockImplementation((fn: string) => Promise.resolve({ data: fn === "class_at" ? [rec]
+  rpc.mockReset(); ranges.length = 0;
+  rpc.mockImplementation((fn: string) => chain({ data: fn === "class_at" ? [rec]
     : fn === "class_period_organization_at" ? []
     : fn === "classes_with_period_link_at" ? [{ class_id: "c1", school_id: "s1", academic_year_id: "y1", record: [rec], link: [] }]
-    : "new-id", error: null }));
+    : "new-id", error: null, count: 1 }));
   Object.assign(tables, {
     institutional_classes: [{ id: "c1", school_id: "s1", academic_year_id: "y1" }],
     institutional_school_record_versions: [{ school_id: "s1", official_name: "EM Centro", version_number: 1 }],
@@ -86,8 +94,10 @@ describe("B2.5.4 — telas", () => {
     expect(screen.getByText("EM Centro")).toBeInTheDocument();
     expect(screen.getByText("Ainda não registrada")).toBeInTheDocument();
     // BO.3: listagem em uma única leitura em lote; nunca uma chamada por turma.
-    expect(rpc).toHaveBeenCalledWith("classes_with_period_link_at", expect.objectContaining({ _valid_on: expect.any(String) }));
+    expect(rpc).toHaveBeenCalledWith("classes_with_period_link_at", expect.objectContaining({ _valid_on: expect.any(String) }), { count: "exact" });
     expect(rpc).not.toHaveBeenCalledWith("class_at", expect.anything());
+    // PERF.LOADING.2: a lista pede uma página ao servidor, não as 698 turmas.
+    expect(ranges).toContainEqual([0, 49]);
   });
   it("detalhe sem capacidade de vínculo não oferece associação; com cadastro oferece inativar", async () => {
     session.caps = [{ capabilityId: "manter-cadastro-de-turmas", schoolId: "s1" }];
