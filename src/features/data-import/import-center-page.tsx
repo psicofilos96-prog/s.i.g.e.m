@@ -87,6 +87,7 @@ export function ImportCenterPage({ initialAdapter }: { initialAdapter?: string |
           <div className="space-y-3">
             <p className="text-sm">Prévia de <strong>{preview.fileName}</strong> — impressão digital <code className="break-all">{preview.sha}</code>. Nada foi gravado.</p>
             <p className="text-xs text-muted-foreground break-all">Proveniência: {preview.provenance} · chave de idempotência do lote: <code>{preview.batchKey}</code> (o mesmo arquivo nunca gera segundo lote).</p>
+            <RecognitionNotice sha={preview.sha} previewRows={counts.total} />
             <Counts counts={counts} />
             <RowsTable rows={preview.rows} />
             <ExceptionsBar rows={preview.rows} count={preview.exceptions.length} name={preview.fileName} />
@@ -98,6 +99,7 @@ export function ImportCenterPage({ initialAdapter }: { initialAdapter?: string |
         )}
       </section>
 
+      <TechnicalAdoptionsSection />
       <section className="space-y-3" aria-labelledby="historico">
         <h2 id="historico" className="font-semibold">Histórico de lotes</h2>
         {listError ? <StatePanel tone="danger" title="Não foi possível ler os lotes" description={listError} />
