@@ -13,6 +13,7 @@ import type { EventView } from "./import-engine";
 import { buildCenterPreview, centerExceptionsCsv, compensableRows, downloadCsv, type CenterPreview } from "./import-center-view";
 import { idempotencyKey, provenanceLabel, importTooLarge, IMPORT_TOO_LARGE_TEXT } from "./import-kernel";
 import { formatDateTime } from "@/lib/academic-date";
+import { groupByLogicalBatch, listTechnicalAdoptions, recognizeSource, reportedNumbers, type SourceRecognition, type TechnicalAdoption } from "./technical-adoptions";
 
 type Preview = CenterPreview & { adapter: ImportAdapter };
 
@@ -52,8 +53,8 @@ export function ImportCenterPage({ initialAdapter }: { initialAdapter?: string |
     setBusy(true); setMsg(null);
     try {
       const r = await stageBatch({ adapterId: preview.adapter.id, adapterVersion: preview.adapter.version, sourceName: preview.fileName, sourceSha256: preview.sha, rows: preview.rows, reprocessesId: reprocessOf, sourceRef: sourceRef.trim() || null });
-      setMsg(r.already_staged ? "Este mesmo arquivo já foi recebido; abrimos o lote existente, sem duplicar." : "Lote guardado para conferência. Nada foi gravado nos cadastros.");
-      setPreview(null); setReprocessOf(null); setOpen(r.id); await reload();
+      setMsg(r.adopted_technical_import ? "Arquivo já adotado da carga 2026: nada foi recebido nem duplicado (só prévia)." : r.already_staged ? "Este mesmo arquivo já foi recebido; abrimos o lote existente, sem duplicar." : "Lote guardado para conferência. Nada foi gravado nos cadastros.");
+      setPreview(null); setReprocessOf(null); if (r.id) setOpen(r.id); await reload();
     } catch (e) { setMsg(importMessage((e as Error).message)); } finally { setBusy(false); }
   }
 
@@ -214,5 +215,44 @@ function ExceptionsBar({ rows, count, name }: { rows: readonly StagedRow[]; coun
       <span>{count === 1 ? "1 linha não será aplicada" : `${count} linhas não serão aplicadas`} (rejeitadas, duplicadas, em conflito ou já reconciliadas).</span>
       <Button size="sm" variant="outline" onClick={() => downloadCsv(`excecoes-${name}.csv`, centerExceptionsCsv(rows))}>Baixar relatório de exceções (CSV)</Button>
     </div>
+  );
+}
+
+function RecognitionNotice({ sha, previewRows }: { sha: string; previewRows: number }) {
+  const [r, setR] = useState<SourceRecognition | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => { let live = true; recognizeSource(sha).then((x) => { if (live) setR(x); }, (e: Error) => { if (live) setErr(importMessage(e.message)); }); return () => { live = false; }; }, [sha]);
+  if (err) return <StatePanel tone="danger" title="Não foi possível conferir se este arquivo já entrou" description={err} />;
+  if (!r || r.adoptions.length === 0) return null;
+  return (
+    <StatePanel tone="warning" title="Este arquivo já entrou no SIGEM (carga 2026 adotada)"
+      description={`Mesma impressão digital de ${r.adoptions.length} operação(ões) já aplicada(s). Esta prévia é só conferência (dry-run): guardar não cria lote nem fato novo. Linhas na prévia: ${previewRows}.`} />
+  );
+}
+
+function TechnicalAdoptionsSection() {
+  const [rows, setRows] = useState<TechnicalAdoption[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => { let live = true; listTechnicalAdoptions().then((x) => { if (live) setRows(x); }, (e: Error) => { if (live) setErr(importMessage(e.message)); }); return () => { live = false; }; }, []);
+  return (
+    <section className="space-y-3" aria-labelledby="historico-2026">
+      <h2 id="historico-2026" className="font-semibold">Histórico da carga 2026 (operações técnicas adotadas)</h2>
+      <p className="text-sm text-muted-foreground">Dados já no cadastro oficial. Registrados aqui só como proveniência: nenhum fato novo foi criado e o mesmo arquivo não entra de novo.</p>
+      {err ? <StatePanel tone="danger" title="Não foi possível ler o histórico 2026" description={err} />
+        : rows === null ? <SkeletonState label="Carregando" />
+        : rows.length === 0 ? <EmptyState title="Nenhuma carga técnica adotada" description="Não há operações técnicas registradas." />
+        : groupByLogicalBatch(rows).map((g) => (
+          <details key={g.key} className="rounded-lg border bg-card p-3">
+            <summary className="cursor-pointer"><span className="font-medium">{g.sourceName}</span> · {g.operations.length} operação(ões) · sha256 {g.sha.slice(0, 12)}…</summary>
+            <ul className="mt-2 space-y-2 text-sm">{g.operations.map((o) => (
+              <li key={o.id} className="border-t pt-2">
+                <div>{o.parser_ref} · executada {formatDateTime(o.executed_at)}</div>
+                <div className="text-xs break-all text-muted-foreground">chave: <code>{o.idempotency_key}</code></div>
+                <div className="text-xs">Registros: {Object.entries(o.target_counts).map(([t, n]) => `${t} ${n}`).join(" · ") || "sem alvo listado"}</div>
+                <div className="text-xs">Informado: {reportedNumbers(o.reported_result).map(([k, n]) => `${k} ${n}`).join(" · ") || "—"}</div>
+              </li>))}</ul>
+          </details>
+        ))}
+    </section>
   );
 }
