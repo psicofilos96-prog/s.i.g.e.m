@@ -93,6 +93,72 @@ export function dedupeLatestSchools(rows: readonly Record<string, CellValue>[]):
   return [...best.values()];
 }
 
+
+// NDIARY.FINAL.2 — fontes do Diário. Leitura com a sessão do usuário (RLS de cada tabela).
+// Nenhuma coluna de professor/autor: o gerador não produz ranking docente.
+type Raw = Record<string, unknown>;
+const headsBy = (rows: Raw[], k: string, ver: string) => { const m = new Map<string, Raw>(); for (const r of rows) { const c = m.get(String(r[k])); if (!c || Number(c[ver]) < Number(r[ver])) m.set(String(r[k]), r); } return [...m.values()]; };
+const tdb = supabase as unknown as { from: (t: string) => any };
+function diaryDef(id: string, title: string, description: string, source: string, columns: ColumnDef[]): ReportDefinition {
+  return { id, version: 1, title, description, source, params: [{ id: "from", label: "De", type: "date", required: false }, { id: "to", label: "Até", type: "date", required: false }], columns, formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 50000 };
+}
+async function page(table: string, cols: string, dateCol: string | null, a: { from: string | null; to: string | null; offset: number; limit: number }) {
+  let q = tdb.from(table).select(cols, { count: "exact" });
+  if (dateCol && a.from) q = q.gte(dateCol, a.from);
+  if (dateCol && a.to) q = q.lte(dateCol, a.to);
+  const r = await q.order("id").range(a.offset, a.offset + a.limit - 1);
+  if (r.error) fail();
+  return { rows: (r.data ?? []) as Raw[], total: (r.count ?? null) as number | null };
+}
+export function attendanceCounts(marks: unknown) {
+  let p = 0, f = 0;
+  for (const slot of Object.values((marks ?? {}) as Record<string, Record<string, string>>)) for (const m of Object.values(slot ?? {})) { if (m === "Presente") p++; else if (m === "Ausente") f++; }
+  return { presentes: p, faltas: f };
+}
+const DIARY_ACL = "RLS do Diário com a sessão de quem gera (professor vê só as próprias atuações; escola só a própria).";
+const DIARY_SOURCES: BuilderSource[] = [
+  { id: "diario-aulas", title: "Diário — aulas previstas × registradas", sectors: ["op-direcao", "supervisao"], definition: diaryDef("diario-aulas", "Aulas previstas × registradas", "Uma linha por registro de aula concluído (versão vigente).", "lesson_record_versions (cabeça por registro lógico)",
+      [C("class", "Turma"), C("component", "Componente"), C("date", "Data", "date"), C("previstas", "Horários da grade citados", "number"), C("registradas", "Aulas registradas", "number")]),
+    methodology: "Prevista = horário da grade citado no registro; registrada = quantidade declarada ao concluir. Dia sem registro não gera linha nem zero.", acl: DIARY_ACL, period: true, pageSize: 1000, filterable: ["class", "component"],
+    load: async (a) => { const r = await page("lesson_record_versions", "id, logical_record_id, version_number, class_id, component_id, lesson_date, facts, schedule_block_ids", "lesson_date", a);
+      return { rows: r.rows.map((x) => ({ _k: v(x["logical_record_id"]), _v: v(x["version_number"]), class: v(x["class_id"]), component: v(x["component_id"]), date: v(x["lesson_date"]), previstas: Array.isArray(x["schedule_block_ids"]) ? (x["schedule_block_ids"] as unknown[]).length : null, registradas: v(((x["facts"] ?? {}) as { quantity?: number }).quantity ?? null) })), total: r.total }; },
+    finalize: (rows) => headsBy(rows as Raw[], "_k", "_v") as Record<string, CellValue>[] },
+  { id: "diario-frequencia", title: "Diário — frequência", sectors: ["op-direcao", "supervisao"], definition: diaryDef("diario-frequencia", "Frequência", "Uma linha por chamada (versão vigente), contagem de presenças e faltas registradas.", "attendance_record_versions (cabeça por chamada lógica)",
+      [C("class", "Turma"), C("component", "Componente"), C("recorded", "Registrada em", "date"), C("presentes", "Presenças", "number"), C("faltas", "Faltas", "number")]),
+    methodology: "Conta só marcações explícitas; ausência de marcação não entra como presença nem falta. Valor armazenado \"Ausente\" é exibido como falta.", acl: DIARY_ACL, period: true, pageSize: 1000, filterable: ["class", "component"],
+    load: async (a) => { const r = await page("attendance_record_versions", "id, logical_attendance_id, version_number, class_id, component_id, marks, recorded_at", "recorded_at", a);
+      return { rows: r.rows.map((x) => ({ _k: v(x["logical_attendance_id"]), _v: v(x["version_number"]), class: v(x["class_id"]), component: v(x["component_id"]), recorded: v(String(x["recorded_at"] ?? "").slice(0, 10)), ...attendanceCounts(x["marks"]) })), total: r.total }; },
+    finalize: (rows) => headsBy(rows as Raw[], "_k", "_v") as Record<string, CellValue>[] },
+  { id: "diario-justificativas", title: "Diário — faltas e justificativas", sectors: ["op-direcao", "secretaria"], definition: diaryDef("diario-justificativas", "Faltas e justificativas", "Ocorrências de frequência registradas (versão vigente), sem nome do estudante.", "student_attendance_occurrences (cabeça por ocorrência lógica)",
+      [C("class", "Turma"), C("type", "Tipo de ocorrência"), C("from", "De", "date"), C("until", "Até", "date"), C("annulled", "Anulada")]),
+    methodology: "Uma linha por ocorrência; tipo vem do catálogo configurado. Anulação é fato próprio, nunca exclusão.", acl: DIARY_ACL, period: true, pageSize: 1000, filterable: ["class", "type", "annulled"],
+    load: async (a) => { const r = await page("student_attendance_occurrences", "id, logical_id, version, class_id, occurrence_type_id, from_date, until_date, annulled", "from_date", a);
+      return { rows: r.rows.map((x) => ({ _k: v(x["logical_id"]), _v: v(x["version"]), class: v(x["class_id"]), type: v(x["occurrence_type_id"]), from: v(x["from_date"]), until: v(x["until_date"]), annulled: v(x["annulled"]) })), total: r.total }; },
+    finalize: (rows) => headsBy(rows as Raw[], "_k", "_v") as Record<string, CellValue>[] },
+  { id: "diario-cobertura", title: "Diário — cobertura de registros", sectors: ["op-direcao", "supervisao"], definition: diaryDef("diario-cobertura", "Cobertura de registros", "Por aula registrada, se há chamada vinculada.", "lesson_record_versions + attendance_record_versions",
+      [C("class", "Turma"), C("date", "Data", "date"), C("chamada", "Chamada registrada")]),
+    methodology: "Cobertura = aula concluída com chamada vinculada (lesson_logical_id). Não compara docentes.", acl: DIARY_ACL, period: true, pageSize: 1000, filterable: ["class", "chamada"],
+    load: async (a) => { const r = await page("lesson_record_versions", "id, logical_record_id, version_number, class_id, lesson_date", "lesson_date", a);
+      const ids = [...new Set(r.rows.map((x) => String(x["logical_record_id"])))];
+      const at = ids.length ? await tdb.from("attendance_record_versions").select("lesson_logical_id").in("lesson_logical_id", ids) : { data: [], error: null };
+      if (at.error) fail();
+      const has = new Set(((at.data ?? []) as Raw[]).map((x) => String(x["lesson_logical_id"])));
+      return { rows: r.rows.map((x) => ({ _k: v(x["logical_record_id"]), _v: v(x["version_number"]), class: v(x["class_id"]), date: v(x["lesson_date"]), chamada: has.has(String(x["logical_record_id"])) ? "sim" : "não" })), total: r.total }; },
+    finalize: (rows) => headsBy(rows as Raw[], "_k", "_v") as Record<string, CellValue>[] },
+  { id: "diario-avaliacoes", title: "Diário — avaliações", sectors: ["op-direcao", "avaliacao"], definition: diaryDef("diario-avaliacoes", "Avaliações", "Resultados lançados (versão vigente), sem nome do estudante.", "assessment_entry_versions (cabeça por lançamento lógico)",
+      [C("class", "Turma"), C("period", "Período"), C("instrument", "Instrumento"), C("value", "Resultado")]),
+    methodology: "Resultado como registrado (rótulo ou valor). Sem lançamento não há linha; nada é presumido.", acl: DIARY_ACL, period: true, pageSize: 1000, filterable: ["class", "period", "instrument"],
+    load: async (a) => { const r = await page("assessment_entry_versions", "id, logical_entry_id, version_number, class_id, period_id, instrument_id, value, value_label, recorded_at", "recorded_at", a);
+      return { rows: r.rows.map((x) => ({ _k: v(x["logical_entry_id"]), _v: v(x["version_number"]), class: v(x["class_id"]), period: v(x["period_id"]), instrument: v(x["instrument_id"]), value: v(x["value_label"] ?? x["value"]) })), total: r.total }; },
+    finalize: (rows) => headsBy(rows as Raw[], "_k", "_v") as Record<string, CellValue>[] },
+  { id: "diario-planejamento", title: "Diário — planejamento", sectors: ["op-direcao"], definition: diaryDef("diario-planejamento", "Planejamento", "Planos na versão vigente (compartilhados ou do próprio autor, conforme a RLS).", "teaching_plan_versions (cabeça por plano)",
+      [C("school", "Escola"), C("class", "Turma"), C("title", "Plano"), C("status", "Situação"), C("from", "De", "date"), C("until", "Até", "date")]),
+    methodology: "Uma linha por plano; o período filtra pelo início coberto. Planejar não significa conteúdo ministrado.", acl: DIARY_ACL, period: true, pageSize: 1000, filterable: ["school", "class", "status"],
+    load: async (a) => { const r = await page("teaching_plan_versions", "id, plan_id, version, school_id, class_id, title, status, covers_from, covers_until", "covers_from", a);
+      return { rows: r.rows.map((x) => ({ _k: v(x["plan_id"]), _v: v(x["version"]), school: v(x["school_id"]), class: v(x["class_id"]), title: v(x["title"]), status: v(x["status"]), from: v(x["covers_from"]), until: v(x["covers_until"]) })), total: r.total }; },
+    finalize: (rows) => headsBy(rows as Raw[], "_k", "_v") as Record<string, CellValue>[] },
+];
+
 export const BUILDER_SOURCES: readonly BuilderSource[] = [
   { id: "gerador-escolas", title: "Cadastro das escolas", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"], definition: SCHOOLS_DEF,
     methodology: "Uma linha por escola: a versão de cadastro mais recente que a conta pode ler. Campo não informado sai como \"não disponível\".",
@@ -113,7 +179,7 @@ export const BUILDER_SOURCES: readonly BuilderSource[] = [
   pending("gerador-movimentacoes", "Movimentações", ["secretaria"], "Depende de enturmação 2026 (ENROLLMENT_EPISODES_2026_PENDING) e de reader de movimentações."),
   pending("gerador-mapa", "Mapa Estatístico", ["supervisao", "secretaria"], "O Mapa exporta pelas próprias células oficializadas; não há reader transversal."),
   pending("gerador-jornadas", "Jornadas e horários", ["op-direcao"], "Sem fonte de jornada profissional (PROFESSIONAL_SCHEDULE_SOURCE_ABSENT)."),
-  pending("gerador-frequencia", "Diário e frequência", ["op-direcao"], "Frequência só com fechamento homologado; sem reader transversal."),
+  ...DIARY_SOURCES,
   pending("gerador-inclusao", "Inclusão / AEE / Mediador", ["op-direcao"], "Dado sensível: sem reader com política de supressão aprovada."),
   pending("gerador-auditoria", "Auditoria", ["admin"], "Exige capability exportar-auditoria (não atribuída)."),
 ];

@@ -34,6 +34,7 @@ import {
   type DiarySearch,
 } from "./diary-data";
 import { DraftIndicator, LessonRecordForm } from "./lesson-record-form";
+import { LessonDraftRecovery, LessonDraftStatus, useLessonServerDraft } from "./use-lesson-server-draft";
 import { AttendanceSummaryCard } from "./attendance-pages";
 import { JourneyAgenda } from "./diary-journey-view";
 import { InfantExperienceDetail, InfantExperienceRegisterPage } from "./infant-experience-pages";
@@ -127,6 +128,7 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
   const [draftId, setDraftId] = useState<string | undefined>(existing?.id);
   const [concluded, setConcluded] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const serverDraft = useLessonServerDraft(value, isDiaryCloud() && concluded === null);
   /** Com sessão, concluir = versão oficial v1 no banco; sem sessão, laboratório. */
   const concludeRecord = async () => {
     if (isDiaryCloud()) {
@@ -137,6 +139,7 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
         return;
       }
       if (draftId) localLessonStore.discard(draftId);
+      try { await serverDraft.close(); } catch { setNotice("Aula concluída. O rascunho anterior não pôde ser marcado como encerrado e continuará aparecendo para recuperação."); }
       setBaseline(value);
       setConcluded(logicalId);
       return;
@@ -356,8 +359,9 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
         description="Registre o que foi efetivamente realizado. A aula prevista no horário não é considerada ministrada sem sua confirmação."
         context={context}
       >
-        <DraftIndicator dirty={dirty} draftId={draftId} />
+        {isDiaryCloud() ? <LessonDraftStatus draft={serverDraft} /> : <DraftIndicator dirty={dirty} draftId={draftId} />}
       </DiaryHeader>
+      <LessonDraftRecovery draft={serverDraft} onRecover={(v) => setValue(v)} />
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-muted-foreground">Data da aula</span>

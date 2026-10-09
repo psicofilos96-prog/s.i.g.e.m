@@ -1,3 +1,4 @@
+import { DiaryPrintsPanel } from "./diary-prints-panel";
 import { CompositionLine } from "@/features/classes/class-composition-views";
 import { todayIso } from "@/features/classes/institutional-class-source";
 import { rosterStudents } from "@/features/students/institutional-roster";
@@ -813,6 +814,7 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
           );
         })}
       </ul>
+      {institutional ? <DiaryPrintsPanel classId={search.turma} assignmentId={context.assignments.find((a) => a.classId === search.turma)?.record.id} periodId={search.periodo} /> : null}
       <StatePanel
         tone="neutral"
         title={institutional ? "Emissão oficial indisponível" : "Documentos demonstrativos"}

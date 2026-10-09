@@ -117,3 +117,7 @@
 ## Dia do professor (NDOC.UX — `teacher-day.ts`, `DiaryHomePage`)
 
 - A home segue `TEACHER_DAY_STEPS` (próxima aula → registrar → chamada → planejamento → pendências) e os filtros de contexto ficam recolhidos, porque o professor entra pelo dia, não pela configuração; a sequência só navega, nenhuma regra é decidida nela.
+
+## Autosave e impressões (NDIARY.FINAL.2 — `lesson-draft-cloud.ts`, `diary-prints.ts`)
+- Rascunho de aula vive só em `lesson_record_drafts` (append-only, autor), retry pela mesma seq, porque rascunho no navegador seria segunda verdade.
+- Impressões e fontes do relatório leem com a sessão do usuário e nunca têm coluna de professor, porque exportar não pode ampliar acesso nem criar ranking docente.

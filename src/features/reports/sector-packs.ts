@@ -74,14 +74,23 @@ export const SECTOR_PACKS: readonly SectorPack[] = [
   ready("dir-alimentacao", "direcao", "Alimentação da escola — execução", "nae-execucoes", ["school", "date", "slot", "meals", "students"],
     org(["slot"], [{ id: "ref", label: "Refeições servidas", agg: "sum", column: "meals" }]), { kind: "barras", category: "slot", measures: ["ref"], title: "Refeições por tipo" }),
   blocked("dir-pendencias", "direcao", "Pendências", "gerador-qualidade", R.quality),
-  blocked("dir-diario", "direcao", "Diário e frequência", "gerador-frequencia", R.diary),
+  ready("dir-diario", "direcao", "Diário e frequência", "diario-frequencia", ["class", "component", "recorded", "presentes", "faltas"],
+    org(["class"], [{ id: "p", label: "Presenças", agg: "sum", column: "presentes" }, { id: "f", label: "Faltas", agg: "sum", column: "faltas" }]), { kind: "barras", category: "class", measures: ["p", "f"], title: "Presenças e faltas por turma" }, true),
   blocked("dir-decisoes", "direcao", "Decisões e providências", "gerador-decisoes", R.decisions),
   // OP
   ...["Acompanhamentos", "SIPE/SIA", "Diário e fiscalização", "Conselho", "Intervenções e encaminhamentos"].map((t, i) =>
-    blocked(`op-${i}`, "op", t, "gerador-op", t.startsWith("Diário") ? R.diary : R.op)),
+    t.startsWith("Diário")
+      ? ready(`op-${i}`, "op", t, "diario-cobertura", ["class", "date", "chamada"], org(["class", "chamada"]), { kind: "barras-empilhadas", category: "class", series: "chamada", measures: ["n"], title: "Aulas com e sem chamada por turma" }, true)
+      : blocked(`op-${i}`, "op", t, "gerador-op", R.op)),
   // Docente
-  ...["Frequência", "Aulas previstas × registradas", "Conteúdos", "Avaliações", "Planejamento", "Visão da turma"].map((t, i) =>
-    blocked(`doc-${i}`, "docente", t, "gerador-frequencia", t === "Avaliações" ? R.assess : R.diary)),
+  ready("doc-0", "docente", "Frequência", "diario-frequencia", ["class", "recorded", "presentes", "faltas"],
+    org(["class"], [{ id: "p", label: "Presenças", agg: "sum", column: "presentes" }, { id: "f", label: "Faltas", agg: "sum", column: "faltas" }]), { kind: "barras", category: "class", measures: ["p", "f"], title: "Presenças e faltas" }),
+  ready("doc-1", "docente", "Aulas previstas × registradas", "diario-aulas", ["class", "component", "date", "previstas", "registradas"],
+    org(["class"], [{ id: "pv", label: "Previstas", agg: "sum", column: "previstas" }, { id: "rg", label: "Registradas", agg: "sum", column: "registradas" }]), { kind: "barras", category: "class", measures: ["pv", "rg"], title: "Previstas × registradas" }),
+  blocked("doc-2", "docente", "Conteúdos", "diario-aulas", "O texto dos conteúdos sai pela impressão \"Registro de aulas\" do Diário; o gerador não exporta texto livre."),
+  ready("doc-3", "docente", "Avaliações", "diario-avaliacoes", ["class", "period", "instrument", "value"], org(["instrument"]), { kind: "barras", category: "instrument", measures: ["n"], title: "Lançamentos por instrumento" }),
+  ready("doc-4", "docente", "Planejamento", "diario-planejamento", ["class", "title", "status", "from", "until"], org(["status"]), { kind: "barras", category: "status", measures: ["n"], title: "Planos por situação" }),
+  ready("doc-5", "docente", "Visão da turma", "diario-cobertura", ["class", "date", "chamada"], org(["chamada"]), { kind: "donut", category: "chamada", measures: ["n"], title: "Aulas com chamada" }),
   // Avaliação
   ...["Desempenho por escola/turma/componente", "Evolução", "Distribuição", "Cobertura", "Mapa de calor", "Comparações"].map((t, i) =>
     blocked(`aval-${i}`, "avaliacao", t, "gerador-avaliacao", R.assess)),

@@ -337,3 +337,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | docs/campanha-zero-erros.md | Registro de lote |
 | docs/hotfix-performance-loading.md | Registro de lote |
 - `document-studio-docs-pro-3.md` — Registro de lote: persistência, homologação e QR do Document Studio.
+- `diario-ndiary-final-2.md` — Registro de lote: autosave, 7 impressões e relatórios do Diário.

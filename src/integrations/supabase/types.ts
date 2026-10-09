@@ -10910,6 +10910,36 @@ export type Database = {
           },
         ]
       }
+      lesson_record_drafts: {
+        Row: {
+          author_user_id: string
+          discarded: boolean
+          draft_key: string
+          id: string
+          payload: Json
+          recorded_at: string
+          seq: number
+        }
+        Insert: {
+          author_user_id?: string
+          discarded?: boolean
+          draft_key: string
+          id?: string
+          payload: Json
+          recorded_at?: string
+          seq: number
+        }
+        Update: {
+          author_user_id?: string
+          discarded?: boolean
+          draft_key?: string
+          id?: string
+          payload?: Json
+          recorded_at?: string
+          seq?: number
+        }
+        Relationships: []
+      }
       lesson_record_versions: {
         Row: {
           academic_year_id: string | null

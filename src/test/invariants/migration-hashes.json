@@ -315,5 +315,7 @@
  "drizzle/migrations/0264_perf_loading_3_infra_coverage_reader.sql": "afca6ece6894791e11f95c75037103282933c3daeef1b9468a81f6267be0a510",
  "drizzle/migrations/0265_perf_loading_3_active_enrollments_reader.sql": "ca3f105393a1d9140aec8ab3bb9447d001d8838e22875488c39f2085bccfa714",
  "drizzle/migrations/0266_docs_pro_3_studio_persistence.sql": "2adbdc4e07d4c0babcccc168b750a61d4a04ecda2e52a385af8e002101732dae",
- "drizzle/migrations/0267_docs_pro_3_studio_fixture_cleanup.sql": "04fd080e437bee474a204bb6c57218502847746f947f85621e63595f2f25f02d"
+ "drizzle/migrations/0267_docs_pro_3_studio_fixture_cleanup.sql": "04fd080e437bee474a204bb6c57218502847746f947f85621e63595f2f25f02d",
+ "drizzle/migrations/0268_ndiary_final_2_lesson_drafts.sql": "bf00f672ff8cee2153131598c3ffedd401ecb3ef9d80784f7f8a57e1c0567664",
+ "drizzle/migrations/0269_ndiary_final_2_plan_closed_period_guard.sql": "c9e2886f8c3a6fa519a4219fb3a9cea54d03adea974a51a2b1b3e0b9d2074cc8"
 }
