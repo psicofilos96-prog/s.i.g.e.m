@@ -34,6 +34,13 @@ describe("recarregar calendários centrais sem perda de edição", () => {
     expect(repo.get(cal.id)?.title).toBe("Servidor v2");
     expect(centralEntryOf(state,cal.id)?.latest.versionId).toBe("v2");
   });
+  it("rascunho do navegador ao recarregar a página mantém a base salva no banco (não salva sem base)", async () => {
+    const repo = createInMemoryCalendarRepository([cal]);
+    repo.mutate(cal.id,actorFor("supervisao"),{kind:"configurar-documento",patch:{title:"Rascunho antigo do navegador"}});
+    const state = await loadCentral(repo,rpcFor(2));
+    expect(repo.get(cal.id)?.title).toBe("Rascunho antigo do navegador");
+    expect(centralEntryOf(state,cal.id)?.latest.versionId).toBe("v2");
+  });
   it("remove da consulta uma publicação que o servidor deixou de disponibilizar", async () => {
     const repo = createInMemoryCalendarRepository([{...cal,status:"homologado"}]);
     const rpc:Rpc=async()=>({error:null,data:{contract:"b4.6.10/1",state:"lido",audience:"homologados",knownAt,sources:[]}});

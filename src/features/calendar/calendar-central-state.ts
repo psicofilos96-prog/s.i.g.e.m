@@ -35,10 +35,12 @@ export async function loadCentral(repo: CalendarRepository, rpc?: Rpc): Promise<
       const editable = read.audience === "construcao";
       const pristine = incoming.filter((e) => !editable || !repo.hasUnsavedChanges(e.calendar.id));
       repo.adoptCentral?.(pristine.map((e) => e.calendar), !editable);
-      read = { ...read, entries: incoming.flatMap((e) => {
-        if (!editable || !repo.hasUnsavedChanges(e.calendar.id)) return [e];
-        const old = previous.find((p) => p.sourceKey === e.sourceKey);
-        return old ? [old] : [];
+      // Rascunho do navegador sem leitura anterior nesta sessão (ex.: após recarregar): a entrada do
+      // banco é mantida (base = última versão salva), só o conteúdo da tela não é substituído. Descartar a
+      // entrada fazia o salvamento ir sem base e sem os IDs de período do banco, e o servidor recusava.
+      read = { ...read, entries: incoming.map((e) => {
+        if (!editable || !repo.hasUnsavedChanges(e.calendar.id)) return e;
+        return previous.find((p) => p.sourceKey === e.sourceKey) ?? e;
       }) };
     }
     s.lastRead = read;
