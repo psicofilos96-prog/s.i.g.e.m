@@ -99,3 +99,14 @@ Idempotência (camada 0100, já vigente): chave = `operation_kind` + `source_has
 
 ## 8. Baseline do banco antes da carga (2026-10-09)
 Escolas 55 · identificadores de escola 55 (INEP) · versões cadastrais 55 · pessoas 10.822 · identificadores de pessoa 21.599 · alunos 9.763 · matrículas escolares 9.811 · vínculos aluno-turma observados 10.295 (698 turmas) · observações de dia escolar 9.692 · identificadores de turma 698 · declarações de turma 9.169 · observações de fonte de turma 698 · declarações de profissional 2.403 · vínculos funcionais 551 · lotações 0 · atuações 2 · enturmações 0 · lotes de importação 0 · importações censitárias 0 · ciclos de censo 0 · anos letivos 2 (2026 = `historico-importado`) · operações técnicas 7 (todas `concluida`, 2026-10-05).
+
+## 9. Auditoria final (N2026.IMPORT.FINAL, 2026-10-09)
+Resultado: **PASS parcial — não declarado N2026_OFFICIAL_REALITY_IMPORTED_AND_RECONCILED.**
+
+Banco (leitura direta): escolas 55 · infraestrutura 2.970 respostas · pessoas 10.822 · alunos 9.763 · matrículas escolares 9.811 (2026) · turmas 698 · profissionais 1.057 · vínculos funcionais 551 · lotações 0 · enturmações 0 · jornadas de turma 0 · jornadas de profissional 0 · recibos Censo 55 · painel municipal 1 · operações técnicas 11.
+
+Provas: 0 operação técnica duplicada por (tipo, hash, payload) — reexecução devolve a mesma; 0 matrícula duplicada aluno+escola; 0 recibo duplicado; 0 matrícula sem operação técnica; 0 matrícula/turma de 2027; 0 conta de fixture; nenhum agregado (recibo/painel) gerou pessoa, turma ou matrícula; nenhuma linha de 2026 apagada (tabelas append-only por trigger). Únicas exclusões da campanha: personalizações visuais dos modelos externos do calendário (pedido explícito, 0258), não dado 2026.
+
+Checagens: typecheck 0 erro; deep invariants 105/106 (falha só do índice de docs, regenerado ao final); integridade de migrations ok (hash 0258 congelado); diff-check limpo; varredura de segredos sem achado; auditoria SQL rodada. Harness institucional e execução autenticada NÃO rodados (sem sessão no ambiente de prova).
+
+Exceções abertas: ENROLLMENT_EPISODES_2026_PENDING (10.295 vínculos só como observação; Diário/Mapa/Livro sem alunos em turma em 2026); LOTACAO_FONTE_SEM_CHAVE; PROFESSIONAL_SCHEDULE_SOURCE_ABSENT; FUNCTIONAL_LINK_START_UNDECLARED; PRIVATE_REFERENCE_NOT_SUPPORTED (29 privadas); GESTORES_MATRIZ_DECISAO_PENDENTE; CIECE_QUALIDADE_INTEGRACAO_PENDENTE; N2026.IMPORT.5 (consumidores/cobertura) não executado; 4 entradas residuais em `technical_payload_staging` (transporte do lote 4, já aplicado).
