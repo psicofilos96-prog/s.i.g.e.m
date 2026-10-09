@@ -6,6 +6,7 @@
  * Compartilhar preset com a rede exigiria capacidade nova não decidida ⇒ indisponível.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { UserFacingError } from "@/lib/observability/governed-errors";
 import { sanitizeProfile, type ExternalProfile, type ExternalTemplateCode } from "./calendar-external-model";
 
 export const INSTITUTIONAL_PRESET_CAPABILITY: string | null = null;
@@ -30,8 +31,8 @@ export function latestPresets(rows: readonly PresetRow[], template: ExternalTemp
 
 export function presetName(raw: string): string {
   const n = raw.trim();
-  if (!n) throw new Error("Dê um nome ao preset.");
-  if (n.length > 80) throw new Error("Nome com mais de 80 caracteres.");
+  if (!n) throw new UserFacingError("Dê um nome ao preset antes de salvar.");
+  if (n.length > 80) throw new UserFacingError("Nome com mais de 80 caracteres.");
   return n;
 }
 

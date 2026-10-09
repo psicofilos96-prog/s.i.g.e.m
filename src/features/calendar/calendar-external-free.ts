@@ -168,3 +168,19 @@ export function moveSticker(f: FreeLayout, id: string, patch: Partial<Pick<Stick
 }
 /** CSS de imagem ajustada: foco, zoom e opacidade (só aparência). */
 export const adjustedBg = (src: string, a: ImgAdjust) => ({ backgroundImage: `url(${src})`, backgroundPosition: `${a.fx}% ${a.fy}%`, backgroundSize: a.zoom === 100 ? "cover" : `${a.zoom}%`, backgroundRepeat: "no-repeat", opacity: a.opacity / 100 });
+
+/** Separa blocos sobrepostos (clique do usuário): o bloco de cima encolhe até o topo do de baixo; nunca move travado. */
+export function separateOverlaps(f: FreeLayout): FreeLayout {
+  let cur = f;
+  for (let i = 0; i < 20; i++) {
+    const [pair] = layoutIssues(cur).overlaps; if (!pair) return cur;
+    const [a, b] = pair; const A = cur.blocks[a], B = cur.blocks[b];
+    const [top, low] = A.y <= B.y ? [a, b] : [b, a];
+    const T = cur.blocks[top], L = cur.blocks[low];
+    const h = Math.round((L.y - T.y) * 10) / 10;
+    if (!T.locked && h >= 5) cur = { ...cur, blocks: { ...cur.blocks, [top]: { ...T, h } } };
+    else if (!L.locked && T.y + T.h + L.h <= SHEET_H) cur = { ...cur, blocks: { ...cur.blocks, [low]: { ...L, y: Math.round((T.y + T.h) * 10) / 10 } } };
+    else return cur;
+  }
+  return cur;
+}
