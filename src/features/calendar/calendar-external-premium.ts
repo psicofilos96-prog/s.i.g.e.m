@@ -14,7 +14,7 @@ import type { BlockBox, BlockStyle, FreeLayout } from "./calendar-external-free"
 import type { ImageLayer, Layer, TextLayer, WaveLayer } from "./calendar-external-layers";
 
 export const PREMIUM_NAME = "Itaperuna Premium — Cinematográfico";
-const NAVY = "#0A2F63", NAVY2 = "#123F80", GOLD = "#E3B04B", PANEL = "#FFFFFF";
+const NAVY = "#0A2F63", NAVY2 = "#123F80", GOLD = "#E3B04B", PANEL = "#FFFFFF", GLASS = "#EEF4FBE0";
 const SERIF = "'Playfair Display', Georgia, serif", SANS = "'Montserrat', 'Segoe UI', sans-serif";
 
 const base = { visible: true, locked: false, opacity: 100, rot: 0 };
@@ -48,16 +48,16 @@ const place = (b: BlockBox, x: number, y: number, w: number, h: number, o: Parti
 
 /** Layout dos blocos de dados no modelo premium (mm). Só posição/estilo; o conteúdo é do calendário interno. */
 export function premiumLayout(d: FreeLayout): FreeLayout {
-  const B = d.blocks; const panel = { fill: true, bg: PANEL, radiusMm: 2, borderMm: 0.2, borderColor: GOLD, padMm: 2 } as const;
+  const B = d.blocks; const panel = { fill: true, bg: GLASS, radiusMm: 3, borderMm: 0, borderColor: null, padMm: 2.2 } as const;
   return {
     ...d, allowOverlap: false,
     blocks: {
       cabecalho: place(B.cabecalho, 0, 0, 30, 10, {}, false),
       matriz: place(B.matriz, 5, 65, 275, 72, { fill: true, bg: PANEL, radiusMm: 1, borderMm: 0.3, borderColor: NAVY, padMm: 0.6 }),
-      legenda: place(B.legenda, 5, 140, 92, 38, { ...panel, pt: 6.5, titlePt: 8, cols: 1 }),
-      feriados: place(B.feriados, 99, 140, 92, 38, { ...panel, pt: 6.2, titlePt: 8, cols: 1 }),
-      periodos: place(B.periodos, 193, 140, 87, 17, { ...panel, pt: 6.5, titlePt: 7.5, orientation: "vertical" }),
-      conselhos: place(B.conselhos, 193, 158, 87, 20, { ...panel, pt: 6.2, titlePt: 7.5, cols: 1 }),
+      legenda: place(B.legenda, 5, 140, 92, 39, { ...panel, pt: 6.5, titlePt: 8.5, cols: 1 }),
+      feriados: place(B.feriados, 99, 140, 90, 39, { ...panel, pt: 6.2, titlePt: 8.5, cols: 1 }),
+      periodos: place(B.periodos, 191, 140, 89, 39, { ...panel, pt: 6.8, titlePt: 8.5, orientation: "lista" }),
+      conselhos: place(B.conselhos, 191, 160, 89, 19, { ...panel, pt: 6.2, titlePt: 7.5, cols: 1 }, false),
       assinaturas: place(B.assinaturas, 10, 184, 265, 12, { fill: false, color: "#FFFFFF", pt: 6.5, titlePt: 6, align: "centro" }),
       rodape: place(B.rodape, 0, 190, 20, 7, {}, false),
     },
