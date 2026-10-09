@@ -85,7 +85,7 @@ function HomePage() {
             onError={hideBrokenImage}
             ref={hideIfAlreadyBroken}
             alt="Vale de Itaperuna e o rio Muriaé ao pôr do sol"
-            className="absolute inset-0 size-full object-cover object-left-top lg:object-[18%_center]"
+            className="absolute inset-y-0 left-0 h-full w-[175%] max-w-none object-cover lg:inset-0 lg:w-full lg:object-[18%_center]"
           />
           <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-territory/85 to-transparent px-5 pb-4 pt-12 text-xs text-hero-muted">
             Itaperuna · Noroeste Fluminense
