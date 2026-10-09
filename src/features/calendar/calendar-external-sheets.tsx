@@ -9,6 +9,7 @@ import { weekendLetter } from "./calendar-catalog";
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type PointerEvent as RPointerEvent } from "react";
 import { createPortal } from "react-dom";
+import { BookOpen, CalendarDays, GraduationCap, Users } from "lucide-react";
 import { dayTypesOf, typeInfo } from "./calendar-catalog";
 import type { PrintDay } from "./institutional-calendar-presentation";
 import { LogoItem } from "./calendar-document";
@@ -432,6 +433,7 @@ export function ExternalSheet(props: { template: ExternalTemplateCode; vm: Exter
 
 // ---------------- CAL.EXT.3 — modelos de layout livre ----------------
 const mm = (v: number) => `${v}mm`;
+const BOX_ICON: Partial<Record<FreeBlockId, ReactNode>> = { legenda: <BookOpen />, feriados: <CalendarDays />, periodos: <GraduationCap />, conselhos: <Users /> };
 function FreeBox({ id, b, p, title, selected, onSelect, onMove, children }: { id: FreeBlockId; b: BlockBox; p: ExternalProfile; title?: string; selected?: boolean; onSelect?: ((b: FreeBlockId) => void) | undefined; onMove?: ((b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => void) | undefined; children: ReactNode }) {
   const s = b.style;
   const drag = (mode: "move" | "resize") => (e: RPointerEvent<HTMLElement>) => {
@@ -452,7 +454,7 @@ function FreeBox({ id, b, p, title, selected, onSelect, onMove, children }: { id
         ...(s.fill ? { borderWidth: mm(s.borderMm), borderRadius: mm(s.radiusMm), ...(s.borderColor ? { borderColor: s.borderColor } : {}) } : {}),
         ...(s.bg ? { background: s.bg } : {}) }}
       onPointerDown={onMove ? drag("move") : undefined} onClick={onSelect ? () => onSelect(id) : undefined}>
-      {title && <h2 className="cf-titulo" style={{ fontSize: `${s.titlePt}pt` }}>{title}</h2>}
+      {title && <h2 className="cf-titulo" style={{ fontSize: `${s.titlePt}pt` }}>{BOX_ICON[id] && <span className="cf-icone" aria-hidden>{BOX_ICON[id]}</span>}{title}</h2>}
       <div className="cf-corpo" data-fit="">{children}</div>
       {onMove && selected && !b.locked && <span className="cf-alca" aria-hidden onPointerDown={drag("resize")} />}
     </section>
@@ -589,11 +591,19 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
         </table>}
       </FreeBox>}
       {B.periodos.visible && <FreeBox {...common("periodos")} title="Períodos letivos">
+        {B.periodos.style.orientation === "lista" ? <div className="cf-per-lista">
+          <table><tbody>{vm.periods.map((pp) => <tr key={pp.name}><th scope="row">{pp.name}</th><td>—</td><td>{shortDate(pp.startsOn)} a {shortDate(pp.endsOn)}</td><td>=</td>
+            <td className="cf-per-num" title={pp.reason ?? ""}>{countText(pp)}{pp.schoolDays !== null ? " dias" : ""}</td></tr>)}</tbody></table>
+          <p className="cf-total">Total de dias letivos = <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b>{vm.total.schoolDays !== null ? " dias" : ""}</p>
+          {!B.conselhos.visible && vm.councils.state === "configurada" && vm.councils.items.length > 0 && <table className="cf-per-cons"><tbody>
+            {vm.councils.items.map((i) => <tr key={i.on + i.role}><th scope="row">{shortDate(i.on)}</th><td>—</td><td>{i.name}</td></tr>)}</tbody></table>}
+          {!B.conselhos.visible && vm.councils.state !== "configurada" && <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
+        </div> :
         <div className={`cf-periodos cf-${B.periodos.style.orientation}`}>
           {vm.periods.map((pp) => <div key={pp.name} className="cf-periodo"><b>{pp.name}</b><span>{shortDate(pp.startsOn)} a {shortDate(pp.endsOn)}</span>
             <span className="cf-per-num" title={pp.reason ?? ""}>{countText(pp)}{pp.schoolDays !== null ? " dias letivos" : ""}</span></div>)}
           <p className="cf-total">Total anual: <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b>{vm.total.schoolDays !== null ? " dias letivos" : ""}</p>
-        </div>
+        </div>}
       </FreeBox>}
       {B.legenda.visible && <FreeBox {...common("legenda")} title="Legenda">
         <ul className="cf-lista" style={{ columnCount: B.legenda.style.cols }}>

@@ -13,7 +13,7 @@ export const FREE_BLOCK_LABEL: Record<FreeBlockId, string> = {
   feriados: "Feriados", conselhos: "Conselhos de Classe", assinaturas: "Assinaturas", rodape: "Rodapé",
 };
 export type Align = "esquerda" | "centro" | "direita";
-export type BlockStyle = { font: string | null; pt: number; titlePt: number; lh: number; padMm: number; bold: boolean; align: Align; fill: boolean; cols: number; orientation: "vertical" | "horizontal";
+export type BlockStyle = { font: string | null; pt: number; titlePt: number; lh: number; padMm: number; bold: boolean; align: Align; fill: boolean; cols: number; orientation: "vertical" | "horizontal" | "lista";
   /** Personalização máxima (só aparência): espaçamento entre letras (em), cores, borda e cantos. */
   tracking: number; italic: boolean; color: string | null; bg: string | null; borderMm: number; borderColor: string | null; radiusMm: number };
 export type BlockBox = { x: number; y: number; w: number; h: number; visible: boolean; locked: boolean; z: number; style: BlockStyle };
@@ -97,7 +97,7 @@ export function sanitizeFree(raw: unknown, d: FreeLayout, fonts: readonly string
       padMm: num(s["padMm"], LIMITS.padMm, db.style.padMm), bold: bool(s["bold"], db.style.bold),
       align: s["align"] === "centro" || s["align"] === "direita" || s["align"] === "esquerda" ? s["align"] : db.style.align,
       fill: bool(s["fill"], db.style.fill), cols: Math.round(num(s["cols"], LIMITS.cols, db.style.cols)),
-      orientation: s["orientation"] === "horizontal" || s["orientation"] === "vertical" ? s["orientation"] : db.style.orientation,
+      orientation: s["orientation"] === "horizontal" || s["orientation"] === "vertical" || s["orientation"] === "lista" ? s["orientation"] : db.style.orientation,
       tracking: num(s["tracking"], LIMITS.tracking, db.style.tracking), italic: bool(s["italic"], db.style.italic),
       color: hex(s["color"]), bg: hex(s["bg"]), borderMm: num(s["borderMm"], LIMITS.borderMm, db.style.borderMm),
       borderColor: hex(s["borderColor"]), radiusMm: num(s["radiusMm"], LIMITS.radiusMm, db.style.radiusMm),

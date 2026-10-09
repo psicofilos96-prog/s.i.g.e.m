@@ -140,7 +140,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
           <label className="block text-xs">Alinhamento<select className={field} value={sel.style.align} onChange={(e) => setStyle({ align: e.target.value as BlockStyle["align"] })}>
             <option value="esquerda">À esquerda</option><option value="centro">Centralizado</option><option value="direita">À direita</option></select></label>
           {selected === "periodos" && <label className="block text-xs">Cartões dos períodos<select className={field} value={sel.style.orientation} onChange={(e) => setStyle({ orientation: e.target.value as BlockStyle["orientation"] })}>
-            <option value="vertical">Empilhados (um abaixo do outro)</option><option value="horizontal">Lado a lado</option></select></label>}
+            <option value="vertical">Empilhados (um abaixo do outro)</option><option value="horizontal">Lado a lado</option><option value="lista">Em linhas (com conselhos, se o quadro Conselhos estiver oculto)</option></select></label>}
           <div className="grid grid-cols-2 gap-2">
             <Num label="Espaço entre letras" unit="em" value={sel.style.tracking} min={LIMITS.tracking[0]} max={LIMITS.tracking[1]} step={0.01} onChange={(v) => setStyle({ tracking: v })} />
             <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={sel.style.italic} onChange={(e) => setStyle({ italic: e.target.checked })} />Itálico</label>

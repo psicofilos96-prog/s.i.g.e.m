@@ -1413,3 +1413,16 @@
 .cf-livre .cf-matriz .cf-col-total { font-size: 0.82em; line-height: 1.05; white-space: normal; }
 .cf-livre .cf-matriz tfoot .cf-total-geral th { text-align: right; padding: 0 2mm; background: var(--cx-header); color: #fff; font-weight: 700; letter-spacing: 0.06em; }
 .cf-livre .cf-matriz tfoot .cf-total-geral td { background: var(--cx-header); color: #fff; font-weight: 800; }
+/* CAL.EXT.5 — painéis do modelo premium: ícone no título e períodos em linhas. */
+.cf-livre .cf-titulo { display: flex; align-items: center; gap: 0.45em; }
+.cf-livre .cf-icone { display: inline-flex; flex: none; color: var(--cx-header); }
+.cf-livre .cf-icone svg { width: 1.35em; height: 1.35em; stroke-width: 2; }
+.cf-livre .cf-preenchido { box-shadow: 0 0.4mm 1.4mm rgba(11, 61, 122, 0.18); }
+.cf-livre .cf-per-lista { display: flex; flex-direction: column; gap: 0.5em; height: 100%; }
+.cf-livre .cf-per-lista table { border-collapse: collapse; width: 100%; }
+.cf-livre .cf-per-lista th, .cf-livre .cf-per-lista td { padding: 0.08em 0.25em; text-align: left; vertical-align: top; color: var(--cx-header); }
+.cf-livre .cf-per-lista th { font-weight: 800; white-space: nowrap; }
+.cf-livre .cf-per-lista td:nth-child(2), .cf-livre .cf-per-lista td:nth-child(4) { width: 1em; text-align: center; }
+.cf-livre .cf-per-lista .cf-per-num { font-weight: 800; white-space: nowrap; }
+.cf-livre .cf-per-lista .cf-total { text-align: center; padding: 0.3em 0; border-top: 0.2mm solid var(--cx-border); border-bottom: 0.2mm solid var(--cx-border); }
+.cf-livre .cf-per-cons th { color: var(--cx-text); }
