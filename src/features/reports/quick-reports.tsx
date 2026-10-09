@@ -51,7 +51,7 @@ export function QuickReportCard({ sourceId, sector, blurb }: { sourceId: string;
     const meta = provenance(src, run.choice, run.data, SECTOR_LABEL[sector]);
     const method = [`Assunto: ${src.title} (v${src.definition.version})`, `Fonte: ${src.definition.source}`, `Metodologia: ${src.methodology}`, `Acesso: ${src.acl}`];
     const base = `${src.definition.id}-${operationalToday()}`;
-    if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(run.result, { title: src.title }, meta)], { type: "text/csv;charset=utf-8" }));
+    if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(run.result, { headerLines: [], title: src.title }, meta)], { type: "text/csv;charset=utf-8" }));
     else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toStudioXlsx(run.result, spec, meta, analysis, method)]));
     else { const w = window.open("", "_blank"); if (w) { w.document.write(toStudioHtml(run.result, spec, meta, analysis, method)); w.document.close(); w.focus(); w.print(); } }
   }
@@ -95,7 +95,7 @@ function Preview({ result }: { result: ReportResult }) {
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-xs">
           <thead className="bg-muted/50 text-left"><tr>{result.columns.map((c) => <th key={c.id} scope="col" className="whitespace-nowrap p-2 font-medium text-muted-foreground">{c.label}</th>)}</tr></thead>
-          <tbody>{rows.map((r, i) => <tr key={i} className="border-t border-border">{result.columns.map((c) => <td key={c.id} className="whitespace-nowrap p-2 tabular-nums">{cellText(r[c.id] ?? null)}</td>)}</tr>)}</tbody>
+          <tbody>{rows.map((r, i) => <tr key={i} className="border-t border-border">{result.columns.map((c, j) => <td key={c.id} className="whitespace-nowrap p-2 tabular-nums">{cellText(r[j] ?? null)}</td>)}</tr>)}</tbody>
         </table>
       </div>
     </div>
