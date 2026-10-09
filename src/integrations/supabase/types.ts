@@ -15977,6 +15977,86 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_administrative_records: {
+        Row: {
+          cargo: string | null
+          full_name: string
+          funcao: string | null
+          grupo: string | null
+          id: string
+          imported_at: string
+          imported_by: string
+          observacao: string | null
+          reference_period: string
+          registration: string | null
+          row_no: number
+          school_id: string | null
+          school_match: string
+          school_name_source: string | null
+          sector: string | null
+          sheet: string
+          situacao: string
+          source_file: string
+          source_kind: string
+          source_sha256: string
+          vinculo: string | null
+        }
+        Insert: {
+          cargo?: string | null
+          full_name: string
+          funcao?: string | null
+          grupo?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string
+          observacao?: string | null
+          reference_period: string
+          registration?: string | null
+          row_no: number
+          school_id?: string | null
+          school_match: string
+          school_name_source?: string | null
+          sector?: string | null
+          sheet: string
+          situacao: string
+          source_file: string
+          source_kind: string
+          source_sha256: string
+          vinculo?: string | null
+        }
+        Update: {
+          cargo?: string | null
+          full_name?: string
+          funcao?: string | null
+          grupo?: string | null
+          id?: string
+          imported_at?: string
+          imported_by?: string
+          observacao?: string | null
+          reference_period?: string
+          registration?: string | null
+          row_no?: number
+          school_id?: string | null
+          school_match?: string
+          school_name_source?: string | null
+          sector?: string | null
+          sheet?: string
+          situacao?: string
+          source_file?: string
+          source_kind?: string
+          source_sha256?: string
+          vinculo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_administrative_records_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       statistical_map_cell_adjustments: {
         Row: {
           actor_side: string

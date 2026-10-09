@@ -12,6 +12,7 @@ import { formatAcademicDate } from "@/lib/academic-date";
 import { currentSchoolVersion, resolveSchool, type SchoolRecordVersion } from "@/features/schools/school-registry";
 import { NOT_INFORMED, unitKindText, useSchoolRegistry } from "@/features/units/school-registry-source";
 import { UnitInfrastructurePanel } from "@/features/units/unit-infrastructure-panel";
+import { UnitClassesPanel, UnitStaffPanel } from "@/features/units/unit-people-panels";
 import { profilePendencies, schoolVersionAsOf } from "@/features/units/school-profile";
 
 export function UnitNotFoundState() {
@@ -111,8 +112,11 @@ export function UnitDetailPage({ id }: { id: string }) {
         <UnitInfrastructurePanel schoolId={unit.schoolId} on={asOf} knownAt={knownIso} />
         <p className="mt-2 text-xs text-muted-foreground">Fatos de infraestrutura vêm da fonte importada e são atualizados por nova carga da fonte, não por edição na tela.</p>
       </DetailSection>
-      <DetailSection title="Ofertas, turmas e horários">
-        <p className="text-sm text-muted-foreground">Indisponível: ainda não há dados reais destas áreas para esta unidade.</p>
+      <DetailSection title="Turmas e alunos">
+        <UnitClassesPanel schoolId={unit.schoolId} />
+      </DetailSection>
+      <DetailSection title="Profissionais">
+        <UnitStaffPanel schoolId={unit.schoolId} />
       </DetailSection>
     </div>
   );
