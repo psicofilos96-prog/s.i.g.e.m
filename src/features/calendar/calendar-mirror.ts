@@ -75,5 +75,6 @@ export function mirrorContent(source: NetworkCalendar, target: NetworkCalendar):
 
 const CONTENT_KEYS = ["ranges", "events", "periods", "periodGroups", "overrides", "inheritedHolidays", "rules", "legendHidden", "customLegend", "symbology", "symbologyPrint", "dayTypeCatalog"] as const;
 export function mirrorDiffers(source: NetworkCalendar, target: NetworkCalendar): boolean {
-  return CONTENT_KEYS.some((k) => JSON.stringify(source[k] ?? null) !== JSON.stringify(target[k] ?? null));
+  const norm = (v: unknown) => JSON.stringify(v ?? null, (key, x) => (key === "id" || key === "groupId" ? undefined : x));
+  return CONTENT_KEYS.some((k) => norm(source[k]) !== norm(target[k]));
 }
