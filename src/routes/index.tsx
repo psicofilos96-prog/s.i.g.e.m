@@ -79,13 +79,13 @@ function HomePage() {
             </div>
           )}
         </div>
-        <figure className="relative min-h-[16rem] overflow-hidden rounded-lg lg:min-h-[24rem]">
+        <figure className="relative aspect-[16/9] overflow-hidden rounded-lg lg:aspect-auto lg:min-h-[24rem]">
           <img
             src={heroImage.url}
             onError={hideBrokenImage}
             ref={hideIfAlreadyBroken}
             alt="Vale de Itaperuna e o rio Muriaé ao pôr do sol"
-            className="absolute inset-0 size-full object-cover object-[18%_center]"
+            className="absolute inset-0 size-full object-cover object-left-top lg:object-[18%_center]"
           />
           <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-territory/85 to-transparent px-5 pb-4 pt-12 text-xs text-hero-muted">
             Itaperuna · Noroeste Fluminense
