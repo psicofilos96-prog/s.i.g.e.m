@@ -234,7 +234,7 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
       movements = [
         ...((mv.data ?? []) as any[]).filter((x) => !superseded.has(x.id)).map((x) => ({ id: x.id, studentId: x.student_id, effectiveOn: x.effective_on, source: "student_movement_events" as const,
           movementTypeId: x.movement_type_id, endingReason: null, origin: typeof x.origin === "string" ? x.origin : x.origin?.school_id ?? null, destination: typeof x.destination === "string" ? x.destination : x.destination?.school_id ?? null, stage: null })),
-        ...((en.data ?? []) as any[]).map((x) => { const e = byEp.get(x.episode_id); return { id: x.episode_id, studentId: e?.student_id ?? "", effectiveOn: x.ended_on, source: "class_enrollment_episode_endings" as const,
+        ...((en.data ?? []) as any[]).map((x) => { const e = byEp.get(x.episode_id); return { id: x.episode_id, studentId: e?.student_id ?? "", effectiveOn: new Date(Date.parse(x.ended_on + "T00:00:00Z") + 86400000).toISOString().slice(0, 10), source: "class_enrollment_episode_endings" as const,
           movementTypeId: null, endingReason: x.reason_label, origin: e?.class_label_snapshot ?? null, destination: null, stage: null }; }),
       ];
     }
