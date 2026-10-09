@@ -35,14 +35,22 @@ export function StationHomePanel({ assessments, disclosure }: { assessments: rea
   const h = stationHome(assessments, disclosure);
   return (
     <section aria-labelledby="home" className="space-y-2 rounded border p-4 text-sm">
-      <h2 id="home" className="font-semibold">Visão geral da estação</h2>
-      <dl className="grid gap-2 sm:grid-cols-4">
-        <div><dt className="text-muted-foreground">Avaliações registradas</dt><dd>{h.total}</dd></div>
-        <div><dt className="text-muted-foreground">Institucionais · externas</dt><dd>{h.byOrigin.institucional} · {h.byOrigin.externa}</dd></div>
-        <div><dt className="text-muted-foreground">Aplicação mais recente</dt><dd>{h.latestApplication ? formatAcademicDate(h.latestApplication.slice(0, 10)) : "Não disponível"}</dd></div>
-        <div><dt className="text-muted-foreground">Política de divulgação</dt><dd>{h.policy === "registrada" ? "Registrada" : "Não registrada"}</dd></div>
-      </dl>
-      <ul className="list-disc pl-5">{h.nextSteps.map((s) => <li key={s}>{s}</li>)}</ul>
+      <h2 id="home" className="font-semibold">O que precisa ser feito</h2>
+      {h.nextSteps.length ? <ul className="list-disc pl-5">{h.nextSteps.map((s) => <li key={s}>{s}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma providência pendente.</p>}
+      <div>
+        <h3 className="font-medium">Ciclo das avaliações (por data de aplicação)</h3>
+        <ol className="mt-1 space-y-0.5">{[...assessments].sort((x, y) => String(x.applied_from).localeCompare(String(y.applied_from))).map((x) => (
+          <li key={x.logical_id}>{x.applied_from ? formatAcademicDate(String(x.applied_from).slice(0, 10)) : "Data não informada"} — {x.title} <span className="text-muted-foreground">({x.origin === "externa" ? "externa" : "da rede"})</span></li>))}</ol>
+      </div>
+      <details>
+        <summary className="cursor-pointer">Números da estação</summary>
+        <dl className="mt-2 grid gap-2 sm:grid-cols-4">
+          <div><dt className="text-muted-foreground">Avaliações registradas</dt><dd>{h.total}</dd></div>
+          <div><dt className="text-muted-foreground">Da rede · externas</dt><dd>{h.byOrigin.institucional} · {h.byOrigin.externa}</dd></div>
+          <div><dt className="text-muted-foreground">Aplicação mais recente</dt><dd>{h.latestApplication ? formatAcademicDate(h.latestApplication.slice(0, 10)) : "Não disponível"}</dd></div>
+          <div><dt className="text-muted-foreground">Política de divulgação</dt><dd>{h.policy === "registrada" ? "Registrada" : "Não registrada"}</dd></div>
+        </dl>
+      </details>
       <div className="flex flex-wrap gap-3">
         <Link to="/importacoes" search={{ adaptador: IMPORT_ADAPTER_ID }} className="underline">Importar resultados pela Central de Importações</Link>
       </div>
