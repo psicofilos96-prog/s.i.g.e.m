@@ -1363,6 +1363,7 @@
 /* NFAM.1 — impressão/PDF da carteirinha: só a área do cartão sai na folha. */
 @media print {
   body:has(.card-print-area) * { visibility: hidden; }
-  .card-print-area, .card-print-area * { visibility: visible; }
+  /* NPRINT.FINAL.2: `body:has(.x) *` tem especificidade maior que `.x *`; sem !important o cartão saía em branco. */
+  .card-print-area, .card-print-area * { visibility: visible !important; }
   .card-print-area { position: absolute; left: 0; top: 0; }
 }
