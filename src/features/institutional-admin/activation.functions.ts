@@ -11,7 +11,7 @@ import { CODE_TTL_HOURS, DECISION_TEXT, decideCode, generateLinkToken, hashCode,
  */
 export const issueActivationCodes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userIds: z.array(z.string().uuid()).min(1).max(500), purpose: z.enum(["ativacao", "recuperacao"]) }).parse(d))
+  .inputValidator((d) => z.object({ userIds: z.array(z.string().uuid()).min(1).max(10), purpose: z.enum(["ativacao", "recuperacao"]) }).parse(d))
   .handler(async ({ data, context }) => {
     const ids = [...new Set(data.userIds)];
     const auth = await context.supabase.rpc("access_center_authorize_reset", { _users: ids });

@@ -56,7 +56,7 @@ describe("/unidades lê o cadastro canônico", () => {
     await userEvent.type(q, "33096589");
     expect(bodyRows()).toHaveLength(1);
     await userEvent.clear(q); await userEvent.type(q, "henriett");
-    expect(screen.getByText("CIEP 467 HENRIETT AMADO")).toBeInTheDocument();
+    expect(within(screen.getByRole("table")).getByText("CIEP 467 HENRIETT AMADO")).toBeInTheDocument();
   });
 
   it("filtra dependência e localização com opções derivadas dos dados", async () => {
@@ -64,7 +64,7 @@ describe("/unidades lê o cadastro canônico", () => {
     await screen.findByRole("table");
     await userEvent.selectOptions(screen.getByLabelText("Dependência administrativa"), "Privada");
     expect(bodyRows()).toHaveLength(15);
-    expect(screen.getAllByText(/Privada conveniada \(poder público: Municipal\)/)).toHaveLength(15);
+    expect(within(screen.getByRole("table")).getAllByText(/Privada conveniada \(poder público: Municipal\)/)).toHaveLength(15);
     await userEvent.selectOptions(screen.getByLabelText("Dependência administrativa"), "");
     await userEvent.selectOptions(screen.getByLabelText("Localização"), "rural");
     expect(bodyRows()).toHaveLength(14);

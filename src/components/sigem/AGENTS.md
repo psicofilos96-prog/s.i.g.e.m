@@ -77,3 +77,6 @@
 ## Estados de ausência (NEMPTY.3 — `AbsenceState` em `states.tsx`)
 - Ausência usa um dos cinco tipos de `ABSENCE_TEXT` (sem dado, não configurado, sem permissão, nenhum resultado, nenhum registro) e zero só aparece quando observado (`FactValue`), porque zero no lugar de ausência afirma fato inexistente.
 - NDEDUP.1: paginação de lista já lida usa `OffsetPager` (list-pager.tsx) e aviso neutro em caixa usa `NoteBox` (patterns.tsx); cards/cabeçalhos locais que carregam regra do domínio ficam locais, porque unificar só o idêntico preserva diferença de negócio.
+
+## Cadastros editoriais (ONDA 1 — `registry-layout.tsx`)
+- Listas de cadastro usam `RegistryHero`/`RegistryToolbar`/`RegistryList` (tabela no computador, cartões no celular), porque cada tela com seu próprio arranjo voltava a parecer HTML cru; contagem só vem do dado lido.

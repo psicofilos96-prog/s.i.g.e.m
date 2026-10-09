@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
@@ -90,9 +90,10 @@ describe("B2.5.4 — fonte institucional", () => {
 describe("B2.5.4 — telas", () => {
   it("lista pela projeção class_at e destaca organização não registrada", async () => {
     wrap(<InstitutionalClassesListPage />);
-    expect(await screen.findByText("1º ano A")).toBeInTheDocument();
-    expect(screen.getByText("EM Centro")).toBeInTheDocument();
-    expect(screen.getByText("Ainda não registrada")).toBeInTheDocument();
+    const table = await screen.findByRole("table");
+    expect(within(table).getByText("1º ano A")).toBeInTheDocument();
+    expect(within(table).getByText("EM Centro")).toBeInTheDocument();
+    expect(within(table).getByText("Ainda não registrada")).toBeInTheDocument();
     // BO.3: listagem em uma única leitura em lote; nunca uma chamada por turma.
     expect(rpc).toHaveBeenCalledWith("classes_with_period_link_at", expect.objectContaining({ _valid_on: expect.any(String) }), { count: "exact" });
     expect(rpc).not.toHaveBeenCalledWith("class_at", expect.anything());
