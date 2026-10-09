@@ -40,7 +40,7 @@ describe("ciclo de vida", () => {
     expect(s).toEqual({ v1: "substituido", v2: "homologado" });
   });
   it("rascunho não é homologado direto", () => {
-    expect(projectStates(vs, [{ versionId: "v1", kind: "homologar", at: "1", actor: "b" }]).v1).toBe("rascunho");
+    expect(projectStates(vs, [{ versionId: "v1", kind: "homologar", at: "1", actor: "b" }])["v1"]).toBe("rascunho");
   });
   it("autor não homologa a própria versão", () => {
     expect(canTransition("em-revisao", "homologar", true)).toBe(false);
