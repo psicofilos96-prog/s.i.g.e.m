@@ -9,7 +9,7 @@ import { ExportButtons } from "@/features/performance/station-sections";
 import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
 import type { InfraAttributeRow } from "./school-infrastructure";
 
-const db = supabase as unknown as { from: (t: string) => any };
+const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const today = () => operationalToday();
 
 /** Lê só o que a RLS já libera à conta: escolas fora do escopo simplesmente não chegam. */
