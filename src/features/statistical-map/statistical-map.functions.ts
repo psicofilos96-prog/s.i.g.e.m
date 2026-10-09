@@ -5,6 +5,7 @@
  * A oficialização remonta a fotografia e só prossegue se a marca coincidir com a
  * última conferência; qualquer mudança exige nova conferência.
  */
+import type { MovementEvent } from "./map-movements";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -216,7 +217,29 @@ async function loadContext(db: Db, c: z.infer<typeof Competence>) {
     adjustments = ((r.data ?? []) as any[]).map((x) => ({ id: x.id, cellId: x.cell_id, supersedesId: x.supersedes_id, kind: x.kind, calculatedValue: x.calculated_value,
       adjustedValue: x.adjusted_value, reason: x.reason, actorSide: x.actor_side, recordedAt: x.recorded_at }));
   }
-  const snapshot = assembleMapSnapshot({ competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching, calendar, ruleAmbiguous, mediation, adjustments });
+  // NMAP.FINAL.1 — movimentações homologadas e encerramentos por remanejamento (RLS da sessão).
+  let movements: MovementEvent[] | null = null;
+  {
+    const classIds = ((cls.data ?? []) as { id: string }[]).map((k) => k.id);
+    const [mv, ep] = await Promise.all([
+      db.from("student_movement_events").select("id, student_id, movement_type_id, effective_on, origin, destination, supersedes_id").contains("school_scope_ids", [c.schoolId]),
+      classIds.length ? db.from("class_enrollment_episodes").select("id, student_id, class_id, class_label_snapshot").in("class_id", classIds) : Promise.resolve({ data: [], error: null }),
+    ]);
+    const epIds = ((ep.data ?? []) as any[]).map((x) => x.id);
+    const en = epIds.length ? await db.from("class_enrollment_episode_endings").select("episode_id, ended_on, reason_label").in("episode_id", epIds).eq("reason_label", "remanejamento") : { data: [], error: null };
+    if (mv.error || ep.error || en.error) failedSources.push("movimentacoes");
+    else {
+      const superseded = new Set(((mv.data ?? []) as any[]).map((x) => x.supersedes_id).filter(Boolean));
+      const byEp = new Map(((ep.data ?? []) as any[]).map((x) => [x.id, x]));
+      movements = [
+        ...((mv.data ?? []) as any[]).filter((x) => !superseded.has(x.id)).map((x) => ({ id: x.id, studentId: x.student_id, effectiveOn: x.effective_on, source: "student_movement_events" as const,
+          movementTypeId: x.movement_type_id, endingReason: null, origin: typeof x.origin === "string" ? x.origin : x.origin?.school_id ?? null, destination: typeof x.destination === "string" ? x.destination : x.destination?.school_id ?? null, stage: null })),
+        ...((en.data ?? []) as any[]).map((x) => { const e = byEp.get(x.episode_id); return { id: x.episode_id, studentId: e?.student_id ?? "", effectiveOn: x.ended_on, source: "class_enrollment_episode_endings" as const,
+          movementTypeId: null, endingReason: x.reason_label, origin: e?.class_label_snapshot ?? null, destination: null, stage: null }; }),
+      ];
+    }
+  }
+  const snapshot = assembleMapSnapshot({ movements, competence: c, rule, schools, classes, facts, observations: latestObservations(events), links, leadership, functional, visits, yearState, previousOfficial, teaching, calendar, ruleAmbiguous, mediation, adjustments });
   return { map, rule, caps, events, versions, snapshot, adjustments, failedSources: [...new Set(failedSources)] };
 }
 
