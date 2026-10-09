@@ -64,13 +64,13 @@ export function premiumLayout(d: FreeLayout): FreeLayout {
     },
     photo: { ...d.photo, top: null, bottom: null, useDefaultTop: false, topHmm: 0, bottomHmm: 0, veilStrength: 0, page: null },
     // Folha A4: 7/7.5/6.3 pt equivalem a ~10/10.6/9 pt em A3 (mesma diagramação em mm, razão 1,41).
-    table: { ...d.table, mode: "ajustar", headPt: 7, monthPt: 7.5, dayPt: 6.3, monthColMm: 19, totalColMm: 15, dividerMm: 0.25 },
+    table: { ...d.table, mode: "ajustar", headPt: 7, monthPt: 7.5, dayPt: 6.3, monthColMm: 19, totalColMm: 15, dividerMm: 0.35 },
     layers: premiumLayers(),
   };
 }
 
 /** Aplica o modelo ao rascunho: camadas + blocos + paleta. Logos/textos institucionais herdados permanecem. */
 export function applyPremium(p: ExternalProfile): ExternalProfile {
-  return { ...p, free: premiumLayout(p.free), headerColor: NAVY, primary: NAVY, secondary: NAVY2, accent: GOLD, borderColor: "#C9D6E8", titleFont: SERIF,
+  return { ...p, free: premiumLayout(p.free), headerColor: NAVY, primary: NAVY, secondary: NAVY2, accent: GOLD, borderColor: "#C9D6E8", gridColor: "#4F78AD", gridWidth: 0.35, titleFont: SERIF,
     subtitle: p.subtitle ?? null };
 }
