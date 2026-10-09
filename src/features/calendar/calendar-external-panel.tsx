@@ -1,4 +1,5 @@
 import { isTypingTarget } from "@/lib/keyboard";
+import { prepareImageFile } from "./calendar-image-asset";
 import { userErrorText } from "@/lib/observability/governed-errors";
 /**
  * CAL.EXT.1 — Seletor "Modelo de apresentação" + prévia/impressão dos externos + editor visual.
@@ -46,18 +47,7 @@ export function TemplateSelector({ value, onChange }: { value: PresentationTempl
   );
 }
 
-async function pickImage(f: File | undefined): Promise<{ ok: string } | { error: string }> {
-  if (!f) return { error: "Nenhum arquivo." };
-  if (!["image/png", "image/jpeg", "image/webp"].includes(f.type)) return { error: "Use PNG, JPEG ou WEBP." };
-  const bytes = new Uint8Array(await f.arrayBuffer());
-  const v = validateImage(f.type, bytes, { ignoreSize: true });
-  if ("error" in v) return v;
-  try {
-    const url = await shrinkImage(f);
-    if (url.length > ASSET_MAX_CHARS) return { error: "Não foi possível reduzir a imagem. Tente outra imagem." };
-    return { ok: url };
-  } catch (e) { return { error: e instanceof Error ? e.message : "Imagem inválida." }; }
-}
+const pickImage = prepareImageFile;
 
 const SHOW_LABEL: Record<keyof ExternalProfile["show"], string> = {
   cabecalho: "Nome da Prefeitura", legenda: "Legenda", feriados: "Feriados", periodos: "Períodos", conselhos: "Conselhos", assinaturas: "Assinaturas",

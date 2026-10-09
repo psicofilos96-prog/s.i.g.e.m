@@ -4,6 +4,7 @@
  * e restauração. Edita SOMENTE `document.layout` e `symbology`; os dados,
  * as regras e o conteúdo do calendário nunca são tocados.
  */
+import { prepareImageFile } from "./calendar-image-asset";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Redo2, RotateCcw, Undo2 } from "lucide-react";
 import {
@@ -325,12 +326,14 @@ export function CalendarAppearanceEditor({
     h.update("logos", (d) => ({ ...d, layout: { ...(d.layout as object), logos: next } as DocumentLayout }));
   const updateLogo = (id: string, patch: Partial<CalendarLogo>) =>
     setLogos(logos.map((l) => (l.id === id ? { ...l, ...patch } : l)));
+  const [logoMsg, setLogoMsg] = useState<string | null>(null);
+  // CAL.ASSET.1: mesma conferência de tipo real/redução das demais imagens.
   const onUploadLogo = (id: string, file: File) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") updateLogo(id, { source: { kind: "asset", assetId: reader.result } });
-    };
-    reader.readAsDataURL(file);
+    void prepareImageFile(file).then((r) => {
+      if ("error" in r) { setLogoMsg(r.error); return; }
+      setLogoMsg(null);
+      updateLogo(id, { source: { kind: "asset", assetId: r.ok } });
+    });
   };
   const addNewLogo = () =>
     setLogos([
@@ -689,6 +692,7 @@ export function CalendarAppearanceEditor({
                     <RotateCcw /> Restaurar composição do modelo
                   </Button>
                 </div>
+                {logoMsg && <p role="alert" className="text-xs text-destructive">{logoMsg}</p>}
                 <ul className="space-y-2">
                   {logos.map((l) => (
                     <li key={l.id} className="space-y-2 rounded border border-border p-2">
@@ -712,7 +716,7 @@ export function CalendarAppearanceEditor({
                       <div className="flex flex-wrap items-center gap-2">
                         <input
                           type="file"
-                          accept="image/png,image/jpeg"
+                          accept="image/png,image/jpeg,image/webp"
                           aria-label={`Substituir imagem — ${l.label}`}
                           onChange={(e) => {
                             const f = e.target.files?.[0];
