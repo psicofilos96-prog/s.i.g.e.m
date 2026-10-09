@@ -6,12 +6,17 @@ import { useSessionAuthority, sessionContextKey } from "@/features/authority/ses
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { ITEMS, evaluate, classify, CHECKLIST_LABEL, type Checklist } from "./readiness-model";
 import { readProbes, type ReadClient } from "./readiness-probes";
+import { useState } from "react";
+import { buildReferenceRows, probeText, readYearReference } from "./prior-year-reference";
 
 
 /** AY — central de preparação de 2027: orienta e valida; só navega. Não abre ano nem configura nada. */
 export function YearPreparationPage() {
   const authority = useSessionAuthority();
   const q = useQuery({ queryKey: ["ay-readiness", sessionContextKey(authority)], enabled: authority.status === "signed-in", retry: false, queryFn: () => readProbes(supabase as unknown as ReadClient, 2027) });
+  const [knownAt] = useState(() => new Date().toISOString());
+  const ref = useQuery({ queryKey: ["ref-2026-2027", sessionContextKey(authority), knownAt], enabled: authority.status === "signed-in", retry: false,
+    queryFn: async () => { const c = supabase as unknown as ReadClient; const [a, b] = await Promise.all([readYearReference(c, 2026, knownAt), readYearReference(c, 2027, knownAt)]); return buildReferenceRows(a, b); } });
   const h1 = <h1 className="sr-only">Preparação do ano letivo 2027</h1>;
   if (authority.status === "signed-out") return <>{h1}<StatePanel tone="neutral" title="Entre para continuar" description="A preparação de 2027 é lida com a permissão da sua conta." /></>;
   if (authority.status !== "signed-in" || q.isLoading) return <>{h1}<SkeletonState label="Carregando" /></>;
@@ -33,6 +38,24 @@ export function YearPreparationPage() {
             <li key={k} className="rounded-md border border-border px-3 py-1"><strong>{totals[k]}</strong> {CHECKLIST_LABEL[k].toLowerCase()}</li>
           ))}
         </ul>
+      </section>
+      <section aria-labelledby="ref-2026">
+        <h2 id="ref-2026" className="mb-1 text-lg font-semibold">Referência 2026</h2>
+        <p className="mb-2 text-sm text-muted-foreground">2026 registrado ao lado de 2027. A referência só orienta: nenhum fato de 2026 é copiado para 2027. Leitura feita em {new Date(knownAt).toLocaleString("pt-BR")}.</p>
+        {ref.isLoading ? <SkeletonState label="Carregando referência" /> : !ref.data ? <StatePanel tone="neutral" title="Referência indisponível" description="Não foi possível ler a referência de 2026 agora." /> : (
+          <div className="overflow-x-auto rounded-md border border-border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/40 text-left"><tr><th scope="col" className="p-2">Item</th><th scope="col" className="p-2">2026 registrado</th><th scope="col" className="p-2">2027</th><th scope="col" className="p-2">Ponto de partida</th></tr></thead>
+              <tbody className="divide-y divide-border">{ref.data.map((r) => (
+                <tr key={r.def.id} data-ref={r.def.id}>
+                  <th scope="row" className="p-2 text-left font-medium">{r.def.label}<span className="block text-xs font-normal text-muted-foreground">{r.def.domain}</span></th>
+                  <td className="p-2 text-tabular">{probeText(r.y2026)}</td>
+                  <td className="p-2"><span className="text-tabular">{r.y2027 ? probeText(r.y2027) : "Mesmo cadastro"}</span><span className="block text-xs text-muted-foreground">{r.note}</span></td>
+                  <td className="p-2"><Link to={r.def.to} className="text-primary underline-offset-4 hover:underline">Usar como ponto de partida</Link>
+                    <span className="block text-xs text-muted-foreground">{r.def.startingPoint}{r.def.neverCreates ? ` Nunca cria: ${r.def.neverCreates}.` : ""}</span></td>
+                </tr>))}</tbody>
+            </table>
+          </div>)}
       </section>
       <section aria-labelledby="ay-items">
         <h2 id="ay-items" className="mb-2 text-lg font-semibold">Etapas</h2>
