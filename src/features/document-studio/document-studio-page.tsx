@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { PageHeader, NoteBox } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { useSessionUser } from "@/features/authority/session-authority";
@@ -183,7 +184,7 @@ export function DocumentStudioPage() {
               <p className="font-mono text-xs">Código {e.verification_code} · {e.snapshot_sha256.slice(0, 16)}…</p>
               <div className="flex flex-wrap gap-2">
                 <Button size="sm" variant="outline" onClick={() => { if (!printHtml(reproduce(e, window.location.origin, st).html)) setMsg({ kind: "erro", text: "O navegador bloqueou a janela de impressão." }); }}>Reproduzir PDF</Button>
-                <a className="inline-flex min-h-9 items-center text-xs text-primary underline" href={`/verificar/documento/${e.verification_code}`} target="_blank" rel="noreferrer">Página de verificação</a>
+                <Link className="inline-flex min-h-9 items-center text-xs text-primary underline" to="/verificar/documento/$codigo" params={{ codigo: e.verification_code }} target="_blank">Página de verificação</Link>
                 {st === "valido" && <><Button size="sm" variant="ghost" onClick={() => { setVoidFor({ id: e.id, kind: "cancelamento" }); setReason(""); }}>Cancelar</Button><Button size="sm" variant="ghost" onClick={() => { setVoidFor({ id: e.id, kind: "substituicao" }); setReason(""); setReplacedBy(""); }}>Substituir</Button></>}
               </div>
               {voidFor?.id === e.id && <div className="flex flex-wrap items-end gap-2">

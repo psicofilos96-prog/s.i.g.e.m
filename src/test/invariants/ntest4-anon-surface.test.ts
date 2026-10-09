@@ -12,6 +12,7 @@ const ACCEPTED_ANON_FUNCTIONS = new Set([
   "public_portal_list",
   "public_portal_get",
   "verify_student_card",
+  "verify_studio_document",
 ]);
 
 describe("NTEST.4 superfície anon", () => {

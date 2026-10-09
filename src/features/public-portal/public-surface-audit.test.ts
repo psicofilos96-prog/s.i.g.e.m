@@ -9,7 +9,7 @@ const src = (f: string) => readFileSync(`src/routes/${f}`, "utf8");
 
 describe("NPUB.2 superfícies públicas", () => {
   it("inventário fechado: só portal publicado e verificações", () => {
-    expect(publicFiles.sort()).toEqual(["publico.$slug.tsx", "publico.index.tsx", "verificar.$codigo.tsx", "verificar.carteirinha.$codigo.tsx"]);
+    expect(publicFiles.sort()).toEqual(["publico.$slug.tsx", "publico.index.tsx", "verificar.$codigo.tsx", "verificar.carteirinha.$codigo.tsx", "verificar.documento.$codigo.tsx"]);
   });
   it("todas usam o layout público, nunca o AppShell", () => {
     for (const f of publicFiles) { expect(src(f), f).toMatch(/PublicLayout/); expect(src(f), f).not.toMatch(/AppShell/); }
@@ -21,7 +21,7 @@ describe("NPUB.2 superfícies públicas", () => {
     }
   });
   it("estado desconhecido do servidor cai em 'não encontrado', sem detalhes", () => {
-    expect(src("verificar.$codigo.tsx")).toMatch(/STATUS\[r\.status\] \?\? STATUS\["nao-encontrado"\]/);
+    for (const f of ["verificar.$codigo.tsx", "verificar.documento.$codigo.tsx"]) expect(src(f), f).toMatch(/STATUS\[r\.status\] \?\? STATUS\["nao-encontrado"\]/);
   });
   it("carteirinha cobre válida/expirada/cancelada/substituída/indisponível", () => {
     expect(Object.keys(CARD_STATUS_LABEL).sort()).toEqual(["cancelada", "expirada", "indisponivel", "substituida", "valida"]);
