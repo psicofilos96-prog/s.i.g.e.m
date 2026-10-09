@@ -309,6 +309,8 @@ export function CieceWorkspace({ source, catalog, initialReference }: { source: 
           )}
         </>
       )}
+        </div>
+      </details>
 
       <Sheet open={!!entry} onOpenChange={(o) => !o && setSelected(null)}>
         <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
