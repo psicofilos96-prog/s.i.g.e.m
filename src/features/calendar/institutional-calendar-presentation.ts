@@ -124,7 +124,10 @@ export function buildPrintModel(presentation: Record<string, unknown>, days: rea
   const mismatches: string[] = [];
   const codeOf = (tv: string | null) => (tv && typeof typeMap[tv] === "string" ? (typeMap[tv] as string) : null);
   const out: PrintDay[] = days.map((d) => {
-    const e = dayEffectFromRows(d);
+    // Folha de prévia da construção: rascunho salvo (ainda não homologado) mostra o efeito das MESMAS
+    // declarações, para a folha não virar "indeterminado" a cada salvamento. Só a apresentação usa isto;
+    // contagens institucionais (dayEffectFromRows) continuam exigindo homologação.
+    const e = dayEffectFromRows(d.state === "nao-homologada" && d.rows ? { ...d, state: "homologada" } : d);
     const decl = (d.rows ?? []).filter((r) => r.declarationId !== null);
     const distinct = [...new Map(decl.map((r) => [r.dayTypeVersionId, r])).values()];
     for (const r of distinct) if (r.dayTypeVersionId && !codeOf(r.dayTypeVersionId)) unmapped.add(r.dayTypeLabel ?? "tipo sem nome");
