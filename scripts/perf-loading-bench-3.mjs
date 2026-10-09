@@ -58,6 +58,13 @@ try {
     await time(kind, "matrículas: count exact (head)", () => c.from("school_enrollments").select("id", { count: "exact", head: true }));
     await time(kind, "alunos: count reader", () => c.rpc("readable_students_count"));
     await time(kind, "matrículas: count reader", () => c.rpc("readable_enrollments_count"));
+    const today = new Date().toISOString().slice(0, 10);
+    await time(kind, "infraestrutura (antes): observações completas", () => c.from("school_infrastructure_observations").select("*").range(0, 2999));
+    await time(kind, "infraestrutura (depois): cobertura agregada", () => c.rpc("infrastructure_coverage_at", { _on: today }));
+    const sch = (await c.from("school_enrollments").select("school_id").limit(1)).data?.[0]?.school_id ?? "x";
+    await time(kind, "painel matrículas (antes): matrículas da escola", () => c.from("school_enrollments").select("id, supersedes_id, created_at, school_id, opened_on").eq("school_id", sch).range(0, 999));
+    await time(kind, "painel matrículas (depois): active_enrollments_at", () => c.rpc("active_enrollments_at", { _school: sch, _on: today }));
+    await time(kind, "alunos (tela nova): 1ª página sem count", () => c.from("institutional_students").select("id, display_name, institutional_identifier").order("display_name").order("id").range(0, PAGE - 1));
     for (const [n, t, cols] of EXTRA) await time(kind, n, () => c.from(t).select(cols, { count: "estimated" }).order("id").range(0, PAGE - 1));
   }
 } finally {
