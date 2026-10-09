@@ -25706,6 +25706,7 @@ export type Database = {
           verification_code: string
         }[]
       }
+      studio_fixture_cleanup: { Args: { _prefix: string }; Returns: number }
       studio_is_admin: { Args: never; Returns: boolean }
       studio_save_version: {
         Args: {

@@ -1870,6 +1870,13 @@
       "when": 1791545038730,
       "tag": "0266_docs_pro_3_studio_persistence",
       "breakpoints": true
+    },
+    {
+      "idx": 267,
+      "version": "7",
+      "when": 1791545394917,
+      "tag": "0267_docs_pro_3_studio_fixture_cleanup",
+      "breakpoints": true
     }
   ]
 }
