@@ -16,6 +16,8 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { Link } from "@tanstack/react-router";
+import { CIECE_TASKS } from "./ciece-tasks";
 
 export function referenceFor(entry: CieceCatalogEntry, ref: CieceReference): CieceReference {
   const pick = (...keys: (keyof CieceReference)[]): CieceReference => {
@@ -251,6 +253,38 @@ export function CieceWorkspace({ source, catalog, initialReference }: { source: 
         <StatePanel tone="warning" title="Laboratório demonstrativo" description="Todos os números desta página são fictícios e simulados. Nada é lido ou gravado no banco institucional." />
       )}
 
+      <section aria-labelledby="ciece-tasks-title">
+        <h2 id="ciece-tasks-title" className="text-base font-semibold text-foreground">O que você quer fazer?</h2>
+        <ol className="mt-2 grid gap-3 md:grid-cols-3">
+          {CIECE_TASKS.map((t, i) => (
+            <li key={t.id} className="flex min-w-0 flex-col gap-2 rounded-md border border-border/70 bg-card p-4">
+              <p className="text-sm font-semibold text-foreground"><span aria-hidden="true" className="mr-1 text-primary">{i + 1}.</span>{t.title}</p>
+              <p className="flex-1 text-xs text-muted-foreground">{t.description}</p>
+              <div className="flex flex-wrap gap-2">
+                {t.links.map((l, j) => (
+                  <Button key={l.to} asChild size="sm" variant={j === 0 ? "default" : "outline"}>
+                    <Link to={l.to}>{l.label}</Link>
+                  </Button>
+                ))}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <details className="rounded-md border border-border/70 px-3 py-2">
+        <summary className="cursor-pointer text-sm font-medium text-foreground">Como os números são formados</summary>
+        <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+          <li>Cada número vem de registros oficiais do sistema, contados por uma regra publicada.</li>
+          <li>“0” quer dizer que os registros foram lidos e nada foi encontrado. Quando não há dado, aparece o motivo por extenso, nunca zero.</li>
+          <li>Em cada indicador, “Como este número foi formado?” mostra a origem, a regra e a cobertura.</li>
+          <li>Grupos muito pequenos podem ser ocultados para proteger as pessoas.</li>
+        </ul>
+      </details>
+
+      <details className="group rounded-md border border-border/70 p-3">
+        <summary className="cursor-pointer text-base font-semibold text-foreground">Consultar indicadores</summary>
+        <div className="mt-3 space-y-6">
       {catalog.scopes.length === 0 ? (
         <StatePanel tone="neutral" title={STATE_PRESENTATION["nao-autorizado"].label} description="Nenhuma turma está no seu escopo analítico. Uma atuação vigente com a capacidade de consulta agregada, concedida por política homologada, é necessária." />
       ) : (
