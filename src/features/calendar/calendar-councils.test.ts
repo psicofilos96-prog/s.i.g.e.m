@@ -156,3 +156,16 @@ describe("Conselho fora do período", () => {
     expect(councilDates(withExtra).filter((c) => c.final).map((c) => c.date)).toEqual(["2027-12-17", "2027-12-20", "2027-12-21"]);
   });
 });
+
+describe("Espelho mantém os períodos do EJA Fase I", () => {
+  it("datas do Regular, IDs de período do EJA Fase I (o banco vincula por ID)", async () => {
+    const { mirrorContent, mirrorDiffers } = await import("./calendar-mirror");
+    const reg = byId("cal-rede-2027-regular");
+    const eja1 = byId("cal-rede-2027-eja-fase-1");
+    const regWithIds = { ...eja1, periods: reg.periods };
+    const fixed = mirrorContent(reg, regWithIds);
+    expect(fixed.periods.map((p) => p.id)).toEqual(eja1.periods.map((p) => p.id));
+    expect(fixed.periods.map((p) => p.start)).toEqual(reg.periods.map((p) => p.start));
+    expect(mirrorDiffers(reg, regWithIds)).toBe(true);
+  });
+});
