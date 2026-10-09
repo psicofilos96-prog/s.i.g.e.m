@@ -36,7 +36,7 @@ const model = buildPrintModel(presentation, days, [{ name: "1º", startsOn: "202
 const vm = buildExternalViewModel(model, presentation);
 
 describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
-  it("registry: cinco modelos, default interno", () => {
+  it.skip("[removido em 0258: só existe o modelo externo livre] registry: cinco modelos, default interno", () => {
     expect(PRESENTATION_TEMPLATES.map((t) => t.code)).toEqual(["interno", "externo-livre", "externo-livre"]);
     expect(DEFAULT_TEMPLATE).toBe("interno");
   });
@@ -118,7 +118,7 @@ describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
     expect(externalRefusalText("calendar-external:base-superseded")).toMatch(/Recarregue/);
     expect(externalRefusalText("capability:construir-calendario-da-rede")).toMatch(/não permite/);
   });
-  it("seletor acessível por nome, papel e teclado", () => {
+  it.skip("[removido em 0258: só existe o modelo externo livre] seletor acessível por nome, papel e teclado", () => {
     let v: string = "interno";
     render(<TemplateSelector value="interno" onChange={(x) => { v = x; }} />);
     const g = screen.getByRole("radiogroup", { name: "Modelo de apresentação" });

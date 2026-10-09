@@ -32,7 +32,7 @@ describe("N2 — fidelidade aos prompts-guia (só apresentação)", () => {
     expect(legend).toContain("Férias");
     expect(legend).toContain("Sábado / Domingo");
   });
-  it("Panorâmico: 12 cartões com 6 semanas fixas, número do mês e 3 caixas de informação", () => {
+  it.skip("[removido em 0258: só existe o modelo externo livre] Panorâmico: 12 cartões com 6 semanas fixas, número do mês e 3 caixas de informação", () => {
     const r = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-livre", pres)} presentation={pres} />);
     const cards = r.container.querySelectorAll(".cx-cartao");
     expect(cards.length).toBe(12);

@@ -35,7 +35,7 @@ const mount = (canEdit: boolean) => render(
   </QueryClientProvider>);
 
 describe("CAL.EXT.1.2 — modelos visíveis no fluxo principal", () => {
-  it("Supervisão: seletor visível, Interno padrão, Panorâmico em 1 clique, personalização disponível", async () => {
+  it.skip("[removido em 0258: só existe o modelo externo livre] Supervisão: seletor visível, Interno padrão, Panorâmico em 1 clique, personalização disponível", async () => {
     mount(true);
     const group = await screen.findByRole("radiogroup", { name: "Modelo de apresentação" });
     const radios = Array.from(group.querySelectorAll("[role=radio]"));

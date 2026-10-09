@@ -13,7 +13,7 @@ describe("CAL.EXT.2 — períodos letivos e imagem de fundo", () => {
     expect(periodColumns(2, { cols: 4, layout: "grade" })).toBe(2);
     expect(periodColumns(3, { cols: "auto", layout: "horizontal" })).toBe(3);
   });
-  it("Panorâmico nasce em grade; Mosaico em linha", () => {
+  it.skip("[removido em 0258: só existe o modelo externo livre] Panorâmico nasce em grade; Mosaico em linha", () => {
     expect(defaultProfile("externo-livre").periods.layout).toBe("grade");
     expect(defaultProfile("externo-livre").periods.layout).toBe("horizontal");
   });
