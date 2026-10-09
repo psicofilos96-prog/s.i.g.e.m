@@ -28,11 +28,12 @@ const text = (id: string, name: string, t: string, x: number, y: number, w: numb
 export function premiumLayers(): Layer[] {
   return [
     img("foto-topo", "Foto do topo (Cristo e pôr do sol)", fotoTopo.url, 0, 0, 285, 66, 1, { fy: 40, fade: "baixo", fadeMm: 10 }),
-    img("foto-rodape", "Foto do rodapé (rio e ponte)", fotoRodape.url, 0, 160, 285, 37, 1, { fy: 55, fade: "cima", fadeMm: 14 }),
+    img("foto-rodape", "Foto do rodapé (rio e ponte)", fotoRodape.url, 0, 150, 285, 47, 1, { fy: 55, fade: "cima", fadeMm: 18 }),
     wave("onda-brilho", "Curva dourada de fundo", 0, 36, 285, 22, 2, { amp: 55, crest: 62, tilt: 22, fill: GOLD, fill2: "#F6D98A", opacity: 55 }),
     wave("onda-topo", "Onda azul do título", 0, 39, 285, 27, 3, { amp: 55, crest: 58, tilt: 22, fill: NAVY, fill2: NAVY2, stroke: GOLD, strokeMm: 0.8 }),
     wave("faixa-tabela", "Faixa azul atrás da tabela", 0, 64, 285, 74, 2, { amp: 0, fill: NAVY, opacity: 94 }),
-    wave("onda-rodape", "Onda azul do rodapé", 0, 176, 285, 21, 3, { amp: 40, crest: 65, tilt: -20, fill: NAVY, fill2: NAVY2, stroke: GOLD, strokeMm: 0.6 }),
+    wave("onda-rodape-brilho", "Curva dourada do rodapé", 0, 179, 285, 18, 3, { side: "cima", amp: 50, crest: 40, tilt: -18, fill: GOLD, fill2: "#F6D98A", opacity: 60 }),
+    wave("onda-rodape", "Onda azul do rodapé", 0, 181, 285, 16, 4, { side: "cima", amp: 50, crest: 40, tilt: -18, fill: NAVY, fill2: NAVY2, stroke: GOLD, strokeMm: 0.8 }),
     img("brasao", "Brasão de Itaperuna", brasao.url, 6, 5, 22, 22, 12, { fit: "conter" }),
     img("logo-prefeitura", "Logo da Prefeitura", logoPrefeitura.url, 31, 6, 60, 15, 12, { fit: "conter" }),
     text("orgao", "Secretaria / Supervisão", "SECRETARIA MUNICIPAL DE EDUCAÇÃO\nSUPERVISÃO DE ENSINO", 32, 21, 70, 7, 13, { pt: 6.5, bold: true, align: "esquerda", color: NAVY, lh: 1.1 }),
@@ -58,7 +59,7 @@ export function premiumLayout(d: FreeLayout): FreeLayout {
       feriados: place(B.feriados, 99, 140, 90, 39, { ...panel, pt: 6.2, titlePt: 8.5, cols: 1 }),
       periodos: place(B.periodos, 191, 140, 89, 39, { ...panel, pt: 6.8, titlePt: 8.5, orientation: "lista" }),
       conselhos: place(B.conselhos, 191, 160, 89, 19, { ...panel, pt: 6.2, titlePt: 7.5, cols: 1 }, false),
-      assinaturas: place(B.assinaturas, 10, 184, 265, 12, { fill: false, color: "#FFFFFF", pt: 6.5, titlePt: 6, align: "centro" }),
+      assinaturas: place(B.assinaturas, 20, 186, 245, 10, { fill: false, color: "#FFFFFF", pt: 7, titlePt: 6, align: "centro", padMm: 0.5 }),
       rodape: place(B.rodape, 0, 190, 20, 7, {}, false),
     },
     photo: { ...d.photo, top: null, bottom: null, useDefaultTop: false, topHmm: 0, bottomHmm: 0, veilStrength: 0, page: null },
