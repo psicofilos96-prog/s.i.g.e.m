@@ -574,6 +574,13 @@ function monthRow(
  * - sem agrupamentos: 12 meses com divisão da coluna Total nas fronteiras
  *   dos períodos e a linha de total anual.
  */
+/** Linha de total da grade = soma dos meses exibidos acima dela (o que a pessoa lê e confere). */
+function sumMonthRows(rows: GridRow[]): number {
+  let n = 0;
+  for (const row of rows) if (row.kind === "mes") n += row.total ?? (row.splitTotal ? row.splitTotal[0] + row.splitTotal[1] : 0);
+  return n;
+}
+
 export function buildGrid(
   cal: NetworkCalendar,
   r: ResolvedCalendar = resolveCalendar(cal),
@@ -588,7 +595,7 @@ export function buildGrid(
     rows.push({
       kind: "total",
       label: "TOTAL DE DIAS LETIVOS",
-      total: annualSchoolDays(cal, r, blocks),
+      total: sumMonthRows(rows),
     });
     return rows;
   }
@@ -596,6 +603,7 @@ export function buildGrid(
   const yearEnd = iso(cal.year, 12, 31);
   let from = yearStart;
   named.forEach((b, i) => {
+    const firstRow = rows.length;
     const nextStart = named[i + 1]?.start;
     let to = nextStart ? shiftDays(nextStart, -1) : yearEnd;
     if (to < from) to = from;
@@ -616,7 +624,7 @@ export function buildGrid(
     rows.push({
       kind: "total",
       label: b.group!.totalLabel ?? `TOTAL DE DIAS LETIVOS — ${b.group!.name}`,
-      total: b.total,
+      total: sumMonthRows(rows.slice(firstRow)),
       groupId: b.group!.id,
     });
     from = to < yearEnd ? shiftDays(to, 1) : yearEnd;
