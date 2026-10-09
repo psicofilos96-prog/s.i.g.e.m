@@ -1,7 +1,7 @@
 /**
  * NDIARY.FINAL.2 — autosave do registro de aula no servidor: debounce (useAutosave), versão do
  * rascunho (seq), recuperação do último rascunho aberto, `lastSavedAt`, falha por extenso com
- * "Tentar novamente" (mesma seq = idempotente) e flush ao sair. Nada vai para localStorage.
+ * "Tentar novamente" (mesma seq = idempotente) e flush ao sair. Nada fica só no navegador.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useAutosave } from "@/features/autosave/use-autosave";
