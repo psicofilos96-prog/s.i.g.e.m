@@ -76,7 +76,7 @@ export function structureIVCells(events: readonly MovementEvent[] | null, rule: 
   const out = IV_GROUPS.map((g) => {
     const list = g.id === "remanejados" ? dedupeRemanejados(cl.byGroup.remanejados) : cl.byGroup[g.id];
     const ruled = g.id === "remanejados" || (rule?.[g.id as Exclude<IVGroup, "remanejados">]?.length ?? 0) > 0;
-    if (!ruled) return cell(`iv-${g.id}`, g.label, { state: "sem-regra", notes: ["A regra da competência não declara quais tipos de movimentação homologados compõem este grupo."] });
+    if (!ruled) return cell(`iv-${g.id}`, g.label, { state: "sem-regra", notes: ["Regra ainda não homologada: a regra da competência não declara quais tipos de movimentação homologados compõem este grupo."] });
     return cell(`iv-${g.id}`, g.label, {
       value: list.length, reference: window, recordRefs: list.map((e) => `${e.source}:${e.id}`),
       notes: g.id === "remanejados" ? ["Explica a movimentação; não soma nem subtrai o total — o total vem da alocação vigente na data."] : [],
