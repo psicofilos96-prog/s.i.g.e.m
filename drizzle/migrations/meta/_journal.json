@@ -1786,6 +1786,13 @@
       "when": 1791511142179,
       "tag": "0254_bq1_actor_accepts_declared_institutional_organ",
       "breakpoints": true
+    },
+    {
+      "idx": 255,
+      "version": "7",
+      "when": 1791511177372,
+      "tag": "0255_bq1_revoke_identity_direct_dml",
+      "breakpoints": true
     }
   ]
 }
