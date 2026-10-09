@@ -128,10 +128,11 @@ export async function listInstitutionalClasses(q: ClassTemporalQuery): Promise<I
  * PERF.LOADING.2 — página da lista de turmas lida no servidor (range + contagem), mesmo reader
  * temporal e mesma ACL; busca pelo nome vigente no próprio servidor.
  */
-export async function listInstitutionalClassesPage(q: ClassTemporalQuery & { from: number; to: number; term: string | null; signal?: AbortSignal }) {
+export async function listInstitutionalClassesPage(q: ClassTemporalQuery & { from: number; to: number; term: string | null; schoolId?: string | null; signal?: AbortSignal }) {
   const args = { _valid_on: q.validOn, ...(q.knownAt ? { _known_at: q.knownAt } : {}) };
   let b = supabase.rpc("classes_with_period_link_at", args, { count: "exact" });
   if (q.term) b = b.ilike("record->0->>name", q.term);
+  if (q.schoolId) b = b.eq("school_id", q.schoolId);
   b = b.order("class_id").range(q.from, q.to);
   if (q.signal) b = b.abortSignal(q.signal);
   const { data, error, count } = await b;

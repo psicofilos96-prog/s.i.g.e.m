@@ -8,7 +8,7 @@ import { dirname, join, normalize } from "node:path";
  * system. Layouts, impressões e páginas públicas são classificados à parte.
  */
 const NEW =
-  /PageHeader|WorkspaceHero|StationHome|WorkSurface|DecisionDesk|FollowUpWorkspace|ReviewQueue|DiaryHeader|SectionHeader|StatePanel|GuidedErrorState|SkeletonState|EmptyState/;
+  /PageHeader|RegistryHero|WorkspaceHero|StationHome|WorkSurface|DecisionDesk|FollowUpWorkspace|ReviewQueue|DiaryHeader|SectionHeader|StatePanel|GuidedErrorState|SkeletonState|EmptyState/;
 const EXCEPTION = /impressao|documento\.tsx|verificar|publico|^login|^auth|^primeiro-acesso/;
 /** Rotas com visual próprio documentado em docs/inventario-visual-rotas.md. */
 const DOCUMENTED = new Set([

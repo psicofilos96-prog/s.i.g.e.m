@@ -14,8 +14,8 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Plus, History, Building2, CalendarRange, Layers } from "lucide-react";
-import { OperationalPageHeader } from "@/components/sigem/operational";
+import { Plus, History, Building2, CalendarRange, Layers, ArrowLeft } from "lucide-react";
+import { useSchoolRegistry, unitListRows } from "@/features/units/school-registry-source";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -89,9 +89,13 @@ export function InstitutionalClassesListPage() {
   const [pageNo, setPageNo] = useState(1);
   const term = ilikeTerm(useDebounced(query, 300));
   const setQuery = (v: string) => { setQueryRaw(v); setPageNo(1); };
+  const [schoolFilter, setSchoolRaw] = useState("");
+  const setSchool = (v: string) => { setSchoolRaw(v); setPageNo(1); };
+  const registry = useSchoolRegistry();
+  const schoolOptions = registry.status === "ready" ? unitListRows(registry.units).map((u) => ({ id: u.schoolId, name: u.name })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")) : [];
   const canCreate = schoolsWithCapability(caps, CLASS_REGISTRY_CAPABILITY).length > 0;
   // PERF.LOADING.2: página lida no servidor (50 por vez), com tempo-limite e nova tentativa manual.
-  const q = useServerPage<InstitutionalClassSummary>(["inst-classes", validOn, term], pageNo, ({ from, to, signal }) => listInstitutionalClassesPage({ validOn, from, to, term, signal }));
+  const q = useServerPage<InstitutionalClassSummary>(["inst-classes", validOn, term, schoolFilter], pageNo, ({ from, to, signal }) => listInstitutionalClassesPage({ validOn, from, to, term, schoolId: schoolFilter || null, signal }));
   const total = q.data?.total ?? null;
   const pg = { items: q.data?.items ?? [], page: pageNo, pageCount: Math.max(1, Math.ceil((total ?? 0) / LIST_PAGE_SIZE)), total: total ?? 0,
     from: q.data?.items.length ? (pageNo - 1) * LIST_PAGE_SIZE + 1 : 0, to: (pageNo - 1) * LIST_PAGE_SIZE + (q.data?.items.length ?? 0), truncated: false };
@@ -112,6 +116,15 @@ export function InstitutionalClassesListPage() {
           <Label htmlFor="classes-search">Pesquisar turmas</Label>
           <Input id="classes-search" aria-label="Pesquisar turmas" placeholder="Nome da turma" value={query} onChange={(e) => setQuery(e.target.value)} className="h-9" />
         </div>
+        {schoolOptions.length > 0 && (
+          <div className="grid min-w-0 gap-1 sm:max-w-xs">
+            <Label htmlFor="classes-school">Escola</Label>
+            <select id="classes-school" value={schoolFilter} onChange={(e) => setSchool(e.target.value)} className="h-9 rounded-md border border-input bg-background px-2 text-sm">
+              <option value="">Todas as escolas</option>
+              {schoolOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+          </div>
+        )}
       </RegistryToolbar>
       {q.isPending ? <SkeletonState label="Carregando turmas" /> : null}
       {q.isError ? (
@@ -123,7 +136,7 @@ export function InstitutionalClassesListPage() {
       ) : null}
       {q.data && rows.length === 0 ? (
         <RegistryEmpty
-          title={term ? "Nenhuma turma corresponde à pesquisa" : "Nenhuma turma no seu escopo"}
+          title={term || schoolFilter ? "Nenhuma turma corresponde à pesquisa" : "Nenhuma turma no seu escopo"}
           description={term ? "Confira a grafia ou pesquise só parte do nome." : "Ainda não há turma institucional registrada nas escolas do seu acesso."}
           action={canCreate && !term ? <Button asChild size="sm"><Link to="/turmas/nova"><Plus className="size-4" />Nova turma</Link></Button> : undefined}
         />
@@ -189,7 +202,7 @@ export function InstitutionalClassCreatePage() {
   if (schoolIds.length === 0)
     return (
       <div className="grid gap-4">
-        <OperationalPageHeader title="Nova turma" description="Cadastro institucional." parent={{ label: "Turmas", to: "/turmas" }} />
+        <ClassHero title="Nova turma" lede="Cadastro institucional." />
         <p role="alert" className="text-sm text-muted-foreground">Sua atuação vigente não concede o cadastro de turmas em nenhuma escola.</p>
       </div>
     );
@@ -208,8 +221,8 @@ export function InstitutionalClassCreatePage() {
   }
   return (
     <div className="grid gap-4">
-      <OperationalPageHeader title="Nova turma" description="Escola e ano letivo formam a identidade da turma e não poderão ser alterados depois." parent={{ label: "Turmas", to: "/turmas" }} />
-      <form onSubmit={submit} className="grid max-w-2xl gap-3 rounded-lg border border-border bg-card p-4">
+      <ClassHero title="Nova turma" lede="Escola e ano letivo formam a identidade da turma e não poderão ser alterados depois." />
+      <form onSubmit={submit} className="grid max-w-2xl gap-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
         <div className="grid gap-1">
           <Label htmlFor="f-school" className="text-xs">Escola (somente do seu escopo)</Label>
           <select id="f-school" name="school" required className="h-9 rounded-md border border-input bg-background px-2 text-sm">
@@ -255,14 +268,13 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
   const rec = s.record.kind === "one" ? s.record.value : null;
   return (
     <div className="grid gap-4">
-      <OperationalPageHeader
+      <ClassHero
         title={rec?.name ?? "Turma sem cadastro vigente"}
-        description="Leitura institucional na data de hoje."
-        parent={{ label: "Turmas", to: "/turmas" }}
-        actions={<div className="flex gap-2">
+        lede={`${s.schoolName ?? "Escola não registrada"} · ${s.academicYearName ?? "ano letivo não registrado"} · leitura institucional de hoje.`}
+        actions={<div className="flex flex-wrap gap-2">
           <Button asChild size="sm" variant="outline"><Link to="/turmas/oferta/$id" params={{ id }}>Organização da oferta</Link></Button>
           <Button asChild size="sm" variant="outline"><Link to="/horarios/turmas/$turmaId" params={{ turmaId: id }}>Horário da turma</Link></Button>
-          {canRegistry && rec ? <Button asChild size="sm" variant="outline"><Link to="/turmas/editar/$id" params={{ id }}>Corrigir cadastro</Link></Button> : null}
+          {canRegistry && rec ? <Button asChild size="sm" variant="outline"><Link to="/turmas/editar/$id" params={{ id }}>Editar cadastro</Link></Button> : null}
         </div>}
       />
       <div className="grid gap-4 lg:grid-cols-2">
@@ -299,7 +311,7 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
 function NotAvailable() {
   return (
     <div className="grid gap-4">
-      <OperationalPageHeader title="Turma indisponível" description="A turma não existe ou está fora do seu escopo autorizado." parent={{ label: "Turmas", to: "/turmas" }} />
+      <ClassHero title="Turma indisponível" lede="A turma não existe ou está fora do seu escopo autorizado." />
     </div>
   );
 }
@@ -441,7 +453,7 @@ export function InstitutionalClassEditPage({ id }: { id: string }) {
   if (!canMaintainRegistry(caps, s.schoolId) || !rec)
     return (
       <div className="grid gap-4">
-        <OperationalPageHeader title="Corrigir cadastro" description="Correção institucional." parent={{ label: "Turmas", to: "/turmas" }} />
+        <ClassHero title="Corrigir cadastro" lede="Correção institucional." />
         <p role="alert" className="text-sm text-muted-foreground">
           {rec ? "Sua atuação vigente não concede a manutenção do cadastro de turmas nesta escola." : "Não há cadastro vigente para corrigir na data de hoje."}
         </p>
@@ -459,8 +471,8 @@ export function InstitutionalClassEditPage({ id }: { id: string }) {
   }
   return (
     <div className="grid gap-4">
-      <OperationalPageHeader title={`Corrigir cadastro — ${rec.name}`} description="Gera nova versão; a versão anterior permanece no histórico." parent={{ label: "Turmas", to: "/turmas" }} />
-      <form onSubmit={submit} className="grid max-w-2xl gap-3 rounded-lg border border-border bg-card p-4">
+      <ClassHero title={`Editar — ${rec.name}`} lede="Salvar gera nova versão; a versão anterior permanece no histórico." />
+      <form onSubmit={submit} className="grid max-w-2xl gap-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
         <p className="text-sm text-muted-foreground">Escola ({s.schoolName ?? "não registrada"}) e ano letivo ({s.academicYearName ?? "não registrado"}) são identidade da turma e não são alterados por correção.</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label="Nome" name="name" required defaultValue={rec.name} />
@@ -478,3 +490,12 @@ export function InstitutionalClassEditPage({ id }: { id: string }) {
 }
 
 export { CLASS_PERIOD_ORGANIZATION_CAPABILITY };
+
+function ClassHero({ title, lede, actions }: { title: string; lede: string; actions?: ReactNode }) {
+  return (
+    <div className="space-y-3">
+      <Link to="/turmas" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"><ArrowLeft className="size-4" aria-hidden />Voltar às turmas</Link>
+      <RegistryHero eyebrow="Rede Municipal de Itaperuna · Organização escolar" title={title} lede={lede} actions={actions} />
+    </div>
+  );
+}
