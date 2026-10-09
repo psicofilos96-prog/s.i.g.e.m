@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { requiresSessionBeforeRead } from "@/features/authority/session-read-gate";
 import { navItemAllowed } from "@/features/authority/nav-capabilities";
 import { STATION_HOME, STATION_LABEL, stationAllowsPath } from "@/features/authority/station-navigation";
 import { Kbd } from "@/components/sigem/kbd";
@@ -564,6 +565,16 @@ function StationGate({ pathname, children }: { pathname: string; children: React
         </div>
         <div className="h-64 animate-pulse rounded-2xl bg-muted" />
       </div>
+    );
+  }
+  // PERF.LOADING.1: rotas que leem dados de domínio não montam sem sessão (antes geravam 401 e ruído).
+  if (authority.status === "signed-out" && requiresSessionBeforeRead(pathname)) {
+    return (
+      <section role="alert" data-sigem-session-gate="signed-out" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
+        <h1 className="font-display text-xl font-semibold text-foreground">Entre para abrir esta página</h1>
+        <p className="mt-2 text-sm text-muted-foreground">Esta área mostra dados da rede e só abre com sua conta.</p>
+        <Button asChild size="lg" className="mt-6"><Link to="/auth" search={{ redirect: pathname }}>Entrar</Link></Button>
+      </section>
     );
   }
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
