@@ -233,3 +233,19 @@ Resultados dos 6 PDFs reais (EJA, EJA Fase I, Ensino Regular × Panorâmico, Mos
 - Aviso de transbordo: `sheetIssues` (tolerância 3 px) mede a folha e o botão "Ajustar para caber" aplica `nextFitStep`; compactar é decisão do usuário.
 - Prova (2026-10-08): 6 PDFs 2027 (Regular, EJA semestral, EJA Fase I × Panorâmico e Mosaico) gerados com a folha real no navegador, em `calendarios-externos-2027-cal-ext-3-1/` (Files). Todos: 1 página A4 deitada, 200 dias letivos, 0 elementos fora da folha, 0 imagens quebradas. Só o Panorâmico da EJA semestral avisou transbordo da legenda no padrão; 1 passo de "Ajustar para caber" resolveu. Sobreposições restantes nas medições são entrelinhas apertadas (caixa de linha), conferidas visualmente sem sobreposição de texto.
 - Conteúdo do calendário e modelo interno não foram alterados. Testes: `calendar-external-ext31.test.ts`.
+
+## CAL.COUNT.1 — reabertura de 2026-10-09 (registro de lote)
+
+**Resultado: PASS — CALENDAR_SCHOOL_DAY_TOTAL_RECONCILED.** As provas anteriores não foram reaproveitadas; tudo foi recontado.
+
+**Recontagem no banco (9 versões em 3 calendários de 2027):** cada versão tem 365 datas distintas, 0 com efeito não declarado, 0 intervalos sobrepostos e 0 datas em que intervalo e dia avulso discordam. Todas somam **200**. A fonte do projeto (Regular, EJA Curso Semestral, EJA Fase I) também soma 200, sem dia letivo fora de período. Por isso nenhuma data oficial explica um 198, e nenhuma data foi alterada.
+
+**Causa raiz do risco encontrado:** quando dois eventos com efeitos opostos caíam na mesma data (por exemplo, Conselho de Classe, que é letivo, e Dia do Mestre transferido, que não é), o laboratório ficava com o primeiro lançado. A mesma edição podia dar 200 ou 198 conforme a ordem dos lançamentos. Nos dados canônicos atuais não há nenhuma dessas datas. Um 198 na tela, portanto, só pode vir de uma cópia do calendário guardada no navegador com marcadores assim; essa cópia não é legível daqui (classe **DADO**).
+
+**Correção (só no cálculo):** `resolveCalendar` passa a registrar `countConflicts`. A revisão bloqueia com `CONTAGEM_EM_CONFLITO` até que uma sobrescrita declare o tipo do dia, como no institucional (true × false ⇒ conflito). A contagem não depende mais da ordem dos lançamentos.
+
+**Regra canônica única:** um dia conta como letivo só pelo efeito declarado do tipo do dia (`countsAsSchoolDay` no laboratório, `school_day_effect` no institucional). Cor, sigla e nome nunca entram. Cada data civil conta uma vez.
+
+**Identidade provada (`cal-count-2.test.tsx`, nos 3 calendários):** total = soma mensal = soma dos períodos = Interno = meses/períodos/anual da folha = Panorâmico = Mosaico = 200, com 365 datas únicas. Também há casos de: um tipo letivo; letivo + marcador; não letivo + marcador; marcadores opostos em qualquer ordem; sobrescrita; feriado letivo; fronteira de período; meses de 28, 29, 30 e 31 dias.
+
+**PDFs:** os 6 PDFs (3 calendários × Panorâmico/Mosaico) foram gerados de novo a partir da fonte 2027, em `calendarios-externos-2027-cal-count-1/` (Files). Cada um tem 1 página A4 e Total anual 200, e a soma dos 12 meses dá 200. Os logos não aparecem nessa geração avulsa, que é só prova de contagem; as folhas oficiais saem pela tela.

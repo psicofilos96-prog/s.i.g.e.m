@@ -15,3 +15,9 @@
 - A regra de dia letivo é só o efeito declarado do tipo do dia; cor, símbolo ou nome não entram.
 - O "198" era uma proposta de outubro que o usuário decidiu NÃO aplicar. Nenhuma data oficial foi alterada.
 - Pendência: INTERACTIVE_BROWSER_VALIDATION_PENDING (conferência do total na tela com login).
+
+## Reabertura 2026-10-09
+- Recontado no banco: 9 versões, todas com 200 dias letivos e 0 conflitos.
+- Risco corrigido: eventos com efeitos opostos na mesma data dependiam da ordem de lançamento e agora bloqueiam (`CONTAGEM_EM_CONFLITO`).
+- Detalhes em `calendario-modelos-externos.md` (seção CAL.COUNT.1 — reabertura).
+- Resultado: **PASS — CALENDAR_SCHOOL_DAY_TOTAL_RECONCILED**.
