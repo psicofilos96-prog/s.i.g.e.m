@@ -13,7 +13,7 @@ const admin = createClient(URL, SR, { auth: { persistSession: false, autoRefresh
 const users = []; const results = []; let failed = 0;
 const check = (name, ok, extra = "") => { results.push({ name, ok }); if (!ok) failed++; console.log(`${ok ? "PASS" : "FAIL"} ${name}${extra ? " — " + extra : ""}`); };
 async function mk(kind) {
-  const email = `${op}-${kind}@bo-fixture.invalid`, password = randomBytes(24).toString("base64url");
+  const email = `${op}-${kind}-${users.length}@bo-fixture.invalid`, password = randomBytes(24).toString("base64url");
   const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { sigem_fixture: "BO", operation_id: op, source_hash: hash } });
   if (error) throw error; users.push(data.user.id);
   const prep = await admin.rpc("bo_fixture_prepare", { _operation_id: op, _source_hash: hash, _user_id: data.user.id, _kind: kind, _with_person: true });
@@ -79,6 +79,6 @@ finally {
   for (const id of users) await admin.auth.admin.deleteUser(id);
   const left = await admin.from("studio_template_versions").select("id", { count: "exact", head: true }).like("template_id", "bo-%");
   console.log("residue studio:", left.count, "· residue:", JSON.stringify((await admin.rpc("bo_fixture_residue")).data));
-  console.log(`${results.length - failed + (failed ? 0 : 0)}/${results.length} checks; failed=${failed}`);
+  console.log(`${results.filter((r) => r.ok).length}/${results.length} checks; failed=${failed}`);
   process.exit(failed ? 1 : 0);
 }
