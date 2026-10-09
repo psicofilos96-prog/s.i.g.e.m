@@ -122,8 +122,18 @@ export function centralErrorText(e: unknown): string {
   const raw = e instanceof CalendarWriteRefused ? e.code : e instanceof Error ? e.message : String(e);
   const code = Object.keys(CENTRAL_ERROR_TEXT).find((k) => raw.includes(k));
   if (code) return CENTRAL_ERROR_TEXT[code]!;
-  return e instanceof CalendarWriteRefused ? e.message : writeRefusalText(raw);
+  const text = CENTRAL_REFUSAL_TEXT.find(([k]) => raw.includes(k))?.[1] ?? (e instanceof CalendarWriteRefused ? e.message : writeRefusalText(raw));
+  // Recusa sem tradução: o motivo técnico aparece por extenso, nunca escondido atrás de texto genérico.
+  return text.startsWith("O registro não foi aceito") ? `${text} Motivo informado pelo sistema: ${raw}` : text;
 }
+
+const CENTRAL_REFUSAL_TEXT: ReadonlyArray<readonly [string, string]> = [
+  ["period:overlap", "Os períodos deste calendário se sobrepõem a períodos já salvos para ele. Nada foi gravado."],
+  ["calendar:period-outside-organization", "Um período pertence a outro calendário. Nada foi gravado."],
+  ["period:invalid-dates", "Um período termina antes de começar. Nada foi gravado."],
+  ["period:outside-year", "Um período está fora do ano letivo. Nada foi gravado."],
+  ["calendar:reference-content-outside-year", "Há dias marcados fora do ano letivo. Nada foi gravado."],
+];
 
 async function write(rpc: Rpc, fn: string, args: Record<string, unknown>): Promise<Record<string, unknown>> {
   const { data, error } = await rpc(fn, args);
