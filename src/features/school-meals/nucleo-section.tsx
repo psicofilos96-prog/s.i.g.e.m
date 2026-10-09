@@ -1,3 +1,4 @@
+import { OffsetPager } from "@/components/sigem/list-pager";
 import { callRpc } from "@/lib/rpc-call";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
@@ -92,9 +93,8 @@ function TrailSection({ names }: { names: Map<string, string> }) {
             <tbody>{slice.map((r) => <tr key={`${r.source}|${r.logical_id}|${r.version}`} className="border-t">
               <td>{formatDateTime(r.recorded_at)}</td><td>{SOURCE_LABEL[r.source] ?? r.source}</td><td>{r.act}</td><td>{r.version}</td>
               <td>{names.get(r.school_id) ?? "Escola"}</td><td>{r.reason ?? "—"}</td></tr>)}</tbody></table>
-            <div className="mt-2 flex gap-2"><button type="button" className="rounded border px-2 py-1 disabled:opacity-50" disabled={page === 0} onClick={() => setPage(page - 1)}>Anterior</button>
-              <button type="button" className="rounded border px-2 py-1 disabled:opacity-50" disabled={(page + 1) * 50 >= rows.length} onClick={() => setPage(page + 1)}>Próxima</button>
-              <span className="text-muted-foreground">{rows.length} atos{rows.length >= 2000 ? " (limite de 2000; reduza o período)" : ""}</span></div></div>)}
+            <OffsetPager page={page} pageSize={50} total={rows.length} onPage={setPage} noun="atos">
+              {rows.length} atos{rows.length >= 2000 ? " (limite de 2000; reduza o período)" : ""}</OffsetPager></div>)}
     </section>
   );
 }

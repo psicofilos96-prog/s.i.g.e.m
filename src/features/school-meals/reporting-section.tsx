@@ -1,3 +1,4 @@
+import { OffsetPager } from "@/components/sigem/list-pager";
 import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -136,11 +137,9 @@ function DrillPanel({ drill, school, from, to, names, onClose }: { drill: Drill;
             return <li key={i} className="rounded border p-2"><dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0.5">
               {def.columns.map((c) => <div key={c.id} className="contents"><dt className="text-muted-foreground">{c.label}</dt><dd className="break-words">{v[c.id] === null || v[c.id] === undefined ? "não informado" : String(v[c.id])}</dd></div>)}
             </dl></li>; })}</ul>
-          <div className="flex items-center gap-2">
-            <button type="button" className="rounded border px-2 py-1 disabled:opacity-50" disabled={page === 0} onClick={() => setPage(page - 1)}>Anterior</button>
-            <button type="button" className="rounded border px-2 py-1 disabled:opacity-50" disabled={(page + 1) * PAGE_SIZE >= total} onClick={() => setPage(page + 1)}>Próxima</button>
-            <span className="text-muted-foreground">{total} registros · página {page + 1} de {Math.max(1, Math.ceil(total / PAGE_SIZE))}</span>
-          </div>
+          <OffsetPager page={page} pageSize={PAGE_SIZE} total={total} onPage={setPage} noun="registros">
+            {total} registros · página {page + 1} de {Math.max(1, Math.ceil(total / PAGE_SIZE))}
+          </OffsetPager>
         </>)}
     </div>
   );

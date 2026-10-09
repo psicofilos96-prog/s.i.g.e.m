@@ -191,3 +191,8 @@ export function StatePanel({
     </div>
   );
 }
+
+/** Aviso neutro em caixa (ausência/indisponibilidade explicada em texto). */
+export function NoteBox({ children }: { children: ReactNode }) {
+  return <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">{children}</p>;
+}

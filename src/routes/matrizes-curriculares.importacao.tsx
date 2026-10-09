@@ -1,3 +1,4 @@
+import { NoteBox } from "@/components/sigem/patterns";
 import { createFileRoute } from "@tanstack/react-router";
 import { brand } from "@/config/branding";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
@@ -18,9 +19,9 @@ export const Route = createFileRoute("/matrizes-curriculares/importacao")({
     <ClassRouteGate
       institutional={() => <D1ImportPage />}
       laboratory={() => (
-        <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">
+        <NoteBox>
           A importação só existe com sessão institucional; não há versão demonstrativa.
-        </p>
+        </NoteBox>
       )}
     />
   ),
