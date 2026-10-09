@@ -492,6 +492,8 @@ function fadeMask(l: Extract<Layer, { kind: "imagem" }>): string | undefined {
 }
 /** CAL.EXT.4 — camada visual independente (foto, logo, onda vetorial, texto). Só aparência. */
 function LayerView({ l, ctx, selected, onSelect, onMove }: { l: Layer; ctx: { year: number | null; title: string | null; subtitle: string | null }; selected: boolean; onSelect?: ((id: string) => void) | undefined; onMove?: LayerMove | undefined }) {
+  // Id único por cópia: a prévia (oculta na impressão) e a folha impressa não podem compartilhar o degradê.
+  const uid = useId().replace(/:/g, "");
   if (!l.visible) return null;
   const drag = (mode: "move" | "resize") => (e: RPointerEvent<HTMLElement>) => {
     if (!onMove || l.locked) return;
