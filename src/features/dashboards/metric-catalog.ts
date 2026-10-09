@@ -6,7 +6,7 @@ import { readPages } from "@/lib/list-paging";
  */
 import { supabase } from "@/integrations/supabase/client";
 import { functionalPicture, type Sources } from "@/features/professionals/functional-life";
-import { activeEnrollments, notAvailable, servedTotal, type Ctx, type MetricDefinition, type MetricResult } from "./metric-engine";
+import { notAvailable, servedTotal, type Ctx, type MetricDefinition, type MetricResult } from "./metric-engine";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const must = async <T,>(p: PromiseLike<{ data: T; error: { message: string } | null }>) => { const r = await p; if (r.error) throw new Error(r.error.message); return r.data; };
