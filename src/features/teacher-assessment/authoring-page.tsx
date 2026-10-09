@@ -179,7 +179,7 @@ function InstrumentsTab({ instruments, items, uid, assignments, run }: { instrum
   );
 }
 
-function PrintView({ ins, items, onClose }: { ins: InstrumentVersion; items: ReadonlyMap<string, ItemVersion>; onClose: () => void }) {
+export function PrintView({ ins, items, onClose }: { ins: InstrumentVersion; items: ReadonlyMap<string, ItemVersion>; onClose: () => void }) {
   const p = useMemo(() => printProjection(ins, items), [ins, items]);
   const [fp, setFp] = useState("");
   useEffect(() => { printFingerprint(p).then(setFp); }, [p]);
