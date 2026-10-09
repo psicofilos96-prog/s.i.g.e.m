@@ -109,7 +109,7 @@ function HomePage() {
           ) : q.isError ? (
             <div className="mt-6 flex items-center gap-4 text-sm">
               <span className="text-muted-foreground">Não foi possível ler os números agora.</span>
-              <Button variant="outline" size="sm" onClick={() => q.refetch()}>Tentar de novo</Button>
+              <Button variant="outline" size="sm" onClick={() => q.refetch()}>Tentar novamente</Button>
             </div>
           ) : (
             <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
