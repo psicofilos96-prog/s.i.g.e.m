@@ -102,6 +102,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `n2026-import-1-escolas-infraestrutura.md` | N2026.IMPORT.1 — escolas e infraestrutura | Registro de lote | sim | — |
 | `n2026-import-2-profissionais-jornadas.md` | N2026.IMPORT.2 — profissionais, vínculos, lotações, jornadas | Registro de lote | sim | — |
 | `n2026-import-3-turmas-alunos-matriculas.md` | N2026.IMPORT.3 — turmas, alunos, matrículas, enturmação | Registro de lote | sim | — |
+| `n2026-import-4-censo-snapshot-oficial.md` | N2026.IMPORT.4 — snapshot oficial do Censo 2026 | Registro de lote | sim | — |
 | `bq0-preflight-configuracao-2027.md` | BQ.0 — Pré-flight da configuração institucional controlada 2027 | Histórico | sim | — |
 | `bq1-contas-estacoes-setoriais.md` | BQ.1 — Contas institucionais/setoriais e estações (estado: PARTIAL) | Histórico | sim | — |
 | `busca-ativa-alunos-servidores.md` | Busca ativa de alunos e servidores | Referência vigente | — | — |
