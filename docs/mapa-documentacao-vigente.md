@@ -311,5 +311,6 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 ## NKEY.1
 - [Atalhos de teclado e foco](teclado-foco-nkey1.md) — Registro de lote.
 - `auditoria-final-nfinal10.md` — Registro de lote: auditoria final de fechamento técnico e classes finais.
+- `revisao-final-pos-fila-2026-10-09.md` — Registro de lote: revisão final pós-fila, verificação e pendências externas.
 - `credenciais-desenvolvimento-naccess3.md` — Registro de lote: senhas temporárias no desenvolvimento.
 - `isolamento-setorial-nsector4.md` — Registro de lote: matriz de isolamento por setor e escola.
