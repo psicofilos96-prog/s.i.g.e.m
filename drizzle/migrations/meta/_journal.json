@@ -1779,6 +1779,13 @@
       "when": 1791510767670,
       "tag": "0253_bq1_institutional_authority_matrix",
       "breakpoints": true
+    },
+    {
+      "idx": 254,
+      "version": "7",
+      "when": 1791511142179,
+      "tag": "0254_bq1_actor_accepts_declared_institutional_organ",
+      "breakpoints": true
     }
   ]
 }
