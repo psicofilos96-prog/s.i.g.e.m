@@ -11,6 +11,6 @@ describe("contexto real nunca mostra demonstração", () => {
   });
   it("regras avaliativas: fixtures só no ramo sem sessão", () => {
     const s = src("src/routes/regras-avaliativas.tsx");
-    expect(s).toMatch(/institutional=\{\(\) => <RealContextRulesEmpty \/>\}\s+laboratory=\{\(\) => <Outlet \/>\}/);
+    expect(s).toMatch(/institutional=\{\(\) => <AssessmentRulesRealPage \/>\}\s+laboratory=\{\(\) => <Outlet \/>\}/);
   });
 });
