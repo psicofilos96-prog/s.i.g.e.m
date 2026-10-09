@@ -22,7 +22,7 @@ function fakeDb() {
 }
 
 describe("CAL.PRESET.1 — presets visuais pessoais", () => {
-  const T = "externo-mosaico" as const;
+  const T = "externo-livre" as const;
   const def = defaultProfile(T);
 
   it("salvar, renomear, duplicar, atualizar e remover persistem como versões (reabrir lê a última)", async () => {
@@ -44,7 +44,7 @@ describe("CAL.PRESET.1 — presets visuais pessoais", () => {
   });
 
   it("preset de outro modelo não aparece", () => {
-    const rows: PresetRow[] = [{ preset_key: "pr-12345678", template_code: "externo-panoramico", name: "X", version: 1, archived: false, profile: def, recorded_at: "" }];
+    const rows: PresetRow[] = [{ preset_key: "pr-12345678", template_code: "externo-livre", name: "X", version: 1, archived: false, profile: def, recorded_at: "" }];
     expect(latestPresets(rows, T)).toEqual([]);
   });
 

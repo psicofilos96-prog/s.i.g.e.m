@@ -14,11 +14,11 @@ describe("CAL.EXT.2 — períodos letivos e imagem de fundo", () => {
     expect(periodColumns(3, { cols: "auto", layout: "horizontal" })).toBe(3);
   });
   it("Panorâmico nasce em grade; Mosaico em linha", () => {
-    expect(defaultProfile("externo-panoramico").periods.layout).toBe("grade");
-    expect(defaultProfile("externo-mosaico").periods.layout).toBe("horizontal");
+    expect(defaultProfile("externo-livre").periods.layout).toBe("grade");
+    expect(defaultProfile("externo-livre").periods.layout).toBe("horizontal");
   });
   it("valores inválidos voltam ao padrão; válidos são mantidos", () => {
-    const p = sanitizeProfile("externo-panoramico", { coverFit: "esticar", periods: { cols: 9, layout: "grade", minHmm: 99, wrap: false }, coverFocusX: 130, infoWidths: { periodos: 50 } });
+    const p = sanitizeProfile("externo-livre", { coverFit: "esticar", periods: { cols: 9, layout: "grade", minHmm: 99, wrap: false }, coverFocusX: 130, infoWidths: { periodos: 50 } });
     expect(p.coverFit).toBe("manual");
     expect(p.periods.cols).toBe("auto");
     expect(p.periods.minHmm).toBe(30);
@@ -29,7 +29,7 @@ describe("CAL.EXT.2 — períodos letivos e imagem de fundo", () => {
 });
 describe("Ajustar para caber", () => {
   it("cresce a faixa de informações antes de mexer na fonte e para quando não há mais o que ajustar", () => {
-    const p = defaultProfile("externo-panoramico");
+    const p = defaultProfile("externo-livre");
     const s1 = nextFitStep(p, ["legenda"])!;
     expect(s1.bands.info).toBe(p.bands.info + 1);
     expect(s1.minFitPt).toBe(p.minFitPt);

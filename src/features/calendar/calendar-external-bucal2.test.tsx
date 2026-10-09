@@ -31,7 +31,7 @@ describe("BU.CAL.2 — resolvedor visual único e folhas de uma página", () => 
   it("zero 'Tipo sem mapeamento' e zero '?' nas duas folhas", () => {
     expect(model.unmappedTypes).toEqual([]);
     for (const El of [PanoramicSheet, MosaicSheet]) {
-      const r = render(<El vm={vm} p={defaultProfile("externo-panoramico", pres)} presentation={pres} />);
+      const r = render(<El vm={vm} p={defaultProfile("externo-livre", pres)} presentation={pres} />);
       expect(r.queryAllByTestId("cx-unmapped")).toEqual([]);
       const cells = [...r.container.querySelectorAll("td[data-date]")];
       expect(cells.length).toBe(365);

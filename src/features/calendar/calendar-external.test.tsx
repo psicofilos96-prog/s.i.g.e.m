@@ -37,7 +37,7 @@ const vm = buildExternalViewModel(model, presentation);
 
 describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
   it("registry: cinco modelos, default interno", () => {
-    expect(PRESENTATION_TEMPLATES.map((t) => t.code)).toEqual(["interno", "externo-panoramico", "externo-mosaico"]);
+    expect(PRESENTATION_TEMPLATES.map((t) => t.code)).toEqual(["interno", "externo-livre", "externo-livre"]);
     expect(DEFAULT_TEMPLATE).toBe("interno");
   });
   it("modelo interno continua o mesmo renderer, sem dependência dos externos", () => {
@@ -65,23 +65,23 @@ describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
   it("indeterminado nunca vira zero nas três folhas", () => {
     expect(model.months[1]!.total.schoolDays).toBeNull();
     for (const El of [PanoramicSheet, MosaicSheet]) {
-      render(<El vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
+      render(<El vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
       expect(screen.getAllByTestId("cx-total-anual").at(-1)!.textContent).toBe("indeterminado");
     }
-    const pan = render(<MosaicSheet vm={vm} p={defaultProfile("externo-mosaico")} presentation={presentation} />);
+    const pan = render(<MosaicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
     expect(pan.container.querySelector('[data-testid="cx-total-2028-02"]')!.textContent).toBe("indeterminado");
     expect(pan.container.querySelector('[data-testid="cx-total-2028-01"]')!.textContent).toBe(String(model.months[0]!.total.schoolDays));
     expect(pan.container.querySelector('[data-date="2028-02-15"]')!.getAttribute("data-effect")).toBe("conflito");
   });
   it("tipo sem mapeamento visual aparece explicitamente", () => {
     expect(model.unmappedTypes).toContain("Tipo Novo");
-    const r = render(<MosaicSheet vm={vm} p={defaultProfile("externo-mosaico")} presentation={presentation} />);
+    const r = render(<MosaicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
     expect(r.getAllByTestId("cx-unmapped").some((e) => e.textContent!.includes("Tipo Novo"))).toBe(true);
   });
   it("coexistência preservada", () => {
     const d = vm.days.find((x) => x.on === "2028-02-10")!;
     expect(d.extraCodes).toContain("RP");
-    const r = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
+    const r = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
     expect(r.container.querySelector('[data-date="2028-02-10"]')!.getAttribute("title")).toMatch(/\+/);
   });
   it("panorâmico (4×3): primeiro dia da semana e ano bissexto", () => {
@@ -89,32 +89,32 @@ describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
     expect(fev.daysInMonth).toBe(29);
     expect(fev.firstWeekday).toBe(2);
     expect(fev.weeks[0]!.slice(0, 3)).toEqual([null, null, 1]);
-    const r = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
+    const r = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
     expect(r.container.querySelectorAll('[data-month="2028-02"] td[data-date]').length).toBe(29);
     expect(r.container.querySelector('[data-date="2028-02-20"]')!.getAttribute("data-effect")).toBe("indeterminado");
   });
   it("mosaico (matriz): meses com menos de 31 dias têm células inexistentes, não dias", () => {
-    const r = render(<MosaicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />);
+    const r = render(<MosaicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
     expect(r.container.querySelectorAll('[data-month="2028-02"] td.cx-inexistente').length).toBe(2);
     expect(r.container.querySelectorAll('[data-month="2028-01"] td.cx-inexistente').length).toBe(0);
   });
   it("personalização não muda conteúdo", () => {
-    const p = sanitizeProfile("externo-panoramico", { primary: "#123456", visualTitle: "X", show: { totaisMensais: false }, symbolOverrides: { [letivo]: { background: "#00ff00" } } });
-    const a = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-panoramico")} presentation={presentation} />).container;
+    const p = sanitizeProfile("externo-livre", { primary: "#123456", visualTitle: "X", show: { totaisMensais: false }, symbolOverrides: { [letivo]: { background: "#00ff00" } } });
+    const a = render(<PanoramicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />).container;
     const b = render(<PanoramicSheet vm={vm} p={p} presentation={presentation} />).container;
     const sig = (c: HTMLElement) => [...c.querySelectorAll("td[data-date]")].map((e) => `${e.getAttribute("data-date")}:${e.getAttribute("data-effect")}`).join();
     expect(sig(b)).toBe(sig(a));
     expect(buildExternalViewModel(model, presentation)).toEqual(vm);
   });
   it("perfil inválido cai no padrão; imagem/URL inválida recusada", () => {
-    const p = sanitizeProfile("externo-mosaico", { coverImage: "data:image/svg+xml;base64,AAAA", qrUrl: "javascript:alert(1)", primary: "red", cardRadius: 99 });
-    expect(p.coverImage).toBeNull(); expect(p.qrUrl).toBeNull(); expect(p.primary).toBe(defaultProfile("externo-mosaico").primary); expect(p.cardRadius).toBe(8);
-    expect(sanitizeProfile("externo-mosaico", { coverImage: "data:image/png;base64," + "A".repeat(1_600_000) }).coverImage).toBeNull();
+    const p = sanitizeProfile("externo-livre", { coverImage: "data:image/svg+xml;base64,AAAA", qrUrl: "javascript:alert(1)", primary: "red", cardRadius: 99 });
+    expect(p.coverImage).toBeNull(); expect(p.qrUrl).toBeNull(); expect(p.primary).toBe(defaultProfile("externo-livre").primary); expect(p.cardRadius).toBe(8);
+    expect(sanitizeProfile("externo-livre", { coverImage: "data:image/png;base64," + "A".repeat(1_600_000) }).coverImage).toBeNull();
   });
   it("contrato do leitor e recusas do writer", () => {
-    expect(parseExternalProfile("externo-mosaico", { contract: "cal-ext-1/1", state: "access-denied" }).kind).toBe("negado");
-    expect(parseExternalProfile("externo-mosaico", { contract: "outro", state: "lido" }).kind).toBe("erro");
-    expect(parseExternalProfile("externo-mosaico", { contract: "cal-ext-1/1", state: "padrao" }).kind).toBe("padrao");
+    expect(parseExternalProfile("externo-livre", { contract: "cal-ext-1/1", state: "access-denied" }).kind).toBe("negado");
+    expect(parseExternalProfile("externo-livre", { contract: "outro", state: "lido" }).kind).toBe("erro");
+    expect(parseExternalProfile("externo-livre", { contract: "cal-ext-1/1", state: "padrao" }).kind).toBe("padrao");
     expect(externalRefusalText("calendar-external:base-superseded")).toMatch(/Recarregue/);
     expect(externalRefusalText("capability:construir-calendario-da-rede")).toMatch(/não permite/);
   });
@@ -125,11 +125,11 @@ describe("CAL.EXT.1 — uma verdade, três apresentações", () => {
     expect(g).toBeTruthy();
     const mosaic = screen.getByRole("radio", { name: "Externo — Mosaico" });
     mosaic.focus(); fireEvent.click(mosaic);
-    expect(v).toBe("externo-mosaico");
+    expect(v).toBe("externo-livre");
     expect(screen.getByRole("radio", { name: "Interno — Modelo técnico/oficial" }).getAttribute("aria-checked")).toBe("true");
   });
   it("célula não depende só de cor: texto acessível com efeito", () => {
-    const r = render(<MosaicSheet vm={vm} p={defaultProfile("externo-mosaico")} presentation={presentation} />);
+    const r = render(<MosaicSheet vm={vm} p={defaultProfile("externo-livre")} presentation={presentation} />);
     expect(r.container.querySelector('[data-date="2028-02-15"]')!.getAttribute("aria-label")).toMatch(/conflito/);
   });
 });

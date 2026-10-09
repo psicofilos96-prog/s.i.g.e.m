@@ -43,8 +43,8 @@ describe("CAL.EXT.3 — layout livre", () => {
     const d = defaultFreeLayout("quadro");
     const s = sanitizeFree({ blocks: { legenda: { style: { pt: 999, font: "Comic Sans" } } }, table: { dayPt: -3 } }, d, FONT_OPTIONS, 1000);
     expect(s.blocks.legenda.style.pt).toBe(40); expect(s.blocks.legenda.style.font).toBeNull(); expect(s.table.dayPt).toBe(3);
-    const p = defaultProfile("externo-mosaico"); p.free.blocks.matriz.w = 200;
-    expect(sanitizeProfile("externo-mosaico", JSON.parse(JSON.stringify(p))).free.blocks.matriz.w).toBe(200);
+    const p = defaultProfile("externo-livre"); p.free.blocks.matriz.w = 200;
+    expect(sanitizeProfile("externo-livre", JSON.parse(JSON.stringify(p))).free.blocks.matriz.w).toBe(200);
   });
   it("desfazer/refazer", () => {
     let h = { past: [] as number[], present: 1, future: [] as number[] };
