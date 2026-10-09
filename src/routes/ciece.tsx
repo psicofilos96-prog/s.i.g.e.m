@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { describeCieceSurface, queryCieceIndicator } from "@/features/ciece/ciece-query.functions";
+import { CieceTaskList } from "@/features/ciece/surface/ciece-task-list";
 import { CieceWorkspace } from "@/features/ciece/surface/ciece-workspace";
 import type { CieceCatalog, CieceSource } from "@/features/ciece/surface/ciece-surface-types";
 import { useSessionUser } from "@/features/authority/session-authority";
@@ -42,5 +43,5 @@ function CiecePage() {
   if (catalog.isError) return <div className="p-4"><h1 className="sr-only">CIECE — Informação e Estatística</h1><StatePanel tone="danger" title="Catálogo indisponível" description="Não foi possível consultar o CIECE agora. Tente novamente." /></div>;
 
   const source: CieceSource = { kind: "institucional", query: (input) => ask({ data: input }) };
-  return <CieceWorkspace source={source} catalog={catalog.data as CieceCatalog} initialReference={{}} />;
+  return <CieceWorkspace source={source} catalog={catalog.data as CieceCatalog} initialReference={{}} tasks={<CieceTaskList />} />;
 }
