@@ -111,57 +111,53 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
   if (done) return <Done school={school} studentId={done.studentId} name={done.name} onAgain={onExit} />;
   return (
     <section className="space-y-4">
-      <nav aria-label="Passos da matrícula">
-        <p className="mb-2 text-sm"><strong>Etapa {step} de 8</strong> · {WIZARD_STEPS[step - 1]!.title}
-          {(() => { const n = Object.values(missing).flat().length; return n ? <span className="text-muted-foreground"> · Faltam {n} {n === 1 ? "informação obrigatória" : "informações obrigatórias"}</span> : <span className="text-muted-foreground"> · Tudo pronto para concluir</span>; })()}
+      {/* INT.7: matrícula em uma única página (antes: 8 telas e 7 cliques em "Continuar"). */}
+      <nav aria-label="Seções da matrícula" className="sticky top-[var(--topbar-height)] z-10 rounded-lg border bg-card/95 p-3 backdrop-blur">
+        <p className="mb-2 text-sm">
+          {(() => { const n = Object.values(missing).flat().length; return n ? <span>Faltam <strong>{n}</strong> {n === 1 ? "informação obrigatória" : "informações obrigatórias"}</span> : <strong>Tudo pronto para concluir</strong>; })()}
         </p>
         <ol className="flex flex-wrap gap-1 text-xs">
-          {WIZARD_STEPS.map((s) => (
+          {WIZARD_STEPS.filter((s) => s.n < 8).map((s) => (
             <li key={s.n}>
-              <button type="button" onClick={() => void go(s.n)} aria-current={s.n === step ? "step" : undefined}
-                className={`rounded-full border px-2 py-1 ${s.n === step ? "border-primary bg-primary text-primary-foreground" : missing[s.n]!.length ? "border-warning" : "border-border"}`}>
-                {s.n}. {s.title}{missing[s.n]!.length ? " •" : ""}
-              </button>
+              <a href={`#wz-sec-${s.n}`} className={`inline-block rounded-full border px-2 py-1 ${missing[s.n]!.length ? "border-warning" : "border-border"}`}>
+                {s.title}{missing[s.n]!.length ? " •" : ""}
+              </a>
             </li>
           ))}
         </ol>
         <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">{STATUS[status]}{saveErr && status === "erro" ? ` — ${saveErr}` : ""}
           {status === "erro" ? <RecoveryRetryButton type="button" variant="outline" size="sm" className="ml-2" error={saveErr ?? undefined} operation="salvar-rascunho-matricula" onRetry={() => auto.retry()} /> : null}</p>
       </nav>
-      <div className="rounded-lg border bg-card p-4 space-y-3">
-        <h2 className="text-lg font-semibold">{WIZARD_STEPS[step - 1]!.title}</h2>
-        {missing[step]!.length ? <div role="status" className="rounded-md border border-warning p-2 text-sm"><p className="font-medium">Falta nesta etapa:</p><ul className="list-disc pl-5">{missing[step]!.map((m) => <li key={m}>{m}</li>)}</ul></div> : null}
-        {step === 1 ? <StepStudent fp={fp} school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} /> : null}
-        {step === 2 ? <StepGuardians p={p} edit={edit} /> : null}
-        {step === 3 ? (<div className="grid gap-3 sm:grid-cols-2">
-          {(["logradouro", "numero", "bairro", "cidade", "cep"] as const).map((k) => (
-            <Field key={k} label={{ logradouro: "Rua/Logradouro", numero: "Número", bairro: "Bairro", cidade: "Cidade", cep: "CEP" }[k]} value={p.endereco?.[k] ?? ""} onChange={(v) => edit((x) => ({ ...x, endereco: { ...x.endereco, [k]: v } }))} />))}
-        </div>) : null}
-        {step === 4 ? (<div className="space-y-3">
-          <Field label="Certidão de nascimento (número/matrícula)" value={p.documentos?.certidao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, certidao: v } }))} />
-          <Field label="Observações sobre documentos entregues" value={p.documentos?.observacao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, observacao: v } }))} />
-          <p className="text-xs text-muted-foreground">Foto 3×4 e anexos: envio pela ficha do aluno após concluir.</p>
-        </div>) : null}
-        {step === 5 ? (<div className="space-y-3">
-          <Field label="Escola anterior" value={p.escolar?.escolaAnterior ?? ""} onChange={(v) => edit((x) => ({ ...x, escolar: { ...x.escolar, escolaAnterior: v } }))} />
-          <Field label="Observações escolares" value={p.escolar?.observacao ?? ""} onChange={(v) => edit((x) => ({ ...x, escolar: { ...x.escolar, observacao: v } }))}
-            hint="Informações de saúde, laudos e NEE não são registradas aqui: têm registro restrito próprio." />
-        </div>) : null}
-        {step === 6 ? <StepYear fp={fp} p={p} edit={edit} /> : null}
-        {step === 7 ? <StepClass fp={fp} school={school} p={p} edit={edit} /> : null}
-        {step === 8 ? <StepReview p={p} ident={ident} missing={missing} go={go} /> : null}
-        {missing[step]!.length ? <p className="text-sm text-warning-foreground" role="status">Falta: {missing[step]!.join(", ")}.</p> : null}
-      </div>
+      {WIZARD_STEPS.filter((s) => s.n < 8).map((s) => (
+        <div key={s.n} id={`wz-sec-${s.n}`} className="scroll-mt-40 space-y-3 rounded-lg border bg-card p-4">
+          <h2 className="text-lg font-semibold">{s.title}</h2>
+          {s.n === 1 ? <StepStudent fp={fp} school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} /> : null}
+          {s.n === 2 ? <StepGuardians p={p} edit={edit} /> : null}
+          {s.n === 3 ? (<div className="grid gap-3 sm:grid-cols-2">
+            {(["logradouro", "numero", "bairro", "cidade", "cep"] as const).map((k) => (
+              <Field key={k} label={{ logradouro: "Rua/Logradouro", numero: "Número", bairro: "Bairro", cidade: "Cidade", cep: "CEP" }[k]} value={p.endereco?.[k] ?? ""} onChange={(v) => edit((x) => ({ ...x, endereco: { ...x.endereco, [k]: v } }))} />))}
+          </div>) : null}
+          {s.n === 4 ? (<div className="space-y-3">
+            <Field label="Certidão de nascimento (número/matrícula)" value={p.documentos?.certidao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, certidao: v } }))} />
+            <Field label="Observações sobre documentos entregues" value={p.documentos?.observacao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, observacao: v } }))} />
+            <p className="text-xs text-muted-foreground">Foto 3×4 e anexos: envio pela ficha do aluno após concluir.</p>
+          </div>) : null}
+          {s.n === 5 ? (<div className="space-y-3">
+            <Field label="Escola anterior" value={p.escolar?.escolaAnterior ?? ""} onChange={(v) => edit((x) => ({ ...x, escolar: { ...x.escolar, escolaAnterior: v } }))} />
+            <Field label="Observações escolares" value={p.escolar?.observacao ?? ""} onChange={(v) => edit((x) => ({ ...x, escolar: { ...x.escolar, observacao: v } }))}
+              hint="Informações de saúde, laudos e NEE não são registradas aqui: têm registro restrito próprio." />
+          </div>) : null}
+          {s.n === 6 ? <StepYear fp={fp} p={p} edit={edit} /> : null}
+          {s.n === 7 ? <StepClass fp={fp} school={school} p={p} edit={edit} /> : null}
+          {missing[s.n]!.length ? <p className="text-sm text-warning-foreground" role="status">Falta: {missing[s.n]!.join(", ")}.</p> : null}
+        </div>
+      ))}
       <div className="flex flex-wrap justify-between gap-2">
         <div className="flex gap-2">
           <Button variant="ghost" onClick={async () => { await auto.flush(); onExit(); }}>Sair e continuar depois</Button>
           <Discard draft={initial.draftId} seq={seq} auto={auto} onDone={onExit} photo={p.foto?.path} />
         </div>
-        <div className="flex gap-2">
-          {step > 1 ? <Button variant="outline" onClick={() => void go(step - 1)}>Voltar</Button> : null}
-          {step < 8 ? <Button onClick={() => void go(step + 1)}>Continuar</Button>
-            : <Complete draft={initial.draftId} seq={seq} auto={auto} p={p} ready={canComplete(p, identity)} onDone={(sid) => setDone({ studentId: sid, name: ident.existingName ?? p.aluno?.nome ?? "" })} />}
-        </div>
+        <Complete draft={initial.draftId} seq={seq} auto={auto} p={p} ready={canComplete(p, identity)} onDone={(sid) => setDone({ studentId: sid, name: ident.existingName ?? p.aluno?.nome ?? "" })} />
       </div>
     </section>
   );
