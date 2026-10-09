@@ -94,7 +94,7 @@ describe("B2.5.4 — telas", () => {
     expect(screen.getByText("EM Centro")).toBeInTheDocument();
     expect(screen.getByText("Ainda não registrada")).toBeInTheDocument();
     // BO.3: listagem em uma única leitura em lote; nunca uma chamada por turma.
-    expect(rpc).toHaveBeenCalledWith("classes_with_period_link_at", expect.objectContaining({ _valid_on: expect.any(String) }));
+    expect(rpc).toHaveBeenCalledWith("classes_with_period_link_at", expect.objectContaining({ _valid_on: expect.any(String) }), { count: "exact" });
     expect(rpc).not.toHaveBeenCalledWith("class_at", expect.anything());
     // PERF.LOADING.2: a lista pede uma página ao servidor, não as 698 turmas.
     expect(ranges).toContainEqual([0, 49]);
