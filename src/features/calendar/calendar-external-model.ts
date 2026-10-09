@@ -13,8 +13,7 @@ import { MONTH_NAMES } from "@/lib/format-ptbr";
 
 export const PRESENTATION_TEMPLATES = [
   { code: "interno", label: "Interno — Modelo técnico/oficial" },
-  { code: "externo-panoramico", label: "Externo — Panorâmico" },
-  { code: "externo-mosaico", label: "Externo — Mosaico" },
+  { code: "externo-livre", label: "Externo — Layout livre" },
 ] as const;
 /** Todo modelo externo usa o layout livre (blocos posicionados em mm), com o mesmo conteúdo do interno. */
 export const isFreeTemplate = (t: PresentationTemplateCode): t is ExternalTemplateCode => t !== "interno";
@@ -120,8 +119,9 @@ export const inheritedLogos = (presentation: Record<string, unknown> | null | un
 /** Padrão do modelo = padrão artístico do prompt-guia do modelo + identidade institucional herdada do snapshot. */
 export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null): ExternalProfile {
   const b = structuredClone(BASE); b.logos = inheritedLogos(presentation);
-  if (t === "externo-panoramico") { b.show.conselhos = false; b.show.assinaturas = false; }
-  else { b.periods = { ...b.periods, layout: "horizontal" }; b.infoWidths = { legenda: 0, periodos: 44, feriados: 0, extra: 28 }; b.bands = { banner: 17, body: 59, info: 16, footer: 8 }; b.pageColor = "#EEF6FD"; b.holidayColor = "#E8201B"; }
+  void t; // único modelo externo: layout livre com imagem opcional só no topo (nunca de página inteira)
+  b.free = defaultFreeLayout("fotografico");
+  b.free.photo = { ...b.free.photo, page: null, bottom: null, bottomHmm: 0, veilStrength: 0 };
   return b;
 }
 
