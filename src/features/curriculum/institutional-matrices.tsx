@@ -1,3 +1,4 @@
+import { NoteBox } from "@/components/sigem/patterns";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
@@ -85,9 +86,9 @@ export function InstitutionalMatricesList() {
       {q.isLoading && <SkeletonState label="Carregando" />}
       {q.error && <p role="alert" className="text-sm text-destructive">{humanMatrixError((q.error as Error).message)}</p>}
       {q.data && q.data.length === 0 && (
-        <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">
+        <NoteBox>
           Nenhuma matriz curricular institucional registrada vigente nesta data.
-        </p>
+        </NoteBox>
       )}
       {q.data && q.data.length > 0 && (
         <ul className="divide-y divide-border rounded-md border border-border">
@@ -140,9 +141,9 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
       {q.isLoading && <SkeletonState label="Carregando" />}
       {q.error && <p role="alert" className="text-sm text-destructive">{humanMatrixError((q.error as Error).message)}</p>}
       {q.data && !q.data.matrix && (
-        <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">
+        <NoteBox>
           Nenhuma matriz curricular institucional com este identificador está vigente nesta data.
-        </p>
+        </NoteBox>
       )}
       {q.data?.matrix && (
         <>

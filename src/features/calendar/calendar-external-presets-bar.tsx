@@ -1,5 +1,6 @@
 /** CAL.PRESET.1 — gestão de presets pessoais no editor externo. Só troca o rascunho da tela. */
 import { useEffect, useState } from "react";
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { Button } from "@/components/ui/button";
 import type { ExternalProfile, ExternalTemplateCode } from "./calendar-external-model";
 import {
@@ -37,7 +38,7 @@ export function ExternalPresetsBar({ template, draft, defaults, presentation, on
         <Button type="button" size="sm" variant="outline" disabled={!cur} onClick={() => { if (cur) { onApply(cur.profile); setMsg(`"${cur.name}" aplicado à tela. Use "Salvar personalização" se quiser gravar para o município.`); } }}>Aplicar</Button>
         <Button type="button" size="sm" variant="outline" disabled={!cur || busy} onClick={() => cur && void run(() => duplicatePreset(template, cur, list!.map((p) => p.name)), "Preset duplicado.")}>Duplicar</Button>
         <Button type="button" size="sm" variant="outline" disabled={!cur || busy} onClick={() => cur && void run(() => updatePreset(template, cur, { profile: draft }), `"${cur.name}" atualizado com a tela atual.`)}>Atualizar com a tela</Button>
-        <Button type="button" size="sm" variant="outline" disabled={!cur || busy} onClick={() => cur && window.confirm(`Remover o preset "${cur.name}" da sua lista?`) && void run(async () => { await archivePreset(template, cur); setSel(""); }, "Preset removido da lista.")}>Remover</Button>
+        <Button type="button" size="sm" variant="outline" disabled={!cur || busy} onClick={() => cur && void confirmAction({ title: "Remover preset", consequence: `"${cur.name}" sai da sua lista. O histórico é mantido e o calendário não muda.`, actionLabel: "Remover", destructive: true }).then((ok) => { if (ok) void run(async () => { await archivePreset(template, cur); setSel(""); }, "Preset removido da lista."); })}>Remover</Button>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <input aria-label="Nome do preset" className={field} maxLength={80} value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome do preset" />

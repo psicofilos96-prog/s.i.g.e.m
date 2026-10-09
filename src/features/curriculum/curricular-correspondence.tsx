@@ -1,4 +1,5 @@
 import { operationalToday } from "@/lib/academic-date";
+import { NoteBox } from "@/components/sigem/patterns";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
  * R5 — Correspondência curricular (E2 perfil, E3 posição→matriz, E4 associação específica).
@@ -36,9 +37,7 @@ const GATE_EFFECT_LABEL: Record<GateEffect, string> = {
 export const E4_EXCEPTION_NOTE =
   "A associação específica é exceção explícita para uma turma, registrada por decisão própria. Ela nunca substitui automaticamente a correspondência regular nem é usada quando esta falta.";
 
-function Empty({ children }: { children: ReactNode }) {
-  return <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">{children}</p>;
-}
+const Empty = NoteBox;
 function Blocked({ kind }: { kind: "profile" | "correspondence" | "association" }) {
   return (
     <p className="text-xs text-muted-foreground" data-testid={`r5-${kind}-maintain-blocked`}>
