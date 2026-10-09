@@ -5,6 +5,8 @@ import { shrinkImage } from "./calendar-image-shrink";
  * CAL.EXT.3 — Editor do layout livre (modelos Fotográfico e Quadro anual): blocos em mm, tipografia por bloco,
  * dimensionamento da tabela, fotos, encaixe na grade, JSON exportar/importar. Só aparência.
  */
+import { LayersSection } from "./calendar-external-layers-editor";
+import { applyPremium, PREMIUM_NAME } from "./calendar-external-premium";
 import { useState, type ChangeEvent, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { ASSET_MAX_CHARS, FONT_OPTIONS, type ExternalProfile } from "./calendar-external-model";
@@ -30,7 +32,8 @@ function Section({ title, children, open }: { title: string; children: ReactNode
   return <details open={open} className="rounded-md border border-border bg-card"><summary className="cursor-pointer px-3 py-2 text-sm font-medium">{title}</summary><div className="space-y-2 border-t border-border px-3 py-3">{children}</div></details>;
 }
 
-export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaults, canUndo, canRedo, onUndo, onRedo }: {
+export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaults, canUndo, canRedo, onUndo, onRedo, selectedLayer = null, onSelectLayer = () => {} }: {
+  selectedLayer?: string | null; onSelectLayer?: (id: string | null) => void;
   profile: ExternalProfile; onChange: (p: ExternalProfile) => void; selected: FreeBlockId | null; onSelect: (b: FreeBlockId | null) => void;
   defaults: FreeLayout; canUndo: boolean; canRedo: boolean; onUndo: () => void; onRedo: () => void;
 }) {
@@ -90,6 +93,7 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
           <Button type="button" size="sm" variant="outline" disabled={!canUndo} onClick={onUndo}>Desfazer</Button>
           <Button type="button" size="sm" variant="outline" disabled={!canRedo} onClick={onRedo}>Refazer</Button>
           <Button type="button" size="sm" variant="outline" onClick={() => setF(defaults)}>Restaurar layout padrão</Button>
+          <Button type="button" size="sm" onClick={() => { onChange(applyPremium(profile)); setMsg(`Modelo “${PREMIUM_NAME}” aplicado ao rascunho. Datas e totais continuam vindo do calendário interno. Confira e salve.`); }}>Aplicar modelo Itaperuna Premium</Button>
           <Button type="button" size="sm" variant="outline" onClick={exportJson}>Exportar layout</Button>
           <label className="inline-flex cursor-pointer items-center rounded-md border border-input px-2 text-xs">Importar layout<input type="file" accept="application/json" className="sr-only" onChange={importJson} /></label>
         </div>
@@ -148,6 +152,8 @@ export function FreeLayoutEditor({ profile, onChange, selected, onSelect, defaul
           </div>
         </div>}
       </Section>
+
+      <LayersSection f={f} setF={setF} selected={selectedLayer} onSelect={onSelectLayer} readImg={readImg} />
 
       <Section title="Tabela do calendário">
         <label className="block text-xs">Dimensionamento<select className={field} value={f.table.mode} onChange={(e) => setTable({ mode: e.target.value as TableCfg["mode"] })}>

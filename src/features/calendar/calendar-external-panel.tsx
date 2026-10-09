@@ -20,6 +20,7 @@ import type { CalendarDayRead } from "./institutional-calendar-readers";
 import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
 import { institutionalIdentity, isFreeTemplate } from "./calendar-external-model";
 import { FreeLayoutEditor } from "./calendar-external-free-editor";
+import { moveLayer } from "./calendar-external-layers";
 import { ExternalPresetsBar } from "./calendar-external-presets-bar";
 import { resetSection, validateImage } from "./calendar-external-sections";
 import { shrinkImage } from "./calendar-image-shrink";
@@ -317,6 +318,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   const resetDraft = (p: ExternalProfile) => setHist({ past: [], present: p, future: [] });
   const free = isFreeTemplate(template);
   const [selected, setSelected] = useState<FreeBlockId | null>(null);
+  const [selectedLayer, setSelectedLayer] = useState<string | null>(null);
   useEffect(() => {
     if (!free || !selected) return;
     const onKey = (e: KeyboardEvent) => {
@@ -428,7 +430,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
         {canEdit && editing && <div className="space-y-2 xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1">
           <ExternalPresetsBar template={template} draft={draft} defaults={defaultProfile(template, presentation)} presentation={presentation} onApply={setDraft} />
-          {free && <FreeLayoutEditor profile={draft} onChange={setDraft} selected={selected} onSelect={setSelected} defaults={defaultProfile(template, presentation).free}
+          {free && <FreeLayoutEditor profile={draft} onChange={setDraft} selected={selected} onSelect={setSelected} defaults={defaultProfile(template, presentation).free} selectedLayer={selectedLayer} onSelectLayer={setSelectedLayer}
             canUndo={hist.past.length > 0} canRedo={hist.future.length > 0} onUndo={() => setHist(historyUndo)} onRedo={() => setHist(historyRedo)} />}
           <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
         {/* Em telas estreitas a prévia vem primeiro e fica presa no topo: cada ajuste do editor aparece na hora, sem rolar. */}
@@ -439,7 +441,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
           </div>}
           {overflowMm !== null && <p role="alert" className="text-xs text-destructive">A folha excede a área A4 em ≈{overflowMm} mm; nada é cortado nem reduzido automaticamente. Reduza a compactação ou oculte blocos opcionais.</p>}
           <div ref={screenRef} className="cx-tela overflow-hidden"><FitPreview><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation}
-            {...(free && canEdit && editing ? { selected, onSelect: setSelected, onMove: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: moveFreeBlock(draft.free, b, patch) }), onMoveSticker: (sid: string, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: moveSticker(draft.free, sid, patch) }) } : {})} /></FitPreview></div>
+            {...(free && canEdit && editing ? { selected, onSelect: setSelected, onMove: (b: FreeBlockId, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: moveFreeBlock(draft.free, b, patch) }), onMoveSticker: (sid: string, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: moveSticker(draft.free, sid, patch) }), selectedLayer, onSelectLayer: setSelectedLayer, onMoveLayer: (lid: string, patch: { x?: number; y?: number; w?: number; h?: number }) => setDraft({ ...draft, free: { ...draft.free, layers: moveLayer(draft.free.layers, lid, patch, { snap: draft.free.snap, stepMm: draft.free.stepMm }) } }) } : {})} /></FitPreview></div>
         </div>
       </div>
       <ExternalCalendarPrint><ExternalSheet template={template} vm={vm} p={draft} presentation={presentation} /></ExternalCalendarPrint>
