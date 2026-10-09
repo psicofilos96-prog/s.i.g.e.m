@@ -46,3 +46,34 @@ export function translateMutation(m: CalendarMutation, source: NetworkCalendar, 
       return null;
   }
 }
+
+/**
+ * Espelho integral do CONTEÚDO (dias, faixas, eventos, períodos, regras, legenda, tipos, simbologia):
+ * o alvo passa a ser igual à fonte; identidade, título, situação, textos/assinaturas do documento
+ * e trilha do alvo são preservados. Alvo homologado/arquivado nunca é alterado.
+ */
+export function mirrorContent(source: NetworkCalendar, target: NetworkCalendar): NetworkCalendar {
+  if (target.status === "homologado" || target.status === "arquivado") return target;
+  return {
+    ...target,
+    ranges: source.ranges,
+    events: source.events,
+    periods: source.periods,
+    periodGroups: source.periodGroups,
+    overrides: source.overrides,
+    inheritedHolidays: source.inheritedHolidays,
+    rules: source.rules,
+    legendHidden: source.legendHidden,
+    customLegend: source.customLegend,
+    symbology: source.symbology,
+    symbologyPrint: source.symbologyPrint,
+    dayTypeCatalog: source.dayTypeCatalog,
+    dayTypeHistory: source.dayTypeHistory,
+    councilRevision: source.councilRevision,
+  };
+}
+
+const CONTENT_KEYS = ["ranges", "events", "periods", "periodGroups", "overrides", "inheritedHolidays", "rules", "legendHidden", "customLegend", "symbology", "symbologyPrint", "dayTypeCatalog"] as const;
+export function mirrorDiffers(source: NetworkCalendar, target: NetworkCalendar): boolean {
+  return CONTENT_KEYS.some((k) => JSON.stringify(source[k] ?? null) !== JSON.stringify(target[k] ?? null));
+}

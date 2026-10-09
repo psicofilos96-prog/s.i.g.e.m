@@ -6,7 +6,7 @@
  */
 import { useEffect, useSyncExternalStore } from "react";
 import { createCalendarFixtures } from "./calendar-fixtures";
-import { mirrorTargets, translateMutation } from "./calendar-mirror";
+import { mirrorContent, mirrorDiffers, mirrorTargets } from "./calendar-mirror";
 import {
   deleteCalendar,
   duplicateCalendar,
@@ -227,10 +227,11 @@ export function createInMemoryCalendarRepository(
       if (!cal) return missing;
       const res = replace(mutateCalendar(cal, actor, m));
       if (res.ok) {
-        for (const t of mirrorTargets(cal, items)) {
-          const tm = translateMutation(m, cal, t);
-          if (tm) replace(mutateCalendar(t, actor, tm));
+        for (const t of mirrorTargets(res.calendar, items)) {
+          const next = mirrorContent(res.calendar, t);
+          if (next !== t) items = items.map((c) => (c.id === t.id ? next : c));
         }
+        emit();
       }
       return res;
     },
@@ -315,6 +316,9 @@ export function createInMemoryCalendarRepository(
     hydrate: () => {
       if (hydrated) return;
       hydrated = true;
+      try { return hydrateInner(); } finally { syncMirrors(); }
+    },
+    hydrateUnused: () => {
       const r: StorageRead = storage?.read
         ? storage.read()
         : (() => { const l = storage?.load(); return l ? { state: "lido", calendars: l } as StorageRead : { state: "ausente" } as StorageRead; })();
