@@ -108,7 +108,7 @@ describe("Regular 2027 reproduz o modelo de referência", () => {
       "Agosto total=22 1=D 7=S 8=D 14=S 15=D 21=S 22=D 28=S 29=D",
       "Setembro total=7+14 4=S 5=D 6=R 7=FL 10=CC 11=S 12=D 18=S 19=D 25=S 26=D",
       "Outubro total=19 2=S 3=D 9=S 10=D 11=MESTRE 12=F 16=S 17=D 23=S 24=D 30=S 31=D",
-      "Novembro total=20 2=F 6=S 7=D 13=S 14=D 15=F 20=S 21=D 27=S 28=D",
+      "Novembro total=20 2=F 6=S 7=D 13=S 14=D 15=F 20=F 21=D 27=S 28=D",
       "Dezembro total=13 4=S 5=D 10=CC 11=S 12=D 17=CF T 18=S 19=D 20=R 21=R 22=R 23=R 24=R 25=F 26=D 27=R 28=R 29=R 30=R 31=R",
       ">>> TOTAL DE DIAS LETIVOS: 200",
     ]);
@@ -155,7 +155,7 @@ describe("EJA 2027 reproduz o modelo de referência", () => {
       "Agosto total=22 1=D 7=S 8=D 14=S 15=D 21=S 22=D 28=S 29=D",
       "Setembro total=21 4=S 5=D 6=R 7=FL 11=S 12=D 18=S 19=D 25=S 26=D 30=CC",
       "Outubro total=19 2=S 3=D 9=S 10=D 11=MESTRE 12=F 16=S 17=D 23=S 24=D 30=S 31=D",
-      "Novembro total=20 2=F 6=S 7=D 13=S 14=D 15=F 20=S 21=D 27=S 28=D",
+      "Novembro total=20 2=F 6=S 7=D 13=S 14=D 15=F 20=F 21=D 27=S 28=D",
       "Dezembro total=13 4=S 5=D 10=CC 11=S 12=D 17=CF T 18=S 19=D 20=R 21=R 22=R 23=R 24=R 25=F 26=D 27=R 28=R 29=R 30=R 31=R",
       ">>> TOTAL DE DIAS LETIVOS DO 2° SEMESTRE: 100",
     ]);
