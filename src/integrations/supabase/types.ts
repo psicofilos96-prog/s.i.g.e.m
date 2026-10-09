@@ -19159,6 +19159,20 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      census_official_reconciliation: {
+        Args: { _known_at?: string }
+        Returns: {
+          census_year: string
+          inep: string
+          issued_at: string
+          measure: string
+          official_value: number
+          operational_value: number
+          receipt_version: number
+          school_id: string
+          source_ref: string
+        }[]
+      }
       census_open_cycle: {
         Args: { _reason: string; _reference_date: string; _year: string }
         Returns: string

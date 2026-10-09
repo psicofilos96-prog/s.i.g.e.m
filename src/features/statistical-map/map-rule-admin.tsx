@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
 import { SNAPSHOT_DATE_CRITERION_LABEL } from "./map-domain";
+import { mapRuleBaseTemplate } from "./map-rule-template";
 import { draftMapRule, homologateMapRule, listMapRules } from "./statistical-map.functions";
 
 export function MapRuleAdmin() {
@@ -60,6 +61,8 @@ export function MapRuleAdmin() {
         <label className="mt-2 block text-sm">Definição (escolas cobertas, critério estruturado da data de referência — regra institucional atual: {"{"}"kind":"ultimo-dia-letivo-do-mes-calendario-oficial"{"}"} —, células, tipo de atuação da direção)
           <textarea aria-label="Definição da regra" className="mt-1 min-h-32 w-full rounded-md border border-input bg-background p-2 font-mono text-xs" value={json} onChange={(e) => setJson(e.target.value)} />
         </label>
+        <Button type="button" variant="outline" className="mt-2 mr-2" onClick={() => setJson(JSON.stringify(mapRuleBaseTemplate([]), null, 2))}>Preencher modelo-base do acervo</Button>
+        <p className="mt-1 text-xs text-muted-foreground">O modelo-base traz só o que o acervo define: fotografia no último dia letivo e Remanejados como grupo próprio. Escolas, células e os tipos de Recebidos, Transferidos, Evadidos e Desistentes ficam para quem redige; sem eles o Mapa mostra "regra ainda não homologada".</p>
         <Button className="mt-2" disabled={save.isPending || !id || !from || !json} onClick={() => save.mutate()}>Registrar rascunho</Button>
       </details>
       {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
