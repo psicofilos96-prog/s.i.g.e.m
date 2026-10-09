@@ -628,7 +628,7 @@
 }
 .cd-conselho-linha {
   display: grid;
-  grid-template-columns: var(--cd-col-data, 44px) var(--cd-col-sep, 14px) 1fr;
+  grid-template-columns: minmax(var(--cd-col-data, 44px), max-content) var(--cd-col-sep, 14px) 1fr;
   gap: 4px;
   height: 17px;
   white-space: nowrap;
@@ -857,7 +857,7 @@
     font-size: 8pt;
   }
   .cd-a4 .cd-conselho-linha {
-    grid-template-columns: var(--cd-col-data, 10mm) var(--cd-col-sep, 3mm) 1fr;
+    grid-template-columns: minmax(var(--cd-col-data, 10mm), max-content) var(--cd-col-sep, 3mm) 1fr;
     height: 3.6mm;
   }
   .cd-a4 .cd-assinaturas {
