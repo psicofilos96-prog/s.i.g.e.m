@@ -34,6 +34,7 @@ import {
   type DiarySearch,
 } from "./diary-data";
 import { DraftIndicator, LessonRecordForm } from "./lesson-record-form";
+import { LessonDraftRecovery, LessonDraftStatus, useLessonServerDraft } from "./use-lesson-server-draft";
 import { AttendanceSummaryCard } from "./attendance-pages";
 import { JourneyAgenda } from "./diary-journey-view";
 import { InfantExperienceDetail, InfantExperienceRegisterPage } from "./infant-experience-pages";
@@ -361,8 +362,6 @@ function StandardLessonRegisterPage({ search }: { search: RegisterSearch }) {
         {isDiaryCloud() ? <LessonDraftStatus draft={serverDraft} /> : <DraftIndicator dirty={dirty} draftId={draftId} />}
       </DiaryHeader>
       <LessonDraftRecovery draft={serverDraft} onRecover={(v) => setValue(v)} />
-      <DiaryHeaderSpacer>
-      </DiaryHeader>
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">
           <span className="mb-1 block text-xs font-medium text-muted-foreground">Data da aula</span>
