@@ -90,6 +90,8 @@ export function mirrorContent(source: NetworkCalendar, target: NetworkCalendar):
 
 const CONTENT_KEYS = ["ranges", "events", "periods", "periodGroups", "overrides", "inheritedHolidays", "rules", "legendHidden", "customLegend", "symbology", "symbologyPrint", "dayTypeCatalog"] as const;
 export function mirrorDiffers(source: NetworkCalendar, target: NetworkCalendar): boolean {
-  const norm = (v: unknown) => JSON.stringify(v ?? null, (key, x) => (key === "id" || key === "groupId" ? undefined : x));
-  return CONTENT_KEYS.some((k) => norm(source[k]) !== norm(target[k]));
+  // Compara com o resultado exato do espelho (inclui IDs de período do alvo).
+  const next = mirrorContent(source, target);
+  if (next === target) return false;
+  return CONTENT_KEYS.some((k) => JSON.stringify(next[k] ?? null) !== JSON.stringify(target[k] ?? null));
 }
