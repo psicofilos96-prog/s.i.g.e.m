@@ -319,5 +319,6 @@
  "drizzle/migrations/0268_ndiary_final_2_lesson_drafts.sql": "bf00f672ff8cee2153131598c3ffedd401ecb3ef9d80784f7f8a57e1c0567664",
  "drizzle/migrations/0269_ndiary_final_2_plan_closed_period_guard.sql": "c9e2886f8c3a6fa519a4219fb3a9cea54d03adea974a51a2b1b3e0b9d2074cc8",
  "drizzle/migrations/0270_nciece_final_2_census_reconciliation.sql": "75f25ce99ca3f8acf9a060e66e2be77fbe363ac74daf0d8662aa913c7cdd424b",
- "drizzle/migrations/0271_nciece_final_2_census_reconciliation_semantics.sql": "fb58b8004b1cf88de57044e9163601762c173e1bd099364dffc091f007006cdc"
+ "drizzle/migrations/0271_nciece_final_2_census_reconciliation_semantics.sql": "fb58b8004b1cf88de57044e9163601762c173e1bd099364dffc091f007006cdc",
+ "drizzle/migrations/0272_nimport_standard_1_technical_adoptions.sql": "71114851e2b7fb1247d049747ce75a06da97992f91b33c113459714c3d932e45"
 }
