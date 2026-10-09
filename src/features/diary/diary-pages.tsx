@@ -13,6 +13,7 @@ import {
 import { diaryClassCalendar, useComposedCalendarRefresh } from "./diary-calendar";
 import { diaryReference } from "./diary-session-state";
 import { NextLessonCard } from "./next-lesson-card";
+import { TEACHER_DAY_STEPS } from "./teacher-day";
 import { TeachingSupportNotice } from "@/features/teacher-diary/teaching-support-notice";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -101,6 +102,43 @@ function ContextControls({
   );
 }
 
+/** NDOC.UX — o dia em sequência: cada passo leva à seção da própria tela. */
+function TeacherDaySteps() {
+  const go = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    (el.closest("[tabindex]") as HTMLElement | null ?? el).focus?.({ preventScroll: true });
+  };
+  return (
+    <nav aria-label="Seu dia de aula">
+      <ol className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+        {TEACHER_DAY_STEPS.map((step, i) => {
+          const body = (
+            <>
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-semibold text-primary-foreground" aria-hidden="true">{i + 1}</span>
+              <span className="min-w-0">
+                <span className="block text-sm font-medium text-foreground">{step.label}</span>
+                <span className="block text-xs text-muted-foreground">{step.hint}</span>
+              </span>
+            </>
+          );
+          const cls = "flex min-h-11 w-full items-center gap-2 rounded-md border border-border/70 bg-card p-2 text-left hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+          return (
+            <li key={step.id}>
+              {step.to ? (
+                <Link to={step.to} className={cls}>{body}</Link>
+              ) : (
+                <a href={`#${step.anchor}`} className={cls} onClick={(e) => { e.preventDefault(); go(step.anchor!); }}>{body}</a>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
 export function DiaryHomePage({ search }: { search: DiarySearch }) {
   const context = useDiary(search);
   const assignments = filteredAssignments(search);
@@ -164,11 +202,10 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
         </Button>
       </section>
       <PendingSection search={journeySearch} />
-      <details className="group">
-        <summary className="cursor-pointer list-none">
-      <SectionHeader
+      <section>
+        <SectionHeader
           title="Turmas sob sua responsabilidade"
-          description="Atuações vigentes na data consultada. Toque para abrir."
+          description="Atuações vigentes na data consultada."
           action={
             <Button asChild variant="ghost" size="sm">
               <Link to="/diario/turmas" search={search}>
@@ -177,8 +214,6 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
             </Button>
           }
         />
-        </summary>
-
         {assignments.length ? (
           <ul
             className="mt-2 divide-y divide-border/70"
@@ -195,8 +230,7 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
                     <span className="font-normal text-muted-foreground">· {item.field}</span>
                   </p>
                   <p className="break-words text-xs text-muted-foreground">
-                    {item.unitName} · {item.stage} · {item.record.role} · Vínculo{" "}
-                    {item.record.linkId}
+                    {item.unitName} · {item.stage} · {item.record.role}
                   </p>
                 </div>
                 <Button asChild size="sm" variant="ghost">
