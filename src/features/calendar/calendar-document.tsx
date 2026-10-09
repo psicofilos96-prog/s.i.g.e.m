@@ -217,7 +217,7 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
         <div className="cd-conselhos" data-cd-bloco="conselhos">
           {councils.map((c) => (
             <div key={c.key} className="cd-conselho-linha">
-              <b>{(c.dates.length ? c.dates : [c.date]).map(shortDate).join(" e ")}</b>
+              <b>{shortDate(c.date)}</b>
               <span>—</span>
               <span>{c.label}</span>
             </div>
