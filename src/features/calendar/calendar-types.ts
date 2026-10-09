@@ -313,4 +313,10 @@ export type ResolvedCalendar = {
   types: DayTypeCatalog;
   /** Outros eventos coexistentes na data, além do vencedor, na ordem declarada. */
   extraByDate: Map<IsoDate, DayTypeCode[]>;
+  /**
+   * CAL.COUNT.1 — datas sem sobrescrita em que eventos coexistentes declaram
+   * efeitos opostos sobre a contagem (letivo × não letivo). O vencedor seria só
+   * a ordem de lançamento; a validação bloqueia em vez de escolher em silêncio.
+   */
+  countConflicts?: Set<IsoDate>;
 };

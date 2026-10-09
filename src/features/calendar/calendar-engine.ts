@@ -329,7 +329,13 @@ export function resolveCalendar(cal: NetworkCalendar): ResolvedCalendar {
     rest.sort((a, b) => (T(a).stackOrder ?? 0) - (T(b).stackOrder ?? 0));
     if (rest.length) extraByDate.set(date, rest);
   }
-  return { year: cal.year, byDate, eventsByDate, types, extraByDate };
+  const countConflicts = new Set<IsoDate>();
+  for (const [date, list] of eventTypes) {
+    if (list.length < 2 || overrides.has(date)) continue;
+    const effects = new Set(list.map((c) => T(c).countsAsSchoolDay));
+    if (effects.has(true) && effects.has(false)) countConflicts.add(date);
+  }
+  return { year: cal.year, byDate, eventsByDate, types, extraByDate, countConflicts };
 }
 
 export const dayType = (r: ResolvedCalendar, date: string): DayTypeCode | null =>
@@ -873,6 +879,13 @@ export function validateCalendar(
       severity: "atencao",
       code: "SOMA_PERIODOS",
       message: `A soma dos períodos (${annual}) difere do total de dias letivos do calendário (${total})${outside ? `: ${outside} dia(s) letivo(s) fora de período` : ""}.`,
+    });
+  for (const d of r.countConflicts ?? [])
+    out.push({
+      severity: "erro",
+      code: "CONTAGEM_EM_CONFLITO",
+      message: `Em ${brDate(d)} há marcadores que dizem "conta como letivo" e "não conta" ao mesmo tempo. Defina o tipo do dia (sobrescrita) para que a contagem não dependa da ordem de lançamento.`,
+      date: d,
     });
   for (const [d, t] of r.byDate)
     if (t === "FL" && isWeekend(d))
