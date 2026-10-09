@@ -1,3 +1,4 @@
+import { useLatestRequest } from "@/lib/latest-request";
 import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
 import { knownLabel } from "@/config/ui-vocabulary";
@@ -38,17 +39,23 @@ export function StockSection({ school }: { school: string }) {
   const [ledger, setLedger] = useState<LedgerRow[] | null>(null); const [counts, setCounts] = useState<Count[]>([]);
   const [basis, setBasis] = useState<string | null>(null); const [err, setErr] = useState<string | null>(null);
   const [from, setFrom] = useState(`${today().slice(0, 7)}-01`);
+  const latest = useLatestRequest();
   const load = useCallback(async () => {
     if (!school) return;
+    const current = latest();
     try {
-      setLines(await call<Line[]>("meal_stock_balance_at", { _school: school, _on: on, _known_at: null }));
-      setLedger(await call<LedgerRow[]>("meal_stock_ledger_at", { _school: school, _from: from, _to: on, _known_at: null }));
-      setAlerts(await call<Alert[]>("meal_stock_alerts_at", { _school: school, _on: on, _expiry_window_days: null }).catch(() => []));
-      setCounts(await call<Count[]>("meal_stock_counts_at", { _school: school }).catch(() => []));
-      const b = await call<{ state: string }[]>("meal_stock_basis_at", { _school: school, _competence: on.slice(0, 7) }).catch(() => []);
-      setBasis(b[0]?.state ?? null); setErr(null);
-    } catch (e) { setErr(stockMessage((e as Error).message)); }
-  }, [school, on, from]);
+      // NLOADING.2: as cinco leituras correm juntas e só a última troca de data grava.
+      const [l, g, a, c, b] = await Promise.all([
+        call<Line[]>("meal_stock_balance_at", { _school: school, _on: on, _known_at: null }),
+        call<LedgerRow[]>("meal_stock_ledger_at", { _school: school, _from: from, _to: on, _known_at: null }),
+        call<Alert[]>("meal_stock_alerts_at", { _school: school, _on: on, _expiry_window_days: null }).catch(() => [] as Alert[]),
+        call<Count[]>("meal_stock_counts_at", { _school: school }).catch(() => [] as Count[]),
+        call<{ state: string }[]>("meal_stock_basis_at", { _school: school, _competence: on.slice(0, 7) }).catch(() => [] as { state: string }[]),
+      ]);
+      if (!current()) return;
+      setLines(l); setLedger(g); setAlerts(a); setCounts(c); setBasis(b[0]?.state ?? null); setErr(null);
+    } catch (e) { if (current()) setErr(stockMessage((e as Error).message)); }
+  }, [school, on, from, latest]);
   useEffect(() => { void load(); }, [load]);
   if (!school) return null;
   return (

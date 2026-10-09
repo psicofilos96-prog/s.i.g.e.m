@@ -1,3 +1,4 @@
+import { SkeletonState } from "@/components/sigem/guidance";
 import { operationalToday } from "@/lib/academic-date";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useEffect, useState } from "react";
@@ -53,9 +54,14 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
   const [res, setRes] = useState<{ blocks: Block[]; pending: Pending[] } | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const k = knownAt ? new Date(knownAt).toISOString() : null;
-  useEffect(() => { readManagementInputs(school, year, on, k).then((i) => setRes(buildPanel(i)), (e: Error) => setErr(userErrorText(e))); }, [school, year, on, k]);
+  useEffect(() => {
+    // NLOADING.2: resposta de contexto anterior nunca grava; troca limpa o painel antigo.
+    let current = true; setRes(null); setErr(null);
+    readManagementInputs(school, year, on, k).then((i) => { if (current) setRes(buildPanel(i)); }, (e: Error) => { if (current) setErr(userErrorText(e)); });
+    return () => { current = false; };
+  }, [school, year, on, k]);
   if (err) return <StatePanel tone="danger" title="Não foi possível montar a estação" description="Tente novamente em instantes." />;
-  if (!res) return <p role="status" className="text-sm text-muted-foreground">Lendo as fontes…</p>;
+  if (!res) return <SkeletonState label="Lendo as fontes…" />;
   const exportCsv = () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
     const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`, "Projeção dinâmica — não é documento oficial."];

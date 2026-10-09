@@ -1,3 +1,4 @@
+import { useLatestRequest } from "@/lib/latest-request";
 import { OffsetPager } from "@/components/sigem/list-pager";
 import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
@@ -30,12 +31,13 @@ export function ReportingCenter({ names, network, defaultSchool }: { names: Map<
   const [school, setSchool] = useState(network ? "" : defaultSchool);
   const [rows, setRows] = useState<SummaryRow[] | null>(null); const [err, setErr] = useState<string | null>(null); const [loading, setLoading] = useState(false);
   const [drill, setDrill] = useState<Drill | null>(null);
+  const latest = useLatestRequest();
   const load = useCallback(async () => {
-    setLoading(true);
-    try { setRows(await call<SummaryRow[]>("meal_reporting_summary", { _school: school || null, _from: from, _to: to })); setErr(null); }
-    catch (e) { setRows(null); setErr(reportingMessage((e as Error).message)); }
-    finally { setLoading(false); }
-  }, [school, from, to]);
+    const current = latest(); setLoading(true);
+    try { const r = await call<SummaryRow[]>("meal_reporting_summary", { _school: school || null, _from: from, _to: to }); if (!current()) return; setRows(r); setErr(null); }
+    catch (e) { if (!current()) return; setRows(null); setErr(reportingMessage((e as Error).message)); }
+    finally { if (current()) setLoading(false); }
+  }, [school, from, to, latest]);
   useEffect(() => { void load(); setDrill(null); }, [load]);
   const by = groupSummary(rows);
   const blocked = by.get("bloqueios") ?? [];
