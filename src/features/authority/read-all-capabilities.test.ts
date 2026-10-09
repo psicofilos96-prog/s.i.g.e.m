@@ -13,7 +13,7 @@ describe("PERF.LOADING.3 — capacidades efetivas sem truncamento", () => {
     const grants = Array.from({ length: 110 }, (_, i) => g(`cap-${String(i).padStart(3, "0")}`, "rede"));
     const classes = Array.from({ length: 698 }, (_, i) => ({ school_id: `s${i % 55}`, class_id: `c${i}` }));
     const calls: Array<[number, number]> = [];
-    const db = { rpc: (fn: string) => fn === "effective_capability_grants" ? chain(grants) : chain(classes, calls) };
+    const db = { rpc: (fn: string) => fn === "effective_capability_grants" ? chain(grants) : fn === "effective_capability_scope_classes" ? chain(classes, calls) : chain([]) };
     const r = await readAllEffectiveCapabilities(db, {}, "class");
     expect(r.error).toBeNull();
     expect(r.data).toHaveLength(76_780);
@@ -40,7 +40,7 @@ describe("PERF.LOADING.3 — capacidades efetivas sem truncamento", () => {
   });
   it("erro em qualquer leitor recusa tudo", async () => {
     const bad = { order: () => bad, range: () => Promise.resolve({ data: null, error: { message: "x" } }) };
-    const db = { rpc: (fn: string) => fn === "effective_capability_grants" ? chain([g("a", "rede")]) : bad };
+    const db = { rpc: (fn: string) => fn === "effective_capability_grants" ? chain([g("a", "rede")]) : fn === "effective_capability_scope_classes" ? bad : chain([]) };
     expect(await readAllEffectiveCapabilities(db)).toEqual({ data: null, error: { message: "x" } });
   });
 });

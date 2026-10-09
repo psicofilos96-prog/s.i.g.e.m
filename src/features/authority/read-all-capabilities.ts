@@ -70,7 +70,8 @@ export function expandGrants(grants: readonly GrantRow[], scopeClasses: readonly
 }
 
 export async function readAllEffectiveCapabilities(db: Rpcish, args: Record<string, unknown> = {}, mode: ExpandMode = "school"): Promise<PageRes> {
-  const probe = db.rpc("effective_capability_grants", args);
+  // O construtor do cliente real é preguiçoso (só executa ao ser aguardado): esta sonda não gera requisição.
+  const probe = db.rpc("effective_capabilities", args);
   // Duplo de teste legado (sem construtor): mantém o contrato antigo de uma chamada.
   if (typeof probe?.order !== "function") {
     const r = (await probe) as PageRes;
