@@ -20,6 +20,7 @@ import type { CalendarDayRead } from "./institutional-calendar-readers";
 import { readCouncilConfiguration, type CouncilConfiguration } from "./institutional-calendar-councils";
 import { institutionalIdentity, isFreeTemplate } from "./calendar-external-model";
 import { FreeLayoutEditor } from "./calendar-external-free-editor";
+import { ExternalPresetsBar } from "./calendar-external-presets-bar";
 import { resetSection, validateImage } from "./calendar-external-sections";
 import { shrinkImage } from "./calendar-image-shrink";
 import { readCalendarList } from "./institutional-calendar-readers";
@@ -426,6 +427,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       {msg && <p role="status" className="text-xs">{msg}</p>}
       <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
         {canEdit && editing && <div className="space-y-2 xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1">
+          <ExternalPresetsBar template={template} draft={draft} defaults={defaultProfile(template, presentation)} presentation={presentation} onApply={setDraft} />
           {free && <FreeLayoutEditor profile={draft} onChange={setDraft} selected={selected} onSelect={setSelected} defaults={defaultProfile(template, presentation).free}
             canUndo={hist.past.length > 0} canRedo={hist.future.length > 0} onUndo={() => setHist(historyUndo)} onRedo={() => setHist(historyRedo)} />}
           <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
