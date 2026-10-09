@@ -297,6 +297,69 @@ export type Database = {
           },
         ]
       }
+      account_activation_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          issued_by: string
+          login: string
+          purpose: string
+          revoked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          issued_by: string
+          login: string
+          purpose: string
+          revoked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          issued_by?: string
+          login?: string
+          purpose?: string
+          revoked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      account_activations: {
+        Row: {
+          activated_at: string
+          code_id: string | null
+          method: string
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string
+          code_id?: string | null
+          method: string
+          user_id: string
+        }
+        Update: {
+          activated_at?: string
+          code_id?: string | null
+          method?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       account_credential_events: {
         Row: {
           act_ref: string | null
