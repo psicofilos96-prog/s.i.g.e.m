@@ -340,3 +340,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `diario-ndiary-final-2.md` — Registro de lote: autosave, 7 impressões e relatórios do Diário.
 - `ciece-nciece-final-2.md` — Registro de lote: Censo oficial × base, Mapa no gerador e regra-base.
 - `nprint-final-2.md` — Registro de lote: validação rasterizada dos renderers fora do Document Studio.
+- [NIMPORT.STANDARD.1](nimport-standard-1.md) — Registro de lote
