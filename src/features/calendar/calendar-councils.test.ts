@@ -132,3 +132,19 @@ describe("Conselho em vários dias", () => {
     expect(councilDates(withTwo).filter((c) => c.final).map((c) => c.date)).toEqual([prev, fin0.date]);
   });
 });
+
+describe("Espelho Regular → EJA Fase I", () => {
+  it("ao abrir, o EJA Fase I salvo diferente recebe o conteúdo do Regular; edição nova também", () => {
+    const st = memStorage();
+    const base = createCalendarFixtures();
+    const reg = base.find((c) => c.id === "cal-rede-2027-regular")!;
+    const regEdited = { ...reg, overrides: [...reg.overrides, { date: "2027-09-21", type: "CC" as const }] };
+    st.data = JSON.stringify(base.map((c) => (c.id === reg.id ? regEdited : c)));
+    const repo = createInMemoryCalendarRepository(createCalendarFixtures(), st);
+    repo.hydrate();
+    expect(councilDates(repo.get("cal-rede-2027-eja-fase-1")!).map((c) => c.date)).toContain("2027-09-21");
+    repo.mutate("cal-rede-2027-regular", demoActors.supervisao, { kind: "definir-dia", date: "2027-12-16", type: "CF" });
+    expect(councilDates(repo.get("cal-rede-2027-eja-fase-1")!).filter((c) => c.final).map((c) => c.date)).toEqual(["2027-12-16", "2027-12-17"]);
+    expect(repo.get("cal-rede-2027-eja-fase-1")!.title).not.toBe(repo.get("cal-rede-2027-regular")!.title);
+  });
+});
