@@ -5,6 +5,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { loadStudentRecord } from "./student-record";
+import { StudentDayIntervalsPanel } from "./student-day-intervals-panel";
 
 const NI = "não informado";
 const SOURCE = { "carga-educacenso-2026": "Censo Escolar 2026 (carga técnica registrada)", "registro-sigem": "Registro no SIGEM" } as const;
@@ -53,6 +54,7 @@ export function StudentRecordPage({ id }: { id: string }) {
         </section>
       ))}
 
+      <StudentDayIntervalsPanel studentId={id} />
       <section aria-label="Campos ausentes" className="rounded-lg border border-dashed p-4 text-sm">
         <h2 className="mb-2 font-semibold">Campos ausentes nesta ficha</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">{r.missing.map((m) => <li key={m}>{m}</li>)}</ul>
