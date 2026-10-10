@@ -55,3 +55,23 @@ describe("LOTE 16 — fidelidade do mapa 2026", () => {
     expect(html).toContain("Ano 2026");
   });
 });
+
+describe("LOTE 17 — homologação do mapa 2026", () => {
+  it("menu liga Escolas→Mapa 2026 e SEMED→Consolidado 2026, e as estações certas abrem", async () => {
+    const { provisionalNavigation } = await import("@/config/navigation");
+    const all = provisionalNavigation.flatMap((g) => g.items.map((i) => i.to));
+    expect(all).toContain("/mapa-censo-2026");
+    expect(all).toContain("/consolidado-2026");
+    const { stationAllowsPath } = await import("@/features/authority/station-navigation");
+    expect(stationAllowsPath("secretaria_escolar", "/mapa-censo-2026")).toBe(true);
+    expect(stationAllowsPath("secretaria_escolar", "/consolidado-2026")).toBe(false);
+    expect(stationAllowsPath("ciece", "/consolidado-2026")).toBe(true);
+  });
+  it("mapa agregado e exportações não têm coluna nominal de aluno nem de profissional", async () => {
+    const { SCHOOL_COLUMNS, CLASS_COLUMNS } = await import("./census-map-2026");
+    const ids = [...SCHOOL_COLUMNS, ...CLASS_COLUMNS, ...MAP_GRID_REPORT.columns].map((c) => `${c.id} ${c.label}`.toLowerCase());
+    for (const bad of ["student_name", "full_name", "nome do aluno", "cpf", "nascimento", "person"]) expect(ids.join("|")).not.toContain(bad);
+    const sql = (await import("node:fs")).readFileSync("drizzle/migrations/0282_lote15_census_map_2026_readers.sql", "utf8");
+    expect(sql).not.toMatch(/display_name|full_name|birth|cpf/i);
+  });
+});

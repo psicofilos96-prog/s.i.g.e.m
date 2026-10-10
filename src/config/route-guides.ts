@@ -14,6 +14,8 @@ export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/calendario-escolar": { where: "Calendário escolar", todo: "Consulte o calendário que vale para a sua escola.", next: "abra um calendário para ver os dias letivos." },
   "/ciece": { where: "CIECE — Informação e Estatística", todo: "Acompanhe a qualidade e a consolidação dos dados da rede.", next: "confira os mapas enviados pelas escolas.", primary: { label: "Conferir mapas da rede", to: "/mapa-estatistico-rede" } },
   "/mapa-estatistico": { where: "Mapa estatístico", todo: "Confira os números da escola antes de enviar.", next: "revise as turmas e envie o mapa." },
+  "/mapa-censo-2026": { where: "Mapa Estatístico 2026", todo: "Escolha a escola e confira turmas, etapas e totais do Censo 2026.", next: "imprima a grade ou exporte em PDF/Excel." },
+  "/consolidado-2026": { where: "Consolidado 2026 da rede", todo: "Confira os totais da rede e a conferência com o recibo do Censo.", next: "abra o mapa de uma escola para ver o detalhe." },
   "/mapa-estatistico-rede": { where: "Mapa estatístico da rede", todo: "Acompanhe os mapas enviados pelas escolas.", next: "abra um mapa enviado para aprovar ou devolver." },
   "/qualidade-dos-dados": { where: "Qualidade dos dados", todo: "Veja os registros que precisam de correção." },
   "/revisao-de-anomalias": { where: "Revisão de anomalias", todo: "Analise os casos fora do padrão apontados pelo sistema." },

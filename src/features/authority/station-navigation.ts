@@ -46,12 +46,12 @@ export const STATION_HOME: Record<SectorStation, string> = {
 };
 
 const STATION_ROUTES: Record<SectorStation, readonly string[]> = {
-  ciece: ["/ciece", "/mapa-estatistico", "/mapa-estatistico-rede", "/qualidade-dos-dados", "/revisao-de-anomalias", "/paineis", "/relatorios", "/integracoes", "/central-de-integracoes", "/unidades", "/base-de-conhecimento", "/censo-escolar", "/alunos", "/turmas"],
-  supervisao: ["/supervisao-escolar", "/unidades"],
+  ciece: ["/ciece", "/mapa-censo-2026", "/consolidado-2026", "/mapa-estatistico", "/mapa-estatistico-rede", "/qualidade-dos-dados", "/revisao-de-anomalias", "/paineis", "/relatorios", "/integracoes", "/central-de-integracoes", "/unidades", "/base-de-conhecimento", "/censo-escolar", "/alunos", "/turmas"],
+  supervisao: ["/supervisao-escolar", "/unidades", "/mapa-censo-2026", "/consolidado-2026"],
   alimentacao: ["/alimentacao-escolar", "/unidades", "/relatorios"],
   avaliacao: ["/avaliacao-desempenho", "/acompanhamento-avaliacao", "/paineis", "/relatorios", "/alunos", "/turmas"],
-  secretaria_escolar: ["/secretaria", "/alunos", "/turmas", "/enturmacoes", "/mapa-estatistico", "/documentos-escolares", "/horarios"],
-  direcao_escolar: ["/direcao", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar"],
+  secretaria_escolar: ["/secretaria", "/alunos", "/turmas", "/enturmacoes", "/mapa-censo-2026", "/mapa-estatistico", "/documentos-escolares", "/horarios"],
+  direcao_escolar: ["/direcao", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-censo-2026", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar"],
   orientacao_pedagogica: ["/orientacao", "/planejamento", "/alunos", "/turmas", "/horarios"],
   inclusao_nei: ["/inclusao", "/unidades", "/relatorios", "/alunos"],
 };
