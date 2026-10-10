@@ -13,7 +13,7 @@ export type DeclaredMap = {
 export function movementBalance(m: Pick<DeclaredMap, "previous_month_enrollment" | "transfers_in" | "new_students" | "transfers_out" | "dropouts" | "withdrawn_cancelled">): number | null {
   const v = [m.previous_month_enrollment, m.transfers_in, m.new_students, m.transfers_out, m.dropouts, m.withdrawn_cancelled];
   if (v.some((x) => x === null || x === undefined)) return null;
-  const [a, r, n, e, d, c] = v as number[];
+  const [a, r, n, e, d, c] = v as [number, number, number, number, number, number];
   return a + r + n - e - d - c;
 }
 
