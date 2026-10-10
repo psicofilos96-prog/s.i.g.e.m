@@ -1,6 +1,7 @@
 # Matriz de setores do SIGEM — Lote A (10/10/2026)
 
-**Situação atual:** Registro de lote. Fotografia do código e do banco Lovable Cloud em 10/10/2026; não é fonte normativa.
+## Situação atual (Lote A, 2026-10-10)
+- Classe: **Registro de lote**. Fotografia do código e do banco em 10/10/2026; não é fonte normativa.
 
 Legenda: **Implementado** = telas e gravação existem no código; **Verificado** = há dado real no banco e teste/consulta conferiu; **Parcial** = existe, mas falta dado, atuação ou fluxo; **Ausente** = não existe.
 "Verificado em sessão" ainda não vale para nenhum setor: não houve conta de escola/setor real autenticada nos testes.
