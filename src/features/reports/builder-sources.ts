@@ -7,7 +7,7 @@ import type { CellValue, ColumnDef, ReportDefinition } from "./report-engine";
 import type { BuilderSource, Page } from "./report-builder";
 import { structureOf } from "@/features/statistical-map/map-structures";
 import { DIVERGENCE_LABEL, MEASURE_LABEL, classify, coverage as censusCoverage, difference } from "@/features/data-quality/census-official";
-import { panoramaRows, type ReconRow } from "./cross-reports";
+import { classCountRows, infraValue, journeySchoolRows, panoramaRows, type DayObsRow, type EpisodeRow, type ReconRow } from "./cross-reports";
 import { REPORTING_REPORTS, toReportRow, type Dataset } from "@/features/school-meals/reporting-model";
 
 const C = (id: string, label: string, kind: ColumnDef["kind"] = "text"): ColumnDef => ({ id, label, kind });
@@ -311,7 +311,6 @@ export const BUILDER_SOURCES: readonly BuilderSource[] = [
   ...(["pedidos", "entregas", "nao-conformidades", "movimentos", "execucoes"] as const).map(mealSource),
   pending("gerador-avaliacao", "Avaliação — resultados por habilidade", ["avaliacao"], "Os resultados saem pela tela de Desempenho, com a política de supressão dela; leitura transversal ainda não liberada."),
   ...CROSS_SOURCES,
-  pending("gerador-infraestrutura", "Infraestrutura das escolas", ["supervisao", "ciece"], "Sem adaptador governado de infraestrutura no gerador; use Unidades Escolares."),
   pending("gerador-alunos", "Alunos (nominal)", ["secretaria"], "Dado nominal de estudante: leitura transversal exige reader com supressão por campo ainda não registrado."),
   pending("gerador-movimentacoes", "Movimentações", ["secretaria"], "Depende de enturmação 2026 (ENROLLMENT_EPISODES_2026_PENDING) e de reader de movimentações."),
   pending("gerador-jornadas", "Jornadas e horários", ["op-direcao"], "Sem fonte de jornada profissional (PROFESSIONAL_SCHEDULE_SOURCE_ABSENT)."),
