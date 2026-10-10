@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { projectAll, type DeclaredMap } from "./declared-monthly-map";
-import { declaredOccurrences, networkCategoryFromRef, occurrenceId } from "./declared-inconsistencies";
+import { classifySchool, declaredOccurrences, matchesNetwork, occurrenceId } from "./declared-inconsistencies";
 
 const base = (o: Partial<DeclaredMap>): DeclaredMap => ({
   school_id: "inep-1", inep_declared: "1", month: 3, source_file: "f.xlsx", source_sheet: "MARÇO", shifts: { total: 10 },
@@ -31,10 +31,13 @@ describe("ocorrências dos mapas declarados", () => {
   it("parcela em branco é incompleta, nunca zero", () => {
     expect(run([base({ month: 2 }), base({ dropouts: null })]).some((x) => x.rule === "MV02")).toBe(true);
   });
-  it("rede vem do registro de origem: lotes 1–2 conveniadas, lote 3-4 rural/urbana", () => {
-    expect(networkCategoryFromRef("technical-operation:mapas-declarados-lote2:abc")).toBe("conveniada");
-    expect(networkCategoryFromRef("declaracao-escolar:lote-3-4:rural:lista-inep-oficial")).toBe("rural");
-    expect(networkCategoryFromRef("declaracao-escolar:lote-3-4:urbana:lista-inep-oficial")).toBe("urbana");
-    expect(networkCategoryFromRef(null)).toBe("nao-registrada");
+  it("conveniada rural conta em Conveniada e em Rural, nunca em Municipal rural", () => {
+    const c = classifySchool({ location_kind: "rural", administrative_dependency: "privada" });
+    expect(matchesNetwork(c, "conveniada")).toBe(true); expect(matchesNetwork(c, "rural")).toBe(true);
+    expect(matchesNetwork(c, "municipal-rural")).toBe(false); expect(matchesNetwork(c, "urbana")).toBe(false);
+  });
+  it("classificação ausente não entra em nenhum filtro", () => {
+    expect(matchesNetwork(classifySchool(undefined), "urbana")).toBe(false);
+    expect(matchesNetwork(classifySchool({ location_kind: "urbana", administrative_dependency: null }), "urbana")).toBe(false);
   });
 });

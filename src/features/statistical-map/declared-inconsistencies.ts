@@ -73,20 +73,29 @@ export function declaredOccurrences(maps: DeclaredMap[], projs: DeclaredProjecti
   return out.sort((a, b) => a.id.localeCompare(b.id));
 }
 
-export const NETWORK_CATEGORIES = ["urbana", "rural", "conveniada"] as const;
-export type NetworkCategory = (typeof NETWORK_CATEGORIES)[number] | "nao-registrada";
-export const NETWORK_CATEGORY_LABEL: Record<NetworkCategory, string> = { urbana: "Municipal urbana", rural: "Municipal rural", conveniada: "Conveniada", "nao-registrada": "Não registrada" };
-
-/** Rede vem só do registro de origem do lote (os lotes 1 e 2 foram declarados pelo usuário como conveniadas); sem registro ⇒ "nao-registrada". */
-export function networkCategoryFromRef(ref: string | null | undefined): NetworkCategory {
-  const t = (ref ?? "").toLowerCase();
-  if (t.includes(":rural:")) return "rural";
-  if (t.includes(":urbana:")) return "urbana";
-  if (/mapas-declarados-lote[12]:/.test(t) || t.includes("conveniada")) return "conveniada";
-  return "nao-registrada";
+/** Rede = duas dimensões do cadastro (localização × dependência), nunca uma só: uma conveniada rural pertence a "Conveniada" E a "Rural". */
+export type SchoolClassification = { localizacao: "urbana" | "rural" | null; conveniada: boolean | null };
+export const NETWORK_FILTERS = ["municipal-urbana", "municipal-rural", "conveniada", "rural", "urbana"] as const;
+export type NetworkFilter = (typeof NETWORK_FILTERS)[number];
+export const NETWORK_FILTER_LABEL: Record<NetworkFilter, string> = {
+  "municipal-urbana": "Municipal urbana", "municipal-rural": "Municipal rural", conveniada: "Conveniada (urbana e rural)", rural: "Toda a zona rural (municipal + conveniada)", urbana: "Toda a zona urbana (municipal + conveniada)",
+};
+export function classifySchool(row: { location_kind?: string | null; administrative_dependency?: string | null } | undefined): SchoolClassification {
+  const loc = (row?.location_kind ?? "").toLowerCase(); const dep = (row?.administrative_dependency ?? "").toLowerCase();
+  return { localizacao: loc === "urbana" || loc === "rural" ? loc : null, conveniada: dep === "" ? null : dep !== "municipal" };
 }
-export function schoolNetworkCategory(maps: { school_id: string; originating_act_ref?: string | null }[]): Map<string, NetworkCategory> {
-  const out = new Map<string, NetworkCategory>();
-  for (const m of maps) { const c = networkCategoryFromRef(m.originating_act_ref); if (!out.has(m.school_id) || out.get(m.school_id) === "nao-registrada") out.set(m.school_id, c); }
-  return out;
+/** Classificação desconhecida nunca entra num filtro (fica em "não classificada"), porque presumir rede excluiria ou duplicaria escola. */
+export function matchesNetwork(c: SchoolClassification | undefined, f: NetworkFilter): boolean {
+  if (!c || c.localizacao === null || c.conveniada === null) return false;
+  switch (f) {
+    case "municipal-urbana": return !c.conveniada && c.localizacao === "urbana";
+    case "municipal-rural": return !c.conveniada && c.localizacao === "rural";
+    case "conveniada": return c.conveniada;
+    case "rural": return c.localizacao === "rural";
+    case "urbana": return c.localizacao === "urbana";
+  }
+}
+export function networkLabel(c: SchoolClassification | undefined): string {
+  if (!c || c.localizacao === null || c.conveniada === null) return "Não classificada";
+  return `${c.conveniada ? "Conveniada" : "Municipal"} ${c.localizacao}`;
 }

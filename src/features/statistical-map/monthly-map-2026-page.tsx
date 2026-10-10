@@ -13,7 +13,7 @@ import {
   referenceDate, canFreeze, provenance, type Closure,
 } from "./monthly-map-2026";
 import { EXPECTED_MONTHS, IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
-import { CATEGORY_LABEL, NETWORK_CATEGORIES, NETWORK_CATEGORY_LABEL, declaredOccurrences, schoolNetworkCategory } from "./declared-inconsistencies";
+import { CATEGORY_LABEL, NETWORK_FILTERS, NETWORK_FILTER_LABEL, classifySchool, declaredOccurrences, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
 import type { ReportDefinition } from "@/features/reports/report-engine";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
@@ -259,14 +259,26 @@ const OCC_REPORT: ReportDefinition = {
 function InconsistencyPanel({ maps, projs, names }: { maps: DeclaredMap[]; projs: ReturnType<typeof projectAll>; names: Map<string, { name: string; inep: string | null }> }) {
   const [fs, setFs] = useState(""); const [fc, setFc] = useState<string>(""); const [fm, setFm] = useState<string>(""); const [fr, setFr] = useState<string>("");
   const all = useMemo(() => declaredOccurrences(maps, projs, EXPECTED_MONTHS), [maps, projs]);
-  const redeOf = useMemo(() => schoolNetworkCategory(maps as (DeclaredMap & { originating_act_ref?: string | null })[]), [maps]);
-  const rows = all.filter((o) => (!fs || o.school_id === fs) && (!fc || o.category === fc) && (!fm || String(o.month) === fm) && (!fr || redeOf.get(o.school_id) === fr));
-  const byRede = NETWORK_CATEGORIES.map((r) => { const sc = [...redeOf].filter(([, v]) => v === r).map(([k]) => k);
-    const comp = new Set(maps.filter((m) => redeOf.get(m.school_id) === r && (EXPECTED_MONTHS as readonly number[]).includes(m.month)).map((m) => `${m.school_id}:${m.month}`)).size;
-    return { r, escolas: sc.length, comp, faltam: sc.length * EXPECTED_MONTHS.length - comp, occ: all.filter((o) => redeOf.get(o.school_id) === r).length }; });
+  const cls = useQuery({
+    queryKey: ["classificacao-escolas-cadastro"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("institutional_school_record_versions").select("school_id,version_number,location_kind,administrative_dependency").order("version_number", { ascending: false }).range(0, 4999);
+      if (error) throw new Error(error.message);
+      const m = new Map<string, SchoolClassification>();
+      for (const r of data ?? []) if (!m.has(r.school_id)) m.set(r.school_id, classifySchool(r));
+      return m;
+    },
+  });
+  const redeOf = cls.data ?? new Map<string, SchoolClassification>();
+  const declaredSchools = [...new Set(maps.map((m) => m.school_id))];
+  const rows = all.filter((o) => (!fs || o.school_id === fs) && (!fc || o.category === fc) && (!fm || String(o.month) === fm) && (!fr || matchesNetwork(redeOf.get(o.school_id), fr as (typeof NETWORK_FILTERS)[number])));
+  const byRede = NETWORK_FILTERS.map((r) => { const sc = declaredSchools.filter((k) => matchesNetwork(redeOf.get(k), r));
+    const comp = new Set(maps.filter((m) => sc.includes(m.school_id) && (EXPECTED_MONTHS as readonly number[]).includes(m.month)).map((m) => `${m.school_id}:${m.month}`)).size;
+    return { r, escolas: sc.length, comp, faltam: sc.length * EXPECTED_MONTHS.length - comp, occ: all.filter((o) => sc.includes(o.school_id)).length }; });
+  const unclassified = declaredSchools.filter((k) => networkLabel(redeOf.get(k)) === "Não classificada").length;
   const nm = (s: string) => names.get(s)?.name ?? s;
   async function download(format: "csv" | "xlsx" | "pdf") {
-    const cells = rows.map((o) => ({ id: o.id, rede: NETWORK_CATEGORY_LABEL[redeOf.get(o.school_id) ?? "nao-registrada"], school: nm(o.school_id), inep: names.get(o.school_id)?.inep ?? null, mes: MONTHS[o.month - 1] ?? String(o.month), categoria: CATEGORY_LABEL[o.category],
+    const cells = rows.map((o) => ({ id: o.id, rede: networkLabel(redeOf.get(o.school_id)), school: nm(o.school_id), inep: names.get(o.school_id)?.inep ?? null, mes: MONTHS[o.month - 1] ?? String(o.month), categoria: CATEGORY_LABEL[o.category],
       secao: o.section, campo: o.field, declarado: o.declared, esperado: o.expected, regra: o.rule, descricao: o.description, gravidade: o.severity, certeza: o.certainty, arquivo: o.source_file, aba: o.source_sheet, status: o.status, sugestao: o.suggestion }));
     const blob = await exportMap(OCC_REPORT, cells, format, { headerLines: [brand.name, OCC_REPORT.title], title: OCC_REPORT.title }, ["Ano letivo 2026", `${rows.length} ocorrência(s) · todas pendentes de conferência`]);
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `inconsistencias-mapas-2026.${format === "pdf" ? "html" : format}`; a.click(); URL.revokeObjectURL(a.href);
@@ -277,14 +289,15 @@ function InconsistencyPanel({ maps, projs, names }: { maps: DeclaredMap[]; projs
       <h3 className="font-display text-base">Inconsistências {fs ? "da escola" : "da rede"} ({rows.length} de {all.length})</h3>
       <div className="flex flex-wrap gap-2 text-sm">
         <label>Escola <select className="rounded border border-border bg-background px-2 py-1" value={fs} onChange={(e) => setFs(e.target.value)}><option value="">Rede (todas)</option>{schools.map((s) => <option key={s} value={s}>{nm(s)}</option>)}</select></label>
-        <label>Rede <select className="rounded border border-border bg-background px-2 py-1" value={fr} onChange={(e) => setFr(e.target.value)}><option value="">Todas</option>{NETWORK_CATEGORIES.map((r) => <option key={r} value={r}>{NETWORK_CATEGORY_LABEL[r]}</option>)}</select></label>
+        <label>Rede <select className="rounded border border-border bg-background px-2 py-1" value={fr} onChange={(e) => setFr(e.target.value)}><option value="">Todas</option>{NETWORK_FILTERS.map((r) => <option key={r} value={r}>{NETWORK_FILTER_LABEL[r]}</option>)}</select></label>
         <label>Categoria <select className="rounded border border-border bg-background px-2 py-1" value={fc} onChange={(e) => setFc(e.target.value)}><option value="">Todas</option>{Object.entries(CATEGORY_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
         <label>Mês <select className="rounded border border-border bg-background px-2 py-1" value={fm} onChange={(e) => setFm(e.target.value)}><option value="">Todos</option>{EXPECTED_MONTHS.map((m) => <option key={m} value={m}>{MONTHS[m - 1]}</option>)}</select></label>
         {(["xlsx", "csv", "pdf"] as const).map((f) => <Button key={f} size="sm" variant="outline" onClick={() => void download(f)}>{f.toUpperCase()}</Button>)}
       </div>
       <table className="w-full text-sm"><thead><tr>{["Rede", "Escolas", "Meses declarados (fev–set)", "Meses ausentes (fev–set)", "Ocorrências"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
-        <tbody>{byRede.map((b) => <tr key={b.r} className={registryRow}><td className={registryTd}>{NETWORK_CATEGORY_LABEL[b.r]}</td><td className={registryTd}>{b.escolas}</td><td className={registryTd}>{b.comp}</td><td className={registryTd}>{b.faltam}</td><td className={registryTd}>{b.occ}</td></tr>)}
-          <tr className={registryRow}><td className={registryTd}>Consolidado</td><td className={registryTd}>{byRede.reduce((a, b) => a + b.escolas, 0)}</td><td className={registryTd}>{byRede.reduce((a, b) => a + b.comp, 0)}</td><td className={registryTd}>{byRede.reduce((a, b) => a + b.faltam, 0)}</td><td className={registryTd}>{all.length}</td></tr></tbody></table>
+        <tbody>{byRede.map((b) => <tr key={b.r} className={registryRow}><td className={registryTd}>{NETWORK_FILTER_LABEL[b.r]}</td><td className={registryTd}>{b.escolas}</td><td className={registryTd}>{b.comp}</td><td className={registryTd}>{b.faltam}</td><td className={registryTd}>{b.occ}</td></tr>)}
+          <tr className={registryRow}><td className={registryTd}>Consolidado da rede</td><td className={registryTd}>{declaredSchools.length}</td><td className={registryTd}>{new Set(maps.filter((m) => (EXPECTED_MONTHS as readonly number[]).includes(m.month)).map((m) => `${m.school_id}:${m.month}`)).size}</td><td className={registryTd}>{declaredSchools.length * EXPECTED_MONTHS.length - new Set(maps.filter((m) => (EXPECTED_MONTHS as readonly number[]).includes(m.month)).map((m) => `${m.school_id}:${m.month}`)).size}</td><td className={registryTd}>{all.length}</td></tr></tbody></table>
+      {cls.error ? <p role="alert" className="text-xs">Classificação das escolas indisponível: as linhas por rede não foram calculadas (não significa zero).</p> : cls.isLoading ? <p className="text-xs">Lendo a classificação das escolas…</p> : <p className="text-xs text-muted-foreground">Localização e dependência vêm do cadastro da escola, em duas dimensões: uma conveniada rural aparece em "Conveniada" e em "Zona rural". As linhas por rede se sobrepõem; o consolidado não é a soma delas.{unclassified ? ` ${unclassified} escola(s) sem classificação no cadastro.` : ""}</p>}
       <div className="max-h-96 overflow-auto"><table className="w-full text-sm"><thead><tr>{["Escola", "Mês", "Categoria", "Seção/campo", "Declarado", "Esperado", "Gravidade", "Descrição"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
         <tbody>{rows.slice(0, 300).map((o) => <tr key={o.id} className={registryRow}><td className={registryTd}>{nm(o.school_id)}</td><td className={registryTd}>{MONTHS[o.month - 1]}</td><td className={registryTd}>{CATEGORY_LABEL[o.category]}</td>
           <td className={registryTd}>{o.section} · {o.field}</td><td className={registryTd}>{o.declared}</td><td className={registryTd}>{o.expected}</td><td className={registryTd}>{o.severity}</td><td className={registryTd}>{o.description}</td></tr>)}</tbody></table></div>
