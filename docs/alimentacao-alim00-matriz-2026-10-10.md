@@ -5,7 +5,7 @@ Situação atual: Registro de lote (2026-10-10).
 ## Cobertura verificável
 - 128 arquivos de alimentação acessíveis no projeto (39 cartilha/anexos, 30 cardápios, 25 planilhas por unidade, 5 modelos, 21 relatórios de apoio/propostas, 6 entrevista/áudio, 2 formulários); 30 grupos de arquivos idênticos por hash.
 - Inventário com SHA-256, classificação e status: `/mnt/documents/alimentacao/alim00-inventario.xlsx` (fora do repositório).
-- O acervo de 502 arquivos / 177 planilhas citado nos relatórios de apoio NÃO está acessível; notas fiscais, atas, empenhos e contratos: nenhum arquivo.
+- Os 128 arquivos são os MODELOS representativos enviados intencionalmente (um por tipo); o acervo histórico (502/177) são exemplares preenchidos repetidos e NÃO é requisito de construção. NF/contrato/empenho/ata reais só são necessários para transações oficiais específicas; o fluxo é construído e testado com dados sintéticos.
 
 ## Classes
 - REGRA DOCUMENTADA: cartilha 2026 (≥2 inspetores, merendeiro não elegível; não conformidade em 24 h/1 dia útil; NF não assinada com inconformidade).

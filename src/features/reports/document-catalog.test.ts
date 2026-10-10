@@ -17,6 +17,10 @@ describe("catálogo documental", () => {
     expect(DOCUMENT_CATALOG.every((d) => d.reason.length > 10)).toBe(true);
   });
   it("filtra por setor e status", () => {
-    expect(filterCatalog("", "Alimentação", "BLOQUEADO").every((d) => d.sector === "Alimentação")).toBe(true);
+    expect(filterCatalog("", "Alimentação", "PENDENTE").every((d) => d.sector === "Alimentação")).toBe(true);
+  });
+  it("BLOQUEADO só por norma ausente; engenharia nunca bloqueia", () => {
+    for (const d of DOCUMENT_CATALOG) if (d.status === "BLOQUEADO") expect(d.dependsOn).toBe("norma");
+    expect(DOCUMENT_CATALOG.filter((d) => d.status === "BLOQUEADO" && d.dependsOn !== "norma")).toEqual([]);
   });
 });

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/catalogo-documentos")({
   component: Page,
 });
 
-const STATUS_STYLE: Record<DocStatus, string> = { COMPLETO: "bg-primary text-primary-foreground", PARCIAL: "bg-secondary text-secondary-foreground", BLOQUEADO: "bg-muted text-muted-foreground" };
+const STATUS_STYLE: Record<DocStatus, string> = { COMPLETO: "bg-primary text-primary-foreground", PARCIAL: "bg-secondary text-secondary-foreground", PENDENTE: "bg-accent text-accent-foreground", BLOQUEADO: "bg-muted text-muted-foreground" };
 
 function Page() {
   const [q, setQ] = useState("");
@@ -29,7 +29,7 @@ function Page() {
         <select aria-label="Setor" value={sector ?? ""} onChange={(e) => setSector(e.target.value || null)} className="rounded-md border border-input bg-background px-2 text-sm">
           <option value="">Todos os setores</option>{SECTORS.map((s) => <option key={s}>{s}</option>)}
         </select>
-        {(["COMPLETO", "PARCIAL", "BLOQUEADO"] as const).map((s) => (
+        {(["COMPLETO", "PARCIAL", "PENDENTE", "BLOQUEADO"] as const).map((s) => (
           <Button key={s} size="sm" variant={status === s ? "default" : "outline"} onClick={() => setStatus(status === s ? null : s)}>{s}</Button>
         ))}
       </div>
@@ -38,7 +38,7 @@ function Page() {
           <li key={d.id} className="flex flex-wrap items-start justify-between gap-3 p-4">
             <div className="min-w-0 flex-1">
               <p className="font-medium text-foreground">{d.label}</p>
-              <p className="text-xs text-muted-foreground">{d.sector} · {d.reason}</p>
+              <p className="text-xs text-muted-foreground">{d.sector} · Depende de: {d.dependsOn === "desenvolvimento" ? "desenvolvimento" : d.dependsOn === "norma" ? "norma ausente" : "dados reais (só produção)"} · {d.reason}</p>
             </div>
             <span className={`rounded px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[d.status]}`}>{d.status}</span>
             {d.route && !d.route.includes("$") ? <Button asChild size="sm" variant="outline"><Link to={d.route as "/relatorios"}>Abrir</Link></Button> : null}
