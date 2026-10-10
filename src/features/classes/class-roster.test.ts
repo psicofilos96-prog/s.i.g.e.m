@@ -23,9 +23,9 @@ vi.mock("@/integrations/supabase/client", () => {
       ], error: null };
     };
     for (const k of ["eq", "ilike", "order", "abortSignal", "in", "limit"]) b[k] = () => b;
-    b.select = (s: string) => { state.sel = s; calls.push(`${table}:select`); return b; };
-    b.range = async () => result();
-    b.then = (res: (v: unknown) => unknown) => Promise.resolve(result()).then(res);
+    b["select"] = (s: string) => { state.sel = s; calls.push(`${table}:select`); return b; };
+    b["range"] = async () => result();
+    b["then"] = (res: (v: unknown) => unknown) => Promise.resolve(result()).then(res);
     return b;
   };
   return { supabase: { from: (t: string) => builder(t) } };
@@ -50,13 +50,13 @@ describe("diário nominal da turma", () => {
 
   it("AEE: vínculo é AEE só quando a turma declara tipo AEE", () => {
     const row = { id: "a", student_id: "s", enrollment_id: "m", class_id: "T", valid_from: null, supersedes_id: null, studentName: null, ending: null };
-    expect(projectRoster([row], { isAee: true, otherActive: new Map() })[0].bond).toBe("aee");
-    expect(projectRoster([row], { isAee: false, otherActive: new Map() })[0].bond).toBe("regular");
+    expect(projectRoster([row], { isAee: true, otherActive: new Map() })[0]?.bond).toBe("aee");
+    expect(projectRoster([row], { isAee: false, otherActive: new Map() })[0]?.bond).toBe("regular");
   });
 
   it("saída registrada vira encerrado com data e motivo; correção remove o episódio substituído", () => {
     const [e] = projectRoster([{ id: "a", student_id: "s", enrollment_id: "m", class_id: "T", valid_from: null, supersedes_id: null, studentName: null, ending: { ended_on: "2026-05-10", reason_label: "Transferência" } }], { isAee: false, otherActive: new Map() });
-    expect(e.situation).toEqual({ kind: "encerrado", on: "2026-05-10", reason: "Transferência" });
+    expect(e?.situation).toEqual({ kind: "encerrado", on: "2026-05-10", reason: "Transferência" });
     expect(currentEpisodes([{ id: "old", supersedes_id: null }, { id: "new", supersedes_id: "old" }]).map((r) => r.id)).toEqual(["new"]);
   });
 
