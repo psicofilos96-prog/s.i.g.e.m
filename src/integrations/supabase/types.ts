@@ -16612,6 +16612,57 @@ export type Database = {
           },
         ]
       }
+      student_bond_census_attributes: {
+        Row: {
+          bond_observation_id: string
+          field: string
+          id: string
+          recorded_at: string
+          source_hash: string
+          source_locator: string
+          source_ref: string
+          technical_operation_id: string
+          value_text: string
+        }
+        Insert: {
+          bond_observation_id: string
+          field: string
+          id?: string
+          recorded_at?: string
+          source_hash: string
+          source_locator: string
+          source_ref: string
+          technical_operation_id: string
+          value_text: string
+        }
+        Update: {
+          bond_observation_id?: string
+          field?: string
+          id?: string
+          recorded_at?: string
+          source_hash?: string
+          source_locator?: string
+          source_ref?: string
+          technical_operation_id?: string
+          value_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_bond_census_attributes_bond_observation_id_fkey"
+            columns: ["bond_observation_id"]
+            isOneToOne: false
+            referencedRelation: "student_class_bond_observations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_bond_census_attributes_technical_operation_id_fkey"
+            columns: ["technical_operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_card_issuances: {
         Row: {
           academic_year: string
