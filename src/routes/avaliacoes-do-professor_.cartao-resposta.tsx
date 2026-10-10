@@ -5,6 +5,7 @@ import jsQR from "jsqr";
 import { Button } from "@/components/ui/button";
 import { cardLayout, cardSvg, confirmReading, opaqueToken, readCard, type QuestionRead } from "@/features/teacher-assessment/answer-card";
 import { rectify } from "@/features/teacher-assessment/answer-card-rectify";
+import { CorrectionPanel } from "@/features/teacher-assessment/correction-panel";
 
 const title = "Cartão-resposta e conferência — SIA";
 const description = "Gera cartão-resposta com bolhas circulares e código opaco, lê imagem enquadrada e exige conferência humana antes de aceitar.";
@@ -57,7 +58,7 @@ function Page() {
   const confirm = () => {
     if (!reads) return;
     const r = confirmReading(reads, decisions, true);
-    setMessage(r.ok ? `Leitura conferida: ${Object.values(r.answers).filter(Boolean).length} respostas. Nada foi gravado — a gravação no Diário ainda não está ligada.` : `Não aceito: ${r.reason}`);
+    setMessage(r.ok ? `Leitura conferida: ${Object.values(r.answers).filter(Boolean).length} respostas. Esta área é só de teste do cartão avulso; para gravar, use "Corrigir prova aprovada pela OP" abaixo.` : `Não aceito: ${r.reason}`);
   };
 
   return (
@@ -97,6 +98,7 @@ function Page() {
           </div>
         </section>
       )}
+      <CorrectionPanel />
     </main>
   );
 }

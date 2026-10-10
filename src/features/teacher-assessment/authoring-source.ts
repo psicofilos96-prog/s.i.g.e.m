@@ -49,3 +49,38 @@ export async function uploadItemMedia(userId: string, itemId: string, file: File
 }
 export const itemMedia = (itemId: string) => must<{ id: string; label: string; object_path: string; mime: string }[]>(db.from("assessment_item_media").select("id, label, object_path, mime").eq("item_id", itemId));
 export async function mediaUrl(path: string) { const r = await db.storage.from("avaliacao-docente").createSignedUrl(path, SIGNED_URL_TTL_SECONDS); if (r.error) throw new Error("url"); return r.data.signedUrl as string; }
+
+/** LOTE 8 — imagem do cartão vai ao bucket privado sob o prefixo do próprio usuário; o hash acompanha a correção. */
+export async function uploadCardImage(userId: string, instrumentVersionId: string, file: File) {
+  if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) throw new Error("media-type");
+  if (file.size > 10 * 1024 * 1024) throw new Error("media-size");
+  const buf = await file.arrayBuffer();
+  const mime = guardUpload("avaliacao-docente", new Uint8Array(buf), file.type);
+  const sha = [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const path = assertSafePath(`${userId}/cartoes/${instrumentVersionId}/${crypto.randomUUID()}`);
+  const up = await db.storage.from("avaliacao-docente").upload(path, buf, { upsert: false, contentType: mime });
+  if (up.error) throw new Error("upload");
+  return { path, sha };
+}
+export type CorrectionRow = { id: string; instrument_version_id: string; student_id: string; variant: string; hits: number; total: number; supersedes_id: string | null; diary_batch_act_id: string | null; image_path: string; recorded_at: string };
+export const correctionsOf = (instrumentVersionId: string) => must<CorrectionRow[]>(db.from("sia_card_corrections").select("id, instrument_version_id, student_id, variant, hits, total, supersedes_id, diary_batch_act_id, image_path, recorded_at").eq("instrument_version_id", instrumentVersionId).order("recorded_at"));
+export const classStudents = (classId: string) => must<{ student_id: string }[]>(db.from("class_enrollment_episodes").select("student_id").eq("class_id", classId));
+export type RecordCorrection = { instrumentVersionId: string; variant: string; studentId: string; cardCode: string; imagePath: string; imageSha: string; fingerprint: string; lines: { number: number; itemVersionId: string; answered: string | null; correct: boolean }[]; expectedHead: string | null; reason: string | null; launch: boolean };
+export const recordCorrection = (c: RecordCorrection) => must<string>(db.rpc("record_sia_card_correction", {
+  _instrument_version: c.instrumentVersionId, _variant: c.variant, _student: c.studentId, _card_code: c.cardCode, _image_path: c.imagePath, _image_sha256: c.imageSha,
+  _print_fingerprint: c.fingerprint, _lines: c.lines, _human_confirmed: true, _expected_head: c.expectedHead, _reason: c.reason, _launch_to_diary: c.launch,
+}));
+export const SIA_CORRECTION_ERROR: Record<string, string> = {
+  "sia:human-review-required": "A correção só é gravada depois da sua conferência.",
+  "sia:only-author-corrects": "Só o autor da prova grava a correção.",
+  "sia:instrument-not-published": "A prova precisa estar publicada.",
+  "sia:not-approved-by-op": "A OP ainda não aprovou esta versão exata da prova.",
+  "sia:unresolved-lines": "Há questões sem decisão (certa/errada).",
+  "sia:head-changed": "Outra correção foi gravada para este estudante; recarregue.",
+  "sia:reason-required": "Corrigir uma correção já gravada exige motivo.",
+  "sia:no-diary-instrument": "A prova não está ligada a uma avaliação do Diário.",
+  "sia:image-required": "Envie a imagem do cartão.",
+  "capability-missing": "Sua conta não tem permissão para lançar notas nesta turma.",
+  "aa:instrument-not-applied": "A avaliação do Diário ainda não foi marcada como aplicada.",
+};
+export const siaCorrectionMessage = (raw: string) => { const k = Object.keys(SIA_CORRECTION_ERROR).find((x) => raw.includes(x)); return k ? SIA_CORRECTION_ERROR[k]! : `Não gravado: ${raw}`; };

@@ -13495,6 +13495,50 @@ export type Database = {
           },
         ]
       }
+      op_permanent_board_versions: {
+        Row: {
+          author_user_id: string
+          change_reason: string | null
+          id: string
+          recorded_at: string
+          sections: Json
+          stage_key: string
+          supersedes_id: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          author_user_id: string
+          change_reason?: string | null
+          id?: string
+          recorded_at?: string
+          sections: Json
+          stage_key: string
+          supersedes_id?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          author_user_id?: string
+          change_reason?: string | null
+          id?: string
+          recorded_at?: string
+          sections?: Json
+          stage_key?: string
+          supersedes_id?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "op_permanent_board_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "op_permanent_board_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       operational_task_events: {
         Row: {
           actor: string
@@ -16121,6 +16165,100 @@ export type Database = {
           station_code?: string
         }
         Relationships: []
+      }
+      sia_card_corrections: {
+        Row: {
+          approved_review_event_id: string
+          card_code: string
+          change_reason: string | null
+          class_id: string
+          diary_batch_act_id: string | null
+          hits: number
+          human_confirmed: boolean
+          id: string
+          image_path: string
+          image_sha256: string
+          instrument_id: string
+          instrument_version_id: string
+          lines: Json
+          print_fingerprint: string
+          recorded_at: string
+          reviewer_user_id: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          total: number
+          variant: string
+        }
+        Insert: {
+          approved_review_event_id: string
+          card_code: string
+          change_reason?: string | null
+          class_id: string
+          diary_batch_act_id?: string | null
+          hits: number
+          human_confirmed: boolean
+          id?: string
+          image_path: string
+          image_sha256: string
+          instrument_id: string
+          instrument_version_id: string
+          lines: Json
+          print_fingerprint: string
+          recorded_at?: string
+          reviewer_user_id: string
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          total: number
+          variant: string
+        }
+        Update: {
+          approved_review_event_id?: string
+          card_code?: string
+          change_reason?: string | null
+          class_id?: string
+          diary_batch_act_id?: string | null
+          hits?: number
+          human_confirmed?: boolean
+          id?: string
+          image_path?: string
+          image_sha256?: string
+          instrument_id?: string
+          instrument_version_id?: string
+          lines?: Json
+          print_fingerprint?: string
+          recorded_at?: string
+          reviewer_user_id?: string
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          total?: number
+          variant?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sia_card_corrections_approved_review_event_id_fkey"
+            columns: ["approved_review_event_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_work_review_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sia_card_corrections_instrument_version_id_fkey"
+            columns: ["instrument_version_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_instrument_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sia_card_corrections_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "sia_card_corrections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sigem_activator_account_origins: {
         Row: {
@@ -25140,6 +25278,16 @@ export type Database = {
         }
         Returns: string
       }
+      record_op_permanent_board_version: {
+        Args: {
+          _expected_head: string
+          _reason: string
+          _sections: Json
+          _stage: string
+          _title: string
+        }
+        Returns: string
+      }
       record_operational_task_event: {
         Args: {
           _assignee: string
@@ -25481,6 +25629,23 @@ export type Database = {
           _student: string
           _valid_from: string
           _valid_until: string
+        }
+        Returns: string
+      }
+      record_sia_card_correction: {
+        Args: {
+          _card_code: string
+          _expected_head: string
+          _human_confirmed: boolean
+          _image_path: string
+          _image_sha256: string
+          _instrument_version: string
+          _launch_to_diary: boolean
+          _lines: Json
+          _print_fingerprint: string
+          _reason: string
+          _student: string
+          _variant: string
         }
         Returns: string
       }

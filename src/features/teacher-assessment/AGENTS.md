@@ -3,3 +3,4 @@
 - Gabarito/critério vive em `assessment_item_keys`, legível só pelo autor ou por compartilhamento explícito (`key_shared`), porque enunciado e resposta juntos vazariam.
 - Tipos de item vêm de registro aberto; nenhum peso, escala ou fórmula é definido aqui — resultado continua na Pauta (ligação opcional por `results_instrument_id`), porque segunda regra de nota divergiria.
 - Randomização só com semente declarada no instrumento; impressão é projeção determinística sem gabarito, com impressão digital SHA-256.
+- LOTE 8 (0292): correção de cartão grava só por `record_sia_card_correction` (autor, versão publicada cuja última análise da OP é "aprovado" sobre o mesmo id, conferência humana, toda questão decidida, imagem no prefixo do próprio usuário, cabeça esperada, motivo ao corrigir); lançamento no Diário só pelo `register_assessment_results` dentro do mesmo ato, porque leitura automática nunca vira nota sem revisão.

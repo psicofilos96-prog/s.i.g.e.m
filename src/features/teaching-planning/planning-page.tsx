@@ -8,7 +8,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { ReferencePicker } from "@/features/curricular-reference/reference-picker";
 import { readCatalog } from "@/features/curricular-reference/reference-source";
-import { copyDraft, filterPlans, planTargetDate, parseBlocks, parseRefs, planHeads, planHistory, planMessage, plansOn, STATUS_LABEL, type PlanBlock, type PlanStatus, type PlanVersion } from "./planning-model";
+import { copyDraft, dailyBlocks, filterPlans, planTargetDate, parseBlocks, parseRefs, planHeads, planHistory, planMessage, plansOn, STATUS_LABEL, type PlanBlock, type PlanStatus, type PlanVersion } from "./planning-model";
 import { attachmentUrl, classPositions, planPeriods, itemsOfMatrix, matrixItemKeys, myAssignments, planAttachments, revokeAttachment, savePlan, uploadAttachment, visiblePlans, type Assignment } from "./planning-source";
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
 
@@ -157,6 +157,7 @@ export function PlanningPage() {
                     {!readOnly && <Button size="sm" variant="ghost" onClick={() => edit({ blocks: draft.blocks.filter((_, j) => j !== i) })}>Remover bloco</Button>}
                   </div>))}
                 {!readOnly && <Button size="sm" variant="outline" onClick={() => edit({ blocks: [...draft.blocks, { kindValueId: null, heading: "", body: "" }] })}>Adicionar bloco</Button>}
+                {!readOnly && <Button size="sm" variant="outline" disabled={!draft.coversFrom || !draft.coversUntil} onClick={() => edit({ blocks: dailyBlocks(draft.coversFrom, draft.coversUntil, draft.blocks) })}>Criar um bloco por dia (datas de “Cobre de/até”)</Button>}
               </fieldset>
               <fieldset className="space-y-1">
                 <legend className="text-sm font-medium">Elementos da matriz desta regência</legend>

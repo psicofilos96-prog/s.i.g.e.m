@@ -76,6 +76,7 @@ import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as ProntidaoPilotoRouteImport } from './routes/prontidao-piloto'
 import { Route as PublicacoesRouteImport } from './routes/publicacoes'
 import { Route as QuadroDocenteRouteImport } from './routes/quadro-docente'
+import { Route as QuadroPermanenteOpRouteImport } from './routes/quadro-permanente-op'
 import { Route as QualidadeDosDadosRouteImport } from './routes/qualidade-dos-dados'
 import { Route as ReferenciasCurricularesRouteImport } from './routes/referencias-curriculares'
 import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativas'
@@ -575,6 +576,11 @@ const PublicacoesRoute = PublicacoesRouteImport.update({
 const QuadroDocenteRoute = QuadroDocenteRouteImport.update({
   id: '/quadro-docente',
   path: '/quadro-docente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuadroPermanenteOpRoute = QuadroPermanenteOpRouteImport.update({
+  id: '/quadro-permanente-op',
+  path: '/quadro-permanente-op',
   getParentRoute: () => rootRouteImport,
 } as any)
 const QualidadeDosDadosRoute = QualidadeDosDadosRouteImport.update({
@@ -1559,6 +1565,7 @@ export interface FileRoutesByFullPath {
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
   '/quadro-docente': typeof QuadroDocenteRoute
+  '/quadro-permanente-op': typeof QuadroPermanenteOpRoute
   '/qualidade-dos-dados': typeof QualidadeDosDadosRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
@@ -1785,6 +1792,7 @@ export interface FileRoutesByTo {
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
   '/quadro-docente': typeof QuadroDocenteRoute
+  '/quadro-permanente-op': typeof QuadroPermanenteOpRoute
   '/qualidade-dos-dados': typeof QualidadeDosDadosRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-institucionais': typeof RegrasInstitucionaisRoute
@@ -1994,6 +2002,7 @@ export interface FileRoutesById {
   '/prontidao-piloto': typeof ProntidaoPilotoRoute
   '/publicacoes': typeof PublicacoesRoute
   '/quadro-docente': typeof QuadroDocenteRoute
+  '/quadro-permanente-op': typeof QuadroPermanenteOpRoute
   '/qualidade-dos-dados': typeof QualidadeDosDadosRoute
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-avaliativas': typeof RegrasAvaliativasRouteWithChildren
@@ -2229,6 +2238,7 @@ export interface FileRouteTypes {
     | '/prontidao-piloto'
     | '/publicacoes'
     | '/quadro-docente'
+    | '/quadro-permanente-op'
     | '/qualidade-dos-dados'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
@@ -2455,6 +2465,7 @@ export interface FileRouteTypes {
     | '/prontidao-piloto'
     | '/publicacoes'
     | '/quadro-docente'
+    | '/quadro-permanente-op'
     | '/qualidade-dos-dados'
     | '/referencias-curriculares'
     | '/regras-institucionais'
@@ -2663,6 +2674,7 @@ export interface FileRouteTypes {
     | '/prontidao-piloto'
     | '/publicacoes'
     | '/quadro-docente'
+    | '/quadro-permanente-op'
     | '/qualidade-dos-dados'
     | '/referencias-curriculares'
     | '/regras-avaliativas'
@@ -2897,6 +2909,7 @@ export interface RootRouteChildren {
   ProntidaoPilotoRoute: typeof ProntidaoPilotoRoute
   PublicacoesRoute: typeof PublicacoesRoute
   QuadroDocenteRoute: typeof QuadroDocenteRoute
+  QuadroPermanenteOpRoute: typeof QuadroPermanenteOpRoute
   QualidadeDosDadosRoute: typeof QualidadeDosDadosRoute
   ReferenciasCurricularesRoute: typeof ReferenciasCurricularesRoute
   RegrasAvaliativasRoute: typeof RegrasAvaliativasRouteWithChildren
@@ -3407,6 +3420,13 @@ declare module '@tanstack/react-router' {
       path: '/quadro-docente'
       fullPath: '/quadro-docente'
       preLoaderRoute: typeof QuadroDocenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quadro-permanente-op': {
+      id: '/quadro-permanente-op'
+      path: '/quadro-permanente-op'
+      fullPath: '/quadro-permanente-op'
+      preLoaderRoute: typeof QuadroPermanenteOpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/qualidade-dos-dados': {
@@ -5302,6 +5322,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProntidaoPilotoRoute: ProntidaoPilotoRoute,
   PublicacoesRoute: PublicacoesRoute,
   QuadroDocenteRoute: QuadroDocenteRoute,
+  QuadroPermanenteOpRoute: QuadroPermanenteOpRoute,
   QualidadeDosDadosRoute: QualidadeDosDadosRoute,
   ReferenciasCurricularesRoute: ReferenciasCurricularesRoute,
   RegrasAvaliativasRoute: RegrasAvaliativasRouteWithChildren,
