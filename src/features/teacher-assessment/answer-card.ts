@@ -2,8 +2,7 @@
  * Cartão-resposta do SIA: UM motor de layout (mm, A4) usado para desenhar o cartão E para ler a imagem,
  * de modo que as coordenadas lidas são as mesmas desenhadas — nunca estimadas depois.
  * Leitura só propõe; gravar exige conferência humana (ver `confirmReading`).
- * Limite atual: lê imagem já retificada (escaneada/enquadrada pelos 4 marcadores); homografia
- * de foto inclinada ainda não implementada.
+ * Lê imagem retificada; foto inclinada passa antes por `answer-card-rectify.ts` (marcadores + homografia).
  */
 export const PAGE = { w: 210, h: 297 } as const;
 export const MARKER = 8; // quadrados pretos de canto, mm
