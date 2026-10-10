@@ -1982,6 +1982,13 @@
       "when": 1791600504410,
       "tag": "0282_lote15_census_map_2026_readers",
       "breakpoints": true
+    },
+    {
+      "idx": 283,
+      "version": "7",
+      "when": 1791601920773,
+      "tag": "0283_monthly_map_2026",
+      "breakpoints": true
     }
   ]
 }

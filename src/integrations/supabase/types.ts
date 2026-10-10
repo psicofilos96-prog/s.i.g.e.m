@@ -13020,6 +13020,59 @@ export type Database = {
           },
         ]
       }
+      monthly_map_2026_closures: {
+        Row: {
+          created_at: string
+          digest: string
+          id: string
+          kind: string
+          map_month: number
+          map_year: number
+          measures: Json
+          reason: string | null
+          recorded_by: string
+          reference_date: string
+          school_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          digest: string
+          id?: string
+          kind: string
+          map_month: number
+          map_year?: number
+          measures: Json
+          reason?: string | null
+          recorded_by: string
+          reference_date: string
+          school_id: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          digest?: string
+          id?: string
+          kind?: string
+          map_month?: number
+          map_year?: number
+          measures?: Json
+          reason?: string | null
+          recorded_by?: string
+          reference_date?: string
+          school_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_map_2026_closures_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movement_type_definitions: {
         Row: {
           created_at: string
@@ -22719,6 +22772,28 @@ export type Database = {
         Args: { _scheme: string; _value: string }
         Returns: boolean
       }
+      monthly_map_2026_live: {
+        Args: { _month: number }
+        Returns: {
+          aee_bonds: number
+          aee_only_students: number
+          aee_students: number
+          bonds: number
+          classes_with_students: number
+          distinct_students: number
+          earliest_evidence: string
+          entries_in_month: number
+          exits_in_month: number
+          inep: string
+          reference_date: string
+          regular_bonds: number
+          school_enrollments: number
+          school_id: string
+          school_name: string
+          status: string
+          undated_enrollments: number
+        }[]
+      }
       movement_types_at: {
         Args: { _known_at?: string; _on: string }
         Returns: {
@@ -24705,6 +24780,10 @@ export type Database = {
           _source: string
           _status: string
         }
+        Returns: string
+      }
+      record_monthly_map_2026: {
+        Args: { _month: number; _reason?: string; _school: string }
         Returns: string
       }
       record_movement_type_definition: {

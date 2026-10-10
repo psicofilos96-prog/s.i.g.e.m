@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
 import { SignInRequired } from "@/components/sigem/sign-in-required";
-import { CensusMap2026Page } from "@/features/statistical-map/census-map-2026-page";
+import { MonthlyMap2026Page } from "@/features/statistical-map/monthly-map-2026-page";
 import { brand } from "@/config/branding";
 
 export const Route = createFileRoute("/consolidado-2026")({
@@ -15,5 +15,5 @@ export const Route = createFileRoute("/consolidado-2026")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: () => <ClassRouteGate laboratoryHasHeading institutional={() => <CensusMap2026Page mode="rede" />} laboratory={() => <SignInRequired title="Consolidado 2026 da rede" what="o consolidado 2026" />} />,
+  component: () => <ClassRouteGate laboratoryHasHeading institutional={() => <MonthlyMap2026Page mode="rede" />} laboratory={() => <SignInRequired title="Consolidado 2026 da rede" what="o consolidado 2026" />} />,
 });
