@@ -41,7 +41,7 @@ export type NavigationRoute =
   | "/identidade-institucional"
   | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/supervisao-escolar" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
-  | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/auditoria"
+  | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/mapa-censo-2026" | "/consolidado-2026" | "/auditoria"
   | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos";
 
 export type NavigationItem = {
@@ -90,6 +90,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Turmas", icon: UsersRound, to: "/turmas", hint: "Turmas da unidade" },
       { label: "Profissionais", icon: ContactRound, to: "/profissionais", hint: "Servidores, vínculos e lotações" },
       { label: "Unidades escolares", icon: School, to: "/unidades", hint: "Escolas da rede" },
+      { label: "Mapa Estatístico 2026", icon: Table2, to: "/mapa-censo-2026", hint: "Mapa da escola pelo Censo 2026: turmas, etapas e totais" },
       { label: "Horários", icon: CalendarClock, to: "/horarios", hint: "Horário de turmas e professores" },
       { label: "Calendário", icon: CalendarDays, to: "/calendario-escolar", hint: "Calendário escolar da rede" },
       { label: "Documentos escolares", icon: BookOpen, to: "/documentos-escolares", hint: "Emissão e verificação" },
@@ -114,6 +115,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Desempenho", icon: Table2, to: "/avaliacao-desempenho", hint: "Avaliações institucionais" },
       { label: "Relatórios", icon: Table2, to: "/relatorios", hint: "Relatórios e exportações" },
       { label: "Mapa da rede", icon: Table2, to: "/mapa-estatistico-rede", hint: "Projeção mensal por escola" },
+      { label: "SEMED · Consolidado 2026", icon: Table2, to: "/consolidado-2026", hint: "Totais 2026 da rede com conferência do Censo" },
       { label: "Auditoria", icon: Scale, to: "/auditoria", hint: "Trilha de ações" },
       { label: "Estação administrativa", icon: SlidersHorizontal, to: "/estacao-administrativa", hint: "Governança e configuração" },
       { label: "Central de acessos", icon: SlidersHorizontal, to: "/central-de-acessos", hint: "Contas, atuações e políticas" },
