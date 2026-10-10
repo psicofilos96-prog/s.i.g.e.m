@@ -3,10 +3,10 @@ import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cellKey, printFinalSheet, projectFinalSheet, resultMinutes, type Modality, type SheetCell, type SheetInput } from "@/features/diary/final-sheet";
 
-const title = "Folha Final, Boletim e Ata — SIGEM";
+const title = "Laboratório da Folha Final — SIGEM";
 const description = "Folha Final no layout dos modelos de diário da rede: médias, recuperação final, frequência, resultado e ata, com pendências explícitas.";
 
-export const Route = createFileRoute("/diario/folha-final")({
+export const Route = createFileRoute("/laboratorio/folha-final")({
   head: () => ({ meta: [{ title }, { name: "description", content: description }, { property: "og:title", content: title }, { property: "og:description", content: description }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });
