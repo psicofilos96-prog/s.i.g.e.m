@@ -173,6 +173,7 @@ import { Route as TurmasOfertaIdRouteImport } from './routes/turmas.oferta.$id'
 import { Route as UnidadesEditarIdRouteImport } from './routes/unidades.editar.$id'
 import { Route as VerificarCarteirinhaCodigoRouteImport } from './routes/verificar.carteirinha.$codigo'
 import { Route as VerificarDocumentoCodigoRouteImport } from './routes/verificar.documento.$codigo'
+import { Route as VerificarRelatorioCodigoRouteImport } from './routes/verificar.relatorio.$codigo'
 import { Route as ApiPublicV1SplatRouteImport } from './routes/api/public/v1/$'
 import { Route as DiarioTurmasTurmaIdIndexRouteImport } from './routes/diario.turmas.$turmaId.index'
 import { Route as DiarioTurmasTurmaIdAlunosRouteImport } from './routes/diario.turmas.$turmaId.alunos'
@@ -1081,6 +1082,12 @@ const VerificarDocumentoCodigoRoute =
     path: '/verificar/documento/$codigo',
     getParentRoute: () => rootRouteImport,
   } as any)
+const VerificarRelatorioCodigoRoute =
+  VerificarRelatorioCodigoRouteImport.update({
+    id: '/verificar/relatorio/$codigo',
+    path: '/verificar/relatorio/$codigo',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1SplatRoute = ApiPublicV1SplatRouteImport.update({
   id: '/api/public/v1/$',
   path: '/api/public/v1/$',
@@ -1631,6 +1638,7 @@ export interface FileRoutesByFullPath {
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
+  '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
@@ -1841,6 +1849,7 @@ export interface FileRoutesByTo {
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
+  '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
   '/calendario-escolar/$calendarioId': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais': typeof HorariosProfissionaisIndexRoute
@@ -2060,6 +2069,7 @@ export interface FileRoutesById {
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
+  '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
   '/calendario-escolar/$calendarioId/': typeof CalendarioEscolarCalendarioIdIndexRoute
   '/diario/turmas/': typeof DiarioTurmasIndexRoute
   '/horarios/profissionais/': typeof HorariosProfissionaisIndexRoute
@@ -2292,6 +2302,7 @@ export interface FileRouteTypes {
     | '/unidades/editar/$id'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
+    | '/verificar/relatorio/$codigo'
     | '/calendario-escolar/$calendarioId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
@@ -2502,6 +2513,7 @@ export interface FileRouteTypes {
     | '/unidades/editar/$id'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
+    | '/verificar/relatorio/$codigo'
     | '/calendario-escolar/$calendarioId'
     | '/diario/turmas'
     | '/horarios/profissionais'
@@ -2720,6 +2732,7 @@ export interface FileRouteTypes {
     | '/unidades/editar/$id'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
+    | '/verificar/relatorio/$codigo'
     | '/calendario-escolar/$calendarioId/'
     | '/diario/turmas/'
     | '/horarios/profissionais/'
@@ -2894,6 +2907,7 @@ export interface RootRouteChildren {
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
   VerificarCarteirinhaCodigoRoute: typeof VerificarCarteirinhaCodigoRoute
   VerificarDocumentoCodigoRoute: typeof VerificarDocumentoCodigoRoute
+  VerificarRelatorioCodigoRoute: typeof VerificarRelatorioCodigoRoute
   CalendarioEscolarCalendarioIdIndexRoute: typeof CalendarioEscolarCalendarioIdIndexRoute
   ApiPublicV1SplatRoute: typeof ApiPublicV1SplatRoute
 }
@@ -4046,6 +4060,13 @@ declare module '@tanstack/react-router' {
       path: '/verificar/documento/$codigo'
       fullPath: '/verificar/documento/$codigo'
       preLoaderRoute: typeof VerificarDocumentoCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verificar/relatorio/$codigo': {
+      id: '/verificar/relatorio/$codigo'
+      path: '/verificar/relatorio/$codigo'
+      fullPath: '/verificar/relatorio/$codigo'
+      preLoaderRoute: typeof VerificarRelatorioCodigoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/$': {
@@ -5277,6 +5298,7 @@ const rootRouteChildren: RootRouteChildren = {
     CalendarioEscolarCalendarioIdDocumentoRoute,
   VerificarCarteirinhaCodigoRoute: VerificarCarteirinhaCodigoRoute,
   VerificarDocumentoCodigoRoute: VerificarDocumentoCodigoRoute,
+  VerificarRelatorioCodigoRoute: VerificarRelatorioCodigoRoute,
   CalendarioEscolarCalendarioIdIndexRoute:
     CalendarioEscolarCalendarioIdIndexRoute,
   ApiPublicV1SplatRoute: ApiPublicV1SplatRoute,
