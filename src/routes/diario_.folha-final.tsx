@@ -109,7 +109,7 @@ function Page() {
           {view.issue && <StatePanel tone="warning" title="Resultado não emitido" description={view.issue} />}
           {view.input.rule && <p>Regra aplicada: {view.input.rule.label} · fonte {view.input.rule.sourceRef}</p>}
           {view.notes.map((n) => <p key={n} className="text-muted-foreground">{n}</p>)}
-          <p className="text-muted-foreground">Frequência: lida das chamadas gravadas ({data.attendance.length} registro(s)). Sem chamada, aparece "não informada", nunca 100%; se a regra exigir frequência, o resultado fica pendente.</p>
+          <p className="text-muted-foreground">Frequência: lida das chamadas gravadas ({data!.attendance.length} registro(s)). Sem chamada, aparece "não informada", nunca 100%; se a regra exigir frequência, o resultado fica pendente.</p>
           {view.input.students.length === 0 ? <StatePanel tone="info" title="Sem estudantes" description="Nenhum estudante vinculado a esta turma é visível para sua conta." />
             : view.input.components.length === 0 ? <StatePanel tone="info" title="Sem avaliações gravadas" description={`${view.input.students.length} estudante(s) na turma; nenhum resultado avaliativo gravado. Nada é tratado como zero.`} />
             : null}
