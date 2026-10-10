@@ -35,9 +35,9 @@ const num = (v: unknown): number | null => (v === null || v === undefined || v =
 /** Fora de "apurado", nenhum número é exposto: mês sem histórico não vira zero nem cópia de outro mês. */
 export function normalizeMonthly(raw: Record<string, unknown>[]): MonthlyRow[] {
   return raw.map((r) => {
-    const status = (["apurado", "nao-apurado", "mes-nao-encerrado"].includes(String(r.status)) ? r.status : "nao-apurado") as MonthStatus;
-    const row = { school_id: String(r.school_id), inep: (r.inep as string) ?? null, school_name: (r.school_name as string) ?? null,
-      reference_date: String(r.reference_date), earliest_evidence: (r.earliest_evidence as string) ?? null, status } as MonthlyRow;
+    const status = (["apurado", "nao-apurado", "mes-nao-encerrado"].includes(String(r["status"])) ? r["status"] : "nao-apurado") as MonthStatus;
+    const row = { school_id: String(r["school_id"]), inep: (r["inep"] as string) ?? null, school_name: (r["school_name"] as string) ?? null,
+      reference_date: String(r["reference_date"]), earliest_evidence: (r["earliest_evidence"] as string) ?? null, status } as MonthlyRow;
     for (const [k] of MEASURES) row[k] = status === "nao-apurado" ? null : num(r[k]);
     // matrícula sem data de início não pode ser afirmada como vigente no mês
     if (row.status !== "nao-apurado" && (row.undated_enrollments ?? 0) > 0 && row.school_enrollments === 0) row.school_enrollments = null;
