@@ -337,7 +337,7 @@ export function ReportBuilder() {
               <Button variant="outline" disabled={!result?.rows.length || data.truncated} onClick={() => exportAs("xlsx")}>XLSX</Button>
               <Button variant="outline" disabled={!result?.rows.length || data.truncated} onClick={() => exportAs("csv")}>CSV</Button>
             </div>
-            {reissueOf && <p role="status">Reemissão de {reissueOf.verification_code}: os dados serão relidos com a sua permissão atual e comparados ao original.</p>}
+            {reissueOf && <p role="status">Reemissão de {reissueOf.verification_code}: os dados serão relidos com a sua permissão atual e comparados à impressão digital do original. O arquivo original não é guardado: isto é reprocessamento, não download do original.</p>}
             {lastEmission && <p role="status">Emissão registrada · código {lastEmission.code}{lastEmission.cmp === "identico" ? " · conteúdo idêntico ao original" : lastEmission.cmp === "divergente" ? " · conteúdo DIFERENTE do original (dados mudaram desde a emissão)" : ""}.</p>}
             <p className="text-xs text-muted-foreground">XLSX sai com abas Relatório, Filtros, Metodologia e fonte{analysis?.summary ? ", Resumo" : ""}{analysis?.chart ? ", Dados do gráfico" : ""}. PDF sai em {spec.layout.paper} {spec.layout.orientation}, sem menus do sistema.</p>
           </>}
@@ -405,7 +405,7 @@ function EmissionHistory({ list, onReissue }: { list: ReportEmission[] | null; o
     {list.length === 0 ? <p className="text-muted-foreground">Nenhuma emissão registrada.</p> : <ul className="divide-y">{list.map((e) => (
       <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-1">
         <span>{e.title} · {e.format.toUpperCase()} · {e.row_count} linha(s) · {new Date(e.issued_at).toLocaleString("pt-BR")} · <Link className="underline" to="/verificar/relatorio/$codigo" params={{ codigo: e.verification_code }}>{e.verification_code}</Link>{e.reissue_of ? " · reemissão" : ""}</span>
-        <Button size="sm" variant="outline" onClick={() => onReissue(e)}>Reemitir</Button>
+        <Button size="sm" variant="outline" onClick={() => onReissue(e)}>Reprocessar (reler dados atuais)</Button>
       </li>))}</ul>}
   </div>;
 }
