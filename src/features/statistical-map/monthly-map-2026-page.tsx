@@ -12,7 +12,8 @@ import {
   MEASURES, MONTHS, MONTHLY_REPORT, STATUS_LABEL, compareMonths, effectiveRow, latestClosures, monthlyCells, networkMonth, normalizeMonthly,
   referenceDate, canFreeze, provenance, type Closure,
 } from "./monthly-map-2026";
-import { IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
+import { EXPECTED_MONTHS, IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
+import { CATEGORY_LABEL, declaredOccurrences } from "./declared-inconsistencies";
 import type { ReportDefinition } from "@/features/reports/report-engine";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
@@ -238,6 +239,49 @@ function DeclaredCoveragePanel({ names }: { names: Map<string, { name: string; i
           <td className={registryTd}>{s.missing.map((m) => MONTHS[m - 1]?.slice(0, 3)).join(", ") || "nenhum"}</td><td className={registryTd}>{s.ressalvas}</td>
           <td className={registryTd}>{s.identity === "confirmada" ? "Confirmada" : "Associada por nome — exige reconciliação documental"}</td></tr>)}</tbody></table></div>
       <p className="text-xs text-muted-foreground">Escolas sem nenhuma planilha não aparecem na tabela. Novos lotes entram sem duplicar: a mesma aba do mesmo arquivo é gravada uma única vez, e as declarações gravadas não podem ser alteradas.</p>
+      <InconsistencyPanel maps={maps} projs={projs} names={names} />
     </section>
+  );
+}
+
+const OCC_REPORT: ReportDefinition = {
+  id: "inconsistencias-mapas-2026", version: 1, title: "Inconsistências dos mapas mensais declarados 2026", description: "Ocorrências pendentes de conferência; não alteram o valor declarado.",
+  source: "school_declared_monthly_maps", params: [], formats: ["xlsx", "csv", "pdf"], reproducible: false, syncRowLimit: 5000,
+  columns: [
+    { id: "id", label: "ID", kind: "text" }, { id: "school", label: "Escola", kind: "text" }, { id: "inep", label: "INEP", kind: "text" }, { id: "mes", label: "Mês", kind: "text" },
+    { id: "categoria", label: "Categoria", kind: "text" }, { id: "secao", label: "Seção", kind: "text" }, { id: "campo", label: "Campo", kind: "text" },
+    { id: "declarado", label: "Declarado", kind: "text" }, { id: "esperado", label: "Esperado/calculado", kind: "text" }, { id: "regra", label: "Regra", kind: "text" },
+    { id: "descricao", label: "Descrição", kind: "text" }, { id: "gravidade", label: "Gravidade", kind: "text" }, { id: "certeza", label: "Certeza", kind: "text" },
+    { id: "arquivo", label: "Arquivo", kind: "text" }, { id: "aba", label: "Aba", kind: "text" }, { id: "status", label: "Status", kind: "text" }, { id: "sugestao", label: "Sugestão", kind: "text" },
+  ],
+};
+
+function InconsistencyPanel({ maps, projs, names }: { maps: DeclaredMap[]; projs: ReturnType<typeof projectAll>; names: Map<string, { name: string; inep: string | null }> }) {
+  const [fs, setFs] = useState(""); const [fc, setFc] = useState<string>(""); const [fm, setFm] = useState<string>("");
+  const all = useMemo(() => declaredOccurrences(maps, projs, EXPECTED_MONTHS), [maps, projs]);
+  const rows = all.filter((o) => (!fs || o.school_id === fs) && (!fc || o.category === fc) && (!fm || String(o.month) === fm));
+  const nm = (s: string) => names.get(s)?.name ?? s;
+  async function download(format: "csv" | "xlsx" | "pdf") {
+    const cells = rows.map((o) => ({ id: o.id, school: nm(o.school_id), inep: names.get(o.school_id)?.inep ?? null, mes: MONTHS[o.month - 1] ?? String(o.month), categoria: CATEGORY_LABEL[o.category],
+      secao: o.section, campo: o.field, declarado: o.declared, esperado: o.expected, regra: o.rule, descricao: o.description, gravidade: o.severity, certeza: o.certainty, arquivo: o.source_file, aba: o.source_sheet, status: o.status, sugestao: o.suggestion }));
+    const blob = await exportMap(OCC_REPORT, cells, format, { headerLines: [brand.name, OCC_REPORT.title], title: OCC_REPORT.title }, ["Ano letivo 2026", `${rows.length} ocorrência(s) · todas pendentes de conferência`]);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `inconsistencias-mapas-2026.${format === "pdf" ? "html" : format}`; a.click(); URL.revokeObjectURL(a.href);
+  }
+  const schools = [...new Set(all.map((o) => o.school_id))].sort((a, b) => nm(a).localeCompare(nm(b)));
+  return (
+    <div className="space-y-2 pt-4">
+      <h3 className="font-display text-base">Inconsistências {fs ? "da escola" : "da rede"} ({rows.length} de {all.length})</h3>
+      <div className="flex flex-wrap gap-2 text-sm">
+        <label>Escola <select className="rounded border border-border bg-background px-2 py-1" value={fs} onChange={(e) => setFs(e.target.value)}><option value="">Rede (todas)</option>{schools.map((s) => <option key={s} value={s}>{nm(s)}</option>)}</select></label>
+        <label>Categoria <select className="rounded border border-border bg-background px-2 py-1" value={fc} onChange={(e) => setFc(e.target.value)}><option value="">Todas</option>{Object.entries(CATEGORY_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+        <label>Mês <select className="rounded border border-border bg-background px-2 py-1" value={fm} onChange={(e) => setFm(e.target.value)}><option value="">Todos</option>{EXPECTED_MONTHS.map((m) => <option key={m} value={m}>{MONTHS[m - 1]}</option>)}</select></label>
+        {(["xlsx", "csv", "pdf"] as const).map((f) => <Button key={f} size="sm" variant="outline" onClick={() => void download(f)}>{f.toUpperCase()}</Button>)}
+      </div>
+      <div className="max-h-96 overflow-auto"><table className="w-full text-sm"><thead><tr>{["Escola", "Mês", "Categoria", "Seção/campo", "Declarado", "Esperado", "Gravidade", "Descrição"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
+        <tbody>{rows.slice(0, 300).map((o) => <tr key={o.id} className={registryRow}><td className={registryTd}>{nm(o.school_id)}</td><td className={registryTd}>{MONTHS[o.month - 1]}</td><td className={registryTd}>{CATEGORY_LABEL[o.category]}</td>
+          <td className={registryTd}>{o.section} · {o.field}</td><td className={registryTd}>{o.declared}</td><td className={registryTd}>{o.expected}</td><td className={registryTd}>{o.severity}</td><td className={registryTd}>{o.description}</td></tr>)}</tbody></table></div>
+      {rows.length > 300 && <p className="text-xs">Mostrando 300 de {rows.length}; a exportação inclui todas.</p>}
+      <p className="text-xs text-muted-foreground">Leitura com as mesmas permissões da tela. A conferência nominal de pessoal não fica no sistema: está só na planilha restrita da auditoria.</p>
+    </div>
   );
 }
