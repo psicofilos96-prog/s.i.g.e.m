@@ -111,13 +111,19 @@ export const MONTHLY_REPORT: ReportDefinition = {
   source: "monthly_map_2026_live + monthly_map_2026_closures", params: [], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
   columns: [
     { id: "inep", label: "INEP", kind: "text" }, { id: "school", label: "Escola", kind: "text" }, { id: "situacao", label: "Situação do mês", kind: "text" },
+    { id: "cobertura", label: "Cobertura datada (%)", kind: "number" }, { id: "proveniencia", label: "Proveniência", kind: "text" },
     ...MEASURES.map(([id, label]) => ({ id, label, kind: "number" as const })),
   ],
 };
+export function provenance(r: Pick<MonthlyRow, "snapshot_bonds" | "dated_bonds" | "snapshot_date">): string {
+  if (r.snapshot_bonds === null && r.dated_bonds === null) return "sem vínculo vigente na data";
+  return `${r.dated_bonds ?? 0} vínculo(s) com data de movimento · ${r.snapshot_bonds ?? 0} da fotografia de carga${r.snapshot_date ? ` (${r.snapshot_date})` : ""}`;
+}
 export function monthlyCells(rows: (MonthlyRow & { frozen?: Closure | null })[]): Record<string, CellValue>[] {
   return rows.map((r) => {
     const o: Record<string, CellValue> = { inep: r.inep, school: r.school_name,
-      situacao: r.frozen ? `Apuração v${r.frozen.version} congelada` : STATUS_LABEL[r.status] };
+      situacao: r.frozen ? `Apuração v${r.frozen.version} congelada` : STATUS_LABEL[r.status],
+      cobertura: r.coverage_pct, proveniencia: provenance(r) };
     for (const [k] of MEASURES) o[k] = r[k];
     return o;
   });

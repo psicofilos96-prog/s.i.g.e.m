@@ -9,7 +9,7 @@ import { brand } from "@/config/branding";
 import { exportMap } from "./census-map-2026";
 import {
   MEASURES, MONTHS, MONTHLY_REPORT, STATUS_LABEL, compareMonths, effectiveRow, latestClosures, monthlyCells, networkMonth, normalizeMonthly,
-  referenceDate, type Closure,
+  referenceDate, canFreeze, provenance, type Closure,
 } from "./monthly-map-2026";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
@@ -17,7 +17,7 @@ const rpc = supabase.rpc as unknown as Rpc;
 
 async function loadMonth(month: number) {
   const [live, cl] = await Promise.all([
-    rpc("monthly_map_2026_live", { _month: month }),
+    rpc("monthly_map_2026_live_v2", { _month: month }),
     supabase.from("monthly_map_2026_closures").select("*").eq("map_year", 2026).eq("map_month", month),
   ]);
   if (live.error) throw new Error(live.error.message);
@@ -54,7 +54,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   if (cur.error) return <div role="alert" className="p-6">Não foi possível ler o mapa: {(cur.error as Error).message}</div>;
 
   const meta = [`Ano letivo 2026 · Mês de referência: ${MONTHS[month - 1]} · Data de referência: ${dateBr(referenceDate(month))} (último dia do mês; regra do Mapa sem versão homologada)`,
-    selected ? `Escola: ${selected.school_name ?? ""} · INEP ${selected.inep ?? "não informado"}` : `Recorte: ${rows.length} escolas visíveis · ${net.apuradas} apuradas`];
+    selected ? `Escola: ${selected.school_name ?? ""} · INEP ${selected.inep ?? "não informado"}` : `Recorte: ${rows.length} escolas visíveis · ${net.apuradas} apuradas · ${net.estimadas} estimativa parcial · ${net.provisorias} provisórias`];
   const download = async (format: "csv" | "xlsx" | "pdf") => {
     const blob = await exportMap(MONTHLY_REPORT, monthlyCells(rows), format, { headerLines: [brand.name, "Mapa Estatístico mensal 2026"], title: `${MONTHLY_REPORT.title} — ${MONTHS[month - 1]}` }, meta);
     const url = URL.createObjectURL(blob);
@@ -94,7 +94,9 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
       </div>
 
       <p className="rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
-        Data de referência: <strong>{dateBr(referenceDate(month))}</strong>. {net.apuradas} de {net.schools} escolas apuradas
+        Data de referência: <strong>{dateBr(referenceDate(month))}</strong>. {net.apuradas} de {net.schools} escolas apuradas por evidência datada
+        {net.estimadas ? ` · ${net.estimadas} em estimativa parcial (fotografia de carga, sem movimentos datados)` : ""}
+        {net.provisorias ? ` · ${net.provisorias} provisórias (mês não encerrado; nunca congeladas automaticamente)` : ""}
         {net.naoApuradas ? ` · ${net.naoApuradas} sem histórico suficiente para este mês` : ""}{net.complete ? "" : " · consolidação parcial"}.
         Alunos distintos são contados por escola; a soma não equivale a alunos distintos da rede.
       </p>
@@ -117,6 +119,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
           <tbody>{rows.map((r) => <tr key={r.school_id} className={registryRow}>
             <td className={registryTd}>{r.school_name}<div className="text-xs text-muted-foreground">INEP {r.inep ?? "não informado"}</div></td>
             <td className={registryTd}>{r.frozen ? `Apuração v${r.frozen.version} congelada` : STATUS_LABEL[r.status]}
+              {!r.frozen && r.status !== "nao-apurado" ? <div className="text-xs text-muted-foreground">Cobertura datada: {r.coverage_pct ?? "—"}% · {provenance(r)}</div> : null}
               {r.driftFromFrozen.length ? <div className="text-xs text-muted-foreground">Registros mudaram após a apuração</div> : null}</td>
             {MEASURES.map(([k]) => <td key={k} className={registryTd}>{fmt(r[k])}</td>)}</tr>)}</tbody>
         </table>
@@ -125,9 +128,9 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
       {selected && (
         <section aria-labelledby="ap-h" className="space-y-2 rounded-md border border-border p-4">
           <h2 id="ap-h" className="font-display text-lg">Apuração do mês — {selected.school_name}</h2>
-          <p className="text-sm text-muted-foreground">Apurar congela os números do mês; alterações futuras não mudam a apuração. Revisão cria nova versão e exige motivo. Só contas com a competência de oficializar o mapa nesta escola conseguem registrar.</p>
-          {selected.frozen && <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Motivo da revisão (mín. 10 caracteres)" aria-label="Motivo da revisão" />}
-          <Button size="sm" disabled={selected.status !== "apurado" && !selected.frozen} onClick={record}>{selected.frozen ? "Registrar revisão" : "Apurar e congelar o mês"}</Button>
+          <p className="text-sm text-muted-foreground">Só mês encerrado e apurado por evidência datada pode ser congelado; estimativa parcial e mês provisório não. Apuração e revisão exigem justificativa; revisão cria nova versão. Só contas com a competência de oficializar o mapa nesta escola conseguem registrar.</p>
+          <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Justificativa (mín. 10 caracteres)" aria-label="Justificativa da apuração" />
+          <Button size="sm" disabled={!canFreeze(selected, new Date().toISOString().slice(0, 10)) || reason.trim().length < 10} onClick={record}>{selected.frozen ? "Registrar revisão" : "Apurar e congelar o mês"}</Button>
           {msg && <p role="status" className="text-sm">{msg}</p>}
           {history.length > 0 && <ul className="text-sm">{history.map((h) => <li key={h.version}>v{h.version} · {h.kind === "apuracao" ? "apuração" : "revisão"} · {new Date(h.created_at).toLocaleString("pt-BR")}{h.reason ? ` · ${h.reason}` : ""}</li>)}</ul>}
         </section>
