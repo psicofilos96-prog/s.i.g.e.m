@@ -1947,6 +1947,13 @@
       "when": 1791592443512,
       "tag": "0277_aud2026_jornada_intervals_staff_reconciliation",
       "breakpoints": true
+    },
+    {
+      "idx": 278,
+      "version": "7",
+      "when": 1791597924359,
+      "tag": "0278_lote6_staff_reconciliation_decisions",
+      "breakpoints": true
     }
   ]
 }

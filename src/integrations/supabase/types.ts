@@ -16102,6 +16102,57 @@ export type Database = {
           },
         ]
       }
+      staff_reconciliation_decisions: {
+        Row: {
+          decided_at: string
+          decided_by: string | null
+          decided_by_principal_id: string | null
+          decision: string
+          evidence: string
+          id: string
+          person_id: string | null
+          staff_record_id: string
+          supersedes_id: string | null
+        }
+        Insert: {
+          decided_at?: string
+          decided_by?: string | null
+          decided_by_principal_id?: string | null
+          decision: string
+          evidence: string
+          id?: string
+          person_id?: string | null
+          staff_record_id: string
+          supersedes_id?: string | null
+        }
+        Update: {
+          decided_at?: string
+          decided_by?: string | null
+          decided_by_principal_id?: string | null
+          decision?: string
+          evidence?: string
+          id?: string
+          person_id?: string | null
+          staff_record_id?: string
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_reconciliation_decisions_staff_record_id_fkey"
+            columns: ["staff_record_id"]
+            isOneToOne: false
+            referencedRelation: "staff_administrative_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_reconciliation_decisions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "staff_reconciliation_decisions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       statistical_map_cell_adjustments: {
         Row: {
           actor_side: string
@@ -24821,6 +24872,16 @@ export type Database = {
           _student: string
           _valid_from: string
           _valid_until: string
+        }
+        Returns: string
+      }
+      record_staff_reconciliation_decision: {
+        Args: {
+          _decision: string
+          _evidence: string
+          _expected_head: string
+          _person_id: string
+          _staff_record_id: string
         }
         Returns: string
       }
