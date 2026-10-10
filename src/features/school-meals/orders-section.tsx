@@ -144,7 +144,7 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
     const base = { _logical: o.logical_id, _expected_version: o.version, _action: action, _school: null, _competence: null, _lines: null, _reason: reason };
     if (action !== "autorizacao") return void act(base);
     let ev: ServerCeilingLine[];
-    try { ev = await evaluate(o.school_id, o.lines); } catch (e) { return void act({ ...base, __rpc: "__erro__", _err: (e as Error).message }); }
+    try { ev = await evaluate(o.school_id, o.lines); } catch { return; } // sem avaliação não há autorização
     const needs = authorizationNeeds(ev);
     let lines: OrderLine[] | null = null;
     if (needs.exceeding.length) {
