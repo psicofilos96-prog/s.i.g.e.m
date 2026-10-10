@@ -1961,6 +1961,13 @@
       "when": 1791598627153,
       "tag": "0279_identity_link_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 280,
+      "version": "7",
+      "when": 1791598871789,
+      "tag": "0280_lote10_school_scope_fixes",
+      "breakpoints": true
     }
   ]
 }
