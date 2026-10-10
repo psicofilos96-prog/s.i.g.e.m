@@ -61,6 +61,16 @@ export function printProjection(ins: InstrumentVersion, items: ReadonlyMap<strin
   });
   return { title: ins.title, instructions: ins.instructions, instrumentVersionId: ins.id, version: ins.version, questions, missing };
 }
+/** Versões embaralhadas (A, B, C…): só depois que a OP aprovou ESTA versão do instrumento; cada letra deriva da semente declarada, então a mesma letra sempre imprime igual. */
+export const VARIANT_LETTERS = "ABCDEFGH";
+export function variantProjection(ins: InstrumentVersion, items: ReadonlyMap<string, ItemVersion>, letter: string | null, approvedForThisVersion: boolean) {
+  if (!letter) return { ok: true as const, p: printProjection(ins, items) };
+  if (!approvedForThisVersion) return { ok: false as const, reason: "Versões embaralhadas só depois da aprovação da OP para esta versão." };
+  if (!VARIANT_LETTERS.includes(letter) || letter.length !== 1) return { ok: false as const, reason: "Letra de versão inválida." };
+  const base = parseRandomization(ins.randomization)?.seed ?? ins.id;
+  const p = printProjection({ ...ins, randomization: { seed: `${base}:${letter}`, shuffleItems: true, shuffleOptions: true } }, items);
+  return { ok: true as const, p: { ...p, variant: letter } };
+}
 export const canonicalPrint = (p: ReturnType<typeof printProjection>) => JSON.stringify([p.instrumentVersionId, p.title, p.instructions, p.questions.map((q) => [q.itemVersionId, q.stem, q.options])]);
 export async function printFingerprint(p: ReturnType<typeof printProjection>) {
   const d = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonicalPrint(p)));
