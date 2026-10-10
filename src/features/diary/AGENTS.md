@@ -129,3 +129,8 @@
 
 ## Regras dos modelos da rede (`network-model-rules.ts`)
 - Regras de nota/frequência/aprovação só entram com referência arquivo/aba/célula do modelo da rede e perfil versionado, porque regra sem fonte seria norma inventada.
+
+## Folha Final conectada (0289 — `final-sheet-cloud.ts`, `/diario/folha-final`)
+- Resultado só com UMA regra homologada por modalidade em `final_sheet_rule_versions` (cabeça da cadeia; homologação por pessoa distinta do autor); regras extraídas das planilhas entram só como proposta e o laboratório (`/laboratorio/folha-final`) é a única tela que as usa direto, porque limiar de planilha não é norma vigente.
+- Atos só por `record_final_sheet_act` (append-only, base esperada, capability `registrar-folha-final` na escola da turma); homologar exige conferência por outra pessoa sobre o mesmo SHA-256 e nenhuma linha pendente; reabrir/retificar exige motivo.
+- Nota do período só quando há exatamente um resultado numérico vigente; vários instrumentos ⇒ composição pendente, nunca soma na folha, porque composição é da Avaliação do período.
