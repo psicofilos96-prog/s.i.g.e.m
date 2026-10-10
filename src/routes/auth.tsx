@@ -6,11 +6,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { safeRedirect } from "@/features/authority/session-lifecycle";
 import { classifyLoginError, loginMessage } from "@/features/authority/login-messages";
 import wallpaper from "@/assets/itaperuna-wallpaper.png.asset.json";
-import logoCiece from "@/assets/logo-ciece.png.asset.json";
-import logoEducacao from "@/assets/logo-educacao.png.asset.json";
-import logoPrefeitura from "@/assets/logo-prefeitura.png.asset.json";
-import brasao from "@/assets/brasao-itaperuna.png.asset.json";
-import sigemLogo from "@/assets/logo-sigem.png.asset.json";
+import logoCiece from "@/assets/logo-ciece-white.png.asset.json";
+import logoEducacao from "@/assets/logo-educacao-white.png.asset.json";
+import logoPrefeitura from "@/assets/logo-prefeitura-white.png.asset.json";
+import brasao from "@/assets/brasao-transparente.png.asset.json";
+import sigemLogo from "@/assets/logo-sigem-white.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -82,14 +82,14 @@ function AuthPage() {
       <div className="relative flex min-h-dvh flex-col gap-6 p-2.5 lg:flex-row">
         <main className="login-glass flex w-full shrink-0 flex-col rounded-3xl px-8 py-8 lg:w-[400px]">
           <div className="flex items-center gap-3">
-            <img src={brasao.url} alt="Brasão de Itaperuna" className="h-14 w-14 shrink-0 rounded-full bg-login-ink object-contain p-1" />
+            <img src={brasao.url} alt="Brasão de Itaperuna" className="h-16 w-16 shrink-0 object-contain drop-shadow" />
             <div className="min-w-0 text-xs font-semibold uppercase leading-tight tracking-wider">
               Prefeitura Municipal de Itaperuna
               <span aria-hidden className="my-1 block h-px w-10 bg-login-gold" />
               <span className="font-normal text-login-ink/80">Secretaria Municipal de Educação</span>
             </div>
           </div>
-          <div className="mt-8 rounded-2xl bg-login-ink px-4 py-3"><img src={sigemLogo.url} alt="SIGEM — Sistema Integrado de Gestão Escolar" className="h-12 w-full object-contain" /></div>
+          <img src={sigemLogo.url} alt="SIGEM — Sistema Integrado de Gestão Escolar" className="mt-8 h-20 w-full object-contain object-left" />
           <span aria-hidden className="mt-6 block h-0.5 w-12 bg-login-gold" />
           <p className="mt-3 font-display text-xl italic leading-snug text-login-ink/90">Gestão eficiente.<br />Educação que transforma.</p>
           {search.motivo === "expirada" && (
@@ -154,9 +154,9 @@ function AuthPage() {
               </li>
             ))}
           </ul>
-          <div className="mt-6 flex items-center gap-3">
+          <div className="mt-6 flex items-center gap-6 border-t border-login-ink/20 pt-5">
             {[{ s: logoPrefeitura.url, a: "Prefeitura de Itaperuna" }, { s: logoEducacao.url, a: "Secretaria Municipal de Educação" }, { s: logoCiece.url, a: "Central de Informações, Estatística e Censo Escolar" }].map((l) => (
-              <span key={l.a} className="rounded-lg bg-login-ink/95 px-3 py-1.5"><img src={l.s} onError={hideBrokenImage} alt={l.a} className="h-7 w-auto object-contain" /></span>
+              <img key={l.a} src={l.s} onError={hideBrokenImage} alt={l.a} className="h-10 w-auto object-contain" />
             ))}
           </div>
         </section>
