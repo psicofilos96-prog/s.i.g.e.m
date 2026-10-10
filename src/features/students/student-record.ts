@@ -73,7 +73,7 @@ export function buildStudentRecord(input: {
 
 /** Lê com a sessão; recusa de RLS = aluno inexistente para quem consulta (null). */
 export async function loadStudentRecord(id: string, signal?: AbortSignal): Promise<StudentRecord | null> {
-  const s = await supabase.from("institutional_students").select("id, display_name, institutional_identifier").eq("id", id).maybeSingle().abortSignal(signal as AbortSignal);
+  const s = await supabase.from("institutional_students").select("id, display_name, institutional_identifier").eq("id", id).abortSignal(signal as AbortSignal).maybeSingle();
   if (s.error) throw new Error("leitura-aluno");
   if (!s.data) return null;
   const [en, ep] = await Promise.all([
