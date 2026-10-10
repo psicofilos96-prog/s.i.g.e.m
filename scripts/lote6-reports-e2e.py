@@ -9,7 +9,7 @@ async def main():
         # anônimo
         ctx = await br.new_context(viewport={"width": 1280, "height": 1800}); pg = await ctx.new_page()
         await pg.goto(B + "/relatorios"); await pg.wait_for_timeout(4000)
-        await pg.screenshot(path=f"{SH}/0-anon.png"); await ctx.close()
+        await pg.screenshot(path=f"{SH}/0-anon.png"); print("INFO anon:", (await pg.inner_text("body"))[:0] or "ok"); await ctx.close()
         ctx = await br.new_context(viewport={"width": 1280, "height": 1800}, accept_downloads=True); pg = await ctx.new_page()
         await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["session"])])
         await pg.goto(B + "/relatorios"); await pg.wait_for_timeout(5000)
@@ -39,8 +39,9 @@ async def main():
         print("INFO emissões listadas:", await rb.count())
         if await rb.count():
             await rb.first.click(); await pg.wait_for_timeout(800)
-            lb = g.get_by_role("button", name="Ler dados")
-            if await lb.count(): await lb.click(); await pg.wait_for_timeout(4000)
+            await pg.screenshot(path=f"{SH}/2b-reissue.png")
+            lb = g.get_by_role("button", name="Ler dados").first
+            await lb.click(timeout=10000); await pg.wait_for_timeout(4000)
             try:
                 async with pg.expect_download(timeout=20000) as d: await g.get_by_role("button", name="XLSX").click()
                 await d.value; await pg.wait_for_timeout(1500)
