@@ -79,8 +79,8 @@ function AuthPage() {
       <img src={wallpaper.url} onError={hideBrokenImage} ref={hideIfAlreadyBroken} alt="Vista de Itaperuna ao pôr do sol com o Cristo" className="absolute inset-0 h-full w-full object-cover object-center" />
       <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-login-navy/80 via-login-navy/30 to-transparent" />
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-login-navy/80 to-transparent" />
-      <div className="relative flex min-h-dvh flex-col gap-6 p-2.5 lg:flex-row">
-        <main className="login-glass flex w-full shrink-0 flex-col rounded-3xl px-8 py-8 lg:w-[400px]">
+      <div className="relative flex min-h-dvh flex-col gap-4 p-2.5 lg:flex-row">
+        <main className="login-glass flex w-full shrink-0 flex-col rounded-3xl px-6 py-8 sm:px-8 lg:w-[380px] xl:w-[400px]">
           <div className="flex items-center gap-3">
             <img src={brasao.url} alt="Brasão de Itaperuna" className="h-16 w-16 shrink-0 object-contain drop-shadow" />
             <div className="min-w-0 text-xs font-semibold uppercase leading-tight tracking-wider">
@@ -134,29 +134,29 @@ function AuthPage() {
             <span aria-hidden className="mx-auto mt-2 block h-px w-10 bg-login-gold" />
           </div>
         </main>
-        <section aria-label="Identidade da cidade" className="hidden flex-1 flex-col py-10 pl-16 pr-10 lg:flex">
-          <div className="flex items-start justify-between gap-6">
-            <p className="flex items-center gap-3 text-sm uppercase tracking-[0.6em] text-login-ink/90">Itaperuna <span aria-hidden className="h-px w-12 bg-login-gold" /></p>
+        <section aria-label="Identidade da cidade" className="hidden min-w-0 flex-1 flex-col py-8 pl-8 pr-6 lg:flex xl:py-10 xl:pl-16 xl:pr-10">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-6">
+            <p className="flex items-center gap-3 min-w-0 text-sm uppercase tracking-[0.35em] text-login-ink/90 xl:tracking-[0.6em]">Itaperuna <span aria-hidden className="h-px w-12 shrink-0 bg-login-gold" /></p>
             <LiveClock />
           </div>
-          <h2 className="mt-10 max-w-2xl font-display text-6xl font-semibold leading-[1.05] text-login-ink/95">Educação que<br />move <span className="text-login-gold-soft">nossa cidade.</span></h2>
-          <p className="mt-6 max-w-lg text-lg text-login-ink/90">Escolas mais organizadas. Alunos com mais oportunidades.<br />Uma Itaperuna ainda melhor.</p>
-          <ul aria-label="Valores" className="ml-auto mt-8 w-40 space-y-3 rounded-xl border border-login-gold/50 px-5 py-4 text-center text-xs tracking-[0.3em] text-login-ink/90">
+          <h2 className="mt-10 max-w-2xl font-display text-5xl font-semibold xl:text-6xl leading-[1.05] text-login-ink/95">Educação que<br />move <span className="text-login-gold-soft">nossa cidade.</span></h2>
+          <p className="mt-5 max-w-lg text-base xl:text-lg text-login-ink/90">Escolas mais organizadas. Alunos com mais oportunidades.<br />Uma Itaperuna ainda melhor.</p>
+          <ul aria-label="Valores" className="ml-auto mt-8 hidden w-40 space-y-3 2xl:block rounded-xl border border-login-gold/50 px-5 py-4 text-center text-xs tracking-[0.3em] text-login-ink/90">
             {["TRADIÇÃO", "TRABALHO", "EDUCAÇÃO", "FUTURO"].map((v) => <li key={v}>{v}</li>)}
           </ul>
-          <ul className="mt-auto grid max-w-3xl grid-cols-4 gap-3">
+          <ul className="mt-auto grid max-w-3xl grid-cols-2 gap-3 pt-8 xl:grid-cols-4">
             {[{ i: Users, t: "Alunos", d: "Trajetória acompanhada" }, { i: School, t: "Escolas", d: "Toda a rede municipal" }, { i: GraduationCap, t: "Profissionais", d: "Equipes integradas" }, { i: Building2, t: "Gestão", d: "Decisão com dados" }].map(({ i: I, t, d }) => (
-              <li key={t} className="login-glass rounded-xl px-4 py-3">
+              <li key={t} className="login-glass min-w-0 rounded-xl px-4 py-3">
                 <I aria-hidden className="h-5 w-5 text-login-gold-soft" />
-                <p className="mt-2 font-semibold">{t}</p>
-                <p className="text-xs text-login-ink/75">{d}</p>
+                <p className="mt-2 truncate font-semibold">{t}</p>
+                <p className="text-xs leading-snug text-login-ink/75">{d}</p>
                 <span aria-hidden className="mt-2 block h-0.5 w-8 bg-login-gold" />
               </li>
             ))}
           </ul>
-          <div className="mt-6 flex items-center gap-6 border-t border-login-ink/20 pt-5">
+          <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-login-ink/20 pt-5">
             {[{ s: logoPrefeitura.url, a: "Prefeitura de Itaperuna" }, { s: logoEducacao.url, a: "Secretaria Municipal de Educação" }, { s: logoCiece.url, a: "Central de Informações, Estatística e Censo Escolar" }].map((l) => (
-              <img key={l.a} src={l.s} onError={hideBrokenImage} alt={l.a} className="h-10 w-auto object-contain" />
+              <img key={l.a} src={l.s} onError={hideBrokenImage} alt={l.a} className="h-9 w-auto max-w-[11rem] object-contain drop-shadow-[0_1px_2px_rgb(0_0_0/0.5)] xl:h-10" />
             ))}
           </div>
         </section>
