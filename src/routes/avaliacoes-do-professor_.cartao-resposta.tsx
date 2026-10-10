@@ -73,6 +73,7 @@ function Page() {
         <Button onClick={print}>Imprimir cartão (A4)</Button>
         <label className="text-sm text-foreground">Enviar imagem / câmera <input type="file" accept="image/*" capture="environment" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} className="ml-2" /></label>
       </section>
+      {!reads && message && <p role="alert" className="text-sm text-destructive">{message}</p>}
       {reads && (
         <section className="grid gap-4 md:grid-cols-2">
           {photo && <img src={photo} alt="Cartão enviado" className="w-full rounded border border-border" />}
