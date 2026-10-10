@@ -6,7 +6,7 @@ import { cardLayout, cardSvg, confirmReading, opaqueToken, readCard, type Questi
 const title = "Cartão-resposta e conferência — SIA";
 const description = "Gera cartão-resposta com bolhas circulares e código opaco, lê imagem enquadrada e exige conferência humana antes de aceitar.";
 
-export const Route = createFileRoute("/avaliacoes-do-professor/cartao-resposta")({
+export const Route = createFileRoute("/avaliacoes-do-professor_/cartao-resposta")({
   head: () => ({ meta: [{ title }, { name: "description", content: description }, { property: "og:title", content: title }, { property: "og:description", content: description }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Page,
 });

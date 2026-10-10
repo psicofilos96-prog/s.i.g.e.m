@@ -6,7 +6,7 @@ const file = (r: string) => `src/routes/${r.slice(1).replaceAll("/", ".").replac
 
 describe("catálogo documental", () => {
   it("todo documento com tela aponta para rota existente", () => {
-    for (const d of DOCUMENT_CATALOG.filter((x) => x.route)) expect(existsSync(file(d.route!)), d.id).toBe(true);
+    for (const d of DOCUMENT_CATALOG.filter((x) => x.route)) { const f = file(d.route!); const alt = f.replace(/^src\/routes\/([^.]+)\./, "src/routes/$1_."); expect(existsSync(f) || existsSync(alt), d.id).toBe(true); }
   });
   it("BLOQUEADO nunca tem tela; COMPLETO sempre tem", () => {
     expect(DOCUMENT_CATALOG.filter((d) => d.status === "BLOQUEADO" && d.route)).toEqual([]);
