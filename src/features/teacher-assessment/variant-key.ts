@@ -56,3 +56,11 @@ export function confirmCorrection(input: { confirmedByUser: boolean; approvedFin
   if (!input.confirmedByUser) return { ok: false as const, reason: "Confirme a correção antes de gravar." };
   return { ok: true as const };
 }
+
+/** LOTE 8 — toda linha indeterminada exige decisão humana explícita; sem ela nada é gravável. */
+export function finalizeLines(lines: readonly CorrectionLine[], manual: Readonly<Record<number, boolean | undefined>>) {
+  const out = lines.map((l) => ({ number: l.number, itemVersionId: l.itemVersionId, answered: l.answered, correct: l.correct ?? manual[l.number] ?? null }));
+  const pending = out.filter((l) => l.correct === null).map((l) => l.number);
+  if (pending.length) return { ok: false as const, pending };
+  return { ok: true as const, lines: out as { number: number; itemVersionId: string; answered: string | null; correct: boolean }[], hits: out.filter((l) => l.correct).length };
+}

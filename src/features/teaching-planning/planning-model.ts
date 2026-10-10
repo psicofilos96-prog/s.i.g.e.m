@@ -95,3 +95,19 @@ export const planMessage = (raw: string) => {
   return k ? MESSAGES[k]! : "Não foi possível concluir. Tente novamente.";
 };
 export const STATUS_LABEL: Record<PlanStatus, string> = { rascunho: "Rascunho (só você vê)", publicado: "Compartilhado", arquivado: "Arquivado" };
+
+/** LOTE 8 — planejamento semanal com datas livres: um bloco por dia do intervalo escolhido (máx. 31), sem duplicar dias já presentes. */
+const DOW = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+export const DAY_FIELDS = "Objetivos:\nHabilidades (BNCC):\nAtividades:\nRecursos:\nAvaliação:";
+export function dailyBlocks(from: string, until: string, existing: readonly PlanBlock[], includeWeekends = false): PlanBlock[] {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(until) || until < from) return [...existing];
+  const have = new Set(existing.map((b) => b.heading));
+  const out = [...existing];
+  const d = new Date(`${from}T12:00:00Z`), end = new Date(`${until}T12:00:00Z`);
+  for (let n = 0; d <= end && n < 31; n++, d.setUTCDate(d.getUTCDate() + 1)) {
+    const w = d.getUTCDay(); if (!includeWeekends && (w === 0 || w === 6)) continue;
+    const iso = d.toISOString().slice(0, 10); const h = `${iso.slice(8, 10)}/${iso.slice(5, 7)}/${iso.slice(0, 4)} (${DOW[w]})`;
+    if (!have.has(h)) out.push({ kindValueId: null, heading: h, body: DAY_FIELDS });
+  }
+  return out.filter((b) => b.heading.trim() || b.body.trim());
+}
