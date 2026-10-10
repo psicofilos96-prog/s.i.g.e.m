@@ -38,18 +38,25 @@ function Stat({ label, value, note }: { label: string; value: number | null | un
   );
 }
 
-export function CensusMap2026Page() {
+export function CensusMap2026Page({ mode = "escola" }: { mode?: "escola" | "rede" }) {
   const q = useQuery({ queryKey: ["census-map-2026"], queryFn: load, staleTime: 60_000 });
   const [schoolId, setSchoolId] = useState<string>("");
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
+  const [group, setGroup] = useState("");
+  const [stage, setStage] = useState("");
+  const [classQ, setClassQ] = useState("");
+  const passes = (c: { stage_group: string | null; stage: string | null; class_type: string | null; class_name: string | null; class_code: string | null }) =>
+    (!group || (c.stage_group ?? "não informado") === group) && (!stage || (c.stage ?? "não informado") === stage) &&
+    (!type || (c.class_type ?? "não informado") === type) && (!classQ || `${c.class_name ?? ""} ${c.class_code ?? ""}`.toLowerCase().includes(classQ.toLowerCase()));
   const [busy, setBusy] = useState(false);
 
   const names = useMemo(() => new Map((q.data?.schools ?? []).map((s) => [s.school_id, s.school_name ?? s.inep ?? "Escola sem nome"])), [q.data]);
   const divs = useMemo(() => divergences(q.data?.schools ?? []), [q.data]);
   const schools = useMemo(() => (q.data?.schools ?? []).filter((s) => !search || `${s.school_name} ${s.inep}`.toLowerCase().includes(search.toLowerCase())), [q.data, search]);
+  const opts = (k: "stage_group" | "stage") => [...new Set((q.data?.classes ?? []).filter((c) => !schoolId || c.school_id === schoolId).map((c) => c[k] ?? "não informado"))].sort((a, b) => a.localeCompare(b, "pt-BR"));
   const types = useMemo(() => [...new Set((q.data?.classes ?? []).map((c) => c.class_type ?? "não informado"))].sort(), [q.data]);
-  const classes = useMemo(() => (q.data?.classes ?? []).filter((c) => (!schoolId || c.school_id === schoolId) && (!type || (c.class_type ?? "não informado") === type))
+  const classes = useMemo(() => (q.data?.classes ?? []).filter((c) => (!schoolId || c.school_id === schoolId) && passes(c))
     .sort((a, b) => `${names.get(a.school_id)}${a.class_name}`.localeCompare(`${names.get(b.school_id)}${b.class_name}`, "pt-BR")), [q.data, schoolId, type, names]);
   const selected = q.data?.schools.find((s) => s.school_id === schoolId) ?? null;
 
@@ -64,7 +71,7 @@ export function CensusMap2026Page() {
   const scopeSchools = selected ? [selected] : q.data.schools;
   const slice = sliceTotals(scopeSchools);
 
-  const scopeClasses = q.data.classes.filter((c) => !schoolId || c.school_id === schoolId);
+  const scopeClasses = q.data.classes.filter((c) => (!schoolId || c.school_id === schoolId) && passes(c));
   const grid = mapGrid(scopeClasses);
   const checks = classChecks(scopeClasses);
   const editable = editableCells(null);
@@ -93,9 +100,32 @@ export function CensusMap2026Page() {
 
   return (
     <div className="space-y-6">
-      <RegistryHero eyebrow="Censo Escolar 2026 · leitura do banco" title={selected ? (selected.school_name ?? "Escola") : "Mapa da rede 2026"}
+      <RegistryHero eyebrow="Censo Escolar 2026 · leitura do banco" title={selected ? (selected.school_name ?? "Escola") : mode === "rede" ? "Consolidado 2026 da rede" : "Mapa Estatístico 2026 — escolha a escola"}
         lede={selected ? `INEP ${selected.inep ?? "não informado"} · recibo do Censo: ${receiptStatus(selected, divs)}.` : "Números calculados agora, a partir dos registros do Censo 2026, com as permissões da sua conta. Alunos em AEE não contam como alunos novos."}
         actions={selected ? <Button size="sm" variant="outline" onClick={() => setSchoolId("")}>Voltar à rede</Button> : undefined} />
+
+      <RegistryToolbar summary={`${scopeClasses.length} turma(s) no recorte`}>
+        <label className="text-sm">Escola
+          <select aria-label="Escola" value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className="mt-1 block h-9 max-w-xs rounded-md border border-input bg-background px-2">
+            <option value="">{mode === "rede" ? "Consolidado da rede" : "Escolha a escola"}</option>{q.data.schools.map((s) => <option key={s.school_id} value={s.school_id}>{s.school_name ?? s.inep}</option>)}
+          </select>
+        </label>
+        <label className="text-sm">Modalidade
+          <select value={group} onChange={(e) => setGroup(e.target.value)} className="mt-1 block h-9 max-w-xs rounded-md border border-input bg-background px-2">
+            <option value="">Todas</option>{opts("stage_group").map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </label>
+        <label className="text-sm">Etapa
+          <select value={stage} onChange={(e) => setStage(e.target.value)} className="mt-1 block h-9 max-w-xs rounded-md border border-input bg-background px-2">
+            <option value="">Todas</option>{opts("stage").map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </label>
+        <label className="text-sm">Turno
+          <select disabled aria-describedby="turno-note" className="mt-1 block h-9 rounded-md border border-input bg-muted px-2"><option>Não declarado no Censo 2026</option></select>
+        </label>
+        <label className="text-sm">Turma<Input value={classQ} onChange={(e) => setClassQ(e.target.value)} placeholder="nome ou código" className="mt-1 w-44" /></label>
+        <span id="turno-note" className="sr-only">O Censo 2026 não traz turno por turma.</span>
+      </RegistryToolbar>
 
       {!selected && (
         <section aria-label="Totais da rede" className="grid grid-cols-2 gap-3 md:grid-cols-4">
