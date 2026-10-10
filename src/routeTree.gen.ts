@@ -29,6 +29,7 @@ import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-d
 import { Route as AvisosRouteImport } from './routes/avisos'
 import { Route as BaseDeConhecimentoRouteImport } from './routes/base-de-conhecimento'
 import { Route as CarteirinhasRouteImport } from './routes/carteirinhas'
+import { Route as CatalogoDocumentosRouteImport } from './routes/catalogo-documentos'
 import { Route as CensoEscolarRouteImport } from './routes/censo-escolar'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
 import { Route as CentralDeDocumentosRouteImport } from './routes/central-de-documentos'
@@ -336,6 +337,11 @@ const BaseDeConhecimentoRoute = BaseDeConhecimentoRouteImport.update({
 const CarteirinhasRoute = CarteirinhasRouteImport.update({
   id: '/carteirinhas',
   path: '/carteirinhas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogoDocumentosRoute = CatalogoDocumentosRouteImport.update({
+  id: '/catalogo-documentos',
+  path: '/catalogo-documentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CensoEscolarRoute = CensoEscolarRouteImport.update({
@@ -1487,6 +1493,7 @@ export interface FileRoutesByFullPath {
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
+  '/catalogo-documentos': typeof CatalogoDocumentosRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
@@ -1714,6 +1721,7 @@ export interface FileRoutesByTo {
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
+  '/catalogo-documentos': typeof CatalogoDocumentosRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
@@ -1914,6 +1922,7 @@ export interface FileRoutesById {
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
+  '/catalogo-documentos': typeof CatalogoDocumentosRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
@@ -2145,6 +2154,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
+    | '/catalogo-documentos'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-documentos'
@@ -2372,6 +2382,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
+    | '/catalogo-documentos'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-documentos'
@@ -2571,6 +2582,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
+    | '/catalogo-documentos'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-documentos'
@@ -2801,6 +2813,7 @@ export interface RootRouteChildren {
   AvisosRoute: typeof AvisosRoute
   BaseDeConhecimentoRoute: typeof BaseDeConhecimentoRoute
   CarteirinhasRoute: typeof CarteirinhasRoute
+  CatalogoDocumentosRoute: typeof CatalogoDocumentosRoute
   CensoEscolarRoute: typeof CensoEscolarRoute
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
   CentralDeDocumentosRoute: typeof CentralDeDocumentosRoute
@@ -3023,6 +3036,13 @@ declare module '@tanstack/react-router' {
       path: '/carteirinhas'
       fullPath: '/carteirinhas'
       preLoaderRoute: typeof CarteirinhasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogo-documentos': {
+      id: '/catalogo-documentos'
+      path: '/catalogo-documentos'
+      fullPath: '/catalogo-documentos'
+      preLoaderRoute: typeof CatalogoDocumentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/censo-escolar': {
@@ -5188,6 +5208,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvisosRoute: AvisosRoute,
   BaseDeConhecimentoRoute: BaseDeConhecimentoRoute,
   CarteirinhasRoute: CarteirinhasRoute,
+  CatalogoDocumentosRoute: CatalogoDocumentosRoute,
   CensoEscolarRoute: CensoEscolarRoute,
   CentralDeAcessosRoute: CentralDeAcessosRoute,
   CentralDeDocumentosRoute: CentralDeDocumentosRoute,
