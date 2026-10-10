@@ -1996,6 +1996,13 @@
       "when": 1791630556612,
       "tag": "0284_monthly_map_2026_evidence_v2",
       "breakpoints": true
+    },
+    {
+      "idx": 285,
+      "version": "7",
+      "when": 1791633077621,
+      "tag": "0285_school_declared_monthly_maps",
+      "breakpoints": true
     }
   ]
 }

@@ -14983,6 +14983,92 @@ export type Database = {
           },
         ]
       }
+      school_declared_monthly_maps: {
+        Row: {
+          classes: Json
+          consistency_issues: Json
+          created_at: string
+          declared_classes: number | null
+          dropouts: number | null
+          file_sha256: string
+          id: string
+          inep_declared: string | null
+          month: number
+          new_students: number | null
+          originating_act_ref: string
+          previous_month_enrollment: number | null
+          projects: Json
+          school_id: string
+          shifts: Json
+          source_file: string
+          source_sheet: string
+          total_ii: number | null
+          total_iii: number | null
+          transfers_in: number | null
+          transfers_out: number | null
+          withdrawn_cancelled: number | null
+          year: number
+        }
+        Insert: {
+          classes?: Json
+          consistency_issues?: Json
+          created_at?: string
+          declared_classes?: number | null
+          dropouts?: number | null
+          file_sha256: string
+          id?: string
+          inep_declared?: string | null
+          month: number
+          new_students?: number | null
+          originating_act_ref: string
+          previous_month_enrollment?: number | null
+          projects?: Json
+          school_id: string
+          shifts?: Json
+          source_file: string
+          source_sheet: string
+          total_ii?: number | null
+          total_iii?: number | null
+          transfers_in?: number | null
+          transfers_out?: number | null
+          withdrawn_cancelled?: number | null
+          year: number
+        }
+        Update: {
+          classes?: Json
+          consistency_issues?: Json
+          created_at?: string
+          declared_classes?: number | null
+          dropouts?: number | null
+          file_sha256?: string
+          id?: string
+          inep_declared?: string | null
+          month?: number
+          new_students?: number | null
+          originating_act_ref?: string
+          previous_month_enrollment?: number | null
+          projects?: Json
+          school_id?: string
+          shifts?: Json
+          source_file?: string
+          source_sheet?: string
+          total_ii?: number | null
+          total_iii?: number | null
+          transfers_in?: number | null
+          transfers_out?: number | null
+          withdrawn_cancelled?: number | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_declared_monthly_maps_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_document_emission_events: {
         Row: {
           emission_id: string

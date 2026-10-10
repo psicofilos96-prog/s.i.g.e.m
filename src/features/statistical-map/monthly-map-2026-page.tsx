@@ -12,6 +12,7 @@ import {
   MEASURES, MONTHS, MONTHLY_REPORT, STATUS_LABEL, compareMonths, effectiveRow, latestClosures, monthlyCells, networkMonth, normalizeMonthly,
   referenceDate, canFreeze, provenance, type Closure,
 } from "./monthly-map-2026";
+import { compareDeclared, movementBalance, type DeclaredMap } from "./declared-monthly-map";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const rpc = supabase.rpc as unknown as Rpc;
@@ -133,6 +134,8 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
         </table>
       </section>
 
+      {selected && <DeclaredPanel schoolId={selected.school_id} month={month} sigem={selected} />}
+
       {selected && (
         <section aria-labelledby="ap-h" className="space-y-2 rounded-md border border-border p-4">
           <h2 id="ap-h" className="font-display text-lg">Apuração do mês — {selected.school_name}</h2>
@@ -144,5 +147,38 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
         </section>
       )}
     </div>
+  );
+}
+
+function DeclaredPanel({ schoolId, month, sigem }: { schoolId: string; month: number; sigem: { distinct_students: number | null; classes_with_students: number | null } }) {
+  const q = useQuery({
+    queryKey: ["mapa-declarado-2026", schoolId, month],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("school_declared_monthly_maps" as never).select("*").eq("school_id", schoolId).eq("year", 2026).eq("month", month);
+      if (error) throw new Error(error.message);
+      return ((data ?? []) as unknown) as DeclaredMap[];
+    },
+  });
+  if (q.isLoading) return <LoadingState label="Lendo o mapa declarado pela escola" />;
+  if (q.error) return <p role="alert" className="text-sm">Não foi possível ler o mapa declarado pela escola.</p>;
+  const list = q.data ?? [];
+  return (
+    <section aria-labelledby="dec-h" className="space-y-2 rounded-md border border-border p-4">
+      <h2 id="dec-h" className="font-display text-lg">Mapa declarado pela escola — {MONTHS[month - 1]}</h2>
+      {list.length === 0 ? <p className="text-sm text-muted-foreground">A escola não enviou planilha deste mês.</p> : list.map((d) => {
+        const bal = movementBalance(d);
+        return (
+          <div key={d.source_sheet + d.source_file} className="space-y-2 text-sm">
+            <p className="text-muted-foreground">Fonte: planilha "{d.source_file}", aba {d.source_sheet}. Declaração da escola; não substitui a apuração do SIGEM.</p>
+            <p>Anterior {fmt(d.previous_month_enrollment)} · recebidas {fmt(d.transfers_in)} · novos {fmt(d.new_students)} · expedidas {fmt(d.transfers_out)} · evadidos {fmt(d.dropouts)} · desistentes/cancelados {fmt(d.withdrawn_cancelled)} → total declarado {fmt(d.total_ii)}{bal !== null && bal !== d.total_ii ? ` (a conta dá ${bal})` : ""}</p>
+            <table className="w-full"><thead><tr><th scope="col" className={registryTh}>Medida</th><th scope="col" className={registryTh}>Declarado</th><th scope="col" className={registryTh}>SIGEM</th><th scope="col" className={registryTh}>Situação</th></tr></thead>
+              <tbody>{compareDeclared(d, sigem).map((c) => <tr key={c.field} className={registryRow}><td className={registryTd}>{c.field}</td><td className={registryTd}>{fmt(c.declared)}</td><td className={registryTd}>{fmt(c.sigem)}</td>
+                <td className={registryTd}>{c.status === "coincide" ? "Coincide" : c.status === "diverge" ? "Diverge" : "Sem dado para comparar"}</td></tr>)}</tbody></table>
+            {d.classes.length > 0 && <details><summary>Turmas declaradas ({d.classes.length})</summary><ul>{d.classes.map((c, i) => <li key={i}>{c.etapa ?? "etapa não informada"} · {c.turma}: {c.alunos}</li>)}</ul></details>}
+            {d.consistency_issues.length > 0 && <div role="note" className="rounded border border-border bg-muted/40 p-2"><strong>Inconsistências na planilha:</strong><ul className="list-disc pl-5">{d.consistency_issues.map((x) => <li key={x}>{x}</li>)}</ul></div>}
+          </div>
+        );
+      })}
+    </section>
   );
 }
