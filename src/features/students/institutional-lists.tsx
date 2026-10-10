@@ -107,14 +107,14 @@ export function InstitutionalStudentsListPage() {
               <thead><tr><th scope="col" className={registryTh}>Nome</th><th scope="col" className={registryTh}>Identificador</th><th scope="col" className={registryTh}><span className="sr-only">Ação</span></th></tr></thead>
               <tbody>{items.map((r) => (
                 <tr key={r.id} className={registryRow}>
-                  <td className={registryTd}><Link to="/ficha-longitudinal/$id" params={{ id: r.id }} className="font-medium text-foreground hover:text-primary hover:underline">{r.display_name}</Link></td>
+                  <td className={registryTd}><Link to="/alunos/$id" params={{ id: r.id }} className="font-medium text-foreground hover:text-primary hover:underline">{r.display_name}</Link></td>
                   <td className={`${registryTd} font-mono text-xs tabular-nums text-muted-foreground`}>{r.institutional_identifier ?? NR}</td>
-                  <td className={`${registryTd} text-right`}><Link to="/ficha-longitudinal/$id" params={{ id: r.id }} aria-label={`Abrir ficha de ${r.display_name}`} className="text-sm font-medium text-primary hover:underline">Abrir ficha</Link></td>
+                  <td className={`${registryTd} text-right`}><Link to="/alunos/$id" params={{ id: r.id }} aria-label={`Abrir ficha de ${r.display_name}`} className="text-sm font-medium text-primary hover:underline">Abrir ficha</Link></td>
                 </tr>))}</tbody>
             </table>
           }
           cards={items.map((r) => (
-            <RegistryCard key={r.id} title={<Link to="/ficha-longitudinal/$id" params={{ id: r.id }} className="text-foreground hover:text-primary hover:underline">{r.display_name}</Link>}>
+            <RegistryCard key={r.id} title={<Link to="/alunos/$id" params={{ id: r.id }} className="text-foreground hover:text-primary hover:underline">{r.display_name}</Link>}>
               <CardFact label="Identificador"><span className="tabular-nums">{r.institutional_identifier ?? NR}</span></CardFact>
             </RegistryCard>
           ))}
