@@ -30,3 +30,12 @@ describe("emissões de relatório", () => {
     expect(verify).not.toMatch(/'params'|'actor_id'/);
   });
 });
+
+describe("gerador sem login", () => {
+  it("não lê fonte nem exporta relatório de trabalho anonimamente", () => {
+    const page = readFileSync("src/features/reports/report-builder-page.tsx", "utf8");
+    expect(page).not.toMatch(/relatório de trabalho, sem registro/);
+    expect(page).toMatch(/if \(!user\) return/);
+    expect((page.match(/if \(!cloud\) \{ setErr\(ANON_BLOCK\); return; \}/g) ?? []).length).toBe(2);
+  });
+});

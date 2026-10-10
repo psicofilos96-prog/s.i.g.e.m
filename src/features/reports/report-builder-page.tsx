@@ -27,10 +27,24 @@ const DER_LABEL: Record<Derived, string> = { percentual: "Percentual (a / b)", d
 const CHART_LABEL: Record<ChartKind, string> = { barras: "Barras", "barras-horizontais": "Barras horizontais", "barras-empilhadas": "Barras empilhadas", linha: "Linha", area: "Área", donut: "Rosca (composição)", dispersao: "Dispersão", ranking: "Ranking (descritivo)" };
 const emptyOrg = (): Organization => ({ groupBy: [], measures: [{ id: "n", label: "Quantidade", agg: "count", column: null }], derived: [], sort: [], subtotals: false, grandTotal: true });
 
+/** Sem sessão não há leitura de fonte nem exportação: dado privado nunca sai anonimamente. */
+export const ANON_BLOCK = "Entre com sua conta para ler a fonte e emitir. Sem login não há leitura de dados nem relatório de trabalho.";
 function save(name: string, blob: Blob) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
 
 export function ReportBuilder() {
-  const { user } = useSessionUser();
+  const { loading, user } = useSessionUser();
+  if (loading) return <section aria-label="Gerador de relatórios" className="rounded-md border border-border bg-card p-4 text-sm text-muted-foreground" role="status">Conferindo sua sessão…</section>;
+  if (!user) return (
+    <section aria-label="Gerador de relatórios" className="space-y-2 rounded-md border border-border bg-card p-4 text-sm">
+      <h2 className="font-semibold">Montar um relatório</h2>
+      <p>{ANON_BLOCK}</p>
+      <Button asChild size="sm"><Link to="/auth">Entrar</Link></Button>
+    </section>
+  );
+  return <SignedInBuilder user={user} />;
+}
+
+function SignedInBuilder({ user }: { user: NonNullable<ReturnType<typeof useSessionUser>["user"]> }) {
   const cloud = !!user;
   const [sector, setSector] = useState<Sector>("secretaria");
   const [step, setStep] = useState(0);
@@ -93,6 +107,7 @@ export function ReportBuilder() {
   }
   async function read() {
     if (!src || busy) return;
+    if (!cloud) { setErr(ANON_BLOCK); return; }
     const seq = ++readSeq.current; setBusy(true); setErr(null);
     try {
       let col = await collectAll(src, choice.from, choice.to);
@@ -108,11 +123,12 @@ export function ReportBuilder() {
   const methodology = () => src ? [`Assunto: ${src.title} (v${src.definition.version})`, `Fonte: ${src.definition.source}`, `Metodologia: ${src.methodology}`, `Acesso: ${src.acl}`, ...(analysis?.chart ? [analysis.chart.methodology] : [])] : [];
   async function exportAs(fmt: "csv" | "xlsx" | "pdf") {
     if (!src || !result || !data || !analysis) return;
+    if (!cloud) { setErr(ANON_BLOCK); return; }
     if (data.truncated) { setErr("Leitura incompleta (limite de linhas atingido): restrinja o período antes de exportar."); return; }
     const meta = provenance(src, choice, data, SECTOR_LABEL[sector]);
     const base = `${src.definition.id}-${operationalToday()}`;
     let code: string | null = null;
-    if (cloud) {
+    {
       // Emissão registrada ANTES do download: sem trilha não há arquivo emitido.
       try {
         const sha = await fingerprint(result);
@@ -122,7 +138,7 @@ export function ReportBuilder() {
         setLastEmission({ code, cmp: reissueComparison(e.original_sha256 ?? null, sha) }); setReissueOf(null); void refreshEmissions();
       } catch (e) { setErr(`Emissão não registrada; nada foi baixado. ${governError(e).userMessage}`); return; }
     }
-    const meta2 = code ? [...meta, `Código de verificação: ${code} (${window.location.origin}/verificar/relatorio/${code})`] : [...meta, "Sem login: relatório de trabalho, sem registro de emissão."];
+    const meta2 = code ? [...meta, `Código de verificação: ${code} (${window.location.origin}/verificar/relatorio/${code})`] : meta;
     if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(result, { headerLines: spec.layout.headerLines, title: spec.layout.title || src.title }, meta2)], { type: "text/csv;charset=utf-8" }));
     else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toStudioXlsx(result, spec, meta2, analysis, methodology())]));
     else {
@@ -333,7 +349,7 @@ export function ReportBuilder() {
               <Button variant="outline" disabled={!result?.rows.length || data.truncated} onClick={() => exportAs("xlsx")}>XLSX</Button>
               <Button variant="outline" disabled={!result?.rows.length || data.truncated} onClick={() => exportAs("csv")}>CSV</Button>
             </div>
-            {reissueOf && <p role="status">Reemissão de {reissueOf.verification_code}: os dados serão relidos com a sua permissão atual e comparados ao original.</p>}
+            {reissueOf && <p role="status">Reemissão de {reissueOf.verification_code}: os dados serão relidos com a sua permissão atual e comparados à impressão digital do original. O arquivo original não é guardado: isto é reprocessamento, não download do original.</p>}
             {lastEmission && <p role="status">Emissão registrada · código {lastEmission.code}{lastEmission.cmp === "identico" ? " · conteúdo idêntico ao original" : lastEmission.cmp === "divergente" ? " · conteúdo DIFERENTE do original (dados mudaram desde a emissão)" : ""}.</p>}
             <p className="text-xs text-muted-foreground">XLSX sai com abas Relatório, Filtros, Metodologia e fonte{analysis?.summary ? ", Resumo" : ""}{analysis?.chart ? ", Dados do gráfico" : ""}. PDF sai em {spec.layout.paper} {spec.layout.orientation}, sem menus do sistema.</p>
           </>}
@@ -401,7 +417,7 @@ function EmissionHistory({ list, onReissue }: { list: ReportEmission[] | null; o
     {list.length === 0 ? <p className="text-muted-foreground">Nenhuma emissão registrada.</p> : <ul className="divide-y">{list.map((e) => (
       <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-1">
         <span>{e.title} · {e.format.toUpperCase()} · {e.row_count} linha(s) · {new Date(e.issued_at).toLocaleString("pt-BR")} · <Link className="underline" to="/verificar/relatorio/$codigo" params={{ codigo: e.verification_code }}>{e.verification_code}</Link>{e.reissue_of ? " · reemissão" : ""}</span>
-        <Button size="sm" variant="outline" onClick={() => onReissue(e)}>Reemitir</Button>
+        <Button size="sm" variant="outline" onClick={() => onReissue(e)}>Reprocessar (reler dados atuais)</Button>
       </li>))}</ul>}
   </div>;
 }
