@@ -41,7 +41,7 @@ export type NavigationRoute =
   | "/identidade-institucional"
   | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/supervisao-escolar" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
-  | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/mapa-censo-2026" | "/consolidado-2026" | "/auditoria"
+  | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/mapa-censo-2026" | "/mapa-mensal-2026" | "/consolidado-2026" | "/auditoria"
   | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos";
 
 export type NavigationItem = {
@@ -90,7 +90,8 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Turmas", icon: UsersRound, to: "/turmas", hint: "Turmas da unidade" },
       { label: "Profissionais", icon: ContactRound, to: "/profissionais", hint: "Servidores, vínculos e lotações" },
       { label: "Unidades escolares", icon: School, to: "/unidades", hint: "Escolas da rede" },
-      { label: "Mapa Estatístico 2026", icon: Table2, to: "/mapa-censo-2026", hint: "Mapa da escola pelo Censo 2026: turmas, etapas e totais" },
+      { label: "Mapa Estatístico mensal 2026", icon: Table2, to: "/mapa-mensal-2026", hint: "Mapa da escola por mês de referência" },
+      { label: "Referência do Censo 2026", icon: Table2, to: "/mapa-censo-2026", hint: "Fotografia do Censo 2026 (não é o mapa mensal)" },
       { label: "Horários", icon: CalendarClock, to: "/horarios", hint: "Horário de turmas e professores" },
       { label: "Calendário", icon: CalendarDays, to: "/calendario-escolar", hint: "Calendário escolar da rede" },
       { label: "Documentos escolares", icon: BookOpen, to: "/documentos-escolares", hint: "Emissão e verificação" },
