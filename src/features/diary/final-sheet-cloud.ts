@@ -14,7 +14,7 @@ export type EpisodeRow = { id: string; student_id: string; supersedes_id: string
 export type EndingRow = { episode_id: string; ended_on: string; reason_label: string | null };
 export type EntryRow = { id: string; logical_entry_id: string; version_number: number; instrument_id: string; student_id: string; period_id: string; value: unknown };
 export type InstrumentRow = { id: string; period_id: string; definition: { curriculumRef?: { componentId?: string }; title?: string } | null };
-export type RuleRow = { id: string; logical_id: string; version: number; label: string; scope: { modality?: string }; params: { passMark?: number; minAttendance?: number | null }; source_ref: string; status: string };
+export type RuleRow = { id: string; logical_id: string; version: number; label: string; scope: { modality?: string; year?: string | null; valid_from?: string; valid_to?: string | null }; author_id?: string; created_at?: string; params: { passMark?: number; minAttendance?: number | null }; source_ref: string; status: string };
 export type ActRow = { seq: number; action: string; rule_version_id: string | null; snapshot_sha256: string; reason: string | null; actor_id: string; created_at: string };
 
 export const ACTION_LABEL: Record<string, string> = { rascunho: "Rascunho", conferencia: "Conferida", homologacao: "Homologada", retificacao: "Retificada", reabertura: "Reaberta" };
@@ -61,11 +61,51 @@ export function cellsFrom(entries: readonly EntryRow[], instruments: readonly In
   return { cells, components, notes: [...new Set(notes)] };
 }
 
+export type AttendanceRow = { logical_attendance_id: string; version_number: number; component_id: string; marks: Record<string, Record<string, string>> | null; eligible_student_ids: string[] | null };
+/**
+ * Frequência real por estudante × componente a partir das chamadas gravadas (versão vigente de cada chamada).
+ * Aula dada = aula da chamada em que o estudante era elegível; falta = "Ausente". Elegível sem marcação ⇒ frequência
+ * desconhecida (null), nunca presença.
+ */
+export function attendanceFrom(rows: readonly AttendanceRow[]) {
+  const head = new Map<string, AttendanceRow>();
+  for (const r of rows) { const h = head.get(r.logical_attendance_id); if (!h || r.version_number > h.version_number) head.set(r.logical_attendance_id, r); }
+  const acc = new Map<string, { given: number; absences: number; unknown: boolean }>();
+  for (const r of head.values()) {
+    for (const lesson of Object.values(r.marks ?? {})) {
+      const students = new Set([...(r.eligible_student_ids ?? []), ...Object.keys(lesson)]);
+      for (const s of students) {
+        const k = cellKey(s, r.component_id); const a = acc.get(k) ?? { given: 0, absences: 0, unknown: false };
+        const m = lesson[s];
+        if (m === "Presente") a.given++; else if (m === "Ausente") { a.given++; a.absences++; } else a.unknown = true;
+        acc.set(k, a);
+      }
+    }
+  }
+  return acc;
+}
+/** Junta frequência às células (cria célula de componente com chamada mesmo sem nota). */
+export function withAttendance(cells: Record<string, SheetCell>, att: ReturnType<typeof attendanceFrom>, periods: readonly string[]) {
+  const out = { ...cells };
+  for (const [k, a] of att) {
+    const c = out[k] ?? { periodGrades: periods.map(() => null), finalRecovery: null, lessonsGiven: null, absences: null };
+    out[k] = a.unknown ? { ...c, lessonsGiven: null, absences: null } : { ...c, lessonsGiven: a.given, absences: a.absences };
+  }
+  return out;
+}
+
 /** Regra aplicável: exatamente uma cabeça homologada para a modalidade; zero ou várias ⇒ null (sem resultado). */
-export function applicableRule(rules: readonly RuleRow[], modality: Modality): { rule: ResultRule | null; issue: string | null } {
+export function ruleHeads(rules: readonly RuleRow[]): RuleRow[] {
   const heads = new Map<string, RuleRow>();
   for (const r of rules) { const h = heads.get(r.logical_id); if (!h || r.version > h.version) heads.set(r.logical_id, r); }
-  const ok = [...heads.values()].filter((r) => r.status === "homologada" && r.scope?.modality === modality && typeof r.params?.passMark === "number");
+  return [...heads.values()];
+}
+/** Vigente em `on` (AAAA-MM-DD): início declarado ≤ on ≤ fim (se houver). Sem início ⇒ não vigente. */
+export const inForce = (r: RuleRow, on: string) => !!r.scope?.valid_from && r.scope.valid_from <= on && (!r.scope.valid_to || r.scope.valid_to >= on);
+export function applicableRule(rules: readonly RuleRow[], modality: Modality, opts: { year?: string | undefined; on?: string | undefined } = {}): { rule: ResultRule | null; issue: string | null } {
+  const on = opts.on ?? new Date().toISOString().slice(0, 10);
+  const ok = ruleHeads(rules).filter((r) => r.status === "homologada" && r.scope?.modality === modality && typeof r.params?.passMark === "number"
+    && inForce(r, on) && (!r.scope.year || !opts.year || r.scope.year === opts.year));
   if (ok.length === 0) return { rule: null, issue: "Nenhuma regra de resultado homologada para esta modalidade: médias e frequência aparecem, o resultado não." };
   if (ok.length > 1) return { rule: null, issue: "Mais de uma regra homologada para esta modalidade: resultado não emitido até a ambiguidade ser resolvida." };
   const r = ok[0]!;
@@ -90,22 +130,37 @@ export const readClasses = () => q<{ id: string; name: string; school_id: string
 export async function readClassSheet(classId: string) {
   const episodes = await q<EpisodeRow[]>(supabase.from("class_enrollment_episodes").select("id,student_id,supersedes_id,valid_from").eq("class_id", classId).limit(1000));
   const ids = episodes.map((e) => e.id);
-  const [endings, students, instruments, entries, rules, acts] = await Promise.all([
+  const [endings, students, instruments, entries, rules, attendance, acts] = await Promise.all([
     ids.length ? q<EndingRow[]>(supabase.from("class_enrollment_episode_endings").select("episode_id,ended_on,reason_label").in("episode_id", ids)) : Promise.resolve([] as EndingRow[]),
     episodes.length ? q<{ id: string; display_name: string }[]>(supabase.from("institutional_students").select("id,display_name").in("id", [...new Set(episodes.map((e) => e.student_id))])) : Promise.resolve([]),
     q<InstrumentRow[]>(supabase.from("assessment_instruments").select("id,period_id,definition").eq("class_id", classId)),
     q<EntryRow[]>(supabase.from("assessment_entry_versions").select("id,logical_entry_id,version_number,instrument_id,student_id,period_id,value").eq("class_id", classId).limit(1000)),
     q<RuleRow[]>(supabase.from("final_sheet_rule_versions").select("id,logical_id,version,label,scope,params,source_ref,status")),
+    q<AttendanceRow[]>(supabase.from("attendance_record_versions").select("logical_attendance_id,version_number,component_id,marks,eligible_student_ids").eq("class_id", classId).limit(1000)),
     q<ActRow[]>(supabase.from("final_sheet_acts").select("seq,action,rule_version_id,snapshot_sha256,reason,actor_id,created_at").eq("class_id", classId).order("seq")),
   ]);
-  return { episodes, endings, names: new Map(students.map((s) => [s.id, s.display_name])), instruments, entries, rules, acts, truncated: episodes.length >= 1000 || entries.length >= 1000 };
+  return { episodes, endings, names: new Map(students.map((s) => [s.id, s.display_name])), instruments, entries, rules, attendance, acts, truncated: episodes.length >= 1000 || entries.length >= 1000 || attendance.length >= 1000 };
 }
 
 export const recordAct = (a: { classId: string; expectedSeq: number; action: string; ruleId: string | null; snapshot: unknown; sha: string; reason: string | null }) =>
   callRpc<number>("record_final_sheet_act", { _class: a.classId, _expected_seq: a.expectedSeq, _action: a.action, _rule: a.ruleId, _snapshot: a.snapshot, _sha: a.sha, _reason: a.reason });
 
+export const readRules = () => q<RuleRow[]>(supabase.from("final_sheet_rule_versions").select("id,logical_id,version,label,scope,params,source_ref,status,author_id,created_at").order("logical_id").order("version"));
+export const recordRule = (a: { logical: string; expectedVersion: number; label: string; scope: RuleRow["scope"]; params: { passMark: number; minAttendance: number | null }; sourceRef: string; status: "rascunho" | "homologada" }) =>
+  callRpc<string>("record_final_sheet_rule", { _logical: a.logical, _expected_version: a.expectedVersion, _label: a.label, _scope: a.scope, _params: a.params, _source_ref: a.sourceRef, _status: a.status });
+
 const MSG: Record<string, string> = {
-  CAPABILITY_REQUIRED: "Sua conta não tem permissão para registrar a Folha Final desta escola.",
+  HOMOLOGATION_SAME_AUTHOR: "Quem escreveu a regra não pode homologá-la: outra pessoa precisa revisar.",
+  HOMOLOGATION_REQUIRES_DRAFT: "Só um rascunho pode ser homologado.",
+  HOMOLOGATION_MUST_NOT_CHANGE: "A homologação não pode mudar parâmetros: crie novo rascunho.",
+  SCOPE_INVALID: "Modalidade inválida para regra numérica.",
+  VALIDITY_INVALID: "Informe início da vigência (e fim, se houver, depois do início).",
+  PARAMS_INVALID: "Nota mínima entre 0 e 100; frequência mínima entre 1% e 100% ou vazia.",
+  RULE_MISMATCH: "A regra da folha mudou: recarregue.",
+  RULE_MODALITY_MISMATCH: "A regra não é desta modalidade.",
+  RULE_NOT_IN_FORCE: "A regra não está vigente hoje.",
+  ATTENDANCE_REQUIRED: "A regra exige frequência e há estudante sem frequência registrada.",
+  CAPABILITY_REQUIRED: "Sua conta não tem permissão para este ato.",
   STALE_BASE: "Outra pessoa registrou um ato antes: recarregue.",
   CONFERENCE_REQUIRED: "Homologar exige conferência registrada antes.",
   HOMOLOGATION_SAME_ACTOR: "Quem conferiu não pode homologar.",
