@@ -38,6 +38,7 @@ import { Route as ComunicacaoEscolarRouteImport } from './routes/comunicacao-esc
 import { Route as ConciliacaoPessoalRouteImport } from './routes/conciliacao-pessoal'
 import { Route as ConferenciaFontes2026RouteImport } from './routes/conferencia-fontes-2026'
 import { Route as ConfiguracaoInicialRouteImport } from './routes/configuracao-inicial'
+import { Route as Consolidado2026RouteImport } from './routes/consolidado-2026'
 import { Route as DepartamentoPessoalRouteImport } from './routes/departamento-pessoal'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
@@ -377,6 +378,11 @@ const ConferenciaFontes2026Route = ConferenciaFontes2026RouteImport.update({
 const ConfiguracaoInicialRoute = ConfiguracaoInicialRouteImport.update({
   id: '/configuracao-inicial',
   path: '/configuracao-inicial',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Consolidado2026Route = Consolidado2026RouteImport.update({
+  id: '/consolidado-2026',
+  path: '/consolidado-2026',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DepartamentoPessoalRoute = DepartamentoPessoalRouteImport.update({
@@ -1471,6 +1477,7 @@ export interface FileRoutesByFullPath {
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
   '/conferencia-fontes-2026': typeof ConferenciaFontes2026Route
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
+  '/consolidado-2026': typeof Consolidado2026Route
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
   '/diagnostico': typeof DiagnosticoRoute
@@ -1694,6 +1701,7 @@ export interface FileRoutesByTo {
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
   '/conferencia-fontes-2026': typeof ConferenciaFontes2026Route
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
+  '/consolidado-2026': typeof Consolidado2026Route
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
   '/diagnostico': typeof DiagnosticoRoute
@@ -1890,6 +1898,7 @@ export interface FileRoutesById {
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
   '/conferencia-fontes-2026': typeof ConferenciaFontes2026Route
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
+  '/consolidado-2026': typeof Consolidado2026Route
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
   '/diagnostico': typeof DiagnosticoRoute
@@ -2117,6 +2126,7 @@ export interface FileRouteTypes {
     | '/conciliacao-pessoal'
     | '/conferencia-fontes-2026'
     | '/configuracao-inicial'
+    | '/consolidado-2026'
     | '/departamento-pessoal'
     | '/design-system'
     | '/diagnostico'
@@ -2340,6 +2350,7 @@ export interface FileRouteTypes {
     | '/conciliacao-pessoal'
     | '/conferencia-fontes-2026'
     | '/configuracao-inicial'
+    | '/consolidado-2026'
     | '/departamento-pessoal'
     | '/design-system'
     | '/diagnostico'
@@ -2535,6 +2546,7 @@ export interface FileRouteTypes {
     | '/conciliacao-pessoal'
     | '/conferencia-fontes-2026'
     | '/configuracao-inicial'
+    | '/consolidado-2026'
     | '/departamento-pessoal'
     | '/design-system'
     | '/diagnostico'
@@ -2761,6 +2773,7 @@ export interface RootRouteChildren {
   ConciliacaoPessoalRoute: typeof ConciliacaoPessoalRoute
   ConferenciaFontes2026Route: typeof ConferenciaFontes2026Route
   ConfiguracaoInicialRoute: typeof ConfiguracaoInicialRoute
+  Consolidado2026Route: typeof Consolidado2026Route
   DepartamentoPessoalRoute: typeof DepartamentoPessoalRoute
   DesignSystemRoute: typeof DesignSystemRoute
   DiagnosticoRoute: typeof DiagnosticoRoute
@@ -3035,6 +3048,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracao-inicial'
       fullPath: '/configuracao-inicial'
       preLoaderRoute: typeof ConfiguracaoInicialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/consolidado-2026': {
+      id: '/consolidado-2026'
+      path: '/consolidado-2026'
+      fullPath: '/consolidado-2026'
+      preLoaderRoute: typeof Consolidado2026RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/departamento-pessoal': {
@@ -5102,6 +5122,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConciliacaoPessoalRoute: ConciliacaoPessoalRoute,
   ConferenciaFontes2026Route: ConferenciaFontes2026Route,
   ConfiguracaoInicialRoute: ConfiguracaoInicialRoute,
+  Consolidado2026Route: Consolidado2026Route,
   DepartamentoPessoalRoute: DepartamentoPessoalRoute,
   DesignSystemRoute: DesignSystemRoute,
   DiagnosticoRoute: DiagnosticoRoute,
