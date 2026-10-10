@@ -22,6 +22,8 @@ export const schoolCanEdit = (s: OrderStatus) => orderAllows(s, "submissao");
 export interface OrderLine {
   item_ref: string; unidade_ref: string; apresentacao_ref?: string; contrato_ref?: string; publico_ref?: string;
   quantidade: number; zero_motivo?: "saldo-suficiente" | "nao-aplicavel" | "outro" | undefined; observacao?: string;
+  /** LOTE 9 — declarados pela escola com base escrita; o teto só os usa com per capita homologado. */
+  publico_atendido?: number | undefined; publico_base?: string | undefined; dias_letivos?: number | undefined; dias_base?: string | undefined; justificativa_excesso?: string | undefined;
 }
 
 // ---- motor de necessidade/teto ----

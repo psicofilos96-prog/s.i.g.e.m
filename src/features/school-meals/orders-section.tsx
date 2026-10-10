@@ -9,14 +9,23 @@ import { StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { runReport, toCsv } from "@/features/reports/report-engine";
 import { mealMessage } from "./meals-model";
-import { checkRequest, explainCeiling, type CeilingInput } from "./ceiling-explain";
+import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from "./ceiling-explain";
+import { operationalToday } from "@/lib/academic-date";
 
-/** Parâmetros do teto: nenhum per capita/público/dias/estoque homologado é lido ainda ⇒ todos null (pendência explícita, nunca zero). */
-const NO_PARAMS: CeilingInput = { perCapitaGrams: null, perCapitaHomologated: false, servedPublic: null, schoolDays: null, eligibleStockGrams: null, pendingDeliveriesGrams: null };
-function LineCheck({ l }: { l: OrderLine }) {
-  const r = checkRequest(l.quantidade, explainCeiling(NO_PARAMS), false, l.zero_motivo ?? null);
-  return <ul className="text-xs text-muted-foreground">{r.warnings.map((w) => <li key={w}>{w}</li>)}</ul>;
+/** LOTE 9 — teto calculado pelo banco (mesma função que congela a avaliação no ato). */
+async function evaluate(school: string, lines: OrderLine[]) {
+  return callRpc<ServerCeilingLine[]>("meal_order_ceiling_evaluation", { _school: school, _lines: lines, _on: operationalToday() });
 }
+function CeilingPanel({ school, lines }: { school: string; lines: OrderLine[] }) {
+  const [ev, setEv] = useState<ServerCeilingLine[] | null>(null); const [e, setE] = useState<string | null>(null);
+  const key = JSON.stringify(lines);
+  useEffect(() => { let on = true; setEv(null); setE(null); if (!school || lines.length === 0) return; evaluate(school, lines).then((r) => on && setEv(r)).catch((x) => on && setE(String((x as Error).message))); return () => { on = false; }; }, [school, key]); // eslint-disable-line react-hooks/exhaustive-deps
+  if (lines.length === 0) return null;
+  if (e) return <p className="text-xs text-destructive">Teto não avaliado: {e}</p>;
+  if (!ev) return <p className="text-xs text-muted-foreground">Calculando teto…</p>;
+  return <ul className="text-xs" aria-label="Teto por item">{ev.map((l) => <li key={l.linha} className={l.excede ? "text-destructive" : "text-muted-foreground"}>Item {l.linha}: {explainServerLine(l)}{l.per_capita_registro ? ` (per capita homologado v${l.per_capita_versao})` : ""}</li>)}</ul>;
+}
+
 import {
   CONSOLIDADO_ALIMENTACAO, ORDER_STATUS_LABEL, PEDIDOS_ALIMENTACAO, orderAllows, classifyZero, orderReportRow, schoolCanEdit,
   type HistoryRow, type OrderLine, type OrderStatus,
@@ -73,7 +82,6 @@ export function OrdersSection({ school, network, names }: { school: string; netw
     <section aria-labelledby="ord" className="space-y-3 rounded border p-3 text-sm">
       <h2 id="ord" className="font-semibold">Pedido mensal</h2>
       <label className="block max-w-xs">Competência<input className={field} value={competence} onChange={(e) => setCompetence(e.target.value)} placeholder="AAAA-MM" /></label>
-      {(() => { const c = explainCeiling(NO_PARAMS); return c.state === "pendente" ? <StatePanel tone="warning" title="Teto do pedido não calculável" description={`Falta: ${c.missing.join("; ")}. O envio é permitido; a autorização definitiva aguarda revisão.`} /> : null; })()}
       {msg && <p role="status">{msg}</p>}
       {err ? <StatePanel tone="warning" title="Não disponível" description={err} />
         : !orders ? <SkeletonState label="Carregando" />
@@ -111,9 +119,13 @@ function SchoolOrder({ school, competence, order, items, units, act }: { school:
           <label>Se zero, por quê<select className={field} disabled={!editable || l.quantidade > 0} value={l.zero_motivo ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, zero_motivo: (e.target.value || undefined) as OrderLine["zero_motivo"] } : x)))}>
             <option value="">—</option><option value="saldo-suficiente">Saldo suficiente</option><option value="nao-aplicavel">Não aplicável</option><option value="outro">Outro</option></select>
             {classifyZero(l) === "zero-sem-justificativa" && <span className="text-muted-foreground">Zero sem justificativa (permitido).</span>}</label>
-          <div className="sm:col-span-4"><LineCheck l={l} /></div>
+          <label>Público atendido<input type="number" min={0} className={field} disabled={!editable} value={l.publico_atendido ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_atendido: e.target.value === "" ? undefined : Number(e.target.value) } : x)))} /></label>
+          <label>Base do público<input className={field} disabled={!editable} value={l.publico_base ?? ""} placeholder="ex.: matrícula de agosto" onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_base: e.target.value || undefined } : x)))} /></label>
+          <label>Dias letivos<input type="number" min={0} className={field} disabled={!editable} value={l.dias_letivos ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, dias_letivos: e.target.value === "" ? undefined : Number(e.target.value) } : x)))} /></label>
+          <label>Base dos dias<input className={field} disabled={!editable} value={l.dias_base ?? ""} placeholder="ex.: calendário homologado" onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, dias_base: e.target.value || undefined } : x)))} /></label>
         </div>
       ))}
+      <CeilingPanel school={school} lines={lines} />
       {editable && (
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => setLines([...lines, { item_ref: items[0]!.logical_id, unidade_ref: units[0]!.logical_id, quantidade: 0 }])}>Adicionar item</Button>
@@ -131,9 +143,26 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
     const reason = needReason ? await askText("Motivo:") : null; if (needReason && !reason?.trim()) return;
     const base = { _logical: o.logical_id, _expected_version: o.version, _action: action, _school: null, _competence: null, _lines: null, _reason: reason };
     if (action !== "autorizacao") return void act(base);
-    const ack = await askText("Teto não calculável (per capita, público, dias letivos ou estoque sem homologação). Registre sua ciência e a base da conferência:");
-    if (!ack?.trim()) return;
-    void act({ ...base, _ceiling_ack: ack, __rpc: "record_meal_order_with_ceiling" });
+    let ev: ServerCeilingLine[];
+    try { ev = await evaluate(o.school_id, o.lines); } catch (e) { return void act({ ...base, __rpc: "__erro__", _err: (e as Error).message }); }
+    const needs = authorizationNeeds(ev);
+    let lines: OrderLine[] | null = null;
+    if (needs.exceeding.length) {
+      lines = [...o.lines];
+      for (const n of needs.exceeding) {
+        const j = await askText(`Item ${n} excede o teto calculado (${explainServerLine(ev[n - 1]!)}) Justifique (mín. 10 caracteres):`);
+        if (!j || j.trim().length < 10) return;
+        lines[n - 1] = { ...lines[n - 1]!, justificativa_excesso: j.trim() };
+      }
+    }
+    let ack: string | null = null;
+    if (needs.ackRequired) {
+      ack = await askText(`Teto não calculável: ${ev.filter((l) => l.estado === "pendente").map(explainServerLine).join(" ")} Registre sua ciência e a base da conferência:`);
+      if (!ack?.trim()) return;
+    }
+    const why = lines ? await askText("Motivo do registro da justificativa no pedido:") : null;
+    if (lines && !why?.trim()) return;
+    void act({ ...base, _lines: lines, _reason: why ?? base._reason, _ceiling_ack: ack, __rpc: "record_meal_order_with_ceiling" });
   };
   return (
     <ul className="divide-y">
@@ -141,7 +170,7 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
         <li key={o.logical_id} className="space-y-1 py-2">
           <p className="font-medium">{names.get(o.school_id) ?? o.school_id} — {knownLabel(ORDER_STATUS_LABEL, o.status)} · v{o.version}</p>
           <p className="text-muted-foreground">{o.lines.map((l) => `${itemLabel(l.item_ref)}: ${l.quantidade}`).join(" · ") || "sem itens"}</p>
-          {orderAllows(o.status, "autorizacao") && <p className="text-xs text-muted-foreground">Teto não calculado: confira per capita, público, dias letivos e estoque antes de autorizar.</p>}
+          {orderAllows(o.status, "autorizacao") && <CeilingPanel school={o.school_id} lines={o.lines} />}
           <div className="flex flex-wrap gap-2">
             {orderAllows(o.status, "analise") && <Button size="sm" variant="outline" onClick={() => go(o, "analise", false)}>Iniciar análise</Button>}
             {orderAllows(o.status, "autorizacao") && <>
