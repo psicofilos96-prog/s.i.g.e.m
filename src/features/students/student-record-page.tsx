@@ -37,7 +37,7 @@ export function StudentRecordPage({ id }: { id: string }) {
             <CardFact label="Ingresso na escola">{e.openedOn ? formatAcademicDate(e.openedOn) : NI}</CardFact>
             <CardFact label="Fonte">{SOURCE[e.source]}</CardFact>
           </dl>
-          <div className="grid gap-3 md:grid-cols-2">
+          <ul className="grid gap-3 md:grid-cols-2">
             {e.classes.map((c) => (
               <RegistryCard key={c.episodeId} title={<Link to="/turmas/$id" params={{ id: c.classId }} className="hover:underline">{c.label}</Link>}>
                 <CardFact label="Situação na turma">{c.situation.kind === "vigente" ? "Vigente (sem encerramento registrado)" : `Encerrado em ${formatAcademicDate(c.situation.on)}${c.situation.reason ? ` — ${c.situation.reason}` : ""}`}</CardFact>
@@ -49,7 +49,7 @@ export function StudentRecordPage({ id }: { id: string }) {
                 <CardFact label="Início na turma">{c.validFrom ? formatAcademicDate(c.validFrom) : NI}</CardFact>
               </RegistryCard>
             ))}
-          </div>
+          </ul>
         </section>
       ))}
 
