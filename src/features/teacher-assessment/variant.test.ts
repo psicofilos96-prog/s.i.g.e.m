@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { variantProjection, type InstrumentVersion, type ItemVersion } from "./authoring-model";
 const items = new Map(["a","b","c","d","e"].map((id) => [id, { id, item_type_id: "objetiva", stem: id, options: [{ key: "A", text: "1" }, { key: "B", text: "2" }, { key: "C", text: "3" }] } as unknown as ItemVersion]));
-const ins = { id: "v1", instrument_id: "i", version: 1, items: ["a","b","c","d","e"], randomization: null, title: "P", instructions: "" } as unknown as InstrumentVersion;
+const ins = { id: "v1", instrument_id: "i", version: 1, items: ["a","b","c","d","e"].map((x) => ({ item_version_id: x })), randomization: null, title: "P", instructions: "" } as unknown as InstrumentVersion;
 describe("versões embaralhadas da prova", () => {
   it("recusa sem aprovação da OP", () => { expect(variantProjection(ins, items, "A", false).ok).toBe(false); });
   it("original não exige aprovação", () => { expect(variantProjection(ins, items, null, false).ok).toBe(true); });
