@@ -614,3 +614,6 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] N2026.IMPORT.5 — consumidores da base 2026 (não executado; pedido em seguida ao REFERENCE)
 - [x] N2026.REFERENCE.2027 — Referência 2026 na Preparação 2027
 - [x] Linhas da tabela do calendário externo visíveis no PDF em qualquer zoom
+
+- [ ] Auditoria de cumprimento de todos os lotes (pedido 10/10)
+- [ ] Nova tela de login institucional (especificação + imagens enviadas) — aguarda confirmação
