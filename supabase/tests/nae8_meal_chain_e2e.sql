@@ -110,7 +110,7 @@ BEGIN
   PERFORM pg_temp.nae8_as(uN);
   PERFORM public.record_meal_order(ord, 2, 'analise', NULL, NULL, NULL, NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_order(%L,3,%L,NULL,NULL,%L::jsonb,NULL)',ord,'autorizacao',jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'quantidade',80))), 'reason-required');
-  PERFORM public.record_meal_order(ord, 3, 'autorizacao', NULL, NULL, jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'quantidade',80)), 'Autorização parcial sintética');
+  PERFORM public.record_meal_order_with_ceiling(ord, 3, 'autorizacao', NULL, NULL, jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'quantidade',80)), 'Autorização parcial sintética', 'Teto pendente conferido (0290/0293)');
   IF (SELECT status FROM public.meal_order_versions WHERE logical_id = ord ORDER BY version DESC LIMIT 1) <> 'autorizado-parcial' THEN RAISE EXCEPTION 'falha: autorização parcial'; END IF;
   _ok := _ok || 'janela,regra-ausente,pedido,idor,cap-ausente,autorizacao-parcial;';
 
