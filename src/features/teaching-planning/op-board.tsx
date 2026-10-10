@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { useSessionUser } from "@/features/authority/session-authority";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 export type BoardSection = { heading: string; body: string };
@@ -20,7 +21,8 @@ const msgOf = (e: unknown) => { const r = e instanceof Error ? e.message : Strin
 
 export function OpBoardPage() {
   const qc = useQueryClient();
-  const q = useQuery({ queryKey: ["opboard"], queryFn: async () => { const r = await db.from("op_permanent_board_versions").select("*").order("recorded_at", { ascending: false }); if (r.error) throw new Error(r.error.message); return r.data as BoardVersion[]; } });
+  const session = useSessionUser();
+  const q = useQuery({ enabled: !!session.user, queryKey: ["opboard"], queryFn: async () => { const r = await db.from("op_permanent_board_versions").select("*").order("recorded_at", { ascending: false }); if (r.error) throw new Error(r.error.message); return r.data as BoardVersion[]; } });
   const hs = useMemo(() => boardHeads(q.data ?? []), [q.data]);
   const [d, setD] = useState<{ stage: string; head: string | null; title: string; sections: BoardSection[]; reason: string } | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -35,7 +37,7 @@ export function OpBoardPage() {
   return (
     <main className="mx-auto max-w-4xl space-y-4 p-6">
       <header><h1 className="text-2xl font-semibold text-foreground">Quadro Permanente da OP</h1><p className="text-sm text-muted-foreground">Orientações da rede por etapa, com versões. Cada mudança cria nova versão; as anteriores ficam no histórico. Professores consultam no planejamento.</p></header>
-      {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p> : q.error ? <p role="alert" className="text-sm text-destructive">Entre com sua conta para ver o Quadro Permanente.</p> : (<>
+      {session.loading ? <p className="text-sm text-muted-foreground">Conferindo sua sessão…</p> : !session.user ? <p className="text-sm text-muted-foreground">Entre com sua conta para ver o Quadro Permanente.</p> : q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p> : q.error ? <p role="alert" className="text-sm text-destructive">Entre com sua conta para ver o Quadro Permanente.</p> : (<>
         {hs.length === 0 && <p className="text-sm text-muted-foreground">Nenhum quadro registrado ainda.</p>}
         <ul className="space-y-2">{hs.map((v) => (
           <li key={v.id} className="rounded border border-border p-3"><div className="font-medium">{v.stage_key} — {v.title} <span className="text-xs text-muted-foreground">v{v.version}</span></div>
