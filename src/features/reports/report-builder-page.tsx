@@ -32,7 +32,19 @@ export const ANON_BLOCK = "Entre com sua conta para ler a fonte e emitir. Sem lo
 function save(name: string, blob: Blob) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
 
 export function ReportBuilder() {
-  const { user } = useSessionUser();
+  const { loading, user } = useSessionUser();
+  if (loading) return <section aria-label="Gerador de relatórios" className="rounded-md border border-border bg-card p-4 text-sm text-muted-foreground" role="status">Conferindo sua sessão…</section>;
+  if (!user) return (
+    <section aria-label="Gerador de relatórios" className="space-y-2 rounded-md border border-border bg-card p-4 text-sm">
+      <h2 className="font-semibold">Montar um relatório</h2>
+      <p>{ANON_BLOCK}</p>
+      <Button asChild size="sm"><Link to="/auth">Entrar</Link></Button>
+    </section>
+  );
+  return <SignedInBuilder user={user} />;
+}
+
+function SignedInBuilder({ user }: { user: NonNullable<ReturnType<typeof useSessionUser>["user"]> }) {
   const cloud = !!user;
   const [sector, setSector] = useState<Sector>("secretaria");
   const [step, setStep] = useState(0);
