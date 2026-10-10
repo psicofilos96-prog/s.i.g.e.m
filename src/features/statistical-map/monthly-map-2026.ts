@@ -1,5 +1,5 @@
-/**
 import { NETWORK_FILTERS, NETWORK_FILTER_LABEL, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
+/**
  * Mapa Estatístico MENSAL 2026. Chave: escola + ano + mês (+ versão da apuração congelada).
  * O Censo é referência/fotografia, nunca prova da situação de um mês: cada mês é lido na sua
  * data de referência a partir dos episódios de enturmação, matrículas e encerramentos datados.
