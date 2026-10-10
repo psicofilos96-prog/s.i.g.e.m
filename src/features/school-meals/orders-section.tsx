@@ -56,7 +56,7 @@ export function OrdersSection({ school, network, names }: { school: string; netw
   useEffect(() => { void load(); }, [load]);
   const act = async (a: Record<string, unknown>) => {
     setMsg(null);
-    try { await call("record_meal_order", a); await load(); setMsg("Registrado."); } catch (e) { setMsg(mealMessage((e as Error).message)); }
+    try { const { __rpc, ...args } = a; await call(typeof __rpc === "string" ? __rpc : "record_meal_order", args); await load(); setMsg("Registrado."); } catch (e) { setMsg(mealMessage((e as Error).message)); }
   };
   async function exportOrders() {
     const rows = [];
@@ -129,7 +129,11 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
   if (orders.length === 0) return <p className="text-muted-foreground">Nenhum pedido nesta competência.</p>;
   const go = async (o: Order, action: string, needReason: boolean) => {
     const reason = needReason ? await askText("Motivo:") : null; if (needReason && !reason?.trim()) return;
-    void act({ _logical: o.logical_id, _expected_version: o.version, _action: action, _school: null, _competence: null, _lines: null, _reason: reason });
+    const base = { _logical: o.logical_id, _expected_version: o.version, _action: action, _school: null, _competence: null, _lines: null, _reason: reason };
+    if (action !== "autorizacao") return void act(base);
+    const ack = await askText("Teto não calculável (per capita, público, dias letivos ou estoque sem homologação). Registre sua ciência e a base da conferência:");
+    if (!ack?.trim()) return;
+    void act({ ...base, _ceiling_ack: ack, __rpc: "record_meal_order_with_ceiling" });
   };
   return (
     <ul className="divide-y">
