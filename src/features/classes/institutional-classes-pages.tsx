@@ -41,6 +41,7 @@ import { OfferingPanel, ShiftPanel } from "./class-offering-shift-panels";
 import { canMaintainOffering, canMaintainShift } from "./class-offering-shift-source";
 import { CensusClassBondsPanel } from "@/features/student-life/census-class-bonds";
 import { ClassRosterPanel } from "./class-roster-panel";
+import { ClassDayIntervalsPanel } from "@/features/students/student-day-intervals-panel";
 import { CapacityPanel, CompositionPanel } from "./class-composition-panel";
 import { CompositionBreakdownTable, JourneyPanel } from "./class-composition-views";
 
@@ -302,6 +303,7 @@ export function InstitutionalClassDetailPage({ id }: { id: string }) {
       </div>
       <TeachingAssignmentPanel classId={s.classId} validOn={todayIso()} />
       <ClassRosterPanel classId={s.classId} />
+      <ClassDayIntervalsPanel classId={s.classId} />
       <CensusClassBondsPanel classId={s.classId} />
       <Section title="Histórico cadastral" icon={<History className="size-4" />}>
         <RecordHistory items={history.data ?? []} />
