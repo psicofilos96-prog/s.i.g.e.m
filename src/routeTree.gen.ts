@@ -59,6 +59,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as MapaCenso2026RouteImport } from './routes/mapa-censo-2026'
 import { Route as MapaEstatisticoRouteImport } from './routes/mapa-estatistico'
 import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatistico-rede'
+import { Route as MapaMensal2026RouteImport } from './routes/mapa-mensal-2026'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as MeusDiariosRouteImport } from './routes/meus-diarios'
@@ -483,6 +484,11 @@ const MapaEstatisticoRoute = MapaEstatisticoRouteImport.update({
 const MapaEstatisticoRedeRoute = MapaEstatisticoRedeRouteImport.update({
   id: '/mapa-estatistico-rede',
   path: '/mapa-estatistico-rede',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaMensal2026Route = MapaMensal2026RouteImport.update({
+  id: '/mapa-mensal-2026',
+  path: '/mapa-mensal-2026',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatriculasRoute = MatriculasRouteImport.update({
@@ -1498,6 +1504,7 @@ export interface FileRoutesByFullPath {
   '/mapa-censo-2026': typeof MapaCenso2026Route
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
+  '/mapa-mensal-2026': typeof MapaMensal2026Route
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/meus-diarios': typeof MeusDiariosRoute
@@ -1719,6 +1726,7 @@ export interface FileRoutesByTo {
   '/mapa-censo-2026': typeof MapaCenso2026Route
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
+  '/mapa-mensal-2026': typeof MapaMensal2026Route
   '/matriculas': typeof MatriculasRouteWithChildren
   '/meus-diarios': typeof MeusDiariosRoute
   '/orientacao': typeof OrientacaoRoute
@@ -1919,6 +1927,7 @@ export interface FileRoutesById {
   '/mapa-censo-2026': typeof MapaCenso2026Route
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
+  '/mapa-mensal-2026': typeof MapaMensal2026Route
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/meus-diarios': typeof MeusDiariosRoute
@@ -2147,6 +2156,7 @@ export interface FileRouteTypes {
     | '/mapa-censo-2026'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
+    | '/mapa-mensal-2026'
     | '/matriculas'
     | '/matrizes-curriculares'
     | '/meus-diarios'
@@ -2368,6 +2378,7 @@ export interface FileRouteTypes {
     | '/mapa-censo-2026'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
+    | '/mapa-mensal-2026'
     | '/matriculas'
     | '/meus-diarios'
     | '/orientacao'
@@ -2567,6 +2578,7 @@ export interface FileRouteTypes {
     | '/mapa-censo-2026'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
+    | '/mapa-mensal-2026'
     | '/matriculas'
     | '/matrizes-curriculares'
     | '/meus-diarios'
@@ -2794,6 +2806,7 @@ export interface RootRouteChildren {
   MapaCenso2026Route: typeof MapaCenso2026Route
   MapaEstatisticoRoute: typeof MapaEstatisticoRoute
   MapaEstatisticoRedeRoute: typeof MapaEstatisticoRedeRoute
+  MapaMensal2026Route: typeof MapaMensal2026Route
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   MeusDiariosRoute: typeof MeusDiariosRoute
@@ -3195,6 +3208,13 @@ declare module '@tanstack/react-router' {
       path: '/mapa-estatistico-rede'
       fullPath: '/mapa-estatistico-rede'
       preLoaderRoute: typeof MapaEstatisticoRedeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa-mensal-2026': {
+      id: '/mapa-mensal-2026'
+      path: '/mapa-mensal-2026'
+      fullPath: '/mapa-mensal-2026'
+      preLoaderRoute: typeof MapaMensal2026RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matriculas': {
@@ -5143,6 +5163,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapaCenso2026Route: MapaCenso2026Route,
   MapaEstatisticoRoute: MapaEstatisticoRoute,
   MapaEstatisticoRedeRoute: MapaEstatisticoRedeRoute,
+  MapaMensal2026Route: MapaMensal2026Route,
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   MeusDiariosRoute: MeusDiariosRoute,

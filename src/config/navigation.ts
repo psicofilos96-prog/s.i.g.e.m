@@ -116,7 +116,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Desempenho", icon: Table2, to: "/avaliacao-desempenho", hint: "Avaliações institucionais" },
       { label: "Relatórios", icon: Table2, to: "/relatorios", hint: "Relatórios e exportações" },
       { label: "Mapa da rede", icon: Table2, to: "/mapa-estatistico-rede", hint: "Projeção mensal por escola" },
-      { label: "SEMED · Consolidado 2026", icon: Table2, to: "/consolidado-2026", hint: "Totais 2026 da rede com conferência do Censo" },
+      { label: "SEMED · Consolidado 2026", icon: Table2, to: "/consolidado-2026", hint: "Consolidação mensal 2026 da rede" },
       { label: "Auditoria", icon: Scale, to: "/auditoria", hint: "Trilha de ações" },
       { label: "Estação administrativa", icon: SlidersHorizontal, to: "/estacao-administrativa", hint: "Governança e configuração" },
       { label: "Central de acessos", icon: SlidersHorizontal, to: "/central-de-acessos", hint: "Contas, atuações e políticas" },
