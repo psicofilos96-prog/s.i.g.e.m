@@ -2017,6 +2017,13 @@
       "when": 1791653938608,
       "tag": "0287_r1_infrastructure_scoped_read",
       "breakpoints": true
+    },
+    {
+      "idx": 288,
+      "version": "7",
+      "when": 1791663436839,
+      "tag": "0288_report_emissions_ledger",
+      "breakpoints": true
     }
   ]
 }

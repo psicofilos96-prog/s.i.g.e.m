@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 299. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 303. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -35,7 +35,7 @@ Documentos: 299. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `documentos-canonicos-por-dominio-ndocs2.md`, `documentos-escolares-motor.md`, `documentos-impressao-auditoria.md`, `familia-carteirinha-autorizacoes.md`, `secretaria-documentos-transferencias-renovacao.md`, `secretaria-escolar-produto-completo.md`, `secretaria-fluxo-real-pos-diario.md`, `secretaria-vida-escolar.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-familia-carteirinha-n925.md`, `auditoria-pdfs-npdf3.md`, `auditoria-secretaria-n56.md`, `central-documentos-institucionais.md`, `familia-carteirinha-nfam1.md`, `n2026-import-3-turmas-alunos-matriculas.md`, `secretaria-escolar-produto-final.md`
+**Registros de lote (decisões e provas da etapa):** `analise-rar-prototipo-e-documentos-2026-10-10.md`, `auditoria-familia-carteirinha-n925.md`, `auditoria-pdfs-npdf3.md`, `auditoria-secretaria-n56.md`, `central-documentos-institucionais.md`, `familia-carteirinha-nfam1.md`, `n2026-import-3-turmas-alunos-matriculas.md`, `secretaria-escolar-produto-final.md`
 
 **Pendências declaradas:**
 - `auditoria-familia-carteirinha-n925.md`: DEPENDE_DECISAO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -53,7 +53,7 @@ Documentos: 299. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `avaliacao-desempenho-rede.md`, `diario-gate-e2e-real.md`, `diario-professor-e2e.md`, `docente-diario-produto.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-avaliacao-n625.md`, `diario-ndiary-final-2.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-avaliacao-n625.md`, `diario-modelos-rede-matriz-2026-10-10.md`, `diario-ndiary-final-2.md`, `fechamento-2026-10-10.md`
 
 **Pendências declaradas:**
 - `auditoria-avaliacao-n625.md`: DEPENDE_DADO, ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -221,7 +221,7 @@ Documentos: 299. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `api-de-integracao.md`, `busca-ativa-alunos-servidores.md`, `comunicacao-notificacoes.md`, `database-constraints-indexes-batch-readers.md`, `database-contracts-audit.md`, `design-system-sigem.md`, `governanca-execucao-tecnica-desenvolvimento.md`, `governanca-infraestrutura-escolar.md`, `guias-por-perfil-ba.md`, `mapa-documentacao-vigente.md`, `mapa-estatistico-2027.md`, `matriz-completude-produto-sigem.md`, `matriz-rastreabilidade.md`, `modulos-apoio-produto.md`, `necessidade-professor-calculo-canonico.md`, `op-direcao-produto.md`, `orientacao-direcao-gestao.md`, `performance-escala-sigem.md`, `storage-arquivos-privados.md`, `supervisao-escolar-produto.md`, `varredura-demonstracao-contexto-real.md`
 
-**Registros de lote (decisões e provas da etapa):** `acabamento-visual-ndesignqa.md`, `alimentacao-escolar-produto-final.md`, `busca-e-avisos-nsearch2.md`, `campanha-zero-erros.md`, `confronto-alimentacao-lote-e-2026-10-10.md`, `datas-fuso-ndate1.md`, `direcao-escolar-produto-final.md`, `document-studio-docs-pro-3.md`, `homologacao-real-por-perfil.md`, `hotfix-performance-loading.md`, `integracao-transversal-final.md`, `isolamento-demonstracao-ndemo2.md`, `isolamento-setorial-nsector4.md`, `listas-paginacao-npag1.md`, `login-nlogin2.md`, `mapa-estatistico-final.md`, `matriz-setores-sigem-2026-10-10.md`, `mediador-escolar-produto-final.md`, `nprint-final-2.md`, `orientacao-pedagogica-produto-final.md`, `prontidao-2027-nprep1.md`, `r1-recuperacao-2026-10-10.md`, `recuperacao-erros-nobs4.md`, `regressao-visual-nvis1.md`, `revisao-busca-notificacoes.md`, `revisao-final-pos-fila-2026-10-09.md`, `seguranca-web-nwebsec1.md`, `teclado-foco-nkey1.md`, `trajetoria-estudante-nstudent1.md`, `unidades-escolares-nschool1.md`, `validacao-fronteiras-nvalid1.md`
+**Registros de lote (decisões e provas da etapa):** `acabamento-visual-ndesignqa.md`, `alimentacao-alim00-matriz-2026-10-10.md`, `alimentacao-escolar-produto-final.md`, `busca-e-avisos-nsearch2.md`, `campanha-zero-erros.md`, `confronto-alimentacao-lote-e-2026-10-10.md`, `datas-fuso-ndate1.md`, `direcao-escolar-produto-final.md`, `document-studio-docs-pro-3.md`, `homologacao-real-por-perfil.md`, `hotfix-performance-loading.md`, `integracao-transversal-final.md`, `isolamento-demonstracao-ndemo2.md`, `isolamento-setorial-nsector4.md`, `listas-paginacao-npag1.md`, `login-nlogin2.md`, `mapa-estatistico-final.md`, `matriz-setores-sigem-2026-10-10.md`, `mediador-escolar-produto-final.md`, `nprint-final-2.md`, `orientacao-pedagogica-produto-final.md`, `prontidao-2027-nprep1.md`, `r1-recuperacao-2026-10-10.md`, `recuperacao-erros-nobs4.md`, `regressao-visual-nvis1.md`, `revisao-busca-notificacoes.md`, `revisao-final-pos-fila-2026-10-09.md`, `seguranca-web-nwebsec1.md`, `teclado-foco-nkey1.md`, `trajetoria-estudante-nstudent1.md`, `unidades-escolares-nschool1.md`, `validacao-fronteiras-nvalid1.md`
 
 **Pendências declaradas:**
 - `acabamento-visual-ndesignqa.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING

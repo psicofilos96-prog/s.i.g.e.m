@@ -14739,6 +14739,62 @@ export type Database = {
         }
         Relationships: []
       }
+      report_emissions: {
+        Row: {
+          actor_id: string
+          content_sha256: string
+          format: string
+          id: string
+          idempotency_key: string
+          issued_at: string
+          params: Json
+          reissue_of: string | null
+          report_id: string
+          report_version: number
+          row_count: number
+          title: string
+          verification_code: string
+        }
+        Insert: {
+          actor_id: string
+          content_sha256: string
+          format: string
+          id?: string
+          idempotency_key: string
+          issued_at?: string
+          params?: Json
+          reissue_of?: string | null
+          report_id: string
+          report_version: number
+          row_count: number
+          title: string
+          verification_code: string
+        }
+        Update: {
+          actor_id?: string
+          content_sha256?: string
+          format?: string
+          id?: string
+          idempotency_key?: string
+          issued_at?: string
+          params?: Json
+          reissue_of?: string | null
+          report_id?: string
+          report_version?: number
+          row_count?: number
+          title?: string
+          verification_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_emissions_reissue_of_fkey"
+            columns: ["reissue_of"]
+            isOneToOne: false
+            referencedRelation: "report_emissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       report_template_versions: {
         Row: {
           archived: boolean
@@ -25095,6 +25151,25 @@ export type Database = {
         }
         Returns: Json
       }
+      record_report_emission: {
+        Args: {
+          _content_sha256: string
+          _format: string
+          _idempotency_key: string
+          _params: Json
+          _reissue_of: string
+          _report_id: string
+          _report_version: number
+          _row_count: number
+          _title: string
+        }
+        Returns: {
+          emission_id: string
+          issued_at: string
+          original_sha256: string
+          verification_code: string
+        }[]
+      }
       record_school_communication_act: {
         Args: {
           _act: string
@@ -26751,6 +26826,7 @@ export type Database = {
         Args: { _field: string; _id: string; _table: string }
         Returns: boolean
       }
+      verify_report_emission: { Args: { _code: string }; Returns: Json }
       verify_school_document: { Args: { _code: string }; Returns: Json }
       verify_student_card: {
         Args: { _public_id: string; _version: number }

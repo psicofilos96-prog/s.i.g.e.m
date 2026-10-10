@@ -68,9 +68,9 @@ describe("gráficos", () => {
 });
 
 describe("layout e prévia", () => {
-  it("QR recusado sem endpoint; muitas colunas exigem paisagem", () => {
+  it("QR aceito com endpoint de verificação; muitas colunas exigem paisagem", () => {
     const e = layoutIssues({ ...DEFAULT_LAYOUT, title: "R", verificationQr: true }, 12);
-    expect(e.some((m) => m.includes("QR"))).toBe(true);
+    expect(e.some((m) => m.includes("QR"))).toBe(false);
     expect(e.some((m) => m.includes("paisagem"))).toBe(true);
   });
   it("prévia declara amostra", () => {
