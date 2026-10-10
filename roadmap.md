@@ -618,3 +618,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Auditoria de cumprimento de todos os lotes (pedido 10/10)
 - [ ] Nova tela de login institucional (especificação + imagens enviadas) — aguarda confirmação
 - [x] R1: infraestrutura escopada, 48 estudantes, 49 turmas, 6 identidades (docs/r1-recuperacao-2026-10-10.md)
+- [x] R2 parcial: motor por etapa, boletim/lote/amostra, bordas vetoriais nos PDFs, SIA gabarito A-H e correção assistida
+- [ ] R2: anexos SIPE privados (tabela + bucket + RLS)
+- [ ] R2: ficha histórica, consolidado assinado e impressão no modelo do diário da rede (falta o modelo original)
+- [ ] R2: telas para boletim e correção SIA

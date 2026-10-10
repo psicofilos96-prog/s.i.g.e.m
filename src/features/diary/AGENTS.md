@@ -121,3 +121,8 @@
 ## Autosave e impressões (NDIARY.FINAL.2 — `lesson-draft-cloud.ts`, `diary-prints.ts`)
 - Rascunho de aula vive só em `lesson_record_drafts` (append-only, autor), retry pela mesma seq, porque rascunho no navegador seria segunda verdade.
 - Impressões e fontes do relatório leem com a sessão do usuário e nunca têm coluna de professor, porque exportar não pode ampliar acesso nem criar ranking docente.
+
+## R2 (Diário/pedagogia)
+- Etapa só escolhe perfil versionado (`diary/stage-engine.ts`); regra de aprovação e escala nascem pendentes e bloqueiam resultado oficial, porque norma não pode nascer no código.
+- Gabarito por versão A–H é derivado do gabarito canônico pelo mapeamento reversível (`teacher-assessment/variant-key.ts`); correção é proposta e só grava com confirmação humana sobre a impressão aprovada pela OP.
+- Bordas de PDF só por `PRINT_TABLE_CSS` (pt, separate), porque 1px cinza some ao reduzir o zoom.
