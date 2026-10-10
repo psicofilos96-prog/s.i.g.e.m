@@ -1,6 +1,6 @@
 -- LOTE 9 — cadeia vertical com teto calculado no banco, NF, amostras e inspetores (derivado do NAE.8). E2E transacional da cadeia de Alimentação Escolar no banco canônico. Termina em RAISE: nada persiste.
 -- Pessoas/usuários sintéticos (prefixo NAE8) e dublê transacional de effective_scope_capabilities (padrão ac2) desfeitos pelo rollback.
--- Só writers/readers canônicos; nenhum DML direto em meal_*. Sucesso = 'nae8-e2e-ok: ...'.
+-- Só writers/readers canônicos; nenhum DML direto em meal_*. Sucesso = 'lote9-e2e-ok: ...'. Executado em 2026-10-10 (PASS); a execução registrada foi a versão enxuta deste roteiro (blocos 0–6, 9, 9b, 9c, 11).
 DO $t$
 DECLARE _ok text := ''; td date := (now() AT TIME ZONE 'America/Sao_Paulo')::date; tz text := 'America/Sao_Paulo';
   comp text; prev text; s1 text; s2 text; n int; n0 int; x numeric; r record; sha1 text; sha2 text;
