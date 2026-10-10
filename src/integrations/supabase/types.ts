@@ -7905,6 +7905,113 @@ export type Database = {
         }
         Relationships: []
       }
+      final_sheet_acts: {
+        Row: {
+          action: string
+          actor_id: string
+          class_id: string
+          created_at: string
+          id: string
+          reason: string | null
+          rule_version_id: string | null
+          school_id: string
+          seq: number
+          snapshot: Json
+          snapshot_sha256: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          class_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          rule_version_id?: string | null
+          school_id: string
+          seq: number
+          snapshot: Json
+          snapshot_sha256: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          class_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          rule_version_id?: string | null
+          school_id?: string
+          seq?: number
+          snapshot?: Json
+          snapshot_sha256?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "final_sheet_acts_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "final_sheet_acts_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: false
+            referencedRelation: "final_sheet_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      final_sheet_rule_versions: {
+        Row: {
+          author_id: string
+          created_at: string
+          id: string
+          label: string
+          logical_id: string
+          params: Json
+          scope: Json
+          source_ref: string
+          status: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          id?: string
+          label: string
+          logical_id: string
+          params: Json
+          scope: Json
+          source_ref: string
+          status: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          id?: string
+          label?: string
+          logical_id?: string
+          params?: Json
+          scope?: Json
+          source_ref?: string
+          status?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "final_sheet_rule_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "final_sheet_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guardian_authorizations: {
         Row: {
           event_kind: string
@@ -24259,6 +24366,30 @@ export type Database = {
       record_family_communication_receipt: {
         Args: { _kind: string; _student: string; _version: string }
         Returns: undefined
+      }
+      record_final_sheet_act: {
+        Args: {
+          _action: string
+          _class: string
+          _expected_seq: number
+          _reason: string
+          _rule: string
+          _sha: string
+          _snapshot: Json
+        }
+        Returns: number
+      }
+      record_final_sheet_rule: {
+        Args: {
+          _expected_version: number
+          _label: string
+          _logical: string
+          _params: Json
+          _scope: Json
+          _source_ref: string
+          _status: string
+        }
+        Returns: string
       }
       record_functional_event: {
         Args: {
