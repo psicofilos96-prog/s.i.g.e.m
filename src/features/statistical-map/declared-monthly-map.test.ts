@@ -54,3 +54,9 @@ describe("mapa mensal declarado", () => {
     expect(c.unconfirmed_identity).toEqual(["t"]);
   });
 });
+
+describe("linhas-modelo da planilha", () => {
+  it("'-' com 0 alunos não conta como turma", () => {
+    expect(groupDeclaredClasses([{ modalidade: "EI", etapa: "BERÇÁRIO", turma: "--", alunos: 0 }, { modalidade: "EI", etapa: "M", turma: "Turma 01", alunos: 8 }]).length).toBe(1);
+  });
+});
