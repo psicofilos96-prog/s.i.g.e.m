@@ -55,7 +55,7 @@ export function ClassRosterPanel({ classId }: { classId: string }) {
         : (
           <>
             <table className="w-full text-sm">
-              <thead><tr className="border-b text-left text-xs text-muted-foreground"><th className="py-1">Estudante</th><th>Vínculo</th><th>Situação</th><th>Início</th></tr></thead>
+              <thead><tr className="border-b text-left text-xs text-muted-foreground"><th scope="col" className="py-1">Estudante</th><th scope="col">Vínculo</th><th scope="col">Situação</th><th scope="col">Início</th></tr></thead>
               <tbody>
                 {q.data.entries.map((e) => (
                   <tr key={e.episodeId} className="border-b last:border-0">
