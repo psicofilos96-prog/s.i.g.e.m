@@ -1,6 +1,6 @@
 /**
  * LOTE 4/14 — Jornada DECLARADA do estudante 2026 (fonte EducaCenso/planilha de jornadas),
- * já normalizada em `student_school_day_intervals`. Não é grade oficial da turma (class_schedule_at)
+ * já normalizada em `student_school_day_intervals`. Não é grade oficial da turma
  * nem carga horária docente. Leitura só com a sessão (RLS segue a observação de origem); nada gravado.
  * Só observações conhecidas em 2026 entram: 2027 não é tocado nem exibido aqui.
  */
