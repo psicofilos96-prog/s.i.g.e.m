@@ -108,7 +108,7 @@ export function referenceDate(month: number): string {
 
 export const MONTHLY_REPORT: ReportDefinition = {
   id: "mapa-mensal-2026", version: 1, title: "Mapa Estatístico mensal 2026", description: "Mapa por escola e mês de referência, lido com a sessão de quem gera.",
-  source: "monthly_map_2026_live + monthly_map_2026_closures", params: [], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
+  source: "monthly_map_2026_live_v2 + monthly_map_2026_closures", params: [], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
   columns: [
     { id: "inep", label: "INEP", kind: "text" }, { id: "school", label: "Escola", kind: "text" }, { id: "situacao", label: "Situação do mês", kind: "text" },
     { id: "cobertura", label: "Cobertura datada (%)", kind: "number" }, { id: "proveniencia", label: "Proveniência", kind: "text" },
