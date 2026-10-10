@@ -14,6 +14,7 @@ const SIGLA: Record<string, { short: string; long: string }> = {
   Evadido: { short: "E", long: "EVADIDO" },
   Cancelado: { short: "MC", long: "MATRÍCULA CANCELADA" },
   Falecido: { short: "F", long: "FALECIDO" },
+  Encerrado: { short: "VE", long: "VÍNCULO ENCERRADO" },
 };
 /** Sigla do modelo para matrícula encerrada (fonte: FINAL!G8 / FINAL!N8). Null = sem sigla. */
 export const statusSigla = (s: EnrollmentStatus) => SIGLA[s] ?? null;
@@ -65,19 +66,19 @@ export function attendancePct(lessonsGiven: Num, absences: Num): Num {
 export type Result = "APROVADO" | "REPROVADO" | "PENDENTE" | string;
 
 /** Resultado por componente (Fund. II): MAX(média, rec. final) ≥ 50. */
-export function componentResult(status: EnrollmentStatus, average: Num, finalRecovery: Num): Result {
+export function componentResult(status: EnrollmentStatus, average: Num, finalRecovery: Num, passMark: number = PASS_MARK): Result {
   const s = statusSigla(status); if (s) return s.long;
   const best = present([average, finalRecovery]);
   if (average === null) return "PENDENTE";
-  return Math.max(...best) >= PASS_MARK ? "APROVADO" : "REPROVADO";
+  return Math.max(...best) >= passMark ? "APROVADO" : "REPROVADO";
 }
 
 /** EJA: todos os componentes MAX(média, rec) ≥ 50 E frequência ≥ 75%. */
-export function ejaResult(status: EnrollmentStatus, comps: readonly { average: Num; finalRecovery: Num }[], attendance: Num): Result {
+export function ejaResult(status: EnrollmentStatus, comps: readonly { average: Num; finalRecovery: Num }[], attendance: Num, passMark: number = PASS_MARK, minAttendance: number = EJA_MIN_ATTENDANCE): Result {
   const s = statusSigla(status); if (s) return s.long;
   if (!comps.length || attendance === null || comps.some((c) => c.average === null)) return "PENDENTE";
-  const ok = comps.every((c) => Math.max(...present([c.average, c.finalRecovery])) >= PASS_MARK);
-  return ok && attendance >= EJA_MIN_ATTENDANCE ? "APROVADO" : "REPROVADO";
+  const ok = comps.every((c) => Math.max(...present([c.average, c.finalRecovery])) >= passMark);
+  return ok && attendance >= minAttendance ? "APROVADO" : "REPROVADO";
 }
 
 const doc = (ref: SourceRef) => ({ state: "homologado" as const, ref: `modelo-rede:${ref.file}#${ref.sheet}!${ref.cell}` });
