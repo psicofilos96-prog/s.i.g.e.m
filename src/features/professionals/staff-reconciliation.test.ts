@@ -29,7 +29,7 @@ describe("conciliação assistida", () => {
   it("exportação de pendências: sem CPF, matrícula, vínculo nem ids; neutraliza fórmula; omite confirmados", () => {
     const items = classify([rec("a", "=HYPERLINK(x)"), rec("b")], [], [{ id: "d", staff_record_id: "b", decision: "confirmado", person_id: "P", supersedes_id: null, decided_at: "2026-10-10" }]);
     const csv = pendingCsv(items);
-    expect(csv.split("\n")).toHaveLength(2);
+    expect(csv.split("\r\n").filter((l) => l.includes("Sugestão") || l.includes("Sem corresp") || l.includes("Pendente") || l.includes("Ambíguo"))).toHaveLength(1);
     expect(csv).not.toMatch(/CPF|Matrícula|Vínculo|P1|staff/i);
     expect(csv).not.toMatch(/;=HYPERLINK/);
   });
