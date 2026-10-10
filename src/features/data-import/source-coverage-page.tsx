@@ -40,7 +40,7 @@ function DocCard({ doc }: { doc: CoverageDoc }) {
         : q.error ? <p role="alert" className="text-sm text-destructive">Sua conta não tem acesso a esta fonte; nada é estimado.</p>
         : (
           <table className="mt-2 w-full text-sm">
-            <thead className="text-left text-xs text-muted-foreground"><tr><th>Campo</th><th>Preenchido</th><th>Exibido em</th><th>Situação</th></tr></thead>
+            <thead className="text-left text-xs text-muted-foreground"><tr><th scope="col">Campo</th><th scope="col">Preenchido</th><th scope="col">Exibido em</th><th scope="col">Situação</th></tr></thead>
             <tbody>{row.fields.map((f) => (
               <tr key={f.field} className="border-t"><td className="py-1">{f.field}</td><td>{f.filled?.toLocaleString("pt-BR") ?? "—"}</td><td>{f.shownAt ?? "não exibido"}</td><td>{STATUS[f.status]}</td></tr>
             ))}</tbody>
