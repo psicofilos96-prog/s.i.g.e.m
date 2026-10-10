@@ -55,6 +55,7 @@ import { Route as InclusaoRouteImport } from './routes/inclusao'
 import { Route as InfraestruturaRouteImport } from './routes/infraestrutura'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as MapaCenso2026RouteImport } from './routes/mapa-censo-2026'
 import { Route as MapaEstatisticoRouteImport } from './routes/mapa-estatistico'
 import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatistico-rede'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
@@ -461,6 +462,11 @@ const IntegracoesRoute = IntegracoesRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaCenso2026Route = MapaCenso2026RouteImport.update({
+  id: '/mapa-censo-2026',
+  path: '/mapa-censo-2026',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapaEstatisticoRoute = MapaEstatisticoRouteImport.update({
@@ -1482,6 +1488,7 @@ export interface FileRoutesByFullPath {
   '/infraestrutura': typeof InfraestruturaRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
+  '/mapa-censo-2026': typeof MapaCenso2026Route
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
@@ -1701,6 +1708,7 @@ export interface FileRoutesByTo {
   '/infraestrutura': typeof InfraestruturaRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
+  '/mapa-censo-2026': typeof MapaCenso2026Route
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
@@ -1899,6 +1907,7 @@ export interface FileRoutesById {
   '/infraestrutura': typeof InfraestruturaRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
+  '/mapa-censo-2026': typeof MapaCenso2026Route
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/matriculas': typeof MatriculasRouteWithChildren
@@ -2125,6 +2134,7 @@ export interface FileRouteTypes {
     | '/infraestrutura'
     | '/integracoes'
     | '/login'
+    | '/mapa-censo-2026'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
     | '/matriculas'
@@ -2344,6 +2354,7 @@ export interface FileRouteTypes {
     | '/infraestrutura'
     | '/integracoes'
     | '/login'
+    | '/mapa-censo-2026'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
     | '/matriculas'
@@ -2541,6 +2552,7 @@ export interface FileRouteTypes {
     | '/infraestrutura'
     | '/integracoes'
     | '/login'
+    | '/mapa-censo-2026'
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
     | '/matriculas'
@@ -2766,6 +2778,7 @@ export interface RootRouteChildren {
   InfraestruturaRoute: typeof InfraestruturaRoute
   IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
+  MapaCenso2026Route: typeof MapaCenso2026Route
   MapaEstatisticoRoute: typeof MapaEstatisticoRoute
   MapaEstatisticoRedeRoute: typeof MapaEstatisticoRedeRoute
   MatriculasRoute: typeof MatriculasRouteWithChildren
@@ -3141,6 +3154,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa-censo-2026': {
+      id: '/mapa-censo-2026'
+      path: '/mapa-censo-2026'
+      fullPath: '/mapa-censo-2026'
+      preLoaderRoute: typeof MapaCenso2026RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mapa-estatistico': {
@@ -5099,6 +5119,7 @@ const rootRouteChildren: RootRouteChildren = {
   InfraestruturaRoute: InfraestruturaRoute,
   IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
+  MapaCenso2026Route: MapaCenso2026Route,
   MapaEstatisticoRoute: MapaEstatisticoRoute,
   MapaEstatisticoRedeRoute: MapaEstatisticoRedeRoute,
   MatriculasRoute: MatriculasRouteWithChildren,
