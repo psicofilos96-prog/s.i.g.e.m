@@ -58,10 +58,10 @@ export async function readStaffRecords(f: StaffFilters, page: number, signal?: A
 }
 
 export async function readStaffSchools(signal?: AbortSignal) {
-  let b = supabase.from("institutional_schools").select("id, institutional_school_record_versions(name)").limit(200);
+  let b = supabase.from("institutional_schools").select("id, institutional_school_record_versions(official_name)").limit(200);
   if (signal) b = b.abortSignal(signal);
   const { data, error } = await b;
   if (error) throw new Error(error.message);
-  return (data ?? []).map((s) => ({ id: s.id as string, name: ((s.institutional_school_record_versions as unknown as Array<{ name: string }> | null)?.[0]?.name) ?? "Escola sem nome registrado" }))
+  return (data ?? []).map((s) => ({ id: s.id as string, name: ((s.institutional_school_record_versions as unknown as Array<{ official_name: string }> | null)?.[0]?.official_name) ?? "Escola sem nome registrado" }))
     .sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 }
