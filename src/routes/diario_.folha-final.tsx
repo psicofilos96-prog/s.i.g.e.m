@@ -5,9 +5,9 @@ import { StatePanel } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useSessionUser } from "@/features/authority/session-authority";
-import { printFinalSheet, projectFinalSheet, resultMinutes, AWAITING_RULE, type Modality, type SheetInput } from "@/features/diary/final-sheet";
+import { printBulletins, printFinalSheet, printIndividualSheets, projectFinalSheet, resultMinutes, AWAITING_RULE, type Modality, type SheetInput } from "@/features/diary/final-sheet";
 import {
-  ACTION_LABEL, actMessage, applicableRule, cellsFrom, readClassSheet, readClasses, recordAct, sha256, sheetSnapshot, studentsFrom,
+  ACTION_LABEL, actMessage, applicableRule, attendanceFrom, cellsFrom, withAttendance, readClassSheet, readClasses, recordAct, sha256, sheetSnapshot, studentsFrom,
   type ClassOption,
 } from "@/features/diary/final-sheet-cloud";
 
@@ -40,12 +40,18 @@ function Page() {
   const view = useMemo(() => {
     if (!data || !modality) return null;
     const periods = [...new Set(data.instruments.map((i) => i.period_id))].sort();
-    const { cells, components, notes } = cellsFrom(data.entries, data.instruments, periods);
-    const { rule, issue } = applicableRule(data.rules, modality);
+    const base = cellsFrom(data.entries, data.instruments, periods);
+    const cells = withAttendance(base.cells, attendanceFrom(data.attendance), periods);
+    const compIds = new Set(base.components.map((c) => c.id));
+    const components = [...base.components, ...[...new Set(data.attendance.map((a) => a.component_id))].filter((c) => !compIds.has(c)).map((id) => ({ id, label: id }))];
+    const notes = base.notes;
+    const { rule, issue } = applicableRule(data.rules, modality, { year: cls?.year });
     const input: SheetInput = { modality, periods, components, students: studentsFrom(data.episodes, data.endings, data.names), cells, rule };
     return { input, sheet: projectFinalSheet(input), notes, issue };
-  }, [data, modality]);
+  }, [data, modality, cls?.year]);
   const last = data?.acts.at(-1) ?? null;
+  const [sha, setSha] = useState<string | null>(null);
+  useEffect(() => { setSha(null); if (view) void sha256(sheetSnapshot(view.input, view.sheet.rows)).then(setSha); }, [view]);
 
   if (loading) return <main className="p-4"><SkeletonState label="Verificando sessão" /></main>;
   if (!user) return <main className="mx-auto max-w-3xl space-y-3 p-4"><h1 className="text-xl font-semibold">Folha Final</h1>
@@ -68,12 +74,23 @@ function Page() {
     w.document.write(printFinalSheet(view.input, view.sheet.rows, { school: cls.school, className: cls.name, year: cls.year, state: last ? `${ACTION_LABEL[last.action]} (ato ${last.seq})` : "Sem ato registrado — prévia" }));
     w.document.close(); w.focus(); w.print();
   }
+  function printDoc(kind: "boletim" | "ficha") {
+    if (!view || !cls) return;
+    const same = !!last && last.snapshot_sha256 === sha;
+    const h = { school: cls.school, className: cls.name, year: cls.year,
+      state: last ? `${ACTION_LABEL[last.action]} (ato ${last.seq})${same ? "" : " — os dados atuais DIFEREM do último ato: documento é prévia"}` : "Sem ato registrado — prévia",
+      source: `Folha Final da turma, impressão digital ${sha?.slice(0, 16) ?? "—"}` };
+    const doc = kind === "boletim" ? printBulletins(view.input, view.sheet.rows, h) : printIndividualSheets(view.input, view.sheet.rows, h);
+    const w = window.open("", "_blank"); if (!w) { setMsg("O navegador bloqueou a janela de impressão."); return; }
+    w.document.write(doc); w.document.close(); w.focus(); w.print();
+  }
   const minutes = view ? resultMinutes(view.sheet.rows) : null;
   const homologated = last?.action === "homologacao" || last?.action === "retificacao";
 
   return (
     <main className="mx-auto max-w-6xl space-y-4 p-4 text-sm">
       <h1 className="text-xl font-semibold">Folha Final e Ata de resultados</h1>
+      <p><Link className="underline" to="/diario/regras-folha-final">Regras de resultado da Folha Final (cadastrar, revisar, homologar)</Link></p>
       <div className="grid gap-3 sm:grid-cols-2">
         <label>Turma<select className={field} value={classId} onChange={(e) => setClassId(e.target.value)}>
           <option value="">{classes === null ? "Carregando…" : classes.length === 0 ? "Nenhuma turma visível para sua conta" : "Escolha"}</option>
@@ -87,11 +104,12 @@ function Page() {
       {classId && !data && !err && <SkeletonState label="Lendo a turma" />}
       {data?.truncated && <StatePanel tone="warning" title="Leitura incompleta" description="A turma tem mais de 1.000 registros: a folha não pode ser conferida." />}
       {view && <>
-        {view.sheet.blocked ? <StatePanel tone="warning" title="Sem folha numérica" description={view.sheet.blocked} /> : <>
+        {view.sheet.blocked ? <><StatePanel tone="info" title="Educação Infantil: parecer descritivo" description={view.sheet.blocked} />
+          <Link className="underline" to="/diario/turmas/$turmaId" params={{ turmaId: classId }}>Abrir o parecer descritivo desta turma</Link></> : <>
           {view.issue && <StatePanel tone="warning" title="Resultado não emitido" description={view.issue} />}
           {view.input.rule && <p>Regra aplicada: {view.input.rule.label} · fonte {view.input.rule.sourceRef}</p>}
           {view.notes.map((n) => <p key={n} className="text-muted-foreground">{n}</p>)}
-          <p className="text-muted-foreground">Frequência: a leitura das chamadas gravadas ainda não está ligada a esta folha; aparece como "não informada", nunca como 100%.</p>
+          <p className="text-muted-foreground">Frequência: lida das chamadas gravadas ({data.attendance.length} registro(s)). Sem chamada, aparece "não informada", nunca 100%; se a regra exigir frequência, o resultado fica pendente.</p>
           {view.input.students.length === 0 ? <StatePanel tone="info" title="Sem estudantes" description="Nenhum estudante vinculado a esta turma é visível para sua conta." />
             : view.input.components.length === 0 ? <StatePanel tone="info" title="Sem avaliações gravadas" description={`${view.input.students.length} estudante(s) na turma; nenhum resultado avaliativo gravado. Nada é tratado como zero.`} />
             : null}
@@ -102,7 +120,9 @@ function Page() {
           </div>
           {minutes && <p>Ata: {minutes.total} estudante(s) · {Object.entries(minutes.by).map(([k, v]) => `${k}: ${v}`).join(" · ")}{!minutes.canClose && " · homologação indisponível enquanto houver pendência ou falta de regra"}</p>}
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={print} disabled={view.sheet.rows.length === 0}>Imprimir A4 (PDF)</Button>
+            <Button variant="outline" onClick={print} disabled={view.sheet.rows.length === 0}>Folha Final A4 (PDF)</Button>
+            <Button variant="outline" onClick={() => printDoc("boletim")} disabled={view.sheet.rows.length === 0 || !sha}>Boletins A4 (PDF)</Button>
+            <Button variant="outline" onClick={() => printDoc("ficha")} disabled={view.sheet.rows.length === 0 || !sha}>Fichas individuais A4 (PDF)</Button>
             {!homologated && <>
               <Button variant="outline" disabled={busy || view.sheet.rows.length === 0} onClick={() => act("rascunho", false)}>Salvar rascunho</Button>
               <Button variant="outline" disabled={busy || view.sheet.rows.length === 0} onClick={() => act("conferencia", false)}>Registrar conferência</Button>
