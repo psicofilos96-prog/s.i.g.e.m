@@ -26,7 +26,7 @@ try {
   writeFileSync("/tmp/fs7/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, session: A.session }), { mode: 0o600 });
   const py = spawnSync("python3", ["scripts/lote7-final-sheet-e2e.py"], { encoding: "utf8", timeout: 300000 });
   rmSync("/tmp/fs7/s.json", { force: true });
-  process.stdout.write(py.stdout ?? ""); if (py.status !== 0) console.log("PY_ERR", (py.stderr ?? "").slice(-800));
+  process.stdout.write(py.stdout ?? ""); if (py.status !== 0) console.log("PY_ERR", (py.stderr ?? "").slice(-1500));
 } catch (e) { console.log("ERRO", String(e.message ?? e)); }
 finally {
   const cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); console.log("cleanup:", cl.error ? "ERRO " + cl.error.message : "ok");
