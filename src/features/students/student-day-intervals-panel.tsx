@@ -32,9 +32,9 @@ export function StudentDayIntervalsPanel({ studentId }: { studentId: string }) {
   );
 }
 
-export function ClassDayIntervalsPanel({ classId, names }: { classId: string; names?: ReadonlyMap<string, string | null> }) {
+export function ClassDayIntervalsPanel({ classId }: { classId: string }) {
   const q = useQuery({ queryKey: ["day-intervals", "class", classId], queryFn: ({ signal }) => readDayIntervals({ classId }, signal) });
-  const groups = q.data ? [...groupByStudent(q.data)] : [];
+  const groups = q.data ? [...groupByStudent(q.data)].sort(([, a], [, b]) => (a[0]?.studentName ?? "\uffff").localeCompare(b[0]?.studentName ?? "\uffff", "pt-BR", { sensitivity: "base" })) : [];
   return (
     <section className="rounded-lg border bg-card p-4">
       <h2 className="mb-1 flex items-center gap-2 text-sm font-semibold"><Clock className="size-4" />Jornada declarada dos estudantes · 2026</h2>
@@ -46,7 +46,7 @@ export function ClassDayIntervalsPanel({ classId, names }: { classId: string; na
           <div className="grid gap-3 md:grid-cols-2">
             {groups.map(([sid, items]) => (
               <div key={sid} className="rounded border p-2">
-                <p className="mb-1 text-sm font-medium">{names?.get(sid) ?? "Estudante"} · {items.length} intervalo(s)</p>
+                <p className="mb-1 text-sm font-medium">{items[0]?.studentName ?? "Nome não visível no seu acesso"} · {items.length} intervalo(s)</p>
                 <IntervalList items={items} /><Provenance i={items[0]!} />
               </div>
             ))}
