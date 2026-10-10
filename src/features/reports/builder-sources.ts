@@ -265,7 +265,38 @@ const CROSS_SOURCES: BuilderSource[] = [
       if (r.error) fail();
       return { rows: ((r.data ?? []) as Raw[]).map((x) => ({ place: v(x["school_name_source"] ?? x["sector"]), cargo: v(x["cargo"]), funcao: v(x["funcao"]), vinculo: v(x["vinculo"]), grupo: v(x["grupo"]), situacao: v(x["situacao"]), name: v(x["full_name"]), source: v(x["source_file"]), reference: v(x["reference_period"]) })), total: r.count ?? null };
     } },
+  ...LOTE11_SOURCES(),
 ];
+function LOTE11_SOURCES(): BuilderSource[] {
+  const names = async () => {
+    const sv = await readAll<{ school_id: string; official_name: string | null; version_number: number }>((a, b) => supabase.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("school_id").order("version_number", { ascending: false }).range(a, b));
+    const m = new Map<string, string>(); for (const x of sv) if (!m.has(x.school_id) && x.official_name) m.set(x.school_id, x.official_name); return m;
+  };
+  const once = (fn: () => Promise<Record<string, CellValue>[]>) => async ({ offset }: { offset: number }) => { if (offset > 0) return { rows: [], total: null }; const rows = await fn(); return { rows, total: rows.length }; };
+  return [
+    { id: "gerador-turma-contagens", title: "Turmas 2026 — vínculos × estudantes distintos", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"],
+      definition: { id: "gerador-turma-contagens", version: 1, title: "Turmas 2026 — vínculos × estudantes distintos", description: "Por turma: vínculos aluno × turma correntes e estudantes distintos, sem nomes.", source: "class_enrollment_episodes (sem episódio substituído)", params: [],
+        columns: [C("school", "Escola"), C("class_label", "Turma"), C("bonds", "Vínculos de turma", "number"), C("students", "Estudantes distintos", "number")], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000 },
+      methodology: "Vínculo = episódio de turma corrente (correção substitui o anterior). Estudante distinto conta uma vez por turma; não some estudantes de turmas diferentes como total da rede.",
+      acl: "RLS de episódios com a sessão de quem gera (escola vê só as próprias turmas).", period: false, pageSize: 5000, filterable: ["school", "class_label"],
+      load: once(async () => { const [n, eps] = await Promise.all([names(), readAll<EpisodeRow>((a, b) => supabase.from("class_enrollment_episodes").select("id, supersedes_id, student_id, school_id, class_id, class_label_snapshot").order("id").range(a, b))]); return classCountRows(eps, n); }) },
+    { id: "gerador-jornada-alunos", title: "Jornada declarada 2026 por escola", sectors: ["secretaria", "op-direcao", "supervisao", "ciece"],
+      definition: { id: "gerador-jornada-alunos", version: 1, title: "Jornada declarada 2026 por escola", description: "Declarações de jornada de estudantes (fonte 2026) e estudantes distintos por escola.", source: "student_school_day_observations", params: [],
+        columns: [C("school", "Escola"), C("declarations", "Declarações de jornada", "number"), C("students", "Estudantes distintos", "number")], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000 },
+      methodology: "Jornada declarada do estudante na planilha 2026; não é grade oficial da turma nem carga de professor. Escola sem linha na fonte não aparece (nunca zero inventado).",
+      acl: "RLS das observações de jornada com a sessão de quem gera.", period: false, pageSize: 5000, filterable: ["school"],
+      load: once(async () => { const [n, obs] = await Promise.all([names(), readAll<DayObsRow>((a, b) => supabase.from("student_school_day_observations").select("school_id, student_id").order("id").range(a, b))]); return journeySchoolRows(obs, n); }) },
+    { id: "gerador-infraestrutura", title: "Infraestrutura das escolas 2026", sectors: ["supervisao", "ciece", "op-direcao", "admin"],
+      definition: { id: "gerador-infraestrutura", version: 1, title: "Infraestrutura das escolas 2026", description: "Uma linha por item observado, com fonte e data.", source: "school_infrastructure_observations", params: [],
+        columns: [C("school", "Escola"), C("item", "Item"), C("value", "Valor"), C("valid_from", "Desde"), C("source", "Fonte")], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000 },
+      methodology: "Item sem dado sai \"não disponível\", nunca \"não\". Carga técnica do Censo 2026.",
+      acl: "Leitura autenticada (dado institucional, sem dado pessoal).", period: false, pageSize: 5000, filterable: ["school", "item", "value"],
+      load: once(async () => {
+        const [n, obs] = await Promise.all([names(), readAll<Raw>((a, b) => supabase.from("school_infrastructure_observations").select("school_id, attribute_id, value_boolean, value_integer, value_decimal, value_text, value_catalog, valid_from, source_ref").order("id").range(a, b) as never)]);
+        return obs.map((o) => ({ school: v(n.get(String(o["school_id"])) ?? "Escola sem nome cadastrado"), item: v(o["attribute_id"]), value: v(infraValue(o as never)), valid_from: v(o["valid_from"]), source: v(o["source_ref"]) }));
+      }) },
+  ];
+}
 export const BUILDER_SOURCES: readonly BuilderSource[] = [
   { id: "gerador-escolas", title: "Cadastro das escolas", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"], definition: SCHOOLS_DEF,
     methodology: "Uma linha por escola: a versão de cadastro mais recente que a conta pode ler. Campo não informado sai como \"não disponível\".",
