@@ -1,4 +1,5 @@
 /** LOTE 8 — correção de prova aprovada pela OP: imagem do cartão → leitura → decisão humana → gravação (opcionalmente no Diário). */
+import { LoadingState } from "@/components/sigem/states";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import jsQR from "jsqr";
@@ -87,7 +88,7 @@ export function CorrectionPanel() {
   return (
     <section className="space-y-4 rounded border border-border p-4" aria-label="Correção de prova aprovada">
       <h2 className="text-lg font-semibold text-foreground">Corrigir prova aprovada pela OP</h2>
-      {ins.isLoading ? <p className="text-sm text-muted-foreground">Carregando suas provas…</p> : ins.error ? <p role="alert" className="text-sm text-destructive">Não foi possível ler suas provas.</p> : mine.length === 0 ? <p className="text-sm text-muted-foreground">Você não tem prova publicada. Publique uma em Avaliações do professor e envie à OP.</p> : (
+      {ins.isLoading ? <LoadingState label="Carregando suas provas…" /> : ins.error ? <p role="alert" className="text-sm text-destructive">Não foi possível ler suas provas.</p> : mine.length === 0 ? <p className="text-sm text-muted-foreground">Você não tem prova publicada. Publique uma em Avaliações do professor e envie à OP.</p> : (
         <label className="block text-sm">Prova <select aria-label="Prova" className="ml-2 rounded border border-input bg-background p-1" value={selId} onChange={(e) => { setSelId(e.target.value); setReads(null); }}><option value="">Escolha…</option>{mine.map((v) => <option key={v.id} value={v.id}>{v.title} (v{v.version})</option>)}</select></label>)}
       {sel && rv.isLoading && <p className="text-sm text-muted-foreground">Conferindo a aprovação da OP…</p>}
       {sel && rv.data && !approved && <p role="status" className="text-sm text-muted-foreground">Esta versão não está aprovada pela OP. A correção só é possível sobre a versão aprovada.</p>}
@@ -105,7 +106,7 @@ export function CorrectionPanel() {
         <div className="grid gap-4 md:grid-cols-2">
           {photo && <img src={photo} alt="Cartão do estudante" className="w-full rounded border border-border" />}
           <div className="space-y-2">
-            <table className="w-full text-sm"><thead><tr className="text-left"><th>Q</th><th>Leitura</th><th>Resposta</th><th>Correção</th></tr></thead>
+            <table className="w-full text-sm"><thead><tr className="text-left"><th scope="col">Q</th><th scope="col">Leitura</th><th scope="col">Resposta</th><th scope="col">Correção</th></tr></thead>
               <tbody>{reads.map((r) => { const l = proposal?.lines.find((x) => x.number === r.question); return (
                 <tr key={r.question} className="border-t border-border"><td>{r.question}</td><td>{r.state === "marcada" ? r.option : r.state}</td>
                   <td><select aria-label={`Resposta ${r.question}`} className="rounded border border-input bg-background" value={r.question in dec ? dec[r.question] ?? "" : "auto"} onChange={(e) => setDec({ ...dec, [r.question]: e.target.value === "" ? null : e.target.value })}>
