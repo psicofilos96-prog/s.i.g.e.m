@@ -81,7 +81,7 @@ export function IdentityLinksPage() {
   const q = useQuery({ queryKey: ["identity-reviews"], queryFn: loadReviews });
   return (
     <div className="space-y-6">
-      <RegistryHero eyebrow="Acessos · identidade" title="Associação de contas a pessoas" description="Conta ↔ pessoa só com identidade comprovada e revisão por uma segunda conta. Associar não concede acesso: o acesso vem da atuação vigente." />
+      <RegistryHero eyebrow="Acessos · identidade" title="Associação de contas a pessoas" lede="Conta ↔ pessoa só com identidade comprovada e revisão por uma segunda conta. Associar não concede acesso: o acesso vem da atuação vigente." />
       <ProposalForm me={me.data ?? null} />
       <section>
         <h2 className="mb-2 font-serif text-lg">Propostas e decisões</h2>

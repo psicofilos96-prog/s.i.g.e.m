@@ -7,11 +7,11 @@ const sql = readFileSync(`drizzle/migrations/${readdirSync("drizzle/migrations")
 
 describe("LOTE 9 — associação conta↔pessoa", () => {
   it("estado deriva da decisão", () => {
-    expect(projectReviews([base], [])[0].state).toBe("pendente");
-    expect(projectReviews([base], [{ review_id: "r1", decision: "aprovado", reason: "conferido ok", decided_by: "u-b", decided_at: "x" }])[0].state).toBe("aprovado");
+    expect(projectReviews([base], [])[0]!.state).toBe("pendente");
+    expect(projectReviews([base], [{ review_id: "r1", decision: "aprovado", reason: "conferido ok", decided_by: "u-b", decided_at: "x" }])[0]!.state).toBe("aprovado");
   });
   it("quem propôs não revisa; conta-alvo não revisa", () => {
-    const item = projectReviews([base], [])[0];
+    const item = projectReviews([base], [])[0]!;
     expect(canDecide(item, "u-a")).toBe(false);
     expect(canDecide(item, "u-target")).toBe(false);
     expect(canDecide(item, "u-b")).toBe(true);
