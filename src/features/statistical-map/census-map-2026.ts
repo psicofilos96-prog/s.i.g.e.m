@@ -114,3 +114,38 @@ export async function exportMap(defn: ReportDefinition, cells: Record<string, Ce
   if (format === "xlsx") return new Blob([await toXlsx(result, branding, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
   return new Blob([toPrintableHtml(result, branding, meta).replace("size:A4;", "size:A4 landscape;")], { type: "text/html;charset=utf-8" });
 }
+
+/** LOTE 16 — grade no leiaute do mapa: Etapa agregada → etapa, com subtotal por grupo e total geral. Tudo derivado (somente leitura). */
+export type GridRow = { kind: "linha" | "subtotal" | "total"; group: string; stage: string; classes: number; declared: number | null; bonds: number; aee_bonds: number };
+export function mapGrid(rows: MapClassRow[]): GridRow[] {
+  const groups = new Map<string, MapClassRow[]>();
+  for (const c of rows) { const g = c.stage_group ?? "não informado"; groups.set(g, [...(groups.get(g) ?? []), c]); }
+  const sum = (cs: MapClassRow[], group: string, stage: string, kind: GridRow["kind"]): GridRow => ({
+    kind, group, stage, classes: cs.length, bonds: cs.reduce((t, c) => t + c.bonds, 0), aee_bonds: cs.filter((c) => c.is_aee).reduce((t, c) => t + c.bonds, 0),
+    declared: cs.some((c) => c.declared_students === null) ? null : cs.reduce((t, c) => t + (c.declared_students as number), 0),
+  });
+  const out: GridRow[] = [];
+  for (const g of [...groups.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"))) {
+    const cs = groups.get(g)!;
+    const stages = new Map<string, MapClassRow[]>();
+    for (const c of cs) { const s = c.stage ?? "não informado"; stages.set(s, [...(stages.get(s) ?? []), c]); }
+    for (const s of [...stages.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"))) out.push(sum(stages.get(s)!, g, s, "linha"));
+    out.push(sum(cs, g, `Subtotal — ${g}`, "subtotal"));
+  }
+  if (rows.length) out.push(sum(rows, "", "Total geral", "total"));
+  return out;
+}
+
+/** Comparador por turma: quantidade declarada no Censo × vínculos no banco. Sem declaração é erro explícito, nunca zero. */
+export type ClassCheck = { class_id: string; school_id: string; label: string; status: "coincide" | "diverge" | "sem-declaracao"; declared: number | null; bonds: number };
+export function classChecks(rows: MapClassRow[]): ClassCheck[] {
+  return rows.map((c) => ({
+    class_id: c.class_id, school_id: c.school_id, label: c.class_name ?? c.class_code ?? c.class_id, declared: c.declared_students, bonds: c.bonds,
+    status: c.declared_students === null ? "sem-declaracao" : c.declared_students === c.bonds ? "coincide" : "diverge",
+  }));
+}
+
+/** Campos editáveis: só células que uma regra homologada do Mapa declare ajustáveis (ledger N4.3). Sem regra ⇒ nenhum. */
+export function editableCells(adjustableCellIds: readonly string[] | null): readonly string[] {
+  return adjustableCellIds ?? [];
+}
