@@ -43,7 +43,13 @@ export function projectFinalSheet(i: SheetInput): { rows: SheetRow[]; blocked: s
       const average = finalAverage(grades);
       const attendance = attendancePct(cell?.lessonsGiven ?? null, cell?.absences ?? null);
       if (attendance === null) missing.push("frequência não informada");
-      const result = i.rule === null ? (statusSigla(st.status)?.long ?? AWAITING_RULE) : componentResult(st.status, average, cell?.finalRecovery ?? null, i.rule?.passMark);
+      let result = i.rule === null ? (statusSigla(st.status)?.long ?? AWAITING_RULE) : componentResult(st.status, average, cell?.finalRecovery ?? null, i.rule?.passMark);
+      // Frequência mínima só vale quando a regra homologada a declara; ausência de chamada ⇒ pendente, nunca 100%.
+      const minAtt = i.rule?.minAttendance ?? null;
+      if (i.modality !== "eja" && minAtt !== null && !statusSigla(st.status)) {
+        if (attendance === null) result = "PENDENTE";
+        else if (result === "APROVADO" && attendance < minAtt) result = "REPROVADO";
+      }
       return { id: c.id, periodGrades: grades, average, finalRecovery: cell?.finalRecovery ?? null, attendance, result, missing };
     });
     const missing = comps.flatMap((c) => c.missing.map((m) => `${i.components.find((x) => x.id === c.id)?.label}: ${m}`));
@@ -85,4 +91,37 @@ export function printFinalSheet(i: SheetInput, rows: readonly SheetRow[], header
 <table><thead>${head}</thead><tbody>${body}</tbody></table>
 <p>Ata: ${m.total} estudantes · ${Object.entries(m.by).map(([k, v]) => `${esc(k)}: ${v}`).join(" · ")}${m.canClose ? "" : " · HÁ PENDÊNCIAS — fechamento bloqueado"}</p>
 <p style="margin-top:24pt">______________________ Professor(a) &nbsp;&nbsp; ______________________ Secretário(a) &nbsp;&nbsp; ______________________ Diretor(a)</p>${header.verification ?? ""}</body></html>`;
+}
+
+export type DocHeader = { school: string; className: string; year: string; state: string; source: string; verification?: string };
+const docCss = "@page{size:A4 portrait;margin:12mm}body{font:10pt Arial,sans-serif}table{border-collapse:collapse;width:100%;margin-top:6pt}th,td{border:0.75pt solid #000;padding:3pt;text-align:center}td.l,th.l{text-align:left}h1{font-size:13pt;margin:0}.pb{break-after:page}tr{break-inside:avoid}";
+const ruleText = (i: SheetInput) => i.rule ? `Regra: ${i.rule.label}` : i.rule === null ? "Sem regra homologada: resultado não emitido" : "Laboratório";
+
+/** Boletim: um por estudante, a partir das MESMAS linhas da Folha Final (mesma fonte e impressão digital). */
+export function printBulletins(i: SheetInput, rows: readonly SheetRow[], h: DocHeader, only?: string) {
+  const sel = rows.filter((r) => !only || r.student.id === only);
+  const pages = sel.map((r) => `<section class=pb><h1>BOLETIM ESCOLAR — ${esc(h.school)}</h1>
+<p>Estudante: <b>${esc(r.student.name)}</b> · Situação da matrícula: ${esc(r.student.status)}<br>Turma: ${esc(h.className)} · Ano letivo: ${esc(h.year)} · ${esc(ruleText(i))}</p>
+<table><thead><tr><th class=l>Componente</th>${i.periods.map((p) => `<th>${esc(p)}</th>`).join("")}<th>Média</th><th>R.F.</th><th>Freq.</th><th>Resultado</th></tr></thead><tbody>
+${r.components.map((c) => `<tr><td class=l>${esc(i.components.find((x) => x.id === c.id)?.label ?? c.id)}</td>${c.periodGrades.map((g) => `<td>${fmt(g)}</td>`).join("")}<td>${fmt(c.average)}</td><td>${fmt(c.finalRecovery)}</td><td>${pct(c.attendance)}</td><td>${esc(c.result)}</td></tr>`).join("")}
+</tbody></table><p>Resultado final: <b>${esc(r.overall)}</b>${r.missing.length ? ` · Pendências: ${esc(r.missing.join("; "))}` : ""}</p>
+<p style="font-size:8pt">Fonte: ${esc(h.source)} · Situação da folha: ${esc(h.state)}</p>
+<p style="margin-top:28pt">______________________ Secretário(a) &nbsp;&nbsp; ______________________ Diretor(a)</p>${h.verification ?? ""}</section>`).join("");
+  return `<!doctype html><html><head><meta charset=utf-8><title>Boletim</title><style>${docCss}</style></head><body>${pages || "<p>Nenhum estudante.</p>"}</body></html>`;
+}
+
+/** Ficha Individual: mesmo dado do Boletim com períodos detalhados e histórico de situação; mesma fonte. */
+export function printIndividualSheets(i: SheetInput, rows: readonly SheetRow[], h: DocHeader, only?: string) {
+  const sel = rows.filter((r) => !only || r.student.id === only);
+  const pages = sel.map((r, k) => `<section class=pb><h1>FICHA INDIVIDUAL DO ESTUDANTE</h1>
+<table><tbody><tr><th class=l>Escola</th><td class=l>${esc(h.school)}</td><th class=l>Ano letivo</th><td class=l>${esc(h.year)}</td></tr>
+<tr><th class=l>Estudante</th><td class=l>${esc(r.student.name)}</td><th class=l>Nº na folha</th><td class=l>${rows.indexOf(r) + 1 || k + 1}</td></tr>
+<tr><th class=l>Turma</th><td class=l>${esc(h.className)}</td><th class=l>Situação</th><td class=l>${esc(r.student.status)}</td></tr></tbody></table>
+<table><thead><tr><th class=l>Componente</th>${i.periods.map((p) => `<th>${esc(p)}</th>`).join("")}<th>Média final</th><th>Recuperação final</th><th>Frequência</th><th>Resultado</th></tr></thead><tbody>
+${r.components.map((c) => `<tr><td class=l>${esc(i.components.find((x) => x.id === c.id)?.label ?? c.id)}</td>${c.periodGrades.map((g) => `<td>${fmt(g)}</td>`).join("")}<td>${fmt(c.average)}</td><td>${fmt(c.finalRecovery)}</td><td>${pct(c.attendance)}</td><td>${esc(c.result)}</td></tr>`).join("")}
+</tbody></table><p>Resultado final: <b>${esc(r.overall)}</b> · ${esc(ruleText(i))}</p>
+${r.missing.length ? `<p>Pendências: ${esc(r.missing.join("; "))}</p>` : ""}
+<p style="font-size:8pt">Fonte: ${esc(h.source)} · Situação da folha: ${esc(h.state)}</p>
+<p style="margin-top:28pt">______________________ Secretário(a) &nbsp;&nbsp; ______________________ Diretor(a)</p>${h.verification ?? ""}</section>`).join("");
+  return `<!doctype html><html><head><meta charset=utf-8><title>Ficha Individual</title><style>${docCss}</style></head><body>${pages || "<p>Nenhum estudante.</p>"}</body></html>`;
 }
