@@ -150,6 +150,7 @@ export function InstitutionalProfessionalsListPage() {
         title="Profissionais"
         lede="Pessoas declaradas na base oficial 2026 (Censo Escolar), no seu alcance de acesso. A função mostrada é a declarada no Censo; ela não concede acesso ao SIGEM."
         count={searching || q.data?.total == null ? undefined : <>≈ {q.data.total.toLocaleString("pt-BR")}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">profissionais</span></>}
+        actions={<Button asChild size="sm" variant="outline"><Link to="/pessoal-2026">Pessoal por escola (planilhas 2026)</Link></Button>}
       />
       <RegistryToolbar summary={searching ? <Button variant="link" size="sm" className="h-auto p-0" onClick={() => { setQuery(""); setFn(""); }}>Limpar pesquisa</Button> : <>Ordem alfabética · {LIST_PAGE_SIZE} por página</>}>
         <SearchField id="prof-search" label="Pesquisar profissionais" placeholder="Nome" value={query} onChange={setQuery} />
