@@ -19590,6 +19590,64 @@ export type Database = {
       census_fingerprint: { Args: { _content: Json }; Returns: string }
       census_head_seq: { Args: { _cycle: string }; Returns: number }
       census_live_preview: { Args: { _cycle: string }; Returns: Json }
+      census_map_2026_classes: {
+        Args: never
+        Returns: {
+          bonds: number
+          class_code: string
+          class_id: string
+          class_name: string
+          class_type: string
+          declared_students: number
+          distinct_students: number
+          is_aee: boolean
+          mediation: string
+          organization: string
+          professionals: number
+          schedule_literal: string
+          school_id: string
+          stage: string
+          stage_group: string
+        }[]
+      }
+      census_map_2026_network: {
+        Args: never
+        Returns: {
+          aee_bonds: number
+          aee_students: number
+          bonds: number
+          classes: number
+          distinct_students: number
+          infra_items: number
+          professionals: number
+          school_enrollments: number
+          schools: number
+        }[]
+      }
+      census_map_2026_schools: {
+        Args: never
+        Returns: {
+          aee_bonds: number
+          aee_only_students: number
+          aee_students: number
+          bonds: number
+          classes: number
+          distinct_students: number
+          inep: string
+          infra_informed: number
+          infra_items: number
+          professionals: number
+          receipt_aee: number
+          receipt_bonds: number
+          receipt_classes: number
+          receipt_students: number
+          receipt_teachers: number
+          school_enrollments: number
+          school_id: string
+          school_name: string
+          teachers: number
+        }[]
+      }
       census_natural_person: { Args: never; Returns: string }
       census_official_receipts_at: {
         Args: { _known_at: string }
