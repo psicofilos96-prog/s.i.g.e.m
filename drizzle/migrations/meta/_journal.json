@@ -1940,6 +1940,13 @@
       "when": 1791579640366,
       "tag": "0276_int8_staff_administrative_records",
       "breakpoints": true
+    },
+    {
+      "idx": 277,
+      "version": "7",
+      "when": 1791592443512,
+      "tag": "0277_aud2026_jornada_intervals_staff_reconciliation",
+      "breakpoints": true
     }
   ]
 }
