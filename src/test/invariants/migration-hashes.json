@@ -336,5 +336,7 @@
  "drizzle/migrations/0285_school_declared_monthly_maps.sql": "54ab290e71999571929db7364f1fbbe8be172faa835018bdbaab857e5d5ccc46",
  "drizzle/migrations/0286_declared_monthly_maps_append_only.sql": "a295450f65909fd889c2eab29b587069a111d494d42431cad366e5d075c456fe",
  "drizzle/migrations/0287_r1_infrastructure_scoped_read.sql": "3ee15c1effcae196448825986bfa1d54d1551060a94819a64cfcd7189522c634",
- "drizzle/migrations/0288_report_emissions_ledger.sql": "97802c438acc4057a5ae7e5a6bbdb8152e57144c68b547a3ad6884e8ba9622f6"
+ "drizzle/migrations/0288_report_emissions_ledger.sql": "97802c438acc4057a5ae7e5a6bbdb8152e57144c68b547a3ad6884e8ba9622f6",
+ "drizzle/migrations/0289_final_sheet_rules_and_acts.sql": "ca1626fcb02a4e522774104adebea542266864cc49edc6cf0fb45dbca51562ca",
+ "drizzle/migrations/0290_meal_order_ceiling_ack.sql": "ad557b4d84512b9fda82d012c23a4e630b9ddd45f27ce98198b40abc12e3b5a0"
 }

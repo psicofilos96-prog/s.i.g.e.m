@@ -12642,6 +12642,7 @@ export type Database = {
           author_person_id: string | null
           author_principal_id: string | null
           author_user_id: string
+          ceiling_ack: string | null
           competence: string
           id: string
           lines: Json
@@ -12659,6 +12660,7 @@ export type Database = {
           author_person_id?: string | null
           author_principal_id?: string | null
           author_user_id: string
+          ceiling_ack?: string | null
           competence: string
           id?: string
           lines: Json
@@ -12676,6 +12678,7 @@ export type Database = {
           author_person_id?: string | null
           author_principal_id?: string | null
           author_user_id?: string
+          ceiling_ack?: string | null
           competence?: string
           id?: string
           lines?: Json
@@ -24967,6 +24970,19 @@ export type Database = {
           _rule: string
           _school_ids: string[]
           _tz: string
+        }
+        Returns: string
+      }
+      record_meal_order_with_ceiling: {
+        Args: {
+          _action: string
+          _ceiling_ack: string
+          _competence: string
+          _expected_version: number
+          _lines: Json
+          _logical: string
+          _reason: string
+          _school: string
         }
         Returns: string
       }
