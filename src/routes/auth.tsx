@@ -9,7 +9,7 @@ import wallpaper from "@/assets/itaperuna-wallpaper.png.asset.json";
 import logoCiece from "@/assets/logo-ciece-white.png.asset.json";
 import logoEducacao from "@/assets/logo-educacao-white.png.asset.json";
 import logoPrefeitura from "@/assets/logo-prefeitura-white.png.asset.json";
-import brasao from "@/assets/brasao-transparente.png.asset.json";
+import brasao from "@/assets/brasao-borda.png.asset.json";
 import sigemLogo from "@/assets/logo-sigem-white.png.asset.json";
 
 export const Route = createFileRoute("/auth")({
