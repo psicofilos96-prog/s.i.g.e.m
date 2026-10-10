@@ -89,9 +89,9 @@ function AuthPage() {
               <span className="font-normal text-login-ink/80">Secretaria Municipal de Educação</span>
             </div>
           </div>
-          <img src={sigemLogo.url} alt="SIGEM — Sistema Integrado de Gestão Escolar" className="mt-8 h-20 w-full object-contain object-left" />
-          <span aria-hidden className="mt-6 block h-0.5 w-12 bg-login-gold" />
-          <p className="mt-3 font-display text-xl italic leading-snug text-login-ink/90">Gestão eficiente.<br />Educação que transforma.</p>
+          <img src={sigemLogo.url} alt="SIGEM — Sistema Integrado de Gestão Escolar" className="mx-auto mt-8 h-20 w-full object-contain object-center" />
+          <span aria-hidden className="mx-auto mt-6 block h-0.5 w-12 bg-login-gold" />
+          <p className="mt-3 text-center font-display text-xl italic leading-snug text-login-ink/90">Gestão eficiente.<br />Educação que transforma.</p>
           {search.motivo === "expirada" && (
             <p role="status" className="mt-4 rounded-xl border border-login-ink/20 bg-login-ink/10 p-3 text-sm">Sua sessão terminou. Entre de novo para continuar de onde parou.</p>
           )}
@@ -128,10 +128,16 @@ function AuthPage() {
               <p className="text-xs text-login-ink/70">Primeiro acesso ou senha esquecida: use o link individual entregue por quem administra as contas (vale uma única vez).</p>
             </form>
           )}
-          <div className="mt-auto pt-10 text-center">
-            <p className="font-display italic text-login-ink/85">“Educação constrói futuros.”</p>
-            <p className="mt-1 text-xs uppercase tracking-[0.3em] text-login-ink/70">Itaperuna - RJ</p>
-            <span aria-hidden className="mx-auto mt-2 block h-px w-10 bg-login-gold" />
+          <div className="mt-auto pt-10">
+            <div className="flex items-center justify-center gap-3 border-t border-login-ink/15 pt-5">
+              {[{ s: logoPrefeitura.url, a: "Prefeitura de Itaperuna" }, { s: logoEducacao.url, a: "Secretaria Municipal de Educação" }, { s: logoCiece.url, a: "Central de Informações, Estatística e Censo Escolar" }].map((l, k) => (
+                <div key={l.a} className="flex min-w-0 flex-1 items-center gap-3">
+                  {k > 0 ? <span aria-hidden className="h-8 w-px shrink-0 bg-login-gold/50" /> : null}
+                  <img src={l.s} onError={hideBrokenImage} alt={l.a} className="h-8 w-full min-w-0 object-contain" />
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-center text-[10px] uppercase tracking-[0.3em] text-login-ink/60">Itaperuna - RJ</p>
           </div>
         </main>
         <section aria-label="Identidade da cidade" className="hidden min-w-0 flex-1 flex-col py-8 pl-8 pr-6 lg:flex xl:py-10 xl:pl-16 xl:pr-10">
@@ -154,11 +160,6 @@ function AuthPage() {
               </li>
             ))}
           </ul>
-          <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-login-ink/20 pt-5">
-            {[{ s: logoPrefeitura.url, a: "Prefeitura de Itaperuna" }, { s: logoEducacao.url, a: "Secretaria Municipal de Educação" }, { s: logoCiece.url, a: "Central de Informações, Estatística e Censo Escolar" }].map((l) => (
-              <img key={l.a} src={l.s} onError={hideBrokenImage} alt={l.a} className="h-9 w-auto max-w-[11rem] object-contain drop-shadow-[0_1px_2px_rgb(0_0_0/0.5)] xl:h-10" />
-            ))}
-          </div>
         </section>
       </div>
     </div>
