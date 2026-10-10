@@ -9,6 +9,14 @@ import { StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { runReport, toCsv } from "@/features/reports/report-engine";
 import { mealMessage } from "./meals-model";
+import { checkRequest, explainCeiling, type CeilingInput } from "./ceiling-explain";
+
+/** Parâmetros do teto: nenhum per capita/público/dias/estoque homologado é lido ainda ⇒ todos null (pendência explícita, nunca zero). */
+const NO_PARAMS: CeilingInput = { perCapitaGrams: null, perCapitaHomologated: false, servedPublic: null, schoolDays: null, eligibleStockGrams: null, pendingDeliveriesGrams: null };
+function LineCheck({ l }: { l: OrderLine }) {
+  const r = checkRequest(l.quantidade, explainCeiling(NO_PARAMS), false, l.zero_motivo ?? null);
+  return <ul className="text-xs text-muted-foreground">{r.warnings.map((w) => <li key={w}>{w}</li>)}</ul>;
+}
 import {
   CONSOLIDADO_ALIMENTACAO, ORDER_STATUS_LABEL, PEDIDOS_ALIMENTACAO, orderAllows, classifyZero, orderReportRow, schoolCanEdit,
   type HistoryRow, type OrderLine, type OrderStatus,
@@ -65,7 +73,7 @@ export function OrdersSection({ school, network, names }: { school: string; netw
     <section aria-labelledby="ord" className="space-y-3 rounded border p-3 text-sm">
       <h2 id="ord" className="font-semibold">Pedido mensal</h2>
       <label className="block max-w-xs">Competência<input className={field} value={competence} onChange={(e) => setCompetence(e.target.value)} placeholder="AAAA-MM" /></label>
-      <StatePanel tone="warning" title="Necessidade e teto não calculáveis" description="QUANTITY_LIMIT, PER_CAPITA e UNIT_CONVERSION dependem de regra homologada. O pedido nunca é declarado dentro do teto sem teto calculado." />
+      {(() => { const c = explainCeiling(NO_PARAMS); return c.state === "pendente" ? <StatePanel tone="warning" title="Teto do pedido não calculável" description={`Falta: ${c.missing.join("; ")}. O envio é permitido; a autorização definitiva aguarda revisão.`} /> : null; })()}
       {msg && <p role="status">{msg}</p>}
       {err ? <StatePanel tone="warning" title="Não disponível" description={err} />
         : !orders ? <SkeletonState label="Carregando" />
@@ -103,6 +111,7 @@ function SchoolOrder({ school, competence, order, items, units, act }: { school:
           <label>Se zero, por quê<select className={field} disabled={!editable || l.quantidade > 0} value={l.zero_motivo ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, zero_motivo: (e.target.value || undefined) as OrderLine["zero_motivo"] } : x)))}>
             <option value="">—</option><option value="saldo-suficiente">Saldo suficiente</option><option value="nao-aplicavel">Não aplicável</option><option value="outro">Outro</option></select>
             {classifyZero(l) === "zero-sem-justificativa" && <span className="text-muted-foreground">Zero sem justificativa (permitido).</span>}</label>
+          <div className="sm:col-span-4"><LineCheck l={l} /></div>
         </div>
       ))}
       {editable && (
@@ -128,6 +137,7 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
         <li key={o.logical_id} className="space-y-1 py-2">
           <p className="font-medium">{names.get(o.school_id) ?? o.school_id} — {knownLabel(ORDER_STATUS_LABEL, o.status)} · v{o.version}</p>
           <p className="text-muted-foreground">{o.lines.map((l) => `${itemLabel(l.item_ref)}: ${l.quantidade}`).join(" · ") || "sem itens"}</p>
+          {orderAllows(o.status, "autorizacao") && <p className="text-xs text-muted-foreground">Teto não calculado: confira per capita, público, dias letivos e estoque antes de autorizar.</p>}
           <div className="flex flex-wrap gap-2">
             {orderAllows(o.status, "analise") && <Button size="sm" variant="outline" onClick={() => go(o, "analise", false)}>Iniciar análise</Button>}
             {orderAllows(o.status, "autorizacao") && <>
