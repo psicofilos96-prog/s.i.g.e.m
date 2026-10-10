@@ -19,6 +19,7 @@ import { Route as AjudaRouteImport } from './routes/ajuda'
 import { Route as AlimentacaoEscolarRouteImport } from './routes/alimentacao-escolar'
 import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as AssistenteRouteImport } from './routes/assistente'
+import { Route as AssociacaoDeContasRouteImport } from './routes/associacao-de-contas'
 import { Route as AtuacoesPedagogicasRouteImport } from './routes/atuacoes-pedagogicas'
 import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -280,6 +281,11 @@ const AlunosRoute = AlunosRouteImport.update({
 const AssistenteRoute = AssistenteRouteImport.update({
   id: '/assistente',
   path: '/assistente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AssociacaoDeContasRoute = AssociacaoDeContasRouteImport.update({
+  id: '/associacao-de-contas',
+  path: '/associacao-de-contas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AtuacoesPedagogicasRoute = AtuacoesPedagogicasRouteImport.update({
@@ -1440,6 +1446,7 @@ export interface FileRoutesByFullPath {
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/assistente': typeof AssistenteRoute
+  '/associacao-de-contas': typeof AssociacaoDeContasRoute
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
@@ -1662,6 +1669,7 @@ export interface FileRoutesByTo {
   '/ajuda': typeof AjudaRoute
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/assistente': typeof AssistenteRoute
+  '/associacao-de-contas': typeof AssociacaoDeContasRoute
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
   '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
@@ -1855,6 +1863,7 @@ export interface FileRoutesById {
   '/alimentacao-escolar': typeof AlimentacaoEscolarRoute
   '/alunos': typeof AlunosRouteWithChildren
   '/assistente': typeof AssistenteRoute
+  '/associacao-de-contas': typeof AssociacaoDeContasRoute
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasRouteWithChildren
   '/auditoria': typeof AuditoriaRoute
   '/auth': typeof AuthRoute
@@ -2080,6 +2089,7 @@ export interface FileRouteTypes {
     | '/alimentacao-escolar'
     | '/alunos'
     | '/assistente'
+    | '/associacao-de-contas'
     | '/atuacoes-pedagogicas'
     | '/auditoria'
     | '/auth'
@@ -2302,6 +2312,7 @@ export interface FileRouteTypes {
     | '/ajuda'
     | '/alimentacao-escolar'
     | '/assistente'
+    | '/associacao-de-contas'
     | '/auditoria'
     | '/auth'
     | '/autorizacoes-familia'
@@ -2494,6 +2505,7 @@ export interface FileRouteTypes {
     | '/alimentacao-escolar'
     | '/alunos'
     | '/assistente'
+    | '/associacao-de-contas'
     | '/atuacoes-pedagogicas'
     | '/auditoria'
     | '/auth'
@@ -2718,6 +2730,7 @@ export interface RootRouteChildren {
   AlimentacaoEscolarRoute: typeof AlimentacaoEscolarRoute
   AlunosRoute: typeof AlunosRouteWithChildren
   AssistenteRoute: typeof AssistenteRoute
+  AssociacaoDeContasRoute: typeof AssociacaoDeContasRoute
   AtuacoesPedagogicasRoute: typeof AtuacoesPedagogicasRouteWithChildren
   AuditoriaRoute: typeof AuditoriaRoute
   AuthRoute: typeof AuthRoute
@@ -2876,6 +2889,13 @@ declare module '@tanstack/react-router' {
       path: '/assistente'
       fullPath: '/assistente'
       preLoaderRoute: typeof AssistenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/associacao-de-contas': {
+      id: '/associacao-de-contas'
+      path: '/associacao-de-contas'
+      fullPath: '/associacao-de-contas'
+      preLoaderRoute: typeof AssociacaoDeContasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/atuacoes-pedagogicas': {
@@ -5043,6 +5063,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlimentacaoEscolarRoute: AlimentacaoEscolarRoute,
   AlunosRoute: AlunosRouteWithChildren,
   AssistenteRoute: AssistenteRoute,
+  AssociacaoDeContasRoute: AssociacaoDeContasRoute,
   AtuacoesPedagogicasRoute: AtuacoesPedagogicasRouteWithChildren,
   AuditoriaRoute: AuditoriaRoute,
   AuthRoute: AuthRoute,

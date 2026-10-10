@@ -7986,6 +7986,79 @@ export type Database = {
           },
         ]
       }
+      identity_link_review_decisions: {
+        Row: {
+          decided_at: string
+          decided_by: string
+          decision: string
+          reason: string
+          review_id: string
+        }
+        Insert: {
+          decided_at?: string
+          decided_by: string
+          decision: string
+          reason: string
+          review_id: string
+        }
+        Update: {
+          decided_at?: string
+          decided_by?: string
+          decision?: string
+          reason?: string
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_link_review_decisions_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: true
+            referencedRelation: "identity_link_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      identity_link_reviews: {
+        Row: {
+          evidence_kind: string
+          evidence_note: string
+          id: string
+          person_id: string
+          proposed_at: string
+          proposed_by: string
+          school_id: string | null
+          target_user_id: string
+        }
+        Insert: {
+          evidence_kind: string
+          evidence_note: string
+          id?: string
+          person_id: string
+          proposed_at?: string
+          proposed_by: string
+          school_id?: string | null
+          target_user_id: string
+        }
+        Update: {
+          evidence_kind?: string
+          evidence_note?: string
+          id?: string
+          person_id?: string
+          proposed_at?: string
+          proposed_by?: string
+          school_id?: string | null
+          target_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "identity_link_reviews_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       import_batch_events: {
         Row: {
           actor: string
@@ -20440,6 +20513,10 @@ export type Database = {
         }
       }
       data_quality_can_review: { Args: { _school: string }; Returns: boolean }
+      decide_identity_link: {
+        Args: { _decision: string; _reason: string; _review: string }
+        Returns: string
+      }
       declare_cycle_participation: {
         Args: {
           _act_ref: string
@@ -22922,6 +22999,16 @@ export type Database = {
           school_id: string
           start_known: boolean
         }[]
+      }
+      propose_identity_link: {
+        Args: {
+          _evidence_kind: string
+          _evidence_note: string
+          _person: string
+          _school: string
+          _target_user: string
+        }
+        Returns: string
       }
       provision_sector_principal: {
         Args: {
