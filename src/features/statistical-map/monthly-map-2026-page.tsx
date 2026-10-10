@@ -262,7 +262,7 @@ function InconsistencyPanel({ maps, projs, names }: { maps: DeclaredMap[]; projs
   const redeOf = useMemo(() => schoolNetworkCategory(maps as (DeclaredMap & { originating_act_ref?: string | null })[]), [maps]);
   const rows = all.filter((o) => (!fs || o.school_id === fs) && (!fc || o.category === fc) && (!fm || String(o.month) === fm) && (!fr || redeOf.get(o.school_id) === fr));
   const byRede = NETWORK_CATEGORIES.map((r) => { const sc = [...redeOf].filter(([, v]) => v === r).map(([k]) => k);
-    const comp = new Set(maps.filter((m) => redeOf.get(m.school_id) === r).map((m) => `${m.school_id}:${m.month}`)).size;
+    const comp = new Set(maps.filter((m) => redeOf.get(m.school_id) === r && (EXPECTED_MONTHS as readonly number[]).includes(m.month)).map((m) => `${m.school_id}:${m.month}`)).size;
     return { r, escolas: sc.length, comp, faltam: sc.length * EXPECTED_MONTHS.length - comp, occ: all.filter((o) => redeOf.get(o.school_id) === r).length }; });
   const nm = (s: string) => names.get(s)?.name ?? s;
   async function download(format: "csv" | "xlsx" | "pdf") {
@@ -282,7 +282,7 @@ function InconsistencyPanel({ maps, projs, names }: { maps: DeclaredMap[]; projs
         <label>Mês <select className="rounded border border-border bg-background px-2 py-1" value={fm} onChange={(e) => setFm(e.target.value)}><option value="">Todos</option>{EXPECTED_MONTHS.map((m) => <option key={m} value={m}>{MONTHS[m - 1]}</option>)}</select></label>
         {(["xlsx", "csv", "pdf"] as const).map((f) => <Button key={f} size="sm" variant="outline" onClick={() => void download(f)}>{f.toUpperCase()}</Button>)}
       </div>
-      <table className="w-full text-sm"><thead><tr>{["Rede", "Escolas", "Meses declarados", "Meses ausentes (fev–set)", "Ocorrências"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
+      <table className="w-full text-sm"><thead><tr>{["Rede", "Escolas", "Meses declarados (fev–set)", "Meses ausentes (fev–set)", "Ocorrências"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
         <tbody>{byRede.map((b) => <tr key={b.r} className={registryRow}><td className={registryTd}>{NETWORK_CATEGORY_LABEL[b.r]}</td><td className={registryTd}>{b.escolas}</td><td className={registryTd}>{b.comp}</td><td className={registryTd}>{b.faltam}</td><td className={registryTd}>{b.occ}</td></tr>)}
           <tr className={registryRow}><td className={registryTd}>Consolidado</td><td className={registryTd}>{byRede.reduce((a, b) => a + b.escolas, 0)}</td><td className={registryTd}>{byRede.reduce((a, b) => a + b.comp, 0)}</td><td className={registryTd}>{byRede.reduce((a, b) => a + b.faltam, 0)}</td><td className={registryTd}>{all.length}</td></tr></tbody></table>
       <div className="max-h-96 overflow-auto"><table className="w-full text-sm"><thead><tr>{["Escola", "Mês", "Categoria", "Seção/campo", "Declarado", "Esperado", "Gravidade", "Descrição"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
