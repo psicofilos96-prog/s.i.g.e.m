@@ -1,3 +1,4 @@
+import { readPages } from "@/lib/list-paging";
 // LOTE 9 — associação conta↔pessoa por identidade comprovada, com revisão por segunda conta.
 // Lê e grava só pela sessão: propose_identity_link / decide_identity_link (DEFINER, capability
 // manter-contas-institucionais). Atuação escolar continua só por record_engagement.
@@ -58,7 +59,7 @@ export async function loadAccounts() {
 
 /** Só pessoas com identificador registrado podem ser associadas. */
 export async function loadIdentifiedPersons() {
-  const { data, error } = await supabase.from("institutional_person_identifiers").select("person_id, identifier_kind, institutional_persons(display_name)").limit(1000);
+  const { data, error } = await readPages((from, to) => supabase.from("institutional_person_identifiers").select("person_id, identifier_kind, institutional_persons(display_name)").order("person_id").range(from, to), 20000);
   if (error) throw error;
   const map = new Map<string, { id: string; name: string; kinds: string[] }>();
   for (const row of (data ?? []) as { person_id: string; identifier_kind: string; institutional_persons: { display_name: string } | null }[]) {
