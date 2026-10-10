@@ -1,3 +1,4 @@
+import { NETWORK_FILTERS, NETWORK_FILTER_LABEL, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
 /**
  * Mapa Estatístico MENSAL 2026. Chave: escola + ano + mês (+ versão da apuração congelada).
  * O Censo é referência/fotografia, nunca prova da situação de um mês: cada mês é lido na sua
@@ -127,4 +128,11 @@ export function monthlyCells(rows: (MonthlyRow & { frozen?: Closure | null })[])
     for (const [k] of MEASURES) o[k] = r[k];
     return o;
   });
+}
+
+/** Consolidação do mês por categoria de rede (duas dimensões do cadastro); escola não classificada fica em linha própria, nunca presumida. */
+export function networkMonthByCategory(rows: MonthlyRow[], cls: ReadonlyMap<string, SchoolClassification>) {
+  const groups = NETWORK_FILTERS.map((f) => ({ key: f as string, label: NETWORK_FILTER_LABEL[f], net: networkMonth(rows.filter((r) => matchesNetwork(cls.get(r.school_id), f))) }));
+  const unc = rows.filter((r) => networkLabel(cls.get(r.school_id)) === "Não classificada");
+  return [...groups, ...(unc.length ? [{ key: "nao-classificada", label: "Não classificada", net: networkMonth(unc) }] : []), { key: "rede", label: "Rede (consolidado)", net: networkMonth(rows) }];
 }

@@ -10,10 +10,10 @@ import { exportMap } from "./census-map-2026";
 import { operationalToday } from "@/lib/academic-date";
 import {
   MEASURES, MONTHS, MONTHLY_REPORT, STATUS_LABEL, compareMonths, effectiveRow, latestClosures, monthlyCells, networkMonth, normalizeMonthly,
-  referenceDate, canFreeze, provenance, type Closure,
+  referenceDate, canFreeze, provenance, type Closure, networkMonthByCategory,
 } from "./monthly-map-2026";
 import { EXPECTED_MONTHS, IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
-import { CATEGORY_LABEL, NETWORK_FILTERS, NETWORK_FILTER_LABEL, classifySchool, declaredOccurrences, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
+import { CATEGORY_LABEL, NETWORK_FILTERS, type NetworkFilter, NETWORK_FILTER_LABEL, classifySchool, declaredOccurrences, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
 import type { ReportDefinition } from "@/features/reports/report-engine";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
@@ -54,8 +54,12 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   const cur = useQuery({ queryKey: ["mapa-mensal-2026", month], queryFn: () => loadMonth(month) });
   const prev = useQuery({ queryKey: ["mapa-mensal-2026", cmp], queryFn: () => loadMonth(cmp) });
 
+  const [rede, setRede] = useState<string>("");
+  const clsQ = useSchoolClassification();
   const rows = useMemo(() => (cur.data?.rows ?? []).filter((r) => (!school || r.school_id === school)
-    && (!q || `${r.school_name} ${r.inep}`.toLowerCase().includes(q.toLowerCase()))), [cur.data, school, q]);
+    && (!rede || matchesNetwork(clsQ.data?.get(r.school_id), rede as NetworkFilter))
+    && (!q || `${r.school_name} ${r.inep}`.toLowerCase().includes(q.toLowerCase()))), [cur.data, school, q, rede, clsQ.data]);
+  const byCategory = useMemo(() => clsQ.data ? networkMonthByCategory(cur.data?.rows ?? [], clsQ.data) : null, [cur.data, clsQ.data]);
   const prevRows = useMemo(() => (prev.data?.rows ?? []).filter((r) => !school || r.school_id === school), [prev.data, school]);
   const net = networkMonth(rows);
   const comparison = compareMonths(networkMonth(prevRows).totals, net.totals);
@@ -100,6 +104,11 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
             <option value="">{mode === "rede" ? "Rede (todas visíveis)" : "Todas visíveis"}</option>
             {(cur.data?.rows ?? []).map((r) => <option key={r.school_id} value={r.school_id}>{r.school_name} · {r.inep}</option>)}
           </select></label>
+        <label className="text-sm">Rede
+          <select className="ml-2 rounded border border-input bg-background px-2 py-1" value={rede} onChange={(e) => setRede(e.target.value)} disabled={!clsQ.data}>
+            <option value="">Todas</option>
+            {NETWORK_FILTERS.map((f) => <option key={f} value={f}>{NETWORK_FILTER_LABEL[f]}</option>)}
+          </select></label>
         <Input className="max-w-xs" placeholder="Buscar por nome ou INEP" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar escola" />
         <div className="flex gap-2">{(["pdf", "xlsx", "csv"] as const).map((f) => <Button key={f} size="sm" variant="outline" onClick={() => download(f)}>{f === "pdf" ? "PDF (A4 paisagem)" : f.toUpperCase()}</Button>)}</div>
       </div>
@@ -121,6 +130,23 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
             <td className={registryTd}>{fmt(c.b)}</td><td className={registryTd}>{c.delta === null ? "indisponível" : c.delta.toLocaleString("pt-BR")}</td></tr>)}</tbody>
         </table>
       </section>
+
+      {mode === "rede" && (
+        <section aria-labelledby="cat-h" className="overflow-x-auto">
+          <h2 id="cat-h" className="mb-2 font-display text-lg">Consolidado por categoria — {MONTHS[month - 1]}</h2>
+          {clsQ.error ? <p role="alert" className="text-sm">Não foi possível ler a classificação das escolas; o consolidado por categoria não é exibido (nunca zero).</p>
+            : !byCategory ? <p className="text-sm text-muted-foreground">Lendo classificação das escolas…</p> : (
+            <table className="w-full text-sm"><thead><tr>
+              <th scope="col" className={registryTh}>Categoria</th><th scope="col" className={registryTh}>Escolas</th><th scope="col" className={registryTh}>Situação</th>
+              {MEASURES.map(([k, l]) => <th key={k} scope="col" className={registryTh}>{l}</th>)}</tr></thead>
+              <tbody>{byCategory.map((c) => <tr key={c.key} className={registryRow}>
+                <td className={registryTd}>{c.label}</td><td className={registryTd}>{c.net.schools}</td>
+                <td className={registryTd}>{c.net.apuradas} apuradas · {c.net.estimadas} estimativa · {c.net.provisorias} provisórias · {c.net.naoApuradas} não apuradas</td>
+                {MEASURES.map(([k]) => <td key={k} className={registryTd}>{fmt(c.net.totals[k])}</td>)}</tr>)}</tbody>
+            </table>)}
+          <p className="mt-1 text-xs text-muted-foreground">A conveniada rural conta em "Conveniada" e em "Zona rural"; por isso as linhas de zona não somam com as de dependência. Estimativa parcial não é mês apurado.</p>
+        </section>
+      )}
 
       <section aria-labelledby="esc-h" className="overflow-x-auto">
         <h2 id="esc-h" className="mb-2 font-display text-lg">Escolas no mês</h2>
@@ -256,10 +282,8 @@ const OCC_REPORT: ReportDefinition = {
   ],
 };
 
-function InconsistencyPanel({ maps, projs, names }: { maps: DeclaredMap[]; projs: ReturnType<typeof projectAll>; names: Map<string, { name: string; inep: string | null }> }) {
-  const [fs, setFs] = useState(""); const [fc, setFc] = useState<string>(""); const [fm, setFm] = useState<string>(""); const [fr, setFr] = useState<string>("");
-  const all = useMemo(() => declaredOccurrences(maps, projs, EXPECTED_MONTHS), [maps, projs]);
-  const cls = useQuery({
+function useSchoolClassification() {
+  return useQuery({
     queryKey: ["classificacao-escolas-cadastro"],
     queryFn: async () => {
       const { data, error } = await supabase.from("institutional_school_record_versions").select("school_id,version_number,location_kind,administrative_dependency").order("version_number", { ascending: false }).range(0, 4999);
@@ -269,6 +293,12 @@ function InconsistencyPanel({ maps, projs, names }: { maps: DeclaredMap[]; projs
       return m;
     },
   });
+}
+
+function InconsistencyPanel({ maps, projs, names }: { maps: DeclaredMap[]; projs: ReturnType<typeof projectAll>; names: Map<string, { name: string; inep: string | null }> }) {
+  const [fs, setFs] = useState(""); const [fc, setFc] = useState<string>(""); const [fm, setFm] = useState<string>(""); const [fr, setFr] = useState<string>("");
+  const all = useMemo(() => declaredOccurrences(maps, projs, EXPECTED_MONTHS), [maps, projs]);
+  const cls = useSchoolClassification();
   const redeOf = cls.data ?? new Map<string, SchoolClassification>();
   const declaredSchools = [...new Set(maps.map((m) => m.school_id))];
   const rows = all.filter((o) => (!fs || o.school_id === fs) && (!fc || o.category === fc) && (!fm || String(o.month) === fm) && (!fr || matchesNetwork(redeOf.get(o.school_id), fr as (typeof NETWORK_FILTERS)[number])));
