@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { applicableRule, cellsFrom, studentsFrom, type RuleRow } from "./final-sheet-cloud";
 import { AWAITING_RULE, cellKey, projectFinalSheet, resultMinutes } from "./final-sheet";
 
-const rule = (o: Partial<RuleRow> = {}): RuleRow => ({ id: "r1", logical_id: "fii", version: 2, label: "Fund. II", scope: { modality: "fundamental-anos-finais" }, params: { passMark: 60, minAttendance: null }, source_ref: "modelo", status: "homologada", ...o });
+const rule = (o: Partial<RuleRow> = {}): RuleRow => ({ id: "r1", logical_id: "fii", version: 2, label: "Fund. II", scope: { modality: "fundamental-anos-finais", valid_from: "2026-01-01" }, params: { passMark: 60, minAttendance: null }, source_ref: "modelo", status: "homologada", ...o });
 
 describe("Folha Final conectada (dados sintéticos)", () => {
   it("sem regra homologada não há resultado, mas médias aparecem; nada vira zero", () => {
@@ -28,7 +28,7 @@ describe("Folha Final conectada (dados sintéticos)", () => {
     expect(applicableRule([rule({ version: 1 }), rule({ id: "r3", version: 2, status: "rascunho" })], "fundamental-anos-finais").rule).toBeNull();
   });
   it("EJA sem frequência mínima configurada aguarda regra", () => {
-    const r = applicableRule([rule({ scope: { modality: "eja" } })], "eja").rule;
+    const r = applicableRule([rule({ scope: { modality: "eja", valid_from: "2026-01-01" } })], "eja").rule;
     const s = projectFinalSheet({ modality: "eja", periods: ["s1"], components: [{ id: "lp", label: "LP" }], students: [{ id: "a", name: "A", status: "Ativo" }],
       cells: { [cellKey("a", "lp")]: { periodGrades: [80], finalRecovery: null, lessonsGiven: 10, absences: 0 } }, rule: r });
     expect(s.rows[0]!.overall).toBe(AWAITING_RULE);
