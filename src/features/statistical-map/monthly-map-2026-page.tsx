@@ -11,7 +11,7 @@ import { operationalToday } from "@/lib/academic-date";
 import {
   MEASURES, MONTHS, MONTHLY_REPORT, STATUS_LABEL, compareMonths, effectiveRow, latestClosures, monthlyCells, networkMonth, normalizeMonthly,
   referenceDate, canFreeze, provenance, type Closure,
-} from "./monthly-map-2026";
+, networkMonthByCategory } from "./monthly-map-2026";
 import { EXPECTED_MONTHS, IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
 import { CATEGORY_LABEL, NETWORK_FILTERS, type NetworkFilter, NETWORK_FILTER_LABEL, classifySchool, declaredOccurrences, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
 import type { ReportDefinition } from "@/features/reports/report-engine";
