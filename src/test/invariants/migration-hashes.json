@@ -325,5 +325,6 @@
  "drizzle/migrations/0274_intervencao2_2026_operational_year.sql": "874933bc769ea72fc34b46daa7388a6b52f5768200d4e5f87f9254bee1368473",
  "drizzle/migrations/0275_intervencao3_account_activation.sql": "e72adba9c5fd925cde62f20377bb8c684cba6db77fa5b43652eeab88a7bf656f",
  "drizzle/migrations/0276_int8_staff_administrative_records.sql": "16dedd2e2e840da9311d400fb423e77f9d231b7e0ae5884af16ad941e1b4c7f3",
- "drizzle/migrations/0277_aud2026_jornada_intervals_staff_reconciliation.sql": "cdc32e6e108cb5e9ccff2637917805ba5c941fa25a7527741b00eb54733d0224"
+ "drizzle/migrations/0277_aud2026_jornada_intervals_staff_reconciliation.sql": "cdc32e6e108cb5e9ccff2637917805ba5c941fa25a7527741b00eb54733d0224",
+ "drizzle/migrations/0278_lote6_staff_reconciliation_decisions.sql": "9d8cf7331f88a5934d8bfcb5ac9a928f7da196e7281e61c5e18730813125d0c3"
 }
