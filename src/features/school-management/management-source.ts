@@ -25,7 +25,7 @@ export async function readManagementInputs(school: string, year: string, on: str
   })() : Promise.resolve({ ok: false, error: classes.error } as const);
   const closings = (t: string) => ids.length === 0 ? Promise.resolve<Probe<number>>(classes.ok ? { ok: true, data: 0 } : { ok: false, error: classes.error })
     : countOf(db.from(t).select("id", { count: "exact", head: true }).in("class_id", ids));
-  const [overview, sch, diary, plans, attendanceClosings, assessmentClosings, followups, documents, communications, aee, meals] = await Promise.all([
+  const [overview, sch, diary, plans, attendanceClosings, assessmentClosings, followups, documents, communications, aee, meals, staff, infrastructure, declaredMaps] = await Promise.all([
     probe<Inputs["overview"] extends Probe<infer T> ? T : never>(rpc("secretariat_overview_at", { _school: school, _year: year, _on: on })),
     schedules,
     probe<any[]>(rpc("diary_school_overview_at", { _school: school, _from: window.from, _to: window.to })),
@@ -36,6 +36,9 @@ export async function readManagementInputs(school: string, year: string, on: str
     probe<{ state: string }[]>(rpc("school_communications_at", { _school: school })),
     probe<any[]>(rpc("aee_services_at", { _school: school, _student: null, _known_at: knownAt })),
     countOf(rpc("meal_services_at", { _school: school, _from: window.from, _to: window.to, _known_at: knownAt })),
+    countOf(db.from("staff_administrative_records").select("id", { count: "exact", head: true }).eq("school_id", school)),
+    countOf(db.from("school_infrastructure_observations").select("id", { count: "exact", head: true }).eq("school_id", school)),
+    countOf(db.from("school_declared_monthly_maps").select("id", { count: "exact", head: true }).eq("school_id", school)),
   ]);
-  return { school, year, on, knownAt, window, overview, classes, schedules: sch, diary, plans, attendanceClosings, assessmentClosings, followups, documents, communications, aee, meals };
+  return { school, year, on, knownAt, window, overview, classes, schedules: sch, diary, plans, attendanceClosings, assessmentClosings, followups, documents, communications, aee, meals, staff, infrastructure, declaredMaps };
 }
