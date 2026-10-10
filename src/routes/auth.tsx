@@ -173,7 +173,7 @@ function LiveClock() {
   const tz = { timeZone: "America/Sao_Paulo" } as const;
   return (
     <p className="text-right text-sm text-login-ink/90">
-      <span className="block capitalize">{now.toLocaleDateString("pt-BR", { ...tz, weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</span>
+      <span className="block first-letter:uppercase">{now.toLocaleDateString("pt-BR", { ...tz, weekday: "long", day: "2-digit", month: "long", year: "numeric" })}</span>
       <span className="block font-display text-2xl">{now.toLocaleTimeString("pt-BR", { ...tz, hour: "2-digit", minute: "2-digit" })}</span>
       <span className="block text-xs uppercase tracking-widest text-login-ink/70">Itaperuna - RJ</span>
     </p>
