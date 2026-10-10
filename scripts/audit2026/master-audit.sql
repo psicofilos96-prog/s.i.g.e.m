@@ -5,7 +5,7 @@
 \pset footer off
 with rec as (
   select distinct on (r.school_id) r.school_id, r.inep, r.measures from public.census_official_receipt_snapshots r
-  where r.census_year = 2026 order by r.school_id, r.version desc
+  where r.census_year = '2026' order by r.school_id, r.version desc
 ), ep as (
   select e.* from public.class_enrollment_episodes e
   where not exists (select 1 from public.class_enrollment_episodes n where n.supersedes_id = e.id)
@@ -42,7 +42,7 @@ with ep as (select e.* from public.class_enrollment_episodes e where not exists 
      en as (select s.* from public.school_enrollments s where not exists (select 1 from public.school_enrollments n where n.supersedes_id = s.id)),
      q as (select class_id, value_text::int q from public.class_census_declarations where field = 'Quantidade de Alunos (as)' and value_text ~ '^[0-9]+$')
 select 'assert', n, v from (values
- ('escolas_sem_recibo_2026', (select count(*) from public.institutional_schools s where not exists (select 1 from public.census_official_receipt_snapshots r where r.school_id = s.id and r.census_year = 2026))),
+ ('escolas_sem_recibo_2026', (select count(*) from public.institutional_schools s where not exists (select 1 from public.census_official_receipt_snapshots r where r.school_id = s.id and r.census_year = '2026'))),
  ('escolas_sem_inep', (select count(*) from public.institutional_schools s where not exists (select 1 from public.institutional_school_identifiers i where i.school_id = s.id and i.identifier_kind ilike '%inep%'))),
  ('inep_recibo_difere_cadastro', (select count(*) from public.census_official_receipt_snapshots r where not exists (select 1 from public.institutional_school_identifiers i where i.school_id = r.school_id and i.identifier_kind ilike '%inep%' and i.value = r.inep))),
  ('turma_qtd_alunos_difere_episodios', (select count(*) from q where q.q <> (select count(*) from ep where ep.class_id = q.class_id))),
