@@ -1,5 +1,6 @@
 import { operationalToday } from "@/lib/academic-date";
 import { ReviewPanel } from "@/features/teacher-review/review-panel";
+import { reviewsOf, reviewState } from "@/features/teacher-review/teacher-work-review";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,7 +11,7 @@ import { ReferencePicker } from "@/features/curricular-reference/reference-picke
 import { readCatalog } from "@/features/curricular-reference/reference-source";
 import { myAssignments } from "@/features/teaching-planning/planning-source";
 import {
-  authoringMessage, heads, itemType, itemTypes, parseInstrumentItems, parseOptions, parseRandomization, parseRefIds, printFingerprint, printProjection, refStatus,
+  authoringMessage, heads, itemType, itemTypes, parseInstrumentItems, parseOptions, parseRandomization, parseRefIds, printFingerprint, printProjection, variantProjection, VARIANT_LETTERS, refStatus,
   type InstrumentVersion, type ItemOption, type ItemVersion,
 } from "./authoring-model";
 import { itemKey, itemMedia, mediaUrl, saveInstrument, saveItem, schoolsOfAssignments, uploadItemMedia, visibleInstruments, visibleItems } from "./authoring-source";
@@ -180,12 +181,17 @@ function InstrumentsTab({ instruments, items, uid, assignments, run }: { instrum
 }
 
 export function PrintView({ ins, items, onClose }: { ins: InstrumentVersion; items: ReadonlyMap<string, ItemVersion>; onClose: () => void }) {
-  const p = useMemo(() => printProjection(ins, items), [ins, items]);
+  const [letter, setLetter] = useState<string>("");
+  const rv = useQuery({ queryKey: ["twr", "instrumento", ins.instrument_id], queryFn: () => reviewsOf("instrumento", ins.instrument_id) });
+  const approved = !!rv.data && reviewState(rv.data, ins.id) === "aprovado";
+  const vp = useMemo(() => variantProjection(ins, items, letter || null, approved), [ins, items, letter, approved]);
+  const p = vp.ok ? vp.p : printProjection(ins, items);
   const [fp, setFp] = useState("");
   useEffect(() => { printFingerprint(p).then(setFp); }, [p]);
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 print:hidden"><Button variant="outline" onClick={onClose}>Voltar</Button><Button onClick={() => window.print()}>Imprimir / salvar PDF</Button></div>
+      <div className="flex gap-2 print:hidden"><Button variant="outline" onClick={onClose}>Voltar</Button><label className="text-sm">Versão <select className="ml-1 rounded border border-input bg-background p-1" value={letter} onChange={(e) => setLetter(e.target.value)} disabled={!approved}><option value="">Original</option>{[...VARIANT_LETTERS].map((l) => <option key={l} value={l}>{l}</option>)}</select></label><Button onClick={() => window.print()} disabled={!vp.ok}>Imprimir / salvar PDF</Button></div>
+      {!approved && <p className="text-sm text-muted-foreground print:hidden">{rv.error ? "Não foi possível ler a análise da OP; versões embaralhadas indisponíveis." : "Versões embaralhadas ficam disponíveis depois que a OP aprovar esta versão."}</p>}
       {ins.status !== "publicado" && <StatePanel tone="warning" title="Rascunho" description="Impressão de rascunho; o conteúdo pode mudar." />}
       {p.missing.length > 0 && <StatePanel tone="warning" title="Itens não acessíveis" description={`${p.missing.length} item(ns) não puderam ser lidos e não aparecem na impressão.`} />}
       <article className="mx-auto max-w-3xl space-y-4 bg-card p-6 text-card-foreground">
@@ -193,7 +199,7 @@ export function PrintView({ ins, items, onClose }: { ins: InstrumentVersion; ite
         <ol className="space-y-5">{p.questions.map((q) => (
           <li key={q.itemVersionId} className="break-inside-avoid"><p className="whitespace-pre-wrap"><strong>{q.number}.</strong> {q.stem}</p>
             {q.options.length > 0 ? <ul className="mt-2 space-y-1 pl-4">{q.options.map((o) => <li key={o.key}>({o.key}) {o.text}</li>)}</ul> : <div className="mt-2 h-20 border-b border-dashed border-border" aria-hidden />}</li>))}</ol>
-        <footer className="border-t border-border pt-2 text-2xs text-muted-foreground">Versão {p.version} · impressão {fp.slice(0, 16)}</footer>
+        <footer className="border-t border-border pt-2 text-2xs text-muted-foreground">{letter && vp.ok ? `Prova ${letter} · ` : ""}Versão {p.version} · impressão {fp.slice(0, 16)}</footer>
       </article>
     </div>
   );
