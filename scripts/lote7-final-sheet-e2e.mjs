@@ -24,7 +24,7 @@ try {
   mkdirSync("/tmp/fs7", { recursive: true });
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/fs7/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, session: A.session }), { mode: 0o600 });
-  const py = spawnSync("python3", ["scripts/lote7-reports-e2e.py"], { encoding: "utf8", timeout: 300000 });
+  const py = spawnSync("python3", ["scripts/lote7-final-sheet-e2e.py"], { encoding: "utf8", timeout: 300000 });
   rmSync("/tmp/fs7/s.json", { force: true });
   process.stdout.write(py.stdout ?? ""); if (py.status !== 0) console.log("PY_ERR", (py.stderr ?? "").slice(-800));
 } catch (e) { console.log("ERRO", String(e.message ?? e)); }
