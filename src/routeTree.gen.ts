@@ -103,6 +103,7 @@ import { Route as DiarioIndexRouteImport } from './routes/diario.index'
 import { Route as DiarioAulasRouteImport } from './routes/diario.aulas'
 import { Route as DiarioChamadasRouteImport } from './routes/diario.chamadas'
 import { Route as DiarioDocumentosRouteImport } from './routes/diario.documentos'
+import { Route as DiarioFolhaFinalRouteImport } from './routes/diario.folha-final'
 import { Route as DiarioFrequenciaRouteImport } from './routes/diario.frequencia'
 import { Route as DiarioRegistrarRouteImport } from './routes/diario.registrar'
 import { Route as DiarioTurmasRouteImport } from './routes/diario.turmas'
@@ -706,6 +707,11 @@ const DiarioChamadasRoute = DiarioChamadasRouteImport.update({
 const DiarioDocumentosRoute = DiarioDocumentosRouteImport.update({
   id: '/documentos',
   path: '/documentos',
+  getParentRoute: () => DiarioRoute,
+} as any)
+const DiarioFolhaFinalRoute = DiarioFolhaFinalRouteImport.update({
+  id: '/folha-final',
+  path: '/folha-final',
   getParentRoute: () => DiarioRoute,
 } as any)
 const DiarioFrequenciaRoute = DiarioFrequenciaRouteImport.update({
@@ -1544,6 +1550,7 @@ export interface FileRoutesByFullPath {
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
+  '/diario/folha-final': typeof DiarioFolhaFinalRoute
   '/diario/frequencia': typeof DiarioFrequenciaRoute
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
@@ -1760,6 +1767,7 @@ export interface FileRoutesByTo {
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
+  '/diario/folha-final': typeof DiarioFolhaFinalRoute
   '/diario/frequencia': typeof DiarioFrequenciaRoute
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
@@ -1967,6 +1975,7 @@ export interface FileRoutesById {
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
+  '/diario/folha-final': typeof DiarioFolhaFinalRoute
   '/diario/frequencia': typeof DiarioFrequenciaRoute
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
@@ -2196,6 +2205,7 @@ export interface FileRouteTypes {
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
+    | '/diario/folha-final'
     | '/diario/frequencia'
     | '/diario/registrar'
     | '/diario/turmas'
@@ -2412,6 +2422,7 @@ export interface FileRouteTypes {
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
+    | '/diario/folha-final'
     | '/diario/frequencia'
     | '/diario/registrar'
     | '/enturmacoes/movimentar'
@@ -2618,6 +2629,7 @@ export interface FileRouteTypes {
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
+    | '/diario/folha-final'
     | '/diario/frequencia'
     | '/diario/registrar'
     | '/diario/turmas'
@@ -3516,6 +3528,13 @@ declare module '@tanstack/react-router' {
       path: '/documentos'
       fullPath: '/diario/documentos'
       preLoaderRoute: typeof DiarioDocumentosRouteImport
+      parentRoute: typeof DiarioRoute
+    }
+    '/diario/folha-final': {
+      id: '/diario/folha-final'
+      path: '/folha-final'
+      fullPath: '/diario/folha-final'
+      preLoaderRoute: typeof DiarioFolhaFinalRouteImport
       parentRoute: typeof DiarioRoute
     }
     '/diario/frequencia': {
@@ -4583,6 +4602,7 @@ interface DiarioRouteChildren {
   DiarioAulasRoute: typeof DiarioAulasRoute
   DiarioChamadasRoute: typeof DiarioChamadasRoute
   DiarioDocumentosRoute: typeof DiarioDocumentosRoute
+  DiarioFolhaFinalRoute: typeof DiarioFolhaFinalRoute
   DiarioFrequenciaRoute: typeof DiarioFrequenciaRoute
   DiarioRegistrarRoute: typeof DiarioRegistrarRoute
   DiarioTurmasRoute: typeof DiarioTurmasRouteWithChildren
@@ -4595,6 +4615,7 @@ const DiarioRouteChildren: DiarioRouteChildren = {
   DiarioAulasRoute: DiarioAulasRoute,
   DiarioChamadasRoute: DiarioChamadasRoute,
   DiarioDocumentosRoute: DiarioDocumentosRoute,
+  DiarioFolhaFinalRoute: DiarioFolhaFinalRoute,
   DiarioFrequenciaRoute: DiarioFrequenciaRoute,
   DiarioRegistrarRoute: DiarioRegistrarRoute,
   DiarioTurmasRoute: DiarioTurmasRouteWithChildren,
