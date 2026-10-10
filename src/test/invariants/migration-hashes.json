@@ -340,5 +340,7 @@
  "drizzle/migrations/0289_final_sheet_rules_and_acts.sql": "ca1626fcb02a4e522774104adebea542266864cc49edc6cf0fb45dbca51562ca",
  "drizzle/migrations/0290_meal_order_ceiling_ack.sql": "ad557b4d84512b9fda82d012c23a4e630b9ddd45f27ce98198b40abc12e3b5a0",
  "drizzle/migrations/0291_final_sheet_rule_scope_attendance.sql": "b4c7e8d10c1dc609310ca602e5a8c86757822ca116e5fc93949df4f360554bff",
- "drizzle/migrations/0292_sia_corrections_op_board.sql": "14b079a43d49e5f1088beed8ae69a4080b9e3b477d44d170e635895a71bf636c"
+ "drizzle/migrations/0292_sia_corrections_op_board.sql": "14b079a43d49e5f1088beed8ae69a4080b9e3b477d44d170e635895a71bf636c",
+ "drizzle/migrations/0293_meal_ceiling_evaluation_samples.sql": "c03589773ceeb3fede469343762a63bc7f84f7174880051ee851140a4e631ed7",
+ "drizzle/migrations/0294_meal_food_samples_revoke.sql": "0931451d830543533536e14ea77044e29ca7fe9003dad56e1cb92a44280c79d0"
 }

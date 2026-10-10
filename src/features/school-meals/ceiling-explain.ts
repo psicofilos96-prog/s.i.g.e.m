@@ -44,3 +44,25 @@ export function checkRequest(requestedGrams: number, ceiling: Ceiling, essential
   if (essential && requestedGrams === 0 && !justification?.trim()) warnings.push("item essencial zerado: confirme o saldo ou justifique");
   return { canAuthorize: ceiling.state === "calculado" && warnings.length === 0, warnings };
 }
+
+/** LOTE 9 — avaliação calculada no banco (`meal_order_ceiling_evaluation`, congelada no ato). A tela só a explica. */
+export type ServerCeilingLine = {
+  linha: number; item_ref: string; estado: "calculado" | "pendente"; faltas: string[]; solicitado: number | null;
+  per_capita: number | null; per_capita_registro: string | null; per_capita_versao: number | null;
+  publico_atendido: number | null; dias_letivos: number | null; estoque: number | null; bruto: number | null; teto: number | null;
+  excede: boolean | null; justificativa_excesso: string | null; formula: string;
+};
+export type AuthorizationNeeds = { ackRequired: boolean; exceeding: number[]; blocked: string | null };
+/** Nunca autoriza em silêncio: pendente ⇒ ciência; excesso calculado ⇒ justificativa por linha (≥10 caracteres). */
+export function authorizationNeeds(lines: readonly ServerCeilingLine[]): AuthorizationNeeds {
+  if (lines.length === 0) return { ackRequired: false, exceeding: [], blocked: "Pedido sem itens avaliados." };
+  return {
+    ackRequired: lines.some((l) => l.estado === "pendente"),
+    exceeding: lines.filter((l) => l.excede === true && (l.justificativa_excesso ?? "").trim().length < 10).map((l) => l.linha),
+    blocked: null,
+  };
+}
+export function explainServerLine(l: ServerCeilingLine): string {
+  if (l.estado === "pendente") return `Teto não calculável: ${l.faltas.join("; ")}.`;
+  return `${l.per_capita} × ${l.publico_atendido} × ${l.dias_letivos} = ${l.bruto} − estoque ${l.estoque} ⇒ teto ${l.teto}${l.excede ? ` · pedido ${l.solicitado} excede` : ""}.`;
+}

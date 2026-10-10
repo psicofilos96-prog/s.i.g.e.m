@@ -2052,6 +2052,20 @@
       "when": 1791671030322,
       "tag": "0292_sia_corrections_op_board",
       "breakpoints": true
+    },
+    {
+      "idx": 293,
+      "version": "7",
+      "when": 1791671970670,
+      "tag": "0293_meal_ceiling_evaluation_samples",
+      "breakpoints": true
+    },
+    {
+      "idx": 294,
+      "version": "7",
+      "when": 1791672173168,
+      "tag": "0294_meal_food_samples_revoke",
+      "breakpoints": true
     }
   ]
 }

@@ -48,6 +48,7 @@ export function coverage(rows: readonly DayRow[]) {
 export const shown = (v: number | null) => (v === null ? "não informado" : String(v));
 
 export function mealMessage(raw: string): string {
+  if (raw.includes("ceiling-exceeded")) return "O pedido excede o teto calculado: justifique cada item acima do teto.";
   if (raw.includes("ceiling-ack-required")) return "Autorizar sem teto calculado exige registrar a ciência (mínimo de 10 caracteres).";
   if (raw.includes("session-required")) return "Sua sessão expirou. Entre novamente.";
   if (raw.includes("capability:consultar-restricao-alimentar")) return "Restrições alimentares exigem permissão própria nesta escola.";

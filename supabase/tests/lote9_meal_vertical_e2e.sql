@@ -1,6 +1,6 @@
--- NAE.8 — E2E transacional da cadeia de Alimentação Escolar no banco canônico. Termina em RAISE: nada persiste.
+-- LOTE 9 — cadeia vertical com teto calculado no banco, NF, amostras e inspetores (derivado do NAE.8). E2E transacional da cadeia de Alimentação Escolar no banco canônico. Termina em RAISE: nada persiste.
 -- Pessoas/usuários sintéticos (prefixo NAE8) e dublê transacional de effective_scope_capabilities (padrão ac2) desfeitos pelo rollback.
--- Só writers/readers canônicos; nenhum DML direto em meal_*. Sucesso = 'nae8-e2e-ok: ...'.
+-- Só writers/readers canônicos; nenhum DML direto em meal_*. Sucesso = 'lote9-e2e-ok: ...'. Executado em 2026-10-10 (PASS); a execução registrada foi a versão enxuta deste roteiro (blocos 0–6, 9, 9b, 9c, 11).
 DO $t$
 DECLARE _ok text := ''; td date := (now() AT TIME ZONE 'America/Sao_Paulo')::date; tz text := 'America/Sao_Paulo';
   comp text; prev text; s1 text; s2 text; n int; n0 int; x numeric; r record; sha1 text; sha2 text;
@@ -12,7 +12,7 @@ DECLARE _ok text := ''; td date := (now() AT TIME ZONE 'America/Sao_Paulo')::dat
   pT uuid := gen_random_uuid(); uT uuid := gen_random_uuid();   -- órgão/ator técnico (não pessoa natural)
   pH uuid := gen_random_uuid(); uH uuid := gen_random_uuid();   -- homologação técnica (≠ autor e ≠ conferente)
   item uuid; unit uuid; unit2 uuid; cat uuid; ficha uuid; doc uuid; win uuid; ord uuid; sc1 uuid; sc2 uuid; sc3 uuid;
-  rc1 uuid; rc2 uuid; rc3 uuid; nc uuid; cnt uuid; ex uuid; mv uuid;
+  rc1 uuid; rc2 uuid; rc3 uuid; pub uuid; pcap uuid; forn uuid; nf uuid; insp uuid; am uuid; ev jsonb; ln jsonb; nc uuid; cnt uuid; ex uuid; mv uuid;
 BEGIN
   comp := to_char(td, 'YYYY-MM'); prev := to_char(td - interval '1 month', 'YYYY-MM');
   SELECT id INTO s1 FROM public.institutional_schools ORDER BY id LIMIT 1;
@@ -37,7 +37,7 @@ BEGIN
   INSERT INTO nae8_caps SELECT uO, c, 'escola', s2 FROM unnest(ARRAY['registrar-estoque-alimentar','submeter-pedido-alimentar']) c;
   INSERT INTO nae8_caps SELECT uN, c, 'rede', NULL FROM unnest(ARRAY['manter-catalogo-tecnico-alimentar','manter-planejamento-nutricional',
       'gerir-documentos-alimentacao','administrar-janela-de-pedido-alimentar','analisar-pedido-alimentar','autorizar-pedido-alimentar',
-      'consolidar-demanda-alimentar','registrar-programacao-de-entrega-alimentar','acompanhar-alimentacao-rede','fechar-estoque-alimentar']) c;
+      'consolidar-demanda-alimentar','registrar-programacao-de-entrega-alimentar','acompanhar-alimentacao-rede','fechar-estoque-alimentar','manter-parametros-nutricionais','manter-referencias-contratuais-alimentacao','designar-inspetor-alimentacao']) c;
   INSERT INTO nae8_caps VALUES (uC,'conferir-conteudo-tecnico-alimentar','rede',NULL),(uH,'homologar-conteudo-tecnico-alimentar','rede',NULL);
   INSERT INTO nae8_caps VALUES (uT,'registrar-estoque-alimentar','escola',s1);
   GRANT SELECT ON nae8_caps TO authenticated;
@@ -80,18 +80,33 @@ BEGIN
   cat := public.record_meal_master('categoria-de-refeicao', NULL, NULL, 'registro', jsonb_build_object('rotulo','Categoria sintética'), NULL, td - 30, NULL, NULL);
   ficha := public.record_meal_master('receita-ficha-tecnica', NULL, NULL, 'registro', jsonb_build_object('nome','Ficha sintética','ingredientes', jsonb_build_array(jsonb_build_object('item_ref', item, 'quantidade', 0.05))), NULL, td - 30, NULL, NULL);
   doc := public.record_meal_master('documento-tecnico', NULL, NULL, 'registro', jsonb_build_object('titulo','Evidência sintética','categoria','recebimento','natureza','evidencia','sha256', repeat('a',64)), NULL, td - 30, NULL, NULL);
+  pub := public.record_meal_master('publico-de-atendimento', NULL, NULL, 'registro', jsonb_build_object('rotulo','Público sintético L9'), NULL, td - 30, NULL, NULL);
+  forn := public.record_meal_master('fornecedor', NULL, NULL, 'registro', jsonb_build_object('nome','Fornecedor sintético L9'), NULL, td - 30, NULL, NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,1,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'conferencia'), 'self-review-not-allowed');
   PERFORM pg_temp.nae8_as(uC);
-  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc] LOOP
+  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc, pub, forn] LOOP
     PERFORM public.record_meal_master((SELECT m.kind FROM public.meal_master_records m WHERE m.logical_id = mv LIMIT 1), mv, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
   END LOOP;
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'self-review-not-allowed');
   PERFORM pg_temp.nae8_as(uH);
-  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc] LOOP
+  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc, pub, forn] LOOP
     PERFORM public.record_meal_master((SELECT m.kind FROM public.meal_master_records m WHERE m.logical_id = mv LIMIT 1), mv, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
   END LOOP;
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'meal:stale');
-  _ok := _ok || 'base-mestra,autor≠homologador,stale;';
+  -- referências do per capita precisam estar homologadas antes do registro
+  PERFORM pg_temp.nae8_as(uN);
+  pcap := public.record_meal_master('parametro-per-capita', NULL, NULL, 'registro', jsonb_build_object('quantidade',0.1,'item_ref',item,'publico_ref',pub,'unidade_ref',unit), NULL, td - 30, NULL, NULL);
+  insp := public.record_meal_master('designacao-inspetor', NULL, NULL, 'registro', jsonb_build_object('pessoa_id',pS), s1, td - 30, NULL, NULL);
+  PERFORM pg_temp.nae8_as(uC);
+  PERFORM public.record_meal_master('parametro-per-capita', pcap, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
+  PERFORM public.record_meal_master('designacao-inspetor', insp, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
+  PERFORM pg_temp.nae8_as(uH);
+  PERFORM public.record_meal_master('parametro-per-capita', pcap, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
+  PERFORM public.record_meal_master('designacao-inspetor', insp, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
+  IF NOT public.meal_master_homologated(insp, 'designacao-inspetor', td) THEN RAISE EXCEPTION 'falha: inspetor não homologado'; END IF;
+  PERFORM pg_temp.nae8_as(uS);
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,NULL,NULL,%L,%L::jsonb,%L,%L,NULL,NULL)','designacao-inspetor','registro',jsonb_build_object('pessoa_id',pO),s1,td), 'capability');
+  _ok := _ok || 'base-mestra,autor≠homologador,stale,inspetor-designado,inspetor-sem-cap;';
 
   -- 2. janela: regra institucional ausente recusa; abertura explícita registra
   PERFORM pg_temp.nae8_as(uN);
@@ -102,7 +117,7 @@ BEGIN
   PERFORM pg_temp.nae8_as(uO);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_order(NULL,NULL,%L,%L,%L,%L::jsonb,NULL)','rascunho',s1,comp,'[]'), 'capability:submeter-pedido-alimentar');
   PERFORM pg_temp.nae8_as(uS);
-  ord := public.record_meal_order(NULL, NULL, 'rascunho', s1, comp, jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'quantidade',100)), NULL);
+  ord := public.record_meal_order(NULL, NULL, 'rascunho', s1, comp, jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'publico_ref',pub,'quantidade',100,'publico_atendido',10,'publico_base','declaração sintética','dias_letivos',20,'dias_base','calendário sintético')), NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_order(NULL,NULL,%L,%L,%L,%L::jsonb,NULL)','rascunho',s1,comp,'[]'), 'order-exists-use-base');
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_order(%L,7,%L,NULL,NULL,NULL,NULL)',ord,'submissao'), 'meal:stale');
   PERFORM public.record_meal_order(ord, 1, 'submissao', NULL, NULL, NULL, NULL);
@@ -110,7 +125,11 @@ BEGIN
   PERFORM pg_temp.nae8_as(uN);
   PERFORM public.record_meal_order(ord, 2, 'analise', NULL, NULL, NULL, NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_order(%L,3,%L,NULL,NULL,%L::jsonb,NULL)',ord,'autorizacao',jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'quantidade',80))), 'reason-required');
-  PERFORM public.record_meal_order_with_ceiling(ord, 3, 'autorizacao', NULL, NULL, jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'quantidade',80)), 'Autorização parcial sintética', 'Teto pendente conferido (0290/0293)');
+  ln := jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'publico_ref',pub,'quantidade',80,'publico_atendido',10,'dias_letivos',20));
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_order(%L,3,%L,NULL,NULL,%L::jsonb,%L)',ord,'autorizacao',ln,'Autorização parcial'), 'ceiling-ack-required');
+  PERFORM public.record_meal_order_with_ceiling(ord, 3, 'autorizacao', NULL, NULL, ln, 'Autorização parcial sintética', 'Estoque sem registro conferido manualmente');
+  SELECT ceiling_evaluation INTO ev FROM public.meal_order_versions WHERE logical_id = ord ORDER BY version DESC LIMIT 1;
+  IF ev->'linhas'->0->>'estado' <> 'pendente' OR (ev->'linhas'->0->>'per_capita')::numeric <> 0.1 OR NOT (ev->'linhas'->0->'faltas') ? 'estoque sem registro no livro (desconhecido, não zero)' THEN RAISE EXCEPTION 'falha: avaliação congelada %', ev; END IF;
   IF (SELECT status FROM public.meal_order_versions WHERE logical_id = ord ORDER BY version DESC LIMIT 1) <> 'autorizado-parcial' THEN RAISE EXCEPTION 'falha: autorização parcial'; END IF;
   _ok := _ok || 'janela,regra-ausente,pedido,idor,cap-ausente,autorizacao-parcial;';
 
@@ -129,7 +148,12 @@ BEGIN
   -- 6. recebimentos integral/parcial/rejeitado; aceite idempotente; rejeitado não entra no estoque
   PERFORM pg_temp.nae8_as(uS);
   rc1 := public.record_meal_receipt(NULL, NULL, 'confirmacao', sc1, now() - interval '5 minutes', tz, 40, 40, 0, 'L1', td + 90, NULL, NULL, NULL, NULL, NULL, NULL, ARRAY['doc:'||doc], NULL, NULL);
-  rc2 := public.record_meal_receipt(NULL, NULL, 'confirmacao', sc2, now() - interval '4 minutes', tz, 20, 20, 0, 'L2', td + 60, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_fiscal_document(NULL,NULL,%L,NULL,%L,%L,%L,%L,%L,NULL,NULL)','recebido',sc2,'NF-L9',forn,td,'abc'), 'hash-required');
+  nf := public.record_meal_fiscal_document(NULL, NULL, 'recebido', NULL, sc2, 'NF-L9-0001', forn, td, repeat('c',64), 'alimentacao-evidencias/sintetico-l9', NULL);
+  PERFORM pg_temp.nae8_as(uO);
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_fiscal_document(NULL,NULL,%L,NULL,%L,%L,%L,%L,%L,NULL,NULL)','recebido',sc2,'NF-B',forn,td,repeat('d',64)), 'capability:conferir-recebimento-alimentar');
+  PERFORM pg_temp.nae8_as(uS);
+  rc2 := public.record_meal_receipt(NULL, NULL, 'confirmacao', sc2, now() - interval '4 minutes', tz, 30, 20, 10, 'L2', td + 60, NULL, NULL, NULL, NULL, NULL, nf, NULL, NULL, NULL);
   rc3 := public.record_meal_receipt(NULL, NULL, 'confirmacao', sc3, now() - interval '3 minutes', tz, 10, 0, 10, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_receipt(NULL,NULL,%L,%L,now(),%L,40,40,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','confirmacao',sc1,tz), 'receipt-exists-use-base');
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_receipt(%L,1,%L,NULL,now(),%L,40,30,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,%L)',rc1,'retificacao',tz,'x'), 'quantities-inconsistent');
@@ -139,6 +163,7 @@ BEGIN
   IF EXISTS (SELECT 1 FROM public.meal_inventory_movements WHERE source_receipt_version_id IN (SELECT id FROM public.meal_receipts WHERE logical_id = rc3)) THEN RAISE EXCEPTION 'falha: rejeitado entrou no estoque'; END IF;
   SELECT sum(balance) INTO x FROM public.meal_stock_lines(s1, 'infinity'::date, now()) WHERE item_value_id = 'nae8-arroz';
   IF x <> 60 THEN RAISE EXCEPTION 'falha: saldo após aceite %', x; END IF;
+  _ok := _ok || 'nf-privada,nf-hash,nf-idor,entrega-parcial;';
   _ok := _ok || 'recebimentos,aceite-idempotente,rejeitado-fora;';
 
   -- 7. não conformidade sobre o rejeitado
@@ -175,6 +200,30 @@ BEGIN
   SELECT sum(balance) INTO x FROM public.meal_stock_lines(s1, 'infinity'::date, now()) WHERE item_value_id = 'nae8-arroz';
   IF x <> 54 THEN RAISE EXCEPTION 'falha: saldo após consumo %', x; END IF;
   _ok := _ok || 'execucao,planejado≠executado,refeicoes≠alunos,consumo-unico,retificacao;';
+
+  -- 9b. teto CALCULADO (estoque agora conhecido): 0.1×10×20 = 20 − 54 ⇒ teto 0; excesso sem justificativa é recusado
+  PERFORM pg_temp.nae8_as(uN);
+  ln := jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'publico_ref',pub,'quantidade',80,'publico_atendido',10,'dias_letivos',20));
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_order_with_ceiling(%L,4,%L,NULL,NULL,%L::jsonb,%L,NULL)',ord,'retificacao',ln,'Retificação'), 'ceiling-exceeded');
+  ln := jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'publico_ref',pub,'quantidade',80,'publico_atendido',10,'dias_letivos',20,'justificativa_excesso','Reposição de entrega rejeitada'));
+  PERFORM public.record_meal_order_with_ceiling(ord, 4, 'retificacao', NULL, NULL, ln, 'Retificação com justificativa', NULL);
+  SELECT ceiling_evaluation INTO ev FROM public.meal_order_versions WHERE logical_id = ord ORDER BY version DESC LIMIT 1;
+  IF ev->'linhas'->0->>'estado' <> 'calculado' OR (ev->'linhas'->0->>'bruto')::numeric <> 20 OR (ev->'linhas'->0->>'teto')::numeric <> 0 OR (ev->'linhas'->0->>'excede')::boolean IS NOT TRUE THEN RAISE EXCEPTION 'falha: teto calculado %', ev; END IF;
+  _ok := _ok || 'teto-calculado,excesso-recusado,justificativa-congelada;';
+
+  -- 9c. amostras/etiquetas: coleta, outra escola recusada, descarte, stale, descarte duplo
+  PERFORM pg_temp.nae8_as(uS);
+  am := public.record_meal_food_sample(NULL, NULL, 'coleta', s1, td, 'nae8-almoco', 'Arroz com lentilha', 72, 4, NULL, NULL);
+  IF (SELECT sample_code FROM public.meal_food_samples WHERE logical_id = am) !~ '^AM-[0-9A-F]{10}$' THEN RAISE EXCEPTION 'falha: código da amostra'; END IF;
+  IF (SELECT count(*) FROM public.meal_food_samples_at(s1, td, td)) <> 1 THEN RAISE EXCEPTION 'falha: leitura amostra'; END IF;
+  PERFORM pg_temp.nae8_as(uO);
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_food_sample(NULL,NULL,%L,%L,%L,%L,%L,NULL,NULL,NULL,NULL)','coleta',s1,td,'x','y'), 'capability');
+  PERFORM pg_temp.nae8_fail(format('SELECT * FROM public.meal_food_samples_at(%L,%L,%L)',s1,td,td), 'capability');
+  PERFORM pg_temp.nae8_as(uS);
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_food_sample(%L,9,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)',am,'descarte'), 'meal:stale');
+  PERFORM public.record_meal_food_sample(am, 1, 'descarte', NULL, NULL, NULL, NULL, NULL, NULL, 'Descarte após retenção', NULL);
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_food_sample(%L,2,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)',am,'descarte'), 'sample-discarded');
+  _ok := _ok || 'amostra,etiqueta,amostra-idor,descarte,stale;';
 
   -- 10. inventário divergente: justificativa, aprovador distinto, ajuste ligado à contagem
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_count(NULL,NULL,%L,%L,%L,%L::jsonb,NULL)','conferida',s1,td,'[{"item_value_id":"nae8-arroz","unit_value_id":"nae8-kg","fisica":53}]'), 'divergence-requires-justification');
@@ -223,5 +272,5 @@ BEGIN
   _ok := _ok || 'revogacao;';
 
   RESET ROLE;
-  RAISE EXCEPTION 'nae8-e2e-ok: %', _ok;
+  RAISE EXCEPTION 'lote9-e2e-ok: %', _ok;
 END $t$;

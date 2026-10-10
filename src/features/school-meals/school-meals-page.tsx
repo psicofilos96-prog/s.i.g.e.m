@@ -1,4 +1,5 @@
 import { callRpc } from "@/lib/rpc-call";
+import { SamplesSection } from "./samples-section";
 import { Link } from "@tanstack/react-router";
 import { operationalToday, monthBounds, operationalMonthKey } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -82,6 +83,7 @@ export function SchoolMealsPage() {
             <div id="pedidos" className="scroll-mt-16" /><div id="autorizacoes" /><div id="consolidacao" />{(canReviewOrders || school) && <OrdersSection key={`o|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <div id="entregas" className="scroll-mt-16" /><div id="nao-conformidades" /><div id="documentos" />{(canReviewOrders || school) && <ReceivingSection key={`r|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <div id="estoque" className="scroll-mt-16" />{school && <StockSection key={`s|${school}`} school={school} />}
+            <div id="amostras" className="scroll-mt-16" />{school && <SamplesSection key={`am|${school}`} school={school} schoolName={schools.find((x) => x.id === school)?.name ?? school} />}
             <div id="fechamento" className="scroll-mt-16" />{school && <ClosingSection key={`c|${school}`} school={school} />}
             {(canNetwork || school) && <ReportingCenter key={`rep|${school}|${canNetwork}`} network={canNetwork} defaultSchool={school} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <p className="text-sm"><Link className="underline" to="/alimentacao-escolar/cozinha">Abrir Estação Cozinha</Link></p>
