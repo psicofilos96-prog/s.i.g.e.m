@@ -1,4 +1,4 @@
-export type Reading = { state: "loading" } | { state: "error" } | { state: "ok"; value: number | null; partial?: boolean };
+export type Reading = { state: "loading" } | { state: "error" } | { state: "ok"; value: number | null; partial?: boolean | undefined };
 
 /** Falha ou ausência nunca aparecem como zero. */
 export function readingValue(r: Reading): string {
