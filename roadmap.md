@@ -626,3 +626,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] R3: regras de inspetores, amostras/custódia, CAE mínimo, revisão nutricional, SAEB/risco (testadas, sem tela)
 - [ ] R3: dossiê anual com assinaturas e QR, telas de inspetores/CAE/SAEB/devolutivas, gravação no banco
 - [ ] Login: botão de conta institucional (sem provedor configurado), clima (sem fonte), "Lembrar de mim"
+- [x] Trocar brasão da tela de entrada pelo enviado (com borda)
