@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 // @ts-expect-error módulo .mjs de script técnico
 import { parseAudit, verdict } from "../../../scripts/audit2026-master.mjs";
 
-const sql = readFileSync("scripts/audit2026/master-audit.sql", "utf8");
+const sql = readFileSync("scripts/audit2026/master-audit.sql", "utf8").replace(/--.*$/gm, "");
 
 describe("AUD2026.MASTER — auditoria mestre 2026", () => {
   it("é somente leitura (nenhum DML/DDL)", () => {
