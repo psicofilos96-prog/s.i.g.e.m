@@ -126,10 +126,13 @@ export async function toXlsx(result: ReportResult, branding: Branding, meta: rea
 
 const html = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 /** PDF = documento HTML imprimível, com escape total (sem HTML do usuário). */
+/** Bordas vetoriais em pt (≥0,75pt, preto, separate+spacing 0): linhas de 1px cinza com collapse somem ao reduzir o zoom do PDF. */
+export const PRINT_BORDER = "0.75pt solid #222";
+export const PRINT_TABLE_CSS = `@page{size:A4;margin:14mm 12mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}body{font-family:serif;margin:0;overflow-wrap:anywhere;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:16px}table{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed;border-top:${PRINT_BORDER};border-left:${PRINT_BORDER}}thead{display:table-header-group}tr{page-break-inside:avoid;break-inside:avoid}td,th{border-right:${PRINT_BORDER};border-bottom:${PRINT_BORDER};padding:4px;font-size:11px;text-align:left;vertical-align:top;overflow-wrap:anywhere}`;
 export function toPrintableHtml(result: ReportResult, branding: Branding, meta: readonly string[] = [], fingerprint?: string): string {
   const logo = branding.logoUrl && /^https:\/\//.test(branding.logoUrl) ? `<img src="${html(branding.logoUrl)}" alt="" style="height:48px">` : "";
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${html(branding.title)}</title>
-<style>@page{size:A4;margin:14mm 12mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}body{font-family:serif;margin:0;overflow-wrap:anywhere}h1{font-size:16px}table{border-collapse:collapse;width:100%;table-layout:fixed}thead{display:table-header-group}tr{page-break-inside:avoid}td,th{border:1px solid #999;padding:4px;font-size:11px;text-align:left;vertical-align:top;overflow-wrap:anywhere}</style></head><body>
+<style>${PRINT_TABLE_CSS}</style></head><body>
 ${logo}${branding.headerLines.map((l) => `<div>${html(l)}</div>`).join("")}<h1>${html(branding.title)}</h1>
 ${meta.map((m) => `<p>${html(m)}</p>`).join("")}
 <table><thead><tr>${result.columns.map((c) => `<th>${html(c.label)}</th>`).join("")}</tr></thead><tbody>
