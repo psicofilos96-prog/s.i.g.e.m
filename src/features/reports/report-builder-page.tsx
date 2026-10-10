@@ -27,6 +27,8 @@ const DER_LABEL: Record<Derived, string> = { percentual: "Percentual (a / b)", d
 const CHART_LABEL: Record<ChartKind, string> = { barras: "Barras", "barras-horizontais": "Barras horizontais", "barras-empilhadas": "Barras empilhadas", linha: "Linha", area: "Área", donut: "Rosca (composição)", dispersao: "Dispersão", ranking: "Ranking (descritivo)" };
 const emptyOrg = (): Organization => ({ groupBy: [], measures: [{ id: "n", label: "Quantidade", agg: "count", column: null }], derived: [], sort: [], subtotals: false, grandTotal: true });
 
+/** Sem sessão não há leitura de fonte nem exportação: dado privado nunca sai anonimamente. */
+export const ANON_BLOCK = "Entre com sua conta para ler a fonte e emitir. Sem login não há leitura de dados nem relatório de trabalho.";
 function save(name: string, blob: Blob) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
 
 export function ReportBuilder() {
@@ -93,6 +95,7 @@ export function ReportBuilder() {
   }
   async function read() {
     if (!src || busy) return;
+    if (!cloud) { setErr(ANON_BLOCK); return; }
     const seq = ++readSeq.current; setBusy(true); setErr(null);
     try {
       let col = await collectAll(src, choice.from, choice.to);
@@ -108,11 +111,12 @@ export function ReportBuilder() {
   const methodology = () => src ? [`Assunto: ${src.title} (v${src.definition.version})`, `Fonte: ${src.definition.source}`, `Metodologia: ${src.methodology}`, `Acesso: ${src.acl}`, ...(analysis?.chart ? [analysis.chart.methodology] : [])] : [];
   async function exportAs(fmt: "csv" | "xlsx" | "pdf") {
     if (!src || !result || !data || !analysis) return;
+    if (!cloud) { setErr(ANON_BLOCK); return; }
     if (data.truncated) { setErr("Leitura incompleta (limite de linhas atingido): restrinja o período antes de exportar."); return; }
     const meta = provenance(src, choice, data, SECTOR_LABEL[sector]);
     const base = `${src.definition.id}-${operationalToday()}`;
     let code: string | null = null;
-    if (cloud) {
+    {
       // Emissão registrada ANTES do download: sem trilha não há arquivo emitido.
       try {
         const sha = await fingerprint(result);
@@ -122,7 +126,7 @@ export function ReportBuilder() {
         setLastEmission({ code, cmp: reissueComparison(e.original_sha256 ?? null, sha) }); setReissueOf(null); void refreshEmissions();
       } catch (e) { setErr(`Emissão não registrada; nada foi baixado. ${governError(e).userMessage}`); return; }
     }
-    const meta2 = code ? [...meta, `Código de verificação: ${code} (${window.location.origin}/verificar/relatorio/${code})`] : [...meta, "Sem login: relatório de trabalho, sem registro de emissão."];
+    const meta2 = code ? [...meta, `Código de verificação: ${code} (${window.location.origin}/verificar/relatorio/${code})`] : meta;
     if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(result, { headerLines: spec.layout.headerLines, title: spec.layout.title || src.title }, meta2)], { type: "text/csv;charset=utf-8" }));
     else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toStudioXlsx(result, spec, meta2, analysis, methodology())]));
     else {
