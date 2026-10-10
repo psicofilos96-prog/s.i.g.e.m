@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageHeader } from "@/components/sigem/patterns";
 import { useMemo, useState } from "react";
 import qrcode from "qrcode-generator";
 import jsQR from "jsqr";
@@ -62,9 +63,9 @@ function Page() {
   };
 
   return (
-    <main className="mx-auto max-w-5xl space-y-6 p-6">
+    <div className="mx-auto max-w-5xl space-y-6 p-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold text-foreground">Cartão-resposta e conferência</h1>
+        <PageHeader title="Cartão-resposta e conferência" />
         <p className="text-sm text-muted-foreground">Imprima o cartão, depois envie a imagem escaneada ou bem enquadrada pelos quatro quadrados pretos. Fotos inclinadas são endireitadas pelos quatro quadrados; sem eles a leitura é recusada. Toda leitura passa por conferência sua.</p>
       </header>
       <section className="flex flex-wrap items-end gap-3">
@@ -80,7 +81,7 @@ function Page() {
           {photo && <img src={photo} alt="Cartão enviado" className="w-full rounded border border-border" />}
           <div className="space-y-2">
             <table className="w-full text-sm">
-              <thead><tr className="text-left"><th>Questão</th><th>Leitura</th><th>Decisão</th></tr></thead>
+              <thead><tr className="text-left"><th scope="col">Questão</th><th scope="col">Leitura</th><th scope="col">Decisão</th></tr></thead>
               <tbody>{reads.map((r) => (
                 <tr key={r.question} className="border-t border-border">
                   <td className="py-1">{r.question}</td>
@@ -99,6 +100,6 @@ function Page() {
         </section>
       )}
       <CorrectionPanel />
-    </main>
+    </div>
   );
 }

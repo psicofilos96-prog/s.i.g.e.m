@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { PageHeader } from "@/components/sigem/patterns";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cellKey, printFinalSheet, projectFinalSheet, resultMinutes, type Modality, type SheetCell, type SheetInput } from "@/features/diary/final-sheet";
@@ -50,9 +51,9 @@ function Page() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-semibold text-foreground">Folha Final, Boletim e Ata</h1>
+        <PageHeader title="Folha Final, Boletim e Ata" />
         <p className="text-sm text-muted-foreground">Cálculo pelas regras dos modelos de diário da rede (média ≥ 50; EJA também frequência ≥ 75%). Esta tela usa estudantes sintéticos: nada é gravado e nenhum resultado é oficial.</p>
       </header>
 
@@ -69,7 +70,7 @@ function Page() {
           <div className="overflow-x-auto rounded-md border border-border">
             <table className="w-full text-sm">
               <thead className="bg-muted text-left">
-                <tr><th className="p-2">Estudante</th><th className="p-2">Componente</th>{periods.map((p) => <th key={p} className="p-2">{p}</th>)}<th className="p-2">Rec. final</th><th className="p-2">Aulas dadas</th><th className="p-2">Faltas</th><th className="p-2">Média</th><th className="p-2">Freq.</th><th className="p-2">Situação</th></tr>
+                <tr><th scope="col" className="p-2">Estudante</th><th scope="col" className="p-2">Componente</th>{periods.map((p) => <th scope="col" key={p} className="p-2">{p}</th>)}<th scope="col" className="p-2">Rec. final</th><th scope="col" className="p-2">Aulas dadas</th><th scope="col" className="p-2">Faltas</th><th scope="col" className="p-2">Média</th><th scope="col" className="p-2">Freq.</th><th scope="col" className="p-2">Situação</th></tr>
               </thead>
               <tbody>
                 {sheet.rows.flatMap((r) => r.components.map((c, ci) => {
@@ -106,6 +107,6 @@ function Page() {
           </section>
         </>
       )}
-    </main>
+    </div>
   );
 }

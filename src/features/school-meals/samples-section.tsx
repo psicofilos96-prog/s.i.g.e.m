@@ -1,4 +1,6 @@
 /** LOTE 9 — amostras de alimentos com etiqueta imprimível (código opaco, sem dado pessoal). Grava só por `record_meal_food_sample`. */
+import { LoadingState } from "@/components/sigem/states";
+import { DateInput } from "@/components/sigem/date-input";
 import { useCallback, useEffect, useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
@@ -35,8 +37,8 @@ export function SamplesSection({ school, schoolName }: { school: string; schoolN
   return (
     <section aria-labelledby="amostras" className="space-y-3 rounded border p-3 text-sm">
       <h2 id="amostras" className="font-semibold">Amostras e etiquetas</h2>
-      <label className="block max-w-xs">Dia<input type="date" className={field} value={day} onChange={(e) => setDay(e.target.value)} /></label>
-      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <p className="text-muted-foreground">Carregando…</p> : (<>
+      <label className="block max-w-xs">Dia<DateInput className={field} value={day} onChange={(e) => setDay(e.target.value)} /></label>
+      {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <LoadingState /> : (<>
         {rows.length === 0 ? <p className="text-muted-foreground">Nenhuma amostra neste dia.</p> : (
           <ul className="divide-y">{rows.map((s) => <li key={s.logical_id} className="flex flex-wrap items-center justify-between gap-2 py-1"><span>{s.sample_code} · {s.meal_slot} · {s.preparation}{s.event === "descarte" ? " · descartada" : ""}</span>
             <span className="flex gap-2"><Button size="sm" variant="outline" onClick={() => print([s])}>Etiqueta</Button>{s.event !== "descarte" && <Button size="sm" variant="ghost" onClick={() => void discard(s)}>Registrar descarte</Button>}</span></li>)}</ul>)}

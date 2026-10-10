@@ -1,4 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { operationalToday } from "@/lib/academic-date";
+import { DateInput } from "@/components/sigem/date-input";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -15,7 +17,7 @@ export const Route = createFileRoute("/diario_/regras-folha-final")({
 
 const MOD: Record<string, string> = { "fundamental-anos-iniciais": "Fundamental I", "fundamental-anos-finais": "Fundamental II", eja: "EJA (semestral)" };
 const field = "mt-1 block w-full rounded border bg-background p-2 text-sm";
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 
 function Page() {
   const { user, loading } = useSessionUser();
@@ -26,9 +28,9 @@ function Page() {
   const load = useCallback(async () => { try { setRules(await readRules()); } catch { setRules([]); setMsg("Não foi possível ler as regras."); } }, []);
   useEffect(() => { if (user) void load(); }, [user, load]);
 
-  if (loading) return <main className="p-4"><SkeletonState label="Verificando sessão" /></main>;
-  if (!user) return <main className="mx-auto max-w-3xl space-y-3 p-4"><h1 className="text-xl font-semibold">Regras da Folha Final</h1>
-    <StatePanel tone="warning" title="Entre para usar" description="As regras de resultado só são lidas e gravadas com login." /><Link className="underline" to="/auth">Entrar</Link></main>;
+  if (loading) return <div className="p-4"><SkeletonState label="Verificando sessão" /></div>;
+  if (!user) return <div className="mx-auto max-w-3xl space-y-3 p-4"><h1 className="text-xl font-semibold">Regras da Folha Final</h1>
+    <StatePanel tone="warning" title="Entre para usar" description="As regras de resultado só são lidas e gravadas com login." /><Link className="underline" to="/auth">Entrar</Link></div>;
 
   async function run(fn: () => Promise<unknown>, ok: string) {
     setBusy(true); setMsg(null);
@@ -48,7 +50,7 @@ function Page() {
   const canDraft = f.label.trim() && f.from && f.pass.trim() && f.source.trim() && !busy;
 
   return (
-    <main className="mx-auto max-w-5xl space-y-4 p-4 text-sm">
+    <div className="mx-auto max-w-5xl space-y-4 p-4 text-sm">
       <h1 className="text-xl font-semibold">Regras de resultado da Folha Final</h1>
       <p className="text-muted-foreground">Cada regra vale para uma modalidade (e, se informado, um ano letivo) dentro da vigência. Quem escreve não homologa: a homologação é de outra pessoa e não muda parâmetros. Sem regra homologada e vigente, a Folha Final mostra médias e não emite resultado. <Link className="underline" to="/diario/folha-final">Voltar à Folha Final</Link></p>
       {msg && <p role="status">{msg}</p>}
@@ -59,8 +61,8 @@ function Page() {
           <label>Nome da regra<input className={field} value={f.label} onChange={(e) => setF({ ...f, label: e.target.value })} /></label>
           <label>Modalidade<select className={field} value={f.modality} onChange={(e) => setF({ ...f, modality: e.target.value })}>{Object.entries(MOD).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
           <label>Ano letivo (vazio = todos)<input className={field} value={f.year} onChange={(e) => setF({ ...f, year: e.target.value })} /></label>
-          <label>Vigente a partir de<input type="date" className={field} value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} /></label>
-          <label>Vigente até (opcional)<input type="date" className={field} value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} /></label>
+          <label>Vigente a partir de<DateInput className={field} value={f.from} onChange={(e) => setF({ ...f, from: e.target.value })} /></label>
+          <label>Vigente até (opcional)<DateInput className={field} value={f.to} onChange={(e) => setF({ ...f, to: e.target.value })} /></label>
           <label>Nota mínima de aprovação (0–100)<input inputMode="decimal" className={field} value={f.pass} onChange={(e) => setF({ ...f, pass: e.target.value })} /></label>
           <label>Frequência mínima % (vazio = não exigida)<input inputMode="decimal" className={field} value={f.att} onChange={(e) => setF({ ...f, att: e.target.value })} /></label>
           <label>Fonte da regra (documento, deliberação ou decisão)<input className={field} value={f.source} onChange={(e) => setF({ ...f, source: e.target.value })} /></label>
@@ -70,7 +72,7 @@ function Page() {
       <section aria-labelledby="lista" className="space-y-2">
         <h2 id="lista" className="font-medium">Regras</h2>
         {rules === null ? <SkeletonState label="Lendo regras" /> : heads.length === 0 ? <p className="text-muted-foreground">Nenhuma regra cadastrada. Sem regra homologada, nenhuma Folha Final emite resultado.</p> :
-          <div className="overflow-auto rounded border"><table className="w-full text-left text-xs"><thead className="bg-muted"><tr><th className="p-1">Regra</th><th className="p-1">Modalidade / ano</th><th className="p-1">Vigência</th><th className="p-1">Parâmetros</th><th className="p-1">Fonte</th><th className="p-1">Situação</th><th className="p-1">Ação</th></tr></thead>
+          <div className="overflow-auto rounded border"><table className="w-full text-left text-xs"><thead className="bg-muted"><tr><th scope="col" className="p-1">Regra</th><th scope="col" className="p-1">Modalidade / ano</th><th scope="col" className="p-1">Vigência</th><th scope="col" className="p-1">Parâmetros</th><th scope="col" className="p-1">Fonte</th><th scope="col" className="p-1">Situação</th><th scope="col" className="p-1">Ação</th></tr></thead>
             <tbody>{heads.map((r) => <tr key={r.id} className="border-t">
               <td className="p-1">{r.label} · v{r.version}<br /><span className="text-muted-foreground">{r.logical_id}</span></td>
               <td className="p-1">{MOD[r.scope.modality ?? ""] ?? r.scope.modality} / {r.scope.year ?? "todos"}</td>
@@ -81,6 +83,6 @@ function Page() {
               <td className="p-1">{r.status === "rascunho" && <Button size="sm" disabled={busy || r.author_id === user.id} title={r.author_id === user.id ? "Quem escreveu não homologa" : undefined} onClick={() => homologate(r)}>Revisar e homologar</Button>}</td>
             </tr>)}</tbody></table></div>}
       </section>
-    </main>
+    </div>
   );
 }

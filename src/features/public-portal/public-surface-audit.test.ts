@@ -9,7 +9,7 @@ const src = (f: string) => readFileSync(`src/routes/${f}`, "utf8");
 
 describe("NPUB.2 superfícies públicas", () => {
   it("inventário fechado: só portal publicado e verificações", () => {
-    expect(publicFiles.sort()).toEqual(["publico.$slug.tsx", "publico.index.tsx", "verificar.$codigo.tsx", "verificar.carteirinha.$codigo.tsx", "verificar.documento.$codigo.tsx"]);
+    expect(publicFiles.sort()).toEqual(["publico.$slug.tsx", "publico.index.tsx", "verificar.$codigo.tsx", "verificar.carteirinha.$codigo.tsx", "verificar.documento.$codigo.tsx", "verificar.relatorio.$codigo.tsx"]);
   });
   it("todas usam o layout público, nunca o AppShell", () => {
     for (const f of publicFiles) { expect(src(f), f).toMatch(/PublicLayout/); expect(src(f), f).not.toMatch(/AppShell/); }

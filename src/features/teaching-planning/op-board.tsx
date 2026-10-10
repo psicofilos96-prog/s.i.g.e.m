@@ -1,4 +1,6 @@
 /** LOTE 8 — Quadro Permanente da OP por etapa (rede): versões append-only via `record_op_permanent_board_version`; etapa é texto aberto. */
+import { PageHeader } from "@/components/sigem/patterns";
+import { LoadingState } from "@/components/sigem/states";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -35,9 +37,9 @@ export function OpBoardPage() {
     setMsg("Versão gravada."); setD(null); await qc.invalidateQueries({ queryKey: ["opboard"] });
   };
   return (
-    <main className="mx-auto max-w-4xl space-y-4 p-6">
-      <header><h1 className="text-2xl font-semibold text-foreground">Quadro Permanente da OP</h1><p className="text-sm text-muted-foreground">Orientações da rede por etapa, com versões. Cada mudança cria nova versão; as anteriores ficam no histórico. Professores consultam no planejamento.</p></header>
-      {session.loading ? <p className="text-sm text-muted-foreground">Conferindo sua sessão…</p> : !session.user ? <p className="text-sm text-muted-foreground">Entre com sua conta para ver o Quadro Permanente.</p> : q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p> : q.error ? <p role="alert" className="text-sm text-destructive">Entre com sua conta para ver o Quadro Permanente.</p> : (<>
+    <div className="mx-auto max-w-4xl space-y-4 p-6">
+      <header><PageHeader title="Quadro Permanente da OP" /><p className="text-sm text-muted-foreground">Orientações da rede por etapa, com versões. Cada mudança cria nova versão; as anteriores ficam no histórico. Professores consultam no planejamento.</p></header>
+      {session.loading ? <p className="text-sm text-muted-foreground">Conferindo sua sessão…</p> : !session.user ? <p className="text-sm text-muted-foreground">Entre com sua conta para ver o Quadro Permanente.</p> : q.isLoading ? <LoadingState /> : q.error ? <p role="alert" className="text-sm text-destructive">Entre com sua conta para ver o Quadro Permanente.</p> : (<>
         {hs.length === 0 && <p className="text-sm text-muted-foreground">Nenhum quadro registrado ainda.</p>}
         <ul className="space-y-2">{hs.map((v) => (
           <li key={v.id} className="rounded border border-border p-3"><div className="font-medium">{v.stage_key} — {v.title} <span className="text-xs text-muted-foreground">v{v.version}</span></div>
@@ -56,6 +58,6 @@ export function OpBoardPage() {
           <div className="flex gap-2"><Button onClick={save} disabled={!d.stage.trim() || !d.title.trim()}>Gravar versão</Button><Button variant="ghost" onClick={() => setD(null)}>Cancelar</Button></div>
         </section>)}
       {msg && <p role="status" className="text-sm text-foreground">{msg}</p>}
-    </main>
+    </div>
   );
 }

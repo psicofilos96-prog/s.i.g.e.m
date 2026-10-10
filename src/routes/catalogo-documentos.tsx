@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { PageHeader } from "@/components/sigem/patterns";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { filterCatalog, SECTORS, type DocStatus } from "@/features/reports/document-catalog";
@@ -19,9 +20,9 @@ function Page() {
   const [status, setStatus] = useState<DocStatus | null>(null);
   const docs = filterCatalog(q, sector, status);
   return (
-    <main className="mx-auto max-w-5xl space-y-5 p-6">
+    <div className="mx-auto max-w-5xl space-y-5 p-6">
       <header>
-        <h1 className="text-2xl font-semibold text-foreground">Catálogo de documentos</h1>
+        <PageHeader title="Catálogo de documentos" />
         <p className="text-sm text-muted-foreground">Onde emitir cada documento e, quando ainda não dá, o motivo exato.</p>
       </header>
       <div className="flex flex-wrap gap-2">
@@ -46,6 +47,6 @@ function Page() {
         ))}
         {docs.length === 0 && <li className="p-4 text-sm text-muted-foreground">Nenhum documento com esses filtros.</li>}
       </ul>
-    </main>
+    </div>
   );
 }

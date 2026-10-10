@@ -53,10 +53,10 @@ function Page() {
   const [sha, setSha] = useState<string | null>(null);
   useEffect(() => { setSha(null); if (view) void sha256(sheetSnapshot(view.input, view.sheet.rows)).then(setSha); }, [view]);
 
-  if (loading) return <main className="p-4"><SkeletonState label="Verificando sessão" /></main>;
-  if (!user) return <main className="mx-auto max-w-3xl space-y-3 p-4"><h1 className="text-xl font-semibold">Folha Final</h1>
+  if (loading) return <div className="p-4"><SkeletonState label="Verificando sessão" /></div>;
+  if (!user) return <div className="mx-auto max-w-3xl space-y-3 p-4"><h1 className="text-xl font-semibold">Folha Final</h1>
     <StatePanel tone="warning" title="Entre para usar" description="A Folha Final lê dados reais da turma e exige login. Para conhecer o layout com dados de simulação, use o laboratório." />
-    <Link className="underline" to="/laboratorio/folha-final">Abrir laboratório</Link></main>;
+    <Link className="underline" to="/laboratorio/folha-final">Abrir laboratório</Link></div>;
 
   async function act(action: string, needReason: boolean) {
     if (!view || !data) return;
@@ -88,7 +88,7 @@ function Page() {
   const homologated = last?.action === "homologacao" || last?.action === "retificacao";
 
   return (
-    <main className="mx-auto max-w-6xl space-y-4 p-4 text-sm">
+    <div className="mx-auto max-w-6xl space-y-4 p-4 text-sm">
       <h1 className="text-xl font-semibold">Folha Final e Ata de resultados</h1>
       <p><Link className="underline" to="/diario/regras-folha-final">Regras de resultado da Folha Final (cadastrar, revisar, homologar)</Link></p>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -114,7 +114,7 @@ function Page() {
             : view.input.components.length === 0 ? <StatePanel tone="info" title="Sem avaliações gravadas" description={`${view.input.students.length} estudante(s) na turma; nenhum resultado avaliativo gravado. Nada é tratado como zero.`} />
             : null}
           <div className="overflow-auto rounded border" role="region" aria-label="Folha Final" tabIndex={0}>
-            <table className="w-full text-left text-xs"><thead className="bg-muted"><tr><th className="p-1">Nº</th><th className="p-1">Estudante</th><th className="p-1">Situação</th>{view.input.components.map((c) => <th key={c.id} className="p-1">{c.label} (méd.)</th>)}<th className="p-1">Resultado</th><th className="p-1">Pendências</th></tr></thead>
+            <table className="w-full text-left text-xs"><thead className="bg-muted"><tr><th scope="col" className="p-1">Nº</th><th scope="col" className="p-1">Estudante</th><th scope="col" className="p-1">Situação</th>{view.input.components.map((c) => <th scope="col" key={c.id} className="p-1">{c.label} (méd.)</th>)}<th scope="col" className="p-1">Resultado</th><th scope="col" className="p-1">Pendências</th></tr></thead>
               <tbody>{view.sheet.rows.map((r, k) => <tr key={r.student.id} className="border-t"><td className="p-1">{k + 1}</td><td className="p-1">{r.student.name}</td><td className="p-1">{r.student.status}</td>
                 {r.components.map((c) => <td key={c.id} className="p-1">{c.average ?? "—"}</td>)}<td className="p-1 font-medium">{r.overall}</td><td className="p-1 text-muted-foreground">{r.missing.slice(0, 3).join("; ")}{r.missing.length > 3 ? "…" : ""}</td></tr>)}</tbody></table>
           </div>
@@ -138,6 +138,6 @@ function Page() {
           {data!.acts.length === 0 ? <p className="text-muted-foreground">Nenhum ato registrado.</p> : <ol className="list-decimal pl-5">{data!.acts.map((a) => <li key={a.seq}>{ACTION_LABEL[a.action] ?? a.action} · {new Date(a.created_at).toLocaleString("pt-BR")}{a.reason ? ` · motivo: ${a.reason}` : ""} · impressão {a.snapshot_sha256.slice(0, 12)}</li>)}</ol>}
         </section>
       </>}
-    </main>
+    </div>
   );
 }
