@@ -39,7 +39,8 @@ export function StaffReconciliationPage() {
   const counts = useMemo(() => (q.data ? groupCounts(q.data.items) : null), [q.data]);
   const list = useMemo(() => (q.data?.items ?? []).filter((i) => i.group === group).sort((a, b) => a.record.full_name.localeCompare(b.record.full_name, "pt-BR")), [q.data, group]);
   const download = () => {
-    const blob = new Blob(["\ufeff" + pendingCsv(q.data!.items)], { type: "text/csv;charset=utf-8" });
+    // pendingCsv sai pelo motor comum (toCsv).
+    const blob = new Blob([pendingCsv(q.data!.items)], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "pendencias-conciliacao-pessoal-2026.csv"; a.click(); URL.revokeObjectURL(a.href);
   };
   return (

@@ -51,8 +51,8 @@ describe("NREL.2 gerador", () => {
     expect(() => saveTemplate(kv, "u1", { name: "X", sector: "dp", choice, savedAt: "x" }, s)).toThrow();
   });
   it("assunto sem leitura recusa por extenso", async () => {
-    const p = BUILDER_SOURCES.find((x) => x.id === "gerador-infraestrutura")!;
-    await expect(collectAll(p, null, null)).rejects.toThrow(/Sem adaptador/);
+    const p = BUILDER_SOURCES.find((x) => x.id === "gerador-alunos")!;
+    await expect(collectAll(p, null, null)).rejects.toThrow(/Dado nominal/);
   });
   it("cadastro de escolas mantém só a versão mais recente", () => {
     expect(dedupeLatestSchools([{ _sid: "a", _v: 1, name: "velho" }, { _sid: "a", _v: 2, name: "novo" }]).map((r) => r["name"])).toEqual(["novo"]);

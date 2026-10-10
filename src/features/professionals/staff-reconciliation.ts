@@ -6,7 +6,7 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { readPages } from "@/lib/list-paging";
-import { neutralize } from "@/features/reports/report-engine";
+import { runReport, toCsv, type CellValue, type ReportDefinition } from "@/features/reports/report-engine";
 
 export type ReconGroup = "confirmado" | "sugestao" | "ambiguo" | "sem-correspondencia" | "pendente-de-chave";
 export const GROUP_LABEL: Record<ReconGroup, string> = {
@@ -53,10 +53,14 @@ export function groupCounts(items: readonly ReconItem[]): Record<ReconGroup, num
 
 /** Pendências sem CPF, matrícula funcional, vínculo, situação ou ids técnicos: só o necessário para conferir. */
 export const EXPORT_COLUMNS = ["Situação da conciliação", "Nome na planilha", "Escola/setor", "Cargo", "Função", "Aba", "Linha"] as const;
+const PENDING_DEF: ReportDefinition = {
+  id: "conciliacao-pendencias", version: 1, title: "Conciliação de pessoal — pendências", description: "Pendências sem CPF nem ids técnicos.", source: "staff_reconciliation (projeção)", params: [],
+  columns: EXPORT_COLUMNS.map((label, i) => ({ id: `c${i}`, label, kind: "text" as const })), formats: ["csv"], reproducible: false, syncRowLimit: 10000,
+};
+/** Sai pelo motor comum (toCsv: neutralização de fórmula, ausência = "não disponível"). */
 export function pendingCsv(items: readonly ReconItem[]): string {
-  const esc = (v: string | number | null) => { const s = neutralize(v == null ? "não informado" : String(v)); return /[";\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-  const rows = items.filter((i) => i.group !== "confirmado").map((i) => [GROUP_LABEL[i.group], i.record.full_name, i.record.school_name_source ?? i.record.sector, i.record.cargo, i.record.funcao, i.record.sheet, i.record.row_no]);
-  return [EXPORT_COLUMNS.join(";"), ...rows.map((r) => r.map(esc).join(";"))].join("\n");
+  const rows = items.filter((i) => i.group !== "confirmado").map((i) => Object.fromEntries([GROUP_LABEL[i.group], i.record.full_name, i.record.school_name_source ?? i.record.sector, i.record.cargo, i.record.funcao, i.record.sheet, i.record.row_no].map((v, k) => [`c${k}`, v ?? null])) as Record<string, CellValue>);
+  return toCsv(runReport(PENDING_DEF, { params: {} }, rows), { headerLines: ["SIGEM"], title: PENDING_DEF.title });
 }
 
 export async function loadReconciliation(signal?: AbortSignal) {
