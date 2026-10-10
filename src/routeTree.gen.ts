@@ -29,6 +29,7 @@ import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-d
 import { Route as AvisosRouteImport } from './routes/avisos'
 import { Route as BaseDeConhecimentoRouteImport } from './routes/base-de-conhecimento'
 import { Route as CarteirinhasRouteImport } from './routes/carteirinhas'
+import { Route as CatalogoDocumentosRouteImport } from './routes/catalogo-documentos'
 import { Route as CensoEscolarRouteImport } from './routes/censo-escolar'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
 import { Route as CentralDeDocumentosRouteImport } from './routes/central-de-documentos'
@@ -98,7 +99,7 @@ import { Route as AlunosIdRouteImport } from './routes/alunos.$id'
 import { Route as AlunosNovoRouteImport } from './routes/alunos.novo'
 import { Route as AtuacoesPedagogicasIndexRouteImport } from './routes/atuacoes-pedagogicas.index'
 import { Route as AtuacoesPedagogicasNovaRouteImport } from './routes/atuacoes-pedagogicas.nova'
-import { Route as AvaliacoesDoProfessorCartaoRespostaRouteImport } from './routes/avaliacoes-do-professor.cartao-resposta'
+import { Route as AvaliacoesDoProfessorCartaoRespostaRouteImport } from './routes/avaliacoes-do-professor_.cartao-resposta'
 import { Route as CalendarioEscolarIndexRouteImport } from './routes/calendario-escolar.index'
 import { Route as DiarioIndexRouteImport } from './routes/diario.index'
 import { Route as DiarioAulasRouteImport } from './routes/diario.aulas'
@@ -336,6 +337,11 @@ const BaseDeConhecimentoRoute = BaseDeConhecimentoRouteImport.update({
 const CarteirinhasRoute = CarteirinhasRouteImport.update({
   id: '/carteirinhas',
   path: '/carteirinhas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CatalogoDocumentosRoute = CatalogoDocumentosRouteImport.update({
+  id: '/catalogo-documentos',
+  path: '/catalogo-documentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CensoEscolarRoute = CensoEscolarRouteImport.update({
@@ -687,9 +693,9 @@ const AtuacoesPedagogicasNovaRoute = AtuacoesPedagogicasNovaRouteImport.update({
 } as any)
 const AvaliacoesDoProfessorCartaoRespostaRoute =
   AvaliacoesDoProfessorCartaoRespostaRouteImport.update({
-    id: '/cartao-resposta',
-    path: '/cartao-resposta',
-    getParentRoute: () => AvaliacoesDoProfessorRoute,
+    id: '/avaliacoes-do-professor_/cartao-resposta',
+    path: '/avaliacoes-do-professor/cartao-resposta',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const CalendarioEscolarIndexRoute = CalendarioEscolarIndexRouteImport.update({
   id: '/calendario-escolar/',
@@ -1483,10 +1489,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
-  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRouteWithChildren
+  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
+  '/catalogo-documentos': typeof CatalogoDocumentosRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
@@ -1710,10 +1717,11 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
-  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRouteWithChildren
+  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
+  '/catalogo-documentos': typeof CatalogoDocumentosRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
@@ -1910,10 +1918,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
-  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRouteWithChildren
+  '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
+  '/catalogo-documentos': typeof CatalogoDocumentosRoute
   '/censo-escolar': typeof CensoEscolarRoute
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
@@ -1981,7 +1990,7 @@ export interface FileRoutesById {
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
-  '/avaliacoes-do-professor/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  '/avaliacoes-do-professor_/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
@@ -2145,6 +2154,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
+    | '/catalogo-documentos'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-documentos'
@@ -2372,6 +2382,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
+    | '/catalogo-documentos'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-documentos'
@@ -2571,6 +2582,7 @@ export interface FileRouteTypes {
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
+    | '/catalogo-documentos'
     | '/censo-escolar'
     | '/central-de-acessos'
     | '/central-de-documentos'
@@ -2638,7 +2650,7 @@ export interface FileRouteTypes {
     | '/alunos/$id'
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
-    | '/avaliacoes-do-professor/cartao-resposta'
+    | '/avaliacoes-do-professor_/cartao-resposta'
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
@@ -2797,10 +2809,11 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   AutorizacoesFamiliaRoute: typeof AutorizacoesFamiliaRoute
   AvaliacaoDesempenhoRoute: typeof AvaliacaoDesempenhoRoute
-  AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRouteWithChildren
+  AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
   AvisosRoute: typeof AvisosRoute
   BaseDeConhecimentoRoute: typeof BaseDeConhecimentoRoute
   CarteirinhasRoute: typeof CarteirinhasRoute
+  CatalogoDocumentosRoute: typeof CatalogoDocumentosRoute
   CensoEscolarRoute: typeof CensoEscolarRoute
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
   CentralDeDocumentosRoute: typeof CentralDeDocumentosRoute
@@ -2865,6 +2878,7 @@ export interface RootRouteChildren {
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
   AlimentacaoEscolarCozinhaRoute: typeof AlimentacaoEscolarCozinhaRoute
+  AvaliacoesDoProfessorCartaoRespostaRoute: typeof AvaliacoesDoProfessorCartaoRespostaRoute
   FichaLongitudinalIdRoute: typeof FichaLongitudinalIdRoute
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
@@ -3023,6 +3037,13 @@ declare module '@tanstack/react-router' {
       path: '/carteirinhas'
       fullPath: '/carteirinhas'
       preLoaderRoute: typeof CarteirinhasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/catalogo-documentos': {
+      id: '/catalogo-documentos'
+      path: '/catalogo-documentos'
+      fullPath: '/catalogo-documentos'
+      preLoaderRoute: typeof CatalogoDocumentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/censo-escolar': {
@@ -3508,12 +3529,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AtuacoesPedagogicasNovaRouteImport
       parentRoute: typeof AtuacoesPedagogicasRoute
     }
-    '/avaliacoes-do-professor/cartao-resposta': {
-      id: '/avaliacoes-do-professor/cartao-resposta'
-      path: '/cartao-resposta'
+    '/avaliacoes-do-professor_/cartao-resposta': {
+      id: '/avaliacoes-do-professor_/cartao-resposta'
+      path: '/avaliacoes-do-professor/cartao-resposta'
       fullPath: '/avaliacoes-do-professor/cartao-resposta'
       preLoaderRoute: typeof AvaliacoesDoProfessorCartaoRespostaRouteImport
-      parentRoute: typeof AvaliacoesDoProfessorRoute
+      parentRoute: typeof rootRouteImport
     }
     '/calendario-escolar/': {
       id: '/calendario-escolar/'
@@ -4507,20 +4528,6 @@ const AtuacoesPedagogicasRouteChildren: AtuacoesPedagogicasRouteChildren = {
 const AtuacoesPedagogicasRouteWithChildren =
   AtuacoesPedagogicasRoute._addFileChildren(AtuacoesPedagogicasRouteChildren)
 
-interface AvaliacoesDoProfessorRouteChildren {
-  AvaliacoesDoProfessorCartaoRespostaRoute: typeof AvaliacoesDoProfessorCartaoRespostaRoute
-}
-
-const AvaliacoesDoProfessorRouteChildren: AvaliacoesDoProfessorRouteChildren = {
-  AvaliacoesDoProfessorCartaoRespostaRoute:
-    AvaliacoesDoProfessorCartaoRespostaRoute,
-}
-
-const AvaliacoesDoProfessorRouteWithChildren =
-  AvaliacoesDoProfessorRoute._addFileChildren(
-    AvaliacoesDoProfessorRouteChildren,
-  )
-
 interface DiarioTurmasTurmaIdAlunosAlunoIdRouteChildren {
   DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdAvaliacaoRoute
   DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute: typeof DiarioTurmasTurmaIdAlunosAlunoIdIndexRoute
@@ -5184,10 +5191,11 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   AutorizacoesFamiliaRoute: AutorizacoesFamiliaRoute,
   AvaliacaoDesempenhoRoute: AvaliacaoDesempenhoRoute,
-  AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRouteWithChildren,
+  AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
   AvisosRoute: AvisosRoute,
   BaseDeConhecimentoRoute: BaseDeConhecimentoRoute,
   CarteirinhasRoute: CarteirinhasRoute,
+  CatalogoDocumentosRoute: CatalogoDocumentosRoute,
   CensoEscolarRoute: CensoEscolarRoute,
   CentralDeAcessosRoute: CentralDeAcessosRoute,
   CentralDeDocumentosRoute: CentralDeDocumentosRoute,
@@ -5252,6 +5260,8 @@ const rootRouteChildren: RootRouteChildren = {
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
   AlimentacaoEscolarCozinhaRoute: AlimentacaoEscolarCozinhaRoute,
+  AvaliacoesDoProfessorCartaoRespostaRoute:
+    AvaliacoesDoProfessorCartaoRespostaRoute,
   FichaLongitudinalIdRoute: FichaLongitudinalIdRoute,
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
