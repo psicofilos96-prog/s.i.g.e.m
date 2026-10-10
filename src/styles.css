@@ -53,6 +53,10 @@
   --color-hero-border: var(--hero-border);
   --color-hero-surface: var(--hero-surface);
   --color-territory: var(--territory);
+  --color-login-navy: var(--login-navy);
+  --color-login-gold: var(--login-gold);
+  --color-login-gold-soft: var(--login-gold-soft);
+  --color-login-ink: var(--login-ink);
   --color-territory-foreground: var(--territory-foreground);
   --color-territory-accent: var(--territory-accent);
   --shadow-panel: var(--shadow-panel);
@@ -93,6 +97,10 @@
   --hero-border: oklch(0.95 0.018 220 / 0.22);
   --hero-surface: oklch(0.16 0.045 252 / 0.7);
   --territory: oklch(0.2 0.04 236);
+  --login-navy: oklch(0.2 0.045 240);
+  --login-gold: oklch(0.72 0.09 75);
+  --login-gold-soft: oklch(0.8 0.08 78);
+  --login-ink: oklch(0.98 0.005 240);
   --territory-foreground: oklch(0.985 0.008 230);
   --territory-accent: oklch(0.76 0.13 75);
   --sidebar: oklch(0.21 0.035 236);
@@ -1517,4 +1525,16 @@
     :where(.app-workspace) :where(table) { border-radius: 0; overflow: visible; }
     :where(.app-workspace) :where(tbody tr:hover) { background: transparent; }
   }
+}
+
+/* Login institucional (R3): vidro escuro + dourado */
+@utility login-glass {
+  background: linear-gradient(160deg, color-mix(in oklab, var(--login-navy) 92%, transparent), color-mix(in oklab, var(--login-navy) 80%, transparent));
+  backdrop-filter: blur(18px) saturate(130%);
+  border: 1px solid color-mix(in oklab, var(--login-ink) 14%, transparent);
+  box-shadow: 0 30px 60px -20px color-mix(in oklab, black 60%, transparent);
+}
+@utility login-gold-button {
+  background: linear-gradient(135deg, var(--login-gold-soft), var(--login-gold) 55%, color-mix(in oklab, var(--login-gold) 80%, black));
+  color: var(--login-navy);
 }
