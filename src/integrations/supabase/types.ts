@@ -11921,6 +11921,77 @@ export type Database = {
           },
         ]
       }
+      meal_food_samples: {
+        Row: {
+          author_engagement: string | null
+          author_person_id: string
+          author_user_id: string
+          collected_on: string
+          event: string
+          id: string
+          logical_id: string
+          meal_slot: string
+          note: string | null
+          preparation: string
+          reason: string | null
+          recorded_at: string
+          retention_hours: number | null
+          sample_code: string
+          school_id: string
+          storage_temp: number | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_engagement?: string | null
+          author_person_id: string
+          author_user_id: string
+          collected_on: string
+          event: string
+          id?: string
+          logical_id: string
+          meal_slot: string
+          note?: string | null
+          preparation: string
+          reason?: string | null
+          recorded_at?: string
+          retention_hours?: number | null
+          sample_code: string
+          school_id: string
+          storage_temp?: number | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_engagement?: string | null
+          author_person_id?: string
+          author_user_id?: string
+          collected_on?: string
+          event?: string
+          id?: string
+          logical_id?: string
+          meal_slot?: string
+          note?: string | null
+          preparation?: string
+          reason?: string | null
+          recorded_at?: string
+          retention_hours?: number | null
+          sample_code?: string
+          school_id?: string
+          storage_temp?: number | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_food_samples_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "meal_food_samples"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_forecasts: {
         Row: {
           author_engagement: string | null
@@ -12643,6 +12714,7 @@ export type Database = {
           author_principal_id: string | null
           author_user_id: string
           ceiling_ack: string | null
+          ceiling_evaluation: Json | null
           competence: string
           id: string
           lines: Json
@@ -12661,6 +12733,7 @@ export type Database = {
           author_principal_id?: string | null
           author_user_id: string
           ceiling_ack?: string | null
+          ceiling_evaluation?: Json | null
           competence: string
           id?: string
           lines: Json
@@ -12679,6 +12752,7 @@ export type Database = {
           author_principal_id?: string | null
           author_user_id?: string
           ceiling_ack?: string | null
+          ceiling_evaluation?: Json | null
           competence?: string
           id?: string
           lines?: Json
@@ -22585,6 +22659,22 @@ export type Database = {
           version: number
         }[]
       }
+      meal_food_samples_at: {
+        Args: { _from: string; _school: string; _to: string }
+        Returns: {
+          collected_on: string
+          event: string
+          logical_id: string
+          meal_slot: string
+          note: string
+          preparation: string
+          recorded_at: string
+          retention_hours: number
+          sample_code: string
+          storage_temp: number
+          version: number
+        }[]
+      }
       meal_forecasts_at: {
         Args: { _from: string; _known_at: string; _school: string; _to: string }
         Returns: {
@@ -22885,6 +22975,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      meal_order_ceiling_evaluation: {
+        Args: { _lines: Json; _on: string; _school: string }
+        Returns: Json
       }
       meal_order_history: {
         Args: { _logical: string }
@@ -24959,6 +25053,22 @@ export type Database = {
           _sha256: string
           _status: string
           _storage_ref: string
+        }
+        Returns: string
+      }
+      record_meal_food_sample: {
+        Args: {
+          _event: string
+          _expected_version: number
+          _logical: string
+          _note: string
+          _on: string
+          _preparation: string
+          _reason: string
+          _retention_hours: number
+          _school: string
+          _slot: string
+          _temp: number
         }
         Returns: string
       }
