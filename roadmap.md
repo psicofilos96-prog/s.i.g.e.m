@@ -617,3 +617,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 
 - [ ] Auditoria de cumprimento de todos os lotes (pedido 10/10)
 - [ ] Nova tela de login institucional (especificação + imagens enviadas) — aguarda confirmação
+- [x] R1: infraestrutura escopada, 48 estudantes, 49 turmas, 6 identidades (docs/r1-recuperacao-2026-10-10.md)
