@@ -6,7 +6,7 @@
  */
 import { supabase } from "@/integrations/supabase/client";
 import { readPages } from "@/lib/list-paging";
-import { neutralize } from "@/features/reports/report-engine";
+import { runReport, toCsv, type CellValue, type ReportDefinition } from "@/features/reports/report-engine";
 
 export type ReconGroup = "confirmado" | "sugestao" | "ambiguo" | "sem-correspondencia" | "pendente-de-chave";
 export const GROUP_LABEL: Record<ReconGroup, string> = {
