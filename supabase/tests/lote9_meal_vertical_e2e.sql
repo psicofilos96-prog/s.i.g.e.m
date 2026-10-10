@@ -82,19 +82,27 @@ BEGIN
   doc := public.record_meal_master('documento-tecnico', NULL, NULL, 'registro', jsonb_build_object('titulo','Evidência sintética','categoria','recebimento','natureza','evidencia','sha256', repeat('a',64)), NULL, td - 30, NULL, NULL);
   pub := public.record_meal_master('publico-de-atendimento', NULL, NULL, 'registro', jsonb_build_object('rotulo','Público sintético L9'), NULL, td - 30, NULL, NULL);
   forn := public.record_meal_master('fornecedor', NULL, NULL, 'registro', jsonb_build_object('nome','Fornecedor sintético L9'), NULL, td - 30, NULL, NULL);
-  pcap := public.record_meal_master('parametro-per-capita', NULL, NULL, 'registro', jsonb_build_object('quantidade',0.1,'item_ref',item,'publico_ref',pub,'unidade_ref',unit), NULL, td - 30, NULL, NULL);
-  insp := public.record_meal_master('designacao-inspetor', NULL, NULL, 'registro', jsonb_build_object('pessoa_id',pS), s1, td - 30, NULL, NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,1,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'conferencia'), 'self-review-not-allowed');
   PERFORM pg_temp.nae8_as(uC);
-  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc, pub, forn, pcap, insp] LOOP
+  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc, pub, forn] LOOP
     PERFORM public.record_meal_master((SELECT m.kind FROM public.meal_master_records m WHERE m.logical_id = mv LIMIT 1), mv, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
   END LOOP;
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'self-review-not-allowed');
   PERFORM pg_temp.nae8_as(uH);
-  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc, pub, forn, pcap, insp] LOOP
+  FOREACH mv IN ARRAY ARRAY[item, unit, unit2, cat, ficha, doc, pub, forn] LOOP
     PERFORM public.record_meal_master((SELECT m.kind FROM public.meal_master_records m WHERE m.logical_id = mv LIMIT 1), mv, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
   END LOOP;
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,%L,2,%L,NULL,NULL,NULL,NULL,NULL)','item-alimentar',item,'homologacao'), 'meal:stale');
+  -- referências do per capita precisam estar homologadas antes do registro
+  PERFORM pg_temp.nae8_as(uN);
+  pcap := public.record_meal_master('parametro-per-capita', NULL, NULL, 'registro', jsonb_build_object('quantidade',0.1,'item_ref',item,'publico_ref',pub,'unidade_ref',unit), NULL, td - 30, NULL, NULL);
+  insp := public.record_meal_master('designacao-inspetor', NULL, NULL, 'registro', jsonb_build_object('pessoa_id',pS), s1, td - 30, NULL, NULL);
+  PERFORM pg_temp.nae8_as(uC);
+  PERFORM public.record_meal_master('parametro-per-capita', pcap, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
+  PERFORM public.record_meal_master('designacao-inspetor', insp, 1, 'conferencia', NULL, NULL, NULL, NULL, NULL);
+  PERFORM pg_temp.nae8_as(uH);
+  PERFORM public.record_meal_master('parametro-per-capita', pcap, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
+  PERFORM public.record_meal_master('designacao-inspetor', insp, 2, 'homologacao', NULL, NULL, NULL, NULL, NULL);
   IF NOT public.meal_master_homologated(insp, 'designacao-inspetor', td) THEN RAISE EXCEPTION 'falha: inspetor não homologado'; END IF;
   PERFORM pg_temp.nae8_as(uS);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_master(%L,NULL,NULL,%L,%L::jsonb,%L,%L,NULL,NULL)','designacao-inspetor','registro',jsonb_build_object('pessoa_id',pO),s1,td), 'capability');
