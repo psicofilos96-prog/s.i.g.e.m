@@ -1,5 +1,5 @@
 import { SkeletonState } from "@/components/sigem/guidance";
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { formatAcademicDate } from "@/lib/academic-date";
 import {
@@ -27,7 +27,14 @@ export async function readSchoolInfrastructure(schoolId: string, signal?: AbortS
 
 /** Cadastro da Unidade > Infraestrutura: lê só fatos reais; sem observação = "não informado". */
 export function UnitInfrastructurePanel({ schoolId, on, knownAt }: { schoolId: string; on: string; knownAt?: string | null }) {
-  const q = useQuery({ queryKey: ["school-infrastructure", schoolId], queryFn: ({ signal }) => readSchoolInfrastructure(schoolId, signal) });
+  const [q, setQ] = useState<{ isLoading: boolean; error: boolean; data: Awaited<ReturnType<typeof readSchoolInfrastructure>> | null }>({ isLoading: true, error: false, data: null });
+  useEffect(() => {
+    const ac = new AbortController();
+    setQ({ isLoading: true, error: false, data: null });
+    readSchoolInfrastructure(schoolId, ac.signal).then((data) => !ac.signal.aborted && setQ({ isLoading: false, error: false, data }))
+      .catch(() => !ac.signal.aborted && setQ({ isLoading: false, error: true, data: null }));
+    return () => ac.abort();
+  }, [schoolId]);
   if (q.isLoading) return <SkeletonState label="Carregando infraestrutura" />;
   if (q.error || !q.data) return <p role="alert" className="text-sm text-muted-foreground">Não foi possível consultar a infraestrutura. Nenhum dado substituto é exibido.</p>;
   const facts = schoolInfrastructureAt(schoolId, q.data.attributes, observationsKnownAt(q.data.observations, knownAt), on);

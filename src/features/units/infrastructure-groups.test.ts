@@ -5,7 +5,7 @@ const eqs: Array<[string, unknown]> = [];
 let denied = false;
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: { from: (t: string) => {
-    const b: Record<string, (...a: unknown[]) => unknown> = {};
+    const b: Record<string, any> = {}; // eslint-disable-line @typescript-eslint/no-explicit-any
     for (const k of ["select", "limit", "abortSignal"]) b[k] = () => b;
     b["eq"] = (c: unknown, v: unknown) => { eqs.push([`${t}.${c}`, v]); return b; };
     b["then"] = (r: (v: unknown) => unknown) => Promise.resolve(denied ? { data: null, error: { message: "denied" } } : { data: [], error: null }).then(r);
