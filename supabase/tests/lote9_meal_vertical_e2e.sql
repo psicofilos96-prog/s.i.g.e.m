@@ -195,7 +195,7 @@ BEGIN
 
   -- 9b. teto CALCULADO (estoque agora conhecido): 0.1×10×20 = 20 − 54 ⇒ teto 0; excesso sem justificativa é recusado
   PERFORM pg_temp.nae8_as(uN);
-  ln := jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'publico_ref',pub,'quantidade',80,'publico_atendido',10,'dias_letivos',20,'zz',1));
+  ln := jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'publico_ref',pub,'quantidade',80,'publico_atendido',10,'dias_letivos',20));
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_order_with_ceiling(%L,4,%L,NULL,NULL,%L::jsonb,%L,NULL)',ord,'retificacao',ln,'Retificação'), 'ceiling-exceeded');
   ln := jsonb_build_array(jsonb_build_object('item_ref',item,'unidade_ref',unit,'publico_ref',pub,'quantidade',80,'publico_atendido',10,'dias_letivos',20,'justificativa_excesso','Reposição de entrega rejeitada'));
   PERFORM public.record_meal_order_with_ceiling(ord, 4, 'retificacao', NULL, NULL, ln, 'Retificação com justificativa', NULL);
