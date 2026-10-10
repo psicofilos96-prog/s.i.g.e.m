@@ -197,7 +197,7 @@ export const DEFAULT_LAYOUT: ReportLayout = { paper: "A4", orientation: "retrato
   showFilters: true, showMethodology: true, observations: null, signatures: [], pageNumbers: true, verificationQr: false };
 
 /** QR só quando existir endpoint de verificação de relatório — hoje não existe; recusa em vez de fingir. */
-export const REPORT_VERIFICATION_ENDPOINT: string | null = null;
+export const REPORT_VERIFICATION_ENDPOINT: string | null = "/verificar/relatorio/";
 export function layoutIssues(l: ReportLayout, columns: number): string[] {
   const errs: string[] = [];
   if (!l.title.trim()) errs.push("Informe o título.");

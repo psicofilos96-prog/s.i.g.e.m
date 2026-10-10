@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { governError } from "@/lib/observability/governed-errors";
 import { useSessionUser } from "@/features/authority/session-authority";
-import { toCsv, cellText, type CellValue, type ReportResult } from "./report-engine";
+import { toCsv, cellText, fingerprint, type CellValue, type ReportResult } from "./report-engine";
+import { listMyEmissions, recordEmission, reissueComparison, verificationBlock, type ReportEmission } from "./report-emissions";
 import { BUILDER_SOURCES, sourceById } from "./builder-sources";
 import {
   INSTITUTIONAL_DISABLED_REASON, INSTITUTIONAL_TEMPLATE_CAPABILITY, SHARE_DISABLED_REASON, SHARE_WITH_SECTOR_CAPABILITY,
@@ -45,6 +46,15 @@ export function ReportBuilder() {
   const [packSector, setPackSector] = useState<PackSector>("secretaria");
   const pendingKey = useRef<string | null>(null);
   const readSeq = useRef(0);
+  const [emissions, setEmissions] = useState<ReportEmission[] | null>(null);
+  const [reissueOf, setReissueOf] = useState<ReportEmission | null>(null);
+  const [lastEmission, setLastEmission] = useState<{ code: string; cmp: ReturnType<typeof reissueComparison> } | null>(null);
+  const emitKey = useRef<string | null>(null);
+  const refreshEmissions = useCallback(async () => {
+    if (!cloud) { setEmissions(null); return; }
+    try { setEmissions(await listMyEmissions()); } catch { setEmissions(null); }
+  }, [cloud]);
+  useEffect(() => { void refreshEmissions(); }, [refreshEmissions]);
 
   const refreshTemplates = useCallback(async () => {
     if (!cloud) { setTemplates([]); return; }
@@ -100,9 +110,31 @@ export function ReportBuilder() {
     if (data.truncated) { setErr("Leitura incompleta (limite de linhas atingido): restrinja o período antes de exportar."); return; }
     const meta = provenance(src, choice, data, SECTOR_LABEL[sector]);
     const base = `${src.definition.id}-${operationalToday()}`;
-    if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(result, { headerLines: spec.layout.headerLines, title: spec.layout.title || src.title }, meta)], { type: "text/csv;charset=utf-8" }));
-    else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toStudioXlsx(result, spec, meta, analysis, methodology())]));
-    else { const w = window.open("", "_blank"); if (w) { w.document.write(toStudioHtml(result, spec, meta, analysis, methodology())); w.document.close(); w.focus(); w.print(); } else setErr("O navegador bloqueou a janela de impressão; permita janelas para este site."); }
+    let code: string | null = null;
+    if (cloud) {
+      // Emissão registrada ANTES do download: sem trilha não há arquivo emitido.
+      try {
+        const sha = await fingerprint(result);
+        emitKey.current ??= crypto.randomUUID();
+        const e = await recordEmission({ reportId: src.definition.id, version: src.definition.version, title: spec.layout.title || src.title, format: fmt, choice, sector, rows: result.rows.length, sha256: sha, reissueOf: reissueOf?.id ?? null, key: emitKey.current });
+        emitKey.current = null; code = e.verification_code;
+        setLastEmission({ code, cmp: reissueComparison(e.original_sha256 ?? null, sha) }); setReissueOf(null); void refreshEmissions();
+      } catch (e) { setErr(`Emissão não registrada; nada foi baixado. ${governError(e).userMessage}`); return; }
+    }
+    const meta2 = code ? [...meta, `Código de verificação: ${code} (${window.location.origin}/verificar/relatorio/${code})`] : [...meta, "Sem login: relatório de trabalho, sem registro de emissão."];
+    if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(result, { headerLines: spec.layout.headerLines, title: spec.layout.title || src.title }, meta2)], { type: "text/csv;charset=utf-8" }));
+    else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toStudioXlsx(result, spec, meta2, analysis, methodology())]));
+    else {
+      let doc = toStudioHtml(result, spec, meta2, analysis, methodology());
+      if (code) doc = doc.replace("</body></html>", `${verificationBlock(code, window.location.origin)}</body></html>`);
+      const w = window.open("", "_blank"); if (w) { w.document.write(doc); w.document.close(); w.focus(); w.print(); } else setErr("O navegador bloqueou a janela de impressão; permita janelas para este site.");
+    }
+  }
+  function reissue(e: ReportEmission) {
+    const c = e.params.choice; const s = c ? sourceById(c.sourceId) : undefined;
+    if (!c || !s) { setErr("Assunto desta emissão não existe mais; reemissão impossível."); return; }
+    if (!s.sectors.includes(sector)) setSector(s.sectors[0]!);
+    pick(c.sourceId, { choice: c, spec: emptySpec(e.title) }); setReissueOf(e); setStep(9);
   }
   async function act(f: () => Promise<unknown>) { try { await f(); setErr(null); await refreshTemplates(); } catch (e) { setErr(governError(e).userMessage); } }
   async function storeTemplate() {
@@ -300,8 +332,11 @@ export function ReportBuilder() {
               <Button variant="outline" disabled={!result?.rows.length || data.truncated} onClick={() => exportAs("xlsx")}>XLSX</Button>
               <Button variant="outline" disabled={!result?.rows.length || data.truncated} onClick={() => exportAs("csv")}>CSV</Button>
             </div>
+            {reissueOf && <p role="status">Reemissão de {reissueOf.verification_code}: os dados serão relidos com a sua permissão atual e comparados ao original.</p>}
+            {lastEmission && <p role="status">Emissão registrada · código {lastEmission.code}{lastEmission.cmp === "identico" ? " · conteúdo idêntico ao original" : lastEmission.cmp === "divergente" ? " · conteúdo DIFERENTE do original (dados mudaram desde a emissão)" : ""}.</p>}
             <p className="text-xs text-muted-foreground">XLSX sai com abas Relatório, Filtros, Metodologia e fonte{analysis?.summary ? ", Resumo" : ""}{analysis?.chart ? ", Dados do gráfico" : ""}. PDF sai em {spec.layout.paper} {spec.layout.orientation}, sem menus do sistema.</p>
           </>}
+          {cloud && <EmissionHistory list={emissions} onReissue={reissue} />}
         </div>)}
     </section>
   );
@@ -357,4 +392,15 @@ function PacksPanel({ sector, onSector, onOpen }: { sector: PackSector; onSector
       {!p.blockedBy && <Button size="sm" className="mt-2" onClick={() => onOpen(p.id)}>Abrir no assistente</Button>}
     </li>)}</ul>
   </section>;
+}
+
+function EmissionHistory({ list, onReissue }: { list: ReportEmission[] | null; onReissue: (e: ReportEmission) => void }) {
+  if (!list) return <p className="text-muted-foreground">Histórico de emissões não disponível.</p>;
+  return <div className="space-y-1"><h3 className="font-medium">Minhas emissões</h3>
+    {list.length === 0 ? <p className="text-muted-foreground">Nenhuma emissão registrada.</p> : <ul className="divide-y">{list.map((e) => (
+      <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-1">
+        <span>{e.title} · {e.format.toUpperCase()} · {e.row_count} linha(s) · {new Date(e.issued_at).toLocaleString("pt-BR")} · <a className="underline" href={`/verificar/relatorio/${e.verification_code}`}>{e.verification_code}</a>{e.reissue_of ? " · reemissão" : ""}</span>
+        <Button size="sm" variant="outline" onClick={() => onReissue(e)}>Reemitir</Button>
+      </li>))}</ul>}
+  </div>;
 }
