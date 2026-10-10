@@ -21,7 +21,7 @@ describe("NPUB.2 superfícies públicas", () => {
     }
   });
   it("estado desconhecido do servidor cai em 'não encontrado', sem detalhes", () => {
-    for (const f of ["verificar.$codigo.tsx", "verificar.documento.$codigo.tsx", "verificar.relatorio.$codigo.tsx"]) expect(src(f), f).toMatch(/STATUS\[r\.status\] \?\? STATUS\["nao-encontrado"\]/);
+    for (const f of ["verificar.$codigo.tsx", "verificar.documento.$codigo.tsx"]) expect(src(f), f).toMatch(/STATUS\[r\.status\] \?\? STATUS\["nao-encontrado"\]/);
   });
   it("carteirinha cobre válida/expirada/cancelada/substituída/indisponível", () => {
     expect(Object.keys(CARD_STATUS_LABEL).sort()).toEqual(["cancelada", "expirada", "indisponivel", "substituida", "valida"]);

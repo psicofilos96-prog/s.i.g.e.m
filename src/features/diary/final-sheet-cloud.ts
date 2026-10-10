@@ -1,10 +1,10 @@
 /**
-import { operationalToday } from "@/lib/academic-date";
  * Folha Final conectada (0289): turma, estudantes da turma (`class_enrollment_episodes` + encerramentos),
  * resultados avaliativos gravados (`assessment_entry_versions` vigentes) e regra de resultado homologada
  * (`final_sheet_rule_versions`). Tudo lido com a sessão do usuário (RLS). Atos (rascunho → conferência →
  * homologação → retificação/reabertura) só por `record_final_sheet_act`.
  */
+import { operationalToday } from "@/lib/academic-date";
 import { supabase } from "@/integrations/supabase/client";
 import { callRpc } from "@/lib/rpc-call";
 import type { Modality, ResultRule, SheetCell, SheetInput, SheetRow, SheetStudent } from "./final-sheet";
