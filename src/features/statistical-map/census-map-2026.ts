@@ -149,3 +149,12 @@ export function classChecks(rows: MapClassRow[]): ClassCheck[] {
 export function editableCells(adjustableCellIds: readonly string[] | null): readonly string[] {
   return adjustableCellIds ?? [];
 }
+
+export const MAP_GRID_REPORT = def("mapa-censo-2026-grade", "Mapa do Censo 2026 — grade por modalidade e etapa", [
+  { id: "group", label: "Modalidade / etapa agregada", kind: "text" }, { id: "stage", label: "Etapa", kind: "text" },
+  { id: "classes", label: "Turmas", kind: "number" }, { id: "declared", label: "Qtd. declarada", kind: "number" },
+  { id: "bonds", label: "Vínculos", kind: "number" }, { id: "aee", label: "AEE", kind: "number" },
+]);
+export function gridCells(grid: GridRow[]): Record<string, CellValue>[] {
+  return grid.map((g) => ({ group: g.kind === "linha" ? g.group : "", stage: g.stage, classes: g.classes, declared: g.declared, bonds: g.bonds, aee: g.aee_bonds }));
+}

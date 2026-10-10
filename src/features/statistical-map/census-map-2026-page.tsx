@@ -9,19 +9,22 @@ import { RegistryHero, RegistryToolbar, registryTd, registryTh, registryRow } fr
 import { brand } from "@/config/branding";
 import {
   CLASS_COLUMNS, MAP_CLASS_REPORT, MAP_SCHOOL_REPORT, classCells, divergences, exportMap, groupClasses, normalizeClasses, normalizeSchools,
-  receiptStatus, schoolCells, sliceTotals, type MapNetworkRow,
+  receiptStatus, schoolCells, MAP_GRID_REPORT, gridCells, sliceTotals, mapGrid, classChecks, editableCells, type MapNetworkRow,
 } from "./census-map-2026";
 
 type Rpc = (f: string) => Promise<{ data: Record<string, unknown>[] | null; error: { message: string } | null }>;
 const rpc = supabase.rpc as unknown as Rpc;
 async function load() {
-  const [s, c, net] = await Promise.all([rpc("census_map_2026_schools"), rpc("census_map_2026_classes"), rpc("census_map_2026_network")]);
+  const [s, c, net, rec] = await Promise.all([rpc("census_map_2026_schools"), rpc("census_map_2026_classes"), rpc("census_map_2026_network"),
+    supabase.from("census_official_receipt_snapshots").select("school_id, closed_at, version").eq("census_year", "2026")]);
   const err = s.error ?? c.error ?? net.error;
   if (err) throw new Error(err.message);
   const schools = normalizeSchools(s.data ?? []).filter((r) => r.classes > 0 || r.receipt_classes !== null)
     .sort((a, b) => (a.school_name ?? "").localeCompare(b.school_name ?? "", "pt-BR"));
   const network = Object.fromEntries(Object.entries(net.data?.[0] ?? {}).map(([k, v]) => [k, Number(v)])) as MapNetworkRow;
-  return { schools, classes: normalizeClasses(c.data ?? []), network };
+  const refDates = new Map<string, string | null>();
+  for (const r of ((rec.data ?? []) as { school_id: string; closed_at: string | null }[])) refDates.set(r.school_id, r.closed_at);
+  return { schools, classes: normalizeClasses(c.data ?? []), network, refDates, refError: rec.error ? rec.error.message : null };
 }
 
 const fmt = (v: number | null | undefined) => (v === null || v === undefined ? "não informado" : v.toLocaleString("pt-BR"));
@@ -61,6 +64,15 @@ export function CensusMap2026Page() {
   const scopeSchools = selected ? [selected] : q.data.schools;
   const slice = sliceTotals(scopeSchools);
 
+  const scopeClasses = q.data.classes.filter((c) => !schoolId || c.school_id === schoolId);
+  const grid = mapGrid(scopeClasses);
+  const checks = classChecks(scopeClasses);
+  const editable = editableCells(null);
+  const refDate = selected ? (q.data.refDates.get(selected.school_id) ?? null) : null;
+  const printGrid = () => {
+    const meta = [`Escola: ${selected ? (selected.school_name ?? "") : "todas as escolas visíveis"} · INEP ${selected?.inep ?? "—"} · Ano 2026`, `Data de referência: ${refDate ? new Date(refDate).toLocaleDateString("pt-BR") : "não declarada"}`, "Turno não declarado no Censo 2026. Células calculadas, somente leitura."];
+    exportMap(MAP_GRID_REPORT, gridCells(grid), "pdf", { headerLines: [brand.name], title: MAP_GRID_REPORT.title }, meta).then((b) => { const w = window.open(URL.createObjectURL(b), "_blank"); w?.addEventListener("load", () => w.print()); });
+  };
   const download = async (which: "escolas" | "turmas", format: "csv" | "xlsx" | "pdf") => {
     setBusy(true);
     try {
@@ -144,17 +156,38 @@ export function CensusMap2026Page() {
         </section>
       )}
 
-      <section aria-labelledby="map-groups" className="space-y-3">
-        <h2 id="map-groups" className="font-display text-xl font-semibold">Por etapa de ensino {selected ? "" : "(rede)"}</h2>
+      <section aria-labelledby="map-grid" className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h2 id="map-grid" className="font-display text-xl font-semibold">Grade do mapa — modalidades e etapas</h2>
+          <Button size="sm" variant="outline" onClick={printGrid}>Imprimir grade (A4 paisagem)</Button>
+        </div>
+        <div className="rounded-xl border border-border bg-card p-4 text-sm">
+          <p className="font-semibold">{brand.name} · Mapa do Censo Escolar · Ano 2026</p>
+          <p>Escola: {selected ? (selected.school_name ?? "não informado") : "Todas as escolas visíveis"} · INEP: {selected ? (selected.inep ?? "não informado") : "—"}</p>
+          <p>Data de referência: {refDate ? new Date(refDate).toLocaleDateString("pt-BR") : (q.data.refError ? "não lida (sem permissão)" : "não declarada")} (fechamento do recibo do Censo)</p>
+          <p className="mt-1 text-xs text-muted-foreground">Turno: não declarado no Censo 2026 por turma. Legenda: Turmas = turmas 2026; Qtd. declarada = alunos informados pelo Censo na turma; Vínculos = matrículas em turma no banco; AEE = vínculos em turmas de atendimento especializado. Vínculos não somam como alunos.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Todas as células são calculadas e somente leitura. Campos editáveis: {editable.length ? editable.join(", ") : "nenhum — nenhuma regra homologada do Mapa declara célula ajustável para 2026"}.</p>
+        </div>
         <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-sm">
-            <caption className="sr-only">Turmas e vínculos por etapa</caption>
-            <thead><tr>{["Etapa", "Turmas", "Vínculos", "Qtd. declarada no Censo"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
-            <tbody>{groupClasses((q.data.classes).filter((c) => !schoolId || c.school_id === schoolId), "stage").map((g) => (
-              <tr key={g.label} className={registryRow}><td className={registryTd}>{g.label}</td><td className={registryTd}>{fmt(g.classes)}</td><td className={registryTd}>{fmt(g.bonds)}</td><td className={registryTd}>{fmt(g.declared)}</td></tr>))}</tbody>
+            <caption className="sr-only">Grade do mapa por modalidade e etapa</caption>
+            <thead><tr>{["Modalidade / etapa agregada", "Etapa", "Turmas", "Qtd. declarada", "Vínculos", "AEE"].map((h) => <th key={h} scope="col" className={registryTh}>{h}</th>)}</tr></thead>
+            <tbody>{grid.map((g, i) => (
+              <tr key={i} className={`${registryRow} ${g.kind !== "linha" ? "bg-muted/50 font-semibold" : ""}`}>
+                <td className={registryTd}>{g.kind === "linha" ? g.group : ""}</td><td className={registryTd}>{g.stage}</td>
+                <td className={registryTd}>{fmt(g.classes)}</td><td className={registryTd}>{fmt(g.declared)}</td><td className={registryTd}>{fmt(g.bonds)}</td><td className={registryTd}>{fmt(g.aee_bonds)}</td>
+              </tr>))}</tbody>
           </table>
         </div>
-        <p className="text-xs text-muted-foreground">Vínculos somam turmas; não somam como alunos — um aluno em turma regular e em AEE tem dois vínculos. Recorte: {fmt(slice.classes)} turmas.</p>
+      </section>
+
+      <section aria-labelledby="map-checks" className="space-y-2 rounded-xl border border-border bg-card p-4 text-sm">
+        <h2 id="map-checks" className="font-display text-lg font-semibold">Comparador por turma (Censo × banco)</h2>
+        <p>{checks.filter((c) => c.status === "coincide").length} coincidem · {checks.filter((c) => c.status === "diverge").length} divergem · {checks.filter((c) => c.status === "sem-declaracao").length} sem quantidade declarada.</p>
+        {checks.filter((c) => c.status !== "coincide").length > 0 && (
+          <ul className="list-disc pl-5">{checks.filter((c) => c.status !== "coincide").map((c) => (
+            <li key={c.class_id}>{names.get(c.school_id) ?? "Escola"} — {c.label}: {c.status === "diverge" ? `Censo ${fmt(c.declared)}, banco ${fmt(c.bonds)}` : "Censo não declarou quantidade (erro, não zero)"}</li>))}</ul>
+        )}
       </section>
 
       <section aria-labelledby="map-classes" className="space-y-3">
