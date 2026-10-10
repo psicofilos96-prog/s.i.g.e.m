@@ -127,7 +127,7 @@ export function buildPanel(i: Inputs): { blocks: Block[]; pending: Pending[] } {
   // Lote D: pessoal, infraestrutura e mapas declarados — leitura RLS da sessão; registro ausente nunca é zero.
   if (i.staff) simple(i.staff, B("pessoal", "Registros administrativos de pessoal 2026", "staff_administrative_records", "/profissionais", false), "registros de pessoal", "unknown");
   if (i.infrastructure) simple(i.infrastructure, B("infraestrutura", "Observações de infraestrutura (Censo)", "school_infrastructure_observations", "/unidades", false), "observações de infraestrutura", "unknown");
-  if (i.declaredMaps) simple(i.declaredMaps, B("mapa-declarado", "Mapas mensais declarados pela escola", "school_declared_monthly_maps", "/mapa-censo-2026", false), "competências declaradas", "unknown");
+  if (i.declaredMaps) simple(i.declaredMaps, B("mapa-declarado", "Mapas mensais declarados pela escola", "school_declared_monthly_maps", "/mapa-mensal-2026", false), "competências declaradas", "unknown");
 
   for (const b of blocks) if (b.state === "UNKNOWN" && b.reason?.startsWith("Falha")) pending.push({ id: `falha-${b.id}`, kind: "fonte-indisponivel", text: `${b.title}: fonte não lida.`, link: b.link, source: b.source });
   return { blocks, pending };
