@@ -30,7 +30,11 @@ export type DeclaredClassGroup = { turma: string; modalidade: string | null; eta
  * são somadas à turma de origem (cada etapa uma vez por turma); nunca contam como turmas distintas. Linha cujo nome é igual à etapa
  * sem cabeça multisseriada antes continua sendo turma própria (não se presume agrupamento).
  */
-export function groupDeclaredClasses(classes: DeclaredClass[]): DeclaredClassGroup[] {
+/** Linha-modelo vazia da planilha ("-", "--" e 0 alunos) não é turma declarada. */
+export const isPlaceholderLine = (c: DeclaredClass) => (c.alunos ?? 0) === 0 && /^[\s\-–—.]*$/.test(c.turma ?? "");
+
+export function groupDeclaredClasses(all: DeclaredClass[]): DeclaredClassGroup[] {
+  const classes = all.filter((c) => !isPlaceholderLine(c));
   const out: DeclaredClassGroup[] = [];
   let head: DeclaredClassGroup | null = null;
   for (const c of classes) {
@@ -89,7 +93,7 @@ export function projectDeclared(d: DeclaredMap, registryInep: string | null, pre
     if (d.total_iii !== null && d.total_iii !== sum) { section_iii = "incoerente"; issues.push(`Soma das turmas (${sum}) diferente do total III (${d.total_iii}).`); }
     if (d.total_ii !== null && d.total_ii !== sum) { section_iii = "incoerente"; issues.push(`Soma das turmas (${sum}) diferente do total II (${d.total_ii}).`); }
     // Linhas só por etapa (sem nome de turma) não permitem contar turmas: comparação não verificável, nunca ressalva.
-    const named = (d.classes ?? []).some((c) => norm(c.turma) !== norm(c.etapa));
+    const named = (d.classes ?? []).filter((c) => !isPlaceholderLine(c)).some((c) => norm(c.turma) !== norm(c.etapa));
     if (named && d.declared_classes !== null && d.declared_classes !== groups.length) { section_iii = "incoerente"; issues.push(`Nº de turmas declarado (${d.declared_classes}) diferente das turmas listadas (${groups.length}, após agrupar multisseriadas).`); }
   }
 

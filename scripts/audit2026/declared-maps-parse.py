@@ -76,7 +76,7 @@ def parse_sheet(ws):
             nm=row.get(tcol) if tcol else None
             nm=" ".join(str(nm).split()) if nm not in (None,"") and not num(nm) else None
             alunos=sum(per.values())
-            if alunos==0 and not nm: continue
+            if alunos==0 and (not nm or re.fullmatch(r"[\s\-–—.]*",nm)): continue
             item={"modalidade":(" ".join(mod.split()) if mod else None),"etapa":et,"turma":nm or et,"alunos":alunos}
             item.update({ {"1 TURNO":"turno1","2 TURNO":"turno2","3 TURNO":"turno3","INTEGRAL":"integral"}[k]:float(v) for k,v in per.items()})
             (projects if inproj else classes).append(item)
