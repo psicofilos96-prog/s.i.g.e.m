@@ -73,7 +73,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   return (
     <div className="space-y-6 p-4 md:p-6">
       <RegistryHero eyebrow={mode === "rede" ? "SEMED · Consolidado mensal" : "Escolas"} title={`Mapa Estatístico mensal — ${MONTHS[month - 1]} de 2026`}
-        description="Cada mês é lido na sua data de referência a partir das enturmações, matrículas e saídas registradas. O Censo é referência, não prova da situação de cada mês." />
+        lede="Cada mês é lido na sua data de referência a partir das enturmações, matrículas e saídas registradas. O Censo é referência, não prova da situação de cada mês." />
 
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">Mês de referência

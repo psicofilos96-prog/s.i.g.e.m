@@ -8,15 +8,15 @@ const raw = (o: Record<string, unknown>) => ({ school_id: "A", inep: "1", school
 
 describe("mapa mensal 2026", () => {
   it("mês sem histórico não mostra números (nem zero nem cópia do Censo)", () => {
-    const [r] = normalizeMonthly([raw({ status: "nao-apurado", reference_date: "2026-03-31" })]);
+    const r = normalizeMonthly([raw({ status: "nao-apurado", reference_date: "2026-03-31" })])[0]!;
     expect(r.distinct_students).toBeNull();
     expect(r.bonds).toBeNull();
   });
   it("matrícula sem data de início não é afirmada como vigente no mês", () => {
-    expect(normalizeMonthly([raw({})])[0].school_enrollments).toBeNull();
+    expect(normalizeMonthly([raw({})])[0]!.school_enrollments).toBeNull();
   });
   it("AEE não conta como novo aluno: só-AEE é subconjunto dos alunos distintos", () => {
-    const [r] = normalizeMonthly([raw({})]);
+    const r = normalizeMonthly([raw({})])[0]!;
     expect(r.bonds).toBe((r.regular_bonds as number) + (r.aee_bonds as number));
     expect(r.aee_only_students! <= r.distinct_students!).toBe(true);
   });
@@ -42,7 +42,7 @@ describe("mapa mensal 2026", () => {
     const c2 = { ...c, version: 2, kind: "revisao" as const, measures: { bonds: 111 } };
     const latest = latestClosures([c, c2]).get("A:7")!;
     expect(latest.version).toBe(2);
-    const e = effectiveRow(normalizeMonthly([raw({ bonds: 115 })])[0], latest);
+    const e = effectiveRow(normalizeMonthly([raw({ bonds: 115 })])[0]!, latest);
     expect(e.bonds).toBe(111);
     expect(e.driftFromFrozen).toContain("bonds");
   });
