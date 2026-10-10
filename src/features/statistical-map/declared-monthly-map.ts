@@ -88,7 +88,6 @@ export function projectDeclared(d: DeclaredMap, registryInep: string | null, pre
     if (d.total_iii !== null && d.total_iii !== sum) { section_iii = "incoerente"; issues.push(`Soma das turmas (${sum}) diferente do total III (${d.total_iii}).`); }
     if (d.total_ii !== null && d.total_ii !== sum) { section_iii = "incoerente"; issues.push(`Soma das turmas (${sum}) diferente do total II (${d.total_ii}).`); }
     if (d.declared_classes !== null && d.declared_classes !== groups.length) { section_iii = "incoerente"; issues.push(`Nº de turmas declarado (${d.declared_classes}) diferente das turmas listadas (${groups.length}, após agrupar multisseriadas).`); }
-    if (groups.some((g) => g.alunos > 60)) { section_iii = "incoerente"; issues.push("Turma com mais de 60 alunos declarados (provável erro de digitação)."); }
   }
 
   let previous_month_check: DeclaredProjection["previous_month_check"] = "sem-mes-anterior";
