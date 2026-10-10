@@ -23,6 +23,7 @@ function Page() {
   const [reads, setReads] = useState<QuestionRead[] | null>(null);
   const [decisions, setDecisions] = useState<Record<number, string | null>>({});
   const [message, setMessage] = useState<string | null>(null);
+  const [qrRead, setQrRead] = useState<string | null>(null);
 
   const print = () => {
     const w = window.open("", "_blank");
@@ -63,7 +64,7 @@ function Page() {
     <main className="mx-auto max-w-5xl space-y-6 p-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold text-foreground">Cartão-resposta e conferência</h1>
-        <p className="text-sm text-muted-foreground">Imprima o cartão, depois envie a imagem escaneada ou bem enquadrada pelos quatro quadrados pretos. Fotos inclinadas ainda não são corrigidas automaticamente. Toda leitura passa por conferência sua.</p>
+        <p className="text-sm text-muted-foreground">Imprima o cartão, depois envie a imagem escaneada ou bem enquadrada pelos quatro quadrados pretos. Fotos inclinadas são endireitadas pelos quatro quadrados; sem eles a leitura é recusada. Toda leitura passa por conferência sua.</p>
       </header>
       <section className="flex flex-wrap items-end gap-3">
         <label className="text-sm text-foreground">Questões <input type="number" min={1} max={50} value={questions} onChange={(e) => setQuestions(Math.min(50, Math.max(1, Number(e.target.value) || 1)))} className="ml-2 w-20 rounded border border-input bg-background px-2 py-1" /></label>
@@ -89,6 +90,7 @@ function Page() {
                   </select></td>
                 </tr>))}</tbody>
             </table>
+            <p className="text-sm text-muted-foreground">QR lido: {qrRead ? (qrRead === token ? "confere com este cartão" : "de outro cartão — confira antes de aceitar") : "não encontrado"}</p>
             <Button onClick={confirm}>Confirmar conferência</Button>
             {message && <p role="status" className="text-sm text-foreground">{message}</p>}
           </div>
