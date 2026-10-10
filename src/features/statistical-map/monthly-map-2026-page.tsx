@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { RegistryHero, registryTd, registryTh, registryRow } from "@/components/sigem/registry-layout";
 import { brand } from "@/config/branding";
 import { exportMap } from "./census-map-2026";
+import { operationalToday } from "@/lib/academic-date";
 import {
   MEASURES, MONTHS, MONTHLY_REPORT, STATUS_LABEL, compareMonths, effectiveRow, latestClosures, monthlyCells, networkMonth, normalizeMonthly,
   referenceDate, canFreeze, provenance, type Closure,
@@ -28,6 +29,13 @@ async function loadMonth(month: number) {
   return { rows, history: ((cl.data ?? []) as unknown) as Closure[] };
 }
 
+function refusal(m: string): string {
+  if (/capacidade/.test(m)) return "Apuração recusada: sua conta não tem a competência de oficializar o mapa desta escola.";
+  if (/não encerrado/.test(m)) return "Apuração recusada: o mês ainda não terminou (mapa provisório).";
+  if (/evidência datada/.test(m)) return "Apuração recusada: o mês não tem evidência datada suficiente (estimativa parcial).";
+  if (/justificativa/.test(m)) return "Apuração recusada: escreva uma justificativa com pelo menos 10 caracteres.";
+  return "Apuração recusada pelo banco. Nada foi gravado.";
+}
 const fmt = (v: number | null | undefined) => (v === null || v === undefined ? "não apurado" : v.toLocaleString("pt-BR"));
 const dateBr = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString("pt-BR");
 
@@ -51,7 +59,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   const selected = school ? rows[0] : undefined;
 
   if (cur.isLoading) return <LoadingState label="Lendo o mapa do mês" />;
-  if (cur.error) return <div role="alert" className="p-6">Não foi possível ler o mapa: {(cur.error as Error).message}</div>;
+  if (cur.error) return <div role="alert" className="p-6">Não foi possível ler o mapa deste mês. Verifique sua sessão e tente novamente.</div>;
 
   const meta = [`Ano letivo 2026 · Mês de referência: ${MONTHS[month - 1]} · Data de referência: ${dateBr(referenceDate(month))} (último dia do mês; regra do Mapa sem versão homologada)`,
     selected ? `Escola: ${selected.school_name ?? ""} · INEP ${selected.inep ?? "não informado"}` : `Recorte: ${rows.length} escolas visíveis · ${net.apuradas} apuradas · ${net.estimadas} estimativa parcial · ${net.provisorias} provisórias`];
@@ -65,7 +73,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   const record = async () => {
     setMsg(null);
     const { error } = await rpc("record_monthly_map_2026", { _school: school, _month: month, _reason: reason || null });
-    setMsg(error ? `Apuração recusada: ${error.message}` : "Apuração registrada e congelada.");
+    setMsg(error ? refusal(error.message) : "Apuração registrada e congelada.");
     if (!error) { setReason(""); qc.invalidateQueries({ queryKey: ["mapa-mensal-2026", month] }); }
   };
   const history = (cur.data?.history ?? []).filter((h) => h.school_id === school).sort((a, b) => b.version - a.version);
@@ -130,7 +138,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
           <h2 id="ap-h" className="font-display text-lg">Apuração do mês — {selected.school_name}</h2>
           <p className="text-sm text-muted-foreground">Só mês encerrado e apurado por evidência datada pode ser congelado; estimativa parcial e mês provisório não. Apuração e revisão exigem justificativa; revisão cria nova versão. Só contas com a competência de oficializar o mapa nesta escola conseguem registrar.</p>
           <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Justificativa (mín. 10 caracteres)" aria-label="Justificativa da apuração" />
-          <Button size="sm" disabled={!canFreeze(selected, new Date().toISOString().slice(0, 10)) || reason.trim().length < 10} onClick={record}>{selected.frozen ? "Registrar revisão" : "Apurar e congelar o mês"}</Button>
+          <Button size="sm" disabled={!canFreeze(selected, operationalToday()) || reason.trim().length < 10} onClick={record}>{selected.frozen ? "Registrar revisão" : "Apurar e congelar o mês"}</Button>
           {msg && <p role="status" className="text-sm">{msg}</p>}
           {history.length > 0 && <ul className="text-sm">{history.map((h) => <li key={h.version}>v{h.version} · {h.kind === "apuracao" ? "apuração" : "revisão"} · {new Date(h.created_at).toLocaleString("pt-BR")}{h.reason ? ` · ${h.reason}` : ""}</li>)}</ul>}
         </section>
