@@ -55,7 +55,7 @@ export function projectFinalSheet(i: SheetInput): { rows: SheetRow[]; blocked: s
       const given = comps.reduce((a, c, k) => a + (i.cells[cellKey(st.id, i.components[k]!.id)]?.lessonsGiven ?? 0), 0);
       const abs = comps.map((_, k) => i.cells[cellKey(st.id, i.components[k]!.id)]?.absences ?? null);
       const att = abs.some((x) => x === null) ? null : attendancePct(given, abs.reduce<number>((a, b) => a + (b ?? 0), 0));
-      overall = ejaResult(st.status, comps, att, i.rule?.passMark, i.rule ? i.rule.minAttendance ?? Number.POSITIVE_INFINITY : undefined);
+      overall = i.rule && i.rule.minAttendance === null ? AWAITING_RULE : ejaResult(st.status, comps, att, i.rule?.passMark, i.rule?.minAttendance ?? undefined);
     } else overall = comps.some((c) => c.result === "PENDENTE") ? "PENDENTE" : comps.every((c) => c.result === "APROVADO") ? "APROVADO" : "REPROVADO";
     return { student: st, components: comps, overall, missing };
   });
