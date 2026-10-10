@@ -80,3 +80,20 @@ describe("diário nominal da turma", () => {
     expect(src).not.toMatch(/client\.server|supabaseAdmin|\.insert\(|\.update\(|\.delete\(|\.upsert\(/);
   });
 });
+
+import { sortFilterPage, ROSTER_PAGE_SIZE as PS } from "./class-roster";
+describe("lista da turma — ordenação da turma inteira", () => {
+  const mk = (i: number, name: string) => ({ episodeId: `e${String(i).padStart(5, "0")}`, studentId: `s${i}`, enrollmentId: `m${i}`, studentName: name, validFrom: null,
+    bond: "regular" as const, situation: { kind: "vigente" as const }, otherActiveClasses: 0 });
+  it("ordena por nome em todos os registros (>1000), não só na página", () => {
+    const list = Array.from({ length: 1200 }, (_, i) => mk(i, `Aluno ${String(1199 - i).padStart(4, "0")}`));
+    const p1 = sortFilterPage(list, { page: 0, search: "", sort: "nome" });
+    expect(p1.total).toBe(1200); expect(p1.entries).toHaveLength(PS);
+    expect(p1.entries[0]!.studentName).toBe("Aluno 0000");
+    expect(sortFilterPage(list, { page: 23, search: "", sort: "nome" }).entries.at(-1)!.studentName).toBe("Aluno 1199");
+  });
+  it("pesquisa filtra antes de paginar", () => {
+    const r = sortFilterPage([mk(1, "Maria"), mk(2, "João")], { page: 0, search: "mar", sort: "nome" });
+    expect(r.total).toBe(1); expect(r.entries[0]!.studentName).toBe("Maria");
+  });
+});
