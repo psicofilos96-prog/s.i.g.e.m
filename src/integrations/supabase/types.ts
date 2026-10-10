@@ -16057,6 +16057,51 @@ export type Database = {
           },
         ]
       }
+      staff_reconciliation_candidates: {
+        Row: {
+          candidate_count: number
+          candidate_person_id: string | null
+          derived_at: string
+          id: string
+          outcome: string
+          rule: string
+          staff_record_id: string
+        }
+        Insert: {
+          candidate_count: number
+          candidate_person_id?: string | null
+          derived_at?: string
+          id?: string
+          outcome: string
+          rule: string
+          staff_record_id: string
+        }
+        Update: {
+          candidate_count?: number
+          candidate_person_id?: string | null
+          derived_at?: string
+          id?: string
+          outcome?: string
+          rule?: string
+          staff_record_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_reconciliation_candidates_candidate_person_id_fkey"
+            columns: ["candidate_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "staff_reconciliation_candidates_staff_record_id_fkey"
+            columns: ["staff_record_id"]
+            isOneToOne: false
+            referencedRelation: "staff_administrative_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       statistical_map_cell_adjustments: {
         Row: {
           actor_side: string
@@ -16950,6 +16995,44 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_school_day_intervals: {
+        Row: {
+          derived_at: string
+          ends_at: string
+          id: string
+          observation_id: string
+          parser: string
+          starts_at: string
+          weekday: number
+        }
+        Insert: {
+          derived_at?: string
+          ends_at: string
+          id?: string
+          observation_id: string
+          parser?: string
+          starts_at: string
+          weekday: number
+        }
+        Update: {
+          derived_at?: string
+          ends_at?: string
+          id?: string
+          observation_id?: string
+          parser?: string
+          starts_at?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_school_day_intervals_observation_id_fkey"
+            columns: ["observation_id"]
+            isOneToOne: false
+            referencedRelation: "student_school_day_observations"
             referencedColumns: ["id"]
           },
         ]
