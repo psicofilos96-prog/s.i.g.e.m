@@ -12,7 +12,8 @@ import {
   MEASURES, MONTHS, MONTHLY_REPORT, STATUS_LABEL, compareMonths, effectiveRow, latestClosures, monthlyCells, networkMonth, normalizeMonthly,
   referenceDate, canFreeze, provenance, type Closure,
 } from "./monthly-map-2026";
-import { compareDeclared, movementBalance, type DeclaredMap } from "./declared-monthly-map";
+import { IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
+import type { ReportDefinition } from "@/features/reports/report-engine";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const rpc = supabase.rpc as unknown as Rpc;
@@ -134,7 +135,8 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
         </table>
       </section>
 
-      {selected && <DeclaredPanel schoolId={selected.school_id} month={month} sigem={selected} />}
+      {selected && <DeclaredPanel schoolId={selected.school_id} month={month} sigem={selected} registryInep={selected.inep ?? null} />}
+      {mode === "rede" && <DeclaredCoveragePanel names={new Map((cur.data?.rows ?? []).map((r) => [r.school_id, { name: r.school_name ?? r.school_id, inep: r.inep ?? null }]))} />}
 
       {selected && (
         <section aria-labelledby="ap-h" className="space-y-2 rounded-md border border-border p-4">
@@ -150,35 +152,92 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   );
 }
 
-function DeclaredPanel({ schoolId, month, sigem }: { schoolId: string; month: number; sigem: { distinct_students: number | null; classes_with_students: number | null } }) {
+const DECLARED_COLS = "school_id,inep_declared,year,month,source_file,source_sheet,shifts,previous_month_enrollment,transfers_in,new_students,transfers_out,dropouts,withdrawn_cancelled,total_ii,declared_classes,total_iii,classes,consistency_issues";
+const VERDICT: Record<string, string> = { coincide: "Coincide", diverge: "Diverge", indisponivel: "Sem dado para comparar", "referencia-nao-apurada": "Sem veredito: o mês do SIGEM não está apurado" };
+
+function DeclaredPanel({ schoolId, month, sigem, registryInep }: { schoolId: string; month: number; registryInep: string | null; sigem: { distinct_students: number | null; classes_with_students: number | null; status: string } }) {
   const q = useQuery({
     queryKey: ["mapa-declarado-2026", schoolId, month],
     queryFn: async () => {
-      const { data, error } = await supabase.from("school_declared_monthly_maps" as never).select("*").eq("school_id", schoolId).eq("year", 2026).eq("month", month);
+      const { data, error } = await supabase.from("school_declared_monthly_maps" as never).select(DECLARED_COLS).eq("school_id", schoolId).eq("year", 2026).in("month", [month - 1, month]);
       if (error) throw new Error(error.message);
       return ((data ?? []) as unknown) as DeclaredMap[];
     },
   });
   if (q.isLoading) return <LoadingState label="Lendo o mapa declarado pela escola" />;
   if (q.error) return <p role="alert" className="text-sm">Não foi possível ler o mapa declarado pela escola.</p>;
-  const list = q.data ?? [];
+  const all = q.data ?? [];
+  const prevs = all.filter((d) => d.month === month - 1);
+  const list = all.filter((d) => d.month === month);
   return (
     <section aria-labelledby="dec-h" className="space-y-2 rounded-md border border-border p-4">
       <h2 id="dec-h" className="font-display text-lg">Mapa declarado pela escola — {MONTHS[month - 1]}</h2>
+      <p className="text-xs text-muted-foreground">Declaração documental da escola, preservada como enviada. Não é o mapa calculado pelo SIGEM nem mapa homologado.</p>
       {list.length === 0 ? <p className="text-sm text-muted-foreground">A escola não enviou planilha deste mês.</p> : list.map((d) => {
-        const bal = movementBalance(d);
+        const p = projectDeclared(d, registryInep, prevs.length === 1 ? prevs[0] : null);
         return (
           <div key={d.source_sheet + d.source_file} className="space-y-2 text-sm">
-            <p className="text-muted-foreground">Fonte: planilha "{d.source_file}", aba {d.source_sheet}. Declaração da escola; não substitui a apuração do SIGEM.</p>
-            <p>Anterior {fmt(d.previous_month_enrollment)} · recebidas {fmt(d.transfers_in)} · novos {fmt(d.new_students)} · expedidas {fmt(d.transfers_out)} · evadidos {fmt(d.dropouts)} · desistentes/cancelados {fmt(d.withdrawn_cancelled)} → total declarado {fmt(d.total_ii)}{bal !== null && bal !== d.total_ii ? ` (a conta dá ${bal})` : ""}</p>
-            <table className="w-full"><thead><tr><th scope="col" className={registryTh}>Medida</th><th scope="col" className={registryTh}>Declarado</th><th scope="col" className={registryTh}>SIGEM</th><th scope="col" className={registryTh}>Situação</th></tr></thead>
+            <p><strong>{STATE_LABEL[p.state]}</strong> · Seção I {SECTION_LABEL[p.section_i]} · Seção II {SECTION_LABEL[p.section_ii]} · Seção III {SECTION_LABEL[p.section_iii]}</p>
+            {p.identity !== "confirmada" && <div role="alert" className="rounded border border-border bg-muted/40 p-2"><strong>Identidade não confirmada.</strong> {IDENTITY_NOTICE} (planilha: {p.inep_declared ?? "sem INEP"}; cadastro: {registryInep ?? "não informado"})</div>}
+            <p className="text-muted-foreground">Fonte: planilha "{d.source_file}", aba {d.source_sheet}.</p>
+            <p>Anterior {fmt(d.previous_month_enrollment)} · recebidas {fmt(d.transfers_in)} · novos {fmt(d.new_students)} · expedidas {fmt(d.transfers_out)} · evadidos {fmt(d.dropouts)} · desistentes/cancelados {fmt(d.withdrawn_cancelled)} → total declarado {fmt(d.total_ii)}{p.balance !== null && p.balance !== d.total_ii ? ` (a conta dá ${p.balance})` : ""}</p>
+            <table className="w-full"><thead><tr><th scope="col" className={registryTh}>Medida</th><th scope="col" className={registryTh}>Declarado</th><th scope="col" className={registryTh}>SIGEM ({STATUS_LABEL[sigem.status as keyof typeof STATUS_LABEL] ?? sigem.status})</th><th scope="col" className={registryTh}>Situação</th></tr></thead>
               <tbody>{compareDeclared(d, sigem).map((c) => <tr key={c.field} className={registryRow}><td className={registryTd}>{c.field}</td><td className={registryTd}>{fmt(c.declared)}</td><td className={registryTd}>{fmt(c.sigem)}</td>
-                <td className={registryTd}>{c.status === "coincide" ? "Coincide" : c.status === "diverge" ? "Diverge" : "Sem dado para comparar"}</td></tr>)}</tbody></table>
-            {d.classes.length > 0 && <details><summary>Turmas declaradas ({d.classes.length})</summary><ul>{d.classes.map((c, i) => <li key={i}>{c.etapa ?? "etapa não informada"} · {c.turma}: {c.alunos}</li>)}</ul></details>}
-            {d.consistency_issues.length > 0 && <div role="note" className="rounded border border-border bg-muted/40 p-2"><strong>Inconsistências na planilha:</strong><ul className="list-disc pl-5">{d.consistency_issues.map((x) => <li key={x}>{x}</li>)}</ul></div>}
+                <td className={registryTd}>{VERDICT[c.status]}</td></tr>)}</tbody></table>
+            {p.class_groups.length > 0 && <details><summary>Turmas declaradas ({p.class_groups.length} turmas em {p.class_lines} linhas)</summary><ul>{p.class_groups.map((c, i) => <li key={i}>{c.multisseriada ? "Multisseriada · " : ""}{c.etapas.join(" + ") || "etapa não informada"} · {c.turma}: {c.alunos}</li>)}</ul></details>}
+            {p.issues.length > 0 && <div role="note" className="rounded border border-border bg-muted/40 p-2"><strong>Ressalvas:</strong><ul className="list-disc pl-5">{p.issues.map((x) => <li key={x}>{x}</li>)}</ul></div>}
           </div>
         );
       })}
+    </section>
+  );
+}
+
+const DECLARED_REPORT: ReportDefinition = {
+  id: "mapas-declarados-2026", version: 1, title: "Mapas mensais declarados 2026 — cobertura", description: "Declaração documental das escolas; não é apuração nem homologação.",
+  source: "school_declared_monthly_maps", params: [], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
+  columns: [
+    { id: "inep", label: "INEP cadastro", kind: "text" }, { id: "school", label: "Escola", kind: "text" }, { id: "mes", label: "Mês", kind: "text" },
+    { id: "inep_planilha", label: "INEP planilha", kind: "text" }, { id: "identidade", label: "Identidade", kind: "text" }, { id: "estado", label: "Estado", kind: "text" },
+    { id: "s1", label: "Seção I", kind: "text" }, { id: "s2", label: "Seção II", kind: "text" }, { id: "s3", label: "Seção III", kind: "text" },
+    { id: "anterior", label: "Mês anterior", kind: "text" }, { id: "total", label: "Total declarado", kind: "number" }, { id: "turmas", label: "Turmas (agrupadas)", kind: "number" },
+  ],
+};
+
+function DeclaredCoveragePanel({ names }: { names: Map<string, { name: string; inep: string | null }> }) {
+  const q = useQuery({
+    queryKey: ["mapas-declarados-cobertura-2026"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("school_declared_monthly_maps" as never).select(DECLARED_COLS).eq("year", 2026).order("school_id").order("month").range(0, 4999);
+      if (error) throw new Error(error.message);
+      return ((data ?? []) as unknown) as DeclaredMap[];
+    },
+  });
+  if (q.isLoading) return <LoadingState label="Lendo a cobertura dos mapas declarados" />;
+  if (q.error) return <p role="alert" className="text-sm">Não foi possível ler os mapas declarados.</p>;
+  const maps = q.data ?? [];
+  const projs = projectAll(maps, (s) => names.get(s)?.inep ?? null);
+  const cov = declaredCoverage(projs, names.size || 55);
+  const totals = new Map(maps.map((m) => [`${m.school_id}:${m.month}`, m.total_ii]));
+  async function download(format: "csv" | "xlsx" | "pdf") {
+    const cells = projs.map((p) => ({ inep: p.registry_inep, school: names.get(p.school_id)?.name ?? p.school_id, mes: MONTHS[p.month - 1] ?? String(p.month),
+      inep_planilha: p.inep_declared, identidade: p.identity === "confirmada" ? "confirmada" : "associada por nome — reconciliação documental pendente",
+      estado: STATE_LABEL[p.state], s1: SECTION_LABEL[p.section_i], s2: SECTION_LABEL[p.section_ii], s3: SECTION_LABEL[p.section_iii],
+      anterior: p.previous_month_check, total: totals.get(`${p.school_id}:${p.month}`) ?? null, turmas: p.class_groups.length }));
+    const blob = await exportMap(DECLARED_REPORT, cells, format, { headerLines: [brand.name, "Mapas mensais declarados 2026"], title: DECLARED_REPORT.title },
+      ["Ano letivo 2026 · meses de fevereiro a setembro", "Declaração documental; não é apuração do SIGEM nem homologação", `${cov.schools_declared}/${cov.schools_total} escolas · ${cov.competences} competências`]);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `mapas-declarados-2026.${format === "pdf" ? "html" : format}`; a.click(); URL.revokeObjectURL(a.href);
+  }
+  return (
+    <section aria-labelledby="cov-h" className="space-y-2 rounded-md border border-border p-4">
+      <h2 id="cov-h" className="font-display text-lg">Mapas declarados pelas escolas — cobertura 2026</h2>
+      <p className="text-sm">{cov.schools_declared}/{cov.schools_total} escolas · {cov.competences} meses declarados · {cov.with_ressalvas} com ressalvas · {cov.unconfirmed_identity.length} escola(s) com identidade não confirmada{cov.duplicated.length ? ` · ${cov.duplicated.length} mês(es) duplicado(s)` : ""}</p>
+      <div className="flex gap-2">{(["pdf", "xlsx", "csv"] as const).map((f) => <Button key={f} size="sm" variant="outline" onClick={() => void download(f)}>{f.toUpperCase()}</Button>)}</div>
+      <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><th scope="col" className={registryTh}>Escola</th><th scope="col" className={registryTh}>Meses declarados</th><th scope="col" className={registryTh}>Faltam (fev–set)</th><th scope="col" className={registryTh}>Com ressalvas</th><th scope="col" className={registryTh}>Identidade</th></tr></thead>
+        <tbody>{cov.per_school.map((s) => <tr key={s.school_id} className={registryRow}><td className={registryTd}>{names.get(s.school_id)?.name ?? s.school_id}</td><td className={registryTd}>{s.months.map((m) => MONTHS[m - 1]?.slice(0, 3)).join(", ")}</td>
+          <td className={registryTd}>{s.missing.map((m) => MONTHS[m - 1]?.slice(0, 3)).join(", ") || "nenhum"}</td><td className={registryTd}>{s.ressalvas}</td>
+          <td className={registryTd}>{s.identity === "confirmada" ? "Confirmada" : "Associada por nome — exige reconciliação documental"}</td></tr>)}</tbody></table></div>
+      <p className="text-xs text-muted-foreground">Escolas sem nenhuma planilha não aparecem na tabela. Novos lotes entram sem duplicar: a mesma aba do mesmo arquivo é gravada uma única vez, e as declarações gravadas não podem ser alteradas.</p>
     </section>
   );
 }

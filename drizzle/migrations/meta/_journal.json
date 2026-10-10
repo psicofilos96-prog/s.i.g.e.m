@@ -2003,6 +2003,13 @@
       "when": 1791633077621,
       "tag": "0285_school_declared_monthly_maps",
       "breakpoints": true
+    },
+    {
+      "idx": 286,
+      "version": "7",
+      "when": 1791647074248,
+      "tag": "0286_declared_monthly_maps_append_only",
+      "breakpoints": true
     }
   ]
 }

@@ -326,5 +326,13 @@
  "drizzle/migrations/0275_intervencao3_account_activation.sql": "e72adba9c5fd925cde62f20377bb8c684cba6db77fa5b43652eeab88a7bf656f",
  "drizzle/migrations/0276_int8_staff_administrative_records.sql": "16dedd2e2e840da9311d400fb423e77f9d231b7e0ae5884af16ad941e1b4c7f3",
  "drizzle/migrations/0277_aud2026_jornada_intervals_staff_reconciliation.sql": "cdc32e6e108cb5e9ccff2637917805ba5c941fa25a7527741b00eb54733d0224",
- "drizzle/migrations/0278_lote6_staff_reconciliation_decisions.sql": "9d8cf7331f88a5934d8bfcb5ac9a928f7da196e7281e61c5e18730813125d0c3"
+ "drizzle/migrations/0278_lote6_staff_reconciliation_decisions.sql": "9d8cf7331f88a5934d8bfcb5ac9a928f7da196e7281e61c5e18730813125d0c3",
+ "drizzle/migrations/0279_identity_link_reviews.sql": "e84c17919b7acbf3be94f8c86d0603781b40510a1187a23859164613ae018bde",
+ "drizzle/migrations/0280_lote10_school_scope_fixes.sql": "529e21c7d055ba3c4ba3167699e74de46f7debe7194c4231ed58b66572fbe047",
+ "drizzle/migrations/0281_lote13_student_bond_census_attributes.sql": "83fc7549333defbff871080d441ca439e7b2538aba883e44d0166e535bb7b4dc",
+ "drizzle/migrations/0282_lote15_census_map_2026_readers.sql": "5b071c1195d4c1c5a4c48e9152c55dd590a0567c497e4e0b18889598a6ae23a8",
+ "drizzle/migrations/0283_monthly_map_2026.sql": "bf12bb91e38cf28923adf865dfec2bba8535234bfd8f855a1c0158f8078953d2",
+ "drizzle/migrations/0284_monthly_map_2026_evidence_v2.sql": "21cc135fa42f2c88b00382d3cfc5242c02a8c7efe18be6dffb44a71cec095497",
+ "drizzle/migrations/0285_school_declared_monthly_maps.sql": "54ab290e71999571929db7364f1fbbe8be172faa835018bdbaab857e5d5ccc46",
+ "drizzle/migrations/0286_declared_monthly_maps_append_only.sql": "a295450f65909fd889c2eab29b587069a111d494d42431cad366e5d075c456fe"
 }
