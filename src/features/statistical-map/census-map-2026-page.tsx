@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { LoadingState } from "@/components/sigem/states";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -48,7 +50,7 @@ export function CensusMap2026Page() {
     .sort((a, b) => `${names.get(a.school_id)}${a.class_name}`.localeCompare(`${names.get(b.school_id)}${b.class_name}`, "pt-BR")), [q.data, schoolId, type, names]);
   const selected = q.data?.schools.find((s) => s.school_id === schoolId) ?? null;
 
-  if (q.isPending) return <p role="status" className="text-sm text-muted-foreground">Carregando o mapa 2026…</p>;
+  if (q.isPending) return <LoadingState label="Carregando o mapa 2026" />;
   if (q.isError) return (
     <div role="alert" className="space-y-2 rounded-xl border border-destructive/40 p-4 text-sm">
       <p>Não foi possível ler o mapa com as suas permissões: {(q.error as Error).message}</p>
@@ -174,7 +176,7 @@ export function CensusMap2026Page() {
             <tbody>{classes.map((c) => (
               <tr key={c.class_id} className={registryRow}>
                 <td className={registryTd}>{names.get(c.school_id) ?? "não informado"}</td>
-                <td className={registryTd}><a className="text-primary underline-offset-2 hover:underline" href={`/turmas/${encodeURIComponent(c.class_id)}`}>{c.class_name ?? c.class_code ?? "Turma"}</a></td>
+                <td className={registryTd}><Link to="/turmas/$id" params={{ id: c.class_id }} className="text-primary underline-offset-2 hover:underline">{c.class_name ?? c.class_code ?? "Turma"}</Link></td>
                 <td className={registryTd}>{c.stage ?? "não informado"}</td><td className={registryTd}>{c.class_type ?? "não informado"}</td>
                 <td className={registryTd}>{c.mediation ?? "não informado"}</td><td className={`${registryTd} max-w-xs text-xs`}>{c.schedule_literal ?? "não informado"}</td>
                 <td className={registryTd}>{fmt(c.declared_students)}</td><td className={registryTd}>{fmt(c.bonds)}</td><td className={registryTd}>{fmt(c.professionals)}</td>

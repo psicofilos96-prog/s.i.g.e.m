@@ -31,7 +31,7 @@ describe("Mapa do Censo 2026", () => {
   });
   it("readers são SECURITY INVOKER, só 2026, sem grant anon e sem gravação", () => {
     const sql = readFileSync("drizzle/migrations/0282_lote15_census_map_2026_readers.sql", "utf8");
-    expect(sql.match(/SECURITY INVOKER/g)?.length).toBe(3);
+    expect(sql.match(/LANGUAGE sql STABLE SECURITY INVOKER/g)?.length).toBe(3);
     expect(sql).not.toMatch(/SECURITY DEFINER|\bINSERT\b|\bUPDATE\b|\bDELETE\b|TO anon/);
     expect(sql).toMatch(/Ano letivo 2026/);
   });
