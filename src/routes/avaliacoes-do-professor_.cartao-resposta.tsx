@@ -77,7 +77,7 @@ function Page() {
                 </tr>))}</tbody>
             </table>
             <Button onClick={confirm}>Confirmar conferência</Button>
-            {message && <p className="text-sm text-foreground">{message}</p>}
+            {message && <p role="status" className="text-sm text-foreground">{message}</p>}
           </div>
         </section>
       )}

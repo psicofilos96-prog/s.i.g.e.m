@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { operationalToday } from "@/lib/academic-date";
 import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -399,7 +400,7 @@ function EmissionHistory({ list, onReissue }: { list: ReportEmission[] | null; o
   return <div className="space-y-1"><h3 className="font-medium">Minhas emissões</h3>
     {list.length === 0 ? <p className="text-muted-foreground">Nenhuma emissão registrada.</p> : <ul className="divide-y">{list.map((e) => (
       <li key={e.id} className="flex flex-wrap items-center justify-between gap-2 py-1">
-        <span>{e.title} · {e.format.toUpperCase()} · {e.row_count} linha(s) · {new Date(e.issued_at).toLocaleString("pt-BR")} · <a className="underline" href={`/verificar/relatorio/${e.verification_code}`}>{e.verification_code}</a>{e.reissue_of ? " · reemissão" : ""}</span>
+        <span>{e.title} · {e.format.toUpperCase()} · {e.row_count} linha(s) · {new Date(e.issued_at).toLocaleString("pt-BR")} · <Link className="underline" to="/verificar/relatorio/$codigo" params={{ codigo: e.verification_code }}>{e.verification_code}</Link>{e.reissue_of ? " · reemissão" : ""}</span>
         <Button size="sm" variant="outline" onClick={() => onReissue(e)}>Reemitir</Button>
       </li>))}</ul>}
   </div>;

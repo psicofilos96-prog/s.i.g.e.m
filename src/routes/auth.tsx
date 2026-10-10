@@ -137,7 +137,7 @@ function AuthPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-4 text-center text-[10px] uppercase tracking-[0.3em] text-login-ink/60">Itaperuna - RJ</p>
+            <p className="mt-4 text-center text-2xs uppercase tracking-[0.3em] text-login-ink/60">Itaperuna - RJ</p>
           </div>
         </main>
         <section aria-label="Identidade da cidade" className="hidden min-w-0 flex-1 flex-col py-8 pl-8 pr-6 lg:flex xl:py-10 xl:pl-16 xl:pr-10">
