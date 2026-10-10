@@ -27,7 +27,7 @@ export type DeclaredClassGroup = { turma: string; modalidade: string | null; eta
 /**
  * Na planilha, uma turma multisseriada ocupa uma linha por etapa: a primeira traz o nome da turma
  * (que contém "multisseriad") e as seguintes repetem só a etapa no campo turma. Linhas de continuação
- * são somadas à turma de origem; nunca contam como turmas distintas. Linha cujo nome é igual à etapa
+ * são somadas à turma de origem (cada etapa uma vez por turma); nunca contam como turmas distintas. Linha cujo nome é igual à etapa
  * sem cabeça multisseriada antes continua sendo turma própria (não se presume agrupamento).
  */
 export function groupDeclaredClasses(classes: DeclaredClass[]): DeclaredClassGroup[] {
@@ -35,7 +35,8 @@ export function groupDeclaredClasses(classes: DeclaredClass[]): DeclaredClassGro
   let head: DeclaredClassGroup | null = null;
   for (const c of classes) {
     const isHead = /MULTISSERIAD/.test(norm(c.turma));
-    const isContinuation = !isHead && head !== null && norm(c.turma) === norm(c.etapa) && norm(c.modalidade) === norm(head.modalidade);
+    const isContinuation = !isHead && head !== null && norm(c.turma) === norm(c.etapa) && norm(c.modalidade) === norm(head.modalidade)
+      && !head.etapas.some((e) => norm(e) === norm(c.etapa));
     if (isContinuation && head) {
       head.alunos += c.alunos; head.linhas += 1;
       if (c.etapa && !head.etapas.includes(c.etapa)) head.etapas.push(c.etapa);
