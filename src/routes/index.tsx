@@ -5,7 +5,9 @@ import heroImage from "@/assets/itaperuna-home.png.asset.json";
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { Button } from "@/components/ui/button";
 import { brand } from "@/config/branding";
-import { useSessionUser } from "@/features/authority/session-authority";
+import { useSessionAuthority, useSessionUser } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { HomeTodayPanel } from "@/features/workspace/home-today";
 import { BUILDER_SOURCES } from "@/features/reports/builder-sources";
 import { panoramaTotals, type PanoramaRow } from "@/features/reports/cross-reports";
 
@@ -53,6 +55,8 @@ const tasks = [
 
 function HomePage() {
   const { user, loading } = useSessionUser();
+  const authority = useSessionAuthority();
+  const myTasks = authority.status === "signed-in" ? tasks.filter((t) => pathAllowed(authority, t.to)) : tasks;
   const q = usePanorama(!!user);
   const rows = q.data ?? [];
   const totals = rows.length ? panoramaTotals(rows) : null;
@@ -131,6 +135,8 @@ function HomePage() {
           )}
         </section>
 
+        {user && <HomeTodayPanel userId={user.id} />}
+
         <div className="grid gap-12 border-t border-border py-10 lg:grid-cols-[minmax(0,1.6fr)_minmax(16rem,1fr)] lg:gap-16">
           {/* Distribuição das matrículas */}
           <section aria-labelledby="dist" className="min-w-0">
@@ -167,7 +173,8 @@ function HomePage() {
             <p className="eyebrow">Trabalhar</p>
             <h2 id="tarefas" className="mt-2 font-display text-2xl">Ir direto à tarefa</h2>
             <ul className="mt-5 divide-y divide-border border-y border-border">
-              {tasks.map(({ to, label, hint, icon: Icon }) => (
+              {myTasks.length === 0 && authority.status === "signed-in" && <li className="py-3.5 text-sm text-muted-foreground">Nenhum atalho disponível para o seu perfil.</li>}
+              {myTasks.map(({ to, label, hint, icon: Icon }) => (
                 <li key={to}>
                   <Link to={to} className="group flex items-center gap-4 py-3.5">
                     <Icon className="size-5 shrink-0 text-accent-foreground" />
