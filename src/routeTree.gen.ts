@@ -35,6 +35,7 @@ import { Route as CentralDeIntegracoesRouteImport } from './routes/central-de-in
 import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as ComunicacaoEscolarRouteImport } from './routes/comunicacao-escolar'
 import { Route as ConciliacaoPessoalRouteImport } from './routes/conciliacao-pessoal'
+import { Route as ConferenciaFontes2026RouteImport } from './routes/conferencia-fontes-2026'
 import { Route as ConfiguracaoInicialRouteImport } from './routes/configuracao-inicial'
 import { Route as DepartamentoPessoalRouteImport } from './routes/departamento-pessoal'
 import { Route as DesignSystemRouteImport } from './routes/design-system'
@@ -359,6 +360,11 @@ const ComunicacaoEscolarRoute = ComunicacaoEscolarRouteImport.update({
 const ConciliacaoPessoalRoute = ConciliacaoPessoalRouteImport.update({
   id: '/conciliacao-pessoal',
   path: '/conciliacao-pessoal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConferenciaFontes2026Route = ConferenciaFontes2026RouteImport.update({
+  id: '/conferencia-fontes-2026',
+  path: '/conferencia-fontes-2026',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracaoInicialRoute = ConfiguracaoInicialRouteImport.update({
@@ -1450,6 +1456,7 @@ export interface FileRoutesByFullPath {
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
+  '/conferencia-fontes-2026': typeof ConferenciaFontes2026Route
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -1670,6 +1677,7 @@ export interface FileRoutesByTo {
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
+  '/conferencia-fontes-2026': typeof ConferenciaFontes2026Route
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -1863,6 +1871,7 @@ export interface FileRoutesById {
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
+  '/conferencia-fontes-2026': typeof ConferenciaFontes2026Route
   '/configuracao-inicial': typeof ConfiguracaoInicialRoute
   '/departamento-pessoal': typeof DepartamentoPessoalRoute
   '/design-system': typeof DesignSystemRoute
@@ -2087,6 +2096,7 @@ export interface FileRouteTypes {
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
+    | '/conferencia-fontes-2026'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
@@ -2307,6 +2317,7 @@ export interface FileRouteTypes {
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
+    | '/conferencia-fontes-2026'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
@@ -2499,6 +2510,7 @@ export interface FileRouteTypes {
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
+    | '/conferencia-fontes-2026'
     | '/configuracao-inicial'
     | '/departamento-pessoal'
     | '/design-system'
@@ -2722,6 +2734,7 @@ export interface RootRouteChildren {
   CieceRoute: typeof CieceRoute
   ComunicacaoEscolarRoute: typeof ComunicacaoEscolarRoute
   ConciliacaoPessoalRoute: typeof ConciliacaoPessoalRoute
+  ConferenciaFontes2026Route: typeof ConferenciaFontes2026Route
   ConfiguracaoInicialRoute: typeof ConfiguracaoInicialRoute
   DepartamentoPessoalRoute: typeof DepartamentoPessoalRoute
   DesignSystemRoute: typeof DesignSystemRoute
@@ -2975,6 +2988,13 @@ declare module '@tanstack/react-router' {
       path: '/conciliacao-pessoal'
       fullPath: '/conciliacao-pessoal'
       preLoaderRoute: typeof ConciliacaoPessoalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conferencia-fontes-2026': {
+      id: '/conferencia-fontes-2026'
+      path: '/conferencia-fontes-2026'
+      fullPath: '/conferencia-fontes-2026'
+      preLoaderRoute: typeof ConferenciaFontes2026RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracao-inicial': {
@@ -5039,6 +5059,7 @@ const rootRouteChildren: RootRouteChildren = {
   CieceRoute: CieceRoute,
   ComunicacaoEscolarRoute: ComunicacaoEscolarRoute,
   ConciliacaoPessoalRoute: ConciliacaoPessoalRoute,
+  ConferenciaFontes2026Route: ConferenciaFontes2026Route,
   ConfiguracaoInicialRoute: ConfiguracaoInicialRoute,
   DepartamentoPessoalRoute: DepartamentoPessoalRoute,
   DesignSystemRoute: DesignSystemRoute,
