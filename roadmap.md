@@ -622,3 +622,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] R2: anexos SIPE privados (tabela + bucket + RLS)
 - [ ] R2: ficha histórica, consolidado assinado e impressão no modelo do diário da rede (falta o modelo original)
 - [ ] R2: telas para boletim e correção SIA
+- [x] R3: novo login visual (mesmo login, recuperação e rotas protegidas)
+- [x] R3: regras de inspetores, amostras/custódia, CAE mínimo, revisão nutricional, SAEB/risco (testadas, sem tela)
+- [ ] R3: dossiê anual com assinaturas e QR, telas de inspetores/CAE/SAEB/devolutivas, gravação no banco
+- [ ] Login: botão de conta institucional (sem provedor configurado), clima (sem fonte), "Lembrar de mim"
