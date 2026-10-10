@@ -102,7 +102,7 @@ export function ruleHeads(rules: readonly RuleRow[]): RuleRow[] {
 }
 /** Vigente em `on` (AAAA-MM-DD): início declarado ≤ on ≤ fim (se houver). Sem início ⇒ não vigente. */
 export const inForce = (r: RuleRow, on: string) => !!r.scope?.valid_from && r.scope.valid_from <= on && (!r.scope.valid_to || r.scope.valid_to >= on);
-export function applicableRule(rules: readonly RuleRow[], modality: Modality, opts: { year?: string; on?: string } = {}): { rule: ResultRule | null; issue: string | null } {
+export function applicableRule(rules: readonly RuleRow[], modality: Modality, opts: { year?: string | undefined; on?: string | undefined } = {}): { rule: ResultRule | null; issue: string | null } {
   const on = opts.on ?? new Date().toISOString().slice(0, 10);
   const ok = ruleHeads(rules).filter((r) => r.status === "homologada" && r.scope?.modality === modality && typeof r.params?.passMark === "number"
     && inForce(r, on) && (!r.scope.year || !opts.year || r.scope.year === opts.year));

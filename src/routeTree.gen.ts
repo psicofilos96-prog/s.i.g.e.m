@@ -109,6 +109,7 @@ import { Route as DiarioFrequenciaRouteImport } from './routes/diario.frequencia
 import { Route as DiarioRegistrarRouteImport } from './routes/diario.registrar'
 import { Route as DiarioTurmasRouteImport } from './routes/diario.turmas'
 import { Route as DiarioFolhaFinalRouteImport } from './routes/diario_.folha-final'
+import { Route as DiarioRegrasFolhaFinalRouteImport } from './routes/diario_.regras-folha-final'
 import { Route as EnturmacoesIndexRouteImport } from './routes/enturmacoes.index'
 import { Route as EnturmacoesMovimentarRouteImport } from './routes/enturmacoes.movimentar'
 import { Route as EnturmacoesNovaRouteImport } from './routes/enturmacoes.nova'
@@ -742,6 +743,11 @@ const DiarioTurmasRoute = DiarioTurmasRouteImport.update({
 const DiarioFolhaFinalRoute = DiarioFolhaFinalRouteImport.update({
   id: '/diario_/folha-final',
   path: '/diario/folha-final',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiarioRegrasFolhaFinalRoute = DiarioRegrasFolhaFinalRouteImport.update({
+  id: '/diario_/regras-folha-final',
+  path: '/diario/regras-folha-final',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnturmacoesIndexRoute = EnturmacoesIndexRouteImport.update({
@@ -1582,6 +1588,7 @@ export interface FileRoutesByFullPath {
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
   '/diario/folha-final': typeof DiarioFolhaFinalRoute
+  '/diario/regras-folha-final': typeof DiarioRegrasFolhaFinalRoute
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
   '/ficha-longitudinal/$id': typeof FichaLongitudinalIdRoute
@@ -1802,6 +1809,7 @@ export interface FileRoutesByTo {
   '/diario/frequencia': typeof DiarioFrequenciaRoute
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/folha-final': typeof DiarioFolhaFinalRoute
+  '/diario/regras-folha-final': typeof DiarioRegrasFolhaFinalRoute
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
   '/ficha-longitudinal/$id': typeof FichaLongitudinalIdRoute
@@ -2015,6 +2023,7 @@ export interface FileRoutesById {
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
   '/diario_/folha-final': typeof DiarioFolhaFinalRoute
+  '/diario_/regras-folha-final': typeof DiarioRegrasFolhaFinalRoute
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
   '/ficha-longitudinal/$id': typeof FichaLongitudinalIdRoute
@@ -2249,6 +2258,7 @@ export interface FileRouteTypes {
     | '/diario/registrar'
     | '/diario/turmas'
     | '/diario/folha-final'
+    | '/diario/regras-folha-final'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
     | '/ficha-longitudinal/$id'
@@ -2469,6 +2479,7 @@ export interface FileRouteTypes {
     | '/diario/frequencia'
     | '/diario/registrar'
     | '/diario/folha-final'
+    | '/diario/regras-folha-final'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
     | '/ficha-longitudinal/$id'
@@ -2681,6 +2692,7 @@ export interface FileRouteTypes {
     | '/diario/registrar'
     | '/diario/turmas'
     | '/diario_/folha-final'
+    | '/diario_/regras-folha-final'
     | '/enturmacoes/movimentar'
     | '/enturmacoes/nova'
     | '/ficha-longitudinal/$id'
@@ -2905,6 +2917,7 @@ export interface RootRouteChildren {
   AlimentacaoEscolarCozinhaRoute: typeof AlimentacaoEscolarCozinhaRoute
   AvaliacoesDoProfessorCartaoRespostaRoute: typeof AvaliacoesDoProfessorCartaoRespostaRoute
   DiarioFolhaFinalRoute: typeof DiarioFolhaFinalRoute
+  DiarioRegrasFolhaFinalRoute: typeof DiarioRegrasFolhaFinalRoute
   FichaLongitudinalIdRoute: typeof FichaLongitudinalIdRoute
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioFolhaFinalRoute: typeof LaboratorioFolhaFinalRoute
@@ -3625,6 +3638,13 @@ declare module '@tanstack/react-router' {
       path: '/diario/folha-final'
       fullPath: '/diario/folha-final'
       preLoaderRoute: typeof DiarioFolhaFinalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diario_/regras-folha-final': {
+      id: '/diario_/regras-folha-final'
+      path: '/diario/regras-folha-final'
+      fullPath: '/diario/regras-folha-final'
+      preLoaderRoute: typeof DiarioRegrasFolhaFinalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/enturmacoes/': {
@@ -5303,6 +5323,7 @@ const rootRouteChildren: RootRouteChildren = {
   AvaliacoesDoProfessorCartaoRespostaRoute:
     AvaliacoesDoProfessorCartaoRespostaRoute,
   DiarioFolhaFinalRoute: DiarioFolhaFinalRoute,
+  DiarioRegrasFolhaFinalRoute: DiarioRegrasFolhaFinalRoute,
   FichaLongitudinalIdRoute: FichaLongitudinalIdRoute,
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioFolhaFinalRoute: LaboratorioFolhaFinalRoute,
