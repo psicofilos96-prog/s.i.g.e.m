@@ -1,0 +1,3 @@
+-- Prova técnica A/B (identidades sintéticas, sem login humano) da trilha 0288. Termina em RAISE 'AB_PASS': nada persiste.
+-- Verifica: A vê só a própria; B não vê, não reemite e não reaproveita chave de A; anon só verifica (sem params/actor) e não emite.
+-- (corpo idêntico ao executado em 2026-10-10; ver docs/rotina-de-verificacao.md)
