@@ -1,5 +1,6 @@
 -- AUD2026.MASTER — auditoria mestre 2026, SOMENTE LEITURA, sem PII (só INEP e contagens).
 -- Fonte oficial: census_official_receipt_snapshots (última versão por escola) e class_census_declarations.
+-- Leitor: precisa de SELECT em institutional_classes (o papel restrito do psql do sandbox NÃO tem; falha fechada).
 -- Saída 1: linhas "school|inep|indicador|oficial|base|status". Saída 2: "assert|nome|valor" (valor≠0 = falha).
 \set ON_ERROR_STOP on
 \pset footer off
@@ -22,7 +23,7 @@ with rec as (
     (select count(*) from ep where ep.school_id = rec.school_id and ep.class_id in (select class_id from aee_cls)) aee,
     (select count(distinct person_id) from public.professional_census_declarations p where p.school_id = rec.school_id and p.function_literal ilike 'docente%') docentes,
     (select count(*) from public.school_infrastructure_observations i where i.school_id = rec.school_id) infra,
-    (select count(*) from public.student_school_day_intervals d join public.class_census_declarations o on o.id = d.observation_id join public.institutional_classes c on c.id = o.class_id where c.school_id = rec.school_id) jornada_intervalos
+    (select count(*) from public.student_school_day_intervals d join public.student_school_day_observations o on o.id = d.observation_id where o.school_id = rec.school_id) jornada_intervalos
   from rec
 )
 select 'school', inep, k, oficial, valor, case when oficial is null then 'NAO_COMPARAVEL' when oficial = valor then 'MATCH' else 'DIFF' end
@@ -58,6 +59,8 @@ select 'assert', n, v from (values
  ('declaracao_profissional_turma_orfa', (select count(*) from public.professional_census_declarations p where p.class_id is not null and not exists (select 1 from public.institutional_classes c where c.id = p.class_id))),
  ('infra_escola_sem_observacao', (select count(*) from public.institutional_schools s where not exists (select 1 from public.school_infrastructure_observations i where i.school_id = s.id))),
  ('infra_com_autoria_humana_tecnica', (select count(*) from public.school_infrastructure_observations where technical_operation_id is not null and (author_user_id is not null or author_person_id is not null))),
+ ('jornada_obs_turma_orfa', (select count(*) from public.student_school_day_observations o where o.class_id is not null and not exists (select 1 from public.institutional_classes c where c.id = o.class_id))),
+ ('jornada_obs_escola_difere_turma', (select count(*) from public.student_school_day_observations o join public.institutional_classes c on c.id = o.class_id where c.school_id <> o.school_id)),
  ('jornada_intervalo_invertido', (select count(*) from public.student_school_day_intervals where ends_at <= starts_at))
 ) a(n, v);
 
