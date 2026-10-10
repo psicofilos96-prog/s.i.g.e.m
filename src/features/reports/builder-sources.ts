@@ -8,6 +8,7 @@ import type { BuilderSource, Page } from "./report-builder";
 import { structureOf } from "@/features/statistical-map/map-structures";
 import { DIVERGENCE_LABEL, MEASURE_LABEL, classify, coverage as censusCoverage, difference } from "@/features/data-quality/census-official";
 import { classCountRows, infraValue, journeySchoolRows, panoramaRows, type DayObsRow, type EpisodeRow, type ReconRow } from "./cross-reports";
+import { classifySchool, networkLabel } from "@/features/statistical-map/declared-inconsistencies";
 import { REPORTING_REPORTS, toReportRow, type Dataset } from "@/features/school-meals/reporting-model";
 
 const C = (id: string, label: string, kind: ColumnDef["kind"] = "text"): ColumnDef => ({ id, label, kind });
@@ -17,7 +18,7 @@ const fail = (): never => { throw new Error("Não foi possível ler os dados com
 const SCHOOLS_DEF: ReportDefinition = {
   id: "gerador-escolas", version: 1, title: "Cadastro das escolas", description: "Versão vigente do cadastro de cada escola visível à conta.",
   source: "institutional_school_record_versions (versão mais recente por escola)", params: [],
-  columns: [C("name", "Escola"), C("dependency", "Dependência"), C("location", "Localização"), C("district", "Bairro/distrito"), C("rooms", "Salas", "number"), C("active", "Ativa"), C("valid_from", "Vigente desde", "date")],
+  columns: [C("name", "Escola"), C("network", "Rede (dependência × localização)"), C("dependency", "Dependência"), C("location", "Localização"), C("district", "Bairro/distrito"), C("rooms", "Salas", "number"), C("active", "Ativa"), C("valid_from", "Vigente desde", "date")],
   formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
 };
 
@@ -34,7 +35,7 @@ async function loadSchools({ offset, limit }: { offset: number; limit: number })
     .order("school_id").order("version_number", { ascending: false }).range(offset, offset + limit - 1);
   if (r.error) fail();
   // Linhas de versão: o gerador mantém só a mais recente por escola dentro do que a RLS devolveu.
-  return { rows: (r.data ?? []).map((x) => ({ _sid: x.school_id, _v: x.version_number, name: v(x.official_name), dependency: v(x.administrative_dependency), location: v(x.location_kind), district: v(x.district), rooms: v(x.classroom_count), active: v(x.active), valid_from: v(x.valid_from) })), total: r.count ?? null };
+  return { rows: (r.data ?? []).map((x) => ({ _sid: x.school_id, _v: x.version_number, name: v(x.official_name), network: networkLabel(classifySchool(x)), dependency: v(x.administrative_dependency), location: v(x.location_kind), district: v(x.district), rooms: v(x.classroom_count), active: v(x.active), valid_from: v(x.valid_from) })), total: r.count ?? null };
 }
 
 async function loadClasses({ from, to, offset, limit }: { from: string | null; to: string | null; offset: number; limit: number }): Promise<Page> {
@@ -297,10 +298,33 @@ function LOTE11_SOURCES(): BuilderSource[] {
       }) },
   ];
 }
+const DECLARED_DEF: ReportDefinition = {
+  id: "gerador-mapas-declarados", version: 1, title: "Mapas mensais declarados 2026", description: "Seções II/III declaradas pelas escolas, uma linha por escola e mês, com rede e ressalvas. Sem nomes.",
+  source: "school_declared_monthly_maps + institutional_school_record_versions", params: [],
+  columns: [C("school", "Escola"), C("network", "Rede"), C("month", "Mês", "number"), C("prev", "Matrícula do mês anterior", "number"), C("tin", "Transferidos recebidos", "number"), C("new", "Novos", "number"),
+    C("tout", "Transferidos expedidos", "number"), C("drop", "Evadidos", "number"), C("cancel", "Desistentes/cancelados", "number"), C("total_ii", "Total II", "number"), C("classes", "Turmas declaradas", "number"),
+    C("total_iii", "Total III", "number"), C("issues", "Ressalvas", "number"), C("source", "Arquivo / aba")],
+  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
+};
+type DeclRow = { school_id: string; month: number; previous_month_enrollment: number | null; transfers_in: number | null; new_students: number | null; transfers_out: number | null; dropouts: number | null; withdrawn_cancelled: number | null; total_ii: number | null; declared_classes: number | null; total_iii: number | null; consistency_issues: unknown; source_file: string; source_sheet: string };
+const DECLARED_SOURCE: BuilderSource = { id: "gerador-mapas-declarados", title: "Mapas mensais declarados 2026", sectors: ["ciece", "secretaria", "supervisao", "op-direcao", "admin"], definition: DECLARED_DEF,
+  methodology: "Valores como a escola declarou na planilha (documento, não apuração do SIGEM); célula vazia sai \"não disponível\", nunca zero. Rede vem do cadastro em duas dimensões: a conveniada rural soma em Conveniada e em zona rural.",
+  acl: "RLS dos mapas declarados com a sessão de quem gera (escola vê só as próprias).", period: false, pageSize: 5000, filterable: ["school", "network", "month"],
+  load: async ({ offset }) => {
+    if (offset > 0) return { rows: [], total: null };
+    const tdb = supabase as unknown as { from: (t: string) => { select: (c: string) => { order: (c: string) => { range: (a: number, b: number) => PromiseLike<{ data: DeclRow[] | null; error: unknown }> } } } };
+    const maps = await readAll<DeclRow>((a, b) => tdb.from("school_declared_monthly_maps").select("school_id, month, previous_month_enrollment, transfers_in, new_students, transfers_out, dropouts, withdrawn_cancelled, total_ii, declared_classes, total_iii, consistency_issues, source_file, source_sheet").order("id").range(a, b));
+    const sv = await readAll<{ school_id: string; official_name: string | null; version_number: number; location_kind: string | null; administrative_dependency: string | null }>((a, b) => supabase.from("institutional_school_record_versions").select("school_id, official_name, version_number, location_kind, administrative_dependency").order("school_id").order("version_number", { ascending: false }).range(a, b));
+    const head = new Map<string, (typeof sv)[number]>(); for (const r of sv) if (!head.has(r.school_id)) head.set(r.school_id, r);
+    const rows = maps.map((m) => { const h = head.get(m.school_id);
+      return { school: v(h?.official_name ?? "Escola sem nome cadastrado"), network: networkLabel(h ? classifySchool(h) : undefined), month: v(m.month), prev: v(m.previous_month_enrollment), tin: v(m.transfers_in), new: v(m.new_students), tout: v(m.transfers_out),
+        drop: v(m.dropouts), cancel: v(m.withdrawn_cancelled), total_ii: v(m.total_ii), classes: v(m.declared_classes), total_iii: v(m.total_iii), issues: Array.isArray(m.consistency_issues) ? m.consistency_issues.length : null, source: `${m.source_file} / ${m.source_sheet}` }; });
+    return { rows, total: rows.length };
+  } };
 export const BUILDER_SOURCES: readonly BuilderSource[] = [
   { id: "gerador-escolas", title: "Cadastro das escolas", sectors: ["secretaria", "ciece", "supervisao", "op-direcao", "admin"], definition: SCHOOLS_DEF,
     methodology: "Uma linha por escola: a versão de cadastro mais recente que a conta pode ler. Campo não informado sai como \"não disponível\".",
-    acl: "RLS do cadastro escolar com a sessão de quem gera.", period: false, pageSize: 1000, filterable: ["dependency", "location", "district", "active"], load: loadSchools, finalize: (r) => dedupeLatestSchools(r) },
+    acl: "RLS do cadastro escolar com a sessão de quem gera.", period: false, pageSize: 1000, filterable: ["network", "dependency", "location", "district", "active"], load: loadSchools, finalize: (r) => dedupeLatestSchools(r) },
   { id: "gerador-turmas", title: "Turmas", sectors: ["secretaria", "ciece", "op-direcao", "supervisao"], definition: CLASSES_DEF,
     methodology: "Uma linha por turma registrada; o período filtra pela data de início da turma. Nada é inferido.",
     acl: "RLS de turmas com a sessão de quem gera (escola vê só as próprias).", period: true, pageSize: 1000, filterable: ["school", "year", "stage"], load: loadClasses },
@@ -311,6 +335,7 @@ export const BUILDER_SOURCES: readonly BuilderSource[] = [
   ...(["pedidos", "entregas", "nao-conformidades", "movimentos", "execucoes"] as const).map(mealSource),
   pending("gerador-avaliacao", "Avaliação — resultados por habilidade", ["avaliacao"], "Os resultados saem pela tela de Desempenho, com a política de supressão dela; leitura transversal ainda não liberada."),
   ...CROSS_SOURCES,
+  DECLARED_SOURCE,
   pending("gerador-alunos", "Alunos (nominal)", ["secretaria"], "Dado nominal de estudante: leitura transversal exige reader com supressão por campo ainda não registrado."),
   pending("gerador-movimentacoes", "Movimentações", ["secretaria"], "Depende de enturmação 2026 (ENROLLMENT_EPISODES_2026_PENDING) e de reader de movimentações."),
   pending("gerador-jornadas", "Jornadas e horários", ["op-direcao"], "Sem fonte de jornada profissional (PROFESSIONAL_SCHEDULE_SOURCE_ABSENT)."),
