@@ -7,6 +7,7 @@
  * vigente em outra turma visível. Ausência continua ausência.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { readPages } from "@/lib/list-paging";
 
 export type RosterSort = "nome" | "inicio";
 export type RosterEpisodeRow = {
@@ -59,36 +60,49 @@ const sanitize = (q: string) => q.replace(/[%_,()*\\]/g, " ").trim().slice(0, 80
 type Raw = { id: string; student_id: string; enrollment_id: string; class_id: string; valid_from: string | null; supersedes_id: string | null;
   institutional_students: { display_name: string | null } | null; class_enrollment_episode_endings: Array<{ ended_on: string; reason_label: string | null }> | null };
 
-export async function readClassRoster(classId: string, args: { page: number; search: string; sort: RosterSort; isAee: boolean }, signal?: AbortSignal) {
-  const q = sanitize(args.search);
-  const from = args.page * ROSTER_PAGE_SIZE;
-  let b = supabase.from("class_enrollment_episodes")
-    .select(`id, student_id, enrollment_id, class_id, valid_from, supersedes_id, institutional_students${q ? "!inner" : ""}(display_name), class_enrollment_episode_endings(ended_on, reason_label)`, { count: "exact" })
-    .eq("class_id", classId);
-  if (q) b = b.ilike("institutional_students.display_name", `%${q}%`);
-  b = args.sort === "inicio" ? b.order("valid_from", { ascending: true, nullsFirst: false }).order("id") : b.order("student_id").order("id");
-  if (signal) b = b.abortSignal(signal);
-  const page = await b.range(from, from + ROSTER_PAGE_SIZE - 1);
-  if (page.error) throw new Error(page.error.message);
-  const raw = (page.data ?? []) as unknown as Raw[];
+/** Pesquisa, ordena (nome ou início) e pagina a turma INTEIRA; nunca ordena só a página. */
+export function sortFilterPage(entries: readonly RosterEntry[], args: { page: number; search: string; sort: RosterSort }) {
+  const q = sanitize(args.search).toLocaleLowerCase("pt-BR");
+  const f = q ? entries.filter((e) => (e.studentName ?? "").toLocaleLowerCase("pt-BR").includes(q)) : [...entries];
+  f.sort(args.sort === "inicio"
+    ? (a, b) => (a.validFrom ?? "9999").localeCompare(b.validFrom ?? "9999") || a.episodeId.localeCompare(b.episodeId)
+    : (a, b) => (a.studentName ?? "\uffff").localeCompare(b.studentName ?? "\uffff", "pt-BR", { sensitivity: "base" }) || a.episodeId.localeCompare(b.episodeId));
+  const from = Math.max(0, args.page) * ROSTER_PAGE_SIZE;
+  return { entries: f.slice(from, from + ROSTER_PAGE_SIZE), total: f.length };
+}
 
-  // Contagens exatas da turma inteira (só ids) e dupla matrícula da página — duas leituras, sem N+1.
-  const ids = [...new Set(raw.map((r) => r.student_id))];
-  let ac = supabase.from("class_enrollment_episodes").select("id, supersedes_id, student_id, enrollment_id, class_enrollment_episode_endings(ended_on)").eq("class_id", classId).limit(1000);
-  let oc = supabase.from("class_enrollment_episodes").select("id, supersedes_id, student_id, class_id, class_enrollment_episode_endings(ended_on)").in("student_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]).limit(1000);
-  if (signal) { ac = ac.abortSignal(signal); oc = oc.abortSignal(signal); }
-  const [all, other] = await Promise.all([ac, oc]);
+const ROSTER_MAX = 20000;
+
+export async function readClassRoster(classId: string, args: { page: number; search: string; sort: RosterSort; isAee: boolean }, signal?: AbortSignal) {
+  // Turma inteira em páginas de 1000 (ordem estável por id), sob a RLS de quem consulta.
+  const all = await readPages<Raw>((from, to) => {
+    let b = supabase.from("class_enrollment_episodes")
+      .select("id, student_id, enrollment_id, class_id, valid_from, supersedes_id, institutional_students(display_name), class_enrollment_episode_endings(ended_on, reason_label)")
+      .eq("class_id", classId).order("id");
+    if (signal) b = b.abortSignal(signal);
+    return b.range(from, to) as unknown as PromiseLike<{ data: Raw[] | null; error: { message: string } | null }>;
+  }, ROSTER_MAX);
   if (all.error) throw new Error(all.error.message);
-  if (other.error) throw new Error(other.error.message);
+  const raw = all.data ?? [];
   const ended = (e: unknown) => Array.isArray(e) && e.length > 0;
-  const counts = rosterCounts((all.data ?? []).map((r) => ({ ...r, ended: ended(r.class_enrollment_episode_endings) })));
+  const counts = rosterCounts(raw.map((r) => ({ ...r, ended: ended(r.class_enrollment_episode_endings) })));
+
+  // Dupla matrícula: uma leitura paginada para todos os alunos da turma (sem N+1).
+  const ids = [...new Set(raw.map((r) => r.student_id))];
+  type O = { id: string; supersedes_id: string | null; student_id: string; class_id: string; class_enrollment_episode_endings: unknown };
+  const other = ids.length ? await readPages<O>((from, to) => {
+    let b = supabase.from("class_enrollment_episodes").select("id, supersedes_id, student_id, class_id, class_enrollment_episode_endings(ended_on)")
+      .in("student_id", ids).order("id");
+    if (signal) b = b.abortSignal(signal);
+    return b.range(from, to) as unknown as PromiseLike<{ data: O[] | null; error: { message: string } | null }>;
+  }, ROSTER_MAX) : { data: [] as O[], error: null, truncated: false };
+  if (other.error) throw new Error(other.error.message);
   const otherActive = otherActiveByStudent((other.data ?? []).map((r) => ({ ...r, ended: ended(r.class_enrollment_episode_endings) })), classId);
 
   const rows: RosterEpisodeRow[] = raw.map((r) => ({
     id: r.id, student_id: r.student_id, enrollment_id: r.enrollment_id, class_id: r.class_id, valid_from: r.valid_from, supersedes_id: r.supersedes_id,
     studentName: r.institutional_students?.display_name ?? null, ending: r.class_enrollment_episode_endings?.[0] ?? null,
   }));
-  let entries = projectRoster(rows, { isAee: args.isAee, otherActive });
-  if (args.sort === "nome") entries = [...entries].sort((a, b) => (a.studentName ?? "\uffff").localeCompare(b.studentName ?? "\uffff", "pt-BR", { sensitivity: "base" }) || a.episodeId.localeCompare(b.episodeId));
-  return { entries, total: page.count ?? 0, counts, countsTruncated: (all.data?.length ?? 0) >= 1000 };
+  const page = sortFilterPage(projectRoster(rows, { isAee: args.isAee, otherActive }), args);
+  return { entries: page.entries, total: page.total, counts, countsTruncated: all.truncated || other.truncated };
 }

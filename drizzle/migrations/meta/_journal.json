@@ -1989,6 +1989,13 @@
       "when": 1791601920773,
       "tag": "0283_monthly_map_2026",
       "breakpoints": true
+    },
+    {
+      "idx": 284,
+      "version": "7",
+      "when": 1791630556612,
+      "tag": "0284_monthly_map_2026_evidence_v2",
+      "breakpoints": true
     }
   ]
 }

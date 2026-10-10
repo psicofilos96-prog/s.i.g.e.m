@@ -22794,6 +22794,32 @@ export type Database = {
           undated_enrollments: number
         }[]
       }
+      monthly_map_2026_live_v2: {
+        Args: { _month: number }
+        Returns: {
+          aee_bonds: number
+          aee_only_students: number
+          aee_students: number
+          bonds: number
+          classes_with_students: number
+          coverage_pct: number
+          dated_bonds: number
+          distinct_students: number
+          earliest_evidence: string
+          entries_in_month: number
+          exits_in_month: number
+          inep: string
+          reference_date: string
+          regular_bonds: number
+          school_enrollments: number
+          school_id: string
+          school_name: string
+          snapshot_bonds: number
+          snapshot_date: string
+          status: string
+          undated_enrollments: number
+        }[]
+      }
       movement_types_at: {
         Args: { _known_at?: string; _on: string }
         Returns: {
