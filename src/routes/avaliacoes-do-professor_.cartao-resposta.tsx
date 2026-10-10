@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import qrcode from "qrcode-generator";
+import jsQR from "jsqr";
 import { Button } from "@/components/ui/button";
 import { cardLayout, cardSvg, confirmReading, opaqueToken, readCard, type QuestionRead } from "@/features/teacher-assessment/answer-card";
+import { rectify } from "@/features/teacher-assessment/answer-card-rectify";
 
 const title = "Cartão-resposta e conferência — SIA";
 const description = "Gera cartão-resposta com bolhas circulares e código opaco, lê imagem enquadrada e exige conferência humana antes de aceitar.";
@@ -24,20 +27,30 @@ function Page() {
   const print = () => {
     const w = window.open("", "_blank");
     if (!w) return;
-    w.document.write(`<!doctype html><html><head><style>@page{size:A4;margin:0}body{margin:0}</style></head><body>${cardSvg(layout, { title: "Cartão-resposta", token })}</body></html>`);
+    const qr = qrcode(0, "M"); qr.addData(token); qr.make();
+    const n = qr.getModuleCount(), cell = 22 / n;
+    let q = "";
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (qr.isDark(r, c)) q += `<rect x="${160 + c * cell}" y="${28 + r * cell}" width="${cell}" height="${cell}"/>`;
+    const svg = cardSvg(layout, { title: "Cartão-resposta", token }).replace("</svg>", `<g fill="#000">${q}</g></svg>`);
+    w.document.write(`<!doctype html><html><head><style>@page{size:A4;margin:0}body{margin:0}</style></head><body>${svg}</body></html>`);
     w.document.close(); w.print();
   };
 
   const onFile = async (f: File) => {
     const url = URL.createObjectURL(f);
-    setPhoto(url); setDecisions({}); setMessage(null);
+    setPhoto(url); setDecisions({}); setMessage(null); setReads(null);
     const img = new Image(); img.src = url; await img.decode();
-    const c = document.createElement("canvas"); c.width = 1260; c.height = 1782;
+    const scale = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight));
+    const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * scale); c.height = Math.round(img.naturalHeight * scale);
     const ctx = c.getContext("2d")!; ctx.drawImage(img, 0, 0, c.width, c.height);
-    const rgba = ctx.getImageData(0, 0, c.width, c.height).data;
+    const id = ctx.getImageData(0, 0, c.width, c.height), rgba = id.data;
     const gray = new Uint8ClampedArray(c.width * c.height);
     for (let i = 0; i < gray.length; i++) gray[i] = (rgba[i * 4]! + rgba[i * 4 + 1]! + rgba[i * 4 + 2]!) / 3;
-    setReads(readCard(layout, { width: c.width, height: c.height, data: gray }));
+    const code = jsQR(rgba, c.width, c.height)?.data ?? null;
+    setQrRead(code);
+    const r = rectify(layout, { width: c.width, height: c.height, data: gray });
+    if (!r.ok) { setMessage(`Foto não lida: ${r.reason}. Fotografe o cartão inteiro, com os quatro quadrados visíveis.`); return; }
+    setReads(readCard(layout, r.image));
   };
 
   const confirm = () => {
