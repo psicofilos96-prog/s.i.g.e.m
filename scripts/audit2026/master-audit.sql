@@ -61,6 +61,7 @@ select 'assert', n, v from (values
  ('infra_com_autoria_humana_tecnica', (select count(*) from public.school_infrastructure_observations where technical_operation_id is not null and (author_user_id is not null or author_person_id is not null))),
  ('jornada_obs_turma_orfa', (select count(*) from public.student_school_day_observations o where o.class_id is not null and not exists (select 1 from public.institutional_classes c where c.id = o.class_id))),
  ('jornada_obs_escola_difere_turma', (select count(*) from public.student_school_day_observations o join public.institutional_classes c on c.id = o.class_id where c.school_id <> o.school_id)),
+ ('escola_com_matricula_sem_jornada_turma', (select count(*) from public.institutional_schools s where exists (select 1 from public.class_enrollment_episodes e where e.school_id = s.id) and not exists (select 1 from public.student_school_day_observations o where o.school_id = s.id))),
  ('jornada_intervalo_invertido', (select count(*) from public.student_school_day_intervals where ends_at <= starts_at))
 ) a(n, v);
 
