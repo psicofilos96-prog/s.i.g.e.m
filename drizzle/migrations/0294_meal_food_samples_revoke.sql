@@ -1,0 +1,1 @@
+REVOKE ALL ON public.meal_food_samples FROM PUBLIC, anon, authenticated;
