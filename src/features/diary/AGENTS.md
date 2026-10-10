@@ -126,3 +126,6 @@
 - Etapa só escolhe perfil versionado (`diary/stage-engine.ts`); regra de aprovação e escala nascem pendentes e bloqueiam resultado oficial, porque norma não pode nascer no código.
 - Gabarito por versão A–H é derivado do gabarito canônico pelo mapeamento reversível (`teacher-assessment/variant-key.ts`); correção é proposta e só grava com confirmação humana sobre a impressão aprovada pela OP.
 - Bordas de PDF só por `PRINT_TABLE_CSS` (pt, separate), porque 1px cinza some ao reduzir o zoom.
+
+## Regras dos modelos da rede (`network-model-rules.ts`)
+- Regras de nota/frequência/aprovação só entram com referência arquivo/aba/célula do modelo da rede e perfil versionado, porque regra sem fonte seria norma inventada.
