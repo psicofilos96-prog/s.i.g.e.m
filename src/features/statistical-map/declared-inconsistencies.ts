@@ -72,3 +72,21 @@ export function declaredOccurrences(maps: DeclaredMap[], projs: DeclaredProjecti
   }
   return out.sort((a, b) => a.id.localeCompare(b.id));
 }
+
+export const NETWORK_CATEGORIES = ["urbana", "rural", "conveniada"] as const;
+export type NetworkCategory = (typeof NETWORK_CATEGORIES)[number] | "nao-registrada";
+export const NETWORK_CATEGORY_LABEL: Record<NetworkCategory, string> = { urbana: "Municipal urbana", rural: "Municipal rural", conveniada: "Conveniada", "nao-registrada": "Não registrada" };
+
+/** Rede vem só do registro de origem do lote (os lotes 1 e 2 foram declarados pelo usuário como conveniadas); sem registro ⇒ "nao-registrada". */
+export function networkCategoryFromRef(ref: string | null | undefined): NetworkCategory {
+  const t = (ref ?? "").toLowerCase();
+  if (t.includes(":rural:")) return "rural";
+  if (t.includes(":urbana:")) return "urbana";
+  if (/mapas-declarados-lote[12]:/.test(t) || t.includes("conveniada")) return "conveniada";
+  return "nao-registrada";
+}
+export function schoolNetworkCategory(maps: { school_id: string; originating_act_ref?: string | null }[]): Map<string, NetworkCategory> {
+  const out = new Map<string, NetworkCategory>();
+  for (const m of maps) { const c = networkCategoryFromRef(m.originating_act_ref); if (!out.has(m.school_id) || out.get(m.school_id) === "nao-registrada") out.set(m.school_id, c); }
+  return out;
+}
