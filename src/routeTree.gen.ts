@@ -105,7 +105,6 @@ import { Route as DiarioIndexRouteImport } from './routes/diario.index'
 import { Route as DiarioAulasRouteImport } from './routes/diario.aulas'
 import { Route as DiarioChamadasRouteImport } from './routes/diario.chamadas'
 import { Route as DiarioDocumentosRouteImport } from './routes/diario.documentos'
-import { Route as DiarioFolhaFinalRouteImport } from './routes/diario.folha-final'
 import { Route as DiarioFrequenciaRouteImport } from './routes/diario.frequencia'
 import { Route as DiarioRegistrarRouteImport } from './routes/diario.registrar'
 import { Route as DiarioTurmasRouteImport } from './routes/diario.turmas'
@@ -118,6 +117,7 @@ import { Route as HorariosProfissionaisRouteImport } from './routes/horarios.pro
 import { Route as HorariosRevisoesRouteImport } from './routes/horarios.revisoes'
 import { Route as HorariosTurmasRouteImport } from './routes/horarios.turmas'
 import { Route as LaboratorioCieceRouteImport } from './routes/laboratorio.ciece'
+import { Route as LaboratorioFolhaFinalRouteImport } from './routes/laboratorio.folha-final'
 import { Route as LaboratorioRecuperacaoRouteImport } from './routes/laboratorio.recuperacao'
 import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
@@ -722,11 +722,6 @@ const DiarioDocumentosRoute = DiarioDocumentosRouteImport.update({
   path: '/documentos',
   getParentRoute: () => DiarioRoute,
 } as any)
-const DiarioFolhaFinalRoute = DiarioFolhaFinalRouteImport.update({
-  id: '/folha-final',
-  path: '/folha-final',
-  getParentRoute: () => DiarioRoute,
-} as any)
 const DiarioFrequenciaRoute = DiarioFrequenciaRouteImport.update({
   id: '/frequencia',
   path: '/frequencia',
@@ -785,6 +780,11 @@ const HorariosTurmasRoute = HorariosTurmasRouteImport.update({
 const LaboratorioCieceRoute = LaboratorioCieceRouteImport.update({
   id: '/laboratorio/ciece',
   path: '/laboratorio/ciece',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LaboratorioFolhaFinalRoute = LaboratorioFolhaFinalRouteImport.update({
+  id: '/laboratorio/folha-final',
+  path: '/laboratorio/folha-final',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LaboratorioRecuperacaoRoute = LaboratorioRecuperacaoRouteImport.update({
@@ -1565,7 +1565,6 @@ export interface FileRoutesByFullPath {
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
-  '/diario/folha-final': typeof DiarioFolhaFinalRoute
   '/diario/frequencia': typeof DiarioFrequenciaRoute
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
@@ -1576,6 +1575,7 @@ export interface FileRoutesByFullPath {
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
   '/laboratorio/ciece': typeof LaboratorioCieceRoute
+  '/laboratorio/folha-final': typeof LaboratorioFolhaFinalRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
@@ -1784,7 +1784,6 @@ export interface FileRoutesByTo {
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
-  '/diario/folha-final': typeof DiarioFolhaFinalRoute
   '/diario/frequencia': typeof DiarioFrequenciaRoute
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/enturmacoes/movimentar': typeof EnturmacoesMovimentarRoute
@@ -1792,6 +1791,7 @@ export interface FileRoutesByTo {
   '/ficha-longitudinal/$id': typeof FichaLongitudinalIdRoute
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/laboratorio/ciece': typeof LaboratorioCieceRoute
+  '/laboratorio/folha-final': typeof LaboratorioFolhaFinalRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
@@ -1994,7 +1994,6 @@ export interface FileRoutesById {
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
-  '/diario/folha-final': typeof DiarioFolhaFinalRoute
   '/diario/frequencia': typeof DiarioFrequenciaRoute
   '/diario/registrar': typeof DiarioRegistrarRoute
   '/diario/turmas': typeof DiarioTurmasRouteWithChildren
@@ -2005,6 +2004,7 @@ export interface FileRoutesById {
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
   '/laboratorio/ciece': typeof LaboratorioCieceRoute
+  '/laboratorio/folha-final': typeof LaboratorioFolhaFinalRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
@@ -2226,7 +2226,6 @@ export interface FileRouteTypes {
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
-    | '/diario/folha-final'
     | '/diario/frequencia'
     | '/diario/registrar'
     | '/diario/turmas'
@@ -2237,6 +2236,7 @@ export interface FileRouteTypes {
     | '/horarios/revisoes'
     | '/horarios/turmas'
     | '/laboratorio/ciece'
+    | '/laboratorio/folha-final'
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
@@ -2445,7 +2445,6 @@ export interface FileRouteTypes {
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
-    | '/diario/folha-final'
     | '/diario/frequencia'
     | '/diario/registrar'
     | '/enturmacoes/movimentar'
@@ -2453,6 +2452,7 @@ export interface FileRouteTypes {
     | '/ficha-longitudinal/$id'
     | '/horarios/revisoes'
     | '/laboratorio/ciece'
+    | '/laboratorio/folha-final'
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
@@ -2654,7 +2654,6 @@ export interface FileRouteTypes {
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
-    | '/diario/folha-final'
     | '/diario/frequencia'
     | '/diario/registrar'
     | '/diario/turmas'
@@ -2665,6 +2664,7 @@ export interface FileRouteTypes {
     | '/horarios/revisoes'
     | '/horarios/turmas'
     | '/laboratorio/ciece'
+    | '/laboratorio/folha-final'
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matrizes-curriculares/$id'
@@ -2881,6 +2881,7 @@ export interface RootRouteChildren {
   AvaliacoesDoProfessorCartaoRespostaRoute: typeof AvaliacoesDoProfessorCartaoRespostaRoute
   FichaLongitudinalIdRoute: typeof FichaLongitudinalIdRoute
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
+  LaboratorioFolhaFinalRoute: typeof LaboratorioFolhaFinalRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
   PublicoSlugRoute: typeof PublicoSlugRoute
   SecretariaLivroMatriculaRoute: typeof SecretariaLivroMatriculaRoute
@@ -3571,13 +3572,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DiarioDocumentosRouteImport
       parentRoute: typeof DiarioRoute
     }
-    '/diario/folha-final': {
-      id: '/diario/folha-final'
-      path: '/folha-final'
-      fullPath: '/diario/folha-final'
-      preLoaderRoute: typeof DiarioFolhaFinalRouteImport
-      parentRoute: typeof DiarioRoute
-    }
     '/diario/frequencia': {
       id: '/diario/frequencia'
       path: '/frequencia'
@@ -3660,6 +3654,13 @@ declare module '@tanstack/react-router' {
       path: '/laboratorio/ciece'
       fullPath: '/laboratorio/ciece'
       preLoaderRoute: typeof LaboratorioCieceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/laboratorio/folha-final': {
+      id: '/laboratorio/folha-final'
+      path: '/laboratorio/folha-final'
+      fullPath: '/laboratorio/folha-final'
+      preLoaderRoute: typeof LaboratorioFolhaFinalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/laboratorio/recuperacao': {
@@ -4643,7 +4644,6 @@ interface DiarioRouteChildren {
   DiarioAulasRoute: typeof DiarioAulasRoute
   DiarioChamadasRoute: typeof DiarioChamadasRoute
   DiarioDocumentosRoute: typeof DiarioDocumentosRoute
-  DiarioFolhaFinalRoute: typeof DiarioFolhaFinalRoute
   DiarioFrequenciaRoute: typeof DiarioFrequenciaRoute
   DiarioRegistrarRoute: typeof DiarioRegistrarRoute
   DiarioTurmasRoute: typeof DiarioTurmasRouteWithChildren
@@ -4656,7 +4656,6 @@ const DiarioRouteChildren: DiarioRouteChildren = {
   DiarioAulasRoute: DiarioAulasRoute,
   DiarioChamadasRoute: DiarioChamadasRoute,
   DiarioDocumentosRoute: DiarioDocumentosRoute,
-  DiarioFolhaFinalRoute: DiarioFolhaFinalRoute,
   DiarioFrequenciaRoute: DiarioFrequenciaRoute,
   DiarioRegistrarRoute: DiarioRegistrarRoute,
   DiarioTurmasRoute: DiarioTurmasRouteWithChildren,
@@ -5264,6 +5263,7 @@ const rootRouteChildren: RootRouteChildren = {
     AvaliacoesDoProfessorCartaoRespostaRoute,
   FichaLongitudinalIdRoute: FichaLongitudinalIdRoute,
   LaboratorioCieceRoute: LaboratorioCieceRoute,
+  LaboratorioFolhaFinalRoute: LaboratorioFolhaFinalRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
   PublicoSlugRoute: PublicoSlugRoute,
   SecretariaLivroMatriculaRoute: SecretariaLivroMatriculaRoute,
