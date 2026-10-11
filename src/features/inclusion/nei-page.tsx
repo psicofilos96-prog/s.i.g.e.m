@@ -8,6 +8,7 @@ import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/cu
 import { NEI_ROLE_LABEL, dashTotals, grantShapeProblem, scopeLabel, visibleAreas, type NeiAccess, type NeiDashRow, type NeiRole } from "./nei-areas";
 
 import { DateInput } from "@/components/sigem/date-input";
+import { askText } from "@/components/sigem/confirm-action";
 // RPCs novas (0330–0333); tipagem local mínima para não depender da geração.
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const MSG: Record<string, string> = {
@@ -133,7 +134,7 @@ function TeamPanel({ access }: { access: NeiAccess[] }) {
     setMsg(r.error ? human(r.error.message) : "Papel concedido."); if (!r.error) { setReason(""); reload(); }
   }
   async function revoke(id: string) {
-    const why = window.prompt("Motivo da revogação (mínimo 5 caracteres):") ?? "";
+    const why = await askText("Motivo da revogação (mínimo 5 caracteres):") ?? "";
     if (why.trim().length < 5) return;
     const r = await rpc("revoke_nei_role_grant", { _grant: id, _reason: why.trim() });
     setMsg(r.error ? human(r.error.message) : "Papel revogado."); reload();

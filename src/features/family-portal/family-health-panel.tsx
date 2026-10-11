@@ -5,6 +5,7 @@ import { CONSENT_TEXT, CONSENT_VERSION, HEALTH_KINDS, HEALTH_KIND_LABEL, healthM
   type HealthDraft, type HealthItem, type HealthRow } from "./family-health";
 import { readHealthHistory, recordHealth } from "./family-health-source";
 
+import { confirmAction } from "@/components/sigem/confirm-action";
 const EMPTY: HealthDraft = { kind: "", description: "", instructions: "", consent: false };
 const when = (t: string) => new Date(t).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
 const EVENT: Record<HealthRow["event_kind"], string> = { declaracao: "declarada", retificacao: "retificada", retirada: "retirada" };
@@ -31,8 +32,8 @@ export function FamilyHealth({ studentId }: { studentId: string }) {
       kind: editing ? null : (draft.kind || null), description: draft.description, instructions: draft.instructions, consentVersion: CONSENT_VERSION }),
       editing ? "Informação retificada; a versão anterior fica no histórico." : "Informação enviada à escola.");
   }
-  function withdraw(it: HealthItem) {
-    if (!window.confirm("Retirar esta informação? A escola deixará de vê-la; o histórico permanece.")) return;
+  async function withdraw(it: HealthItem) {
+    if (!(await confirmAction({ title: "Retirar esta informação?", consequence: "A escola deixará de vê-la; o histórico permanece.", actionLabel: "Retirar", destructive: true }))) return;
     void run(() => recordHealth({ student: studentId, base: it.head.id, event: "retirada", kind: null, description: null, instructions: null, consentVersion: CONSENT_VERSION }),
       "Informação retirada.");
   }

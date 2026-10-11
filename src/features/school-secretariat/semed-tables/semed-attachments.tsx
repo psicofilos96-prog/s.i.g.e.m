@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 
+import { askText } from "@/components/sigem/confirm-action";
 /** Anexos privados de uma tabela SEMED (bucket `semed-anexos`): envio só por quem preenche, leitura no escopo, retirada com motivo. */
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
@@ -44,7 +45,7 @@ export function SemedAttachments({ school, year, code, canFill }: { school: stri
     window.open(s.data.signedUrl, "_blank", "noopener");
   };
   const withdraw = async (a: Att) => {
-    const reason = window.prompt("Motivo da retirada do anexo (mín. 5 caracteres)"); if (!reason) return;
+    const reason = await askText("Motivo da retirada do anexo (mín. 5 caracteres)"); if (!reason) return;
     const r = await rpc("semed_attachment_withdraw", { _id: a.id, _reason: reason });
     setMsg(r.error ? "Retirada recusada." : "Anexo retirado (fica no histórico)."); if (!r.error) await load();
   };
