@@ -104,7 +104,7 @@ async def main():
         p(await c.locator(".recharts-bar-rectangle").count() > 0 and await c.locator(".recharts-line-curve").count() > 0, "família misto (barras + linha)")
         p(await c.get_by_text("Ver dados do gráfico em tabela").count() == 1, "alternativa acessível: dados em tabela")
         await pg.get_by_role("button", name="Adicionar gráfico").click(); ed = pg.locator("section[aria-labelledby=ed-w]")
-        await ed.get_by_label("Tipo de gráfico").select_option(value="map")
+        await ed.get_by_label("Fonte principal").select_option(label="Escolas"); await ed.get_by_label("Tipo de gráfico").select_option(value="map"); await pg.wait_for_timeout(500)
         st = await ed.get_by_role("status").inner_text(); p("latitude" in st, "mapa recusado sem coordenadas reais", st[:110])
         await ed.get_by_role("button", name="Cancelar").click()
         await pg.set_viewport_size({"width": 390, "height": 1800}); await pg.wait_for_timeout(800)
