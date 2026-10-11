@@ -17725,6 +17725,39 @@ export type Database = {
           },
         ]
       }
+      semed_t11_rule_versions: {
+        Row: {
+          basis: string
+          created_at: string
+          cutoff_date: string
+          id: string
+          recorded_by: string
+          sex_map: Json
+          version: number
+          year: number
+        }
+        Insert: {
+          basis: string
+          created_at?: string
+          cutoff_date: string
+          id?: string
+          recorded_by: string
+          sex_map: Json
+          version: number
+          year: number
+        }
+        Update: {
+          basis?: string
+          created_at?: string
+          cutoff_date?: string
+          id?: string
+          recorded_by?: string
+          sex_map?: Json
+          version?: number
+          year?: number
+        }
+        Relationships: []
+      }
       semed_table_attachments: {
         Row: {
           created_at: string
@@ -29647,6 +29680,24 @@ export type Database = {
       semed_t10_staff_key: {
         Args: { _name: string; _person: string; _reg: string }
         Returns: string
+      }
+      semed_t11_apuracao: {
+        Args: { _school: string; _year: number }
+        Returns: Json
+      }
+      semed_t11_compute: {
+        Args: { _school: string; _year: number }
+        Returns: Json
+      }
+      semed_t11_record_rule: {
+        Args: {
+          _basis: string
+          _cutoff: string
+          _expected_version: number
+          _sex_map: Json
+          _year: number
+        }
+        Returns: number
       }
       semed_table_act: {
         Args: {

@@ -2465,6 +2465,13 @@
       "when": 1791721422202,
       "tag": "0351_semed_t10_staff_formation",
       "breakpoints": true
+    },
+    {
+      "idx": 352,
+      "version": "7",
+      "when": 1791722490479,
+      "tag": "0352_semed_t11_gender_apuracao",
+      "breakpoints": true
     }
   ]
 }
