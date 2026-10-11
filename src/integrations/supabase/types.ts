@@ -17518,6 +17518,59 @@ export type Database = {
         }
         Relationships: []
       }
+      semed_reconciliation_events: {
+        Row: {
+          act: string
+          actor_scope: string
+          check_key: string
+          created_at: string
+          fingerprint: string
+          id: string
+          reason: string
+          recorded_by: string
+          school_id: string
+          seq: number
+          snapshot: Json
+          year: number
+        }
+        Insert: {
+          act: string
+          actor_scope: string
+          check_key: string
+          created_at?: string
+          fingerprint: string
+          id?: string
+          reason: string
+          recorded_by: string
+          school_id: string
+          seq: number
+          snapshot: Json
+          year: number
+        }
+        Update: {
+          act?: string
+          actor_scope?: string
+          check_key?: string
+          created_at?: string
+          fingerprint?: string
+          id?: string
+          reason?: string
+          recorded_by?: string
+          school_id?: string
+          seq?: number
+          snapshot?: Json
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semed_reconciliation_events_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       semed_t04_adjustments: {
         Row: {
           cell_key: string
@@ -29605,6 +29658,27 @@ export type Database = {
         Args: { _act: string; _state: string }
         Returns: string
       }
+      semed_reconciliation_act: {
+        Args: {
+          _act: string
+          _check: string
+          _expected_seq: number
+          _fingerprint: string
+          _reason: string
+          _school: string
+          _year: number
+        }
+        Returns: number
+      }
+      semed_reconciliation_at: {
+        Args: { _school: string; _year: number }
+        Returns: Json
+      }
+      semed_reconciliation_compute: {
+        Args: { _school: string; _year: number }
+        Returns: Json
+      }
+      semed_reconciliation_network: { Args: { _year: number }; Returns: Json }
       semed_scope_schools: {
         Args: never
         Returns: {
@@ -29712,6 +29786,10 @@ export type Database = {
         Returns: Json
       }
       semed_table_central: { Args: { _school: string }; Returns: Json }
+      semed_typed_sum: {
+        Args: { _code: string; _school: string; _suffix: string; _year: number }
+        Returns: Json
+      }
       semed_validate_values: {
         Args: { _def: Json; _values: Json }
         Returns: undefined
