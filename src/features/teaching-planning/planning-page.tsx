@@ -11,9 +11,11 @@ import { readCatalog } from "@/features/curricular-reference/reference-source";
 import { copyDraft, dailyBlocks, filterPlans, planTargetDate, parseBlocks, parseRefs, planHeads, planHistory, planMessage, plansOn, STATUS_LABEL, type PlanBlock, type PlanStatus, type PlanVersion } from "./planning-model";
 import { attachmentUrl, classPositions, planPeriods, itemsOfMatrix, matrixItemKeys, myAssignments, planAttachments, revokeAttachment, savePlan, uploadAttachment, visiblePlans, type Assignment } from "./planning-source";
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
+import { PlanPrint, SharePanel, TemplatesAdmin, planTemplates, recordSharedCopy, sharedWithMe } from "./sipe-extras";
+import { resolveTemplate, templateHeads, DEFAULT_DAY_FIELDS } from "./planning-model";
 
 const today = () => operationalToday();
-type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null };
+type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null; sharedSource?: string };
 const fromVersion = (v: PlanVersion): Draft => {
   const refs = parseRefs(v.curricular_refs);
   return { planId: v.plan_id, head: v.id, assignmentId: v.assignment_id, title: v.title, levelValueId: v.level_value_id, coversFrom: v.covers_from ?? "", coversUntil: v.covers_until ?? "", blocks: parseBlocks(v.blocks),
@@ -28,6 +30,11 @@ export function PlanningPage() {
   const assignments = useQuery({ queryKey: ["plan-assignments"], queryFn: () => myAssignments(today()) });
   const plans = useQuery({ queryKey: ["plans"], queryFn: visiblePlans });
   const catalog = useQuery({ queryKey: ["ref-catalog"], queryFn: readCatalog });
+  const shared = useQuery({ queryKey: ["sipe-shared"], queryFn: sharedWithMe });
+  const templates = useQuery({ queryKey: ["sipe-tpl"], queryFn: planTemplates });
+  const [printing, setPrinting] = useState<PlanVersion | null>(null);
+  const [showTpl, setShowTpl] = useState(false);
+  const [segment, setSegment] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
   const [dirty, setDirty] = useState(false);
   const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
@@ -61,7 +68,9 @@ export function PlanningPage() {
           ...draft.refIds.map((i) => ({ kind: "reference-item" as const, item_id: i, ...(draft.refPos[i] ? { position_key: draft.refPos[i] } : {}) }))],
         status: st, copiedFrom: draft.copiedFrom, reason: null, targetDate: planTargetDate(draft.coversFrom || null, day), periodId: draft.periodId });
       const fresh = await visiblePlans(); qc.setQueryData(["plans"], fresh);
-      const v = fresh.find((x) => x.id === id)!; setDraft(fromVersion(v)); setDirty(false);
+      const v = fresh.find((x) => x.id === id)!;
+      if (draft.sharedSource && !draft.planId) await recordSharedCopy(v.plan_id, draft.sharedSource).catch(() => undefined);
+      setDraft(fromVersion(v)); setDirty(false);
       if (!silent) setMsg({ tone: "ok", text: st === "publicado" ? "Compartilhado. Nova versão registrada." : "Salvo como nova versão." });
     } catch (e) { setMsg({ tone: "err", text: planMessage((e as Error).message) }); if (silent) setDirty(false); }
     finally { saving.current = false; }
@@ -83,12 +92,24 @@ export function PlanningPage() {
     setMsg({ tone: "ok", text: `Cópia preparada; salve para criar o novo planejamento.${c.droppedRefs ? ` ${c.droppedRefs} elemento(s) fora da matriz desta regência foram retirados.` : ""}` });
   };
 
+  const copyShared = async (src: PlanVersion, a: Assignment) => {
+    const mv = (await matrixItemKeys([a.version_id]))[0]?.matrix_version_id; const keys = mv ? (await itemsOfMatrix(mv)).map((i) => i.item_key) : [];
+    const c = copyDraft(src, a.assignment_id, keys);
+    setDraft({ planId: null, head: null, assignmentId: a.assignment_id, title: c.title, levelValueId: null, coversFrom: "", coversUntil: "", blocks: c.blocks, itemKeys: [a.item_key], refIds: c.refs.flatMap((r) => (r.kind === "reference-item" ? [r.item_id] : [])), refPos: {}, periodId: null, status: "rascunho", copiedFrom: null, sharedSource: src.id });
+    setDirty(true); setMsg({ tone: "ok", text: "Cópia para adaptar preparada (datas em branco). O original do colega não muda; salve para criar o seu planejamento." });
+  };
+  const draftSchool = draft ? (all.find((v) => v.id === draft.head)?.school_id ?? null) : null;
+  const tpl = resolveTemplate(templates.data ?? [], draftSchool, segment);
+  const segments = [...new Set(templateHeads(templates.data ?? []).map((t) => t.segment_key))];
+  if (printing) return <PlanPrint plan={printing} component={current.get(printing.assignment_id)?.component_label_snapshot ?? null} onClose={() => setPrinting(null)} />;
   const readOnly = !!draft && (!assignment || (draft.head !== null && all.find((v) => v.id === draft.head)?.author_user_id !== uid));
   const agenda = plansOn(heads, day);
 
   return (
     <div className="space-y-6">
       <PageHeader title="Planejamento" description="Planeje para suas regências vigentes. Rascunho só você vê; compartilhar cria nova versão visível a quem tem permissão de consulta. Planejar não registra aula nem marca conteúdo como dado." />
+      <div className="flex gap-2"><Button size="sm" variant="ghost" aria-expanded={showTpl} onClick={() => setShowTpl(!showTpl)}>Modelos de planejamento (Secretaria)</Button></div>
+      {showTpl && <TemplatesAdmin schoolIds={[...new Set(all.map((v) => v.school_id))]} />}
       {msg && <div role={msg.tone === "err" ? "alert" : "status"} className={`rounded border p-3 text-sm ${msg.tone === "err" ? "border-destructive text-destructive" : "border-border"}`}>{msg.text}</div>}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <aside className="space-y-5">
@@ -121,6 +142,12 @@ export function PlanningPage() {
               <h2 id="outros" className="font-semibold">Compartilhados que você pode ver</h2>
               <p className="text-xs text-muted-foreground">Ver não permite editar. Você pode copiar para uma regência sua.</p>
               <ul className="space-y-1">{others.map((p) => <li key={p.id}><button type="button" className="w-full rounded p-2 text-left text-sm hover:bg-muted" onClick={() => { setDraft(fromVersion(p)); setDirty(false); }}>{p.title} <span className="text-xs text-muted-foreground">· turma {p.class_id}</span></button></li>)}</ul>
+            </section>)}
+          {(shared.data ?? []).length > 0 && (
+            <section aria-labelledby="comigo" className="space-y-2">
+              <h2 id="comigo" className="font-semibold">Compartilhados comigo</h2>
+              <ul className="space-y-1">{shared.data!.map((p) => <li key={p.id} className="rounded border border-border p-2 text-sm"><span className="font-medium">{p.title}</span> <span className="text-xs text-muted-foreground">v{p.version} · turma {p.class_id}</span>
+                <div className="mt-1 flex flex-wrap gap-1"><Button size="sm" variant="ghost" onClick={() => setPrinting(p)}>Ver / imprimir</Button>{assignments.data.map((a) => <Button key={a.assignment_id} size="sm" variant="outline" onClick={() => copyShared(p, a)}>Copiar e adaptar → {a.component_label_snapshot} · {a.class_id}</Button>)}</div></li>)}</ul>
             </section>)}
           <section aria-labelledby="agenda" className="space-y-2">
             <h2 id="agenda" className="font-semibold">Por data</h2>
@@ -157,7 +184,7 @@ export function PlanningPage() {
                     {!readOnly && <Button size="sm" variant="ghost" onClick={() => edit({ blocks: draft.blocks.filter((_, j) => j !== i) })}>Remover bloco</Button>}
                   </div>))}
                 {!readOnly && <Button size="sm" variant="outline" onClick={() => edit({ blocks: [...draft.blocks, { kindValueId: null, heading: "", body: "" }] })}>Adicionar bloco</Button>}
-                {!readOnly && <Button size="sm" variant="outline" disabled={!draft.coversFrom || !draft.coversUntil} onClick={() => edit({ blocks: dailyBlocks(draft.coversFrom, draft.coversUntil, draft.blocks) })}>Criar um bloco por dia (datas de “Cobre de/até”)</Button>}
+                {!readOnly && <Button size="sm" variant="outline" disabled={!draft.coversFrom || !draft.coversUntil} onClick={() => edit({ blocks: dailyBlocks(draft.coversFrom, draft.coversUntil, draft.blocks, false, tpl?.day_fields ?? DEFAULT_DAY_FIELDS) })}>Criar um bloco por dia (datas de “Cobre de/até”)</Button>}
               </fieldset>
               <fieldset className="space-y-1">
                 <legend className="text-sm font-medium">Elementos da matriz desta regência</legend>
@@ -175,7 +202,10 @@ export function PlanningPage() {
                             <option value="">Sem posição específica</option>{positions.data!.map((p) => <option key={p.position_logical_id} value={p.position_logical_id}>{p.position_logical_id}</option>)}</select></label>)}
                       </fieldset>)}</div>)
                 : <p className="text-sm text-muted-foreground">Base BNCC/SAEB não disponível; o planejamento funciona sem ela.</p>}
+              {!readOnly && <label className="block text-xs text-muted-foreground">Modelo dos dias <select aria-label="Modelo dos dias" className="ml-1 rounded border border-input bg-background p-1" value={segment} onChange={(e) => setSegment(e.target.value)}><option value="">Padrão SIPE</option>{segments.map((s) => <option key={s} value={s}>{s}</option>)}</select> {tpl ? `· ${tpl.plan_mode === "unidocente" ? "um planejamento da turma" : "um por componente"} · modelo v${tpl.version}` : `· campos: ${DEFAULT_DAY_FIELDS.join(", ")}`}</label>}
               {draft.planId && <Attachments planId={draft.planId} uid={uid} readOnly={readOnly} />}
+              {draft.head && <Button size="sm" variant="outline" onClick={() => setPrinting(all.find((v) => v.id === draft.head)!)}>Imprimir / PDF (A4)</Button>}
+              {draft.planId && draft.head && !readOnly && draftSchool && <SharePanel planId={draft.planId} schoolId={draftSchool} />}
               {draft.planId && draft.head && <ReviewPanel kind="plano" subjectId={draft.planId} versionId={draft.head} isAuthor={all.find((v) => v.id === draft.head)?.author_user_id === uid} print={{ title: all.find((v) => v.id === draft.head)?.title ?? draft.title, sections: parseBlocks(all.find((v) => v.id === draft.head)?.blocks).map((b) => ({ heading: b.heading, body: b.body })) }} />}
               {!readOnly && (
                 <div className="flex flex-wrap gap-2">
