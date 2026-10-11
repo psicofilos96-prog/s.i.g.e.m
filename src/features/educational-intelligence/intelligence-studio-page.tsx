@@ -69,7 +69,7 @@ export function IntelligenceStudioPage() {
           </section>
         </TabsContent>
 
-        <TabsContent value="programas"><ProgramsPanel registeredNames={programs.state === "ok" ? live(programs).map((p) => p.name) : programs.state === "loading" ? [] : null} onChanged={() => window.location.reload()} /></TabsContent>
+        <TabsContent value="programas">{programs.state === "loading" ? <SkeletonState /> : <ProgramsPanel registeredNames={programs.state === "ok" ? live(programs).map((p) => p.name) : null} onChanged={() => window.location.reload()} />}</TabsContent>
         <TabsContent value="avaliacoes">
           {programs.state === "ok" && live(programs).length === 0 && <EmptyState title="Nenhum programa registrado" description="SAEB, AVALIA RJ, CAEd, Saber Ler e avaliações municipais entram como programa com origem, responsável pela aplicação e pela correção." />}
           <ul className="divide-y rounded-md border">
