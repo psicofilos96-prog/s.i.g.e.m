@@ -28,11 +28,11 @@ export const saveItem = (s: SaveItem) => must<string>(db.rpc("record_assessment_
   _item_id: s.itemId, _expected_head: s.head, _item_type_id: s.typeId, _stem: s.stem, _options: s.options, _curricular_refs: s.refIds.map((id) => ({ kind: "reference-item", item_id: id })),
   _school_id: s.schoolId, _visibility: s.visibility, _status: s.status, _key_shared: s.keyShared, _answer: s.answer ?? null, _criteria: s.criteria, _copied_from: s.copiedFrom,
 }));
-export type SaveInstrument = { instrumentId: string | null; head: string | null; assignmentId: string; periodId: string | null; title: string; instructions: string | null; itemVersionIds: string[]; randomization: Randomization | null; status: "rascunho" | "publicado"; resultsInstrumentId: string | null; referenceOn?: string };
+export type SaveInstrument = { instrumentId: string | null; head: string | null; assignmentId: string; periodId: string | null; title: string; instructions: string | null; itemVersionIds: string[]; weights?: Record<string, number | null>; randomization: Randomization | null; status: "rascunho" | "publicado"; resultsInstrumentId: string | null; referenceOn?: string };
 export const saveInstrument = (s: SaveInstrument) => must<string>(db.rpc("record_teacher_instrument_version_v2", {
   _reference_on: s.referenceOn ?? operationalToday(),
   _instrument_id: s.instrumentId, _expected_head: s.head, _assignment_id: s.assignmentId, _period_id: s.periodId, _title: s.title, _instructions: s.instructions,
-  _items: s.itemVersionIds.map((id) => ({ item_version_id: id })), _randomization: s.randomization, _status: s.status, _results_instrument_id: s.resultsInstrumentId,
+  _items: s.itemVersionIds.map((id) => (s.weights?.[id] != null ? { item_version_id: id, weight: s.weights[id] } : { item_version_id: id })), _randomization: s.randomization, _status: s.status, _results_instrument_id: s.resultsInstrumentId,
 }));
 
 export const MEDIA_TYPES = ["image/png", "image/jpeg", "image/webp", "application/pdf"] as const;
