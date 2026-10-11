@@ -27,9 +27,12 @@ async def main():
         # 2) revisor confere e homologa
         ctx, pg, e = await as_user(br, "rv"); errs += e
         s = await row_action(pg, SUP, "Conferir"); p("Registrado" in s, "revisor confere fornecedor", s)
-        s = await row_action(pg, SUP, "Homologar"); p("Registrado" in s and "Homologada" in await pg.locator("li", has_text=SUP).first.inner_text(), "revisor homologa fornecedor", s)
+        s = await row_action(pg, SUP, "Homologar"); p("próprio registro" in s, "quem conferiu não homologa (terceira pessoa exigida)", s)
         f = pg.get_by_role("form", name="Novo registro: Fornecedor"); await f.get_by_label("Razão social").fill(SUP + " B")
         await f.get_by_role("button", name="Registrar rascunho").click(); s = await st(pg); p("permissão" in s, "revisor sem competência de cadastro é recusado", s)
+        await ctx.close()
+        ctx, pg, e = await as_user(br, "ho"); errs += e
+        s = await row_action(pg, SUP, "Homologar"); p("Registrado" in s and "Homologada" in await pg.locator("li", has_text=SUP).first.inner_text(), "homologador homologa fornecedor", s)
         await ctx.close()
         # 3) autor registra contrato com o fornecedor homologado; revisor homologa
         ctx, pg, e = await as_user(br, "au"); errs += e
@@ -47,11 +50,14 @@ async def main():
         p("identificador inválido" in await f.inner_text(), "formulário recusa identificador inválido")
         await pg.screenshot(path=f"{SH}/1_autor_inspetores.png"); await ctx.close()
         ctx, pg, e = await as_user(br, "rv"); errs += e
-        s = await row_action(pg, f"{OP}/2026", "Conferir"); s2 = await row_action(pg, f"{OP}/2026", "Homologar")
-        p("Registrado" in s and "Registrado" in s2, "revisor confere e homologa contrato", s2)
+        s = await row_action(pg, f"{OP}/2026", "Conferir"); p("Registrado" in s, "revisor confere contrato", s)
         await tab(pg, "Inspetores")
-        s = await row_action(pg, cfg["inspector"][:8], "Conferir"); s2 = await row_action(pg, cfg["inspector"][:8], "Homologar")
-        p("Registrado" in s and "Registrado" in s2, "revisor confere e homologa a designação", s2)
+        s = await row_action(pg, cfg["inspector"][:8], "Conferir"); p("Registrado" in s, "revisor confere a designação", s)
+        await ctx.close()
+        ctx, pg, e = await as_user(br, "ho"); errs += e
+        s = await row_action(pg, f"{OP}/2026", "Homologar"); p("Registrado" in s, "homologador homologa contrato", s)
+        await tab(pg, "Inspetores")
+        s2 = await row_action(pg, cfg["inspector"][:8], "Homologar"); p("Registrado" in s2, "homologador homologa a designação", s2)
         txt = await pg.locator("li", has_text=cfg["inspector"][:8]).first.inner_text()
         p("Homologada" in txt and "FUNCTIONAL_SOURCE_REQUIRED" in txt, "designação homologada segue sinalizando fonte funcional pendente", txt[-80:])
         await pg.screenshot(path=f"{SH}/2_revisor_homologa.png"); await ctx.close()

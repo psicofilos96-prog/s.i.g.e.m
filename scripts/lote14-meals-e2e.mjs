@@ -27,12 +27,13 @@ try {
   for (const cap of ["manter-referencias-contratuais-alimentacao", "designar-inspetor-alimentacao"]) {
     const g = await admin.rpc("bo_fixture_grant_capability", { _operation_id: op, _user_id: AU.uid, _capability: cap, _school: null }); if (g.error) throw new Error(g.error.message);
   }
-  for (const cap of ["conferir-conteudo-tecnico-alimentar", "homologar-conteudo-tecnico-alimentar"]) {
-    const g = await admin.rpc("bo_fixture_grant_capability", { _operation_id: op, _user_id: RV.uid, _capability: cap, _school: null }); if (g.error) throw new Error(g.error.message);
+  const HO = await mk("homologador", "gestao-pedagogica-da-rede");
+  for (const [who, cap] of [[RV, "conferir-conteudo-tecnico-alimentar"], [HO, "homologar-conteudo-tecnico-alimentar"]]) {
+    const g = await admin.rpc("bo_fixture_grant_capability", { _operation_id: op, _user_id: who.uid, _capability: cap, _school: null }); if (g.error) throw new Error(g.error.message);
   }
   const cp = await IN.c.rpc("current_person_id"); if (cp.error || !cp.data) throw new Error("person " + (cp.error?.message ?? "null")); const pin = { data: { person_id: cp.data } };
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
-  writeFileSync("/tmp/fs14/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, op, inspector: pin.data.person_id, sessions: { au: AU.session, rv: RV.session, np: NP.session } }), { mode: 0o600 });
+  writeFileSync("/tmp/fs14/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, op, inspector: pin.data.person_id, sessions: { au: AU.session, rv: RV.session, ho: HO.session, np: NP.session } }), { mode: 0o600 });
   const py = spawnSync("python3", ["scripts/lote14-meals-e2e.py"], { encoding: "utf8", timeout: 400000 });
   rmSync("/tmp/fs14/s.json", { force: true });
   process.stdout.write(py.stdout ?? ""); if (py.status !== 0) { fails++; console.log("PY_ERR", (py.stderr ?? "").slice(-1500)); }
