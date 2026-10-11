@@ -40,6 +40,7 @@ import { fieldVersionStore, useFieldVersionTick } from "./assessment-entry-field
 import { currentAssessmentEntryVersion, type AssessmentEntryVersion } from "./assessment-entry-versions";
 import { officialRegisteredCount } from "./assessment-journey-sources";
 import { useCloudPeriodFacts } from "./assessment-period-sources";
+import { isModelColumn, MODEL_COLUMNS } from "@/features/diary/family-books/book";
 
 /** Registrados = fatos oficiais vigentes da pauta canônica (sem estado paralelo). */
 function registeredOfficialCount(instrumentId: string, cloudVersions?: readonly AssessmentEntryVersion[]): number {
@@ -310,6 +311,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   // A data do fato, e não a data usada para navegar até o formulário, escolhe a organização.
   const state = useClassConfigurationState(classId, date || undefined);
   const [description, setDescription] = useState("");
+  const [modelColumn, setModelColumn] = useState<string>("");
   const [errors, setErrors] = useState<string[]>([]);
   const dirty = Boolean(title || type || date || description);
   const [saved, setSaved] = useState(false);
@@ -386,7 +388,8 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
             if (!item.record.id.startsWith("ta-"))
               return setErrors(["Com login, instrumentos nascem só de uma atribuição docente vigente. Abra a turma por \"Meus diários\"."]);
             if (!date) return setErrors(["Informe a data prevista de aplicação."]);
-            void createInstrumentInCloud(built.value, { assignmentId: item.record.id, plannedOn: date }).then((res) => {
+            const withColumn = isModelColumn(modelColumn) ? { ...built.value, modelColumn } : built.value;
+            void createInstrumentInCloud(withColumn, { assignmentId: item.record.id, plannedOn: date }).then((res) => {
               if (!res.ok) return setErrors([res.message]);
               setSaved(true);
               void navigate({
@@ -455,6 +458,14 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
             <p className="text-muted-foreground">O período é definido automaticamente pela data.</p>
           )}
         </div>
+        {cloud ? (
+          <Field label="Coluna no diário da rede (opcional)" hint="Define onde a nota entra no PAP/nº PL: AV1+AV2+IV+PA, ou recuperação. Sem coluna, a nota não é somada.">
+            <select className={inputCls} value={modelColumn} onChange={(e) => setModelColumn(e.target.value)}>
+              <option value="">Sem coluna</option>
+              {MODEL_COLUMNS.map((c) => <option key={c.id} value={c.id}>{c.short} — {c.label}{c.id === "rf" ? "" : ` (até ${c.max})`}</option>)}
+            </select>
+          </Field>
+        ) : null}
         <Field label="Descrição (opcional)">
           <textarea
             rows={3}
