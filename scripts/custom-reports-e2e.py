@@ -19,7 +19,9 @@ async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(headless=True)
         ctx = await br.new_context(viewport={"width": 1280, "height": 1800}); pg = await ctx.new_page()
-        await pg.goto(B + "/relatorios/personalizado"); await pg.wait_for_timeout(3000)
+        await pg.goto(B + "/relatorios/personalizado")
+        try: await pg.get_by_text("Entre com sua conta").first.wait_for(timeout=30000)
+        except Exception: pass
         print(("PASS" if "Entre com sua conta" in await pg.inner_text("main") else "FAIL") + " anônimo vê só o convite para entrar"); await ctx.close()
 
         ctx = await br.new_context(viewport={"width": 1280, "height": 1800}, accept_downloads=True); pg = await ctx.new_page()
@@ -62,17 +64,21 @@ async def main():
                 print(("PASS" if ok else "FAIL") + f" gráfico {f} baixado", os.path.getsize(path), "bytes")
             except Exception as e: print("FAIL gráfico", f, str(e)[:200])
         await pg.get_by_label("Nome do modelo").fill("Aceite RCQ — alunos por turma")
-        await pg.get_by_role("button", name="Salvar versão").click(); await pg.wait_for_timeout(2500)
-        await pg.reload(); await pg.wait_for_selector("select[aria-label='Fonte principal']", timeout=30000); await pg.wait_for_timeout(2500)
+        await pg.get_by_role("button", name="Salvar versão").click()
+        await pg.get_by_role("list", name="Meus modelos").get_by_text("Aceite RCQ").first.wait_for(timeout=30000)  # espera o salvamento, não um tempo fixo
+        await pg.reload(); await pg.wait_for_selector("select[aria-label='Fonte principal']", timeout=30000)
         lst = pg.get_by_role("list", name="Meus modelos")
-        has = "Aceite RCQ" in await lst.inner_text()
+        try: await lst.get_by_text("Aceite RCQ").first.wait_for(timeout=30000); has = True
+        except Exception: has = False
         print(("PASS" if has else "FAIL") + " modelo salvo aparece após recarregar")
         if has:
-            await lst.get_by_role("button", name="Abrir").first.click(); await pg.wait_for_timeout(800)
+            await lst.get_by_role("button", name="Abrir").first.click()
+            await pg.wait_for_function("document.querySelector(\"[aria-label='Fonte principal']\")?.value === 'vinculos'", timeout=15000)
             src = await pg.get_by_label("Fonte principal").input_value()
             title = await pg.get_by_label("Título do relatório").input_value()
             print(("PASS" if src == "vinculos" and title == "Estudantes por escola e turma" else "FAIL") + f" modelo reaberto restaura fonte e layout ({src} / {title})")
-            await pg.get_by_role("button", name="Executar prévia").click(); await pg.wait_for_timeout(5000)
+            await pg.get_by_role("button", name="Executar prévia").click()
+            await pg.get_by_role("table", name="Resultado da prévia").wait_for(timeout=60000)
         try:
             async with pg.expect_download(timeout=60000) as d: await pg.get_by_role("button", name="XLSX").click()
             dl = await d.value; path = f"/tmp/rep/{dl.suggested_filename}"; await dl.save_as(path); print("PASS XLSX baixado", os.path.getsize(path), "bytes")
@@ -89,13 +95,16 @@ async def main():
             await pop.emulate_media(media="print"); await pop.pdf(path="/tmp/rep/custom.pdf", prefer_css_page_size=True); print("INFO PDF salvo /tmp/rep/custom.pdf")
             await pop.close()
         except Exception as e: print("FAIL PDF", str(e)[:200])
-        await pg.wait_for_timeout(2000)
         em = pg.get_by_role("list", name="Minhas emissões")
+        try: await em.get_by_role("button", name="Reprocessar").nth(1).wait_for(timeout=30000)  # 2 emissões gravadas antes de contar
+        except Exception: pass
         n = await em.get_by_role("button", name="Reprocessar").count() if await em.count() else 0
         print(("PASS" if n >= 2 else "FAIL") + f" emissões registradas e listadas ({n})")
         if n:
             async with pg.expect_download(timeout=60000) as d: await em.get_by_role("button", name="Reprocessar").nth(n - 1).click()
-            await d.value; await pg.wait_for_timeout(1500)
+            await d.value
+            try: await pg.get_by_role("status").filter(has_text="idêntico").first.wait_for(timeout=30000)
+            except Exception: pass
             st = " ".join(await pg.get_by_role("status").all_inner_texts())
             print(("PASS" if "idêntico" in st else "FAIL") + " reprocessar compara com o original:", st[:160])
         await pg.screenshot(path=f"{SH}/2-final.png")
