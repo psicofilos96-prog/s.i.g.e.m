@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { ACT_LABEL, STATE_LABEL, actNeedsReason, actWho, nextState, ACTS, validateValues, rowTotal, colTotal, t06Final, pct,
   type SemedAct, type SemedState, type TableDef, type Values } from "./semed-catalog";
-import { documentBlocks, semedPdf, semedXlsx, type Central } from "./semed-export";
+import { documentBlocks, semedPdf, semedXlsx, semedPackagePdf, semedPackageXlsx, type Central, type Block } from "./semed-export";
+import { WIZARD_STEPS, blocked, checklist, fieldError, packagePlan, progress, stepOf } from "./semed-wizard";
 import { T04Panel, type T04Rule } from "./t04-panel";
 import { T06Panel } from "./t06-panel";
 import { T10Panel } from "./t10-panel";
@@ -91,6 +92,24 @@ export function SemedTablesPage() {
     return () => clearTimeout(t);
   }, [draft, code, editable, dirty, busy]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const savedOf = (c: string): { cat: Cat | undefined; values: Values | null; state: SemedState | null } => {
+    const su = subs.find((x) => x.school_id === school && x.table_code === c);
+    if (!su) return { cat: undefined, values: null, state: null };
+    const ev = events.filter((e) => e.submission_id === su.id);
+    return { cat: cats.find((k) => k.id === su.catalog_id), values: [...ev].reverse().find((e) => e.act === "salvar")?.field_values ?? null, state: ev.at(-1)?.state_after ?? "rascunho" };
+  };
+  const packageParts = () => {
+    const plan = packagePlan(CODES, (c) => !!savedOf(c).values);
+    const parts = plan.include.map((c) => {
+      const { cat: k, values, state: st } = savedOf(c); const d = k!.definition;
+      let b: Block[] = documentBlocks(d, values!, central, c === "04" ? t04Rule?.thresholds ?? null : null, c === "06" && code === "06" ? t06Apur : null);
+      if (c === "10") { const keep = b.filter((x) => !x.title.startsWith("Servidores")); b = t10 && code === "10" ? [keep[0]!, ...t10Blocks(t10.s, t10.f), ...keep.slice(1)] : [...keep, { title: "Quadro de servidores", head: ["Observação"], body: [["Abra a Tabela 10 antes de gerar o pacote para incluir o quadro do cadastro central."]] }]; }
+      return { def: d, blocks: b, meta: { year: YEAR, tableCode: c, title: d.title, school: String(central["escola"] ?? names.get(school) ?? school), inep: String(central["inep"] ?? ""), state: STATE_LABEL[st!], version: k!.version, generatedAt: new Date() } };
+    });
+    return { parts, missing: plan.missing };
+  };
+  const pkgPdf = async () => { const { parts, missing } = packageParts(); if (!parts.length) { setMsg("Nenhuma tabela com rascunho salvo nesta escola."); return; } download(await semedPackagePdf(parts), `tabelas-semed-${YEAR}.pdf`); setMsg(missing.length ? `Pacote gerado sem as tabelas ${missing.join(", ")} (nenhum rascunho salvo).` : "Pacote anual gerado."); };
+  const pkgXlsx = async () => { const { parts, missing } = packageParts(); if (!parts.length) { setMsg("Nenhuma tabela com rascunho salvo nesta escola."); return; } download(new Blob([await semedPackageXlsx(parts)]), `tabelas-semed-${YEAR}.xlsx`); setMsg(missing.length ? `Pacote gerado sem as tabelas ${missing.join(", ")} (nenhum rascunho salvo).` : "Pacote anual gerado."); };
   const meta = () => ({ year: YEAR, tableCode: code, title: def!.title, school: String(central["escola"] ?? names.get(school) ?? school), inep: String(central["inep"] ?? ""), state: STATE_LABEL[state], version: cat!.version, generatedAt: new Date() });
   // Tabela 10: a grade legada de 30 linhas do catálogo v1 é substituída pelo quadro completo do cadastro central.
   const blocks = () => { const b = documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null, code === "06" ? t06Apur : null);
@@ -109,10 +128,16 @@ export function SemedTablesPage() {
   const cell = (k: string, t: string, options?: readonly string[]) => {
     const v = draft[k]; const val = v === null || v === undefined ? "" : String(v);
     if (!editable) return <span className="text-xs">{val || "—"}</span>;
+    if (t === "enum" && def && fieldError(def, k, v)) return <select aria-label={k} aria-invalid="true" className={`${input} border-destructive`} value={val} onChange={(e) => set(k, e.target.value, t)}><option value="">—</option>{options?.map((o) => <option key={o}>{o}</option>)}</select>;
     if (t === "enum") return <select aria-label={k} className={input} value={val} onChange={(e) => set(k, e.target.value, t)}><option value="">—</option>{options?.map((o) => <option key={o}>{o}</option>)}</select>;
+    const err = def ? fieldError(def, k, v) : null;
+    if (err) return <span className="block"><input aria-label={k} aria-invalid="true" title={err} className={`${input} border-destructive`} inputMode={t === "int" ? "numeric" : "text"} value={val} onChange={(e) => set(k, e.target.value, t)} /><span className="text-[10px] text-destructive">{err}</span></span>;
     return <input aria-label={k} className={input} inputMode={t === "int" ? "numeric" : "text"} value={val} onChange={(e) => set(k, e.target.value, t)} />;
   };
   const vals = draft as Values;
+  const lastReason = [...evs].reverse().find((e) => e.reason)?.reason ?? null;
+  const checks = def ? checklist(def, saved, vals, central, { dirty, hasSaved: evs.some((e) => e.act === "salvar"), state, lastReason }) : [];
+  const isBlocked = blocked(checks);
 
   return (
     <div className="space-y-6">
@@ -123,8 +148,15 @@ export function SemedTablesPage() {
             {scope.map((s) => <option key={s.school_id} value={s.school_id}>{names.get(s.school_id) ?? s.school_id}</option>)}
           </select></label>
         <div className="flex flex-wrap gap-1" role="tablist">
-          {CODES.map((c) => <Button key={c} role="tab" aria-selected={c === code} size="sm" variant={c === code ? "default" : "outline"} onClick={() => setCode(c)}>Tabela {c}</Button>)}
+          {CODES.map((c) => { const st = stOf(school, c); return <Button key={c} role="tab" aria-selected={c === code} size="sm" variant={c === code ? "default" : "outline"} onClick={() => setCode(c)} className="h-auto flex-col items-start py-1"><span>Tabela {c}</span><span className="text-[10px] font-normal opacity-80">{st ? STATE_LABEL[st as SemedState] : "não iniciada"}</span></Button>; })}
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2 rounded-md border bg-muted/30 p-3 text-sm">
+        <span className="font-medium">Pacote anual da escola</span>
+        <span className="text-xs text-muted-foreground">Todas as tabelas com rascunho salvo, cada uma em página própria.</span>
+        <Button size="sm" variant="outline" onClick={() => void pkgPdf()}>Pacote PDF</Button>
+        <Button size="sm" variant="outline" onClick={() => void pkgXlsx()}>Pacote XLSX</Button>
       </div>
 
       {network && (
@@ -143,6 +175,15 @@ export function SemedTablesPage() {
             <StatusBadge tone={state === "fechado" ? "success" : state === "devolvido" || state === "revisao-solicitada" ? "warning" : "info"}>{sub ? STATE_LABEL[state] : "Não iniciada"}</StatusBadge>
             <span className="text-xs text-muted-foreground">catálogo v{cat!.version}</span>
           </div>
+          {(() => { const cur = stepOf(state); const idx = WIZARD_STEPS.findIndex((x) => x.id === cur); const pr = progress(def, vals); return (
+            <div className="space-y-2 rounded-md border p-3">
+              <ol className="flex flex-wrap gap-2 text-xs" aria-label="Etapas">
+                {WIZARD_STEPS.map((w, i) => <li key={w.id} aria-current={i === idx ? "step" : undefined} className={`rounded-full border px-3 py-1 ${i === idx ? "border-primary bg-primary text-primary-foreground" : i < idx ? "border-primary text-primary" : "text-muted-foreground"}`}>{i + 1}. {w.label}</li>)}
+              </ol>
+              <div className="text-xs text-muted-foreground">Preenchimento: {pr.filled}/{pr.total} (seções de grade contam linhas com dados; linha vazia pode ser etapa não ofertada).</div>
+              <div className="h-1.5 w-full rounded bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={pr.total} aria-valuenow={pr.filled}><div className="h-1.5 rounded bg-primary" style={{ width: `${pr.total ? (100 * pr.filled) / pr.total : 0}%` }} /></div>
+              <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground"><span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-primary" />Fonte: cadastro central (somente leitura)</span><span>Campos com caixa: preenchidos pela Secretaria</span></div>
+            </div>); })()}
           {def.sections.filter((s) => !(def.code === "10" && s.kind === "grid")).map((s) => (
             <section key={s.id} className="rounded-md border p-3">
               <h3 className="mb-2 text-sm font-semibold">{s.title}</h3>
@@ -172,8 +213,12 @@ export function SemedTablesPage() {
           {code === "06" && def && <T06Panel school={school} year={YEAR} network={!!perm?.network} draft={draft as Values} rows={(def.sections.find((x) => x.id === "m" && x.kind === "grid") as { rows: { key: string }[] } | undefined)?.rows ?? []} onApur={setT06Apur} />}
           <p className="text-xs text-muted-foreground">“—” significa não informado; totais só somam o que foi informado e nunca transformam vazio em zero.</p>
 
+          <section className="rounded-md border p-3" aria-label="Pendências">
+            <h3 className="mb-2 text-sm font-semibold">Checklist de pendências</h3>
+            <ul className="space-y-1 text-xs">{checks.map((c, i) => <li key={i} className={c.level === "bloqueio" ? "text-destructive" : c.level === "aviso" ? "text-foreground" : "text-muted-foreground"}>{c.level === "bloqueio" ? "✕ Impede envio: " : c.level === "aviso" ? "! " : "✓ "}{c.text}</li>)}</ul>
+          </section>
           <div className="flex flex-wrap items-end gap-2 rounded-md border p-3">
-            {ACTS.filter((a) => allowed(a)).map((a) => <Button key={a} size="sm" disabled={busy || (a === "salvar" && !dirty) || (a !== "salvar" && dirty)} variant={a === "salvar" ? "default" : "outline"} onClick={() => void act(a)}>{ACT_LABEL[a]}</Button>)}
+            {ACTS.filter((a) => allowed(a)).map((a) => <Button key={a} size="sm" disabled={busy || (a === "salvar" && !dirty) || (a !== "salvar" && dirty) || ((a === "enviar-conferencia" || a === "conferir" || a === "enviar") && isBlocked)} title={(a === "enviar-conferencia" || a === "conferir" || a === "enviar") && isBlocked ? "Resolva os itens que impedem envio" : undefined} variant={a === "salvar" ? "default" : "outline"} onClick={() => void act(a)}>{ACT_LABEL[a]}</Button>)}
             {ACTS.some((a) => allowed(a) && actNeedsReason(a)) && <input aria-label="Motivo" placeholder="Motivo (para devolver ou pedir revisão)" className="min-w-64 rounded-md border border-input bg-background p-2 text-sm" value={reason} onChange={(e) => setReason(e.target.value)} />}
             {sub && <><Button size="sm" variant="outline" onClick={() => void pdf()}>Baixar PDF</Button><Button size="sm" variant="outline" onClick={() => void xlsx()}>Baixar XLSX</Button></>}
             {dirty && <span className="text-xs text-muted-foreground">Há alterações não salvas.</span>}
