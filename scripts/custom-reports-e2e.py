@@ -19,7 +19,9 @@ async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(headless=True)
         ctx = await br.new_context(viewport={"width": 1280, "height": 1800}); pg = await ctx.new_page()
-        await pg.goto(B + "/relatorios/personalizado"); await pg.wait_for_timeout(3000)
+        await pg.goto(B + "/relatorios/personalizado")
+        try: await pg.get_by_text("Entre com sua conta").first.wait_for(timeout=30000)
+        except Exception: pass
         print(("PASS" if "Entre com sua conta" in await pg.inner_text("main") else "FAIL") + " anônimo vê só o convite para entrar"); await ctx.close()
 
         ctx = await br.new_context(viewport={"width": 1280, "height": 1800}, accept_downloads=True); pg = await ctx.new_page()
