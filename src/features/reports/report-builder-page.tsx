@@ -15,7 +15,7 @@ import {
   type CloudTemplate,
 } from "./report-templates-cloud";
 import { SECTOR_LABEL, buildResult, collectAll, columnsOf, provenance, validateChoice, type BuilderChoice, type Collected, type Sector } from "./report-builder";
-import { AGGREGATIONS, CHART_KINDS, DERIVED, previewNotice, REPORT_VERIFICATION_ENDPOINT, type Aggregation, type ChartKind, type Derived, type Organization, type ReportLayout } from "./report-analytics";
+import { INSTITUTIONAL_LOGOS, AGGREGATIONS, CHART_KINDS, DERIVED, previewNotice, REPORT_VERIFICATION_ENDPOINT, type Aggregation, type ChartKind, type Derived, type Organization, type ReportLayout } from "./report-analytics";
 import { PACK_SECTOR_LABEL, SECTOR_PACKS, packsFor, type PackSector } from "./sector-packs";
 import { analyze, chartSvg, emptySpec, openPack, packDescription, specOf, svgDataUri, toStudioHtml, toStudioXlsx, withSpec, type StudioSpec } from "./report-studio";
 
@@ -281,7 +281,9 @@ function SignedInBuilder({ user }: { user: NonNullable<ReturnType<typeof useSess
           <label className="flex flex-col gap-1">Papel<select className={sel} value={spec.layout.paper} onChange={(e) => setLayout({ paper: e.target.value as "A4" | "A3" })}><option>A4</option><option>A3</option></select></label>
           <label className="flex flex-col gap-1">Orientação<select className={sel} value={spec.layout.orientation} onChange={(e) => setLayout({ orientation: e.target.value as "retrato" | "paisagem" })}><option value="retrato">Retrato</option><option value="paisagem">Paisagem</option></select></label>
           <label className="flex flex-col gap-1 md:col-span-2">Cabeçalho (uma linha por linha)<textarea className={sel} rows={2} value={spec.layout.headerLines.join("\n")} onChange={(e) => setLayout({ headerLines: e.target.value.split("\n").slice(0, 4) })} /></label>
-          <label className="flex flex-col gap-1">Logo (endereço https, opcional)<input className={sel} value={spec.layout.logoUrl ?? ""} onChange={(e) => setLayout({ logoUrl: e.target.value || null })} /></label>
+          <label className="flex flex-col gap-1">Logo ou brasão<select className={sel} value={INSTITUTIONAL_LOGOS.some((l) => l.url === spec.layout.logoUrl) ? spec.layout.logoUrl! : spec.layout.logoUrl ? "__https" : ""} onChange={(e) => setLayout({ logoUrl: e.target.value === "__https" ? "https://" : e.target.value || null })}><option value="">Sem logo</option>{INSTITUTIONAL_LOGOS.map((l) => <option key={l.id} value={l.url}>{l.label}</option>)}<option value="__https">Outro endereço https…</option></select>
+            {spec.layout.logoUrl && !INSTITUTIONAL_LOGOS.some((l) => l.url === spec.layout.logoUrl) && <input aria-label="Endereço https da logo" className={sel} value={spec.layout.logoUrl} onChange={(e) => setLayout({ logoUrl: e.target.value || null })} />}
+            {spec.layout.logoUrl && INSTITUTIONAL_LOGOS.some((l) => l.url === spec.layout.logoUrl) && <img src={spec.layout.logoUrl} alt="Prévia da logo escolhida" className="h-12 w-auto object-contain self-start" />}</label>
           <label className="flex flex-col gap-1">Rodapé<input className={sel} value={spec.layout.footer ?? ""} maxLength={120} onChange={(e) => setLayout({ footer: e.target.value || null })} /></label>
           <label className="flex flex-col gap-1 md:col-span-2">Observações<textarea className={sel} rows={2} maxLength={1000} value={spec.layout.observations ?? ""} onChange={(e) => setLayout({ observations: e.target.value || null })} /></label>
           <label className="flex flex-col gap-1 md:col-span-2">Assinaturas (até 4, uma por linha)<textarea className={sel} rows={2} value={spec.layout.signatures.join("\n")} onChange={(e) => setLayout({ signatures: e.target.value.split("\n").filter((x, i, a) => x.trim() || i < a.length - 1).slice(0, 4) })} /></label>
@@ -291,7 +293,7 @@ function SignedInBuilder({ user }: { user: NonNullable<ReturnType<typeof useSess
             <label className="flex items-center gap-2"><input type="checkbox" checked={spec.layout.showMethodology} onChange={(e) => setLayout({ showMethodology: e.target.checked })} />Mostrar metodologia</label>
             <label className="flex items-center gap-2"><input type="checkbox" checked={spec.layout.pageNumbers} onChange={(e) => setLayout({ pageNumbers: e.target.checked })} />Numerar páginas</label>
           </div>
-          <p className="text-xs text-muted-foreground md:col-span-2">{REPORT_VERIFICATION_ENDPOINT ? "" : "QR de verificação não é oferecido: ainda não existe endereço público de verificação de relatório."}</p>
+          <p className="text-xs text-muted-foreground md:col-span-2">{REPORT_VERIFICATION_ENDPOINT ? "O PDF e o XLSX levam código e QR de verificação pública (sem dados pessoais)." : "QR de verificação indisponível."}</p>
           <div className="md:col-span-2"><Button onClick={() => { setStep(7); if (!data) void read(); }}>Próximo: prévia</Button></div>
         </div>)}
 

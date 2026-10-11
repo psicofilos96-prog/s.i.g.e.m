@@ -78,7 +78,11 @@ function mealSource(ds: Dataset): BuilderSource {
     load: async ({ from, to, offset, limit }) => {
       if (!from || !to) throw new Error("Informe o período (de e até).");
       const r = await supabase.rpc("meal_reporting_rows", { _dataset: ds, _school: null as unknown as string, _from: from, _to: to, _filters: {}, _limit: limit, _offset: offset });
-      if (r.error) fail();
+      if (r.error) {
+        if (/capability:acompanhar-alimentacao-rede/.test(r.error.message)) throw new Error("Sua conta não acompanha a Alimentação da rede inteira; este relatório exige essa permissão.");
+        if (/^capability:/.test(r.error.message)) throw new Error("Sua conta não tem permissão para consultar a Alimentação.");
+        fail();
+      }
       const rows = r.data ?? [];
       return { rows: rows.map((x) => toReportRow(ds, x.school_id, (x.row_data ?? {}) as Record<string, unknown>)), total: rows[0]?.total ?? (rows.length ? null : 0) };
     },

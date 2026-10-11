@@ -32,3 +32,18 @@ describe("LOTE 11 — relatórios 2026", () => {
     expect(BUILDER_SOURCES.filter((s) => s.id === "gerador-infraestrutura")).toHaveLength(1);
   });
 });
+
+import { isAllowedLogo, INSTITUTIONAL_LOGOS } from "./report-analytics";
+describe("LOTE 11 — logo do relatório", () => {
+  it("aceita brasão institucional e https; recusa javascript:/data:", () => {
+    expect(isAllowedLogo(INSTITUTIONAL_LOGOS[0]!.url)).toBe(true);
+    expect(isAllowedLogo("https://x.gov.br/l.png")).toBe(true);
+    expect(isAllowedLogo("javascript:alert(1)")).toBe(false);
+    expect(isAllowedLogo("data:image/png;base64,AA")).toBe(false);
+    expect(isAllowedLogo("/qualquer.png")).toBe(false);
+  });
+});
+import { fmtWhen } from "./report-studio";
+describe("LOTE 11 — data de geração no PDF", () => {
+  it("mostra dd/mm/aaaa hh:mm no horário de Brasília", () => expect(fmtWhen("2026-10-11T01:59:48.470Z")).toBe("10/10/2026, 22:59 (horário de Brasília)"));
+});
