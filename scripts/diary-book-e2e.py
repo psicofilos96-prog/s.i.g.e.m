@@ -24,12 +24,12 @@ async def main():
         m = re.search(r"(\d+) estudante", txt); n = int(m.group(1)) if m else 0
         p(n > 0, "estudantes reais da turma lidos com o acesso da conta", f"({n})")
         p("0 lançamento" in txt and "0 aula" in txt, "sem chamadas/notas no banco o livro mostra zero lançamentos (não inventa)")
-        pend = await pg.get_by_role("list", name="Pendências").inner_text() if await pg.get_by_role("list", name="Pendências").count() else ""
-        p("componente" in pend.lower() or "regra" in pend.lower(), "pendências ditas por extenso", "")
+        p("Sem regra de resultado homologada" in txt and "Escolha o componente" in txt, "pendências ditas por extenso (regra e componente)")
         await pg.screenshot(path=f"{SH}/1_livro.png")
         frame = pg.frame_locator("iframe[title='Pré-visualização do livro']")
         body = await frame.locator("body").inner_text()
-        p("FREQUÊNCIA" in body and "RESULTADO FINAL DO COMPONENTE" in body, "pré-visualização tem frequência e resultado final")
+        p("FREQUÊNCIA" in body and "ANO LETIVO DE" in body, "pré-visualização tem capa e frequência por período")
+        p("Escolha o componente" in body, "sem componente com registro, notas/FINAL pedem o componente em vez de imprimir vazio como final")
         p("RASCUNHO" in body, "sem regra homologada sai como rascunho")
         p(" 0 " not in re.sub(r"\s+", " ", body.split("RESULTADO FINAL DO COMPONENTE")[-1])[:4000] or True, "sem nota não aparece zero (verificado no teste unitário)")
         html = await pg.locator("iframe[title='Pré-visualização do livro']").get_attribute("srcdoc")
@@ -38,18 +38,18 @@ async def main():
         p(os.path.getsize("/tmp/lv/livro.pdf") > 5000, "PDF A4 gerado do mesmo HTML da pré-visualização")
         p(not errs, "sem erro de execução na tela", str(errs[:2]))
         await ctx.close()
-        # Escola B: a turma de A não aparece com estudantes
+        # Escola B: turma de outra escola não traz estudantes à conta da escola A
         ctx = await br.new_context(viewport={"width": 1280, "height": 1800}); pg = await ctx.new_page()
-        await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"]["b"])])
+        await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"]["a"])])
         await pg.goto(B + "/diario/livro"); await pg.wait_for_timeout(5000)
         vals = await pg.get_by_label("Turma", exact=True).locator("option").evaluate_all("els => els.map(e => e.value)")
-        if cfg["classId"] in vals:
-            await pg.get_by_label("Turma", exact=True).select_option(cfg["classId"])
+        if cfg["otherClass"] in vals:
+            await pg.get_by_label("Turma", exact=True).select_option(cfg["otherClass"])
             for k, (a, b) in enumerate([("2026-02-02", "2026-04-30"), ("2026-05-04", "2026-07-17"), ("2026-08-03", "2026-10-09"), ("2026-10-13", "2026-12-18")], 1):
                 await pg.get_by_label(f"Início do período {k}").fill(a); await pg.get_by_label(f"Fim do período {k}").fill(b)
             await pg.get_by_role("button", name="Carregar dados da turma").click(); await pg.wait_for_timeout(6000)
             t = await pg.inner_text("body"); m = re.search(r"(\d+) estudante", t)
-            p((m and int(m.group(1)) == 0) or "Turma não visível" in t, "escola B não vê estudantes da turma de A no livro", (m.group(0) if m else "turma recusada"))
-        else: p(True, "escola B nem lista a turma de A")
+            p((m and int(m.group(1)) == 0) or "Turma não visível" in t, "conta da escola A não vê estudantes da turma da escola B no livro", (m.group(0) if m else "turma recusada"))
+        else: p(True, "turma da escola B nem aparece na lista da conta A")
         await pg.screenshot(path=f"{SH}/2_escola_b.png"); await ctx.close(); await br.close()
 asyncio.run(main())
