@@ -131,6 +131,13 @@ try {
   const reg2 = await FILL.c.storage.from("semed-anexos").upload(`${A}/2026/09/${op}-predio2.png`, png, { contentType: "image/png" });
   if (!reg2.error) await FILL.c.rpc("semed_attachment_register", { _school: A, _year: 2026, _code: "09", _path: `${A}/2026/09/${op}-predio2.png`, _name: "predio2.png", _mime: "image/png", _size: png.length, _description: "Pátio" });
 
+  mkdirSync("/tmp/semed", { recursive: true });
+  const ref = new globalThis.URL(URL).hostname.split(".")[0];
+  writeFileSync("/tmp/semed/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, school: A, sessions: { fill: FILL.session, net: NET.session, none: NONE.session } }), { mode: 0o600 });
+  const py = spawnSync("python3", ["scripts/semed-tables-e2e.py"], { encoding: "utf8", timeout: 300000 });
+  rmSync("/tmp/semed/s.json", { force: true });
+  process.stdout.write(py.stdout ?? ""); if (py.status !== 0) { fails++; console.log("PY_ERR", (py.stderr ?? "").slice(-1500)); }
+  fails += (py.stdout?.match(/^FAIL/gm) ?? []).length;
   // TSEMED.10 — Tabela 10 (todos os servidores do cadastro central, formação em ledger, comprovante restrito)
   // A escola sintética pode não ter servidores no cadastro; usa a escola real com mais linhas, só para LER o cadastro
   // (formações gravadas têm autoria sintética e saem na limpeza; o cadastro de pessoal não é alterado).
@@ -176,13 +183,6 @@ try {
     else check(false, "Tabela 10 salva", s10.error.message);
   } else console.log("INFO escola A sem servidores no cadastro central — escrita da T10 não exercitada");
 
-  mkdirSync("/tmp/semed", { recursive: true });
-  const ref = new globalThis.URL(URL).hostname.split(".")[0];
-  writeFileSync("/tmp/semed/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, school: A, sessions: { fill: FILL.session, net: NET.session, none: NONE.session } }), { mode: 0o600 });
-  const py = spawnSync("python3", ["scripts/semed-tables-e2e.py"], { encoding: "utf8", timeout: 300000 });
-  rmSync("/tmp/semed/s.json", { force: true });
-  process.stdout.write(py.stdout ?? ""); if (py.status !== 0) { fails++; console.log("PY_ERR", (py.stderr ?? "").slice(-1500)); }
-  fails += (py.stdout?.match(/^FAIL/gm) ?? []).length;
 } catch (e) { fails++; console.log("ERRO", String(e.message ?? e)); }
 finally {
   { const ls = await admin.storage.from("semed-anexos").list(`${ctx?.school}/2026/09`, { limit: 100 }); const mine = (ls.data ?? []).filter((o) => o.name.startsWith(op)).map((o) => `${ctx.school}/2026/09/${o.name}`); if (mine.length) await admin.storage.from("semed-anexos").remove(mine); }
