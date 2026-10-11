@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { readPages } from "@/lib/list-paging";
@@ -29,11 +29,10 @@ export function SchoolIdentityPanel({ year, referenceDate }: { year: string; ref
       for (const r of [...(rec.data ?? [])].sort((x, y) => x.version - y.version))
         receipts.set(r.school_id, { censusYear: r.census_year, declared: r.school_declared as never, recordedAt: r.recorded_at, sourceRef: r.source_ref });
       const counts = new Map<string, number>();
-      const infraRows = "items" in infra ? infra.items : [];
-      for (const r of infraRows) counts.set(r.school_id, (counts.get(r.school_id) ?? 0) + 1);
-      const infraKnown = "items" in infra;
+      for (const r of infra.data ?? []) counts.set(r.school_id, (counts.get(r.school_id) ?? 0) + 1);
+      const infraKnown = !infra.error && !infra.truncated;
       setData({ rows: units.map((u) => projectIdentity(u, asOf, receipts.get(u.schoolId) ?? null, infraKnown ? counts.get(u.schoolId) ?? 0 : null)).sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "")),
-        duplicates: identityDuplicates(units), infraTruncated: "truncated" in infra && !!infra.truncated });
+        duplicates: identityDuplicates(units), infraTruncated: infra.truncated });
     })();
     return () => { live = false; };
   }, [year, asOf]);
@@ -54,19 +53,19 @@ export function SchoolIdentityPanel({ year, referenceDate }: { year: string; ref
         <label className="mb-2 flex items-center gap-2 text-xs"><input type="checkbox" checked={only} onChange={(e) => setOnly(e.target.checked)} />Só escolas com divergência</label>
         <div className="overflow-x-auto"><table className="w-full text-xs">
           <thead><tr className="text-left"><th scope="col">Escola</th><th scope="col">INEP</th><th scope="col">Categoria</th><th scope="col">Infraestrutura</th><th scope="col">Pendências</th><th scope="col" /></tr></thead>
-          <tbody>{data.rows.filter((r) => !only || r.fields.some((f) => f.state === "divergente")).map((r) => <>
-            <tr key={r.schoolId} className="border-t">
+          <tbody>{data.rows.filter((r) => !only || r.fields.some((f) => f.state === "divergente")).map((r) => <Fragment key={r.schoolId}>
+            <tr className="border-t">
               <td>{r.name ?? "—"}</td><td>{r.inep ?? "—"}</td><td>{CAT[r.category]}</td>
               <td>{r.infraFacts == null ? "não apurado" : `${r.infraFacts} atributos`}</td><td>{r.pendencies.length}</td>
               <td><button type="button" className="underline" aria-expanded={open === r.schoolId} onClick={() => setOpen(open === r.schoolId ? null : r.schoolId)}>{open === r.schoolId ? "Fechar" : "Detalhar"}</button></td>
             </tr>
-            {open === r.schoolId && <tr key={r.schoolId + "-d"}><td colSpan={6} className="bg-muted/40 p-2">
+            {open === r.schoolId && <tr><td colSpan={6} className="bg-muted/40 p-2">
               <table className="w-full"><thead><tr className="text-left"><th scope="col">Campo</th><th scope="col">Valor</th><th scope="col">Estado</th><th scope="col">Origem</th></tr></thead>
                 <tbody>{r.fields.map((f) => <tr key={f.n}><td>{f.n}. {f.label}</td><td>{f.value ?? "—"}</td><td>{STATE[f.state]}{f.note ? ` — ${f.note}` : ""}</td>
                   <td>{f.provenance ? `${f.provenance.source}${f.provenance.validFrom ? ` · vigente desde ${f.provenance.validFrom}` : ""}${f.provenance.knownAt ? ` · conhecido em ${new Date(f.provenance.knownAt).toLocaleDateString("pt-BR")}` : ""}` : "—"}</td></tr>)}</tbody></table>
               <Link to="/unidades/$id" params={{ id: r.schoolId }} className="mt-2 inline-block underline">Abrir ficha da unidade para corrigir</Link>
             </td></tr>}
-          </>)}</tbody>
+          </Fragment>)}</tbody>
         </table></div>
       </>}
     </section>

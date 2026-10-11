@@ -8,6 +8,7 @@ import {
   type CollectionAct, type DocState, type SchoolRow, type SchoolState,
 } from "./educacenso-control";
 import { LayoutCatalogPanel } from "./layout-catalog-panel";
+import { SchoolIdentityPanel } from "./school-identity-panel";
 
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
@@ -117,6 +118,8 @@ export function EducacensoPage() {
         </table></div>
         <p className="mt-2 text-xs text-muted-foreground">“Envio ao INEP declarado” é declaração da escola com número de recibo/protocolo; não é confirmação do INEP. Recibo importado vem da carga oficial do Censo já registrada.</p>
       </section>
+
+      <SchoolIdentityPanel year={year} referenceDate={head?.reference_date ?? null} />
 
       <LayoutCatalogPanel year={year} stage={stage} canConfigure={ctl.can_configure} />
 
