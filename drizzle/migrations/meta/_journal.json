@@ -2164,6 +2164,13 @@
       "when": 1791694161647,
       "tag": "0308_bo_fixture_meal_planning_cap",
       "breakpoints": true
+    },
+    {
+      "idx": 309,
+      "version": "7",
+      "when": 1791694402024,
+      "tag": "0309_meal_readers_accept_bo_fixture",
+      "breakpoints": true
     }
   ]
 }
