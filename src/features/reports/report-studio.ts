@@ -180,6 +180,11 @@ export async function toStudioXlsx(result: ReportResult, spec: StudioSpec, meta:
 const table = (headers: readonly string[], rows: readonly (readonly string[])[], caption: string) =>
   `<table><caption>${esc(caption)}</caption><thead><tr>${headers.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c) => `<td>${esc(c)}</td>`).join("")}</tr>`).join("\n")}</tbody></table>`;
 
+/** Data/hora de geração legível (pt-BR, fuso de Brasília); valor inválido sai como veio. */
+export function fmtWhen(iso: string): string {
+  const d = new Date(iso); if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Sao_Paulo" }).format(d) + " (horário de Brasília)";
+}
 export function toStudioHtml(result: ReportResult, spec: StudioSpec, meta: readonly string[], a: Analysis, methodology: readonly string[]): string {
   const L = spec.layout;
   const size = `${L.paper} ${L.orientation === "paisagem" ? "landscape" : "portrait"}`;
@@ -187,7 +192,7 @@ export function toStudioHtml(result: ReportResult, spec: StudioSpec, meta: reado
   const foot = L.footer ? `@bottom-left{content:"${esc(L.footer).replace(/"/g, "'")}";font:9px sans-serif}` : "";
   const logo = L.logoUrl && isAllowedLogo(L.logoUrl) ? `<img src="${esc(L.logoUrl)}" alt="" style="height:56px;object-fit:contain">` : "";
   const head = `${logo}${L.headerLines.map((l) => `<div class="hl">${esc(l)}</div>`).join("")}`;
-  const cover = L.cover ? `<section class="cover">${head}<h1>${esc(L.title)}</h1>${L.subtitle ? `<p>${esc(L.subtitle)}</p>` : ""}<p>Gerado em ${esc(result.generatedAt)}</p></section>` : "";
+  const cover = L.cover ? `<section class="cover">${head}<h1>${esc(L.title)}</h1>${L.subtitle ? `<p>${esc(L.subtitle)}</p>` : ""}<p>Gerado em ${esc(fmtWhen(result.generatedAt))}</p></section>` : "";
   const detail = table(result.columns.map((c) => c.label), result.rows.map((r) => r.map(cellText)), "Dados detalhados");
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(L.title || result.definitionId)}</title>
 <style>@page{size:${size};margin:14mm 12mm;${pages}${foot}}body{font-family:"DejaVu Sans",Arial,sans-serif;margin:0;color:#111;overflow-wrap:anywhere}h1{font-size:17px;margin:6px 0}h2{font-size:13px;margin:14px 0 6px}.hl{font-size:11px}.cover{page-break-after:always;text-align:center;padding-top:30%}table{border-collapse:collapse;width:100%;table-layout:fixed;margin-bottom:10px}caption{text-align:left;font-weight:bold;font-size:11px;padding:4px 0}thead{display:table-header-group}tr{page-break-inside:avoid}td,th{border:1px solid #999;padding:3px;font-size:10px;text-align:left;vertical-align:top}th{background:#eee}.chart{page-break-inside:avoid;max-width:100%}.chart img{max-width:100%;height:auto}.meta p,.met p{font-size:10px;margin:2px 0}.sig{display:flex;gap:24px;margin-top:40px;flex-wrap:wrap}.sig div{flex:1;min-width:150px;border-top:1px solid #000;text-align:center;font-size:10px;padding-top:4px}</style></head><body>
@@ -200,5 +205,5 @@ ${a.pivot ? table(a.pivot.headers, a.pivot.rows, "Tabela cruzada") : ""}
 ${L.showMethodology ? `<section class="met"><h2>Metodologia e fonte</h2>${methodology.map((m) => `<p>${esc(m)}</p>`).join("")}<p>Ausência de dado aparece como "${ABSENT}"; nunca é convertida em zero.</p></section>` : ""}
 ${L.observations ? `<h2>Observações</h2><p>${esc(L.observations)}</p>` : ""}
 ${L.signatures.length ? `<div class="sig">${L.signatures.map((s) => `<div>${esc(s)}</div>`).join("")}</div>` : ""}
-<p style="font-size:9px">Gerado em ${esc(result.generatedAt)}. Relatório de trabalho; não é documento oficial.</p></body></html>`;
+<p style="font-size:9px">Gerado em ${esc(fmtWhen(result.generatedAt))}. Relatório de trabalho; não é documento oficial.</p></body></html>`;
 }

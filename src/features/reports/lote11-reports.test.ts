@@ -43,3 +43,7 @@ describe("LOTE 11 — logo do relatório", () => {
     expect(isAllowedLogo("/qualquer.png")).toBe(false);
   });
 });
+import { fmtWhen } from "./report-studio";
+describe("LOTE 11 — data de geração no PDF", () => {
+  it("mostra dd/mm/aaaa hh:mm no horário de Brasília", () => expect(fmtWhen("2026-10-11T01:59:48.470Z")).toBe("10/10/2026, 22:59 (horário de Brasília)"));
+});
