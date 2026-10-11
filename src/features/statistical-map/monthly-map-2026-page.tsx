@@ -17,7 +17,7 @@ import { CATEGORY_LABEL, NETWORK_FILTERS, type NetworkFilter, NETWORK_FILTER_LAB
 import type { ReportDefinition } from "@/features/reports/report-engine";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
-const rpc = supabase.rpc as unknown as Rpc;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as Rpc;
 
 async function loadMonth(month: number) {
   const [live, cl] = await Promise.all([

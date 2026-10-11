@@ -64,7 +64,7 @@ export function D1ImportPage() {
   const run = async () => {
     setBusy(true); setError(null); setResult(null);
     try {
-      const rpc = supabase.rpc as unknown as Rpc;
+      const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as Rpc;
       const r = await executePlan(plan, input, capFlags, rpc);
       setResult(r); setConfirmed(false);
       await qc.invalidateQueries({ queryKey: ["d1-import-state"] });

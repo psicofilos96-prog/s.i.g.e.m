@@ -14,7 +14,7 @@ import {
 } from "./census-map-2026";
 
 type Rpc = (f: string) => Promise<{ data: Record<string, unknown>[] | null; error: { message: string } | null }>;
-const rpc = supabase.rpc as unknown as Rpc;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as Rpc;
 async function load() {
   const [s, c, net, rec] = await Promise.all([rpc("census_map_2026_schools"), rpc("census_map_2026_classes"), rpc("census_map_2026_network"),
     supabase.from("census_official_receipt_snapshots").select("school_id, closed_at, version").eq("census_year", "2026")]);

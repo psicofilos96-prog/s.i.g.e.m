@@ -7,7 +7,7 @@ import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/cu
 import { NEI_ROLE_LABEL, dashTotals, grantShapeProblem, scopeLabel, visibleAreas, type NeiAccess, type NeiDashRow, type NeiRole } from "./nei-areas";
 
 // RPCs novas (0330–0333); tipagem local mínima para não depender da geração.
-const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const MSG: Record<string, string> = {
   "nei:cannot-manage": "Sua conta não pode gerir papéis do NEI.",
   "nei:self-grant": "Ninguém concede papel a si mesmo.",

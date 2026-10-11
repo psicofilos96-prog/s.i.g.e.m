@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { BARRIER_CATEGORY, BARRIER_LABEL, SUPPORT_KIND, SUPPORT_LABEL, barrierClosed, coverageState, supportNext, supportProblem, type BarrierStatus, type SupportStage } from "./nei-support";
 
-const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
 const MSG: Record<string, string> = {
   "stale": "Outra pessoa registrou antes. Recarregue.", "invalid-transition": "Essa etapa não segue a atual.", "designation-not-found": "A designação ou atuação escolhida não está vigente nesta escola para este estudante.",
