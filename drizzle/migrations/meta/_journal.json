@@ -2500,6 +2500,13 @@
       "when": 1791724984585,
       "tag": "0356_educacenso_year_resolution",
       "breakpoints": true
+    },
+    {
+      "idx": 357,
+      "version": "7",
+      "when": 1791725903780,
+      "tag": "0357_educacenso_layout_specs",
+      "breakpoints": true
     }
   ]
 }
