@@ -41,7 +41,7 @@ export type District = { code: string; municipalityCode: string; name: string };
 
 /** UF → município → distrito: código prevalece; nome só casa se único dentro do município já resolvido. */
 export function resolveTerritory(cat: { municipalities: Municipality[]; districts: District[] }, school: { municipalityCode?: string | null; municipalityName?: string | null; ufCode?: string | null; district?: string | null; districtCode?: string | null }) {
-  const m = reconcileMunicipality(cat.municipalities, { code: school.municipalityCode, name: school.municipalityName, ufCode: school.ufCode });
+  const m = reconcileMunicipality(cat.municipalities, { code: school.municipalityCode ?? null, name: school.municipalityName ?? null, ufCode: school.ufCode ?? null });
   if (m.kind === "fila") return { municipio: m, distrito: { kind: "fila" as const, reason: "municipio-nao-resolvido" } };
   const dc = school.districtCode ? validCode("distrito", school.districtCode) : null;
   if (dc) return { municipio: m, distrito: dc.startsWith(m.code) && cat.districts.some((d) => d.code === dc) ? { kind: "codigo" as const, code: dc } : { kind: "fila" as const, reason: "codigo-inexistente" } };
