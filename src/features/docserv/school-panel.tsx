@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { STATUS_LABEL, fileProblem, reviewNeedsNote, sha256Hex, storagePath } from "./documents-model";
 import { typeLabel } from "./server-portal";
 import { openSigned } from "./my-documents";
+import { downloadZip } from "./docserv-files";
 import { TYPES, applyFilter, counters, linkLabel, validationQueue, type Filter, type Roster, type RosterPerson } from "./school-portal";
 
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
@@ -27,15 +28,16 @@ export function SchoolDocsPanel({ school }: { school: string }) {
   const c = useMemo(() => (data && data !== "error" ? counters(data) : null), [data]);
   const list = useMemo(() => (data && data !== "error" ? applyFilter(data, filter, q) : []), [data, filter, q]);
   const queue = useMemo(() => (data && data !== "error" ? validationQueue(data) : []), [data]);
-  const fail = (m: string) => m.includes("forbidden") ? "Sem permissão para esta ação." : m.includes("stale") ? "Mudou enquanto você via; recarregado." : m.includes("reason") ? "Informe o motivo (mín. 5 caracteres)." : m.includes("self-review") ? "Ninguém valida o próprio documento." : m.includes("already") ? "Servidor já vinculado à escola." : m.includes("not-linked") ? "Servidor não está vinculado à escola." : "Não foi possível concluir.";
+  const fail = (m: string) => m.includes("forbidden") ? "Sem permissão para esta ação." : m.includes("stale") ? "Mudou enquanto você via; recarregado." : m.includes("reason") ? "Informe o motivo (mín. 5 caracteres)." : m.includes("self-review") ? "Ninguém valida o próprio documento." : m.includes("conflict-titular") ? "Já há pedido de titularidade aberto em outra escola." : m.includes("conflict") ? "Já existe pedido aberto igual." : m.includes("already") ? "Servidor já vinculado à escola." : m.includes("not-linked") ? "Servidor não está vinculado à escola." : "Não foi possível concluir.";
 
   const review = async (doc: string, seq: number, status: string) => {
     if (reviewNeedsNote(status) && note.trim().length < 5) return setMsg("Informe a observação (mín. 5 caracteres).");
     const r = await supabase.rpc("docserv_review_document", { _document: doc, _status: status, _note: note || null, _expected_seq: seq } as never);
     setMsg(r.error ? fail(r.error.message) : "Revisão registrada."); if (!r.error) setNote(""); void load();
   };
+  const [nature, setNature] = useState("nao-informado");
   const request = async (person: string, kind: string) => {
-    const r = await supabase.rpc("docserv_link_request", { _request: crypto.randomUUID(), _school: school, _person: person, _kind: kind, _state: "aberta", _reason: note, _expected_seq: 0 });
+    const r = await supabase.rpc("docserv_link_request_v2", { _request: crypto.randomUUID(), _school: school, _person: person, _kind: kind, _nature: kind === "solicitar-vinculo" ? nature : null, _state: "aberta", _reason: note, _expected_seq: 0 } as never);
     setMsg(r.error ? fail(r.error.message) : "Solicitação registrada e encaminhada à rede."); if (!r.error) setNote(""); void load();
   };
   const cancel = async (id: string, seq: number) => {
@@ -43,6 +45,15 @@ export function SchoolDocsPanel({ school }: { school: string }) {
     setMsg(r.error ? fail(r.error.message) : "Solicitação cancelada."); if (!r.error) setNote(""); void load();
   };
 
+  const confirmAnnual = async () => {
+    const r = await supabase.rpc("docserv_snapshot_school", { _school: school, _season: season, _cycle: null, _kind: "confirmacao-anual", _reason: note || "Confirmação anual de vínculos" } as never);
+    setMsg(r.error ? fail(r.error.message) : "Vínculos do ano confirmados (fotografia registrada)."); void load();
+  };
+  const zip = async () => {
+    if (!data || data === "error") return;
+    const items = data.people.flatMap((p) => TYPES.flatMap((t) => (p.docs[t] ? [{ document_id: p.docs[t]!.document_id, path: p.docs[t]!.path, label: `${typeLabel(t)}-${p.masked_name ?? "servidor"}` }] : [])));
+    const m = await downloadZip(items, `docserv-${school}-${season}.zip`); if (m) setMsg(m);
+  };
   if (data === null) return <p className="text-xs text-muted-foreground">Carregando…</p>;
   if (data === "error") return <p className="text-xs text-destructive">Não foi possível ler os servidores desta escola.</p>;
   return (
@@ -51,6 +62,8 @@ export function SchoolDocsPanel({ school }: { school: string }) {
         <label>Período <input className={`${field} w-20`} value={season} onChange={(e) => setSeason(e.target.value.replace(/\D/g, "").slice(0, 4))} /></label>
         <select className={field} value={filter} onChange={(e) => setFilter(e.target.value as Filter)} aria-label="Filtro">{FILTERS.map((f) => <option key={f.v} value={f.v}>{f.l}</option>)}</select>
         <input className={field} placeholder="Buscar por nome" value={q} onChange={(e) => setQ(e.target.value)} />
+        <Button size="sm" variant="outline" onClick={() => void confirmAnnual()}>Confirmar vínculos do ano</Button>
+        <Button size="sm" variant="outline" onClick={() => void zip()}>Baixar ZIP</Button>
       </div>
       {c && <p aria-label="Contadores">{c.servidores} servidores vinculados · {c["sem-envio"]} sem certidão criminal · {c.pendente} aguardando validação · {c.problema} com problema · {c.valido} válidos · {c.multiplos} com mais de um vínculo{data.staff_records_without_person > 0 ? ` · ${data.staff_records_without_person} registros de pessoal ainda sem pessoa conciliada (fora da lista)` : ""}</p>}
       <input className={`${field} w-full`} placeholder="Motivo / observação (obrigatório para rejeitar, alertar e solicitar)" value={note} onChange={(e) => setNote(e.target.value)} />
@@ -79,6 +92,7 @@ export function SchoolDocsPanel({ school }: { school: string }) {
 
       <section className="rounded border p-2"><h3 className="font-semibold">Solicitações de vínculo</h3>
         <p className="text-muted-foreground">A escola pede; a rede encaminha ao Departamento Pessoal, que registra o vínculo. O pedido sozinho não vincula ninguém.</p>
+        <select className={field} value={nature} onChange={(e) => setNature(e.target.value)} aria-label="Natureza do vínculo"><option value="nao-informado">Natureza não informada</option><option value="titular">Titular</option><option value="dobra">Dobra</option><option value="ajt">AJT</option></select>
         <RequestLink onPick={(person) => void request(person, "solicitar-vinculo")} />
         {data.requests.length === 0 ? <p className="text-muted-foreground">Nenhuma solicitação.</p> : <ul>{data.requests.map((r) => <li key={r.request_id}>{r.at.slice(0, 10)} · {r.kind === "solicitar-vinculo" ? "vínculo" : "desvínculo"} · {r.person_masked} · {REQ_STATE[r.state] ?? "situação não reconhecida"} — {r.reason}
           {r.state === "aberta" && <Button size="sm" variant="ghost" onClick={() => void cancel(r.request_id, r.seq)}>Cancelar</Button>}</li>)}</ul>}
@@ -103,7 +117,7 @@ function AssistedUpload({ school, person, season, onDone }: { school: string; pe
       const doc = replace ? cur.document_id : crypto.randomUUID(); const path = storagePath(person.person_id, doc, file.name);
       const up = await supabase.storage.from("docserv-documentos").upload(path, file, { contentType: file.type, upsert: false });
       if (up.error) return onDone("Envio do arquivo recusado.");
-      const r = await supabase.rpc("docserv_submit_document", { _document: doc, _person: person.person_id, _type: type, _season: season, _school: school, _path: path, _sha: await sha256Hex(await file.arrayBuffer()), _mime: file.type, _size: file.size, _issuer: issuer || null, _issued: issued || null, _valid_until: until || null, _expected_version: replace ? cur.version : 0 } as never);
+      const r = await supabase.rpc("docserv_submit_document_v2", { _document: doc, _person: person.person_id, _type: type, _season: season, _cycle: null, _school: school, _path: path, _sha: await sha256Hex(await file.arrayBuffer()), _mime: file.type, _size: file.size, _issuer: issuer || null, _issued: issued || null, _valid_until: until || null, _extraction: null, _expected_version: replace ? cur.version : 0 } as never);
       onDone(r.error ? "Registro recusado." : "Documento enviado pela escola; aguarda validação.");
     } finally { setBusy(false); }
   };

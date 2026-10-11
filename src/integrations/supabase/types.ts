@@ -7807,6 +7807,39 @@ export type Database = {
           },
         ]
       }
+      docserv_document_policies: {
+        Row: {
+          actor: string | null
+          id: string
+          origin: string
+          reason: string
+          recorded_at: string
+          rules: Json
+          status: string
+          version: number
+        }
+        Insert: {
+          actor?: string | null
+          id?: string
+          origin: string
+          reason: string
+          recorded_at?: string
+          rules: Json
+          status: string
+          version: number
+        }
+        Update: {
+          actor?: string | null
+          id?: string
+          origin?: string
+          reason?: string
+          recorded_at?: string
+          rules?: Json
+          status?: string
+          version?: number
+        }
+        Relationships: []
+      }
       docserv_document_types: {
         Row: {
           approved_policy_ref: string | null
@@ -7833,7 +7866,9 @@ export type Database = {
       }
       docserv_document_versions: {
         Row: {
+          cycle: number | null
           document_id: string
+          extraction_suggestion: Json | null
           id: string
           issued_on: string | null
           issuer: string | null
@@ -7852,7 +7887,9 @@ export type Database = {
           version: number
         }
         Insert: {
+          cycle?: number | null
           document_id: string
+          extraction_suggestion?: Json | null
           id?: string
           issued_on?: string | null
           issuer?: string | null
@@ -7871,7 +7908,9 @@ export type Database = {
           version: number
         }
         Update: {
+          cycle?: number | null
           document_id?: string
+          extraction_suggestion?: Json | null
           id?: string
           issued_on?: string | null
           issuer?: string | null
@@ -7965,6 +8004,7 @@ export type Database = {
           actor: string
           id: string
           kind: string
+          nature: string | null
           person_id: string
           reason: string
           recorded_at: string
@@ -7977,6 +8017,7 @@ export type Database = {
           actor: string
           id?: string
           kind: string
+          nature?: string | null
           person_id: string
           reason: string
           recorded_at?: string
@@ -7989,6 +8030,7 @@ export type Database = {
           actor?: string
           id?: string
           kind?: string
+          nature?: string | null
           person_id?: string
           reason?: string
           recorded_at?: string
@@ -7996,6 +8038,128 @@ export type Database = {
           school_id?: string
           seq?: number
           state?: string
+        }
+        Relationships: []
+      }
+      docserv_link_snapshots: {
+        Row: {
+          actor: string
+          cycle: number | null
+          id: string
+          kind: string
+          people: Json
+          people_count: number
+          reason: string | null
+          recorded_at: string
+          restores_id: string | null
+          school_id: string
+          season: string
+          sha256: string
+        }
+        Insert: {
+          actor: string
+          cycle?: number | null
+          id?: string
+          kind: string
+          people: Json
+          people_count: number
+          reason?: string | null
+          recorded_at?: string
+          restores_id?: string | null
+          school_id: string
+          season: string
+          sha256: string
+        }
+        Update: {
+          actor?: string
+          cycle?: number | null
+          id?: string
+          kind?: string
+          people?: Json
+          people_count?: number
+          reason?: string | null
+          recorded_at?: string
+          restores_id?: string | null
+          school_id?: string
+          season?: string
+          sha256?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "docserv_link_snapshots_restores_id_fkey"
+            columns: ["restores_id"]
+            isOneToOne: false
+            referencedRelation: "docserv_link_snapshots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      docserv_purges: {
+        Row: {
+          actor: string
+          document_id: string
+          id: string
+          policy_version: number
+          reason: string
+          recorded_at: string
+          storage_path: string
+        }
+        Insert: {
+          actor: string
+          document_id: string
+          id?: string
+          policy_version: number
+          reason: string
+          recorded_at?: string
+          storage_path: string
+        }
+        Update: {
+          actor?: string
+          document_id?: string
+          id?: string
+          policy_version?: number
+          reason?: string
+          recorded_at?: string
+          storage_path?: string
+        }
+        Relationships: []
+      }
+      docserv_seasons: {
+        Row: {
+          actor: string
+          closes_on: string
+          cycle: number
+          id: string
+          opens_on: string
+          reason: string
+          recorded_at: string
+          seq: number
+          status: string
+          year: string
+        }
+        Insert: {
+          actor: string
+          closes_on: string
+          cycle: number
+          id?: string
+          opens_on: string
+          reason: string
+          recorded_at?: string
+          seq: number
+          status: string
+          year: string
+        }
+        Update: {
+          actor?: string
+          closes_on?: string
+          cycle?: number
+          id?: string
+          opens_on?: string
+          reason?: string
+          recorded_at?: string
+          seq?: number
+          status?: string
+          year?: string
         }
         Relationships: []
       }
@@ -22592,6 +22756,10 @@ export type Database = {
         Args: { _operation_id: string }
         Returns: number
       }
+      bo_fixture_cleanup_docserv_extra: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_docserv_requests: {
         Args: { _operation_id: string }
         Returns: number
@@ -24120,6 +24288,35 @@ export type Database = {
       }
       dispatch_notification_event: { Args: { _event: string }; Returns: number }
       docserv_alert_reads_mine: { Args: never; Returns: string[] }
+      docserv_append_only_row: {
+        Args: {
+          _old: Database["public"]["Tables"]["docserv_link_requests"]["Row"]
+          _op: string
+        }
+        Returns: {
+          actor: string
+          id: string
+          kind: string
+          nature: string | null
+          person_id: string
+          reason: string
+          recorded_at: string
+          request_id: string
+          school_id: string
+          seq: number
+          state: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "docserv_link_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      docserv_authorize_purge: {
+        Args: { _document: string; _reason: string }
+        Returns: string[]
+      }
       docserv_can_read: {
         Args: { _person: string; _school: string }
         Returns: boolean
@@ -24156,11 +24353,51 @@ export type Database = {
         }
         Returns: number
       }
+      docserv_link_request_v2: {
+        Args: {
+          _expected_seq: number
+          _kind: string
+          _nature: string
+          _person: string
+          _reason: string
+          _request: string
+          _school: string
+          _state: string
+        }
+        Returns: number
+      }
+      docserv_log_download: {
+        Args: { _documents: string[]; _zip: boolean }
+        Returns: number
+      }
       docserv_mark_alert_read: { Args: { _key: string }; Returns: undefined }
       docserv_my_person: { Args: never; Returns: string }
+      docserv_network_overview: { Args: { _season: string }; Returns: Json }
       docserv_person_in_school: {
         Args: { _person: string; _school: string }
         Returns: boolean
+      }
+      docserv_policy_current: { Args: never; Returns: Json }
+      docserv_record_policy: {
+        Args: {
+          _expected_version: number
+          _reason: string
+          _rules: Json
+          _status: string
+        }
+        Returns: number
+      }
+      docserv_record_season: {
+        Args: {
+          _closes: string
+          _cycle: number
+          _expected_seq: number
+          _opens: string
+          _reason: string
+          _status: string
+          _year: string
+        }
+        Returns: number
       }
       docserv_resolve_identity: {
         Args: {
@@ -24171,6 +24408,10 @@ export type Database = {
           _matricula: string
         }
         Returns: Json
+      }
+      docserv_restore_snapshot: {
+        Args: { _reason: string; _snapshot: string }
+        Returns: number
       }
       docserv_review_document: {
         Args: {
@@ -24193,10 +24434,41 @@ export type Database = {
         Args: { _school: string; _season: string }
         Returns: Json
       }
+      docserv_seasons_current: { Args: never; Returns: Json }
+      docserv_snapshot_school: {
+        Args: {
+          _cycle: number
+          _kind: string
+          _reason: string
+          _school: string
+          _season: string
+        }
+        Returns: string
+      }
       docserv_submit_document: {
         Args: {
           _document: string
           _expected_version: number
+          _issued: string
+          _issuer: string
+          _mime: string
+          _path: string
+          _person: string
+          _school: string
+          _season: string
+          _sha: string
+          _size: number
+          _type: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      docserv_submit_document_v2: {
+        Args: {
+          _cycle: number
+          _document: string
+          _expected_version: number
+          _extraction: Json
           _issued: string
           _issuer: string
           _mime: string
