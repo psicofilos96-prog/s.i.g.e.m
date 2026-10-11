@@ -6,6 +6,11 @@ B = "http://localhost:8080"; OUT = "/tmp/rep/l11"; os.makedirs(OUT, exist_ok=Tru
 async def run(br, cfg, sector, subject, tag):
     ctx = await br.new_context(viewport={"width": 1280, "height": 1800}, accept_downloads=True); pg = await ctx.new_page()
     await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["session"])])
+    async def onresp(r):
+        if "meal_reporting" in r.url:
+            try: print(f"INFO [{tag}] rpc", r.status, (await r.text())[:200])
+            except Exception: pass
+    pg.on("response", lambda r: asyncio.ensure_future(onresp(r)))
     await pg.goto(B + "/relatorios")
     g = pg.get_by_role("region", name="Gerador de relatórios")
     await g.get_by_role("button", name="Escolher").first.wait_for(timeout=30000)
