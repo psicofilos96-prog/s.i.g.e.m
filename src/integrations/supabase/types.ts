@@ -13457,6 +13457,75 @@ export type Database = {
         }
         Relationships: []
       }
+      nei_aee_activity_logs: {
+        Row: {
+          activities: string
+          id: string
+          recorded_at: string
+          recorded_by: string
+          resources: string | null
+          service_logical_id: string
+          session_date: string
+        }
+        Insert: {
+          activities: string
+          id?: string
+          recorded_at?: string
+          recorded_by: string
+          resources?: string | null
+          service_logical_id: string
+          session_date: string
+        }
+        Update: {
+          activities?: string
+          id?: string
+          recorded_at?: string
+          recorded_by?: string
+          resources?: string | null
+          service_logical_id?: string
+          session_date?: string
+        }
+        Relationships: []
+      }
+      nei_aee_offer_events: {
+        Row: {
+          cause: string | null
+          effective_on: string
+          id: string
+          note: string | null
+          recorded_at: string
+          recorded_by: string
+          room: string | null
+          seq: number
+          service_logical_id: string
+          status: string
+        }
+        Insert: {
+          cause?: string | null
+          effective_on: string
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by: string
+          room?: string | null
+          seq: number
+          service_logical_id: string
+          status: string
+        }
+        Update: {
+          cause?: string | null
+          effective_on?: string
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          room?: string | null
+          seq?: number
+          service_logical_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       nei_case_events: {
         Row: {
           assignee_user: string | null
@@ -13535,6 +13604,152 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "nei_cases_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_plan_attachments: {
+        Row: {
+          file_name: string
+          id: string
+          object_path: string
+          plan_id: string
+          recorded_at: string
+          recorded_by: string
+        }
+        Insert: {
+          file_name: string
+          id?: string
+          object_path: string
+          plan_id: string
+          recorded_at?: string
+          recorded_by: string
+        }
+        Update: {
+          file_name?: string
+          id?: string
+          object_path?: string
+          plan_id?: string
+          recorded_at?: string
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_plan_attachments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "nei_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_plan_comments: {
+        Row: {
+          body: string
+          id: string
+          recorded_at: string
+          recorded_by: string
+          version_id: string
+        }
+        Insert: {
+          body: string
+          id?: string
+          recorded_at?: string
+          recorded_by: string
+          version_id: string
+        }
+        Update: {
+          body?: string
+          id?: string
+          recorded_at?: string
+          recorded_by?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_plan_comments_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "nei_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_plan_versions: {
+        Row: {
+          content: Json
+          id: string
+          plan_id: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          status: string
+          version: number
+        }
+        Insert: {
+          content: Json
+          id?: string
+          plan_id: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          status: string
+          version: number
+        }
+        Update: {
+          content?: Json
+          id?: string
+          plan_id?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          status?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_plan_versions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "nei_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_plans: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          school_id: string
+          student_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          kind: string
+          school_id: string
+          student_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          school_id?: string
+          student_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_plans_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "institutional_schools"
@@ -21622,6 +21837,16 @@ export type Database = {
         }
         Returns: string
       }
+      create_nei_plan: {
+        Args: {
+          _content: Json
+          _kind: string
+          _school: string
+          _student: string
+          _title: string
+        }
+        Returns: string
+      }
       create_operational_task: {
         Args: {
           _assignee: string
@@ -24323,6 +24548,53 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      nei_aee_agenda: {
+        Args: { _school: string }
+        Returns: {
+          conflict_professional: boolean
+          conflict_room: boolean
+          ends_at: string
+          last_seq: number
+          presences_30d: number
+          responsible_name: string
+          room: string
+          service_logical_id: string
+          sessions_30d: number
+          starts_at: string
+          status: string
+          student_id: string
+          student_name: string
+          weekday: number
+        }[]
+      }
+      nei_aee_service_detail: { Args: { _service: string }; Returns: Json }
+      nei_aee_service_head: {
+        Args: { _logical: string }
+        Returns: {
+          author_engagement: string
+          author_person_id: string
+          author_user_id: string
+          event_kind: string
+          id: string
+          logical_id: string
+          origin_kind: string
+          reason: string | null
+          recorded_at: string
+          responsible_engagement_id: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "aee_services"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       nei_can_manage: { Args: { _role: string }; Returns: boolean }
       nei_candidate_accounts: {
         Args: { _query: string }
@@ -24379,6 +24651,20 @@ export type Database = {
           student_scoped: boolean
           valid_until: string
         }[]
+      }
+      nei_offer_next_allowed: {
+        Args: { _from: string; _to: string }
+        Returns: boolean
+      }
+      nei_plan_attachment_open: {
+        Args: { _attachment: string }
+        Returns: string
+      }
+      nei_plan_content_problem: { Args: { _c: Json }; Returns: string }
+      nei_plan_role: { Args: { _plan: string }; Returns: string }
+      nei_plans_for: {
+        Args: { _school: string; _student: string }
+        Returns: Json
       }
       nei_role_grants_list: {
         Args: never
@@ -26428,6 +26714,27 @@ export type Database = {
         }
         Returns: number
       }
+      record_nei_aee_activity: {
+        Args: {
+          _activities: string
+          _date: string
+          _resources?: string
+          _service: string
+        }
+        Returns: string
+      }
+      record_nei_aee_offer_event: {
+        Args: {
+          _cause?: string
+          _effective: string
+          _expected_seq: number
+          _note?: string
+          _room?: string
+          _service: string
+          _status: string
+        }
+        Returns: number
+      }
       record_nei_case_event: {
         Args: {
           _assignee?: string
@@ -26437,6 +26744,24 @@ export type Database = {
           _note: string
           _priority?: string
           _stage: string
+        }
+        Returns: number
+      }
+      record_nei_plan_attachment: {
+        Args: { _name: string; _path: string; _plan: string }
+        Returns: string
+      }
+      record_nei_plan_comment: {
+        Args: { _body: string; _version: string }
+        Returns: string
+      }
+      record_nei_plan_version: {
+        Args: {
+          _content: Json
+          _expected_version: number
+          _plan: string
+          _reason: string
+          _status: string
         }
         Returns: number
       }
