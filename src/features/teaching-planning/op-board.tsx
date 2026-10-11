@@ -19,7 +19,7 @@ export const boardHeads = (rows: readonly BoardVersion[]) => {
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 export const boardPrintHtml = (v: BoardVersion) => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(v.title)}</title><style>@page{size:A4;margin:18mm}body{font-family:serif;font-size:11pt}h1{font-size:15pt}h2{font-size:12pt;margin-top:12pt}p{white-space:pre-wrap}</style></head><body><h1>${esc(v.title)}</h1><p>Etapa: ${esc(v.stage_key)} · versão ${v.version} · ${esc(new Date(v.recorded_at).toLocaleString("pt-BR"))}</p>${v.sections.map((s) => `<h2>${esc(s.heading)}</h2><p>${esc(s.body)}</p>`).join("")}</body></html>`;
 const ERR: Record<string, string> = { "board:capability-missing": "Sua conta não tem permissão para manter o Quadro Permanente.", "board:head-changed": "Outra versão foi gravada; recarregue.", "board:reason-required": "Nova versão exige motivo.", "board:sections-required": "Inclua ao menos uma seção.", "board:fields-required": "Preencha etapa e título." };
-const msgOf = (e: unknown) => { const r = e instanceof Error ? e.message : String(e); const k = Object.keys(ERR).find((x) => r.includes(x)); return k ? ERR[k]! : `Não gravado: ${r}`; };
+const msgOf = (e: unknown) => { const r = typeof e === "object" && e !== null && "message" in e ? String((e as { message: unknown }).message) : String(e); const k = Object.keys(ERR).find((x) => r.includes(x)); return k ? ERR[k]! : `Não gravado: ${r}`; };
 
 export function OpBoardPage() {
   const qc = useQueryClient();
@@ -39,7 +39,7 @@ export function OpBoardPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-6">
       <header><PageHeader title="Quadro Permanente da OP" /><p className="text-sm text-muted-foreground">Orientações da rede por etapa, com versões. Cada mudança cria nova versão; as anteriores ficam no histórico. Professores consultam no planejamento.</p></header>
-      {session.loading ? <p className="text-sm text-muted-foreground">Conferindo sua sessão…</p> : !session.user ? <p className="text-sm text-muted-foreground">Entre com sua conta para ver o Quadro Permanente.</p> : q.isLoading ? <LoadingState /> : q.error ? <p role="alert" className="text-sm text-destructive">Entre com sua conta para ver o Quadro Permanente.</p> : (<>
+      {session.loading ? <LoadingState /> : !session.user ? <p className="text-sm text-muted-foreground">Entre com sua conta para ver o Quadro Permanente.</p> : q.isLoading ? <LoadingState /> : q.error ? <p role="alert" className="text-sm text-destructive">Não foi possível ler o Quadro Permanente agora. Tente recarregar a página.</p> : (<>
         {hs.length === 0 && <p className="text-sm text-muted-foreground">Nenhum quadro registrado ainda.</p>}
         <ul className="space-y-2">{hs.map((v) => (
           <li key={v.id} className="rounded border border-border p-3"><div className="font-medium">{v.stage_key} — {v.title} <span className="text-xs text-muted-foreground">v{v.version}</span></div>
