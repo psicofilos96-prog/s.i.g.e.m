@@ -75,11 +75,14 @@ export function documentBlocks(def: TableDef, v: Values, central: Central, t04Th
 export type DocMeta = { year: number; tableCode: string; title: string; school: string; inep: string; state: string; version: number; generatedAt: Date };
 const metaLines = (m: DocMeta) => [`ESCOLA: ${m.school}    CÓDIGO INEP: ${m.inep || ABS}`, `Situação: ${m.state} · catálogo v${m.version} · gerado em ${m.generatedAt.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`, "“—” = não informado (nunca zero presumido)."];
 
-export async function semedPdf(def: TableDef, blocks: Block[], m: DocMeta): Promise<Blob> {
-  const { jsPDF } = await import("jspdf");
-  const autoTable = (await import("jspdf-autotable")).default;
-  const doc = new jsPDF({ orientation: def.landscape ? "landscape" : "portrait", unit: "mm", format: "a4" });
+type PdfDoc = InstanceType<typeof import("jspdf").jsPDF>;
+type AutoTable = typeof import("jspdf-autotable").default;
+const lastY = (doc: PdfDoc, y: number) => (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
+
+/** Desenha UMA tabela a partir da página corrente do documento (individual ou pacote anual). */
+function drawTable(doc: PdfDoc, autoTable: AutoTable, def: TableDef, blocks: Block[], m: DocMeta) {
   const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 10;
+  (doc as unknown as { lastAutoTable?: unknown }).lastAutoTable = undefined;
   let y = M + 2;
   doc.setFont("times", "bold"); doc.setFontSize(10);
   for (const l of HEADER_LINES) { doc.text(l, M, y); y += 4.5; }
@@ -90,9 +93,8 @@ export async function semedPdf(def: TableDef, blocks: Block[], m: DocMeta): Prom
   for (const l of metaLines(m)) { doc.text(l, M, y + 1); y += 4; }
   const font = def.code === "04" ? 5.6 : def.code === "10" ? 6.5 : 8;
   for (const b of blocks) {
-    const startY = ((doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 4;
     autoTable(doc, {
-      startY, margin: { left: M, right: M, bottom: 14 }, theme: "grid",
+      startY: lastY(doc, y) + 4, margin: { left: M, right: M, bottom: 14 }, theme: "grid",
       head: [[{ content: b.title, colSpan: b.head.length, styles: { halign: "left", fillColor: [220, 220, 220] } }], b.head], body: b.body.map((r) => r.map(String)),
       styles: { font: "times", fontSize: font, cellPadding: 0.8, overflow: "linebreak", lineColor: [34, 34, 34], lineWidth: 0.2, textColor: [0, 0, 0] },
       headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold" }, showHead: "everyPage", rowPageBreak: "avoid",
@@ -101,7 +103,7 @@ export async function semedPdf(def: TableDef, blocks: Block[], m: DocMeta): Prom
   const dist = blocks.find((b) => b.title.startsWith("DISTORÇÃO"));
   if (dist) {
     const bars = dist.body.filter((r) => typeof r[4] === "string" && /%$/.test(String(r[4])));
-    let gy = ((doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 8;
+    let gy = lastY(doc, y) + 8;
     if (gy + 10 + bars.length * 5 > H - 14) { doc.addPage(); gy = M + 6; }
     doc.setFont("times", "bold"); doc.setFontSize(9); doc.text(`GRÁFICO DISTORÇÃO SÉRIE x IDADE - ${m.year}`, M, gy); doc.setFont("times", "normal");
     if (!bars.length) { doc.setFontSize(8); doc.text("Sem indicador calculável (regra ou valores ausentes).", M, gy + 5); }
@@ -111,21 +113,49 @@ export async function semedPdf(def: TableDef, blocks: Block[], m: DocMeta): Prom
     });
     (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable = { finalY: gy + 6 + bars.length * 5 };
   }
-  let sy = ((doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 20;
+  let sy = lastY(doc, y) + 20;
   if (sy + 12 > H - 14) { doc.addPage(); sy = M + 24; }
   const colW = (W - 2 * M) / 2;
   ["Responsável pelo Estabelecimento", "Responsável pelo Preenchimento"].forEach((s, i) => {
     const x = M + i * colW; doc.line(x + 8, sy, x + colW - 8, sy); doc.setFontSize(9); doc.text(s, x + colW / 2, sy + 4.5, { align: "center" });
   });
   doc.text("ITAPERUNA, ____/____/________", W / 2, sy + 12, { align: "center" });
+}
+function footers(doc: PdfDoc, labels: string[]) {
   const n = doc.getNumberOfPages();
-  for (let p = 1; p <= n; p++) { doc.setPage(p); doc.setFontSize(7.5); doc.text(`Tabela ${m.tableCode} · ${m.school}`, M, H - 6); doc.text(`Página ${p} de ${n}`, W - M, H - 6, { align: "right" }); }
+  for (let p = 1; p <= n; p++) { doc.setPage(p); const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(); doc.setFontSize(7.5); doc.text(labels[p - 1] ?? "", 10, H - 6); doc.text(`Página ${p} de ${n}`, W - 10, H - 6, { align: "right" }); }
+}
+
+export async function semedPdf(def: TableDef, blocks: Block[], m: DocMeta): Promise<Blob> {
+  return semedPackagePdf([{ def, blocks, meta: m }]);
+}
+export type PackagePart = { def: TableDef; blocks: Block[]; meta: DocMeta };
+/** Pacote anual: cada tabela começa em página nova, na orientação do seu layout; rodapé identifica a tabela. */
+export async function semedPackagePdf(parts: PackagePart[]): Promise<Blob> {
+  const { jsPDF } = await import("jspdf");
+  const autoTable = (await import("jspdf-autotable")).default;
+  const first = parts[0]!;
+  const doc = new jsPDF({ orientation: first.def.landscape ? "landscape" : "portrait", unit: "mm", format: "a4" });
+  const labels: string[] = [];
+  parts.forEach((p, i) => {
+    if (i > 0) doc.addPage("a4", p.def.landscape ? "landscape" : "portrait");
+    const start = doc.getNumberOfPages();
+    drawTable(doc, autoTable, p.def, p.blocks, p.meta);
+    for (let k = start; k <= doc.getNumberOfPages(); k++) labels[k - 1] = `Tabela ${p.meta.tableCode} · ${p.meta.school}`;
+  });
+  footers(doc, labels);
   return doc.output("blob");
 }
 
 export async function semedXlsx(blocks: Block[], m: DocMeta): Promise<ArrayBuffer> {
+  return semedPackageXlsx([{ blocks, meta: m }]);
+}
+/** XLSX individual ou anual: uma planilha por tabela. */
+export async function semedPackageXlsx(parts: { blocks: Block[]; meta: DocMeta }[]): Promise<ArrayBuffer> {
   const ExcelJS = (await import("exceljs")).default;
-  const wb = new ExcelJS.Workbook(); const ws = wb.addWorksheet(`Tabela ${m.tableCode}`);
+  const wb = new ExcelJS.Workbook();
+  for (const { blocks, meta: m } of parts) {
+  const ws = wb.addWorksheet(`Tabela ${m.tableCode}`);
   for (const l of [...HEADER_LINES, `${m.title} — ${m.year}`, ...metaLines(m)]) ws.addRow([neutralize(l)]);
   for (const b of blocks) {
     ws.addRow([]); ws.addRow([neutralize(b.title)]).font = { bold: true };
@@ -133,5 +163,6 @@ export async function semedXlsx(blocks: Block[], m: DocMeta): Promise<ArrayBuffe
     for (const r of b.body) ws.addRow(r.map((x) => (typeof x === "number" ? x : neutralize(x))));
   }
   ws.addRow([]); ws.addRow(["Responsável pelo Estabelecimento", "", "Responsável pelo Preenchimento"]);
+  }
   return (await wb.xlsx.writeBuffer()) as ArrayBuffer;
 }
