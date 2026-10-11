@@ -23139,6 +23139,244 @@ export type Database = {
           },
         ]
       }
+      territorial_district_changes: {
+        Row: {
+          change: string
+          district_code: string | null
+          district_name: string
+          dtb_year: number
+          municipality_code: string
+          municipality_name: string
+          source_id: string
+          uf_name: string
+        }
+        Insert: {
+          change: string
+          district_code?: string | null
+          district_name: string
+          dtb_year: number
+          municipality_code: string
+          municipality_name: string
+          source_id: string
+          uf_name: string
+        }
+        Update: {
+          change?: string
+          district_code?: string | null
+          district_name?: string
+          dtb_year?: number
+          municipality_code?: string
+          municipality_name?: string
+          source_id?: string
+          uf_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "territorial_district_changes_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "territorial_dtb_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      territorial_districts: {
+        Row: {
+          code: string
+          dtb_year: number
+          municipality_code: string
+          name: string
+          source_id: string
+        }
+        Insert: {
+          code: string
+          dtb_year: number
+          municipality_code: string
+          name: string
+          source_id: string
+        }
+        Update: {
+          code?: string
+          dtb_year?: number
+          municipality_code?: string
+          name?: string
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "territorial_districts_dtb_year_municipality_code_fkey"
+            columns: ["dtb_year", "municipality_code"]
+            isOneToOne: false
+            referencedRelation: "territorial_municipalities"
+            referencedColumns: ["dtb_year", "code"]
+          },
+          {
+            foreignKeyName: "territorial_districts_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "territorial_dtb_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      territorial_dtb_sources: {
+        Row: {
+          dtb_year: number
+          file_name: string
+          id: string
+          kind: string
+          loaded_at: string
+          loaded_by: string
+          reference_date: string
+          rejected_count: number
+          row_count: number
+          sha256: string
+        }
+        Insert: {
+          dtb_year: number
+          file_name: string
+          id?: string
+          kind: string
+          loaded_at?: string
+          loaded_by: string
+          reference_date: string
+          rejected_count?: number
+          row_count: number
+          sha256: string
+        }
+        Update: {
+          dtb_year?: number
+          file_name?: string
+          id?: string
+          kind?: string
+          loaded_at?: string
+          loaded_by?: string
+          reference_date?: string
+          rejected_count?: number
+          row_count?: number
+          sha256?: string
+        }
+        Relationships: []
+      }
+      territorial_municipalities: {
+        Row: {
+          code: string
+          dtb_year: number
+          immediate_region_code: string | null
+          immediate_region_name: string | null
+          intermediate_region_code: string | null
+          intermediate_region_name: string | null
+          name: string
+          source_id: string
+          uf_code: string
+        }
+        Insert: {
+          code: string
+          dtb_year: number
+          immediate_region_code?: string | null
+          immediate_region_name?: string | null
+          intermediate_region_code?: string | null
+          intermediate_region_name?: string | null
+          name: string
+          source_id: string
+          uf_code: string
+        }
+        Update: {
+          code?: string
+          dtb_year?: number
+          immediate_region_code?: string | null
+          immediate_region_name?: string | null
+          intermediate_region_code?: string | null
+          intermediate_region_name?: string | null
+          name?: string
+          source_id?: string
+          uf_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "territorial_municipalities_dtb_year_uf_code_fkey"
+            columns: ["dtb_year", "uf_code"]
+            isOneToOne: false
+            referencedRelation: "territorial_ufs"
+            referencedColumns: ["dtb_year", "code"]
+          },
+          {
+            foreignKeyName: "territorial_municipalities_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "territorial_dtb_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      territorial_subdistricts: {
+        Row: {
+          code: string
+          district_code: string
+          dtb_year: number
+          name: string
+          source_id: string
+        }
+        Insert: {
+          code: string
+          district_code: string
+          dtb_year: number
+          name: string
+          source_id: string
+        }
+        Update: {
+          code?: string
+          district_code?: string
+          dtb_year?: number
+          name?: string
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "territorial_subdistricts_dtb_year_district_code_fkey"
+            columns: ["dtb_year", "district_code"]
+            isOneToOne: false
+            referencedRelation: "territorial_districts"
+            referencedColumns: ["dtb_year", "code"]
+          },
+          {
+            foreignKeyName: "territorial_subdistricts_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "territorial_dtb_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      territorial_ufs: {
+        Row: {
+          code: string
+          dtb_year: number
+          name: string
+          source_id: string
+        }
+        Insert: {
+          code: string
+          dtb_year: number
+          name: string
+          source_id: string
+        }
+        Update: {
+          code?: string
+          dtb_year?: number
+          name?: string
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "territorial_ufs_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "territorial_dtb_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_person_links: {
         Row: {
           created_at: string
@@ -33293,6 +33531,20 @@ export type Database = {
       temporal_field_unknown: {
         Args: { _field: string; _id: string; _table: string }
         Returns: boolean
+      }
+      territorial_search: {
+        Args: {
+          p_level: string
+          p_limit?: number
+          p_parent: string
+          p_query: string
+          p_year: number
+        }
+        Returns: {
+          code: string
+          name: string
+          parent_code: string
+        }[]
       }
       verify_report_emission: { Args: { _code: string }; Returns: Json }
       verify_school_document: { Args: { _code: string }; Returns: Json }
