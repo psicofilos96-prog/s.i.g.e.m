@@ -183,7 +183,7 @@ function ImportDryRun({ onMsg }: { onMsg: (m: string) => void }) {
   return (
     <details><summary className="cursor-pointer font-semibold">Migração histórica (simulação primeiro)</summary>
       <p className="text-muted-foreground">CSV com colunas tipo, matricula, cpf, inep. Outras colunas (inclusive senhas) são ignoradas. Simular não grava; aplicar grava só a correspondência com pessoas e escolas que já existem no SIGEM.</p>
-      <input type="file" accept=".csv,text/csv" onChange={(e) => e.target.files?.[0] && void read(e.target.files[0])} />
+      <input type="file" accept=".csv" onChange={(e) => e.target.files?.[0] && void read(e.target.files[0])} />
       {hash && <p>Arquivo SHA-256 {hash.slice(0, 16)}… · {rows.length} linha(s)</p>}
       {warn && <p className="text-destructive">{warn}</p>}
       {rows.length > 0 && <div className="space-x-1"><Button size="sm" variant="outline" disabled={busy} onClick={() => void run(false)}>Simular</Button><Button size="sm" disabled={busy || !rows.some((r) => r.outcome)} onClick={() => void run(true)}>Aplicar</Button></div>}

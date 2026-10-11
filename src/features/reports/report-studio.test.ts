@@ -97,8 +97,8 @@ describe("REPORT.PRO.3 — Central de relatórios", () => {
     const b = SECTOR_PACKS.find((x) => x.blockedBy)!;
     expect(() => openPack(b)).toThrow(/Pacote indisponível: .{10,}/);
   });
-  it("54 pacotes; matrículas agora com assunto real", () => {
-    expect(SECTOR_PACKS).toHaveLength(54);
+  it("67 pacotes; matrículas agora com assunto real", () => {
+    expect(SECTOR_PACKS).toHaveLength(67);
     expect(SECTOR_PACKS.find((p) => p.id === "sec-matriculas")!.blockedBy).toBeUndefined();
     expect(BUILDER_SOURCES.find((s) => s.id === "gerador-matriculas")!.unavailable).toBeFalsy();
   });
