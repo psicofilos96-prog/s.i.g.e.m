@@ -18,7 +18,7 @@ async def run(br, cfg, sector, subject, tag):
     steps = g.get_by_role("list", name="Etapas").get_by_role("button")
     if tag == "alimentacao":
         await steps.nth(1).click(); await pg.wait_for_timeout(300)
-        d = g.locator("input[type=date]"); await d.nth(0).fill("2026-01-01"); await d.nth(1).fill("2026-12-31")
+        await g.get_by_label("De", exact=True).fill("01/01/2026"); await g.get_by_label("Até", exact=True).fill("31/12/2026")
     await steps.nth(6).click(); await pg.wait_for_timeout(400)
     await g.get_by_label("Título", exact=True).fill(f"{subject} — aceite visual")
     await g.get_by_label("Cabeçalho (uma linha por linha)").fill("Prefeitura Municipal de Itaperuna\nSecretaria Municipal de Educação")
