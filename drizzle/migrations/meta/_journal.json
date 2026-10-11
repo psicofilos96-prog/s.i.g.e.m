@@ -2332,6 +2332,13 @@
       "when": 1791711615252,
       "tag": "0332_nei1_revoke_table_privileges",
       "breakpoints": true
+    },
+    {
+      "idx": 333,
+      "version": "7",
+      "when": 1791711686723,
+      "tag": "0333_nei1_refusal_keeps_log",
+      "breakpoints": true
     }
   ]
 }
