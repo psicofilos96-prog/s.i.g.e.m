@@ -9,7 +9,7 @@ def p(ok, l, x=""): print(f"{'PASS' if ok else 'FAIL'} {l} {x}".rstrip())
 async def open_as(br, tag):
     ctx = await br.new_context(viewport={"width": 1280, "height": 1800}, accept_downloads=True); pg = await ctx.new_page()
     errs = []; pg.on("pageerror", lambda e: errs.append(str(e)[:160]))
-    await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"][tag])])
+    await pg.goto(B + "/", wait_until="networkidle"); await pg.wait_for_timeout(1500); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"][tag])])
     await pg.goto(B + "/relatorios/paineis"); await pg.wait_for_timeout(9000); await pg.screenshot(path=f"{SH}/0_{tag}.png"); print("PAGE", (await pg.inner_text("main"))[:300].replace("\n"," "))
     await pg.get_by_role("button", name="Adicionar gráfico").wait_for(timeout=30000)
     return ctx, pg, errs
