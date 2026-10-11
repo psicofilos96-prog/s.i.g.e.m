@@ -63,7 +63,7 @@ export async function uploadCardImage(userId: string, instrumentVersionId: strin
   return { path, sha };
 }
 export type CorrectionRow = { id: string; instrument_version_id: string; student_id: string; variant: string; hits: number; total: number; supersedes_id: string | null; diary_batch_act_id: string | null; image_path: string; recorded_at: string };
-export const correctionsOf = (instrumentVersionId: string) => must<CorrectionRow[]>(db.from("sia_card_corrections").select("id, instrument_version_id, student_id, variant, hits, total, supersedes_id, diary_batch_act_id, image_path, recorded_at").eq("instrument_version_id", instrumentVersionId).order("recorded_at"));
+export const correctionsOf = (instrumentVersionId: string) => must<CorrectionRow[]>(db.from("sia_card_corrections").select("id, instrument_version_id, student_id, variant, hits, total, score, max_score, unread_count, supersedes_id, diary_batch_act_id, image_path, recorded_at").eq("instrument_version_id", instrumentVersionId).order("recorded_at"));
 export const classStudents = (classId: string) => must<{ student_id: string }[]>(db.from("class_enrollment_episodes").select("student_id").eq("class_id", classId));
 export type RecordCorrection = { instrumentVersionId: string; variant: string; studentId: string; cardCode: string; imagePath: string; imageSha: string; fingerprint: string; lines: { number: number; itemVersionId: string; answered: string | null; correct: boolean }[]; expectedHead: string | null; reason: string | null; launch: boolean };
 export const recordCorrection = (c: RecordCorrection) => must<string>(db.rpc("record_sia_card_correction", {
