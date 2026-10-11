@@ -30,7 +30,7 @@ try {
   for (const cap of ["conferir-conteudo-tecnico-alimentar", "homologar-conteudo-tecnico-alimentar"]) {
     const g = await admin.rpc("bo_fixture_grant_capability", { _operation_id: op, _user_id: RV.uid, _capability: cap, _school: null }); if (g.error) throw new Error(g.error.message);
   }
-  const pin = await admin.from("bo_fixture_accounts").select("person_id").eq("user_id", IN.uid).single();
+  const cp = await IN.c.rpc("current_person_id"); if (cp.error || !cp.data) throw new Error("person " + (cp.error?.message ?? "null")); const pin = { data: { person_id: cp.data } };
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/fs14/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, op, inspector: pin.data.person_id, sessions: { au: AU.session, rv: RV.session, np: NP.session } }), { mode: 0o600 });
   const py = spawnSync("python3", ["scripts/lote14-meals-e2e.py"], { encoding: "utf8", timeout: 400000 });
