@@ -208,8 +208,12 @@ export function toResult(cat: Catalog, spec: CustomSpec, page: Pick<ServerPage, 
     const level = typeof r["_nivel"] === "number" ? (r["_nivel"] as number) : 0;
     return cols.map((x) => {
       if (level && x.c.kind === "group") {
-        const gi = groupCols.indexOf(x); const bit = 1 << (groupCols.length - 1 - gi);
-        if (level & bit) return gi === 0 || level === (1 << groupCols.length) - 1 ? (level === (1 << groupCols.length) - 1 ? (gi === 0 ? "TOTAL GERAL" : "") : "SUBTOTAL") : "";
+        const n = groupCols.length; const gi = groupCols.indexOf(x);
+        if (level & (1 << (n - 1 - gi))) {
+          if (level === (1 << n) - 1) return gi === 0 ? "TOTAL GERAL" : "";
+          const firstAgg = groupCols.findIndex((_, k) => (level & (1 << (n - 1 - k))) !== 0);
+          return gi === firstAgg ? "SUBTOTAL" : "";
+        }
       }
       return cell(r[x.c.id], x.type);
     });
