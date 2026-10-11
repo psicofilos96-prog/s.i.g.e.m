@@ -51,6 +51,16 @@ try {
   const fake = structuredClone(spec); fake.source.inepConfronted = true;
   const spF = await NET.c.rpc("educacenso_register_layout_spec", { _year: Y, _stage_key: ST, _content: fake, _expected_version: 1, _layout: null, _reason: "teste sintético" }); check(!!spF.error && spF.error.message.includes("confrontation-not-declarable"), "confronto INEP não pode ser autodeclarado");
   const spA = await SA.c.rpc("educacenso_register_layout_spec", { _year: Y, _stage_key: ST, _content: spec, _expected_version: 1, _layout: null, _reason: "teste" }); check(!!spA.error && spA.error.message.includes("not-authorized"), "escola não registra catálogo");
+  // LOTE 05 — tradutor de códigos: só código presente no catálogo registrado
+  const tr = (u, code, act, v, field = 19) => u.c.rpc("educacenso_translate_code", { _year: Y, _scheme: "bo-esquema-sintetico", _value: "bo-valor-" + op.slice(3), _record: "00", _field: field, _code: code, _act: act, _expected_version: v, _reason: "teste sintético" });
+  const t1 = await tr(NET, "1", "definir", 0); check(!t1.error && t1.data === 1, "tradutor: código do catálogo aceito (v1)", t1.error?.message);
+  const t2 = await tr(NET, "9", "definir", 1); check(!!t2.error && t2.error.message.includes("code-not-in-catalog"), "tradutor: código fora do catálogo recusado");
+  const t3 = await tr(NET, "2", "definir", 0); check(!!t3.error && t3.error.message.includes("stale-base"), "tradutor: base antiga recusada");
+  const t4 = await tr(NET, "1", "definir", 1, 6); check(!!t4.error && t4.error.message.includes("field-without-code-list"), "tradutor: campo sem lista de códigos recusado");
+  const t5 = await tr(SA, "1", "definir", 1); check(!!t5.error && t5.error.message.includes("forbidden"), "tradutor: escola não define código");
+  const t6 = await tr(NET, null, "retirar", 1); check(!t6.error && t6.data === 2, "tradutor: retirada é nova versão (v2)");
+  const t7 = await NET.c.from("educacenso_code_translations").update({ inep_code: "2" }).eq("source_scheme", "bo-esquema-sintetico"); check(!!t7.error || (t7.count ?? 0) === 0, "tradutor: histórico não editável");
+  const t8 = await anon.from("educacenso_code_translations").select("id"); check((t8.data ?? []).length === 0, "tradutor: anônimo não lê");
   const spR = await SA.c.from("educacenso_layout_specs").select("version, inep_confronted, content_sha256").eq("stage_key", ST); check(spR.data?.length === 1 && spR.data[0].inep_confronted === false, "catálogo legível, sem confronto INEP");
   const spU = await NET.c.from("educacenso_layout_specs").update({ reason: "x" }).eq("stage_key", ST).select("id"); check(!!spU.error || (spU.data ?? []).length === 0, "catálogo não é editável");
   const pre = await sch(SA, A, "em-preparacao", 0); check(!!pre.error && pre.error.message.includes("collection-not-open"), "escola não registra com coleta fechada");
@@ -90,6 +100,7 @@ try {
   const pv = await SA.c.from("institutional_person_identifiers").select("value").limit(1); check((pv.data ?? []).length === 0, "identificadores brutos ilegíveis pela escola");
 } catch (e) { fails++; console.log("ERRO", String(e.message ?? e)); }
 finally {
+  const ct = await admin.rpc("bo_fixture_cleanup_educacenso_translations", { _operation_id: op }); console.log("cleanup tradutor:", ct.error ? "ERRO " + ct.error.message : `ok (${ct.data})`);
   const ce = await admin.rpc("bo_fixture_cleanup_educacenso", { _operation_id: op }); console.log("cleanup Educacenso:", ce.error ? "ERRO " + ce.error.message : `ok (${ce.data} linhas)`);
   const cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); console.log("cleanup contas:", cl.error ? "ERRO " + cl.error.message : `ok (${cl.data})`);
   for (const id of users) await admin.auth.admin.deleteUser(id);

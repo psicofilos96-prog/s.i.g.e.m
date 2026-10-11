@@ -406,5 +406,6 @@
  "drizzle/migrations/0355_educacenso_fixture_cleanup.sql": "3067b12e4c4989f5e6c1d47da70f811f59778f62b6fd453f108796bca6d6969a",
  "drizzle/migrations/0356_educacenso_year_resolution.sql": "02542aaac3e40ac7388a5ebbf6059e22823ff5381766684d1d233b9c5611d880",
  "drizzle/migrations/0357_educacenso_layout_specs.sql": "e8a548d9b5e8101c61787378eb87263be628117e0c0fed6b87c27894684c2fe4",
- "drizzle/migrations/0358_0358_educacenso_people_identity.sql": "87325071dd44e75e5a061ee4392d36aeacd80b6de91166ea0a3452dfca54521e"
+ "drizzle/migrations/0358_0358_educacenso_people_identity.sql": "87325071dd44e75e5a061ee4392d36aeacd80b6de91166ea0a3452dfca54521e",
+ "drizzle/migrations/0359_0359_educacenso_code_translations.sql": "bcb6c95c9fefa19f7a014242ac29755c0c7c233f9ee25ec5bd2f0b83321c7240"
 }

@@ -7715,6 +7715,62 @@ export type Database = {
           },
         ]
       }
+      educacenso_code_translations: {
+        Row: {
+          act: string
+          actor_user_id: string
+          census_year: string
+          id: string
+          inep_code: string | null
+          reason: string
+          recorded_at: string
+          source_scheme: string
+          source_value: string
+          spec_id: string
+          target_field: number
+          target_record: string
+          version: number
+        }
+        Insert: {
+          act: string
+          actor_user_id: string
+          census_year: string
+          id?: string
+          inep_code?: string | null
+          reason: string
+          recorded_at?: string
+          source_scheme: string
+          source_value: string
+          spec_id: string
+          target_field: number
+          target_record: string
+          version: number
+        }
+        Update: {
+          act?: string
+          actor_user_id?: string
+          census_year?: string
+          id?: string
+          inep_code?: string | null
+          reason?: string
+          recorded_at?: string
+          source_scheme?: string
+          source_value?: string
+          spec_id?: string
+          target_field?: number
+          target_record?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educacenso_code_translations_spec_id_fkey"
+            columns: ["spec_id"]
+            isOneToOne: false
+            referencedRelation: "educacenso_layout_specs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       educacenso_collection_events: {
         Row: {
           act: string
@@ -22090,6 +22146,10 @@ export type Database = {
         Args: { _operation_id: string }
         Returns: number
       }
+      bo_fixture_cleanup_educacenso_translations: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_nei: {
         Args: { _operation_id: string }
         Returns: number
@@ -23680,6 +23740,20 @@ export type Database = {
           _school: string
           _stage_key: string
           _state: string
+          _year: string
+        }
+        Returns: number
+      }
+      educacenso_translate_code: {
+        Args: {
+          _act: string
+          _code: string
+          _expected_version: number
+          _field: number
+          _reason: string
+          _record: string
+          _scheme: string
+          _value: string
           _year: string
         }
         Returns: number
