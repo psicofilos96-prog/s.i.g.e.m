@@ -41,14 +41,16 @@ export const CIECE_SITUACAO_CENSITARIA = def("situacao-censitaria", "Situação 
 
 export type LibraryEntry = { def: ReportDefinition; methodology: string[]; reused: boolean; printAuthorizedBy: string };
 const M = (...s: string[]) => s;
+/** PDF A4 pelo mesmo motor; a Ficha longitudinal mantém só CSV (dado nominal de criança). */
+const withPdf = (d: ReportDefinition): ReportDefinition => ({ ...d, formats: [...new Set([...d.formats, "pdf" as const])] });
 export const CIECE_LIBRARY: readonly LibraryEntry[] = [
   { def: CIECE_PANORAMA, reused: false, printAuthorizedBy: "consultar-ciece", methodology: M("Indicadores do observatório (L02) lidos com a sessão.", "Zero só quando lido; não lido ou sem permissão = não disponível.") },
   { def: CIECE_MATRICULAS, reused: false, printAuthorizedBy: "consultar-ciece", methodology: M("Pessoa ≠ matrícula ≠ alocação (L03); só cabeça da cadeia vigente na data.", "Vigência sem início fica fora do total e é listada.", "Etapa/modalidade/turno só da oferta registrada (L04).") },
   { def: CIECE_TURMAS, reused: false, printAuthorizedBy: "consultar-ciece", methodology: M("Oferta/turno lidos; ausente = não declarado.", "Ocupação só com capacidade registrada.") },
   { def: CIECE_QUADRO, reused: false, printAuthorizedBy: "consultar-ciece", methodology: M("Profissionais únicos ≠ vínculos ≠ lotados ≠ em exercício ≠ com atribuição (L04).", "Sem fonte de lotação/atribuição = não disponível.") },
-  { def: TOTAL_AULAS_OFERTADAS, reused: true, printAuthorizedBy: "consultar-ciece", methodology: M("Definição existente do Quadro docente (staffing/teacher-need).") },
-  { def: TOTAL_AULAS_REDE, reused: true, printAuthorizedBy: "consultar-ciece", methodology: M("Definição existente do Quadro docente.") },
-  { def: NECESSIDADE_PROFESSOR, reused: true, printAuthorizedBy: "consultar-ciece", methodology: M("Definição existente do Quadro docente; cenário simulado recusado.") },
+  { def: withPdf(TOTAL_AULAS_OFERTADAS), reused: true, printAuthorizedBy: "consultar-ciece", methodology: M("Definição existente do Quadro docente (staffing/teacher-need).") },
+  { def: withPdf(TOTAL_AULAS_REDE), reused: true, printAuthorizedBy: "consultar-ciece", methodology: M("Definição existente do Quadro docente.") },
+  { def: withPdf(NECESSIDADE_PROFESSOR), reused: true, printAuthorizedBy: "consultar-ciece", methodology: M("Definição existente do Quadro docente; cenário simulado recusado.") },
   { def: CIECE_MOVIMENTACAO, reused: false, printAuthorizedBy: "consultar-ciece", methodology: M("Diferença entre duas fotografias explicada por fato (L11): entrada, saída, transferência, troca de turma, correção tardia.") },
   { def: CIECE_RESULTADOS, reused: false, printAuthorizedBy: "consultar-ciece", methodology: M("Só registro oficial 12I e movimentação homologada com data (L10).", "Totais somam só conferidas; registro docente só aponta lacuna.") },
   { def: CIECE_HISTORICO, reused: false, printAuthorizedBy: "consultar-ciece", methodology: M("Cadeia de fotografias versionadas (L11); oficial anterior nunca reescrita.") },

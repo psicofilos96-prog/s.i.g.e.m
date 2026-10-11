@@ -9,7 +9,8 @@ const caps = new Set(["consultar-ciece"]);
 describe("CIECE L13 biblioteca de relatórios", () => {
   it("cobre os 13 relatórios pedidos, com metodologia e PDF/XLSX/CSV", () => {
     expect(CIECE_LIBRARY).toHaveLength(13);
-    for (const e of CIECE_LIBRARY) { expect(e.methodology.length).toBeGreaterThan(0); expect(e.def.formats).toEqual(expect.arrayContaining(["pdf", "xlsx", "csv"])); }
+    for (const e of CIECE_LIBRARY) { expect(e.methodology.length).toBeGreaterThan(0); if (e.def.id !== "ficha-longitudinal-aluno") expect(e.def.formats).toEqual(expect.arrayContaining(["pdf", "xlsx", "csv"])); }
+    expect(CIECE_LIBRARY.find((e) => e.def.id === "ficha-longitudinal-aluno")!.def.formats).toEqual(["csv"]);
     expect(CIECE_LIBRARY.filter((e) => e.reused).map((e) => e.def.id)).toHaveLength(4);
   });
   it("sem capacidade recusa; histórico reproduzível com digest e ausência como 'não disponível'", () => {
