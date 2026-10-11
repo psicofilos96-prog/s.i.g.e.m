@@ -12,9 +12,9 @@ describe("CIECE L08 ciclos do Censo", () => {
     const y = stagesOfYear([mi, sa], 2026);
     expect(y.initial?.stageKey).toBe("matricula-inicial"); expect(y.situation?.stageKey).toBe("situacao-do-aluno");
     const v = validateStages([mi, sa, { ...mi, referenceDate: { value: "2025-05-27", source: "x" } }]);
-    expect(v[0].problems).toEqual([]);
-    expect(v[1].problems).toEqual(expect.arrayContaining(["sem-data-de-referencia", "responsavel-nao-designado"]));
-    expect(v[2].problems).toEqual(expect.arrayContaining(["etapa-duplicada", "data-fora-do-ano-base"]));
+    expect(v[0]!.problems).toEqual([]);
+    expect(v[1]!.problems).toEqual(expect.arrayContaining(["sem-data-de-referencia", "responsavel-nao-designado"]));
+    expect(v[2]!.problems).toEqual(expect.arrayContaining(["etapa-duplicada", "data-fora-do-ano-base"]));
   });
   it("checklist: fonte não lida é inconclusiva, nunca pronta; sem recibo é pendente", () => {
     expect(readiness(schoolChecklist(mi, row(), []))).toBe("pronta");
@@ -27,7 +27,7 @@ describe("CIECE L08 ciclos do Censo", () => {
     expect(canOperateEducacenso("e1", "s1", 2026, []).reason).toBe("sem-habilitacao-educacenso-declarada");
     const op = [{ engagementId: "e1", schoolId: "s1", year: 2026, inepProfile: "gestor-escolar", declaredBy: "ciece", evidenceRef: "" }];
     expect(canOperateEducacenso("e1", "s1", 2026, op).ok).toBe(false);
-    expect(canOperateEducacenso("e1", "s1", 2027, [{ ...op[0], evidenceRef: "ref" }]).ok).toBe(false);
-    expect(canOperateEducacenso("e1", "s1", 2026, [{ ...op[0], evidenceRef: "ref" }]).ok).toBe(true);
+    expect(canOperateEducacenso("e1", "s1", 2027, [{ ...op[0]!, evidenceRef: "ref" }]).ok).toBe(false);
+    expect(canOperateEducacenso("e1", "s1", 2026, [{ ...op[0]!, evidenceRef: "ref" }]).ok).toBe(true);
   });
 });
