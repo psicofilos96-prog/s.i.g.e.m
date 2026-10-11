@@ -2192,6 +2192,13 @@
       "when": 1791694995163,
       "tag": "0312_meal_order_capability_before_existence",
       "breakpoints": true
+    },
+    {
+      "idx": 313,
+      "version": "7",
+      "when": 1791695144323,
+      "tag": "0313_meal_order_capability_first_branch_only",
+      "breakpoints": true
     }
   ]
 }
