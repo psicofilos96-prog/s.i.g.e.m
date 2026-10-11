@@ -31,7 +31,7 @@ export function AttendancePanel() {
 
   const load = useCallback(async () => {
     const [a, c, e] = await Promise.all([rpc("aa_infrequency_at", { _school: null, _from: null, _to: null }),
-      supabase.from("aa_outreach_cases").select("*").limit(1000), supabase.from("aa_outreach_events").select("*").order("seq").limit(5000)]);
+      supabase.from("aa_outreach_cases").select("*").limit(1000), supabase.from("aa_outreach_events").select("*").order("seq").limit(1000)]);
     if (a.error) { setRows({ error: governError(a.error).userMessage }); return; }
     setRows((a.data ?? []) as InfrequencyRow[]);
     setCases({ c: (c.data ?? []) as unknown as Case[], e: (e.data ?? []) as unknown as Ev[] });
