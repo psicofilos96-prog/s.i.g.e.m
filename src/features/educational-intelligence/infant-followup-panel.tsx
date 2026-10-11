@@ -23,7 +23,7 @@ export function InfantFollowupPanel() {
   const [fb, setFb] = useState({ kind: "devolutiva-equipe", text: "", sipe: "" });
 
   const load = useCallback(async () => {
-    const [a, b, r] = await Promise.all([supabase.from("ei_followup_versions").select("*").limit(5000), supabase.from("ei_feedback_events").select("*").order("recorded_at").limit(5000),
+    const [a, b, r] = await Promise.all([supabase.from("ei_followup_versions").select("*").limit(1000), supabase.from("ei_feedback_events").select("*").order("recorded_at").limit(1000),
       supabase.from("class_enrollment_episodes").select("student_id, class_id, school_id, class_label_snapshot").limit(1000)]);
     const err = a.error ?? b.error;
     if (err) { setData({ error: governError(err).userMessage }); return; }
