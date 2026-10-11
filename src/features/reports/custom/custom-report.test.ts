@@ -31,6 +31,11 @@ describe("gerador personalizado", () => {
     expect(s.joins).toEqual(["vinculo_estudante"]);
     expect(s.groupBy).toEqual([]);
   });
+  it("trocar o cálculo para um que pede campo mantém o cálculo, aguardando o campo", () => {
+    const s = pruneSpec(cat, { ...three(), groupBy: ["escolas.nome"], measures: [{ agg: "count_distinct" }] });
+    expect(s.measures).toEqual([{ agg: "count_distinct", field: undefined }]);
+    expect(validateSpec(cat, s).join()).toMatch(/Cálculo 1/);
+  });
   it("dado pessoal exige consentimento explícito", () => {
     expect(validateSpec(cat, { ...three(), columns: ["estudantes.nome"] }).join()).toMatch(/dado pessoal/);
     expect(validateSpec(cat, { ...three(), includeSensitive: true, columns: ["estudantes.nome"] })).toEqual([]);
