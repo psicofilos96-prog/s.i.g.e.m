@@ -169,6 +169,8 @@ export type AssessmentInstrument = {
   calendarPeriodId?: string;
   /** Origem do período: calendário homologado ou legado demonstrativo (não oficial). */
   periodSource?: PeriodSource;
+  /** Coluna do diário da rede (AV1/AV2/IV/PA/RP/RF) declarada pelo professor; compõe a nota pelo modelo. */
+  modelColumn?: "av1" | "av2" | "iv" | "pa" | "rp" | "rf";
   /** Ciclo de vida do instrumento — estado de UX, sem efeito normativo. */
   status?: InstrumentStatus;
   description?: string;

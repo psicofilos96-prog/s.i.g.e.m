@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { callRpc } from "@/lib/rpc-call";
 import type { Modality, ResultRule, SheetCell, SheetInput, SheetRow, SheetStudent } from "./final-sheet";
 import { cellKey } from "./final-sheet";
+import { periodGradeFI, periodGradeFII } from "./network-model-rules";
 
 export type ClassOption = { id: string; name: string; school: string; schoolId: string; year: string; stage: string | null };
 export type EpisodeRow = { id: string; student_id: string; supersedes_id: string | null; valid_from: string };
@@ -35,29 +36,43 @@ export function studentsFrom(episodes: readonly EpisodeRow[], endings: readonly 
   return [...byStudent.values()].sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 }
 
-/** Nota do período por componente só quando há EXATAMENTE um resultado numérico vigente; vários instrumentos ⇒ composição pendente (nunca soma aqui). */
-export function cellsFrom(entries: readonly EntryRow[], instruments: readonly InstrumentRow[], periods: readonly string[]) {
+/**
+ * Nota do período por componente. Instrumentos com coluna do modelo da rede declarada (`definition.modelColumn`:
+ * AV1/AV2/IV/PA/RP/RF) compõem a nota pela regra da família (`compose`); sem coluna declarada, só vale quando há
+ * EXATAMENTE um resultado numérico vigente — vários instrumentos sem coluna ⇒ composição pendente (nunca soma).
+ */
+export function cellsFrom(entries: readonly EntryRow[], instruments: readonly InstrumentRow[], periods: readonly string[], compose?: "fundamental-i" | "fundamental-ii") {
   const comp = new Map(instruments.map((i) => [i.id, i.definition?.curriculumRef?.componentId ?? null]));
+  const col = new Map(instruments.map((i) => [i.id, (i.definition as { modelColumn?: string } | null)?.modelColumn ?? null]));
   const head = new Map<string, EntryRow>();
   for (const e of entries) { const h = head.get(e.logical_entry_id); if (!h || e.version_number > h.version_number) head.set(e.logical_entry_id, e); }
-  const groups = new Map<string, number[]>();
+  const groups = new Map<string, { value: number; column: string | null }[]>();
+  const recovery = new Map<string, number>();
   const notes: string[] = [];
   for (const e of head.values()) {
     const c = comp.get(e.instrument_id); if (!c) continue;
     const v = e.value as { kind?: string; value?: number } | null;
     if (v?.kind !== "numerica" || typeof v.value !== "number") continue;
-    const k = `${e.student_id}|${c}|${e.period_id}`; groups.set(k, [...(groups.get(k) ?? []), v.value]);
+    const column = col.get(e.instrument_id) ?? null;
+    if (compose && column === "rf") { const k = cellKey(e.student_id, c); recovery.set(k, Math.max(recovery.get(k) ?? -Infinity, v.value)); continue; }
+    const k = `${e.student_id}|${c}|${e.period_id}`; groups.set(k, [...(groups.get(k) ?? []), { value: v.value, column }]);
   }
   const cells: Record<string, SheetCell> = {};
+  const blank = () => ({ periodGrades: periods.map(() => null) as (number | null)[], finalRecovery: null as number | null, lessonsGiven: null, absences: null });
   for (const [k, vals] of groups) {
     const [s, c, p] = k.split("|") as [string, string, string];
     const idx = periods.indexOf(p); if (idx < 0) continue;
     const key = cellKey(s, c);
-    const cell = cells[key] ?? { periodGrades: periods.map(() => null), finalRecovery: null, lessonsGiven: null, absences: null };
-    if (vals.length === 1) cell.periodGrades[idx] = vals[0]!;
-    else notes.push("Há período com mais de um instrumento: a composição da nota do período vem da Avaliação do período e não é somada aqui.");
+    const cell = cells[key] ?? blank();
+    if (compose && vals.every((x) => x.column && x.column !== "rf")) {
+      const pick = (id: string, sum = false) => { const xs = vals.filter((x) => x.column === id).map((x) => x.value); return xs.length ? (sum ? xs.reduce((a, b) => a + b, 0) : Math.max(...xs)) : null; };
+      const av1 = pick("av1"), av2 = pick("av2"), iv = pick("iv", true), pa = pick("pa"), rp = pick("rp");
+      cell.periodGrades[idx] = compose === "fundamental-i" ? periodGradeFI([av1, av2, iv, pa]) : periodGradeFII({ av1, av2, instruments: iv, participation: pa, parallelRecovery: rp });
+    } else if (vals.length === 1) cell.periodGrades[idx] = vals[0]!.value;
+    else notes.push("Há período com mais de um instrumento sem coluna do modelo declarada: a nota do período não é somada aqui.");
     cells[key] = cell;
   }
+  for (const [key, v] of recovery) { const cell = cells[key] ?? blank(); cell.finalRecovery = v; cells[key] = cell; }
   const components = [...new Set([...comp.values()].filter((x): x is string => !!x))].map((id) => ({ id, label: id }));
   return { cells, components, notes: [...new Set(notes)] };
 }

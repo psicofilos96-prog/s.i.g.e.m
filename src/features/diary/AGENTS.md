@@ -135,3 +135,9 @@
 - Atos só por `record_final_sheet_act` (append-only, base esperada, capability `registrar-folha-final` na escola da turma); homologar exige conferência por outra pessoa sobre o mesmo SHA-256 e nenhuma linha pendente; reabrir/retificar exige motivo.
 - Nota do período só quando há exatamente um resultado numérico vigente; vários instrumentos ⇒ composição pendente, nunca soma na folha, porque composição é da Avaliação do período.
 - LOTE 7 (0291): regra da Folha Final exige modalidade+vigência (ano opcional) validadas no banco e homologação por outra pessoa em `/diario/regras-folha-final`; Boletim e Ficha Individual só saem das mesmas linhas/impressão digital da Folha Final (`printBulletins`/`printIndividualSheets`) e frequência só de `attendance_record_versions` (elegível sem marcação = desconhecida), porque segunda fonte divergiria.
+
+## Livro do Diário por família (`family-books/`, `/diario/livro`)
+- As 7 famílias de modelo da rede e o checklist de cada folha são dado em `families.ts`; a renderização (`book.ts`) só lê fatos já lidos com a sessão, porque leiaute por tela divergiria do modelo.
+- Nota do período só compõe instrumentos com coluna do modelo declarada (`definition.modelColumn` AV1/AV2/IV/PA/RP/RF), na Folha Final (`cellsFrom(..., compose)`) e no Livro, porque inferir coluna pelo título criaria norma escondida.
+- Folha Final, Boletim, Ficha e Ata são emitidos só pela Folha Final (atos + hash); o Livro aponta para lá, porque segunda impressão seria segunda versão.
+- Sem regra de resultado homologada o Livro sai como RASCUNHO com os parâmetros do modelo citados; período sem chamada imprime "—", nunca zero falta.
