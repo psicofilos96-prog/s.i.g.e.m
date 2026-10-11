@@ -15,6 +15,8 @@ DECLARE _ok text := ''; td date := (now() AT TIME ZONE 'America/Sao_Paulo')::dat
   item uuid; unit uuid; unit2 uuid; cat uuid; ficha uuid; doc uuid; win uuid; ord uuid; sc1 uuid; sc2 uuid; sc3 uuid;
   rc1 uuid; rc2 uuid; rc3 uuid; pub uuid; pcap uuid; forn uuid; nf uuid; insp uuid; am uuid; ev jsonb; ln jsonb; nc uuid; cnt uuid; ex uuid; mv uuid;
 BEGIN
+  -- 2.0-F: limites explícitos (padrão dos demais E2E) para a auditoria não pendurar sem diagnóstico.
+  SET LOCAL statement_timeout = '55s'; SET LOCAL lock_timeout = '5s';
   comp := to_char(td, 'YYYY-MM'); prev := to_char(td - interval '1 month', 'YYYY-MM');
   SELECT id INTO s1 FROM public.institutional_schools ORDER BY id LIMIT 1;
   SELECT id INTO s2 FROM public.institutional_schools ORDER BY id OFFSET 1 LIMIT 1;
