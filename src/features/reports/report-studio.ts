@@ -6,7 +6,7 @@
 import { ABSENT, cellText, neutralize, type CellValue, type ReportResult } from "./report-engine";
 import type { BuilderChoice } from "./report-builder";
 import {
-  DEFAULT_LAYOUT, chartData, chartIssues, flatten, layoutIssues, organize, pivot, validateOrganization,
+  DEFAULT_LAYOUT, isAllowedLogo, chartData, chartIssues, flatten, layoutIssues, organize, pivot, validateOrganization,
   type ChartData, type ChartSpec, type Organization, type Organized, type ReportLayout, type Row,
 } from "./report-analytics";
 import type { SectorPack } from "./sector-packs";
@@ -185,7 +185,7 @@ export function toStudioHtml(result: ReportResult, spec: StudioSpec, meta: reado
   const size = `${L.paper} ${L.orientation === "paisagem" ? "landscape" : "portrait"}`;
   const pages = L.pageNumbers ? `@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px sans-serif}` : "";
   const foot = L.footer ? `@bottom-left{content:"${esc(L.footer).replace(/"/g, "'")}";font:9px sans-serif}` : "";
-  const logo = L.logoUrl && /^https:\/\//.test(L.logoUrl) ? `<img src="${esc(L.logoUrl)}" alt="" style="height:48px">` : "";
+  const logo = L.logoUrl && isAllowedLogo(L.logoUrl) ? `<img src="${esc(L.logoUrl)}" alt="" style="height:56px;object-fit:contain">` : "";
   const head = `${logo}${L.headerLines.map((l) => `<div class="hl">${esc(l)}</div>`).join("")}`;
   const cover = L.cover ? `<section class="cover">${head}<h1>${esc(L.title)}</h1>${L.subtitle ? `<p>${esc(L.subtitle)}</p>` : ""}<p>Gerado em ${esc(result.generatedAt)}</p></section>` : "";
   const detail = table(result.columns.map((c) => c.label), result.rows.map((r) => r.map(cellText)), "Dados detalhados");

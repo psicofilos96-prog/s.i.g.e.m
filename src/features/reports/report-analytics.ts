@@ -1,3 +1,7 @@
+import brasao from "@/assets/brasao-itaperuna.png.asset.json";
+import prefeitura from "@/assets/logo-prefeitura.png.asset.json";
+import educacao from "@/assets/logo-educacao.png.asset.json";
+import sigem from "@/assets/logo-sigem.png.asset.json";
 /**
  * REPORT.PRO.1 — Organização, cálculos, gráficos e layout do gerador (motor puro).
  * Opera SOMENTE sobre linhas que o reader canônico já devolveu ao usuário: não lê
@@ -196,13 +200,23 @@ export type ReportLayout = Readonly<{
 export const DEFAULT_LAYOUT: ReportLayout = { paper: "A4", orientation: "retrato", cover: false, title: "", subtitle: null, headerLines: [], logoUrl: null, footer: null,
   showFilters: true, showMethodology: true, observations: null, signatures: [], pageNumbers: true, verificationQr: false };
 
+/** Logos e brasões institucionais já hospedados no próprio SIGEM (mesma origem). */
+export const INSTITUTIONAL_LOGOS: readonly { id: string; label: string; url: string }[] = [
+  { id: "brasao", label: "Brasão de Itaperuna", url: brasao.url },
+  { id: "prefeitura", label: "Logo da Prefeitura", url: prefeitura.url },
+  { id: "educacao", label: "Logo da Secretaria de Educação", url: educacao.url },
+  { id: "sigem", label: "Logo do SIGEM", url: sigem.url },
+];
+/** Só https ou ativo institucional da mesma origem; nunca javascript:/data:. */
+export const isAllowedLogo = (u: string) => /^https:\/\//.test(u) || INSTITUTIONAL_LOGOS.some((l) => l.url === u);
+
 /** QR só quando existir endpoint de verificação de relatório — hoje não existe; recusa em vez de fingir. */
 export const REPORT_VERIFICATION_ENDPOINT: string | null = "/verificar/relatorio/";
 export function layoutIssues(l: ReportLayout, columns: number): string[] {
   const errs: string[] = [];
   if (!l.title.trim()) errs.push("Informe o título.");
   if (/[<>]/.test(l.title + (l.subtitle ?? "") + (l.observations ?? "") + l.headerLines.join("") + (l.footer ?? ""))) errs.push("Texto do layout não aceita marcação.");
-  if (l.logoUrl && !/^https:\/\//.test(l.logoUrl)) errs.push("Logo só por endereço https.");
+  if (l.logoUrl && !isAllowedLogo(l.logoUrl)) errs.push("Logo só da identidade institucional ou por endereço https.");
   if (l.verificationQr && !REPORT_VERIFICATION_ENDPOINT) errs.push("QR de verificação indisponível: não há endpoint de verificação de relatório.");
   if (columns > 9 && l.orientation === "retrato" && l.paper === "A4") errs.push("Mais de 9 colunas: use paisagem ou A3.");
   if (l.signatures.length > 4) errs.push("No máximo 4 assinaturas.");
