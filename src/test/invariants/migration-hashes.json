@@ -420,5 +420,6 @@
  "drizzle/migrations/0369_aa_pedagogical_interventions.sql": "e462d67853200d4b40720630a5c469193d0029f067d33d2ee2c44c45a98c898c",
  "drizzle/migrations/0370_aa_result_import_staging.sql": "97a454a39a7b06be038fe5bf18318de7d851b41cf2f92d02f5b3c9bb913ed28b",
  "drizzle/migrations/0371_aa_saber_ler_cycle.sql": "3f1dae3af1ef8c3a352b274bcfad715268d96c6eb0734db972bb7732c7d30b19",
- "drizzle/migrations/0372_aa_local_assessments.sql": "fee008fbbe6d0ecadd6a8285906ecf4d92d6809f6e40b2acf5ef110e951ab9f5"
+ "drizzle/migrations/0372_aa_local_assessments.sql": "fee008fbbe6d0ecadd6a8285906ecf4d92d6809f6e40b2acf5ef110e951ab9f5",
+ "drizzle/migrations/0373_aa_external_results.sql": "32659abec64ed5f790e0818cfc0d25471414c7dd0bf6107707a2402c1da4c432"
 }
