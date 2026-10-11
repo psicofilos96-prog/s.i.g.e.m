@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { DocumentsPanel } from "./documents-panel";
 import { API_PORT_STATUS, OUTCOME_LABEL, availablePanels, cpfDigits, needsManualDecision, type DocservContext, type QueueItem } from "./docserv-model";
 
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
@@ -18,9 +19,9 @@ export function DocservPage() {
         <p className="text-xs text-muted-foreground">Módulo do SIGEM: mesmo login, mesmas pessoas e escolas. O acesso vem das suas permissões, não de um perfil separado.</p>
       </header>
       {panels.length === 0 && <p className="rounded-md border p-3 text-sm">Sua conta ainda não tem acesso ao DocServ. Servidores precisam de pessoa vinculada à conta; escolas e rede precisam de permissão documental atribuída.</p>}
-      {panels.includes("servidor") && <section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Meus documentos</h2><p className="text-xs text-muted-foreground">Envio e consulta dos seus documentos chegam no próximo lote.</p></section>}
-      {panels.includes("escola") && <section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Documentos da escola</h2><p className="text-xs text-muted-foreground">{ctx.escola_schools.length} escola(s) autorizada(s). Revisão de documentos chega no próximo lote.</p></section>}
-      {panels.includes("rede") && <IdentityConsole />}
+      {panels.includes("servidor") && <section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Meus documentos</h2><DocumentsPanel mode="servidor" person={ctx.person_id ?? undefined} /></section>}
+      {panels.includes("escola") && <section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Documentos da escola</h2>{ctx.escola_schools.map((s) => <DocumentsPanel key={s} mode="escola" school={s} />)}</section>}
+      {panels.includes("rede") && <><section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Documentos da rede</h2><DocumentsPanel mode="rede" /></section><IdentityConsole /></>}
       <section className="rounded-md border p-3">
         <h2 className="text-sm font-semibold">Situação da portabilidade</h2>
         <ul className="mt-1 text-xs">{API_PORT_STATUS.map((a) => <li key={a.route}>{a.status === "portado" ? "✔" : "…"} {a.route} — {a.status === "portado" ? "disponível" : `pendente (${a.lote})`}</li>)}</ul>
