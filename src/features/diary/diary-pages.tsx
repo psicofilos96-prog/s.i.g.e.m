@@ -814,6 +814,7 @@ export function DiaryDocumentsPage({ search }: { search: DiarySearch }) {
           );
         })}
       </ul>
+      {institutional ? <p className="text-sm"><Link to="/diario/livro" className="underline">Livro do Diário no leiaute dos modelos da rede</Link> — frequência, notas do período, FINAL, PAP e fichas da EI.</p> : null}
       {institutional ? <DiaryPrintsPanel classId={search.turma} assignmentId={context.assignments.find((a) => a.classId === search.turma)?.record.id} periodId={search.periodo} /> : null}
       <StatePanel
         tone="neutral"
