@@ -24245,6 +24245,7 @@ export type Database = {
           valid_until: string
         }[]
       }
+      nei_school_name: { Args: { _school: string }; Returns: string }
       nei_scope_schools: {
         Args: { _user: string }
         Returns: {
