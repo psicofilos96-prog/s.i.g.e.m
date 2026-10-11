@@ -300,7 +300,7 @@ function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove }: { cat: Cat
           <Button size="sm" variant="ghost" onClick={onRemove}>Remover</Button>
         </div>
       </header>
-      <div ref={ref}>
+      <div ref={ref} className="overflow-hidden">
         {d === undefined || d === "loading" ? <p role="status" className="text-sm text-muted-foreground">Carregando dados…</p>
         : d.error ? <p role="alert" className="text-sm text-destructive">{d.error}</p>
         : d.rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum dado visível com o seu acesso para esta consulta.</p>
@@ -354,7 +354,7 @@ function ChartBody({ cat, w, rows, onDrill }: { cat: Catalog; w: Widget; rows: R
   const data = cs.data;
   switch (w.kind) {
     case "pie": case "donut": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><PieChart><Pie data={data} dataKey="c2" nameKey="categoria" innerRadius={w.kind === "donut" ? "50%" : 0} outerRadius="80%" onClick={click} label>
-      {data.map((_, i) => <Cell key={i} fill={col(i)} />)}</Pie><Tooltip /><Legend /></PieChart></ResponsiveContainer></>;
+      {data.map((_, i) => <Cell key={i} fill={col(i)} />)}</Pie><Tooltip />{data.length <= 12 ? <Legend /> : null}</PieChart></ResponsiveContainer></>;
     case "treemap": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><Treemap data={data.map((d) => ({ name: d["categoria"], size: (d["c2"] as number) ?? 0 }))} dataKey="size" nameKey="name" stroke="var(--background)" fill={col(0)} onClick={click} /></ResponsiveContainer></>;
     case "funnel": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><FunnelChart><Tooltip /><Funnel data={[...data].sort((a, b) => ((b["c2"] as number) ?? 0) - ((a["c2"] as number) ?? 0)).map((d, i) => ({ ...d, fill: col(i) }))} dataKey="c2" nameKey="categoria" onClick={click}>
       <LabelList position="right" dataKey="categoria" fontSize={11} /></Funnel></FunnelChart></ResponsiveContainer></>;
