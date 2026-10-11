@@ -4,3 +4,4 @@
 - Pendências só de invariantes existentes (fato ausente, ambiguidade, conferência, bloqueio normativo, fonte não lida), sem score nem alerta; ações são links aos módulos donos.
 - Fonte sem `knownAt` é marcada como "estado atual da fonte"; o relatório `situacao-operacional-escola` declara ser projeção, não documento oficial.
 - N7.2.4: Dossiê da Direção em PDF A4 = mesma projeção da tela via `dossierPrintHtml` sobre `toPrintableHtml`, porque PDF com cálculo próprio divergiria da tela.
+- Lote 02 Direção (`school-dashboard.ts`): métricas do painel só do catálogo `METRICS` (fórmula, fonte, data, drill-down) com os estados de `management-panel`; não registrado ≠ zero; frequência/dias letivos bloqueiam sem calendário e infrequência sem limiar homologado; Ficha única por INEP só lê o cadastro (edição em `/administracao`); diagnóstico só deriva das métricas lidas com evidência, sem score, porque número ou prioridade inventados seriam fato falso.
