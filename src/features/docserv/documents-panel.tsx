@@ -7,7 +7,7 @@ const field = "h-8 rounded-md border bg-background px-2 text-sm";
 const TYPES = [{ code: "antecedente_criminal", label: "Antecedentes criminais" }, { code: "antecedente_civil", label: "Antecedentes cíveis (complementar)" }];
 
 /** Lista + envio + revisão. Quem vê e quem revisa é decidido no banco; a tela só mostra o que veio. */
-export function DocumentsPanel({ mode, person, school }: { mode: "servidor" | "escola" | "rede"; person?: string; school?: string }) {
+export function DocumentsPanel({ mode, person, school }: { mode: "servidor" | "escola" | "rede"; person?: string | undefined; school?: string | undefined }) {
   const [rows, setRows] = useState<DocRow[] | "error" | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [note, setNote] = useState("");
@@ -61,7 +61,7 @@ export function DocumentsPanel({ mode, person, school }: { mode: "servidor" | "e
 }
 
 function UploadForm({ person, school, onDone }: { person: string; school: string | null; onDone: (m: string) => void }) {
-  const [type, setType] = useState(TYPES[0].code); const [season, setSeason] = useState(String(new Date().getFullYear()));
+  const [type, setType] = useState("antecedente_criminal"); const [season, setSeason] = useState(String(new Date().getFullYear()));
   const [issuer, setIssuer] = useState(""); const [issued, setIssued] = useState(""); const [until, setUntil] = useState("");
   const [file, setFile] = useState<File | null>(null); const [busy, setBusy] = useState(false);
   const send = async () => {
