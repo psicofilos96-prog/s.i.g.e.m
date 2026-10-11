@@ -158,6 +158,192 @@ export type Database = {
         }
         Relationships: []
       }
+      aa_import_batch_events: {
+        Row: {
+          author_user_id: string | null
+          batch_id: string
+          event: string
+          executor_label: string | null
+          id: string
+          reason: string | null
+          recorded_at: string
+          seq: number
+        }
+        Insert: {
+          author_user_id?: string | null
+          batch_id: string
+          event: string
+          executor_label?: string | null
+          id?: string
+          reason?: string | null
+          recorded_at?: string
+          seq: number
+        }
+        Update: {
+          author_user_id?: string | null
+          batch_id?: string
+          event?: string
+          executor_label?: string | null
+          id?: string
+          reason?: string | null
+          recorded_at?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aa_import_batch_events_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "aa_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aa_import_batches: {
+        Row: {
+          adapter_key: string
+          adapter_version: number
+          cycle: string | null
+          edition_year: number
+          executor_label: string
+          file_name: string
+          formula_note: string | null
+          id: string
+          measure_kind: string
+          program_key: string
+          recorded_at: string
+          round: string | null
+          school_label: string | null
+          sha256: string
+          sheet: string
+        }
+        Insert: {
+          adapter_key: string
+          adapter_version: number
+          cycle?: string | null
+          edition_year: number
+          executor_label: string
+          file_name: string
+          formula_note?: string | null
+          id?: string
+          measure_kind: string
+          program_key: string
+          recorded_at?: string
+          round?: string | null
+          school_label?: string | null
+          sha256: string
+          sheet: string
+        }
+        Update: {
+          adapter_key?: string
+          adapter_version?: number
+          cycle?: string | null
+          edition_year?: number
+          executor_label?: string
+          file_name?: string
+          formula_note?: string | null
+          id?: string
+          measure_kind?: string
+          program_key?: string
+          recorded_at?: string
+          round?: string | null
+          school_label?: string | null
+          sha256?: string
+          sheet?: string
+        }
+        Relationships: []
+      }
+      aa_import_review_events: {
+        Row: {
+          author_user_id: string
+          decision: string
+          id: string
+          reason: string
+          recorded_at: string
+          row_id: string
+          seq: number
+          student_id: string | null
+        }
+        Insert: {
+          author_user_id: string
+          decision: string
+          id?: string
+          reason: string
+          recorded_at?: string
+          row_id: string
+          seq: number
+          student_id?: string | null
+        }
+        Update: {
+          author_user_id?: string
+          decision?: string
+          id?: string
+          reason?: string
+          recorded_at?: string
+          row_id?: string
+          seq?: number
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aa_import_review_events_row_id_fkey"
+            columns: ["row_id"]
+            isOneToOne: false
+            referencedRelation: "aa_import_rows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aa_import_rows: {
+        Row: {
+          batch_id: string
+          candidate_student_ids: string[]
+          class_label: string | null
+          enrollment_ref: string | null
+          id: string
+          inep: string | null
+          match_state: string
+          matched_student_id: string | null
+          payload: Json
+          row_no: number
+          student_name: string | null
+        }
+        Insert: {
+          batch_id: string
+          candidate_student_ids?: string[]
+          class_label?: string | null
+          enrollment_ref?: string | null
+          id?: string
+          inep?: string | null
+          match_state: string
+          matched_student_id?: string | null
+          payload?: Json
+          row_no: number
+          student_name?: string | null
+        }
+        Update: {
+          batch_id?: string
+          candidate_student_ids?: string[]
+          class_label?: string | null
+          enrollment_ref?: string | null
+          id?: string
+          inep?: string | null
+          match_state?: string
+          matched_student_id?: string | null
+          payload?: Json
+          row_no?: number
+          student_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aa_import_rows_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "aa_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aa_intervention_events: {
         Row: {
           author_user_id: string
@@ -22548,6 +22734,25 @@ export type Database = {
         Returns: string
       }
       aa_conference_state: { Args: { _instrument: string }; Returns: string }
+      aa_import_batch_act: {
+        Args: {
+          _batch: string
+          _event: string
+          _expected_seq: number
+          _reason: string
+        }
+        Returns: number
+      }
+      aa_import_review: {
+        Args: {
+          _decision: string
+          _expected_seq: number
+          _reason: string
+          _row: string
+          _student: string
+        }
+        Returns: number
+      }
       aa_instrument_completeness_internal: {
         Args: { _instrument: string }
         Returns: Json

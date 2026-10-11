@@ -641,3 +641,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Analisar Matriz_Escolas_Censo2026, relações de servidores (SEMED/escolas) e Secretaria_2026.rar.
 
 - [x] A&A Lote 6 — intervenções pedagógicas (aba Intervenções, 0369); pendente: permissões e ligação automática com Diário/CIECE/Direção
+- [x] A&A Lote 7 — importação confiável (aba Importação, 0370; 12 lotes Simula SAEB em revisão)
