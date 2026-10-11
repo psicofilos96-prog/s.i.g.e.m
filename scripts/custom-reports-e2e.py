@@ -5,7 +5,11 @@ from playwright.async_api import async_playwright
 B = "http://localhost:8080"; SH = "/tmp/rep/custom"; os.makedirs(SH, exist_ok=True)
 
 async def pick(pg, label, value):
-    await pg.get_by_label(label, exact=True).first.select_option(value=value); await pg.wait_for_timeout(250)
+    try: await pg.get_by_label(label, exact=True).first.select_option(value=value, timeout=8000)
+    except Exception:
+        await pg.screenshot(path=f"{SH}/erro-{label}.png"); sec = await pg.get_by_role("region", name="Agrupamento e cálculos").inner_text() if await pg.get_by_role("region", name="Agrupamento e cálculos").count() else ""
+        print("DEBUG", label, value, "|", sec[:400].replace("\n", " / ")); raise
+    await pg.wait_for_timeout(250)
 
 async def main():
     cfg = json.load(open("/tmp/rep/s.json"))
