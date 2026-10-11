@@ -136,7 +136,7 @@ function Builder() {
       <section className={box} aria-label="Modelos">
         <h2 className="font-semibold">Meus modelos</h2>
         <div className="flex flex-wrap gap-2"><input aria-label="Nome do modelo" className={inp} value={tplName} onChange={(e) => setTplName(e.target.value)} placeholder="Nome do modelo" />
-          <Button size="sm" disabled={busy || problems.length > 0 || !tplName.trim()} onClick={async () => { try { await saveCustomTemplate(tplName, spec, layout); setNote(`Modelo "${tplName.trim()}" salvo (nova versão).`); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Salvar versão</Button>
+          <Button size="sm" disabled={busy || !spec.source || problems.length > 0 || !tplName.trim()} onClick={async () => { try { await saveCustomTemplate(tplName, spec, layout); setNote(`Modelo "${tplName.trim()}" salvo (nova versão).`); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Salvar versão</Button>
           <Button size="sm" variant="outline" disabled title={CUSTOM_SHARE_REASON}>Compartilhar</Button></div>
         <p className="text-xs text-muted-foreground">{CUSTOM_SHARE_REASON}</p>
         <ul className="space-y-1 text-sm" aria-label="Meus modelos">{templates.map((t) => <li key={t.name} className="flex flex-wrap items-center gap-2"><span className="font-medium">{t.name}</span><span className="text-xs text-muted-foreground">v{t.version}</span>
