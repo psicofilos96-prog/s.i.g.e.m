@@ -17634,6 +17634,97 @@ export type Database = {
         }
         Relationships: []
       }
+      semed_t10_formation_versions: {
+        Row: {
+          conclusion_year: number | null
+          course: string | null
+          evidence_mime: string | null
+          evidence_name: string | null
+          evidence_path: string | null
+          formation_id: string
+          id: string
+          institution: string | null
+          kind: string
+          level: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          staff_key: string
+          staff_record_id: string
+          supersedes_id: string | null
+          version: number
+          withdrawn: boolean
+          year: number
+        }
+        Insert: {
+          conclusion_year?: number | null
+          course?: string | null
+          evidence_mime?: string | null
+          evidence_name?: string | null
+          evidence_path?: string | null
+          formation_id: string
+          id?: string
+          institution?: string | null
+          kind: string
+          level: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          staff_key: string
+          staff_record_id: string
+          supersedes_id?: string | null
+          version: number
+          withdrawn?: boolean
+          year: number
+        }
+        Update: {
+          conclusion_year?: number | null
+          course?: string | null
+          evidence_mime?: string | null
+          evidence_name?: string | null
+          evidence_path?: string | null
+          formation_id?: string
+          id?: string
+          institution?: string | null
+          kind?: string
+          level?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          staff_key?: string
+          staff_record_id?: string
+          supersedes_id?: string | null
+          version?: number
+          withdrawn?: boolean
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semed_t10_formation_versions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "semed_t10_formation_versions_staff_record_id_fkey"
+            columns: ["staff_record_id"]
+            isOneToOne: false
+            referencedRelation: "staff_administrative_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "semed_t10_formation_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "semed_t10_formation_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       semed_table_attachments: {
         Row: {
           created_at: string
@@ -29527,6 +29618,35 @@ export type Database = {
           _year: number
         }
         Returns: number
+      }
+      semed_t10_can_see_evidence: {
+        Args: { _school: string }
+        Returns: boolean
+      }
+      semed_t10_record_formation: {
+        Args: {
+          _conclusion_year: number
+          _course: string
+          _evidence_mime?: string
+          _evidence_name?: string
+          _evidence_path?: string
+          _expected_version: number
+          _formation_id: string
+          _institution: string
+          _kind: string
+          _level: string
+          _reason: string
+          _school: string
+          _staff_record_id: string
+          _withdraw: boolean
+          _year: number
+        }
+        Returns: Json
+      }
+      semed_t10_roster: { Args: { _school: string }; Returns: Json }
+      semed_t10_staff_key: {
+        Args: { _name: string; _person: string; _reg: string }
+        Returns: string
       }
       semed_table_act: {
         Args: {
