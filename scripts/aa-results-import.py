@@ -29,7 +29,7 @@ for f in sorted(glob.glob(a.glob)):
     try:
         wbf = openpyxl.load_workbook(f, read_only=True); wbv = openpyxl.load_workbook(f, read_only=True, data_only=True)
     except Exception: continue
-    sha = hashlib.sha256(open(f, "rb").read()).hexdigest(); name = f.split("/")[-1]; used = False
+    sha = hashlib.sha256(open(f, "rb").read()).hexdigest(); name = f.split("/")[-1]; used = False; file_school = None
     for ws in wbv.worksheets:
         if "GRÁFICO" in ws.title.upper(): continue
         rows = list(ws.iter_rows(max_row=200, values_only=True))
@@ -39,7 +39,9 @@ for f in sorted(glob.glob(a.glob)):
         c_tot = next((i for i, x in enumerate(hdr) if x.upper().startswith("TOTAL DE ACERTO")), None)
         qcols = list(range(c_q, c_tot if c_tot else len(hdr)))
         descr = [str(rows[4][i] or "") if i < len(rows[4]) else "" for i in qcols]
-        school_label = next((str(x) for x in rows[0][2:] if x and not str(x).startswith("=")), None)
+        lbl = [str(x) for x in rows[0][2:] if x and not str(x).startswith("=") and "BLOCO" not in str(x).upper()]
+        school_label = lbl[-1] if lbl else file_school
+        file_school = school_label
         cand = schools.get(re.sub(r"^(e\.? ?m\.?|escola municipal) ", "", norm(school_label))) if school_label else None
         school = next(iter(cand)) if cand and len(cand) == 1 else None
         if not school: stats["escola_nao_identificada"] += 1
