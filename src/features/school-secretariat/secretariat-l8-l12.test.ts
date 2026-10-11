@@ -21,7 +21,7 @@ describe("L10 pré-validação", () => {
 
 describe("L11 guarda documental", () => {
   it("guarda, retirada com motivo, devolução e localização", () => {
-    let ev = custodyAppend([], { itemId: "d", kind: "guarda", location: "Arquivo A, caixa 3", principalId: "p", human: true, reason: null, at: "1" });
+    let ev = custodyAppend([], { itemId: "d", kind: "guarda", location: "Arquivo A, caixa 3", principalId: "p", human: true, reason: null, at: "1" }, 0);
     expect(ev.ok).toBe(true);
     const e1 = ev.ok ? ev.value : [];
     expect(custodyAppend(e1, { itemId: "d", kind: "retirada", location: null, principalId: "p", human: true, reason: "", at: "2" }, 1)).toEqual({ ok: false, code: "reason-required" });
