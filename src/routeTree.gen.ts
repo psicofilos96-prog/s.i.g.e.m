@@ -169,6 +169,7 @@ import { Route as HorariosProfissionaisProfissionalIdRouteImport } from './route
 import { Route as HorariosTurmasIndexRouteImport } from './routes/horarios.turmas.index'
 import { Route as HorariosTurmasTurmaIdRouteImport } from './routes/horarios.turmas.$turmaId'
 import { Route as HorariosUnidadesUnidadeIdRouteImport } from './routes/horarios.unidades.$unidadeId'
+import { Route as InclusaoNeiFichaRouteImport } from './routes/inclusao_.nei_.ficha'
 import { Route as MatrizesCurricularesImpressaoIdRouteImport } from './routes/matrizes-curriculares.impressao.$id'
 import { Route as MatrizesCurricularesNovaVersaoIdRouteImport } from './routes/matrizes-curriculares.nova-versao.$id'
 import { Route as MatrizesCurricularesRascunhoIdRouteImport } from './routes/matrizes-curriculares.rascunho.$id'
@@ -1066,6 +1067,11 @@ const HorariosUnidadesUnidadeIdRoute =
     path: '/unidades/$unidadeId',
     getParentRoute: () => HorariosRoute,
   } as any)
+const InclusaoNeiFichaRoute = InclusaoNeiFichaRouteImport.update({
+  id: '/inclusao_/nei_/ficha',
+  path: '/inclusao/nei/ficha',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MatrizesCurricularesImpressaoIdRoute =
   MatrizesCurricularesImpressaoIdRouteImport.update({
     id: '/impressao/$id',
@@ -1698,6 +1704,7 @@ export interface FileRoutesByFullPath {
   '/horarios/profissionais/$profissionalId': typeof HorariosProfissionaisProfissionalIdRouteWithChildren
   '/horarios/turmas/$turmaId': typeof HorariosTurmasTurmaIdRouteWithChildren
   '/horarios/unidades/$unidadeId': typeof HorariosUnidadesUnidadeIdRouteWithChildren
+  '/inclusao/nei/ficha': typeof InclusaoNeiFichaRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
@@ -1920,6 +1927,7 @@ export interface FileRoutesByTo {
   '/calendario-escolar/$calendarioId/documento': typeof CalendarioEscolarCalendarioIdDocumentoRoute
   '/diario/chamada/$registroId': typeof DiarioChamadaRegistroIdRoute
   '/diario/registros/$registroId': typeof DiarioRegistrosRegistroIdRoute
+  '/inclusao/nei/ficha': typeof InclusaoNeiFichaRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
@@ -2149,6 +2157,7 @@ export interface FileRoutesById {
   '/horarios/profissionais/$profissionalId': typeof HorariosProfissionaisProfissionalIdRouteWithChildren
   '/horarios/turmas/$turmaId': typeof HorariosTurmasTurmaIdRouteWithChildren
   '/horarios/unidades/$unidadeId': typeof HorariosUnidadesUnidadeIdRouteWithChildren
+  '/inclusao_/nei_/ficha': typeof InclusaoNeiFichaRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
@@ -2392,6 +2401,7 @@ export interface FileRouteTypes {
     | '/horarios/profissionais/$profissionalId'
     | '/horarios/turmas/$turmaId'
     | '/horarios/unidades/$unidadeId'
+    | '/inclusao/nei/ficha'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
@@ -2614,6 +2624,7 @@ export interface FileRouteTypes {
     | '/calendario-escolar/$calendarioId/documento'
     | '/diario/chamada/$registroId'
     | '/diario/registros/$registroId'
+    | '/inclusao/nei/ficha'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
@@ -2842,6 +2853,7 @@ export interface FileRouteTypes {
     | '/horarios/profissionais/$profissionalId'
     | '/horarios/turmas/$turmaId'
     | '/horarios/unidades/$unidadeId'
+    | '/inclusao_/nei_/ficha'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
@@ -3037,6 +3049,7 @@ export interface RootRouteChildren {
   PublicoIndexRoute: typeof PublicoIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
+  InclusaoNeiFichaRoute: typeof InclusaoNeiFichaRoute
   VerificarCarteirinhaCodigoRoute: typeof VerificarCarteirinhaCodigoRoute
   VerificarDocumentoCodigoRoute: typeof VerificarDocumentoCodigoRoute
   VerificarRelatorioCodigoRoute: typeof VerificarRelatorioCodigoRoute
@@ -4165,6 +4178,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/horarios/unidades/$unidadeId'
       preLoaderRoute: typeof HorariosUnidadesUnidadeIdRouteImport
       parentRoute: typeof HorariosRoute
+    }
+    '/inclusao_/nei_/ficha': {
+      id: '/inclusao_/nei_/ficha'
+      path: '/inclusao/nei/ficha'
+      fullPath: '/inclusao/nei/ficha'
+      preLoaderRoute: typeof InclusaoNeiFichaRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/matrizes-curriculares/impressao/$id': {
       id: '/matrizes-curriculares/impressao/$id'
@@ -5508,6 +5528,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   CalendarioEscolarCalendarioIdDocumentoRoute:
     CalendarioEscolarCalendarioIdDocumentoRoute,
+  InclusaoNeiFichaRoute: InclusaoNeiFichaRoute,
   VerificarCarteirinhaCodigoRoute: VerificarCarteirinhaCodigoRoute,
   VerificarDocumentoCodigoRoute: VerificarDocumentoCodigoRoute,
   VerificarRelatorioCodigoRoute: VerificarRelatorioCodigoRoute,
