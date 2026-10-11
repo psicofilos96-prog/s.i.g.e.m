@@ -27,3 +27,5 @@ critério de autorização — duas pessoas com o mesmo cargo têm capacidades d
   objetos concretos e nunca publicam taxa, série, ranking ou indicador (CIECE, Cap. 14).
 - Conteúdo confidencial da Orientação (13H) não chega à Direção por hierarquia:
   exige capacidade específica declarada, com supressão por campo caso contrário.
+
+- Lote 01 Direção (`school-leadership/leadership-access.ts`): nível de ação visualizar<solicitar<editar<validar<homologar por área e escola; diretor só por designação formal vigente, adjunto só por delegação explícita limitada à designação de origem e sem poderes exclusivos (assinatura do Diretor Geral, Caderno Negro); revogação derruba a delegação; nova designação exige encerrar a anterior; navegação exige escola+ano e mostra só áreas visíveis, porque hierarquia ou cargo não podem conceder poder.
