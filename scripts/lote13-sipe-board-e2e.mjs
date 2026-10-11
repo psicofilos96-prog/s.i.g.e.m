@@ -24,6 +24,7 @@ async function mk(tag, kind) {
 try {
   const OP = await mk("op-tecnico", "gestao-pedagogica-da-rede"), NP = await mk("professor-sem-permissao", "professor");
   const g = await admin.rpc("bo_fixture_grant_capability", { _operation_id: op, _user_id: OP.uid, _capability: "manter-quadro-permanente-op", _school: null }); if (g.error) throw new Error(g.error.message);
+  const t = await OP.c.rpc("record_op_permanent_board_version", { _stage: op + " probe", _expected_head: null, _title: "t", _sections: [{ heading: "a", body: "b" }], _reason: null }); console.log("INFO probe", JSON.stringify(t.error));
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/fs13/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, op, sessions: { op: OP.session, np: NP.session } }), { mode: 0o600 });
   const py = spawnSync("python3", ["scripts/lote13-sipe-board-e2e.py"], { encoding: "utf8", timeout: 300000 });
