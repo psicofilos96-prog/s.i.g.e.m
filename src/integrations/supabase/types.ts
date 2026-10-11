@@ -16454,6 +16454,93 @@ export type Database = {
           },
         ]
       }
+      sia_instrument_print_settings: {
+        Row: {
+          author_user_id: string
+          header_version_id: string | null
+          instrument_version_id: string
+          label: string
+          recorded_at: string
+        }
+        Insert: {
+          author_user_id: string
+          header_version_id?: string | null
+          instrument_version_id: string
+          label: string
+          recorded_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          header_version_id?: string | null
+          instrument_version_id?: string
+          label?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sia_instrument_print_settings_header_version_id_fkey"
+            columns: ["header_version_id"]
+            isOneToOne: false
+            referencedRelation: "sia_print_header_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sia_instrument_print_settings_instrument_version_id_fkey"
+            columns: ["instrument_version_id"]
+            isOneToOne: true
+            referencedRelation: "teacher_instrument_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sia_print_header_versions: {
+        Row: {
+          author_user_id: string
+          config: Json
+          id: string
+          recorded_at: string
+          school_id: string
+          supersedes_id: string | null
+          unit_name_snapshot: string
+          version: number
+        }
+        Insert: {
+          author_user_id: string
+          config: Json
+          id?: string
+          recorded_at?: string
+          school_id: string
+          supersedes_id?: string | null
+          unit_name_snapshot: string
+          version: number
+        }
+        Update: {
+          author_user_id?: string
+          config?: Json
+          id?: string
+          recorded_at?: string
+          school_id?: string
+          supersedes_id?: string | null
+          unit_name_snapshot?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sia_print_header_versions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sia_print_header_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "sia_print_header_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sigem_activator_account_origins: {
         Row: {
           designation_version: number
@@ -26042,6 +26129,14 @@ export type Database = {
           _student: string
           _variant: string
         }
+        Returns: string
+      }
+      record_sia_instrument_print_settings: {
+        Args: { _header: string; _instrument_version: string; _label: string }
+        Returns: string
+      }
+      record_sia_print_header: {
+        Args: { _config: Json; _expected_head: string; _school: string }
         Returns: string
       }
       record_staff_reconciliation_decision: {

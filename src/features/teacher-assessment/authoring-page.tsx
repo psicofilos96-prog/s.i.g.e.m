@@ -14,11 +14,14 @@ import {
   authoringMessage, heads, itemType, itemTypes, parseInstrumentItems, parseOptions, parseRandomization, parseRefIds, printFingerprint, printProjection, variantProjection, VARIANT_LETTERS, refStatus,
   type InstrumentVersion, type ItemOption, type ItemVersion,
 } from "./authoring-model";
+import { SiaPrintView, HeadersTab, RichText } from "./sia-print";
+import { blankOptions, itemProblems, OPTION_COUNT, parseEntries, validWeight, weightSummary } from "./sia-editor";
+import { headersOf, savePrintSettings } from "./authoring-source";
 import { itemKey, itemMedia, mediaUrl, saveInstrument, saveItem, schoolsOfAssignments, uploadItemMedia, visibleInstruments, visibleItems } from "./authoring-source";
 
 const today = () => operationalToday();
 const input = "w-full rounded border border-input bg-background p-2 text-sm";
-type Tab = "itens" | "instrumentos";
+type Tab = "itens" | "instrumentos" | "cabecalhos";
 
 export function AuthoringPage() {
   const qc = useQueryClient();
@@ -38,14 +41,15 @@ export function AuthoringPage() {
   const schoolIds = [...new Set((schools.data ?? []).map((s) => s.school_id))];
   return (
     <div className="space-y-6">
-      <PageHeader title="Avaliações do professor" description="Monte itens e instrumentos para suas regências. Gabarito fica separado do enunciado; instrumento publicado fica congelado. Pesos, escalas e notas não são definidos aqui: o resultado é lançado na Pauta." />
+      <PageHeader title="Avaliações do professor" description="Monte itens e instrumentos para suas regências. Gabarito fica separado do enunciado; instrumento publicado fica congelado. Pesos por questão são declarados por você; escala e nota continuam na Pauta." />
       {msg && <div role={msg.err ? "alert" : "status"} className={`rounded border p-3 text-sm ${msg.err ? "border-destructive text-destructive" : "border-border"}`}>{msg.text}</div>}
       <div role="tablist" className="flex gap-2">
-        {(["itens", "instrumentos"] as Tab[]).map((t) => <Button key={t} role="tab" aria-selected={tab === t} variant={tab === t ? "default" : "outline"} onClick={() => setTab(t)}>{t === "itens" ? "Banco de itens" : "Instrumentos"}</Button>)}
+        {(["itens", "instrumentos", "cabecalhos"] as Tab[]).map((t) => <Button key={t} role="tab" aria-selected={tab === t} variant={tab === t ? "default" : "outline"} onClick={() => setTab(t)}>{t === "itens" ? "Banco de itens" : t === "instrumentos" ? "Provas" : "Cabeçalhos"}</Button>)}
       </div>
       {assignments.data.length === 0 && <EmptyState title="Nenhuma regência vigente" description="Sem regência vigente você só pode ler o que já criou." />}
       {tab === "itens" ? <ItemsTab items={items.data} uid={uid} schoolIds={schoolIds} catalog={catalog.data} run={run} />
-        : <InstrumentsTab instruments={instruments.data} items={items.data} uid={uid} assignments={assignments.data} run={run} />}
+        : tab === "instrumentos" ? <InstrumentsTab instruments={instruments.data} items={items.data} uid={uid} assignments={assignments.data} schoolIds={schoolIds} run={run} />
+        : <HeadersTab schoolIds={schoolIds} />}
     </div>
   );
 }
@@ -88,9 +92,11 @@ function ItemsTab({ items, uid, schoolIds, catalog, run }: { items: ItemVersion[
             {readOnly && <StatePanel tone="neutral" title="Somente leitura" description="Item compartilhado por outra pessoa. Use Reutilizar para criar sua versão." />}
             {d.copiedFrom && <p className="text-xs text-muted-foreground">Cópia de outra versão; a origem fica registrada.</p>}
             <label className="block text-sm">Tipo
-              <select className={input} value={d.typeId} disabled={readOnly || !!d.head} onChange={(e) => setD({ ...d, typeId: e.target.value })}>{itemTypes().map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}{!itemType(d.typeId) && <option value={d.typeId}>{d.typeId}</option>}</select></label>
+              <select className={input} value={d.typeId} disabled={readOnly || !!d.head} onChange={(e) => setD({ ...d, typeId: e.target.value, options: OPTION_COUNT[e.target.value] !== undefined ? blankOptions(e.target.value) : d.options })}>{itemTypes().map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}{!itemType(d.typeId) && <option value={d.typeId}>{d.typeId}</option>}</select></label>
             <label className="block text-sm">Enunciado (texto puro)
               <textarea rows={5} className={input} value={d.stem} disabled={readOnly} maxLength={20000} onChange={(e) => setD({ ...d, stem: e.target.value })} /></label>
+            <p className="text-xs text-muted-foreground">Tabela: linhas <code>| a | b |</code>. Equação: <code>$x^2$</code> no texto ou <code>$$ … $$</code> em linha própria. Imagens: anexe abaixo após salvar.</p>
+            {d.stem.trim() && <div aria-label="Prévia do enunciado" className="rounded border border-dashed border-border p-2 text-justify text-sm"><RichText text={d.stem} /></div>}
             {itemType(d.typeId)?.usesOptions && (
               <fieldset className="space-y-2"><legend className="text-sm font-medium">Alternativas</legend>
                 {d.options.map((o, i) => <div key={i} className="flex gap-2"><input aria-label={`Rótulo da alternativa ${i + 1}`} className="w-16 rounded border border-input bg-background p-2 text-sm" value={o.key} disabled={readOnly} maxLength={4} onChange={(e) => setD({ ...d, options: d.options.map((x, j) => (j === i ? { ...x, key: e.target.value } : x)) })} /><input aria-label={`Texto da alternativa ${i + 1}`} className={input} value={o.text} disabled={readOnly} onChange={(e) => setD({ ...d, options: d.options.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)) })} /></div>)}
@@ -108,7 +114,8 @@ function ItemsTab({ items, uid, schoolIds, catalog, run }: { items: ItemVersion[
               <label>Visibilidade <select className="rounded border border-input bg-background p-2" value={d.visibility} disabled={readOnly} onChange={(e) => setD({ ...d, visibility: e.target.value as ItemDraft["visibility"] })}><option value="pessoal">Só eu</option><option value="compartilhado">Banco compartilhado da escola</option></select></label>
             </div>
             {d.itemId && !readOnly && uid && <ItemMedia itemId={d.itemId} uid={uid} />}
-            {!readOnly && <div className="flex gap-2"><Button onClick={() => save("rascunho")} disabled={!d.stem.trim()}>Salvar rascunho</Button><Button variant="outline" onClick={() => save("publicado")} disabled={!d.stem.trim()}>Publicar</Button></div>}
+            {!readOnly && <div className="flex gap-2"><Button onClick={() => save("rascunho")} disabled={!d.stem.trim()}>Salvar rascunho</Button><Button variant="outline" onClick={() => save("publicado")} disabled={itemProblems(d.typeId, d.stem, d.options, d.answer).length > 0}>Publicar</Button></div>}
+            {!readOnly && itemProblems(d.typeId, d.stem, d.options, d.answer).length > 0 && <ul aria-label="Pendências para publicar" className="text-xs text-muted-foreground">{itemProblems(d.typeId, d.stem, d.options, d.answer).map((x) => <li key={x}>{x}</li>)}</ul>}
           </div>)}
       </section>
     </div>
@@ -127,9 +134,10 @@ function ItemMedia({ itemId, uid }: { itemId: string; uid: string }) {
   );
 }
 
-type InsDraft = { instrumentId: string | null; head: string | null; assignmentId: string; title: string; instructions: string; itemIds: string[]; randomize: boolean; seed: string; shuffleOptions: boolean; resultsId: string };
+type InsDraft = { instrumentId: string | null; head: string | null; assignmentId: string; title: string; instructions: string; itemIds: string[]; weights: Record<string, string>; label: string; headerId: string; randomize: boolean; seed: string; shuffleOptions: boolean; resultsId: string };
 
-function InstrumentsTab({ instruments, items, uid, assignments, run }: { instruments: InstrumentVersion[]; items: ItemVersion[]; uid: string | null; assignments: { assignment_id: string; class_id: string; component_label_snapshot: string }[]; run: Run }) {
+function InstrumentsTab({ instruments, items, uid, assignments, schoolIds, run }: { instruments: InstrumentVersion[]; items: ItemVersion[]; uid: string | null; assignments: { assignment_id: string; class_id: string; component_label_snapshot: string }[]; schoolIds: string[]; run: Run }) {
+  const headers = useQuery({ queryKey: ["sia-headers", schoolIds.join()], queryFn: () => headersOf(schoolIds) });
   const hs = heads(instruments);
   const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
   const published = heads(items).filter((i) => i.status === "publicado");
@@ -138,18 +146,19 @@ function InstrumentsTab({ instruments, items, uid, assignments, run }: { instrum
   const current = new Set(assignments.map((a) => a.assignment_id));
   const head = d?.head ? instruments.find((x) => x.id === d.head) : undefined;
   const frozen = head?.status === "publicado" || (head && head.author_user_id !== uid) || (!!d && !current.has(d.assignmentId));
-  const fromV = (v: InstrumentVersion, copy: boolean): InsDraft => { const rz = parseRandomization(v.randomization); return { instrumentId: copy ? null : v.instrument_id, head: copy ? null : v.id, assignmentId: copy ? assignments[0]?.assignment_id ?? v.assignment_id : v.assignment_id, title: copy ? `${v.title} (cópia)` : v.title, instructions: v.instructions ?? "", itemIds: parseInstrumentItems(v.items), randomize: !!rz, seed: rz?.seed ?? "", shuffleOptions: !!rz?.shuffleOptions, resultsId: copy ? "" : v.results_instrument_id ?? "" }; };
+  const fromV = (v: InstrumentVersion, copy: boolean): InsDraft => { const rz = parseRandomization(v.randomization); return { instrumentId: copy ? null : v.instrument_id, head: copy ? null : v.id, assignmentId: copy ? assignments[0]?.assignment_id ?? v.assignment_id : v.assignment_id, title: copy ? `${v.title} (cópia)` : v.title, instructions: v.instructions ?? "", itemIds: parseInstrumentItems(v.items), weights: Object.fromEntries(parseEntries(v.items).map((e) => [e.itemVersionId, e.weight == null ? "" : String(e.weight).replace(".", ",")])), label: "", headerId: "", randomize: !!rz, seed: rz?.seed ?? "", shuffleOptions: !!rz?.shuffleOptions, resultsId: copy ? "" : v.results_instrument_id ?? "" }; };
   const save = (status: "rascunho" | "publicado") => d && run(async () => {
-    const id = await saveInstrument({ instrumentId: d.instrumentId, head: d.head, assignmentId: d.assignmentId, periodId: null, title: d.title, instructions: d.instructions || null, itemVersionIds: d.itemIds,
+    const id = await saveInstrument({ instrumentId: d.instrumentId, head: d.head, assignmentId: d.assignmentId, periodId: null, title: d.title, instructions: d.instructions || null, itemVersionIds: d.itemIds, weights: Object.fromEntries(d.itemIds.map((id) => [id, d.weights[id]?.trim() ? Number(d.weights[id]!.replace(",", ".")) : null])),
       randomization: d.randomize ? { seed: d.seed, shuffleItems: true, shuffleOptions: d.shuffleOptions } : null, status, resultsInstrumentId: d.resultsId.trim() || null });
-    const fresh = await visibleInstruments(); const v = fresh.find((x) => x.id === id)!; setD(fromV(v, false));
+    if (d.label.trim()) await savePrintSettings(id, d.label.trim(), d.headerId || null);
+    const fresh = await visibleInstruments(); const v = fresh.find((x) => x.id === id)!; setD({ ...fromV(v, false), label: d.label, headerId: d.headerId });
   }, status === "publicado" ? "Instrumento publicado e congelado." : "Rascunho salvo.");
 
-  if (printing) return <PrintView ins={printing} items={byId} onClose={() => setPrinting(null)} />;
+  if (printing) return <SiaPrintView ins={printing} items={byId} uid={uid} onClose={() => setPrinting(null)} />;
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
       <aside className="space-y-2">
-        {assignments.length > 0 && <Button onClick={() => setD({ instrumentId: null, head: null, assignmentId: assignments[0]!.assignment_id, title: "", instructions: "", itemIds: [], randomize: false, seed: "", shuffleOptions: false, resultsId: "" })}>Novo instrumento</Button>}
+        {assignments.length > 0 && <Button onClick={() => setD({ instrumentId: null, head: null, assignmentId: assignments[0]!.assignment_id, title: "", instructions: "", itemIds: [], weights: {}, label: "", headerId: "", randomize: false, seed: "", shuffleOptions: false, resultsId: "" })}>Novo instrumento</Button>}
         {hs.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum instrumento.</p> : <ul className="space-y-1">{hs.map((v) => (
           <li key={v.id} className="rounded border border-border p-2 text-sm"><p className="font-medium">{v.title}</p><p className="text-xs text-muted-foreground">v{v.version} · {v.status === "publicado" ? "publicado (congelado)" : "rascunho"} · turma {v.class_id}</p>
             <div className="mt-1 flex flex-wrap gap-2"><Button size="sm" variant="outline" onClick={() => setD(fromV(v, false))}>Abrir</Button>{assignments.length > 0 && <Button size="sm" variant="ghost" onClick={() => setD(fromV(v, true))}>Copiar</Button>}<Button size="sm" variant="ghost" onClick={() => setPrinting(v)}>Impressão</Button></div></li>))}</ul>}
@@ -163,7 +172,7 @@ function InstrumentsTab({ instruments, items, uid, assignments, run }: { instrum
             <label className="block text-sm">Título<input className={input} value={d.title} disabled={frozen} maxLength={200} onChange={(e) => setD({ ...d, title: e.target.value })} /></label>
             <label className="block text-sm">Instruções<textarea rows={3} className={input} value={d.instructions} disabled={frozen} onChange={(e) => setD({ ...d, instructions: e.target.value })} /></label>
             <fieldset className="space-y-1"><legend className="text-sm font-medium">Itens (versões publicadas fixadas)</legend>
-              {d.itemIds.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum item.</p> : <ol className="list-decimal pl-5 text-sm">{d.itemIds.map((id) => <li key={id} className="flex justify-between gap-2"><span>{byId.get(id)?.stem.slice(0, 120) ?? "Item não acessível"} <span className="text-xs text-muted-foreground">v{byId.get(id)?.version}</span></span>{!frozen && <button type="button" className="text-xs underline" onClick={() => setD({ ...d, itemIds: d.itemIds.filter((x) => x !== id) })}>remover</button>}</li>)}</ol>}
+              {d.itemIds.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum item.</p> : <ol className="list-decimal pl-5 text-sm">{d.itemIds.map((id) => <li key={id} className="flex justify-between gap-2"><span>{byId.get(id)?.stem.slice(0, 120) ?? "Item não acessível"} <span className="text-xs text-muted-foreground">v{byId.get(id)?.version}</span></span><input aria-label={`Peso da questão ${d.itemIds.indexOf(id) + 1}`} placeholder="peso" className={`w-16 rounded border bg-background p-1 text-xs ${validWeight(d.weights[id] ?? "") ? "border-input" : "border-destructive"}`} value={d.weights[id] ?? ""} disabled={frozen} onChange={(e) => setD({ ...d, weights: { ...d.weights, [id]: e.target.value } })} />{!frozen && <button type="button" className="text-xs underline" onClick={() => setD({ ...d, itemIds: d.itemIds.filter((x) => x !== id) })}>remover</button>}</li>)}</ol>}
               {!frozen && (published.length === 0 ? <p className="text-sm text-muted-foreground">Publique itens no banco para usá-los aqui.</p>
                 : <select aria-label="Adicionar item" className={input} value="" onChange={(e) => e.target.value && setD({ ...d, itemIds: [...d.itemIds, e.target.value] })}><option value="">Adicionar item publicado…</option>{published.filter((p) => !d.itemIds.includes(p.id)).map((p) => <option key={p.id} value={p.id}>{p.stem.slice(0, 80)} (v{p.version})</option>)}</select>)}
             </fieldset>
@@ -172,35 +181,16 @@ function InstrumentsTab({ instruments, items, uid, assignments, run }: { instrum
               {d.randomize && <><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={d.shuffleOptions} disabled={frozen} onChange={(e) => setD({ ...d, shuffleOptions: e.target.checked })} />Embaralhar alternativas</label><label className="text-sm">Semente <input className="rounded border border-input bg-background p-1" value={d.seed} disabled={frozen} onChange={(e) => setD({ ...d, seed: e.target.value })} /></label></>}
             </fieldset>
             <label className="block text-sm">Instrumento da Pauta para resultados (opcional)<input className={input} value={d.resultsId} disabled={frozen} placeholder="ins-…" onChange={(e) => setD({ ...d, resultsId: e.target.value })} /></label>
-            <p className="text-xs text-muted-foreground">Pontuação, pesos e escala vêm da configuração avaliativa da Pauta; nada é calculado aqui.</p>
-            {!frozen && <div className="flex gap-2"><Button onClick={() => save("rascunho")} disabled={!d.title.trim()}>Salvar rascunho</Button><Button variant="outline" onClick={() => save("publicado")} disabled={!d.title.trim() || d.itemIds.length === 0}>Publicar e congelar</Button></div>}
+            <p className="text-xs text-muted-foreground">{(() => { const w = weightSummary(d.itemIds.map((id) => ({ itemVersionId: id, weight: d.weights[id]?.trim() && validWeight(d.weights[id]!) ? Number(d.weights[id]!.replace(",", ".")) : null }))); return w.total !== null ? `Total declarado: ${String(w.total).replace(".", ",")} pt.` : `${w.missing} questão(ões) sem peso; peso ausente não vira zero.`; })()} Escala e nota continuam na Pauta.</p>
+            <fieldset className="flex flex-wrap gap-3 text-sm"><legend className="font-medium">Cabeçalho e nome da avaliação (fixados ao salvar a versão)</legend>
+              {(() => { const hsFor = (headers.data ?? []).filter((h) => h.school_id === (instruments.find((x) => x.id === d.head)?.school_id ?? schoolIds[0])); const cur = hsFor[0]; return cur ? <>
+                <label>Cabeçalho <select aria-label="Cabeçalho" className="rounded border border-input bg-background p-1" value={d.headerId} disabled={frozen} onChange={(e) => setD({ ...d, headerId: e.target.value, label: "" })}><option value="">Sem cabeçalho</option><option value={cur.id}>{cur.unit_name_snapshot} · v{cur.version}</option></select></label>
+                <label>Avaliação <select aria-label="Nome da avaliação" className="rounded border border-input bg-background p-1" value={d.label} disabled={frozen || !d.headerId} onChange={(e) => setD({ ...d, label: e.target.value })}><option value="">—</option>{cur.config.labels.map((l) => <option key={l} value={l}>{l}</option>)}</select></label></>
+                : <span className="text-xs text-muted-foreground">Nenhum cabeçalho configurado pela OP/secretaria desta escola.</span>; })()}
+            </fieldset>
+            {!frozen && <div className="flex gap-2"><Button onClick={() => save("rascunho")} disabled={!d.title.trim()}>Salvar rascunho</Button><Button variant="outline" onClick={() => save("publicado")} disabled={!d.title.trim() || d.itemIds.length === 0 || d.itemIds.some((id) => !validWeight(d.weights[id] ?? ""))}>Publicar e congelar</Button></div>}
           </div>)}
       </section>
-    </div>
-  );
-}
-
-export function PrintView({ ins, items, onClose }: { ins: InstrumentVersion; items: ReadonlyMap<string, ItemVersion>; onClose: () => void }) {
-  const [letter, setLetter] = useState<string>("");
-  const rv = useQuery({ queryKey: ["twr", "instrumento", ins.instrument_id], queryFn: () => reviewsOf("instrumento", ins.instrument_id) });
-  const approved = !!rv.data && reviewState(rv.data, ins.id) === "aprovado";
-  const vp = useMemo(() => variantProjection(ins, items, letter || null, approved), [ins, items, letter, approved]);
-  const p = vp.ok ? vp.p : printProjection(ins, items);
-  const [fp, setFp] = useState("");
-  useEffect(() => { printFingerprint(p).then(setFp); }, [p]);
-  return (
-    <div className="space-y-4">
-      <div className="flex gap-2 print:hidden"><Button variant="outline" onClick={onClose}>Voltar</Button><label className="text-sm">Versão <select className="ml-1 rounded border border-input bg-background p-1" value={letter} onChange={(e) => setLetter(e.target.value)} disabled={!approved}><option value="">Original</option>{[...VARIANT_LETTERS].map((l) => <option key={l} value={l}>{l}</option>)}</select></label><Button onClick={() => window.print()} disabled={!vp.ok}>Imprimir / salvar PDF</Button></div>
-      {!approved && <p className="text-sm text-muted-foreground print:hidden">{rv.error ? "Não foi possível ler a análise da OP; versões embaralhadas indisponíveis." : "Versões embaralhadas ficam disponíveis depois que a OP aprovar esta versão."}</p>}
-      {ins.status !== "publicado" && <StatePanel tone="warning" title="Rascunho" description="Impressão de rascunho; o conteúdo pode mudar." />}
-      {p.missing.length > 0 && <StatePanel tone="warning" title="Itens não acessíveis" description={`${p.missing.length} item(ns) não puderam ser lidos e não aparecem na impressão.`} />}
-      <article className="mx-auto max-w-3xl space-y-4 bg-card p-6 text-card-foreground">
-        <header className="space-y-1 border-b border-border pb-3"><h1 className="text-xl font-semibold">{p.title}</h1>{p.instructions && <p className="whitespace-pre-wrap text-sm">{p.instructions}</p>}<p className="text-sm">Nome: ______________________________________ Data: ____/____/______</p></header>
-        <ol className="space-y-5">{p.questions.map((q) => (
-          <li key={q.itemVersionId} className="break-inside-avoid"><p className="whitespace-pre-wrap"><strong>{q.number}.</strong> {q.stem}</p>
-            {q.options.length > 0 ? <ul className="mt-2 space-y-1 pl-4">{q.options.map((o) => <li key={o.key}>({o.key}) {o.text}</li>)}</ul> : <div className="mt-2 h-20 border-b border-dashed border-border" aria-hidden />}</li>))}</ol>
-        <footer className="border-t border-border pt-2 text-2xs text-muted-foreground">{letter && vp.ok ? `Prova ${letter} · ` : ""}Versão {p.version} · impressão {fp.slice(0, 16)}</footer>
-      </article>
     </div>
   );
 }
