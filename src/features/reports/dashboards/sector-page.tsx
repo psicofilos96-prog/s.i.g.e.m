@@ -91,7 +91,7 @@ function IndicatorCard({ cat, i }: { cat: Catalog; i: SectorIndicator }) {
       {r !== "loading" && "page" in r && (!grouped
         ? <p className="text-3xl font-semibold" data-value>{r.page.rows[0]?.["c1"] === null || r.page.rows[0]?.["c1"] === undefined ? "não disponível" : String(r.page.rows[0]["c1"])}</p>
         : r.page.rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro visível à sua conta.</p>
-        : <table className="w-full text-sm"><thead><tr><th className="text-left">{fieldLabel(cat, field!)}</th><th className="text-right">Valor</th></tr></thead>
+        : <table className="w-full text-sm"><thead><tr><th scope="col" className="text-left">{fieldLabel(cat, field!)}</th><th scope="col" className="text-right">Valor</th></tr></thead>
           <tbody>{r.page.rows.slice(0, 15).map((row, k) => { const c = catLabel(row["c1"]); return (
             <tr key={k}><td>{i.detail ? <button type="button" className="text-left underline" onClick={() => setDrill(drill === c ? null : c)}>{c}</button> : c}</td>
               <td className="text-right">{row["c2"] === null || row["c2"] === undefined ? "não disponível" : typeof row["c2"] === "number" && !Number.isInteger(row["c2"]) ? row["c2"].toFixed(2).replace(".", ",") : String(row["c2"])}</td></tr>); })}</tbody></table>)}
@@ -109,7 +109,7 @@ function Detail({ cat, spec, title }: { cat: Catalog; spec: Parameters<typeof ru
   return (
     <div className="max-h-80 overflow-auto" aria-label="Registros autorizados">
       {title && <p className="text-xs font-semibold">{title}</p>}
-      <table className="w-full text-xs"><thead><tr>{cols.map((c) => <th key={c} className="border border-border px-1 text-left">{fieldLabel(cat, c)}</th>)}</tr></thead>
+      <table className="w-full text-xs"><thead><tr>{cols.map((c) => <th key={c} scope="col" className="border border-border px-1 text-left">{fieldLabel(cat, c)}</th>)}</tr></thead>
         <tbody>{r.page.rows.map((row, k) => <tr key={k}>{cols.map((_, j) => <td key={j} className="border border-border px-1">{row[`c${j + 1}`] === null || row[`c${j + 1}`] === undefined ? "não disponível" : String(row[`c${j + 1}`])}</td>)}</tr>)}</tbody></table>
       <p className="text-xs text-muted-foreground">{r.page.total} registro(s){r.page.total > DETAIL ? `; mostrando ${DETAIL}` : ""}.</p>
     </div>
