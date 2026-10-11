@@ -22502,6 +22502,15 @@ export type Database = {
       integration_issue_key: { Args: { _client: string }; Returns: string }
       integration_overview: { Args: never; Returns: Json }
       integration_random_token: { Args: never; Returns: string }
+      integration_reconciliation_at: {
+        Args: never
+        Returns: {
+          check_key: string
+          issues: number
+          relation_key: string
+          total: number
+        }[]
+      }
       integration_replay_delivery: {
         Args: { _delivery: string }
         Returns: undefined
