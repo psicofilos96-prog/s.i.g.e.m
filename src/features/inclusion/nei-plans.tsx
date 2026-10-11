@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,7 +35,7 @@ export function PlansBox({ student, school, studentName }: { student: string; sc
   const load = () => void rpc("nei_plans_for", { _student: student, _school: school }).then((r) => setData(r.error ? null : (r.data as typeof data)));
   useEffect(load, [student, school]);
   const [kind, setKind] = useState<PlanKind>("paee"); const [title, setTitle] = useState(""); const [msg, setMsg] = useState<string | null>(null);
-  if (data === undefined) return <p className="text-sm text-muted-foreground">Carregando planos…</p>;
+  if (data === undefined) return <LoadingState label="Carregando planos…" />;
   if (data === null) return <p className="text-sm text-muted-foreground">Sem acesso aos planos deste estudante.</p>;
   const create = () => void rpc("create_nei_plan", { _student: student, _school: school, _kind: kind, _title: title, _content: EMPTY_PLAN })
     .then((r) => { if (r.error) setMsg(human(r.error.message)); else { setTitle(""); load(); } });

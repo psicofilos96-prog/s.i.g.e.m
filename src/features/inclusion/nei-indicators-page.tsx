@@ -67,7 +67,7 @@ export function NeiIndicatorsPage() {
                   <rect x="220" y="3" width={w} height="14" className="fill-primary" /><text x={226 + w} y="14" fontSize="11" className="fill-foreground">{fmt(v, metric)}</text></g>); })}
             </svg>
             <table className="w-full text-sm"><caption className="sr-only">Tabela equivalente ao gráfico</caption>
-              <thead><tr className="text-left text-xs text-muted-foreground"><th>Escola</th><th>{metric.label}</th><th>Detalhe</th></tr></thead>
+              <thead><tr className="text-left text-xs text-muted-foreground"><th scope="col">Escola</th><th scope="col">{metric.label}</th><th scope="col">Detalhe</th></tr></thead>
               <tbody>{sel.map((r) => <tr key={r.school_id} className="border-t border-border"><td>{nameOf(r.school_id)}</td><td className="tabular-nums">{fmt(r[metric.key], metric)}</td>
                 <td>{metric.drill ? <button className="text-xs underline" onClick={() => openDrill(r.school_id, metric)}>Ver estudantes</button> : <span className="text-xs text-muted-foreground">só contagem</span>}</td></tr>)}</tbody></table>
           </section>

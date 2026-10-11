@@ -30,7 +30,7 @@ export function SchoolHealthPage() {
       {rows && rows.length === 0 && <EmptyState title="Nenhuma informação vigente" description="Nenhum responsável autorizado declarou informação de saúde para estudantes com matrícula vigente nesta escola." />}
       {rows && rows.length > 0 && (
         <table className="w-full text-sm" aria-label="Declarações vigentes">
-          <thead><tr className="text-left"><th>Estudante</th><th>Tipo</th><th>Descrição</th><th>Orientação</th><th>Versão</th></tr></thead>
+          <thead><tr className="text-left"><th scope="col">Estudante</th><th scope="col">Tipo</th><th scope="col">Descrição</th><th scope="col">Orientação</th><th scope="col">Versão</th></tr></thead>
           <tbody>{rows.map((r, i) => (
             <tr key={i} className="border-t align-top"><td>{r.student_name}{r.internal_id ? ` · ${r.internal_id}` : ""}</td><td>{HEALTH_KIND_LABEL[r.kind]}</td>
               <td>{r.description}</td><td>{r.instructions ?? "—"}</td><td>v{r.version}</td></tr>))}</tbody>

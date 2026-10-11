@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
@@ -95,7 +96,7 @@ function NeiWorkspace({ access }: { access: NeiAccess[] }) {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <caption className="sr-only">Contagens de inclusão por escola</caption>
-                <thead><tr className="text-left text-xs text-muted-foreground"><th className="p-2">Escola</th><th className="p-2">Com registro</th><th className="p-2">AEE</th><th className="p-2">Sessões 30d</th><th className="p-2">Mediações</th><th className="p-2">Clínico</th></tr></thead>
+                <thead><tr className="text-left text-xs text-muted-foreground"><th scope="col" className="p-2">Escola</th><th scope="col" className="p-2">Com registro</th><th scope="col" className="p-2">AEE</th><th scope="col" className="p-2">Sessões 30d</th><th scope="col" className="p-2">Mediações</th><th scope="col" className="p-2">Clínico</th></tr></thead>
                 <tbody>{rows.map((r) => (
                   <tr key={r.school_id} className="border-t border-border"><td className="p-2">{r.school_name ?? r.school_id}</td><td className="p-2 tabular-nums">{r.students_with_record}</td><td className="p-2 tabular-nums">{r.aee_active}</td><td className="p-2 tabular-nums">{r.aee_sessions_30d}</td><td className="p-2 tabular-nums">{r.mediations_active}</td><td className="p-2 tabular-nums">{r.clinical_students ?? "—"}</td></tr>
                 ))}</tbody>
@@ -165,9 +166,9 @@ function TeamPanel({ access }: { access: NeiAccess[] }) {
         <label className="text-sm sm:col-span-2">Motivo<input className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
       </div>
       <div className="flex items-center gap-3"><Button type="button" disabled={!!problem} onClick={() => void grant()}>Conceder papel</Button><span className="text-xs text-muted-foreground" role="status">{msg ?? problem}</span></div>
-      {grants === null ? <p className="text-sm text-muted-foreground">Carregando papéis…</p> : grants.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum papel concedido ainda.</p> : (
+      {grants === null ? <LoadingState label="Carregando papéis…" /> : grants.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum papel concedido ainda.</p> : (
         <table className="w-full text-sm"><caption className="sr-only">Papéis do NEI</caption>
-          <thead><tr className="text-left text-xs text-muted-foreground"><th className="p-2">Pessoa</th><th className="p-2">Papel</th><th className="p-2">Escopo</th><th className="p-2">Vigência</th><th className="p-2">Situação</th><th className="p-2" /></tr></thead>
+          <thead><tr className="text-left text-xs text-muted-foreground"><th scope="col" className="p-2">Pessoa</th><th scope="col" className="p-2">Papel</th><th scope="col" className="p-2">Escopo</th><th scope="col" className="p-2">Vigência</th><th scope="col" className="p-2">Situação</th><th scope="col" className="p-2" /></tr></thead>
           <tbody>{grants.map((g) => (
             <tr key={g.id} className="border-t border-border"><td className="p-2">{g.person_name ?? "—"}</td><td className="p-2">{NEI_ROLE_LABEL[g.role] ?? g.role}</td>
               <td className="p-2">{g.scope_kind === "rede" ? "Rede" : (schools.find((s) => s.id === g.school_id)?.name ?? g.school_id)}{g.student_scoped ? " · caso" : ""}</td>
@@ -186,7 +187,7 @@ function AccessLog() {
   return (
     <section aria-labelledby="nei-log-h" className="space-y-2 rounded-md border border-border p-4">
       <h2 id="nei-log-h" className="text-sm font-semibold">Acessos registrados (últimos 100)</h2>
-      {rows === null ? <p className="text-sm text-muted-foreground">Carregando…</p> : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum acesso registrado.</p> : (
+      {rows === null ? <LoadingState label="Carregando…" /> : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum acesso registrado.</p> : (
         <ul className="max-h-64 space-y-1 overflow-auto text-xs">{rows.map((r, i) => <li key={i}>{new Date(r.recorded_at).toLocaleString("pt-BR")} — {r.person_name} — {r.action}{r.school_id ? ` (${r.school_id})` : ""} — <strong>{r.outcome}</strong></li>)}</ul>
       )}
     </section>

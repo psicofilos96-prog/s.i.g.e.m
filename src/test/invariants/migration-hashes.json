@@ -400,5 +400,6 @@
  "drizzle/migrations/0349_semed_t06_movement_apuracao.sql": "1442eb9c5bcfbf28403077797133726639e7168bbd8fba616f9bde32916621e9",
  "drizzle/migrations/0350_semed_t09_infra_attachments.sql": "c8c3247880863b0ba093c0c11e4dc7ab5a0661e76456523dc768c9a49b29adce",
  "drizzle/migrations/0351_semed_t10_staff_formation.sql": "3bd75c52963d4a154ae56010635188e8290aee2af9b900db0b559ef72be70590",
- "drizzle/migrations/0352_semed_t11_gender_apuracao.sql": "e8e45c8c015d0860dc0d9ba77673dbbb54fa5cbcfecfb77d9e392f5fc9154634"
+ "drizzle/migrations/0352_semed_t11_gender_apuracao.sql": "e8e45c8c015d0860dc0d9ba77673dbbb54fa5cbcfecfb77d9e392f5fc9154634",
+ "drizzle/migrations/0353_semed_ciece_reconciliation.sql": "da03152c9e208526d38cb978451061edef2f7b14fda75be709cadf5ffedea793"
 }

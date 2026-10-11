@@ -18,7 +18,7 @@ const LOGO_LABEL: Record<string, string> = { brasao: "Brasão de Itaperuna", sig
 /** Renderiza a marcação mínima sempre como texto (escape do React); equação em fonte matemática, tabela como tabela. */
 export function RichText({ text }: { text: string }) {
   return <>{richBlocks(text).map((b, i) => b.kind === "table"
-    ? <table key={i} className="my-2 w-full border-collapse text-sm"><tbody>{b.rows.map((r, j) => <tr key={j}>{r.map((c, k) => j === 0 ? <th key={k} className="border border-border px-2 py-1 text-left font-semibold">{c}</th> : <td key={k} className="border border-border px-2 py-1">{c}</td>)}</tr>)}</tbody></table>
+    ? <table key={i} className="my-2 w-full border-collapse text-sm"><tbody>{b.rows.map((r, j) => <tr key={j}>{r.map((c, k) => j === 0 ? <th scope="col" key={k} className="border border-border px-2 py-1 text-left font-semibold">{c}</th> : <td key={k} className="border border-border px-2 py-1">{c}</td>)}</tr>)}</tbody></table>
     : b.kind === "eq" ? <p key={i} className="my-2 text-center font-serif italic" role="math" aria-label={b.text}>{b.text}</p>
     : <p key={i} className="whitespace-pre-wrap">{b.parts.map((p, k) => p.kind === "eq" ? <span key={k} className="font-serif italic" role="math" aria-label={p.text}>{p.text}</span> : <span key={k}>{p.text}</span>)}</p>)}</>;
 }

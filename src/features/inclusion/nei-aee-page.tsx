@@ -25,7 +25,7 @@ export function NeiAeePage() {
         <EmptyState title="Nenhum horário de AEE visível" description="Não há atendimento AEE vigente com horário nesta escola, ou sua conta não tem papel do NEI aqui. Isso não indica ausência de estudantes público do AEE." />
       ) : (
         <div className="overflow-x-auto"><table className="w-full text-sm"><caption className="sr-only">Agenda AEE</caption>
-          <thead><tr className="text-left text-xs text-muted-foreground"><th className="p-2">Dia</th><th className="p-2">Horário</th><th className="p-2">Estudante</th><th className="p-2">Profissional</th><th className="p-2">Sala</th><th className="p-2">Situação</th><th className="p-2">Sessões 30d</th><th className="p-2"></th></tr></thead>
+          <thead><tr className="text-left text-xs text-muted-foreground"><th scope="col" className="p-2">Dia</th><th scope="col" className="p-2">Horário</th><th scope="col" className="p-2">Estudante</th><th scope="col" className="p-2">Profissional</th><th scope="col" className="p-2">Sala</th><th scope="col" className="p-2">Situação</th><th scope="col" className="p-2">Sessões 30d</th><th scope="col" className="p-2"></th></tr></thead>
           <tbody>{rows.map((r, i) => (
             <tr key={i} className="border-t border-border"><td className="p-2">{WEEKDAY[r.weekday] ?? r.weekday}</td><td className="p-2 tabular-nums">{r.starts_at.slice(0, 5)}–{r.ends_at.slice(0, 5)}</td>
               <td className="p-2">{r.student_name ?? "—"}</td><td className="p-2">{r.responsible_name ?? "—"}</td><td className="p-2">{r.room ?? "—"}</td>
