@@ -627,3 +627,6 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] R3: dossiê anual com assinaturas e QR, telas de inspetores/CAE/SAEB/devolutivas, gravação no banco
 - [ ] Login: botão de conta institucional (sem provedor configurado), clima (sem fonte), "Lembrar de mim"
 - [x] Trocar brasão da tela de entrada pelo enviado (com borda)
+
+## NEI — Estudantes e casos (2026-10-11)
+- [x] Ficha NEI sobre estudante central + gestão de casos com histórico imutável

@@ -381,5 +381,7 @@
  "drizzle/migrations/0330_nei1_roles_scopes_dashboard.sql": "dea8cb7fbd0adf82c2b1ec3d2b4186e0f90e0f1c064c1adeee0b38bbfdcdb41c",
  "drizzle/migrations/0331_nei1_school_name_fix.sql": "956c3553707f5d76fe422acbc861317e466a93905db9325746975575e5d46c7c",
  "drizzle/migrations/0332_nei1_revoke_table_privileges.sql": "3af8b75a79a133e810965753b5d525587c37635b368267bff939aeb9cb22f833",
- "drizzle/migrations/0333_nei1_refusal_keeps_log.sql": "23a30c2116a0cb0093adb27f31a5a335fcb73bdf286ec33c4719decc2c030bac"
+ "drizzle/migrations/0333_nei1_refusal_keeps_log.sql": "23a30c2116a0cb0093adb27f31a5a335fcb73bdf286ec33c4719decc2c030bac",
+ "drizzle/migrations/0334_nei2_student_file_cases.sql": "bb822330f4174ffacbe148885234883caa9ef89a0bc3407af5010e47adaa6972",
+ "drizzle/migrations/0335_nei2_assignees_fix.sql": "546d67f506fbf6a42a900f9855d5a1e8f6d793adaebebe57157effe2ebb75ed5"
 }

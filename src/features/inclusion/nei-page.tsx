@@ -48,6 +48,7 @@ function NeiWorkspace({ access }: { access: NeiAccess[] }) {
   const t = dashTotals(allSchools);
   return (
     <div className="space-y-6">
+      <Link to="/inclusao/nei/ficha" className="text-sm font-medium underline">Abrir ficha NEI e casos de um estudante →</Link>
       <PageHeader eyebrow="Núcleo de Educação Inclusiva" title="Painel do NEI"
         description={`Seu acesso: ${[...new Set(access.map((a) => NEI_ROLE_LABEL[a.role] ?? a.role))].join(" · ")} — ${scopeLabel(access)}. Só contagens; dados individuais ficam nas telas próprias, com a permissão de cada uma.`} />
 

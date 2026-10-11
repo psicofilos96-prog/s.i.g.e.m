@@ -13457,6 +13457,142 @@ export type Database = {
         }
         Relationships: []
       }
+      nei_case_events: {
+        Row: {
+          assignee_user: string | null
+          case_id: string
+          due_date: string | null
+          id: string
+          note: string
+          priority: string | null
+          recorded_at: string
+          recorded_by: string
+          seq: number
+          stage: string
+        }
+        Insert: {
+          assignee_user?: string | null
+          case_id: string
+          due_date?: string | null
+          id?: string
+          note: string
+          priority?: string | null
+          recorded_at?: string
+          recorded_by: string
+          seq: number
+          stage: string
+        }
+        Update: {
+          assignee_user?: string | null
+          case_id?: string
+          due_date?: string | null
+          id?: string
+          note?: string
+          priority?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          seq?: number
+          stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_case_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "nei_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_cases: {
+        Row: {
+          id: string
+          opened_at: string
+          opened_by: string
+          request_summary: string
+          requested_by_label: string | null
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          id?: string
+          opened_at?: string
+          opened_by: string
+          request_summary: string
+          requested_by_label?: string | null
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          id?: string
+          opened_at?: string
+          opened_by?: string
+          request_summary?: string
+          requested_by_label?: string | null
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_cases_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_profile_entries: {
+        Row: {
+          content: string
+          correction_reason: string | null
+          id: string
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          section: string
+          student_id: string
+          supersedes_id: string | null
+        }
+        Insert: {
+          content: string
+          correction_reason?: string | null
+          id?: string
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          section: string
+          student_id: string
+          supersedes_id?: string | null
+        }
+        Update: {
+          content?: string
+          correction_reason?: string | null
+          id?: string
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          section?: string
+          student_id?: string
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_profile_entries_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nei_profile_entries_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "nei_profile_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nei_role_grants: {
         Row: {
           granted_by: string
@@ -24195,6 +24331,18 @@ export type Database = {
           user_id: string
         }[]
       }
+      nei_case_assignees: {
+        Args: { _school: string }
+        Returns: {
+          person_name: string
+          role: string
+          user_id: string
+        }[]
+      }
+      nei_case_next_allowed: {
+        Args: { _from: string; _to: string }
+        Returns: boolean
+      }
       nei_dashboard: {
         Args: { _school?: string }
         Returns: {
@@ -24207,6 +24355,10 @@ export type Database = {
           students_in_case_scope: number
           students_with_record: number
         }[]
+      }
+      nei_enrolled_in: {
+        Args: { _school: string; _student: string }
+        Returns: boolean
       }
       nei_is_admin: { Args: never; Returns: boolean }
       nei_is_station: { Args: { _user: string }; Returns: boolean }
@@ -24251,6 +24403,22 @@ export type Database = {
         Returns: {
           network: boolean
           school_id: string
+        }[]
+      }
+      nei_student_file: {
+        Args: { _school: string; _student: string }
+        Returns: Json
+      }
+      nei_student_role: {
+        Args: { _school: string; _student: string }
+        Returns: string
+      }
+      nei_student_search: {
+        Args: { _q: string; _school: string }
+        Returns: {
+          class_label: string
+          name: string
+          student_id: string
         }[]
       }
       network_indicators_at: {
@@ -24344,6 +24512,17 @@ export type Database = {
             Returns: string
           }
       open_map_correction_id: { Args: { _map: string }; Returns: string }
+      open_nei_case: {
+        Args: {
+          _due?: string
+          _priority?: string
+          _requested_by?: string
+          _school: string
+          _student: string
+          _summary: string
+        }
+        Returns: string
+      }
       open_notification: { Args: { _delivery: string }; Returns: Json }
       open_statistical_map: {
         Args: { _month: number; _school: string; _year: number }
@@ -26248,6 +26427,29 @@ export type Database = {
           _valid_from: string
         }
         Returns: number
+      }
+      record_nei_case_event: {
+        Args: {
+          _assignee?: string
+          _case: string
+          _due?: string
+          _expected_seq: number
+          _note: string
+          _priority?: string
+          _stage: string
+        }
+        Returns: number
+      }
+      record_nei_profile_entry: {
+        Args: {
+          _content: string
+          _reason?: string
+          _school: string
+          _section: string
+          _student: string
+          _supersedes?: string
+        }
+        Returns: string
       }
       record_nei_role_grant: {
         Args: {
