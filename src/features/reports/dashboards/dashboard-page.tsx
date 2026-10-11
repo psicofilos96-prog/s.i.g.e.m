@@ -18,10 +18,12 @@ import {
 } from "../custom/custom-report";
 import { CHARTS, boxplot, categorySeries, compatibleKinds, drillCondition, heatmap, histogram, incompatibility, label, num, percentStack, pivot, waterfall, type ChartKind, type Row } from "./chart-model";
 import { listBoards, saveBoard, type Dashboard, type SavedDashboard, type Widget } from "./dashboard-store";
+import { HEIGHT_PX, TEMPLATES, comparePeriods, drillThroughSpec, duplicateBoard, moveWidget, spanOf, templateProblems } from "./designer";
+import { INSTITUTIONAL_LOGOS } from "../report-analytics";
 
 const inp = "min-h-9 rounded-md border border-input bg-background px-2 py-1 text-sm";
 const box = "space-y-3 rounded-md border border-border bg-card p-4";
-const col = (i: number) => `var(--chart-${(i % 6) + 1})`;
+let PAL = 0; const col = (i: number) => `var(--chart-${((i + PAL) % 6) + 1})`;
 const CAP = 5000;
 const say = (e: unknown) => (e instanceof Error && /^[A-ZÀ-Ú]/.test(e.message) && !/SQLSTATE|permission denied/i.test(e.message) ? e.message : "Não foi possível concluir. Tente de novo.");
 function download(name: string, blob: Blob) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
@@ -48,7 +50,7 @@ export function withBoardFilters(cat: Catalog, spec: CustomSpec, filters: readon
   return { spec: { ...spec, filter: { op: "and", items: [spec.filter, ...extra] } }, applied: extra.length };
 }
 
-type Loaded = { rows: Row[]; truncated: boolean; applied: number; error?: string | undefined };
+type Loaded = { rows: Row[]; truncated: boolean; applied: number; error?: string | undefined; compare?: Row[] | undefined; detail?: { label: string; rows: Row[]; cols: { id: string; label: string }[] } | undefined };
 
 function Builder() {
   const [cat, setCat] = useState<Catalog | null>(null);
@@ -69,13 +71,34 @@ function Builder() {
     try {
       const { spec, applied } = withBoardFilters(cat, w.spec, filters);
       const r = await runAll(cat, spec, CAP);
-      setData((d) => ({ ...d, [w.id]: { rows: r.rows, truncated: r.truncated, applied } }));
+      let compare: Row[] | undefined;
+      if (w.compare?.field && [...w.compare.a, ...w.compare.b].every(Boolean) && spec.groupBy.length === 1 && spec.measures.length === 1) {
+        const per = (p: [string, string]) => runAll(cat, { ...spec, filter: { op: "and", items: [spec.filter, { field: w.compare!.field, operator: "between", value: p }] } }, CAP);
+        const [a, b] = await Promise.all([per(w.compare.a), per(w.compare.b)]);
+        compare = comparePeriods(a.rows, b.rows, `${w.compare.a[0]} a ${w.compare.a[1]}`, `${w.compare.b[0]} a ${w.compare.b[1]}`) as Row[];
+      }
+      setData((d) => ({ ...d, [w.id]: { rows: r.rows, truncated: r.truncated, applied, compare } }));
     } catch (e) { setData((d) => ({ ...d, [w.id]: { rows: [], truncated: false, applied: 0, error: say(e) } })); }
   }, [cat]);
   const reloadAll = useCallback((b: Dashboard) => { for (const w of b.widgets) void load(w, b.filters); }, [load]);
 
   const setFilters = (filters: Condition[]) => { const b = { ...board, filters }; setBoard(b); reloadAll(b); };
   const drill = (field: string, category: string) => setFilters([...board.filters.filter((f) => f.field !== field), drillCondition(field, category)]);
+  async function drillThrough(w: Widget, field: string, category: string) {
+    if (!cat) return;
+    const src = cat.sources[w.spec.source]; if (!src) return;
+    const cols = Object.entries(src.fields).filter(([, f]) => !f.sensitive && f.type !== "id").map(([k]) => `${w.spec.source}.${k}`).slice(0, 8);
+    try {
+      const { spec } = withBoardFilters(cat, w.spec, board.filters);
+      const r = await runAll(cat, drillThroughSpec(spec, cols, drillCondition(field, category)), 200);
+      setData((d) => { const cur = d[w.id]; return cur && cur !== "loading" ? { ...d, [w.id]: { ...cur, detail: { label: category, rows: r.rows, cols: cols.map((c, i) => ({ id: `c${i + 1}`, label: fieldLabel(cat, c) })) } } } : d; });
+    } catch (e) { setNote(say(e)); }
+  }
+  const [dragId, setDragId] = useState<string | null>(null);
+  const setW = (id: string, patch: Partial<Widget>) => setBoard((b) => ({ ...b, widgets: b.widgets.map((x) => (x.id === id ? { ...x, ...patch } : x)) }));
+  const theme = board.theme ?? {}; PAL = theme.palette ?? 0;
+  const setTheme = (t: Partial<NonNullable<Dashboard["theme"]>>) => setBoard((b) => ({ ...b, theme: { ...b.theme, ...t } }));
+  const logo = INSTITUTIONAL_LOGOS.find((l) => l.id === theme.logo);
 
   if (err) return <p role="alert" className="text-sm text-destructive">{err}</p>;
   if (!cat) return <p role="status" className="text-sm text-muted-foreground">Carregando catálogo de dados…</p>;
@@ -108,11 +131,24 @@ function Builder() {
           <label className="text-sm">Nome<input className={`${inp} block`} value={name} onChange={(e) => setName(e.target.value)} aria-label="Nome do painel" /></label>
           <Button size="sm" onClick={async () => { setNote(null); try { await saveBoard(name, board); setNote("Painel salvo (nova versão)."); setSaved(await listBoards()); } catch (e) { setNote(say(e)); } }}>Salvar painel</Button>
           <Button size="sm" variant="outline" onClick={() => setEditing({ id: uid(), title: "", kind: "bar", spec: emptySpec() })}>Adicionar gráfico</Button>
+          <Button size="sm" variant="outline" disabled={!board.widgets.length} onClick={() => { const d = duplicateBoard(board, name || "Painel", saved.map((x) => x.name), uid); setBoard(d.board); setName(d.name); setNote(`Cópia criada: “${d.name}”. Salve para gravar a versão 1.`); }}>Duplicar</Button>
+          <label className="text-sm">Modelo do setor
+            <select className={`${inp} block`} aria-label="Modelo do setor" value="" onChange={(e) => { const t = TEMPLATES.find((x) => x.id === e.target.value); if (!t) return; const probs = templateProblems(t, cat);
+              if (probs.length) { setNote(`Modelo não aplicável ao catálogo atual: ${probs.join(" ")}`); return; }
+              const b = { ...t.board, widgets: t.board.widgets.map((w) => ({ ...w, id: uid() })) }; setBoard(b); setName(t.name); reloadAll(b); setNote(`Modelo “${t.name}” (${t.sector}) aberto; os dados são lidos com o seu acesso.`); }}>
+              <option value="">Escolha…</option>{TEMPLATES.map((t) => <option key={t.id} value={t.id}>{t.sector} — {t.name}</option>)}
+            </select></label>
           <Button size="sm" variant="outline" disabled={!board.widgets.length} onClick={exportXlsx}>Exportar XLSX</Button>
           <Button size="sm" variant="outline" disabled={!board.widgets.length} onClick={() => window.print()}>Imprimir / PDF</Button>
         </div>
         {note ? <p role="status" className="text-sm">{note}</p> : null}
         <p className="text-xs text-muted-foreground">O painel guarda só as escolhas; os dados são relidos no servidor com o acesso de quem abre. Compartilhar com outras contas ainda não tem permissão definida.</p>
+        <fieldset className="flex flex-wrap items-end gap-2" aria-label="Tema do painel"><legend className="text-sm font-medium">Aparência</legend>
+          <label className="text-sm">Fonte<select className={`${inp} block`} aria-label="Fonte do painel" value={theme.font ?? "sans"} onChange={(e) => setTheme({ font: e.target.value as "sans" | "serif" })}><option value="sans">Sem serifa</option><option value="serif">Com serifa</option></select></label>
+          <label className="text-sm">Cores<select className={`${inp} block`} aria-label="Paleta de cores" value={theme.palette ?? 0} onChange={(e) => setTheme({ palette: Number(e.target.value) })}>{[0, 1, 2, 3, 4, 5].map((i) => <option key={i} value={i}>Paleta {i + 1}</option>)}</select></label>
+          <label className="text-sm">Logo<select className={`${inp} block`} aria-label="Logo do painel" value={theme.logo ?? ""} onChange={(e) => setTheme({ logo: e.target.value })}><option value="">Sem logo</option>{INSTITUTIONAL_LOGOS.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}</select></label>
+          <label className="text-sm">Descrição<input className={`${inp} block w-72`} maxLength={300} aria-label="Descrição do painel" value={theme.description ?? ""} onChange={(e) => setTheme({ description: e.target.value })} /></label>
+        </fieldset>
         <BoardFilters cat={cat} filters={board.filters} dateFields={dateFields} onChange={setFilters} />
       </section>
 
@@ -123,9 +159,14 @@ function Builder() {
       }} /> : null}
 
       {board.widgets.length === 0 && !editing ? <p className="text-sm text-muted-foreground">Nenhum gráfico ainda. Use “Adicionar gráfico”.</p> : null}
-      <div ref={boardRef} className="grid gap-4 md:grid-cols-2 print:grid-cols-2">
+      {logo || theme.description || name ? <header className="flex items-center gap-3" aria-label="Cabeçalho do painel">
+        {logo ? <img src={logo.url} alt={logo.label} className="h-12 w-auto shrink-0" /> : null}
+        <div className="min-w-0"><p className="truncate text-lg font-semibold">{name}</p>{theme.description ? <p className="text-sm text-muted-foreground">{theme.description}</p> : null}</div></header> : null}
+      <div ref={boardRef} data-board className={`grid gap-4 md:grid-cols-3 print:grid-cols-2 ${theme.font === "serif" ? "font-serif" : "font-sans"}`}>
         {board.widgets.map((w) => (
-          <WidgetCard key={w.id} cat={cat} w={w} d={data[w.id]} onDrill={drill}
+          <WidgetCard key={w.id} cat={cat} w={w} d={data[w.id]} onDrill={(f, c) => (w.drillThrough ? void drillThrough(w, f, c) : drill(f, c))}
+            dragging={dragId === w.id} onDragStart={() => setDragId(w.id)} onDropOn={(from) => { const f = from || dragId; if (f) setBoard((b) => ({ ...b, widgets: moveWidget(b.widgets, f, w.id) })); setDragId(null); }}
+            onResize={(patch) => setW(w.id, patch)}
             onEdit={() => setEditing(w)} onRemove={() => setBoard({ ...board, widgets: board.widgets.filter((x) => x.id !== w.id) })}
             onMove={(dir) => { const i = board.widgets.indexOf(w), j = i + dir; if (j < 0 || j >= board.widgets.length) return; const ws = [...board.widgets]; [ws[i], ws[j]] = [ws[j]!, ws[i]!]; setBoard({ ...board, widgets: ws }); }} />
         ))}
@@ -186,6 +227,7 @@ function WidgetEditor({ cat, initial, onSave, onCancel }: { cat: Catalog; initia
       <h2 id="ed-w" className="font-semibold">Gráfico</h2>
       <div className="grid gap-3 md:grid-cols-3">
         <label className="text-sm">Título<input className={`${inp} block w-full`} value={w.title} onChange={(e) => setW({ ...w, title: e.target.value })} aria-label="Título do gráfico" /></label>
+        <label className="text-sm">Descrição<input className={`${inp} block w-full`} maxLength={300} value={w.description ?? ""} onChange={(e) => setW({ ...w, description: e.target.value })} aria-label="Descrição do gráfico" /></label>
         <label className="text-sm">Fonte principal
           <select className={`${inp} block w-full`} aria-label="Fonte principal" value={spec.source} onChange={(e) => setW({ ...w, spec: emptySpec(e.target.value) })}>
             <option value="">Escolha…</option>
@@ -242,6 +284,7 @@ function WidgetEditor({ cat, initial, onSave, onCancel }: { cat: Catalog; initia
       ) : null}
       {problem ? <p role="status" className="text-sm text-warning">{problem}{spec.source && fits.length ? ` Compatíveis com a consulta atual: ${fits.map((k) => CHARTS[k].label).join(", ")}.` : ""}</p> : null}
       <div className="flex gap-2">
+        <WidgetExtras cat={cat} w={w} setW={setW} />
         <Button size="sm" disabled={!!problem} onClick={() => onSave({ ...w, title: w.title.trim() || CHARTS[w.kind].label })}>Pôr no painel</Button>
         <Button size="sm" variant="outline" onClick={onCancel}>Cancelar</Button>
       </div>
@@ -279,7 +322,8 @@ async function pngOf(svg: string, w: number, h: number): Promise<Blob> {
   return await new Promise((r) => cv.toBlob((b) => r(b!), "image/png"));
 }
 
-function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove }: { cat: Catalog; w: Widget; d: Loaded | "loading" | undefined; onDrill: (field: string, cat: string) => void; onEdit: () => void; onRemove: () => void; onMove: (dir: number) => void }) {
+function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove, dragging, onDragStart, onDropOn, onResize }: { cat: Catalog; w: Widget; d: Loaded | "loading" | undefined; onDrill: (field: string, cat: string) => void; onEdit: () => void; onRemove: () => void; onMove: (dir: number) => void;
+  dragging: boolean; onDragStart: () => void; onDropOn: (from: string) => void; onResize: (p: Partial<Widget>) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const file = (w.title || w.kind).replace(/\W+/g, "-");
   async function exp(kind: "svg" | "png") {
@@ -289,13 +333,17 @@ function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove }: { cat: Cat
   }
   const hasSvg = w.kind !== "table" && w.kind !== "kpi";
   return (
-    <article className={`${box} break-inside-avoid ${w.wide ? "md:col-span-2" : ""}`} aria-label={w.title}>
+    <article className={`${box} min-w-0 break-inside-avoid ${["", "md:col-span-1", "md:col-span-2", "md:col-span-3"][spanOf(w)]} ${dragging ? "opacity-50" : ""}`} aria-label={w.title}
+      draggable onDragStart={(e) => { e.dataTransfer.setData("text/plain", w.id); onDragStart(); }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onDropOn(e.dataTransfer.getData("text/plain")); }} data-span={spanOf(w)} data-height={w.height ?? "m"}>
       <header className="flex flex-wrap items-start justify-between gap-2">
-        <div><h3 className="font-semibold">{w.title}</h3><p className="text-xs text-muted-foreground">{CHARTS[w.kind].label} · {cat.sources[w.spec.source]?.label}</p></div>
+        <div className="min-w-0"><h3 className="font-semibold">{w.title}</h3><p className="text-xs text-muted-foreground">{CHARTS[w.kind].label} · {cat.sources[w.spec.source]?.label}{w.compare ? " · comparação de períodos" : ""}{w.drillThrough ? " · clique abre as linhas" : ""}</p>
+          {w.description ? <p className="text-sm">{w.description}</p> : null}</div>
         <div className="flex flex-wrap gap-1 print:hidden">
           <Button size="sm" variant="ghost" onClick={() => onMove(-1)} aria-label="Mover para antes">↑</Button>
           <Button size="sm" variant="ghost" onClick={() => onMove(1)} aria-label="Mover para depois">↓</Button>
           {hasSvg ? <><Button size="sm" variant="outline" onClick={() => exp("png")}>PNG</Button><Button size="sm" variant="outline" onClick={() => exp("svg")}>SVG</Button></> : null}
+          <select className={inp} aria-label="Largura do gráfico" value={spanOf(w)} onChange={(e) => onResize({ span: Number(e.target.value) as 1 | 2 | 3, wide: undefined })}><option value={1}>1 coluna</option><option value={2}>2 colunas</option><option value={3}>Largura total</option></select>
+          <select className={inp} aria-label="Altura do gráfico" value={w.height ?? "m"} onChange={(e) => onResize({ height: e.target.value as "s" | "m" | "l" })}><option value="s">Baixo</option><option value="m">Médio</option><option value="l">Alto</option></select>
           <Button size="sm" variant="outline" onClick={onEdit}>Editar</Button>
           <Button size="sm" variant="ghost" onClick={onRemove}>Remover</Button>
         </div>
@@ -304,7 +352,10 @@ function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove }: { cat: Cat
         {d === undefined || d === "loading" ? <p role="status" className="text-sm text-muted-foreground">Carregando dados…</p>
         : d.error ? <p role="alert" className="text-sm text-destructive">{d.error}</p>
         : d.rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum dado visível com o seu acesso para esta consulta.</p>
-        : <><ChartBody cat={cat} w={w} rows={d.rows} onDrill={onDrill} />
+        : <>{d.compare ? <CompareChart rows={d.compare} h={HEIGHT_PX[w.height ?? "m"]} onDrill={(c) => w.spec.groupBy[0] && onDrill(w.spec.groupBy[0], c)} /> : <ChartBody cat={cat} w={w} rows={d.rows} onDrill={onDrill} />}
+          {d.detail ? <section aria-label={`Linhas de ${d.detail.label}`} className="mt-2 rounded border border-border p-2"><p className="text-sm font-medium">Linhas de “{d.detail.label}” ({d.detail.rows.length}{d.detail.rows.length >= 200 ? "+, primeiras 200" : ""})</p>
+            <div className="max-h-60 overflow-auto"><table className="w-full text-xs" data-drill-through><thead><tr>{d.detail.cols.map((c) => <th key={c.id} scope="col" className="text-left">{c.label}</th>)}</tr></thead>
+            <tbody>{d.detail.rows.map((r, i) => <tr key={i} className="border-t border-border">{d.detail!.cols.map((c) => <td key={c.id}>{r[c.id] == null ? <span className="text-muted-foreground">sem registro</span> : String(r[c.id])}</td>)}</tr>)}</tbody></table></div></section> : null}
           {w.kind !== "table" && w.kind !== "pivot" ? <details className="mt-2 text-xs print:hidden"><summary className="cursor-pointer">Ver dados do gráfico em tabela</summary><ChartBody cat={cat} w={{ ...w, kind: "table" }} rows={d.rows} onDrill={onDrill} /></details> : null}</>}
       </div>
       {d && d !== "loading" && !d.error ? <p className="text-xs text-muted-foreground">{d.rows.length} linha(s){d.truncated ? ` — limitado às primeiras ${CAP}` : ""}{d.applied ? ` · ${d.applied} filtro(s) do painel aplicado(s)` : ""}</p> : null}
@@ -315,7 +366,7 @@ function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove }: { cat: Cat
 function ChartBody({ cat, w, rows, onDrill }: { cat: Catalog; w: Widget; rows: Row[]; onDrill: (field: string, cat: string) => void }) {
   const cols = columnLabels(cat, w); const dims = w.spec.groupBy.length;
   const measureIds = cols.slice(dims).map((c) => c.id); const mName = (id: string) => cols.find((c) => c.id === id)?.label ?? id;
-  const dimField = w.spec.groupBy[0]; const H = 280;
+  const dimField = w.spec.groupBy[0]; const H = HEIGHT_PX[w.height ?? "m"];
   const cs = useMemo(() => (dims ? categorySeries(rows, "c1", measureIds, dims === 2 && !["heatmap", "scatter", "bubble", "pivot"].includes(w.kind) ? "c2" : undefined) : null), [rows, dims, w.kind, measureIds.join()]); // eslint-disable-line react-hooks/exhaustive-deps
   const click = (p: { categoria?: string; payload?: { categoria?: string }; name?: string } | undefined) => {
     const c = p?.categoria ?? p?.payload?.categoria ?? p?.name; if (dimField && typeof c === "string") onDrill(dimField, c);
@@ -405,5 +456,38 @@ function HeatMap({ h, xLabel, yLabel }: { h: ReturnType<typeof heatmap>; xLabel:
           <g key={x}><rect x={left + i * cw} y={top + j * ch} width={cw - 2} height={ch - 2} fill={v === null ? "var(--muted)" : "var(--chart-1)"} fillOpacity={v === null ? 1 : 0.15 + 0.85 * t}><title>{`${x} × ${y}: ${v === null ? "sem registro" : v.toLocaleString("pt-BR")}`}</title></rect>
             {v !== null ? <text x={left + i * cw + cw / 2 - 1} y={top + j * ch + ch / 2 + 3} fontSize={9} textAnchor="middle">{v.toLocaleString("pt-BR")}</text> : null}</g>); })}</g>)}
     </svg></div>
+  );
+}
+
+function CompareChart({ rows, h, onDrill }: { rows: Row[]; h: number; onDrill: (c: string) => void }) {
+  const keys = [...new Set(rows.flatMap((r) => Object.keys(r).filter((k) => k !== "categoria")))];
+  return <ResponsiveContainer width="100%" height={h}><BarChart data={rows} data-compare><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="categoria" fontSize={11} /><YAxis /><Tooltip /><Legend />
+    {keys.map((k, i) => <Bar key={k} dataKey={k} name={k} fill={col(i)} onClick={(p: { categoria?: string }) => p?.categoria && onDrill(p.categoria)} cursor="pointer" />)}</BarChart></ResponsiveContainer>;
+}
+
+function WidgetExtras({ cat, w, setW }: { cat: Catalog; w: Widget; setW: (f: (x: Widget) => Widget) => void }) {
+  const fields = fieldsInScope(cat, w.spec).filter((f) => !f.def.sensitive && f.def.type !== "id");
+  const dates = fields.filter((f) => f.def.type === "date");
+  const [ff, setFf] = useState(""); const [fv, setFv] = useState("");
+  const c = w.compare;
+  const setC = (p: Partial<NonNullable<Widget["compare"]>>) => setW((x) => ({ ...x, compare: { field: "", a: ["", ""], b: ["", ""], ...x.compare, ...p } }));
+  return (
+    <div className="space-y-2 rounded border border-border p-2" role="group" aria-label="Opções do gráfico">
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="text-sm">Filtro só deste gráfico<select className={`${inp} block`} aria-label="Campo do filtro do gráfico" value={ff} onChange={(e) => setFf(e.target.value)}><option value="">Campo…</option>{fields.map((f) => <option key={f.ref} value={f.ref}>{fieldLabel(cat, f.ref)}</option>)}</select></label>
+        <label className="text-sm">igual a<input className={`${inp} block`} aria-label="Valor do filtro do gráfico" value={fv} onChange={(e) => setFv(e.target.value)} /></label>
+        <Button size="sm" variant="outline" disabled={!ff || !fv} onClick={() => { setW((x) => ({ ...x, spec: { ...x.spec, filter: { op: "and", items: [...x.spec.filter.items, { field: ff, operator: "eq", value: fv }] } } })); setFv(""); }}>Acrescentar filtro</Button>
+        {w.spec.filter.items.length ? <span className="text-xs">{w.spec.filter.items.length} filtro(s) do gráfico <button type="button" className="underline" onClick={() => setW((x) => ({ ...x, spec: { ...x.spec, filter: { op: "and", items: [] } } }))}>limpar</button></span> : null}
+      </div>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={!!w.drillThrough} onChange={(e) => setW((x) => ({ ...x, drillThrough: e.target.checked }))} aria-label="Clique abre as linhas (detalhamento)" />Clique numa categoria abre as linhas da fonte (em vez de filtrar o painel)</label>
+      <div className="flex flex-wrap items-end gap-2" role="group" aria-label="Comparação de períodos">
+        <label className="text-sm">Comparar períodos por<select className={`${inp} block`} aria-label="Campo de data da comparação" value={c?.field ?? ""} onChange={(e) => e.target.value ? setC({ field: e.target.value }) : setW((x) => ({ ...x, compare: undefined }))}>
+          <option value="">{dates.length ? "Sem comparação" : "A fonte não tem campo de data"}</option>{dates.map((f) => <option key={f.ref} value={f.ref}>{fieldLabel(cat, f.ref)}</option>)}</select></label>
+        {c?.field ? <>{(["a", "b"] as const).map((k) => <span key={k} className="flex items-end gap-1 text-sm">Período {k.toUpperCase()}
+          <input type="date" className={inp} aria-label={`Período ${k.toUpperCase()} de`} value={c[k][0]} onChange={(e) => setC({ [k]: [e.target.value, c[k][1]] } as never)} />
+          <input type="date" className={inp} aria-label={`Período ${k.toUpperCase()} até`} value={c[k][1]} onChange={(e) => setC({ [k]: [c[k][0], e.target.value] } as never)} /></span>)}
+          <span className="text-xs text-muted-foreground">Exige 1 agrupamento e 1 cálculo; categoria ausente num período fica sem valor.</span></> : null}
+      </div>
+    </div>
   );
 }

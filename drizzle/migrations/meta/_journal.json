@@ -2227,6 +2227,20 @@
       "when": 1791698235691,
       "tag": "0317_integration_reconciliation_reader",
       "breakpoints": true
+    },
+    {
+      "idx": 318,
+      "version": "7",
+      "when": 1791699704692,
+      "tag": "0318_dashboard_designer_validation",
+      "breakpoints": true
+    },
+    {
+      "idx": 319,
+      "version": "7",
+      "when": 1791699747664,
+      "tag": "0319_dashboard_designer_logo_ids",
+      "breakpoints": true
     }
   ]
 }
