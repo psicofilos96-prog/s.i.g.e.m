@@ -45,7 +45,8 @@ export function staffMatch(row: { registration: string | null; fullName: string 
   const reg = row.registration?.trim();
   if (reg) {
     const hits = people.filter((p) => p.registration?.trim() === reg);
-    if (hits.length === 1) return { state: "conciliado" as const, personId: hits[0].id };
+    const only = hits.length === 1 ? hits[0] : undefined;
+    if (only) return { state: "conciliado" as const, personId: only.id };
     if (hits.length > 1) return { state: "ambiguo" as const, personId: null };
   }
   const norm = (s: string) => s.normalize("NFD").replace(/\p{M}/gu, "").toUpperCase().replace(/\s+/g, " ").trim();
