@@ -29,6 +29,7 @@ export function ReportsCatalogPage() {
       <section aria-labelledby="builder-h" className="space-y-3">
         <h2 id="builder-h" className="font-display text-2xl font-semibold text-foreground">Montar o seu</h2>
         <p className="text-sm"><Link to="/relatorios/personalizado" className="font-medium text-primary underline">Abrir o gerador personalizado</Link> — cruze escolas, turmas, estudantes, matrículas, servidores e jornadas com filtros E/OU, agrupamentos e subtotais.</p>
+        <p className="text-sm"><Link to="/relatorios/paineis" className="font-medium text-primary underline">Abrir painéis e gráficos</Link> — barras, linhas, pizza, dispersão, mapa de calor, boxplot e mais, com filtros, detalhamento e exportação.</p>
         <ReportBuilder />
       </section>
       <h2 className="font-display text-2xl font-semibold text-foreground">Catálogo completo</h2>
