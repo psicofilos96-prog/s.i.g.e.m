@@ -62,7 +62,7 @@ export function SaberLerPanel() {
   }
 
   if (!data) return <SkeletonState />;
-  if ("error" in data) return <StatePanel tone="error" title="Saber Ler indisponível" description={data.error} />;
+  if ("error" in data) return <StatePanel tone="danger" title="Saber Ler indisponível" description={data.error} />;
   const summary = inst && d ? roundSummary(d.ent, inst, d.rev) : null;
 
   return (
@@ -72,7 +72,7 @@ export function SaberLerPanel() {
 
       <section className="rounded-md border p-3 space-y-2">
         <h3 className="font-medium">Rodadas</h3>
-        {instHeads.length === 0 ? <StatePanel tone="empty" title="Nenhuma rodada cadastrada" description="Cadastre a rodada a partir do instrumento oficial (itens e eixos)." /> : (
+        {instHeads.length === 0 ? <StatePanel tone="neutral" title="Nenhuma rodada cadastrada" description="Cadastre a rodada a partir do instrumento oficial (itens e eixos)." /> : (
           <table className="w-full text-sm"><caption className="sr-only">Rodadas Saber Ler</caption><thead><tr><th scope="col">Ano</th><th scope="col">Série</th><th scope="col">Semana</th><th scope="col">Itens</th><th scope="col">Situação</th><th scope="col">Ações</th></tr></thead>
             <tbody>{instHeads.map((i) => { const ok = isHomologated(i.id, d!.hom); return (
               <tr key={i.id} className={sel === i.id ? "bg-muted" : ""}><td>{i.edition_year}</td><td>{i.grade}º</td><td>{i.week}</td><td>{i.items.length}</td>
