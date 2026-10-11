@@ -9,6 +9,8 @@ import { documentBlocks, semedPdf, semedXlsx, type Central } from "./semed-expor
 import { T04Panel, type T04Rule } from "./t04-panel";
 import { T06Panel } from "./t06-panel";
 import { T10Panel } from "./t10-panel";
+import { T11Panel } from "./t11-panel";
+import { t11Blocks, type T11Apur } from "./t11-gender";
 import { t10Blocks, type T10Formation, type T10Staff } from "./t10-staff";
 import { SemedAttachments } from "./semed-attachments";
 import { centralText } from "./semed-export";
@@ -27,6 +29,7 @@ const download = (b: Blob, n: string) => { const a = document.createElement("a")
 const ERR: Record<string, string> = {
   "sem-permissao": "Sua conta não tem permissão para esta ação nesta escola.", "base-desatualizada": "Outra pessoa alterou esta tabela. Recarregue antes de continuar.",
   "conferente-igual-preenchedor": "Quem conferiu não pode ser quem preencheu por último.", "motivo-obrigatorio": "Informe o motivo.", "sem-rascunho": "Salve o rascunho primeiro.",
+  "t11-divergente": "O total por gênero diverge do cadastro. Corrija o rascunho ou o sexo registrado no cadastro do estudante.",
   "t06-divergente": "O total informado diverge da apuração por eventos reais. Corrija o rascunho ou registre o evento oficial que falta.",
 };
 const friendly = (m: string) => { const k = Object.keys(ERR).find((x) => m.includes(`semed:${x}`)); return k ? ERR[k]! : m.replace(/^.*semed:/, "Recusado: "); };
@@ -39,7 +42,7 @@ export function SemedTablesPage() {
   const [school, setSchool] = useState(""); const [code, setCode] = useState<string>("04");
   const [central, setCentral] = useState<Central>({});
   const [draft, setDraft] = useState<Record<string, string | number | null>>({});
-  const [reason, setReason] = useState(""); const [t04Rule, setT04Rule] = useState<T04Rule>(null); const [t06Apur, setT06Apur] = useState<T06Apur | null>(null); const [t10, setT10] = useState<{ s: T10Staff[]; f: Map<string, T10Formation[]> } | null>(null); const onT10 = useCallback((s: T10Staff[], f: Map<string, T10Formation[]>) => setT10({ s, f }), []); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
+  const [reason, setReason] = useState(""); const [t04Rule, setT04Rule] = useState<T04Rule>(null); const [t06Apur, setT06Apur] = useState<T06Apur | null>(null); const [t10, setT10] = useState<{ s: T10Staff[]; f: Map<string, T10Formation[]> } | null>(null); const [t11Apur, setT11Apur] = useState<T11Apur | null>(null); const onT10 = useCallback((s: T10Staff[], f: Map<string, T10Formation[]>) => setT10({ s, f }), []); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     const s = await rpc("semed_scope_schools");
@@ -90,6 +93,8 @@ export function SemedTablesPage() {
   const meta = () => ({ year: YEAR, tableCode: code, title: def!.title, school: String(central["escola"] ?? names.get(school) ?? school), inep: String(central["inep"] ?? ""), state: STATE_LABEL[state], version: cat!.version, generatedAt: new Date() });
   // Tabela 10: a grade legada de 30 linhas do catálogo v1 é substituída pelo quadro completo do cadastro central.
   const blocks = () => { const b = documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null, code === "06" ? t06Apur : null);
+    const m11 = (def!.sections.find((x) => x.id === "m" && x.kind === "grid") as { rows: { key: string }[] } | undefined)?.rows ?? [];
+    if (code === "11") { const f = b.findIndex((x) => x.title === "Responsáveis"); const add = t11Blocks(saved, m11, t11Apur); return f < 0 ? [...b, ...add] : [...b.slice(0, f), ...add, ...b.slice(f)]; }
     if (code !== "10") return b; const keep = b.filter((x) => !x.title.startsWith("Servidores")); return [keep[0]!, ...t10Blocks(t10?.s ?? [], t10?.f ?? new Map()), ...keep.slice(1)]; };
   const pdf = async () => download(await semedPdf(def!, blocks(), meta()), `tabela-${code}-${YEAR}.pdf`);
   const xlsx = async () => download(new Blob([await semedXlsx(blocks(), meta())]), `tabela-${code}-${YEAR}.xlsx`);
@@ -156,6 +161,7 @@ export function SemedTablesPage() {
               )}
             </section>
           ))}
+          {code === "11" && def && <T11Panel school={school} year={YEAR} network={!!perm?.network} draft={draft as Values} rows={(def.sections.find((x) => x.id === "m" && x.kind === "grid") as { rows: { key: string }[] } | undefined)?.rows ?? []} onApur={setT11Apur} />}
           {code === "10" && school && <T10Panel school={school} year={YEAR} editable={editable} onData={onT10} />}
           {code === "04" && <T04Panel school={school} year={YEAR} network={!!perm?.network} canFill={!!perm?.can_fill} editable={editable} draft={draft as Values} setDraft={setDraft} onRule={setT04Rule} />}
           {code === "09" && editable && <p className="text-xs text-muted-foreground" role="status">Salvamento automático ligado{autoAt ? ` · último às ${autoAt.toLocaleTimeString("pt-BR")}` : ""}{dirty ? " · alterações pendentes" : ""}.</p>}
