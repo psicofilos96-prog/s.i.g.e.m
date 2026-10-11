@@ -7960,6 +7960,45 @@ export type Database = {
         }
         Relationships: []
       }
+      docserv_link_requests: {
+        Row: {
+          actor: string
+          id: string
+          kind: string
+          person_id: string
+          reason: string
+          recorded_at: string
+          request_id: string
+          school_id: string
+          seq: number
+          state: string
+        }
+        Insert: {
+          actor: string
+          id?: string
+          kind: string
+          person_id: string
+          reason: string
+          recorded_at?: string
+          request_id: string
+          school_id: string
+          seq: number
+          state: string
+        }
+        Update: {
+          actor?: string
+          id?: string
+          kind?: string
+          person_id?: string
+          reason?: string
+          recorded_at?: string
+          request_id?: string
+          school_id?: string
+          seq?: number
+          state?: string
+        }
+        Relationships: []
+      }
       educacenso_aux_codes: {
         Row: {
           attrs: Json
@@ -22553,6 +22592,10 @@ export type Database = {
         Args: { _operation_id: string }
         Returns: number
       }
+      bo_fixture_cleanup_docserv_requests: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_educacenso: {
         Args: { _operation_id: string }
         Returns: number
@@ -24101,6 +24144,18 @@ export type Database = {
         Returns: Json
       }
       docserv_identity_queue: { Args: { _limit?: number }; Returns: Json }
+      docserv_link_request: {
+        Args: {
+          _expected_seq: number
+          _kind: string
+          _person: string
+          _reason: string
+          _request: string
+          _school: string
+          _state: string
+        }
+        Returns: number
+      }
       docserv_mark_alert_read: { Args: { _key: string }; Returns: undefined }
       docserv_my_person: { Args: never; Returns: string }
       docserv_person_in_school: {
@@ -24125,6 +24180,18 @@ export type Database = {
           _status: string
         }
         Returns: number
+      }
+      docserv_school_people: {
+        Args: { _school: string }
+        Returns: {
+          functions: string[]
+          person_id: string
+          sources: string[]
+        }[]
+      }
+      docserv_school_roster: {
+        Args: { _school: string; _season: string }
+        Returns: Json
       }
       docserv_submit_document: {
         Args: {
