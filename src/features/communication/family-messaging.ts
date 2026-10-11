@@ -20,7 +20,7 @@ export function visibleStudents(guardianId: string, auths: readonly Authorizatio
 }
 
 /** Mensagem automática nunca acusa: linguagem de culpa/sanção é recusada antes do envio. */
-const ACCUSATORY = /\b(culpa|neglig[eê]nc|irrespons|abandono|puni[cç]|sancion|reprovad[oa] por falta|den[uú]ncia|conselho tutelar)\b/i;
+const ACCUSATORY = /\b(culpa|neglig[eê]nc|irrespons|abandono|puni[cç]|sancion|reprovad[oa] por falta|den[uú]ncia|conselho tutelar)/i;
 export function automaticMessageAllowed(text: string) {
   return ACCUSATORY.test(text) ? { ok: false as const, reason: "linguagem-acusatoria" } : { ok: true as const };
 }
