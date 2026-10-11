@@ -395,6 +395,9 @@ export function CollegialPage({ classId, search }: { classId: string; search: Di
             <ArrowLeft /> Situação acadêmica do ciclo
           </Link>
         </Button>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/secretaria/modelos-de-texto" search={{ documento: "ata-conselho-de-classe" }}>Modelo da ata (editar e gerar PDF)</Link>
+        </Button>
       </DiaryHeader>
 
       <StatePanel
