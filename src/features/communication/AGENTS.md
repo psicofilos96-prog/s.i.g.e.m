@@ -2,3 +2,4 @@
 - Comunicado = identidade + versões append-only + atos (publicação/cancelamento) + recibos (leitura ≠ ciência); estado é projeção, porque campo de estado divergiria do histórico.
 - Audiência é derivada na leitura (autorização vigente na seção `comunicados` + enturmação na data da publicação), nunca lista copiada; sem provedor externo nem anexos (EXTERNAL_DELIVERY_PROVIDER_PENDING / ATTACHMENTS_PENDING), porque envio simulado afirmaria recebimento inexistente.
 - Tabelas novas revogam DML de service_role explicitamente, porque `REVOKE ALL` não remove privilégios de ACL padrão.
+- Lote 08 Expansão (`family-messaging.ts`): destinatário por educando só com autorização vigente na seção (guarda restrita e revogação excluem); mensagem automática com linguagem acusatória é recusada; canal externo leva só aviso genérico e sem provedor fica "sem-provedor", porque dado sensível ou entrega simulada não se desfazem.
