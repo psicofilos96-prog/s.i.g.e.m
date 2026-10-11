@@ -145,6 +145,7 @@ import { Route as RelatoriosSetoresRouteImport } from './routes/relatorios_.seto
 import { Route as SecretariaLivroMatriculaRouteImport } from './routes/secretaria_.livro-matricula'
 import { Route as SecretariaModelosDeTextoRouteImport } from './routes/secretaria_.modelos-de-texto'
 import { Route as SecretariaServicosRouteImport } from './routes/secretaria_.servicos'
+import { Route as SecretariaTabelasSemedRouteImport } from './routes/secretaria_.tabelas-semed'
 import { Route as SecretariaVagasRouteImport } from './routes/secretaria_.vagas'
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
@@ -946,6 +947,11 @@ const SecretariaServicosRoute = SecretariaServicosRouteImport.update({
   path: '/secretaria/servicos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecretariaTabelasSemedRoute = SecretariaTabelasSemedRouteImport.update({
+  id: '/secretaria_/tabelas-semed',
+  path: '/secretaria/tabelas-semed',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SecretariaVagasRoute = SecretariaVagasRouteImport.update({
   id: '/secretaria_/vagas',
   path: '/secretaria/vagas',
@@ -1703,6 +1709,7 @@ export interface FileRoutesByFullPath {
   '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria/servicos': typeof SecretariaServicosRoute
+  '/secretaria/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
@@ -1935,6 +1942,7 @@ export interface FileRoutesByTo {
   '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria/servicos': typeof SecretariaServicosRoute
+  '/secretaria/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
@@ -2166,6 +2174,7 @@ export interface FileRoutesById {
   '/secretaria_/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria_/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria_/servicos': typeof SecretariaServicosRoute
+  '/secretaria_/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria_/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
@@ -2415,6 +2424,7 @@ export interface FileRouteTypes {
     | '/secretaria/livro-matricula'
     | '/secretaria/modelos-de-texto'
     | '/secretaria/servicos'
+    | '/secretaria/tabelas-semed'
     | '/secretaria/vagas'
     | '/transferencias/nova'
     | '/turmas/$id'
@@ -2647,6 +2657,7 @@ export interface FileRouteTypes {
     | '/secretaria/livro-matricula'
     | '/secretaria/modelos-de-texto'
     | '/secretaria/servicos'
+    | '/secretaria/tabelas-semed'
     | '/secretaria/vagas'
     | '/transferencias/nova'
     | '/turmas/$id'
@@ -2877,6 +2888,7 @@ export interface FileRouteTypes {
     | '/secretaria_/livro-matricula'
     | '/secretaria_/modelos-de-texto'
     | '/secretaria_/servicos'
+    | '/secretaria_/tabelas-semed'
     | '/secretaria_/vagas'
     | '/transferencias/nova'
     | '/turmas/$id'
@@ -3103,6 +3115,7 @@ export interface RootRouteChildren {
   SecretariaLivroMatriculaRoute: typeof SecretariaLivroMatriculaRoute
   SecretariaModelosDeTextoRoute: typeof SecretariaModelosDeTextoRoute
   SecretariaServicosRoute: typeof SecretariaServicosRoute
+  SecretariaTabelasSemedRoute: typeof SecretariaTabelasSemedRoute
   SecretariaVagasRoute: typeof SecretariaVagasRoute
   VerificarCodigoRoute: typeof VerificarCodigoRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
@@ -4074,6 +4087,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria/servicos'
       fullPath: '/secretaria/servicos'
       preLoaderRoute: typeof SecretariaServicosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secretaria_/tabelas-semed': {
+      id: '/secretaria_/tabelas-semed'
+      path: '/secretaria/tabelas-semed'
+      fullPath: '/secretaria/tabelas-semed'
+      preLoaderRoute: typeof SecretariaTabelasSemedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/secretaria_/vagas': {
@@ -5621,6 +5641,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecretariaLivroMatriculaRoute: SecretariaLivroMatriculaRoute,
   SecretariaModelosDeTextoRoute: SecretariaModelosDeTextoRoute,
   SecretariaServicosRoute: SecretariaServicosRoute,
+  SecretariaTabelasSemedRoute: SecretariaTabelasSemedRoute,
   SecretariaVagasRoute: SecretariaVagasRoute,
   VerificarCodigoRoute: VerificarCodigoRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,

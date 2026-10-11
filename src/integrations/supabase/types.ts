@@ -17518,6 +17518,131 @@ export type Database = {
         }
         Relationships: []
       }
+      semed_table_catalog: {
+        Row: {
+          created_at: string
+          definition: Json
+          id: string
+          origin: string
+          table_code: string
+          title: string
+          version: number
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          definition: Json
+          id?: string
+          origin?: string
+          table_code: string
+          title: string
+          version: number
+          year: number
+        }
+        Update: {
+          created_at?: string
+          definition?: Json
+          id?: string
+          origin?: string
+          table_code?: string
+          title?: string
+          version?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      semed_table_submission_events: {
+        Row: {
+          act: string
+          actor_scope: string
+          actor_user_id: string
+          created_at: string
+          field_values: Json | null
+          id: string
+          reason: string | null
+          seq: number
+          state_after: string
+          submission_id: string
+        }
+        Insert: {
+          act: string
+          actor_scope: string
+          actor_user_id: string
+          created_at?: string
+          field_values?: Json | null
+          id?: string
+          reason?: string | null
+          seq: number
+          state_after: string
+          submission_id: string
+        }
+        Update: {
+          act?: string
+          actor_scope?: string
+          actor_user_id?: string
+          created_at?: string
+          field_values?: Json | null
+          id?: string
+          reason?: string | null
+          seq?: number
+          state_after?: string
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semed_table_submission_events_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "semed_table_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      semed_table_submissions: {
+        Row: {
+          catalog_id: string
+          created_at: string
+          created_by: string
+          id: string
+          school_id: string
+          table_code: string
+          year: number
+        }
+        Insert: {
+          catalog_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          school_id: string
+          table_code: string
+          year: number
+        }
+        Update: {
+          catalog_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          school_id?: string
+          table_code?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semed_table_submissions_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "semed_table_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "semed_table_submissions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sia_card_corrections: {
         Row: {
           approved_review_event_id: string
@@ -21373,6 +21498,10 @@ export type Database = {
       bo_fixture_cleanup_school_extras: {
         Args: { _operation_id: string }
         Returns: undefined
+      }
+      bo_fixture_cleanup_semed: {
+        Args: { _operation_id: string }
+        Returns: number
       }
       bo_fixture_expire: {
         Args: { _operation_id: string; _user_id: string }
@@ -29145,6 +29274,42 @@ export type Database = {
           school_id: string
           scope_level: string
         }[]
+      }
+      semed_can_fill: { Args: { _school: string }; Returns: boolean }
+      semed_can_read: { Args: { _school: string }; Returns: boolean }
+      semed_can_review: { Args: { _school: string }; Returns: boolean }
+      semed_fixture_row: { Args: { _old: Json }; Returns: boolean }
+      semed_is_network: { Args: never; Returns: boolean }
+      semed_key_spec: { Args: { _def: Json; _key: string }; Returns: Json }
+      semed_next_state: {
+        Args: { _act: string; _state: string }
+        Returns: string
+      }
+      semed_scope_schools: {
+        Args: never
+        Returns: {
+          can_fill: boolean
+          can_review: boolean
+          network: boolean
+          school_id: string
+        }[]
+      }
+      semed_table_act: {
+        Args: {
+          _act: string
+          _code: string
+          _expected_seq: number
+          _reason?: string
+          _school: string
+          _values?: Json
+          _year: number
+        }
+        Returns: Json
+      }
+      semed_table_central: { Args: { _school: string }; Returns: Json }
+      semed_validate_values: {
+        Args: { _def: Json; _values: Json }
+        Returns: undefined
       }
       send_nei_protocol: {
         Args: {

@@ -2402,6 +2402,41 @@
       "when": 1791715708368,
       "tag": "0342_nei7_indicator_functions_volatile",
       "breakpoints": true
+    },
+    {
+      "idx": 343,
+      "version": "7",
+      "when": 1791717507705,
+      "tag": "0343_semed_tables_structure_access",
+      "breakpoints": true
+    },
+    {
+      "idx": 344,
+      "version": "7",
+      "when": 1791717573139,
+      "tag": "0344_semed_tables_revoke_catalog_load",
+      "breakpoints": true
+    },
+    {
+      "idx": 345,
+      "version": "7",
+      "when": 1791717961226,
+      "tag": "0345_semed_tables_fixture_cleanup",
+      "breakpoints": true
+    },
+    {
+      "idx": 346,
+      "version": "7",
+      "when": 1791718115564,
+      "tag": "0346_semed_tables_fixture_capabilities",
+      "breakpoints": true
+    },
+    {
+      "idx": 347,
+      "version": "7",
+      "when": 1791718218765,
+      "tag": "0347_semed_tables_central_undated",
+      "breakpoints": true
     }
   ]
 }
