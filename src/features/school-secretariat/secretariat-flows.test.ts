@@ -39,7 +39,7 @@ describe("fluxos integrados da Secretaria", () => {
     const fact = { ref: "t1", kind: "transferencias" as const, schoolId: "A", effectiveOn: "2026-05-02", fields: { estudante: "E1", destino: "B" } };
     const closed = closeBook((appendEntry(b, fact, SINT) as any).value, "2026-12-20", SINT, h);
     const r = closed.ok && rectify(closed.value, 1, { ...fact, fields: { estudante: "E1", destino: "C" } }, "destino corrigido por ofício", SINT);
-    expect(r && r.ok && currentView(r.value)[0]!.fields.destino).toBe("C");
+    expect(r && r.ok && currentView(r.value)[0]!.fields['destino']).toBe("C");
     expect(r && r.ok && verifyClosing(r.value, h)).toBe(true);
   });
 
