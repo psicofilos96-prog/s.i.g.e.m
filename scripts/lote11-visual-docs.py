@@ -48,6 +48,6 @@ async def main():
     async with async_playwright() as p:
         br = await p.chromium.launch(headless=True)
         await run(br, cfg, None, "Cadastro das escolas", "escolas")
-        await run(br, cfg, "Alimentação", "Alimentação", "alimentacao")
+        await run(br, cfg, "NAE (Alimentação)", "Alimenta", "alimentacao")
         await br.close()
 asyncio.run(main())
