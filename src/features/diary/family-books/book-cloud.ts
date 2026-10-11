@@ -109,7 +109,7 @@ export async function loadBookInput(a: { family: FamilyId; classId: string; comp
 
   const input: BookInput = {
     family: a.family,
-    header: { school: info.school, className: info.name, stage: info.stage, shift: a.shift, teacher: a.teacher, yearLabel: info.yearLabel },
+    header: { school: info.school, className: info.name, stage: info.stage, shift: a.shift, teacher: a.teacher, yearLabel: info.yearLabel?.replace(/^\s*ano letivo( de)?\s*/i, "") ?? null },
     components, componentId: a.componentId, periods: a.periods, students, attendance,
     lessons: lessons.map((l) => ({ componentId: str(l["component_id"]), date: String(l["lesson_date"]), content: contentOf(l["facts"]) })),
     grades, experiences, rule: a.rule, unclassified,
