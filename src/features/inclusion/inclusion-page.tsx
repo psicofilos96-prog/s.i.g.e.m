@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
+import { Link } from "@tanstack/react-router";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { schoolsInScope } from "@/features/school-followup/followup-source";
@@ -30,7 +31,7 @@ export function InclusionPage() {
   useEffect(() => { schoolsInScope().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!); }, (e: Error) => setErr(inclusionMessage(e.message))); }, []);
   return (
     <div className="space-y-6">
-      <PageHeader title="Inclusão — apoio educacional, AEE e mediação" description="Registros pedagógicos com finalidade educacional. CID e laudo ficam só no registro clínico restrito de cada estudante, com acesso registrado." />
+      <PageHeader title="Inclusão — apoio educacional, AEE e mediação" description="Registros pedagógicos com finalidade educacional. CID e laudo ficam só no registro clínico restrito de cada estudante, com acesso registrado." actions={<Link to="/inclusao/nei" className="text-sm underline">Painel do NEI</Link>} />
       <MyMediatedStudents />
       <NetworkOverview />
       <TermReviewPanel />
