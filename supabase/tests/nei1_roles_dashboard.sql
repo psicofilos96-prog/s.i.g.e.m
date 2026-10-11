@@ -1,0 +1,4 @@
+-- NEI.1 — executado via run_sql em 2026-10-11 (bloco termina em RAISE; nada persiste). Resultado:
+-- NEI_PASS estacao-ve-rede:55esc estacao-nao-concede-coordenador conta-sem-pessoa-recusada tecnico-A-concedido
+-- tecnico-ve-so-A tecnico-sem-contagem-clinica tecnico-recusado-em-B tecnico-nao-concede sem-papel-recusado
+-- tabela-fechada revogado-perde-acesso anon-recusado; após 0333: recusas-registradas:2 (recusa = vazio, trilha mantida).
