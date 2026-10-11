@@ -1,3 +1,5 @@
+import { EnrollmentLookup } from "./enrollment-lookup";
+import { QrCode } from "@/features/calendar/calendar-external-qr";
 import { createActionGuard } from "@/lib/idempotency";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -118,19 +120,20 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Secretaria Escolar" title="Documentos escolares"
-        description="Documentos montados só com os registros oficiais. A emissão congela os dados usados; mudanças posteriores não alteram documentos já emitidos." />
+      <div className="print:hidden"><PageHeader eyebrow="Secretaria Escolar" title="Documentos escolares"
+        description="Documentos montados só com os registros oficiais. A emissão congela os dados usados; mudanças posteriores não alteram documentos já emitidos." /></div>
 
-      <section aria-labelledby="ctx" className="grid gap-3 sm:grid-cols-4">
+      <section aria-labelledby="ctx" className="print:hidden grid gap-3 sm:grid-cols-4">
         <h2 id="ctx" className="sr-only">Aluno</h2>
         <label className="text-sm">Escola<Input value={school} onChange={(e) => setSchool(e.target.value)} /></label>
         <label className="text-sm">Aluno<Input value={student} onChange={(e) => setStudent(e.target.value)} /></label>
         <label className="text-sm">Data de referência<DateInput value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
         <div className="flex items-end"><Button onClick={load} disabled={busy}>{busy ? "Carregando…" : "Abrir aluno"}</Button></div>
       </section>
-      {msg ? <p role="status" className={msg.tone === "ok" ? "text-sm text-success" : "text-sm text-destructive"}>{msg.text}</p> : null}
+      <div className="print:hidden"><EnrollmentLookup school={school} validOn={validOn} onPick={(id) => setStudent(id)} /></div>
+      {msg ? <p role="status" className={"print:hidden " + (msg.tone === "ok" ? "text-sm text-success" : "text-sm text-destructive")}>{msg.text}</p> : null}
 
-      <section aria-labelledby="tpl" className="space-y-2">
+      <section aria-labelledby="tpl" className="print:hidden space-y-2">
         <h2 id="tpl" className="font-semibold">Modelo</h2>
         {tplError ? <p className="text-sm text-destructive">{tplError}</p>
         : templates === null ? <SkeletonState label="Carregando modelos" />
@@ -152,7 +155,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
       </section>
 
       {tpl && preview ? (
-        <section aria-labelledby="prev" className="space-y-3">
+        <section aria-labelledby="prev" className="print:hidden space-y-3">
           <h2 id="prev" className="font-semibold">Prévia antes de emitir</h2>
           {preview.missingFacts.length > 0 ? (
             <p className="text-sm text-warning">Sem registro oficial para: {preview.missingFacts.join(", ")}. Esses campos sairão como "sem registro".</p>
@@ -164,7 +167,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
       ) : null}
 
       {history !== null ? (
-        <section aria-labelledby="hist" className="space-y-2">
+        <section aria-labelledby="hist" className="print:hidden space-y-2">
           <h2 id="hist" className="font-semibold">Histórico de emissões</h2>
           {history.length === 0 ? <EmptyState compact title="Nenhum documento emitido" description="Este aluno ainda não tem documentos emitidos nesta escola." /> : (
             <ul className="divide-y divide-border rounded-md border border-border">
@@ -203,13 +206,15 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
           </div>
           <DocumentView title={viewing.snapshot.template.title} identity={viewing.snapshot.template.identity}
             render={renderFromSnapshot(viewing.snapshot)}
-            footer={<p className="mt-4 break-all text-xs text-muted-foreground">
-              Verificação: {typeof window !== "undefined" ? window.location.origin : ""}/verificar/{viewing.verification_code} · impressão {viewing.snapshot_sha256}
-              {viewing.emission_kind === "reproducao" ? " · reprodução de documento já emitido" : ""}</p>} />
+            footer={<div className="mt-4 flex items-start gap-3">
+              {typeof window !== "undefined" ? <QrCode value={`${window.location.origin}/verificar/${viewing.verification_code}`} sizeMm={22} /> : null}
+              <p className="break-all text-xs text-muted-foreground">
+              Verificação: {typeof window !== "undefined" ? window.location.origin : ""}/verificar/{viewing.verification_code} · código {viewing.verification_code} · impressão {viewing.snapshot_sha256}
+              {viewing.emission_kind === "reproducao" ? " · reprodução de documento já emitido" : ""}</p></div>} />
         </section>
       ) : null}
 
-      <TemplateEditor heads={heads} onSaved={loadTemplates} />
+      <div className="print:hidden"><TemplateEditor heads={heads} onSaved={loadTemplates} /></div>
     </div>
   );
 }

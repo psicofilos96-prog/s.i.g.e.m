@@ -15721,6 +15721,60 @@ export type Database = {
           },
         ]
       }
+      school_enrollment_start_declarations: {
+        Row: {
+          author_engagement: string
+          author_user_id: string
+          enrollment_id: string
+          id: string
+          reason: string
+          recorded_at: string
+          school_id: string
+          source_ref: string | null
+          start_on: string
+          supersedes_id: string | null
+        }
+        Insert: {
+          author_engagement: string
+          author_user_id: string
+          enrollment_id: string
+          id?: string
+          reason: string
+          recorded_at?: string
+          school_id: string
+          source_ref?: string | null
+          start_on: string
+          supersedes_id?: string | null
+        }
+        Update: {
+          author_engagement?: string
+          author_user_id?: string
+          enrollment_id?: string
+          id?: string
+          reason?: string
+          recorded_at?: string
+          school_id?: string
+          source_ref?: string | null
+          start_on?: string
+          supersedes_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_enrollment_start_declarations_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_enrollment_start_declarations_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "school_enrollment_start_declarations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_enrollments: {
         Row: {
           academic_year_id: string | null
@@ -19862,6 +19916,10 @@ export type Database = {
       }
       bo_fixture_cleanup: { Args: { _operation_id: string }; Returns: number }
       bo_fixture_cleanup_row: { Args: { _old: Json }; Returns: boolean }
+      bo_fixture_cleanup_school_extras: {
+        Args: { _operation_id: string }
+        Returns: undefined
+      }
       bo_fixture_expire: {
         Args: { _operation_id: string; _user_id: string }
         Returns: undefined
@@ -21469,6 +21527,10 @@ export type Database = {
           _student: string
           _year: string
         }
+        Returns: string
+      }
+      enrollment_declared_start: {
+        Args: { _enrollment: string }
         Returns: string
       }
       enrollment_draft_abandon: {
@@ -26820,6 +26882,16 @@ export type Database = {
         }
         Returns: Json
       }
+      secretariat_declare_enrollment_start: {
+        Args: {
+          _enrollment: string
+          _expected_head: string
+          _reason: string
+          _source_ref: string
+          _start_on: string
+        }
+        Returns: Json
+      }
       secretariat_end_class_episode: {
         Args: { _ended_on: string; _episode: string; _reason: string }
         Returns: string
@@ -26836,6 +26908,20 @@ export type Database = {
           opened_on: string
           recorded_at: string
           situation: string
+          student_name: string
+        }[]
+      }
+      secretariat_enrollment_lookup: {
+        Args: { _on: string; _query: string; _school: string }
+        Returns: {
+          class_label: string
+          declaration_head: string
+          ended_on: string
+          enrollment_id: string
+          institutional_identifier: string
+          start_on: string
+          start_source: string
+          student_id: string
           student_name: string
         }[]
       }
