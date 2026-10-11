@@ -6,9 +6,10 @@ B = "http://localhost:8080"; OUT = "/tmp/rep/l11"; os.makedirs(OUT, exist_ok=Tru
 async def run(br, cfg, sector, subject, tag):
     ctx = await br.new_context(viewport={"width": 1280, "height": 1800}, accept_downloads=True); pg = await ctx.new_page()
     await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["session"])])
-    await pg.goto(B + "/relatorios"); await pg.wait_for_timeout(5000)
+    await pg.goto(B + "/relatorios")
     g = pg.get_by_role("region", name="Gerador de relatórios")
-    if sector: await g.get_by_label("Setor").select_option(label=sector); await pg.wait_for_timeout(800)
+    await g.get_by_role("button", name="Escolher").first.wait_for(timeout=30000)
+    if sector: await g.locator("select").first.select_option(label=sector); await pg.wait_for_timeout(800)
     card = g.locator("li", has_text=subject).filter(has=pg.get_by_role("button", name="Escolher")).first
     if not await card.count():
         print(f"INFO [{tag}] assunto '{subject}' indisponível para esta conta:", (await g.locator("li", has_text=subject).first.inner_text())[:200] if await g.locator("li", has_text=subject).count() else "não listado")
