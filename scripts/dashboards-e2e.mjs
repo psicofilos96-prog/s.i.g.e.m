@@ -25,7 +25,7 @@ const q = (groupBy, measures = [{ agg: "count" }], joins = ["matricula_escola"],
   ({ source, joins, includeSensitive: false, columns: [], groupBy, measures, subtotals: false, filter, sort: [], limit: 1000, offset: 0 });
 try {
   mkdirSync("/tmp/fdash", { recursive: true });
-  const NET = await mk("rede", "ciece-estatistica"), A = await mk("escola-a", "secretaria-escolar");
+  const NET = await mk("rede", "administrador-geral-do-sigem"), A = await mk("escola-a", "secretaria-escolar");
   const rn = await NET.c.rpc("report_custom_query", { _spec: q(["escolas.nome"]) });
   const ra = await A.c.rpc("report_custom_query", { _spec: q(["escolas.nome"]) });
   const sum = (r) => (r.data?.rows ?? []).reduce((a, x) => a + Number(x.c2), 0);
