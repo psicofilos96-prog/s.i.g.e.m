@@ -4,7 +4,7 @@
  * (que exige regra homologada); nada é gravado, nada é fixado no código.
  * Ausência fica null; AEE nunca soma como aluno novo (alunos = distintos das matrículas escolares).
  */
-import { runReport, toCsv, toXlsx, toPrintableHtml, type Branding, type CellValue, type ReportDefinition } from "@/features/reports/report-engine";
+import { runReport, toCsv, toXlsx, toPdfFile, type Branding, type CellValue, type ReportDefinition } from "@/features/reports/report-engine";
 
 export type MapSchoolRow = {
   school_id: string; inep: string | null; school_name: string | null; classes: number; school_enrollments: number; distinct_students: number;
@@ -108,11 +108,13 @@ export function classCells(rows: MapClassRow[], names: Map<string, string>): Rec
 }
 
 /** Exporta pelo motor comum; PDF em A4 paisagem. */
-export async function exportMap(defn: ReportDefinition, cells: Record<string, CellValue>[], format: "csv" | "xlsx" | "pdf", branding: Branding, meta: string[]): Promise<Blob> {
+/** Linhas de assinatura do consolidado: papéis, nunca nomes presumidos. */
+export const MAP_SIGNATURES = ["Secretário(a) Escolar", "Diretor(a)", "Responsável pela conferência"] as const;
+export async function exportMap(defn: ReportDefinition, cells: Record<string, CellValue>[], format: "csv" | "xlsx" | "pdf", branding: Branding, meta: string[], signatures: readonly string[] = MAP_SIGNATURES): Promise<Blob> {
   const result = runReport(defn, { params: {} }, cells);
   if (format === "csv") return new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" });
   if (format === "xlsx") return new Blob([await toXlsx(result, branding, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  return new Blob([toPrintableHtml(result, branding, meta).replace("size:A4;", "size:A4 landscape;")], { type: "text/html;charset=utf-8" });
+  return toPdfFile(result, branding, meta, { landscape: true, signatures });
 }
 
 /** LOTE 16 — grade no leiaute do mapa: Etapa agregada → etapa, com subtotal por grupo e total geral. Tudo derivado (somente leitura). */

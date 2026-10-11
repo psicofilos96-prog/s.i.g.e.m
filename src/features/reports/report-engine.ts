@@ -178,3 +178,52 @@ export class GenerationLog {
 export function exportIncomplete(collected: number, screenTotal: number, exhausted: boolean): boolean {
   return !exhausted && collected < screenTotal;
 }
+
+/**
+ * PDF de verdade (arquivo), não página web: A4, cabeçalho repetido, quebra de linhas sem corte lateral,
+ * numeração "Página x de y" e bloco de assinaturas no fim. Assinaturas são linhas em branco com o papel,
+ * nunca nome nem assinatura presumidos.
+ */
+export async function toPdfFile(result: ReportResult, branding: Branding, meta: readonly string[] = [],
+  opts: { landscape?: boolean; signatures?: readonly string[] } = {}): Promise<Blob> {
+  const { jsPDF } = await import("jspdf");
+  const autoTable = (await import("jspdf-autotable")).default;
+  const doc = new jsPDF({ orientation: opts.landscape ? "landscape" : "portrait", unit: "mm", format: "a4" });
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 12;
+  let y = M + 2;
+  doc.setFont("times", "normal"); doc.setFontSize(10);
+  for (const l of branding.headerLines) { doc.text(l, W / 2, y, { align: "center" }); y += 5; }
+  doc.setFont("times", "bold"); doc.setFontSize(13);
+  for (const l of doc.splitTextToSize(branding.title, W - 2 * M) as string[]) { doc.text(l, W / 2, y + 1, { align: "center" }); y += 6; }
+  doc.setFont("times", "normal"); doc.setFontSize(9);
+  for (const m of meta) for (const l of doc.splitTextToSize(m, W - 2 * M) as string[]) { doc.text(l, M, y + 1); y += 4.5; }
+  autoTable(doc, {
+    startY: y + 2, margin: { left: M, right: M, bottom: 16 }, theme: "grid",
+    head: [result.columns.map((c) => c.label)], body: result.rows.map((r) => r.map(cellText)),
+    styles: { font: "times", fontSize: 8, cellPadding: 1.2, overflow: "linebreak", lineColor: [34, 34, 34], lineWidth: 0.25, textColor: [0, 0, 0] },
+    headStyles: { fillColor: [235, 235, 235], textColor: [0, 0, 0], fontStyle: "bold" }, showHead: "everyPage", rowPageBreak: "avoid",
+  });
+  const sig = opts.signatures ?? [];
+  if (sig.length) {
+    let sy = ((doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 22;
+    if (sy + 14 > H - 16) { doc.addPage(); sy = M + 24; }
+    const colW = (W - 2 * M) / Math.min(sig.length, 3);
+    sig.forEach((s, i) => {
+      const row = Math.floor(i / 3), x = M + (i % 3) * colW, yy = sy + row * 22;
+      doc.line(x + 6, yy, x + colW - 6, yy); doc.setFontSize(9); doc.text(s, x + colW / 2, yy + 4.5, { align: "center" });
+    });
+  }
+  const n = doc.getNumberOfPages();
+  for (let p = 1; p <= n; p++) {
+    doc.setPage(p); doc.setFontSize(8);
+    doc.text(`Gerado em ${new Date(result.generatedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`, M, H - 7);
+    doc.text(`Página ${p} de ${n}`, W - M, H - 7, { align: "right" });
+  }
+  return doc.output("blob");
+}
+
+/** Baixa um Blob como arquivo. */
+export function downloadBlob(name: string, blob: Blob) {
+  const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}

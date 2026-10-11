@@ -73,8 +73,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   const download = async (format: "csv" | "xlsx" | "pdf") => {
     const blob = await exportMap(MONTHLY_REPORT, monthlyCells(rows), format, { headerLines: [brand.name, "Mapa Estatístico mensal 2026"], title: `${MONTHLY_REPORT.title} — ${MONTHS[month - 1]}` }, meta);
     const url = URL.createObjectURL(blob);
-    if (format === "pdf") { const w = window.open(url, "_blank"); w?.addEventListener("load", () => w.print()); }
-    else { const a = document.createElement("a"); a.href = url; a.download = `mapa-mensal-2026-${String(month).padStart(2, "0")}.${format}`; a.click(); }
+    { const a = document.createElement("a"); a.href = url; a.download = `mapa-mensal-2026-${String(month).padStart(2, "0")}.${format}`; a.click(); }
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
   const record = async () => {

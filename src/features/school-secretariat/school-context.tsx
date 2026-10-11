@@ -3,17 +3,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { readYears, type YearOption } from "@/features/year-transition/year-transition-source";
 import { yearStateLabel } from "./secretariat";
 
+export const SECRETARIAT_READ_CAPABILITY = "consultar-matricula-e-movimentacao";
+/** Mais recente por escola, só entre as autorizadas. */
+export function schoolsForContext(allowed: ReadonlySet<string>, rows: readonly { school_id: string; official_name: string }[]) {
+  const m = new Map<string, string>();
+  for (const r of rows) if (allowed.has(r.school_id) && !m.has(r.school_id)) m.set(r.school_id, r.official_name);
+  return [...m].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
 /** Escola e ano do escopo da sessão: só escolas que a RLS devolve; uma só ⇒ fixada. Sem identificador técnico na tela. */
 export function useSchoolContext() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [years, setYears] = useState<YearOption[]>([]);
   const [school, setSchool] = useState(""); const [year, setYear] = useState("");
   useEffect(() => {
-    supabase.from("institutional_school_record_versions").select("school_id,official_name,version_number").order("version_number", { ascending: false })
-      .then(({ data }) => {
-        const m = new Map<string, string>();
-        for (const r of (data ?? []) as { school_id: string; official_name: string }[]) if (!m.has(r.school_id)) m.set(r.school_id, r.official_name);
-        const list = [...m].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name));
+    // Só escolas onde a conta tem a capability que as telas da Secretaria exigem; listar todas levava a "Sem permissão nesta escola".
+    const allowed = (supabase.rpc as unknown as (f: string, a: object) => PromiseLike<{ data: unknown }>)("school_capability_schools", { _capability: SECRETARIAT_READ_CAPABILITY });
+    Promise.all([allowed, supabase.from("institutional_school_record_versions").select("school_id,official_name,version_number").order("version_number", { ascending: false })])
+      .then(([a, { data }]) => {
+        const ok = new Set(((a.data ?? []) as unknown[]).map((x) => (typeof x === "string" ? x : Object.values(x as object)[0] as string)));
+        const list = schoolsForContext(ok, (data ?? []) as { school_id: string; official_name: string }[]);
         setSchools(list); if (list.length === 1) setSchool(list[0]!.id);
       });
     readYears().then((ys) => { setYears(ys); if (ys.length) setYear((ys.find((y) => y.state === "aberto") ?? ys[0]!).id); }).catch(() => setYears([]));
