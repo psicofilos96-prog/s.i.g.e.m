@@ -39,7 +39,7 @@ export function OpBoardPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-6">
       <header><PageHeader title="Quadro Permanente da OP" /><p className="text-sm text-muted-foreground">Orientações da rede por etapa, com versões. Cada mudança cria nova versão; as anteriores ficam no histórico. Professores consultam no planejamento.</p></header>
-      {session.loading ? <p className="text-sm text-muted-foreground">Conferindo sua sessão…</p> : !session.user ? <p className="text-sm text-muted-foreground">Entre com sua conta para ver o Quadro Permanente.</p> : q.isLoading ? <LoadingState /> : q.error ? <p role="alert" className="text-sm text-destructive">Entre com sua conta para ver o Quadro Permanente.</p> : (<>
+      {session.loading ? <LoadingState /> : !session.user ? <p className="text-sm text-muted-foreground">Entre com sua conta para ver o Quadro Permanente.</p> : q.isLoading ? <LoadingState /> : q.error ? <p role="alert" className="text-sm text-destructive">Não foi possível ler o Quadro Permanente agora. Tente recarregar a página.</p> : (<>
         {hs.length === 0 && <p className="text-sm text-muted-foreground">Nenhum quadro registrado ainda.</p>}
         <ul className="space-y-2">{hs.map((v) => (
           <li key={v.id} className="rounded border border-border p-3"><div className="font-medium">{v.stage_key} — {v.title} <span className="text-xs text-muted-foreground">v{v.version}</span></div>
