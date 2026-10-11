@@ -51,7 +51,7 @@ export function currentFormations(versions: readonly T10Version[]): Map<string, 
 
 export function formationText(f: Pick<T10Version, "level" | "kind" | "course">): string {
   const k = T10_KINDS[f.level][f.kind] ?? f.kind;
-  return f.course ? `${k} ${f.course}`.replace(/ em (.+)$/, " em $1") : k;
+  return f.course ? `${k} ${f.course}` : k;
 }
 
 /** Colunas do guia: uma linha por servidor; várias formações do mesmo nível saem juntas na célula. */
