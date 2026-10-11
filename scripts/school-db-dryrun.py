@@ -21,6 +21,7 @@ for f in files:
     ix = {k: next((i for i, x in enumerate(h) if x.lower().startswith(k)), None) for k in ["nome do aluno", "identificação/inep", "cpf", "data de nascimento", "sexo", "cor/raça", "nee", "situação da matr"]}
     c = collections.Counter(); seen = collections.Counter()
     for r in rows[1:]:
+            r = tuple(r) + (None,) * (len(h) - len(r))
         if ix["nome do aluno"] is None or not r[ix["nome do aluno"]]: continue
         c["linhas"] += 1
         g = lambda k: (r[ix[k]] if ix[k] is not None and ix[k] < len(r) else None)
