@@ -18,6 +18,8 @@ import { STATE_LABEL, buildPanel, type Block, type Pending } from "@/features/sc
 import { readManagementInputs } from "@/features/school-management/management-source";
 import { ACTIONS, NATURE_LABEL, NATURE_ORDER, classifyPending, recordStateLine, supervisionError, supervisionRows, type SupervisionRecord } from "./supervision-model";
 import { readCatalog, readSupervisionRecords, recordSupervision, type CatalogOption } from "./supervision-source";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { journeyState, filterRecords } from "./supervision-journey";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();
@@ -61,9 +63,19 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
   const [panel, setPanel] = useState<{ blocks: Block[]; pending: Pending[] } | null>(null);
   useEffect(() => { readManagementInputs(school, year, on, k).then((i) => setPanel(buildPanel(i)), () => setPanel({ blocks: [], pending: [] })); }, [school, year, on, k]);
   const grouped = useMemo(() => (panel ? classifyPending(panel.blocks, panel.pending) : null), [panel]);
+  const authority = useSessionAuthority();
+  const canRecord = authority.status === "signed-in" && authority.capabilities.some((c) => c.capabilityId === "registrar-acompanhamento-da-supervisao");
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Registros da Supervisão e fontes que aceitam “conhecido até” reproduzem o que estava registrado naquele momento." />}
+      <Tabs defaultValue="situacao">
+        <TabsList className="flex h-auto flex-wrap justify-start">
+          <TabsTrigger value="situacao">Situação</TabsTrigger>
+          <TabsTrigger value="pendencias">Pendências</TabsTrigger>
+          <TabsTrigger value="percurso">Percurso da visita</TabsTrigger>
+          <TabsTrigger value="acompanhamento">Acompanhamento</TabsTrigger>
+        </TabsList>
+        <TabsContent value="situacao">
       <section aria-label="Situação da escola" className="space-y-2">
         <h2 className="font-semibold">Situação da escola</h2>
         {!panel ? <p role="status" className="text-sm text-muted-foreground">Lendo as fontes…</p> : (
@@ -78,7 +90,9 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
             <Link to="/mapa-estatistico" className="rounded-lg border border-dashed bg-card p-4 hover:bg-accent"><h3 className="text-sm font-semibold">Mapa Estatístico</h3><p className="text-xs text-muted-foreground">Abrir os mapas da escola conforme sua atuação.</p></Link>
           </div>)}
       </section>
-      {grouped && (
+        </TabsContent>
+        <TabsContent value="pendencias">
+      {!grouped ? <p role="status" className="text-sm text-muted-foreground">Lendo as fontes…</p> : (
         <section aria-label="Pendências" className="space-y-3">
           <h2 className="font-semibold">Pendências por natureza</h2>
           <p className="text-xs text-muted-foreground">Cada item vem de um registro existente. Nenhuma pendência é nota da escola ou de pessoas.</p>
@@ -91,8 +105,32 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
               </div>))}
           </div>
         </section>)}
-      <Records school={school} schoolName={schoolName} knownAt={k} />
+        </TabsContent>
+        <TabsContent value="percurso"><Journey canRecord={canRecord} /></TabsContent>
+        <TabsContent value="acompanhamento"><Records school={school} schoolName={schoolName} knownAt={k} /></TabsContent>
+      </Tabs>
     </div>
+  );
+}
+
+function Journey({ canRecord }: { canRecord: boolean }) {
+  const steps = journeyState(canRecord);
+  return (
+    <section aria-labelledby="sup-journey" className="space-y-3">
+      <h2 id="sup-journey" className="font-semibold">Percurso da visita</h2>
+      <p className="text-xs text-muted-foreground">Etapas que ainda não gravam aparecem assim por extenso. Nada é simulado.</p>
+      <ol className="space-y-2">
+        {steps.map((s, i) => (
+          <li key={s.id} className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 rounded-lg border bg-card p-3">
+            <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-full border text-xs font-semibold">{i + 1}</span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">{s.title} <span className="font-normal text-muted-foreground">· {s.who === "escola" ? "escola" : "Supervisão"}</span></p>
+              <p className="text-xs">{s.state === "disponivel" ? "Disponível" : s.state === "consulta" ? "Só consulta" : "Aguardando decisão"} — {s.note}</p>
+              {s.id === "situacao" && s.state === "disponivel" && <p className="text-xs text-muted-foreground">Use a aba “Acompanhamento”.</p>}
+            </div>
+          </li>))}
+      </ol>
+    </section>
   );
 }
 
