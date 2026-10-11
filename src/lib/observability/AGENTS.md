@@ -11,3 +11,6 @@
 
 ## NOBS.4
 - Todo "Tentar novamente"/recarregar/desistir de estado de erro passa por `useRecoveryTrail` (ou `RecoveryRetryButton`), porque recuperação sem o mesmo correlationId não liga a falha ao desfecho.
+
+## Lote 12 Expansão (`admin-health.ts`)
+- Status de módulo só de verificação executada e recente; backup só "verificado" com restauração testada e integridade conferida; operador técnico nunca recebe capacidade humana nem curinga; segredos só por nome e data de rotação, porque saúde ou backup afirmados sem evidência seriam falsa garantia.
