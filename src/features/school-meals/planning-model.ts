@@ -47,6 +47,7 @@ export function summarize(r: Pick<MasterRow, "payload">): string {
   for (const k of ["nome", "rotulo", "titulo", "descricao", "marca", "numero", "competencia", "frequencia", "efeito"]) {
     if (typeof p[k] === "string" && (p[k] as string).trim()) return p[k] as string;
   }
+  if (typeof p["pessoa_id"] === "string") return `Pessoa designada (cadastro ${(p["pessoa_id"] as string).slice(0, 8)})`;
   return "Sem rótulo declarado";
 }
 export const hasSensitive = (p: Record<string, unknown>) => SENSITIVE.some((k) => k in p);

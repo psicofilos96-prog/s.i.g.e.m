@@ -115,7 +115,7 @@ function DrillPanel({ drill, school, from, to, names, onClose }: { drill: Drill;
       const base = `${def.id}-${from}-${to}`;
       if (fmt === "csv") save(`${base}.csv`, new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
       else if (fmt === "xlsx") save(`${base}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));
-      else { const w = window.open("", "_blank", "noopener"); if (w) { w.document.write(toPrintableHtml(result, branding, meta)); w.document.close(); w.print(); } }
+      else { const w = window.open("", "_blank"); if (w) { w.document.write(toPrintableHtml(result, branding, meta)); w.document.close(); w.print(); } }
     } catch (e) { setErr(reportingMessage((e as Error).message)); } finally { setBusy(false); }
   }
   return (

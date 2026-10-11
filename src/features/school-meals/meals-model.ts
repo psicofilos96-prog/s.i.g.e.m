@@ -51,6 +51,13 @@ export function mealMessage(raw: string): string {
   if (raw.includes("ceiling-exceeded")) return "O pedido excede o teto calculado: justifique cada item acima do teto.";
   if (raw.includes("ceiling-ack-required")) return "Autorizar sem teto calculado exige registrar a ciência (mínimo de 10 caracteres).";
   if (raw.includes("session-required")) return "Sua sessão expirou. Entre novamente.";
+  if (raw.includes("self-review-not-allowed")) return "Quem registrou não pode conferir nem homologar o próprio registro.";
+  if (raw.includes("meal:transition-invalid")) return "Esta etapa não é possível na situação atual do registro.";
+  if (raw.includes("meal:person-unknown")) return "Pessoa não encontrada no cadastro de pessoas.";
+  if (raw.includes("meal:school-required")) return "Selecione a escola.";
+  if (raw.includes("meal:field-required")) return "Preencha os campos obrigatórios.";
+  if (raw.includes("meal:reference-not-homologated")) return "A referência escolhida ainda não está homologada.";
+  if (raw.includes("meal:stale")) return "Este registro já foi atualizado por outra pessoa. Recarregue.";
   if (raw.includes("capability:consultar-restricao-alimentar")) return "Restrições alimentares exigem permissão própria nesta escola.";
   if (raw.includes("capability:")) return "Sua atuação não tem permissão para esta ação nesta escola.";
   if (raw.includes("value-not-homologated")) return "Use apenas valores aprovados nos catálogos de alimentação.";

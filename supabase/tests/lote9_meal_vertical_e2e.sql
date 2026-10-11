@@ -1,6 +1,6 @@
 -- LOTE 9 — cadeia vertical com teto calculado no banco, NF, amostras e inspetores (derivado do NAE.8). E2E transacional da cadeia de Alimentação Escolar no banco canônico. Termina em RAISE: nada persiste.
 -- Pessoas/usuários sintéticos (prefixo NAE8) e dublê transacional de effective_scope_capabilities (padrão ac2) desfeitos pelo rollback.
--- Só writers/readers canônicos; nenhum DML direto em meal_*. Sucesso = 'lote9-e2e-ok: ...'. Executado em 2026-10-10 (PASS); a execução registrada foi a versão enxuta deste roteiro (blocos 0–6, 9, 9b, 9c, 11).
+-- Só writers/readers canônicos; nenhum DML direto em meal_*. Sucesso = 'lote9-e2e-ok: ...'. Arquivo integral (blocos 0–13) executado em 2026-10-11 (LOTE 14). Em 2026-10-10 só rodou uma versão enxuta (0–6, 9, 9b, 9c, 11); a execução integral expôs a asserção obsoleta de 'pessoa natural', substituída pela regra BQ.1.
 DO $t$
 DECLARE _ok text := ''; td date := (now() AT TIME ZONE 'America/Sao_Paulo')::date; tz text := 'America/Sao_Paulo';
   comp text; prev text; s1 text; s2 text; n int; n0 int; x numeric; r record; sha1 text; sha2 text;
@@ -11,6 +11,7 @@ DECLARE _ok text := ''; td date := (now() AT TIME ZONE 'America/Sao_Paulo')::dat
   pO uuid := gen_random_uuid(); uO uuid := gen_random_uuid();   -- equipe de outra escola
   pT uuid := gen_random_uuid(); uT uuid := gen_random_uuid();   -- órgão/ator técnico (não pessoa natural)
   pH uuid := gen_random_uuid(); uH uuid := gen_random_uuid();   -- homologação técnica (≠ autor e ≠ conferente)
+  uX uuid := gen_random_uuid();                                 -- sessão sem pessoa vinculada nem principal
   item uuid; unit uuid; unit2 uuid; cat uuid; ficha uuid; doc uuid; win uuid; ord uuid; sc1 uuid; sc2 uuid; sc3 uuid;
   rc1 uuid; rc2 uuid; rc3 uuid; pub uuid; pcap uuid; forn uuid; nf uuid; insp uuid; am uuid; ev jsonb; ln jsonb; nc uuid; cnt uuid; ex uuid; mv uuid;
 BEGIN
@@ -63,13 +64,11 @@ BEGIN
   RESET ROLE; SET LOCAL ROLE authenticated;
   PERFORM pg_temp.nae8_as(NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'session-required');
-  PERFORM pg_temp.nae8_as(uT);
-  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'natural-person-required');
   PERFORM pg_temp.nae8_as(uS);
   PERFORM pg_temp.nae8_fail(format('INSERT INTO public.meal_inventory_movements(logical_id,version,event_kind,school_id,item_value_id,item_value_version,unit_value_id,unit_value_version,movement_kind,quantity,moved_on) VALUES (gen_random_uuid(),1,%L,%L,%L,1,%L,1,%L,1,%L)','registro',s1,'nae8-arroz','nae8-kg','entrada',td), 'permission denied');
   PERFORM pg_temp.nae8_fail('UPDATE public.meal_order_versions SET status = ''autorizado-total''', 'permission denied');
   PERFORM pg_temp.nae8_fail('DELETE FROM public.meal_master_records', 'permission denied');
-  _ok := _ok || 'anon,sem-sessao,ator-tecnico,dml;';
+  _ok := _ok || 'anon,sem-sessao,dml;';
   RESET ROLE; -- writers seguem autorizando por auth.uid()+capability; leituras de verificação usam o canal da prova
 
   -- 1. base mestra: autor ≠ conferente/homologador; catálogo sem homologação é recusado no pedido
@@ -181,8 +180,11 @@ BEGIN
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'entrada','nae8-arroz','nae8-kg',td,tz), 'class-not-allowed');
   PERFORM pg_temp.nae8_as(uO);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'capability:registrar-estoque-alimentar');
+  -- BQ.1 (0254): órgão institucional declarado é ator válido; o que se recusa é sessão sem pessoa vinculada nem principal
+  PERFORM pg_temp.nae8_as(uX);
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'natural-person-required');
   IF (SELECT count(*) FROM public.meal_inventory_movements) <> n0 + 2 THEN RAISE EXCEPTION 'falha: ficha técnica/recusas geraram movimento'; END IF;
-  _ok := _ok || 'nao-conformidade,perda,devolucao,unidade,ficha-sem-baixa;';
+  _ok := _ok || 'nao-conformidade,perda,devolucao,unidade,ator-tecnico,ficha-sem-baixa;';
 
   -- 9. execução: planejado ≠ executado, refeições ≠ alunos, consumo observado = 1 movimento; duplicidade e correção
   PERFORM pg_temp.nae8_as(uS);
