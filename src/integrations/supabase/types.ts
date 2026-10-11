@@ -20729,6 +20729,98 @@ export type Database = {
           },
         ]
       }
+      student_registration_observations: {
+        Row: {
+          birth_date: string | null
+          birthplace: string | null
+          birthplace_uf: string | null
+          civil_name: string | null
+          class_literal: string | null
+          enrollment_status_literal: string | null
+          executor_label: string
+          father_name: string | null
+          grade_literal: string | null
+          guardian_name: string | null
+          guardian_occupation: string | null
+          id: string
+          matched_by: string
+          mother_name: string | null
+          nationality: string | null
+          nee_literal: string | null
+          phones: string[]
+          race_literal: string | null
+          recorded_at: string
+          sex_literal: string | null
+          source_file: string
+          source_row: number
+          source_sha256: string
+          source_sheet: string
+          student_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          birthplace?: string | null
+          birthplace_uf?: string | null
+          civil_name?: string | null
+          class_literal?: string | null
+          enrollment_status_literal?: string | null
+          executor_label: string
+          father_name?: string | null
+          grade_literal?: string | null
+          guardian_name?: string | null
+          guardian_occupation?: string | null
+          id?: string
+          matched_by: string
+          mother_name?: string | null
+          nationality?: string | null
+          nee_literal?: string | null
+          phones?: string[]
+          race_literal?: string | null
+          recorded_at?: string
+          sex_literal?: string | null
+          source_file: string
+          source_row: number
+          source_sha256: string
+          source_sheet: string
+          student_id: string
+        }
+        Update: {
+          birth_date?: string | null
+          birthplace?: string | null
+          birthplace_uf?: string | null
+          civil_name?: string | null
+          class_literal?: string | null
+          enrollment_status_literal?: string | null
+          executor_label?: string
+          father_name?: string | null
+          grade_literal?: string | null
+          guardian_name?: string | null
+          guardian_occupation?: string | null
+          id?: string
+          matched_by?: string
+          mother_name?: string | null
+          nationality?: string | null
+          nee_literal?: string | null
+          phones?: string[]
+          race_literal?: string | null
+          recorded_at?: string
+          sex_literal?: string | null
+          source_file?: string
+          source_row?: number
+          source_sha256?: string
+          source_sheet?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_registration_observations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_school_day_intervals: {
         Row: {
           derived_at: string
@@ -31457,6 +31549,32 @@ export type Database = {
       student_photo_current: {
         Args: { _school: string; _student: string }
         Returns: string
+      }
+      student_registration_observations_for: {
+        Args: { _student: string }
+        Returns: {
+          birth_date: string
+          birthplace: string
+          birthplace_uf: string
+          civil_name: string
+          class_literal: string
+          enrollment_status_literal: string
+          father_name: string
+          grade_literal: string
+          guardian_name: string
+          guardian_occupation: string
+          mother_name: string
+          nationality: string
+          nee_literal: string
+          phones: string[]
+          race_literal: string
+          recorded_at: string
+          sensitive_visible: boolean
+          sex_literal: string
+          source_file: string
+          source_row: number
+          source_sheet: string
+        }[]
       }
       student_school_life: {
         Args: { _school: string; _student: string }
