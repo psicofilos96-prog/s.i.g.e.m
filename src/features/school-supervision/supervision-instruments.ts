@@ -27,7 +27,7 @@ export function validateStructure(sections: Section[]): string[] {
       keys.add(q.key);
       if (!q.text.trim()) p.push(`pergunta ${q.key} sem enunciado`);
       if (q.type === "escala" && (!q.scale || q.scale.min >= q.scale.max)) p.push(`escala inválida em ${q.key}`);
-      if (q.type === "multipla" && !(q.options?.length ?? 0 >= 2)) p.push(`opções insuficientes em ${q.key}`);
+      if (q.type === "multipla" && (q.options?.length ?? 0) < 2) p.push(`opções insuficientes em ${q.key}`);
       if (q.normRef && !q.normRef.title.trim()) p.push(`norma sem título em ${q.key}`);
       if (q.defaultDueDays != null && q.defaultDueDays <= 0) p.push(`prazo inválido em ${q.key}`);
     }
