@@ -46,6 +46,7 @@ import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DirecaoRouteImport } from './routes/direcao'
 import { Route as DocumentosEscolaresRouteImport } from './routes/documentos-escolares'
+import { Route as EducacensoRouteImport } from './routes/educacenso'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
 import { Route as EstacaoAdministrativaRouteImport } from './routes/estacao-administrativa'
 import { Route as FamiliaRouteImport } from './routes/familia'
@@ -440,6 +441,11 @@ const DirecaoRoute = DirecaoRouteImport.update({
 const DocumentosEscolaresRoute = DocumentosEscolaresRouteImport.update({
   id: '/documentos-escolares',
   path: '/documentos-escolares',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EducacensoRoute = EducacensoRouteImport.update({
+  id: '/educacenso',
+  path: '/educacenso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EnturmacoesRoute = EnturmacoesRouteImport.update({
@@ -1621,6 +1627,7 @@ export interface FileRoutesByFullPath {
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
+  '/educacenso': typeof EducacensoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/estacao-administrativa': typeof EstacaoAdministrativaRoute
   '/familia': typeof FamiliaRoute
@@ -1866,6 +1873,7 @@ export interface FileRoutesByTo {
   '/diagnostico': typeof DiagnosticoRoute
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
+  '/educacenso': typeof EducacensoRoute
   '/estacao-administrativa': typeof EstacaoAdministrativaRoute
   '/familia': typeof FamiliaRoute
   '/gestao-escolar': typeof GestaoEscolarRoute
@@ -2086,6 +2094,7 @@ export interface FileRoutesById {
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
+  '/educacenso': typeof EducacensoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
   '/estacao-administrativa': typeof EstacaoAdministrativaRoute
   '/familia': typeof FamiliaRoute
@@ -2336,6 +2345,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/direcao'
     | '/documentos-escolares'
+    | '/educacenso'
     | '/enturmacoes'
     | '/estacao-administrativa'
     | '/familia'
@@ -2581,6 +2591,7 @@ export interface FileRouteTypes {
     | '/diagnostico'
     | '/direcao'
     | '/documentos-escolares'
+    | '/educacenso'
     | '/estacao-administrativa'
     | '/familia'
     | '/gestao-escolar'
@@ -2800,6 +2811,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/direcao'
     | '/documentos-escolares'
+    | '/educacenso'
     | '/enturmacoes'
     | '/estacao-administrativa'
     | '/familia'
@@ -3049,6 +3061,7 @@ export interface RootRouteChildren {
   DiarioRoute: typeof DiarioRouteWithChildren
   DirecaoRoute: typeof DirecaoRoute
   DocumentosEscolaresRoute: typeof DocumentosEscolaresRoute
+  EducacensoRoute: typeof EducacensoRoute
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
   EstacaoAdministrativaRoute: typeof EstacaoAdministrativaRoute
   FamiliaRoute: typeof FamiliaRoute
@@ -3394,6 +3407,13 @@ declare module '@tanstack/react-router' {
       path: '/documentos-escolares'
       fullPath: '/documentos-escolares'
       preLoaderRoute: typeof DocumentosEscolaresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/educacenso': {
+      id: '/educacenso'
+      path: '/educacenso'
+      fullPath: '/educacenso'
+      preLoaderRoute: typeof EducacensoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/enturmacoes': {
@@ -5574,6 +5594,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiarioRoute: DiarioRouteWithChildren,
   DirecaoRoute: DirecaoRoute,
   DocumentosEscolaresRoute: DocumentosEscolaresRoute,
+  EducacensoRoute: EducacensoRoute,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
   EstacaoAdministrativaRoute: EstacaoAdministrativaRoute,
   FamiliaRoute: FamiliaRoute,

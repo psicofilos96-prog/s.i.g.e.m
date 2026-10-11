@@ -4,7 +4,7 @@
  */
 export type SecretariatTask = {
   id: string; title: string; hint: string;
-  target: { kind: "route"; to: "/matriculas/nova" | "/documentos-escolares" | "/preparacao-ano" | "/secretaria/vagas" | "/secretaria/livro-matricula" | "/secretaria/tabelas-semed" } | { kind: "find-student" };
+  target: { kind: "route"; to: "/matriculas/nova" | "/documentos-escolares" | "/preparacao-ano" | "/secretaria/vagas" | "/secretaria/livro-matricula" | "/secretaria/tabelas-semed" | "/educacenso" } | { kind: "find-student" };
 };
 
 export const SECRETARIAT_TASKS: readonly SecretariatTask[] = [
@@ -17,4 +17,5 @@ export const SECRETARIAT_TASKS: readonly SecretariatTask[] = [
   { id: "vagas", title: "Ver vagas", hint: "Lugares livres em cada turma.", target: { kind: "route", to: "/secretaria/vagas" } },
   { id: "livro", title: "Livro de Matrícula", hint: "Lista das matrículas do ano.", target: { kind: "route", to: "/secretaria/livro-matricula" } },
   { id: "tabelas-semed", title: "Tabelas SEMED", hint: "Tabelas 04, 06, 09, 10 e 11 do ano.", target: { kind: "route", to: "/secretaria/tabelas-semed" } },
+  { id: "educacenso", title: "Educacenso", hint: "Situação da escola na coleta do ano.", target: { kind: "route", to: "/educacenso" } },
 ];

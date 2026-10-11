@@ -7715,6 +7715,145 @@ export type Database = {
           },
         ]
       }
+      educacenso_collection_events: {
+        Row: {
+          act: string
+          actor_user_id: string
+          census_year: string
+          id: string
+          layout_registration_id: string | null
+          reason: string
+          recorded_at: string
+          reference_date: string | null
+          seq: number
+          stage_key: string
+          stage_label: string
+        }
+        Insert: {
+          act: string
+          actor_user_id: string
+          census_year: string
+          id?: string
+          layout_registration_id?: string | null
+          reason: string
+          recorded_at?: string
+          reference_date?: string | null
+          seq: number
+          stage_key: string
+          stage_label: string
+        }
+        Update: {
+          act?: string
+          actor_user_id?: string
+          census_year?: string
+          id?: string
+          layout_registration_id?: string | null
+          reason?: string
+          recorded_at?: string
+          reference_date?: string | null
+          seq?: number
+          stage_key?: string
+          stage_label?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educacenso_collection_events_layout_registration_id_fkey"
+            columns: ["layout_registration_id"]
+            isOneToOne: false
+            referencedRelation: "educacenso_layout_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      educacenso_layout_registrations: {
+        Row: {
+          actor_user_id: string
+          census_year: string
+          document_ref: string | null
+          document_sha256: string | null
+          document_title: string | null
+          documentation_state: string
+          id: string
+          layout_label: string
+          reason: string
+          recorded_at: string
+        }
+        Insert: {
+          actor_user_id: string
+          census_year: string
+          document_ref?: string | null
+          document_sha256?: string | null
+          document_title?: string | null
+          documentation_state: string
+          id?: string
+          layout_label: string
+          reason: string
+          recorded_at?: string
+        }
+        Update: {
+          actor_user_id?: string
+          census_year?: string
+          document_ref?: string | null
+          document_sha256?: string | null
+          document_title?: string | null
+          documentation_state?: string
+          id?: string
+          layout_label?: string
+          reason?: string
+          recorded_at?: string
+        }
+        Relationships: []
+      }
+      educacenso_school_status_events: {
+        Row: {
+          actor_scope: string
+          actor_user_id: string
+          census_year: string
+          id: string
+          protocol_ref: string | null
+          reason: string
+          recorded_at: string
+          school_id: string
+          seq: number
+          stage_key: string
+          state: string
+        }
+        Insert: {
+          actor_scope: string
+          actor_user_id: string
+          census_year: string
+          id?: string
+          protocol_ref?: string | null
+          reason: string
+          recorded_at?: string
+          school_id: string
+          seq: number
+          stage_key: string
+          state: string
+        }
+        Update: {
+          actor_scope?: string
+          actor_user_id?: string
+          census_year?: string
+          id?: string
+          protocol_ref?: string | null
+          reason?: string
+          recorded_at?: string
+          school_id?: string
+          seq?: number
+          stage_key?: string
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educacenso_school_status_events_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       engagement_endings: {
         Row: {
           act_ref: string | null
@@ -21846,6 +21985,10 @@ export type Database = {
         Args: { _operation_id: string }
         Returns: number
       }
+      bo_fixture_cleanup_educacenso: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_nei: {
         Args: { _operation_id: string }
         Returns: number
@@ -23372,6 +23515,46 @@ export type Database = {
           _valid_until: string
         }
         Returns: string
+      }
+      educacenso_collection_act: {
+        Args: {
+          _act: string
+          _expected_seq: number
+          _layout: string
+          _reason: string
+          _reference_date: string
+          _stage_key: string
+          _stage_label: string
+          _year: string
+        }
+        Returns: number
+      }
+      educacenso_control_at: {
+        Args: { _stage_key: string; _year: string }
+        Returns: Json
+      }
+      educacenso_register_layout: {
+        Args: {
+          _doc_ref: string
+          _doc_sha256: string
+          _doc_title: string
+          _label: string
+          _reason: string
+          _year: string
+        }
+        Returns: string
+      }
+      educacenso_school_act: {
+        Args: {
+          _expected_seq: number
+          _protocol: string
+          _reason: string
+          _school: string
+          _stage_key: string
+          _state: string
+          _year: string
+        }
+        Returns: number
       }
       effective_capabilities: {
         Args: { _on?: string }
