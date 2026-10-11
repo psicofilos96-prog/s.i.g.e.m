@@ -383,11 +383,11 @@ function BoxPlot({ data }: { data: ReturnType<typeof boxplot>["data"] }) {
 }
 
 function HeatMap({ h, xLabel, yLabel }: { h: ReturnType<typeof heatmap>; xLabel: string; yLabel: string }) {
-  const cw = 46, ch = 24, left = 120, top = 70; const W = left + h.xs.length * cw + 10, H = top + h.ys.length * ch + 10;
+  const cw = 46, ch = 24, left = 200, top = 90; const W = left + h.xs.length * cw + 10, H = top + h.ys.length * ch + 10;
   return (
     <div className="overflow-auto"><svg data-chart="heatmap" width={W} height={H} role="img" aria-label={`Mapa de calor: ${xLabel} × ${yLabel}`}>
       {h.xs.map((x, i) => <text key={x} x={left + i * cw + cw / 2} y={top - 6} fontSize={9} transform={`rotate(-45 ${left + i * cw + cw / 2} ${top - 6})`}>{x.slice(0, 16)}</text>)}
-      {h.ys.map((y, j) => <g key={y}><text x={left - 4} y={top + j * ch + ch / 2 + 3} fontSize={10} textAnchor="end">{y.slice(0, 20)}</text>
+      {h.ys.map((y, j) => <g key={y}><text x={left - 4} y={top + j * ch + ch / 2 + 3} fontSize={10} textAnchor="end">{y.slice(0, 30)}</text>
         {h.xs.map((x, i) => { const v = h.cell(x, y); const t = v === null ? 0 : (v - h.min) / (h.max - h.min || 1); return (
           <g key={x}><rect x={left + i * cw} y={top + j * ch} width={cw - 2} height={ch - 2} fill={v === null ? "var(--muted)" : "var(--chart-1)"} fillOpacity={v === null ? 1 : 0.15 + 0.85 * t}><title>{`${x} × ${y}: ${v === null ? "sem registro" : v.toLocaleString("pt-BR")}`}</title></rect>
             {v !== null ? <text x={left + i * cw + cw / 2 - 1} y={top + j * ch + ch / 2 + 3} fontSize={9} textAnchor="middle">{v.toLocaleString("pt-BR")}</text> : null}</g>); })}</g>)}
