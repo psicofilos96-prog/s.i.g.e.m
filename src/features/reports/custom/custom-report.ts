@@ -91,7 +91,7 @@ export function pruneSpec(cat: Catalog, spec: CustomSpec): CustomSpec {
   for (const id of spec.joins) { const j = cat.joins.find((x) => x.id === id); if (j && present.includes(j.from) && !present.includes(j.to)) { joins.push(id); present.push(j.to); } }
   const ok = (ref: string | undefined) => !!ref && present.includes(ref.split(".")[0]!) && !!fieldOf(cat, ref) && (spec.includeSensitive || !fieldOf(cat, ref)!.sensitive);
   const pruneGroup = (g: Group): Group => ({ op: g.op, items: g.items.flatMap((n): (Condition | Group)[] => (isGroup(n) ? [pruneGroup(n)] : ok(n.field) ? [n] : [])) });
-  return { ...spec, joins, columns: spec.columns.filter(ok), groupBy: spec.groupBy.filter(ok), measures: spec.measures.filter((m) => AGG_NEEDS_FIELD[m.agg] === "none" || ok(m.field)), filter: pruneGroup(spec.filter) };
+  return { ...spec, joins, columns: spec.columns.filter(ok), groupBy: spec.groupBy.filter(ok), measures: spec.measures.map((m) => (AGG_NEEDS_FIELD[m.agg] === "none" ? { ...m, field: undefined } : m.field && !ok(m.field) ? { ...m, field: undefined } : m)), filter: pruneGroup(spec.filter) };
 }
 
 export const aggregated = (s: CustomSpec) => s.groupBy.length > 0 || s.measures.length > 0;

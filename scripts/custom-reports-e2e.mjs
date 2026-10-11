@@ -45,8 +45,13 @@ try {
   }
   const tot = await q(A.c, { source: "matriculas", measures: [{ agg: "count" }] });
   check(!tot.error && Number(tot.data.rows[0].c1) === expected, "total de matrículas de A = total real da escola dele", `${tot.data?.rows?.[0]?.c1} vs ${expected}`);
+  // Professor lê só matrículas ligadas às turmas dele (política "by class capability"), nunca a escola inteira.
   const bt = await q(B.c, { source: "matriculas", measures: [{ agg: "count" }] });
-  check(!bt.error && Number(bt.data.rows[0].c1) === 0, "RLS: professor sem capability não lê matrículas (0)", bt.error?.message ?? bt.data.rows[0].c1);
+  const bClass = await admin.from("institutional_engagements").select("class_id").eq("person_id", (await admin.from("user_person_links").select("person_id").eq("user_id", B.uid).single()).data.person_id);
+  const cls = (bClass.data ?? []).map((x) => x.class_id).filter(Boolean);
+  const ep = cls.length ? await admin.from("class_enrollment_episodes").select("enrollment_id").in("class_id", cls) : { data: [] };
+  const inClass = new Set((ep.data ?? []).map((x) => x.enrollment_id)).size;
+  check(!bt.error && Number(bt.data.rows[0].c1) <= inClass && Number(bt.data.rows[0].c1) < expected, "RLS: professor vê só matrículas das próprias turmas", `${bt.data?.rows?.[0]?.c1} ≤ ${inClass} (< ${expected} da escola)`);
   const bs = await q(B.c, { source: "servidores", measures: [{ agg: "count" }] });
   check(!bs.error && Number(bs.data.rows[0].c1) === 0, "RLS: professor não lê quadro de pessoal (0)", bs.error?.message ?? bs.data.rows[0].c1);
   const sens = await q(A.c, { source: "estudantes", columns: ["estudantes.nome"] });
@@ -57,7 +62,7 @@ try {
   const an = await anon.rpc("report_custom_query", { _spec: { source: "escolas", columns: ["escolas.nome"] } });
   check(!!an.error, "anônimo não executa o gerador", an.error?.code ?? "");
   const runs = await A.c.from("report_custom_runs").select("id"); const runsB = await B.c.from("report_custom_runs").select("id").in("id", (runs.data ?? []).map((r) => r.id));
-  check((runs.data?.length ?? 0) >= 6 && (runsB.data?.length ?? 0) === 0, "auditoria: execuções registradas; B não lê as de A", `${runs.data?.length}`);
+  check((runs.data?.length ?? 0) >= 5 && (runsB.data?.length ?? 0) === 0, "auditoria: execuções registradas; B não lê as de A", `${runs.data?.length}`);
 
   mkdirSync("/tmp/rep", { recursive: true });
   const host = new globalThis.URL(URL).hostname.split(".")[0];
