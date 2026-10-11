@@ -24,6 +24,6 @@ describe("avaliações externas", () => {
       { ...base, id: "c", logical_id: "lc", edition_year: 2024, homologated: false }];
     const s = historicalSeries(rows, base);
     expect(s.included.map((r) => r.id)).toEqual(["a", "b2"]);
-    expect(s.excluded[0].reason).toBe("Não homologado.");
+    expect(s.excluded[0]?.reason).toBe("Não homologado.");
   });
 });
