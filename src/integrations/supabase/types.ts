@@ -7715,6 +7715,168 @@ export type Database = {
           },
         ]
       }
+      educacenso_aux_codes: {
+        Row: {
+          attrs: Json
+          code: string
+          label: string | null
+          parent_code: string | null
+          reference_year: string
+          row_no: number
+          source_id: string
+          table_key: string
+        }
+        Insert: {
+          attrs?: Json
+          code: string
+          label?: string | null
+          parent_code?: string | null
+          reference_year: string
+          row_no: number
+          source_id: string
+          table_key: string
+        }
+        Update: {
+          attrs?: Json
+          code?: string
+          label?: string | null
+          parent_code?: string | null
+          reference_year?: string
+          row_no?: number
+          source_id?: string
+          table_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educacenso_aux_codes_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "educacenso_aux_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      educacenso_aux_rows: {
+        Row: {
+          cells: Json
+          row_no: number
+          source_id: string
+        }
+        Insert: {
+          cells: Json
+          row_no: number
+          source_id: string
+        }
+        Update: {
+          cells?: Json
+          row_no?: number
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educacenso_aux_rows_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "educacenso_aux_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      educacenso_aux_rules: {
+        Row: {
+          attrs: Json
+          left_key: string
+          reference_year: string
+          right_key: string | null
+          rule_kind: string
+          seq: number
+          source_id: string
+          table_key: string
+        }
+        Insert: {
+          attrs?: Json
+          left_key: string
+          reference_year: string
+          right_key?: string | null
+          rule_kind: string
+          seq: number
+          source_id: string
+          table_key: string
+        }
+        Update: {
+          attrs?: Json
+          left_key?: string
+          reference_year?: string
+          right_key?: string | null
+          rule_kind?: string
+          seq?: number
+          source_id?: string
+          table_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educacenso_aux_rules_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "educacenso_aux_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      educacenso_aux_sources: {
+        Row: {
+          extracted_count: number
+          file_name: string
+          file_sha256: string
+          header: Json
+          id: string
+          in_package: boolean
+          notes: string | null
+          package_sha256: string | null
+          recorded_at: string
+          reference_year: string
+          row_count: number
+          sheet_name: string
+          table_key: string
+          technical_operation_id: string
+          title: string
+        }
+        Insert: {
+          extracted_count: number
+          file_name: string
+          file_sha256: string
+          header: Json
+          id?: string
+          in_package: boolean
+          notes?: string | null
+          package_sha256?: string | null
+          recorded_at?: string
+          reference_year: string
+          row_count: number
+          sheet_name: string
+          table_key: string
+          technical_operation_id: string
+          title: string
+        }
+        Update: {
+          extracted_count?: number
+          file_name?: string
+          file_sha256?: string
+          header?: Json
+          id?: string
+          in_package?: boolean
+          notes?: string | null
+          package_sha256?: string | null
+          recorded_at?: string
+          reference_year?: string
+          row_count?: number
+          sheet_name?: string
+          table_key?: string
+          technical_operation_id?: string
+          title?: string
+        }
+        Relationships: []
+      }
       educacenso_code_translations: {
         Row: {
           act: string
@@ -23676,6 +23838,16 @@ export type Database = {
           _valid_until: string
         }
         Returns: string
+      }
+      educacenso_aux_check: {
+        Args: {
+          _a: string
+          _b?: string
+          _c?: string
+          _kind: string
+          _year: string
+        }
+        Returns: Json
       }
       educacenso_collection_act: {
         Args: {
