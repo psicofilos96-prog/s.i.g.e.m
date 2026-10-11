@@ -8,6 +8,8 @@ import { ACT_LABEL, STATE_LABEL, actNeedsReason, actWho, nextState, ACTS, valida
 import { documentBlocks, semedPdf, semedXlsx, type Central } from "./semed-export";
 import { T04Panel, type T04Rule } from "./t04-panel";
 import { T06Panel } from "./t06-panel";
+import { T10Panel } from "./t10-panel";
+import { t10Blocks, type T10Formation, type T10Staff } from "./t10-staff";
 import { SemedAttachments } from "./semed-attachments";
 import { centralText } from "./semed-export";
 import type { T06Apur } from "./semed-export";
@@ -37,7 +39,7 @@ export function SemedTablesPage() {
   const [school, setSchool] = useState(""); const [code, setCode] = useState<string>("04");
   const [central, setCentral] = useState<Central>({});
   const [draft, setDraft] = useState<Record<string, string | number | null>>({});
-  const [reason, setReason] = useState(""); const [t04Rule, setT04Rule] = useState<T04Rule>(null); const [t06Apur, setT06Apur] = useState<T06Apur | null>(null); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
+  const [reason, setReason] = useState(""); const [t04Rule, setT04Rule] = useState<T04Rule>(null); const [t06Apur, setT06Apur] = useState<T06Apur | null>(null); const [t10, setT10] = useState<{ s: T10Staff[]; f: Map<string, T10Formation[]> } | null>(null); const onT10 = useCallback((s: T10Staff[], f: Map<string, T10Formation[]>) => setT10({ s, f }), []); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     const s = await rpc("semed_scope_schools");
@@ -86,8 +88,11 @@ export function SemedTablesPage() {
   }, [draft, code, editable, dirty, busy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const meta = () => ({ year: YEAR, tableCode: code, title: def!.title, school: String(central["escola"] ?? names.get(school) ?? school), inep: String(central["inep"] ?? ""), state: STATE_LABEL[state], version: cat!.version, generatedAt: new Date() });
-  const pdf = async () => download(await semedPdf(def!, documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null, code === "06" ? t06Apur : null), meta()), `tabela-${code}-${YEAR}.pdf`);
-  const xlsx = async () => download(new Blob([await semedXlsx(documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null, code === "06" ? t06Apur : null), meta())]), `tabela-${code}-${YEAR}.xlsx`);
+  // Tabela 10: a grade legada de 30 linhas do catálogo v1 é substituída pelo quadro completo do cadastro central.
+  const blocks = () => { const b = documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null, code === "06" ? t06Apur : null);
+    if (code !== "10") return b; const keep = b.filter((x) => !x.title.startsWith("Servidores")); return [keep[0]!, ...t10Blocks(t10?.s ?? [], t10?.f ?? new Map()), ...keep.slice(1)]; };
+  const pdf = async () => download(await semedPdf(def!, blocks(), meta()), `tabela-${code}-${YEAR}.pdf`);
+  const xlsx = async () => download(new Blob([await semedXlsx(blocks(), meta())]), `tabela-${code}-${YEAR}.xlsx`);
 
   if (scope === undefined) return <StatePanel title="Carregando…" description="Conferindo seu acesso." />;
   if (scope === null) return <EmptyState title="Não foi possível abrir" description="Tente novamente." />;
@@ -130,7 +135,7 @@ export function SemedTablesPage() {
             <StatusBadge tone={state === "fechado" ? "success" : state === "devolvido" || state === "revisao-solicitada" ? "warning" : "info"}>{sub ? STATE_LABEL[state] : "Não iniciada"}</StatusBadge>
             <span className="text-xs text-muted-foreground">catálogo v{cat!.version}</span>
           </div>
-          {def.sections.map((s) => (
+          {def.sections.filter((s) => !(def.code === "10" && s.kind === "grid")).map((s) => (
             <section key={s.id} className="rounded-md border p-3">
               <h3 className="mb-2 text-sm font-semibold">{s.title}</h3>
               {s.kind === "fields" ? (
@@ -151,6 +156,7 @@ export function SemedTablesPage() {
               )}
             </section>
           ))}
+          {code === "10" && school && <T10Panel school={school} year={YEAR} editable={editable} onData={onT10} />}
           {code === "04" && <T04Panel school={school} year={YEAR} network={!!perm?.network} canFill={!!perm?.can_fill} editable={editable} draft={draft as Values} setDraft={setDraft} onRule={setT04Rule} />}
           {code === "09" && editable && <p className="text-xs text-muted-foreground" role="status">Salvamento automático ligado{autoAt ? ` · último às ${autoAt.toLocaleTimeString("pt-BR")}` : ""}{dirty ? " · alterações pendentes" : ""}.</p>}
           {code === "09" && <SemedAttachments school={school} year={YEAR} code="09" canFill={!!perm?.can_fill && state !== "fechado"} />}

@@ -397,5 +397,7 @@
  "drizzle/migrations/0346_semed_tables_fixture_capabilities.sql": "d2aa19a1b6665a8f4cb2759de0333462cc5a15b9b2d5c3da7b340734d7684353",
  "drizzle/migrations/0347_semed_tables_central_undated.sql": "a4be98a1bc0cd0291c997973b7cb1860ca203666ddbb5e7e25e53399f3b33087",
  "drizzle/migrations/0348_semed_t04_rule_apuracao_adjustments.sql": "7cd5f85614e16e43985f5974414a7e7e3656e3c408e007014154d8b2a16489d9",
- "drizzle/migrations/0349_semed_t06_movement_apuracao.sql": "1442eb9c5bcfbf28403077797133726639e7168bbd8fba616f9bde32916621e9"
+ "drizzle/migrations/0349_semed_t06_movement_apuracao.sql": "1442eb9c5bcfbf28403077797133726639e7168bbd8fba616f9bde32916621e9",
+ "drizzle/migrations/0350_semed_t09_infra_attachments.sql": "c8c3247880863b0ba093c0c11e4dc7ab5a0661e76456523dc768c9a49b29adce",
+ "drizzle/migrations/0351_semed_t10_staff_formation.sql": "3bd75c52963d4a154ae56010635188e8290aee2af9b900db0b559ef72be70590"
 }
