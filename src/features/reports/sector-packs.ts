@@ -6,7 +6,7 @@
  * motivo — nunca com número inventado ou gráfico vazio apresentado como zero.
  */
 import type { BuilderChoice, BuilderSource } from "./report-builder";
-import { DEFAULT_LAYOUT, chartIssues, layoutIssues, organize, validateOrganization, type ChartSpec, type Organization, type ReportLayout } from "./report-analytics";
+import { DEFAULT_LAYOUT, INSTITUTIONAL_LOGOS, chartIssues, layoutIssues, organize, validateOrganization, type ChartSpec, type Organization, type ReportLayout } from "./report-analytics";
 
 export type PackSector = "ciece" | "secretaria" | "direcao" | "op" | "docente" | "avaliacao" | "alimentacao" | "inclusao" | "admin";
 export const PACK_SECTOR_LABEL: Record<PackSector, string> = {
@@ -45,7 +45,7 @@ const R = {
   temporal: "Série temporal exige mais de um ano reconciliado; 2027 ainda não tem fatos.",
 };
 
-export const SECTOR_PACKS: readonly SectorPack[] = [
+const RAW_PACKS: readonly SectorPack[] = [
   // CIECE
   ready("ciece-turmas-escola-etapa", "ciece", "Turmas por escola e etapa", "gerador-turmas", ["school", "stage", "name", "year"], org(["school", "stage"]),
     { kind: "barras-horizontais", category: "school", measures: ["n"], title: "Turmas por escola" }, true),
@@ -95,8 +95,20 @@ export const SECTOR_PACKS: readonly SectorPack[] = [
   ready("doc-4", "docente", "Planejamento", "diario-planejamento", ["class", "title", "status", "from", "until"], org(["status"]), { kind: "barras", category: "status", measures: ["n"], title: "Planos por situação" }),
   ready("doc-5", "docente", "Visão da turma", "diario-cobertura", ["class", "date", "chamada"], org(["chamada"]), { kind: "donut", category: "chamada", measures: ["n"], title: "Aulas com chamada" }),
   // Avaliação
-  ...["Desempenho por escola/turma/componente", "Evolução", "Distribuição", "Cobertura", "Mapa de calor", "Comparações"].map((t, i) =>
+  ...["Desempenho por escola/turma/componente", "Evolução", "Distribuição", "Mapa de calor", "Comparações"].map((t, i) =>
     blocked(`aval-${i}`, "avaliacao", t, "gerador-avaliacao", R.assess)),
+  ready("aval-plano", "avaliacao", "Planos de intervenção por escola", "aa-intervencoes", ["school", "class", "segment", "origin", "objective", "responsible", "due"], org(["school"]),
+    { kind: "barras", category: "school", measures: ["n"], title: "Planos por escola" }, true),
+  ready("aval-devolutivas", "avaliacao", "Devolutivas e reavaliações", "aa-devolutivas", ["school", "kind", "progress", "responsible", "date", "body"], org(["kind"]),
+    { kind: "barras", category: "kind", measures: ["n"], title: "Registros por tipo" }, true),
+  ready("aval-cobertura", "avaliacao", "Cobertura do calendário de avaliações", "aa-calendario", ["year", "start", "end", "segment", "kind", "program", "action"], org(["kind"]),
+    { kind: "barras", category: "kind", measures: ["n"], title: "Ações por tipo" }, true),
+  ready("aval-importacao", "avaliacao", "Cobertura das importações", "aa-importacao", ["file", "sheet", "program", "measure", "state", "rows"],
+    org(["state"], [{ id: "l", label: "Linhas", agg: "sum", column: "rows" }]), { kind: "barras", category: "state", measures: ["l"], title: "Linhas por identificação" }, true),
+  ...([["aval-sintese", "Síntese municipal", "aa-sintese-municipal"], ["aval-boletim", "Boletim da escola/turma", "aa-boletim"], ["aval-habilidades", "Avaliação por habilidade", "aa-habilidades"],
+    ["aval-ideb", "Séries SAEB/IDEB", "aa-ideb"], ["aval-saber-ler", "Saber Ler", "aa-saber-ler"], ["aval-diag", "Diagnósticas e formativas", "aa-diagnosticas"],
+    ["aval-pt", "Produção textual", "aa-producao-textual"], ["aval-ei", "Educação Infantil", "aa-educacao-infantil"], ["aval-infreq", "Infrequência", "aa-infrequencia"],
+    ["aval-busca", "Busca ativa", "aa-busca-ativa"]] as const).map(([id, t, s]) => blocked(id, "avaliacao", t, s, "Assunto catalogado sem dado oficial gravado; o motivo aparece ao abrir.")),
   // Alimentação
   ready("nae-pedidos", "alimentacao", "Solicitações: solicitado × autorizado", "nae-pedidos", ["school", "competence", "status", "requested", "authorized"], org(["status"]),
     { kind: "barras", category: "status", measures: ["n"], title: "Pedidos por situação" }),
@@ -122,6 +134,10 @@ export const SECTOR_PACKS: readonly SectorPack[] = [
 ];
 
 /** Problemas estruturais do pacote contra o assunto real (colunas, cálculos, gráfico, layout). */
+/** A&A: modelos oficiais do setor saem com brasão, QR de verificação e linha de assinatura por função (nunca nome presumido). */
+const aaLayout = (l: ReportLayout): ReportLayout => ({ ...l, logoUrl: INSTITUTIONAL_LOGOS[0]?.url ?? null, verificationQr: true, signatures: ["Coordenação de Acompanhamento e Avaliação"] });
+export const SECTOR_PACKS: readonly SectorPack[] = RAW_PACKS.map((p) => (p.sector === "avaliacao" && p.layout ? { ...p, layout: aaLayout(p.layout) } : p));
+
 export function packIssues(p: SectorPack, sources: readonly BuilderSource[]): string[] {
   if (p.blockedBy) return [];
   const src = sources.find((s) => s.id === p.sourceId);

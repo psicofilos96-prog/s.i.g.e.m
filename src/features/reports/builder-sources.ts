@@ -3,6 +3,7 @@
  * capabilities do dado de origem decidem o que volta. Nenhum adaptador usa privilégio de serviço.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { AA_SOURCES } from "./aa-report-sources";
 import type { CellValue, ColumnDef, ReportDefinition } from "./report-engine";
 import type { BuilderSource, Page } from "./report-builder";
 import { structureOf } from "@/features/statistical-map/map-structures";
@@ -337,6 +338,7 @@ export const BUILDER_SOURCES: readonly BuilderSource[] = [
     acl: "RLS de matrículas com a sessão de quem gera (escola vê só as próprias).", period: true, pageSize: 1000, filterable: ["school", "year", "offer"],
     load: loadEnrollments, finalize: (r) => dropSuperseded(r), schoolIdColumn: "school" },
   ...(["pedidos", "entregas", "nao-conformidades", "movimentos", "execucoes"] as const).map(mealSource),
+  ...AA_SOURCES,
   pending("gerador-avaliacao", "Avaliação — resultados por habilidade", ["avaliacao"], "Os resultados saem pela tela de Desempenho, com a política de supressão dela; leitura transversal ainda não liberada."),
   ...CROSS_SOURCES,
   DECLARED_SOURCE,
