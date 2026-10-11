@@ -98,10 +98,7 @@ export const STATUS_LABEL: Record<PlanStatus, string> = { rascunho: "Rascunho (s
 
 /** LOTE 8 — planejamento semanal com datas livres: um bloco por dia do intervalo escolhido (máx. 31), sem duplicar dias já presentes. */
 const DOW = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
-/** Campos do dia quando a Secretaria ainda não configurou modelo (SIPE): os do documento SIPE. */
-export const DEFAULT_DAY_FIELDS = ["Habilidades (BNCC)", "Conteúdos", "Conhecimentos prévios", "Metodologia", "Recursos", "Avaliação", "Critérios", "Evidências"];
 export const dayFieldsText = (fields: readonly string[]) => fields.map((f) => `${f}:`).join("\n");
-export const DAY_FIELDS = dayFieldsText(DEFAULT_DAY_FIELDS);
 export type PlanTemplate = { id: string; scope_key: string; segment_key: string; version: number; supersedes_id: string | null; plan_mode: "unidocente" | "por-componente"; day_fields: string[]; change_reason: string | null; recorded_at: string };
 /** Cabeças por (escopo, segmento); o modelo da escola prevalece sobre o da rede. Versões antigas ficam no histórico e planos já gravados não mudam. */
 export function templateHeads(rows: readonly PlanTemplate[]) {
@@ -113,7 +110,7 @@ export function resolveTemplate(rows: readonly PlanTemplate[], schoolId: string 
   const hs = templateHeads(rows).filter((t) => t.segment_key === segment);
   return hs.find((t) => schoolId && t.scope_key === `escola:${schoolId}`) ?? hs.find((t) => t.scope_key === "rede") ?? null;
 }
-export function dailyBlocks(from: string, until: string, existing: readonly PlanBlock[], includeWeekends = false, fields: readonly string[] = DEFAULT_DAY_FIELDS): PlanBlock[] {
+export function dailyBlocks(from: string, until: string, existing: readonly PlanBlock[], includeWeekends = false, fields: readonly string[] = []): PlanBlock[] {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(until) || until < from) return [...existing];
   const have = new Set(existing.map((b) => b.heading));
   const out = [...existing];

@@ -12,7 +12,8 @@ import { copyDraft, dailyBlocks, filterPlans, planTargetDate, parseBlocks, parse
 import { attachmentUrl, classPositions, planPeriods, itemsOfMatrix, matrixItemKeys, myAssignments, planAttachments, revokeAttachment, savePlan, uploadAttachment, visiblePlans, type Assignment } from "./planning-source";
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
 import { PlanPrint, SharePanel, TemplatesAdmin, planTemplates, recordSharedCopy, sharedWithMe } from "./sipe-extras";
-import { resolveTemplate, templateHeads, DEFAULT_DAY_FIELDS } from "./planning-model";
+import { resolveTemplate, templateHeads } from "./planning-model";
+import { DEFAULT_DAY_FIELDS } from "./sipe-defaults";
 
 const today = () => operationalToday();
 type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null; sharedSource?: string };

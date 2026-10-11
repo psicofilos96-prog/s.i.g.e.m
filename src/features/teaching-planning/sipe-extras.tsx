@@ -4,7 +4,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import brasao from "@/assets/brasao-itaperuna.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_DAY_FIELDS, parseBlocks, parseRefs, templateHeads, type PlanTemplate, type PlanVersion } from "./planning-model";
+import { DEFAULT_DAY_FIELDS } from "./sipe-defaults";
+import { parseBlocks, parseRefs, templateHeads, type PlanTemplate, type PlanVersion } from "./planning-model";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const must = async <T,>(p: PromiseLike<{ data: T; error: { message: string } | null }>) => { const r = await p; if (r.error) throw new Error(r.error.message); return r.data; };
