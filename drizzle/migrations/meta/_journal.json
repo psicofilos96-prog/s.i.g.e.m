@@ -2430,6 +2430,13 @@
       "when": 1791718115564,
       "tag": "0346_semed_tables_fixture_capabilities",
       "breakpoints": true
+    },
+    {
+      "idx": 347,
+      "version": "7",
+      "when": 1791718218765,
+      "tag": "0347_semed_tables_central_undated",
+      "breakpoints": true
     }
   ]
 }

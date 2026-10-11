@@ -37,7 +37,7 @@ try {
   const scN = await NET.c.rpc("semed_scope_schools"); check(!scN.error && scN.data.length >= 2 && scN.data[0].network, "rede vê todas as escolas", String(scN.data?.length));
   const scX = await NONE.c.rpc("semed_scope_schools"); check(!scX.error && scX.data.length === 0, "conta sem permissão não vê escolas");
   const scAn = await anon.rpc("semed_scope_schools"); check(!!scAn.error, "anônimo recusado");
-  const cen = await FILL.c.rpc("semed_table_central", { _school: A }); check(!cen.error && cen.data?.escola && typeof cen.data["matricula-ativa"] === "number", "dados centrais da escola A (nome, matrícula ativa)", String(cen.data?.["matricula-ativa"]));
+  const cen = await FILL.c.rpc("semed_table_central", { _school: A }); check(!cen.error && cen.data?.escola && typeof cen.data["matricula-ativa"] === "string", "dados centrais da escola A (nome, matrícula ativa)", String(cen.data?.["matricula-ativa"]));
   const cenB = await FILL.c.rpc("semed_table_central", { _school: B }); check(!cenB.error && cenB.data === null, "secretaria A não lê dados centrais da escola B");
 
   const vals = { "m.ef1.inicial": 30, "m.ef1.recebidos": 2, "m.ef1.transferencia": 3, "m.ef1.cancelamento": 1, "m.ef1.evasao": 0, "m.ef1.aprovados": 25, "rodape.preenchimento": "Teste sintético" };
