@@ -17,7 +17,7 @@ export function NeiInboxPage() {
   const [items, setItems] = useState<Item[] | null | undefined>(undefined); const [names, setNames] = useState<Map<string, string>>(new Map());
   const [open, setOpen] = useState<Detail | null>(null);
   const load = () => void rpc("nei_protocol_inbox").then((r) => setItems(r.error ? null : (r.data as Item[])));
-  useEffect(() => { load(); void readCurrentSchoolNames().then((m) => setNames(new Map(Object.entries(m as unknown as Record<string, string>)))); }, []);
+  useEffect(() => { load(); void readCurrentSchoolNames().then(setNames); }, []);
   const show = (id: string) => void rpc("open_nei_protocol", { _protocol: id }).then((r) => setOpen(r.error ? null : (r.data as Detail | null)));
   const today = new Date().toLocaleDateString("sv-SE");
   return (
