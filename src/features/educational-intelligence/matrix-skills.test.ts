@@ -31,14 +31,14 @@ describe("domínio por habilidade", () => {
   ];
   it("sem regra homologada não calcula taxa", () => expect(skillMastery(links, rs, null).every((m) => m.rate === null && m.status === "sem-regra")).toBe(true));
   it("não lida fica fora do denominador e é contada", () => {
-    const h1 = skillMastery(links, rs, { minItemsPerSkill: 2, minRespondents: 2 })[0];
+    const h1 = skillMastery(links, rs, { minItemsPerSkill: 2, minRespondents: 2 })[0]!;
     expect(h1).toMatchObject({ status: "apurado", correct: 2, valid: 3, excluded: 1 });
     expect(h1.rate).toBeCloseTo(2 / 3);
   });
   it("poucos itens ou respondentes não apura", () => {
     const m = skillMastery(links, rs, { minItemsPerSkill: 2, minRespondents: 2 });
-    expect(m[1].status).toBe("itens-insuficientes");
-    expect(skillMastery(links, rs, { minItemsPerSkill: 1, minRespondents: 3 })[0].status).toBe("respondentes-insuficientes");
+    expect(m[1]!.status).toBe("itens-insuficientes");
+    expect(skillMastery(links, rs, { minItemsPerSkill: 1, minRespondents: 3 })[0]!.status).toBe("respondentes-insuficientes");
   });
   it("lacuna de cobertura", () => expect(coverageGaps(["H1", "H2", "H3"], links)).toEqual(["H3"]));
   it("intervenção exige limiar", () => {
