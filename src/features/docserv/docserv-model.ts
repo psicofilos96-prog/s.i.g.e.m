@@ -44,6 +44,7 @@ export const API_PORT_STATUS: { route: string; status: "portado" | "pendente"; l
   { route: "documentos download-url", status: "portado", lote: "02" },
   { route: "documentos download-zip", status: "pendente", lote: "03" },
   { route: "alertas marcar-lido", status: "portado", lote: "03" },
-  { route: "vinculação-anual confirmar, solicitações, desvinculação", status: "pendente", lote: "03" },
+  { route: "solicitações e desvinculação (pedido à rede)", status: "portado", lote: "04" },
+  { route: "vinculação-anual confirmar", status: "pendente", lote: "05" },
   { route: "scripts de importação", status: "pendente", lote: "importação governada (staging)" },
 ];
