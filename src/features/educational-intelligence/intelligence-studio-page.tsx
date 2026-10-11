@@ -7,6 +7,7 @@ import { governError } from "@/lib/observability/governed-errors";
 import { DATASETS, EI_BLOCKERS, EI_CAPABILITIES } from "./catalog";
 import { AssessmentCyclePanel, countByState } from "./assessment-cycle-panel";
 import type { CycleState } from "./assessment-cycle";
+import { ProgramsPanel } from "./programs-panel";
 
 type Rpc = (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
@@ -48,7 +49,7 @@ export function IntelligenceStudioPage() {
         description="Resultados de avaliações externas e internas lidos das fontes canônicas, com proveniência, natureza do dado e comparabilidade declarada." />
       <Tabs defaultValue="visao">
         <TabsList className="flex h-auto flex-wrap justify-start">
-          {([["visao", "Visão Geral"], ["avaliacoes", "Avaliações"], ["evolucao", "Evolução Histórica"], ["habilidades", "Habilidades/Descritores"], ["escolas", "Escolas e Turmas"], ["alunos", "Alunos"], ["relatorios", "Relatórios"], ["paineis", "Painéis"], ["qualidade", "Qualidade dos Dados"]] as const).map(([v, l]) => (
+          {([["visao", "Visão Geral"], ["programas", "Programas"], ["avaliacoes", "Avaliações"], ["evolucao", "Evolução Histórica"], ["habilidades", "Habilidades/Descritores"], ["escolas", "Escolas e Turmas"], ["alunos", "Alunos"], ["relatorios", "Relatórios"], ["paineis", "Painéis"], ["qualidade", "Qualidade dos Dados"]] as const).map(([v, l]) => (
             <TabsTrigger key={v} value={v}>{l}</TabsTrigger>))}
         </TabsList>
 
@@ -68,6 +69,7 @@ export function IntelligenceStudioPage() {
           </section>
         </TabsContent>
 
+        <TabsContent value="programas"><ProgramsPanel registeredNames={programs.state === "ok" ? live(programs).map((p) => p.name) : programs.state === "loading" ? [] : null} onChanged={() => window.location.reload()} /></TabsContent>
         <TabsContent value="avaliacoes">
           {programs.state === "ok" && live(programs).length === 0 && <EmptyState title="Nenhum programa registrado" description="SAEB, AVALIA RJ, CAEd, Saber Ler e avaliações municipais entram como programa com origem, responsável pela aplicação e pela correção." />}
           <ul className="divide-y rounded-md border">
