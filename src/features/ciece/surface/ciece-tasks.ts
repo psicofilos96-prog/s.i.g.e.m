@@ -3,7 +3,7 @@ export type CieceTask = {
   id: "qualidade" | "mapa" | "fontes";
   title: string;
   description: string;
-  links: readonly { label: string; to: "/qualidade-dos-dados" | "/mapa-estatistico-rede" | "/central-de-integracoes" | "/censo-escolar" }[];
+  links: readonly { label: string; to: "/qualidade-dos-dados" | "/mapa-estatistico-rede" | "/central-de-integracoes" | "/censo-escolar" | "/educacenso" }[];
 };
 
 export const CIECE_TASKS: readonly CieceTask[] = [
@@ -26,6 +26,7 @@ export const CIECE_TASKS: readonly CieceTask[] = [
     links: [
       { label: "Importar arquivos", to: "/central-de-integracoes" },
       { label: "Reconciliar com o Censo", to: "/censo-escolar" },
+      { label: "Controle do Educacenso", to: "/educacenso" },
     ],
   },
 ];

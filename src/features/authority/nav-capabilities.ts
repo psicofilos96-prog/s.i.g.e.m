@@ -14,6 +14,8 @@ export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>
   // inteira sem `administrar-integracoes` em alcance de rede (has_network_capability, 0091/0092).
   "/integracoes": ["administrar-integracoes"],
   "/central-de-integracoes": ["administrar-integracoes"],
+  // EDUCACENSO.1 — educacenso_control_at só lista escolas com estas capacidades (0354).
+  "/educacenso": ["preparar-censo-escolar", "consultar-censo-escolar", "consultar-pendencias-do-censo"],
 };
 
 /** Rotas cuja capacidade só vale em alcance de rede (sem escola/turma), espelhando o banco. */
