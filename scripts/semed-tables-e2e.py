@@ -56,7 +56,7 @@ async def main():
             await (await d.value).save_as(f"{OUT}/t04.{ext}")
         check(os.path.getsize(f"{OUT}/t04.pdf") > 1000, "PDF da Tabela 04 gerado")
         n = await page_for(b, S["sessions"]["net"])
-        check(await n.get_by_text("Situação na rede").count() == 1, "rede vê quadro da rede"); await n.screenshot(path=f"{OUT}/net.png")
+        await n.get_by_text("Situação na rede").first.wait_for(timeout=20000); check(await n.get_by_text("Situação na rede").count() == 1, "rede vê quadro da rede"); await n.screenshot(path=f"{OUT}/net.png")
         x = await page_for(b, S["sessions"]["none"]); await x.wait_for_timeout(1500)
         check(await x.get_by_text("Sem acesso às Tabelas SEMED").count() == 1, "conta sem permissão recusada na tela")
         await b.close()
