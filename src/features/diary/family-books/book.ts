@@ -176,16 +176,16 @@ function sheetPap(c: Ctx, k: number) {
 function sheetNotasPeriodo(c: Ctx, k: number) {
   const { i } = c; const p = i.periods[k]!; const comp = i.componentId!; const months = monthsOf(p);
   const given = lessonsGiven(i, p, comp);
-  const r1 = `<tr><th rowspan="2" scope="col">Nº</th><th rowspan="2" scope="col">NOME</th><th colspan="${months.length}" scope="colgroup">Faltas do ${esc(p.label)}</th><th rowspan="2" scope="col">Total de faltas</th><th rowspan="2" scope="col">% Frequência</th><th colspan="6" scope="colgroup">AVALIAÇÕES</th><th rowspan="2" scope="col">NOTA FINAL DO PL (100)</th></tr>`;
+  const r1 = `<tr><th rowspan="2" scope="col">Nº</th><th rowspan="2" scope="col">NOME</th><th colspan="${months.length}" scope="colgroup">Faltas do ${esc(p.label)}</th><th rowspan="2" scope="col">Total de faltas</th><th rowspan="2" scope="col">% Frequência</th><th rowspan="2" scope="col">NÚMERO</th><th colspan="6" scope="colgroup">AVALIAÇÕES</th><th rowspan="2" scope="col">NOTA FINAL DO PL (100)</th></tr>`;
   const r2 = `<tr>${months.map((m) => `<th scope="col">${monthName(m).slice(0, 3)}</th>`).join("")}<th scope="col">AV1 (30)</th><th scope="col">AV2 (30)</th><th scope="col">Instr. variados (30)</th><th scope="col">Particip. (10)</th><th scope="col">TOTAL (100)</th><th scope="col">Rec. paralela (60)</th></tr>`;
   const body = i.students.map((s, idx) => {
     const a = absencesOf(i, s.id, p, comp); const x = gradeCells(i, s.id, comp, k);
     const freq = a.absences === null ? null : attendancePct(given || null, a.absences);
-    return `<tr><td class="k">${idx + 1}</td><td class="nm">${esc(s.name)}${statusTag(s)}</td>${months.map((m) => `<td class="k">${n(absencesOf(i, s.id, p, comp, m).absences)}</td>`).join("")}<td class="k">${n(a.absences)}</td><td class="k">${pct(freq)}</td>${[x.av1, x.av2, x.iv, x.pa, x.total, x.rp].map((v) => `<td class="k">${n(v)}</td>`).join("")}<td class="k b">${n(x.note)}</td></tr>`;
-  }).join("") || emptyRow(10 + months.length);
+    return `<tr><td class="k">${idx + 1}</td><td class="nm">${esc(s.name)}${statusTag(s)}</td>${months.map((m) => `<td class="k">${n(absencesOf(i, s.id, p, comp, m).absences)}</td>`).join("")}<td class="k">${n(a.absences)}</td><td class="k">${pct(freq)}</td><td class="k">${idx + 1}</td>${[x.av1, x.av2, x.iv, x.pa, x.total, x.rp].map((v) => `<td class="k">${n(v)}</td>`).join("")}<td class="k b">${n(x.note)}</td></tr>`;
+  }).join("") || emptyRow(11 + months.length);
   return `${head(c, `${p.label.toUpperCase()}`, `Disciplina: ${esc(compLabel(i, comp))} · Professor: ${esc(i.header.teacher ?? DASH)}`)}
   <table class="mini"><tbody><tr><th scope="row">TOTAL DE AULAS PREVISTAS</th><td>${n(p.planned)}</td><th scope="row">TOTAL DE AULAS DADAS</th><td>${given}</td></tr></tbody></table>
-  ${table("grid", r1 + r2, body)}<p class="lg">Nota do PL = MAX(AV1+AV2+IV+PA; RP+IV+PA) — modelo da rede (nº PL!Q12). % frequência = ROUND((AD−faltas)/AD;2); 100% com falta = 99% (nº PL!H12).</p>
+  ${table("grid tall", r1 + r2, body)}<p class="lg">Nota do PL = MAX(AV1+AV2+IV+PA; RP+IV+PA) — modelo da rede (nº PL!Q12). % frequência = ROUND((AD−faltas)/AD;2); 100% com falta = 99% (nº PL!H12).</p>
   <p>Observações: _______________________________________________</p>${sign(["Assinatura do professor"], c)}`;
 }
 
@@ -315,7 +315,7 @@ body{font:9px/1.25 Arial,Helvetica,sans-serif;margin:0;color:#000}.sheet{positio
 .hd{display:flex;align-items:center;gap:8px;border-bottom:1.5px solid #000;padding-bottom:3px;margin-bottom:4px}.hd h2{margin-left:auto;font-size:11px;text-align:right}.em{height:34px}
 .capa{text-align:center;padding-top:30mm}.emc{height:90px}.capa .big{font-size:20px;font-weight:bold;margin:12mm 0}.capa dl{display:grid;grid-template-columns:1fr;gap:2mm;max-width:150mm;margin:0 auto;text-align:left}.capa dt{font-size:8px;border-top:1px solid #000;padding-top:1mm}.capa dd{margin:0 0 4mm;font-size:13px;font-weight:bold}
 table{border-collapse:collapse;width:100%;margin:3px 0}th,td{border:.6px solid #000;padding:1px 2px;vertical-align:middle}th{background:#e8e8e8;font-weight:bold;text-align:center}thead{display:table-header-group}tr{page-break-inside:avoid}
-.freq{font-size:7px}.freq td.k,.freq th.d{width:3.2mm;padding:0;text-align:center}.nm{white-space:nowrap;min-width:45mm}.k{text-align:center;white-space:nowrap}.b{font-weight:bold}.v{writing-mode:vertical-rl;transform:rotate(180deg);height:22mm;font-size:7px}
+.freq{font-size:7px;table-layout:auto}.freq td.k,.freq th.d{padding:0 1px;text-align:center}.freq .nm{width:52mm}.nm{white-space:nowrap;min-width:40mm}.tall td{height:6mm}.k{text-align:center;white-space:nowrap}.b{font-weight:bold}.v{writing-mode:vertical-rl;transform:rotate(180deg);height:22mm;font-size:7px}
 .mini{width:auto;font-size:8px}.cont td:first-child{width:12mm}.obs{height:9mm;min-width:120mm}.lg{font-size:7.5px;margin:2px 0}.sig{font-size:7px}.st{border:1px solid #000;padding:4px}
 .sg{display:flex;gap:16mm;justify-content:center;margin-top:8mm}.sg div{text-align:center;font-size:8px}.sg span{display:block;width:65mm;border-top:1px solid #000;margin-bottom:1mm}
 .brk{page-break-before:always}h3{font-size:10px;margin:4px 0}.ft{font-size:7px;margin-top:4px;color:#333}
