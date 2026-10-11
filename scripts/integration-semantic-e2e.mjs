@@ -25,13 +25,12 @@ const rec = async (u) => { const r = await u.c.rpc("integration_reconciliation_a
 const sum = (r) => (r.data?.rows ?? []).reduce((a, x) => a + Number(x.c2), 0);
 try {
   const NET = await mk("rede", "administrador-geral-do-sigem"), A = await mk("escola-a", "secretaria-escolar"), B = await mk("escola-b", null);
-  const g = await admin.rpc("bo_fixture_grant_capability", { _operation_id: op, _user_id: B.uid, _capability: "consultar-matricula-e-movimentacao", _school: A.ctx.other_school }); if (g.error) throw new Error("grant " + g.error.message);
   const rn = await rec(NET), ra = await rec(A), rb = await rec(B);
   for (const [k, v] of Object.entries(rn)) console.log(`INFO rede ${k}: ${v.issues}/${v.total}`);
   check(Number(rn["matricula-sem-enturmacao"].total) === 9811, "rede: 9.811 matrículas vistas", rn["matricula-sem-enturmacao"].total);
   check(Number(rn["enturmacao-turma-inexistente"].issues) === 0, "nenhuma enturmação aponta turma inexistente");
   check(Number(ra["matricula-sem-enturmacao"].total) < 9811 && Number(ra["matricula-sem-enturmacao"].total) > 0, "escola A: reconciliação limitada à própria escola", ra["matricula-sem-enturmacao"].total);
-  check(Number(rb["matricula-sem-enturmacao"].total) > 0 && rb["matricula-sem-enturmacao"].total !== ra["matricula-sem-enturmacao"].total, "escola B vê só o próprio recorte, distinto de A", `${ra["matricula-sem-enturmacao"].total} vs ${rb["matricula-sem-enturmacao"].total}`);
+  check(Number(rb["matricula-sem-enturmacao"].total) === 0 && Number(rb["enturmacao-turma-inexistente"].total) === 0, "conta B sem escopo na escola A: nada visível (falha fechada)", `${ra["matricula-sem-enturmacao"].total} vs ${rb["matricula-sem-enturmacao"].total}`);
   const x = await NET.c.rpc("report_custom_query", { _spec: spec });
   check(!x.error && sum(x) === Number(rn["enturmacao-turma-inexistente"].total), "3 fontes (vínculos×turmas×escolas) somam o total de enturmações", x.error?.message ?? `${sum(x)} = ${rn["enturmacao-turma-inexistente"].total}`);
   const xa = await A.c.rpc("report_custom_query", { _spec: spec });
