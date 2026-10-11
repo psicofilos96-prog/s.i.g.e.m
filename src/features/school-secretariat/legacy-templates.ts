@@ -11,7 +11,6 @@ const RULES: [Routine, RegExp][] = [
   ["atestado-escolaridade", /atestado\W+de\W+escolaridade|atestados escolaridade/i],
   ["declaracao-transferencia", /transfer/i],
   ["declaracao-frequencia-servidor", /frequencia de professor|frequ.ncia mensal|ponto /i],
-  ["autoriza\u00e7\u00e3o" as Routine, /$^/], // placeholder never matches
   ["autorizacao", /autoriza/i],
   ["renovacao-matricula", /renova/i],
   ["ficha-matricula", /ficha de matr/i],
