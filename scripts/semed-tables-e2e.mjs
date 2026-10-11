@@ -77,6 +77,19 @@ try {
   const t10b = await act(FILL, "salvar", 1, { code: "10", values: { "s.n31.nome": "x" } }); check(!!t10b.error, "Tabela 10 recusa 31º servidor");
   const t11 = await act(FILL, "salvar", 0, { code: "11", values: { "m.ef1.masc": 10, "m.ef1.fem": 12 } }); check(!t11.error, "Tabela 11 aceita masculino/feminino");
 
+  // Tabela 04: regra pela rede, apuração do cadastro, ajuste justificado
+  const ruleF = await FILL.c.rpc("semed_t04_record_rule", { _year: 2026, _expected_version: 0, _reference_date: "2026-03-31", _thresholds: { ef1: 8 }, _basis: "teste" }); check(!!ruleF.error, "escola não registra regra da Tabela 04");
+  const cur = (await admin.from("semed_t04_rule_versions").select("version").eq("year", 2026).order("version", { ascending: false }).limit(1)).data?.[0]?.version ?? 0;
+  const ruleN = await NET.c.rpc("semed_t04_record_rule", { _year: 2026, _expected_version: cur, _reference_date: "2026-03-31", _thresholds: { ef1: 8, ef2: 9 }, _basis: `Teste sintético ${op}` }); check(!ruleN.error, "rede registra regra (data de referência + idade de distorção)", ruleN.error?.message);
+  const ruleBad = await NET.c.rpc("semed_t04_record_rule", { _year: 2026, _expected_version: cur + 1, _reference_date: "2026-03-31", _thresholds: { xx: 8 }, _basis: "linha inválida" }); check(!!ruleBad.error, "regra com linha inexistente recusada");
+  const ap = await FILL.c.rpc("semed_t04_apuracao", { _school: A, _year: 2026 }); check(!ap.error && typeof ap.data.students === "number" && ap.data.gaps.includes("data-de-nascimento-sem-fonte") && Object.keys(ap.data.cells).length === 0, "apuração conta estudantes uma vez e declara lacunas sem inventar células", `${ap.data?.students} estudantes, ${ap.data?.duplicate_allocations} duplicadas`);
+  const apB = await FILLB.c.rpc("semed_t04_apuracao", { _school: A, _year: 2026 }); check(!apB.error && apB.data === null, "secretaria B não lê apuração da escola A");
+  const apAn = await anon.rpc("semed_t04_apuracao", { _school: A, _year: 2026 }); check(!!apAn.error, "anônimo recusado na apuração");
+  const adj0 = await FILL.c.rpc("semed_t04_record_adjustments", { _school: A, _year: 2026, _items: [{ cell: "m.ef1.a7", computed: null, value: 3 }], _reason: "" }); check(!!adj0.error, "ajuste sem justificativa recusado");
+  const adj = await FILL.c.rpc("semed_t04_record_adjustments", { _school: A, _year: 2026, _items: [{ cell: "m.ef1.a7", computed: null, value: 3 }], _reason: "Conferência com o diário de classe" }); check(!adj.error && adj.data === 1, "ajuste justificado registrado", adj.error?.message);
+  const adjB = await FILLB.c.rpc("semed_t04_record_adjustments", { _school: A, _year: 2026, _items: [{ cell: "m.ef1.a7", computed: null, value: 3 }], _reason: "tentativa de outra escola" }); check(!!adjB.error, "secretaria B não ajusta escola A");
+  const adjX = await FILL.c.rpc("semed_t04_record_adjustments", { _school: A, _year: 2026, _items: [{ cell: "id.inep", computed: null, value: 3 }], _reason: "campo central" }); check(!!adjX.error, "ajuste fora da matriz recusado");
+
   mkdirSync("/tmp/semed", { recursive: true });
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/semed/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, school: A, sessions: { fill: FILL.session, net: NET.session, none: NONE.session } }), { mode: 0o600 });
