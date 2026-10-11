@@ -14,6 +14,150 @@ export type Database = {
   }
   public: {
     Tables: {
+      aa_calendar_items: {
+        Row: {
+          action: string
+          author_user_id: string | null
+          date_text: string
+          edition_year: number
+          end_date: string | null
+          event_kind: string
+          executor_label: string | null
+          id: string
+          kind: string
+          logical_id: string
+          program_key: string | null
+          reason: string | null
+          recorded_at: string
+          relation: string | null
+          responsible: string | null
+          segment: string
+          source_id: string | null
+          source_line: number | null
+          start_date: string | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          action: string
+          author_user_id?: string | null
+          date_text: string
+          edition_year: number
+          end_date?: string | null
+          event_kind: string
+          executor_label?: string | null
+          id?: string
+          kind: string
+          logical_id?: string
+          program_key?: string | null
+          reason?: string | null
+          recorded_at?: string
+          relation?: string | null
+          responsible?: string | null
+          segment: string
+          source_id?: string | null
+          source_line?: number | null
+          start_date?: string | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          action?: string
+          author_user_id?: string | null
+          date_text?: string
+          edition_year?: number
+          end_date?: string | null
+          event_kind?: string
+          executor_label?: string | null
+          id?: string
+          kind?: string
+          logical_id?: string
+          program_key?: string | null
+          reason?: string | null
+          recorded_at?: string
+          relation?: string | null
+          responsible?: string | null
+          segment?: string
+          source_id?: string | null
+          source_line?: number | null
+          start_date?: string | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aa_calendar_items_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "aa_calendar_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aa_calendar_items_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "aa_calendar_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aa_calendar_sources: {
+        Row: {
+          edition_year: number
+          executor_label: string
+          file_name: string
+          id: string
+          recorded_at: string
+          sha256: string
+        }
+        Insert: {
+          edition_year: number
+          executor_label: string
+          file_name: string
+          id?: string
+          recorded_at?: string
+          sha256: string
+        }
+        Update: {
+          edition_year?: number
+          executor_label?: string
+          file_name?: string
+          id?: string
+          recorded_at?: string
+          sha256?: string
+        }
+        Relationships: []
+      }
+      aa_calendar_status_events: {
+        Row: {
+          author_user_id: string
+          evidence: string | null
+          id: string
+          item_logical_id: string
+          recorded_at: string
+          seq: number
+          state: string
+        }
+        Insert: {
+          author_user_id: string
+          evidence?: string | null
+          id?: string
+          item_logical_id: string
+          recorded_at?: string
+          seq: number
+          state: string
+        }
+        Update: {
+          author_user_id?: string
+          evidence?: string | null
+          id?: string
+          item_logical_id?: string
+          recorded_at?: string
+          seq?: number
+          state?: string
+        }
+        Relationships: []
+      }
       academic_standing_batch_acts: {
         Row: {
           author_person_id: string
@@ -22176,6 +22320,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      aa_calendar_record_status: {
+        Args: {
+          _evidence: string
+          _expected_seq: number
+          _logical: string
+          _state: string
+        }
+        Returns: number
+      }
+      aa_calendar_reprogram: {
+        Args: {
+          _date_text: string
+          _end: string
+          _expected_version: number
+          _kind: string
+          _logical: string
+          _reason: string
+          _responsible: string
+          _start: string
+        }
+        Returns: string
+      }
       aa_conference_state: { Args: { _instrument: string }; Returns: string }
       aa_instrument_completeness_internal: {
         Args: { _instrument: string }
