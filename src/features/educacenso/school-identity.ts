@@ -74,7 +74,6 @@ export function projectIdentity(unit: SchoolUnit, asOf: string, receipt: Receipt
       if (fl.value == null) fl.note = `Recibo ${receipt.censusYear} declara “${theirs}”; corrigir na origem`;
       else if (fl.value !== theirs) { fl.state = "divergente"; fl.note = `Recibo ${receipt.censusYear}: “${theirs}”`; fl.provenance = fl.provenance ?? rp; }
     };
-    check(6, d.name ?? null ? null : null); // nome: comparação normalizada abaixo
     const nameF = fields.find((x) => x.n === 6)!;
     if (d.name && nameF.value && norm(nameF.value) !== norm(d.name)) { nameF.state = "divergente"; nameF.note = `Recibo ${receipt.censusYear}: “${d.name}”`; }
     check(19, locationCode(d.localizacao));
