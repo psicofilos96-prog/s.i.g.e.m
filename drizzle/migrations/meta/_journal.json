@@ -2325,6 +2325,13 @@
       "when": 1791711501919,
       "tag": "0331_nei1_school_name_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 332,
+      "version": "7",
+      "when": 1791711615252,
+      "tag": "0332_nei1_revoke_table_privileges",
+      "breakpoints": true
     }
   ]
 }
