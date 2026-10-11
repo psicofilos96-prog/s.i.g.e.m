@@ -24,7 +24,7 @@ const semInicio: SectorAlert = {
   id: "matricula-sem-inicio", title: "Matrículas sem data de início registrada",
   meaning: "A carga 2026 não trouxe a data; a Secretaria declara pela consulta de matrícula. Não é inferida.",
   spec: q("matriculas", ["matricula_escola"], ["escolas.nome"], "count", undefined, [isNull("matriculas.aberta_em")]),
-  detail: ["escolas.nome", "matriculas.ano_letivo", "matriculas.oferta"],
+  detail: ["escolas.nome", "matriculas.oferta"],
 };
 const turmaSemEtapa: SectorAlert = {
   id: "turma-sem-etapa", title: "Turmas sem etapa registrada",
@@ -43,7 +43,7 @@ export const SECTOR_BOARDS: readonly SectorBoard[] = [
   { id: "secretaria", sector: "Secretaria Escolar", owner: "/secretaria",
     actions: [{ label: "Estação da Secretaria", path: "/secretaria" }, { label: "Vagas por turma", path: "/secretaria/vagas" }, { label: "Livro de matrícula", path: "/secretaria/livro-matricula" }],
     indicators: [
-      { id: "mat", title: "Matrículas por escola", spec: q("matriculas", ["matricula_escola"], ["escolas.nome"]), detail: ["escolas.nome", "matriculas.ano_letivo", "matriculas.oferta"] },
+      { id: "mat", title: "Matrículas por escola", spec: q("matriculas", ["matricula_escola"], ["escolas.nome"]), detail: ["escolas.nome", "matriculas.oferta"] },
       { id: "vin", title: "Estudantes enturmados por turma", spec: q("vinculos", ["vinculo_turma"], ["turmas.turma"], "count_distinct", "vinculos.student_id", [open]), detail: ["turmas.turma", "vinculos.desde"] },
     ], alerts: [semInicio, vinculoSemTurma], gaps: [] },
   { id: "ciece", sector: "CIECE — Informação e Estatística", owner: "/ciece",
@@ -79,7 +79,7 @@ export const SECTOR_BOARDS: readonly SectorBoard[] = [
   { id: "mapa", sector: "Mapa Estatístico", owner: "/mapa-estatistico",
     actions: [{ label: "Mapa Estatístico", path: "/mapa-estatistico" }, { label: "Mapa mensal 2026", path: "/mapa-mensal-2026" }],
     indicators: [
-      { id: "mat", title: "Matrículas por oferta", spec: q("matriculas", [], ["matriculas.oferta"]), detail: ["matriculas.oferta", "matriculas.ano_letivo"] },
+      { id: "mat", title: "Matrículas por oferta", spec: q("matriculas", [], ["matriculas.oferta"]), detail: ["matriculas.oferta"] },
       { id: "vin", title: "Enturmações abertas por escola", spec: q("vinculos", ["vinculo_escola"], ["escolas.nome"], "count", undefined, [open]), detail: ["escolas.nome", "vinculos.turma_rotulo"] },
     ], alerts: [semInicio], gaps: ["Totais oficiais do Mapa só pela fotografia conferida/oficializada na tela do Mapa; estes números são a leitura corrente."] },
   { id: "alimentacao", sector: "Alimentação Escolar", owner: "/alimentacao-escolar",

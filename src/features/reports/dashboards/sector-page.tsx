@@ -107,7 +107,7 @@ function Detail({ cat, spec, title }: { cat: Catalog; spec: Parameters<typeof ru
   if ("error" in r) return <p className="text-sm">Registros não disponíveis: {r.error}</p>;
   const cols = spec.columns;
   return (
-    <div className="overflow-x-auto" aria-label="Registros autorizados">
+    <div className="max-h-80 overflow-auto" aria-label="Registros autorizados">
       {title && <p className="text-xs font-semibold">{title}</p>}
       <table className="w-full text-xs"><thead><tr>{cols.map((c) => <th key={c} className="border border-border px-1 text-left">{fieldLabel(cat, c)}</th>)}</tr></thead>
         <tbody>{r.page.rows.map((row, k) => <tr key={k}>{cols.map((_, j) => <td key={j} className="border border-border px-1">{row[`c${j + 1}`] === null || row[`c${j + 1}`] === undefined ? "não disponível" : String(row[`c${j + 1}`])}</td>)}</tr>)}</tbody></table>
