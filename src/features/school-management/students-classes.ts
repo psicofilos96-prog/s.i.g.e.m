@@ -57,8 +57,8 @@ export const COMPETENT: Record<RequestKind, { capability: string; writer: string
   "encerrar-turma": { capability: "manter-cadastro-de-turmas", writer: "record_institutional_class_version" },
   reorganizar: { capability: "manter-cadastro-de-turmas", writer: "record_class_composition_version" },
   "mudar-turno": { capability: "manter-turno-da-turma", writer: "record_class_shift_version" },
-  "redistribuir-estudantes": { capability: "enturmar-estudantes", writer: "secretariat_reassign_class" },
-  "ajuste-docente": { capability: "atribuir-docente", writer: "teaching assignment writer" },
+  "redistribuir-estudantes": { capability: "manter-matricula-e-enturmacao", writer: "secretariat_reassign_class" },
+  "ajuste-docente": { capability: "manter-atribuicao-docente", writer: "teaching_assignments writer" },
 };
 
 export interface ClassRequest { id: string; kind: RequestKind; schoolId: string; requestedBy: string; reason: string;

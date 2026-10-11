@@ -53,7 +53,7 @@ export function openCoverage(r: { protocol: string; schoolId: string; requestedB
 
 /** Só o DP (capacidade) resolve; "atendido" exige referência ao ato funcional real; Direção nunca efetiva. */
 export function resolveCoverage(r: CoverageRequest, by: string, capabilities: string[], outcome: "atendido" | "indeferido", actRef: string | null, note: string) {
-  if (!capabilities.includes("manter-vida-funcional")) return { ok: false as const, code: "cobertura:setor-nao-competente" };
+  if (!capabilities.includes("manter-registro-funcional")) return { ok: false as const, code: "cobertura:setor-nao-competente" };
   if (by === r.requestedBy) return { ok: false as const, code: "cobertura:autodecisao" };
   if (r.status !== "aberto") return { ok: false as const, code: "cobertura:encerrado" };
   if (outcome === "atendido" && !actRef) return { ok: false as const, code: "cobertura:sem-ato-funcional" };
