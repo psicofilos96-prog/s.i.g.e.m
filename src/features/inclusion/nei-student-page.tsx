@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
+import { PlansBox } from "./nei-plans";
 import { NEI_SECTIONS, SECTION_LABEL, STAGE_LABEL, allowedNext, canWriteSection, currentEvent, eventProblem, isOverdue, timeline, type Entry, type NeiCase, type NeiSection, type NeiStage } from "./nei-cases";
 
 const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -57,6 +58,7 @@ function StudentFile({ student, school }: { student: string; school: string }) {
         <p className="text-xs text-muted-foreground">Documentos restritos e laudos ficam na tela de Inclusão, com permissão própria; não aparecem aqui.</p>
       </section>
       <div className="grid gap-3 md:grid-cols-2">{NEI_SECTIONS.map((s) => <SectionBox key={s} section={s} d={d} student={student} school={school} onSaved={load} />)}</div>
+      <PlansBox student={student} school={school} studentName={d.identity?.social_name || d.identity?.civil_name || "—"} />
       <CasesBox d={d} student={student} school={school} onSaved={load} today={today} />
       <section><h2 className="text-sm font-semibold">Linha do tempo</h2>
         <ul className="mt-1 space-y-0.5 text-xs">{timeline(d.entries, d.cases).map((t, i) => <li key={i}>{new Date(t.at).toLocaleString("pt-BR")} — {t.text}</li>)}</ul>
