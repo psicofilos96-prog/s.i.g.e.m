@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { NEI_ROLE_LABEL, dashTotals, grantShapeProblem, scopeLabel, visibleAreas, type NeiAccess, type NeiDashRow, type NeiRole } from "./nei-areas";
 
+import { DateInput } from "@/components/sigem/date-input";
 // RPCs novas (0330–0333); tipagem local mínima para não depender da geração.
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const MSG: Record<string, string> = {
@@ -162,7 +163,7 @@ function TeamPanel({ access }: { access: NeiAccess[] }) {
           <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select>
         </label> : null}
         {scope === "caso" ? <label className="text-sm">Identificador do estudante<input className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={student} onChange={(e) => setStudent(e.target.value)} /></label> : null}
-        <label className="text-sm">Válido até (opcional)<input type="date" className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={until} onChange={(e) => setUntil(e.target.value)} /></label>
+        <label className="text-sm">Válido até (opcional)<DateInput className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={until} onChange={(e) => setUntil(e.target.value)} /></label>
         <label className="text-sm sm:col-span-2">Motivo<input className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
       </div>
       <div className="flex items-center gap-3"><Button type="button" disabled={!!problem} onClick={() => void grant()}>Conceder papel</Button><span className="text-xs text-muted-foreground" role="status">{msg ?? problem}</span></div>

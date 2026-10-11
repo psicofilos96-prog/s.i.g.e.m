@@ -12,6 +12,7 @@ import { SchoolIdentityPanel } from "./school-identity-panel";
 import { PeopleIdentityPanel } from "./people-identity-panel";
 import { AuxTablesPanel } from "./aux-tables-panel";
 
+import { DateInput } from "@/components/sigem/date-input";
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
 type Layout = { id: string; census_year: string; layout_label: string; documentation_state: DocState; document_title: string | null; document_sha256: string | null; recorded_at: string };
@@ -88,7 +89,7 @@ export function EducacensoPage() {
           <h2 className="text-sm font-semibold">Configurar a etapa (CIECE)</h2>
           <div className="flex flex-wrap items-end gap-2">
             <label className="text-xs">Nome da etapa<br /><input className={field} value={stageLabel} onChange={(e) => setStageLabel(e.target.value)} /></label>
-            <label className="text-xs">Data de referência<br /><input type="date" className={field} value={refDate} onChange={(e) => setRefDate(e.target.value)} /></label>
+            <label className="text-xs">Data de referência<br /><DateInput className={field} value={refDate} onChange={(e) => setRefDate(e.target.value)} /></label>
             <label className="text-xs">Leiaute<br /><select className={field} value={layoutSel} onChange={(e) => setLayoutSel(e.target.value)}><option value="">— nenhum —</option>{layouts.map((l) => <option key={l.id} value={l.id}>{l.layout_label} ({l.documentation_state === "documentacao-inep-registrada" ? "documento registrado" : "documentação pendente"})</option>)}</select></label>
             <input aria-label="Motivo" placeholder="Motivo / fundamento" className={`${field} min-w-56`} value={reason} onChange={(e) => setReason(e.target.value)} />
             {collectionNext(head?.act ?? null).map((a) => <Button key={a} size="sm" disabled={busy} variant={a === "configurar" ? "outline" : "default"}

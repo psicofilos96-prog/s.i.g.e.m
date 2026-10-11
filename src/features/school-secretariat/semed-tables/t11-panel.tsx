@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { Values } from "./semed-catalog";
 import { T11_GAP, t11Compare, type T11Apur } from "./t11-gender";
 
+import { DateInput } from "@/components/sigem/date-input";
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
 type Rule = { version: number; cutoff_date: string; sex_map: Record<string, string>; basis: string } | null;
@@ -35,7 +36,7 @@ export function T11Panel({ school, year, network, draft, rows, onApur }: { schoo
         <tbody>{t11Compare(draft, rows, apur).map((c) => <tr key={c.col}><td>{c.label}</td><td className="text-center">{c.typed ?? "—"}</td><td className="text-center">{c.apurado ?? "—"}</td><td className={c.status === "divergente" ? "font-semibold text-destructive" : ""}>{c.status}</td></tr>)}</tbody></table>
       {apur?.gaps.length ? <ul className="list-disc pl-4 text-xs text-muted-foreground">{apur.gaps.map((g) => <li key={g}>{T11_GAP[g] ?? g}</li>)}</ul> : null}
       {network && <div className="grid gap-2 rounded border p-2 text-xs sm:grid-cols-3">
-        <label>Data de corte<br /><input type="date" aria-label="Data de corte" className="rounded border border-input bg-background p-1" value={cut} onChange={(e) => setCut(e.target.value)} /></label>
+        <label>Data de corte<br /><DateInput aria-label="Data de corte" className="rounded border border-input bg-background p-1" value={cut} onChange={(e) => setCut(e.target.value)} /></label>
         <label className="sm:col-span-2">Mapa do cadastro (esquema/valor=masc|fem, um por linha)<br /><textarea aria-label="Mapa do sexo" className="w-full rounded border border-input bg-background p-1" rows={2} value={map} onChange={(e) => setMap(e.target.value)} /></label>
         <label className="sm:col-span-3">Fundamento<br /><input aria-label="Fundamento" className="w-full rounded border border-input bg-background p-1" value={basis} onChange={(e) => setBasis(e.target.value)} /></label>
         <div><Button size="sm" onClick={() => void saveRule()}>Registrar nova versão da regra</Button></div>

@@ -124,7 +124,7 @@ export function CardAdminPage() {
               <label className="text-sm">Nome ou identificador<input className="mt-1 block rounded border bg-background p-2" value={query} onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && query.trim().length >= 3) void find(); }} /></label>
               <Button type="button" variant="outline" disabled={busy || query.trim().length < 3} onClick={() => void find()}>Buscar</Button>
-              <label className="text-sm">Data de nascimento (opcional)<input type="date" className="mt-1 block rounded border bg-background p-2" value={birth} onChange={(e) => setBirth(e.target.value)} /></label>
+              <label className="text-sm">Data de nascimento (opcional)<DateInput className="mt-1 block rounded border bg-background p-2" value={birth} onChange={(e) => setBirth(e.target.value)} /></label>
             </div>
             {cands && cands.length === 0 && <p className="text-sm text-muted-foreground">Nenhum estudante com matrícula vigente encontrado com esse dado nesta escola.</p>}
             {cands && cands.length > 0 && !pick && (

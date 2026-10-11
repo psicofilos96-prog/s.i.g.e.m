@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { STATUS_LABEL, fileProblem, reviewNeedsNote, sha256Hex, storagePath, type DocRow } from "./documents-model";
 
+import { DateInput } from "@/components/sigem/date-input";
+import { LoadingState } from "@/components/sigem/states";
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
 const TYPES = [{ code: "antecedente_criminal", label: "Antecedentes criminais" }, { code: "antecedente_civil", label: "Antecedentes cíveis (complementar)" }];
 
@@ -40,7 +42,7 @@ export function DocumentsPanel({ mode, person, school }: { mode: "servidor" | "e
       {person && <UploadForm person={person} school={mode === "escola" ? school ?? null : null} onDone={(m) => { setMsg(m); void load(); }} />}
       {msg && <p className="text-xs" role="status">{msg}</p>}
       {mode !== "servidor" && <input className={`${field} w-full`} placeholder="Observação (obrigatória para rejeitar, alertar ou excluir)" value={note} onChange={(e) => setNote(e.target.value)} />}
-      {rows === null ? <p className="text-xs text-muted-foreground">Carregando…</p> : rows === "error" ? <p className="text-xs text-destructive">Não foi possível ler os documentos.</p> : rows.length === 0 ? <p className="text-xs text-muted-foreground">Nenhum documento.</p> : (
+      {rows === null ? <LoadingState label="Carregando…" /> : rows === "error" ? <p className="text-xs text-destructive">Não foi possível ler os documentos.</p> : rows.length === 0 ? <p className="text-xs text-muted-foreground">Nenhum documento.</p> : (
         <ul className="space-y-1 text-xs">{rows.map((d) => (
           <li key={d.document_id} className="rounded border p-2">
             <div><b>{TYPES.find((t) => t.code === d.type)?.label ?? d.type}</b> · {d.season} · {STATUS_LABEL[d.status]} · versão {d.version}{mode !== "servidor" && d.masked_name ? ` · ${d.masked_name}` : ""}</div>
@@ -83,8 +85,8 @@ function UploadForm({ person, school, onDone }: { person: string; school: string
       <select className={field} value={type} onChange={(e) => setType(e.target.value)} aria-label="Tipo">{TYPES.map((t) => <option key={t.code} value={t.code}>{t.label}</option>)}</select>
       <input className={`${field} w-20`} value={season} onChange={(e) => setSeason(e.target.value)} aria-label="Temporada" />
       <input className={field} placeholder="Emissor" value={issuer} onChange={(e) => setIssuer(e.target.value)} />
-      <label className="text-xs">Emissão <input type="date" className={field} value={issued} onChange={(e) => setIssued(e.target.value)} /></label>
-      <label className="text-xs">Validade <input type="date" className={field} value={until} onChange={(e) => setUntil(e.target.value)} /></label>
+      <label className="text-xs">Emissão <DateInput className={field} value={issued} onChange={(e) => setIssued(e.target.value)} /></label>
+      <label className="text-xs">Validade <DateInput className={field} value={until} onChange={(e) => setUntil(e.target.value)} /></label>
       <input type="file" accept="application/pdf,image/jpeg,image/png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="text-xs" />
       <Button size="sm" disabled={busy} onClick={() => void send()}>{busy ? "Enviando…" : "Enviar"}</Button>
     </div>

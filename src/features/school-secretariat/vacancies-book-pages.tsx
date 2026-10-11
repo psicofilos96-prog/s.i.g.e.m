@@ -17,6 +17,7 @@ import {
   type BookFilter, type BookRow, type VacancyRow,
 } from "./vacancies-book";
 
+import { operationalToday } from "@/lib/academic-date";
 const today = () => operationalToday();
 const errText = (e: unknown) => secretariatMessage(e instanceof Error ? e.message : String(e));
 const TONE = { "ha-vaga": "success", lotada: "warning", "capacidade-nao-informada": "neutral" } as const;
@@ -171,7 +172,7 @@ function BookRowEditor({ school, row, onDone }: { school: string; row: BookRow; 
     setBusy(true);
     try {
       const q = row.institutional_number ?? row.student_name ?? "";
-      const look = await rpc("secretariat_enrollment_lookup", { _school: school, _query: q, _on: new Date().toISOString().slice(0, 10) });
+      const look = await rpc("secretariat_enrollment_lookup", { _school: school, _query: q, _on: operationalToday() });
       if (look.error) throw new Error(look.error.message);
       const hit = ((look.data ?? []) as { enrollment_id: string; declaration_head: string | null }[]).find((h) => h.enrollment_id === row.enrollment_id);
       if (!hit) throw new Error("secretariat:not-found");
@@ -185,7 +186,7 @@ function BookRowEditor({ school, row, onDone }: { school: string; row: BookRow; 
       <h2 className="font-semibold">Editar — {row.student_name ?? "estudante"}</h2>
       <p className="text-sm text-muted-foreground">A correção vira nova versão com motivo e autoria; a anterior fica no histórico. Troca de turma, transferência e encerramento são feitos na Estação da Secretaria.</p>
       <div className="grid gap-3 sm:grid-cols-3">
-        <label className="text-sm">Data de início da matrícula<Input type="date" className="mt-1" value={start} onChange={(e) => setStart(e.target.value)} /></label>
+        <label className="text-sm">Data de início da matrícula<DateInput className="mt-1" value={start} onChange={(e) => setStart(e.target.value)} /></label>
         <label className="text-sm">Motivo<Input className="mt-1" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
         <label className="text-sm">Documento de origem (opcional)<Input className="mt-1" value={src} onChange={(e) => setSrc(e.target.value)} placeholder="ex.: ficha de matrícula" /></label>
       </div>

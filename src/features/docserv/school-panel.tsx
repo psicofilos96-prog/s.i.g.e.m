@@ -7,6 +7,8 @@ import { openSigned } from "./my-documents";
 import { downloadZip } from "./docserv-files";
 import { TYPES, applyFilter, counters, linkLabel, validationQueue, type Filter, type Roster, type RosterPerson } from "./school-portal";
 
+import { DateInput } from "@/components/sigem/date-input";
+import { LoadingState } from "@/components/sigem/states";
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
 const FILTERS: { v: Filter; l: string }[] = [{ v: "todos", l: "Todos" }, { v: "sem-envio", l: "Sem envio" }, { v: "pendente", l: "Aguardando validação" }, { v: "problema", l: "Rejeitado/vencido/urgente" }, { v: "valido", l: "Válido" }];
 const REQ_STATE: Record<string, string> = { aberta: "aberta", "encaminhada-ao-dp": "encaminhada ao DP", recusada: "recusada", cancelada: "cancelada" };
@@ -54,7 +56,7 @@ export function SchoolDocsPanel({ school }: { school: string }) {
     const items = data.people.flatMap((p) => TYPES.flatMap((t) => (p.docs[t] ? [{ document_id: p.docs[t]!.document_id, path: p.docs[t]!.path, label: `${typeLabel(t)}-${p.masked_name ?? "servidor"}` }] : [])));
     const m = await downloadZip(items, `docserv-${school}-${season}.zip`); if (m) setMsg(m);
   };
-  if (data === null) return <p className="text-xs text-muted-foreground">Carregando…</p>;
+  if (data === null) return <LoadingState label="Carregando…" />;
   if (data === "error") return <p className="text-xs text-destructive">Não foi possível ler os servidores desta escola.</p>;
   return (
     <div className="space-y-3 text-xs">
@@ -70,7 +72,7 @@ export function SchoolDocsPanel({ school }: { school: string }) {
       {msg && <p role="status">{msg}</p>}
 
       {list.length === 0 ? <p className="text-muted-foreground">Nenhum servidor neste filtro.</p> : (
-        <table className="w-full"><thead><tr className="text-left"><th>Servidor</th><th>Vínculo</th>{TYPES.map((t) => <th key={t} className="capitalize">{typeLabel(t)}</th>)}<th /></tr></thead>
+        <table className="w-full"><thead><tr className="text-left"><th scope="col">Servidor</th><th scope="col">Vínculo</th>{TYPES.map((t) => <th scope="col" key={t} className="capitalize">{typeLabel(t)}</th>)}<th scope="col" /></tr></thead>
           <tbody>{list.map((p) => (
             <tr key={p.person_id} className="border-t align-top">
               <td>{p.masked_name ?? "sem nome"}{p.other_schools > 0 ? ` (+${p.other_schools} escola${p.other_schools > 1 ? "s" : ""})` : ""}</td>
@@ -127,8 +129,8 @@ function AssistedUpload({ school, person, season, onDone }: { school: string; pe
       <select className={field} value={type} onChange={(e) => setType(e.target.value)}>{TYPES.map((t) => <option key={t} value={t}>{typeLabel(t)}</option>)}</select>
       <input type="file" accept="application/pdf,image/jpeg,image/png" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
       <input className={field} placeholder="Emissor" value={issuer} onChange={(e) => setIssuer(e.target.value)} />
-      <label>Emissão <input type="date" className={field} value={issued} onChange={(e) => setIssued(e.target.value)} /></label>
-      <label>Validade <input type="date" className={field} value={until} onChange={(e) => setUntil(e.target.value)} /></label>
+      <label>Emissão <DateInput className={field} value={issued} onChange={(e) => setIssued(e.target.value)} /></label>
+      <label>Validade <DateInput className={field} value={until} onChange={(e) => setUntil(e.target.value)} /></label>
       <Button size="sm" disabled={busy} onClick={() => void send()}>{busy ? "Enviando…" : "Enviar"}</Button>
     </div>
   );

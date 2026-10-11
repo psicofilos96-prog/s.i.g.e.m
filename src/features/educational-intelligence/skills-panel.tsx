@@ -8,7 +8,7 @@ export function SkillsPanel() {
       <StatePanel tone="info" title="Matrizes e habilidades" description="Códigos e descritores entram apenas por importação de fonte verificada (arquivo com impressão digital) no repositório curricular. Relações entre matrizes têm natureza e confiança; equivalência só com fonte oficial." />
       <div className="overflow-x-auto rounded-md border">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left"><tr><th className="p-2">Matriz</th><th className="p-2">Códigos</th><th className="p-2">Componentes</th><th className="p-2">Anos</th><th className="p-2">Ciclos I/II/III</th><th className="p-2">Conteúdo</th></tr></thead>
+          <thead className="bg-muted/50 text-left"><tr><th scope="col" className="p-2">Matriz</th><th scope="col" className="p-2">Códigos</th><th scope="col" className="p-2">Componentes</th><th scope="col" className="p-2">Anos</th><th scope="col" className="p-2">Ciclos I/II/III</th><th scope="col" className="p-2">Conteúdo</th></tr></thead>
           <tbody>{MATRIX_FAMILIES.map((m) => (
             <tr key={m.key} className="border-t"><td className="p-2 font-medium">{m.name}<div className="text-xs text-muted-foreground">{m.source}</div></td>
               <td className="p-2">{m.codeScheme}</td><td className="p-2">{m.components.join(", ")}</td><td className="p-2">{m.grades}</td>

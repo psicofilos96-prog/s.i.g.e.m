@@ -29,7 +29,7 @@ export function ProgramsPanel({ registeredNames, onChanged }: { registeredNames:
       {msg && <p role="status" className="text-sm">{msg}</p>}
       <div className="overflow-x-auto rounded-md border">
         <table className="w-full text-sm">
-          <thead className="bg-muted/50 text-left"><tr><th className="p-2">Programa</th><th className="p-2">População</th><th className="p-2">Ciclos/edições</th><th className="p-2">Nível</th><th className="p-2">Escala</th><th className="p-2">Integra</th><th className="p-2">Situação</th></tr></thead>
+          <thead className="bg-muted/50 text-left"><tr><th scope="col" className="p-2">Programa</th><th scope="col" className="p-2">População</th><th scope="col" className="p-2">Ciclos/edições</th><th scope="col" className="p-2">Nível</th><th scope="col" className="p-2">Escala</th><th scope="col" className="p-2">Integra</th><th scope="col" className="p-2">Situação</th></tr></thead>
           <tbody>
             {rows.map(({ spec: p, registered }) => (
               <tr key={p.key} className="border-t align-top">

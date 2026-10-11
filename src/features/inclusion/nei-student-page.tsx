@@ -6,6 +6,8 @@ import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/cu
 import { PlansBox } from "./nei-plans";
 import { NEI_SECTIONS, SECTION_LABEL, STAGE_LABEL, allowedNext, canWriteSection, currentEvent, eventProblem, isOverdue, timeline, type Entry, type NeiCase, type NeiSection, type NeiStage } from "./nei-cases";
 
+import { DateInput } from "@/components/sigem/date-input";
+import { operationalToday } from "@/lib/academic-date";
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const MSG: Record<string, string> = {
   "nei:not-authorized": "Sua conta não tem papel do NEI para este estudante.",
@@ -48,7 +50,7 @@ function StudentFile({ student, school }: { student: string; school: string }) {
   if (err) return <StatePanel tone="danger" title="Ficha indisponível" description={err} />;
   if (d === undefined) return <StatePanel title="Carregando ficha…" description="Lendo do servidor dentro do seu papel." />;
   if (d === null) return <EmptyState title="Sem acesso a esta ficha" description="Sua conta não tem papel do NEI para este estudante nesta escola, ou a matrícula não está vigente. A tentativa foi registrada." />;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   return (
     <div className="space-y-6">
       <section className="rounded-md border border-border p-3 text-sm">
@@ -108,7 +110,7 @@ function CasesBox({ d, student, school, onSaved, today }: { d: FileData; student
         <div className="grid gap-1 sm:grid-cols-3">
           <input className={input} placeholder="Quem solicitou (ex.: escola, família)" value={by} onChange={(e) => setBy(e.target.value)} />
           <input className={input} placeholder="Prioridade (opcional)" value={prio} onChange={(e) => setPrio(e.target.value)} />
-          <input type="date" className={input} aria-label="Prazo (opcional)" value={due} onChange={(e) => setDue(e.target.value)} />
+          <DateInput className={input} aria-label="Prazo (opcional)" value={due} onChange={(e) => setDue(e.target.value)} />
         </div>
         <Button size="sm" disabled={summary.trim().length < 10} onClick={open}>Abrir caso</Button>
         {msg ? <p className="text-xs text-destructive">{msg}</p> : null}
@@ -139,7 +141,7 @@ function CaseCard({ c, role, school, onSaved, today }: { c: NeiCase; role: "gest
           <select className={input} value={to} onChange={(e) => setTo(e.target.value as NeiStage)} aria-label="Etapa">{options.map((s) => <option key={s} value={s}>{s === cur.stage ? `Andamento (${STAGE_LABEL[s]})` : STAGE_LABEL[s]}</option>)}</select>
           {role === "gestao" ? <>
             <input className={input} placeholder="Nova prioridade" value={prio} onChange={(e) => setPrio(e.target.value)} />
-            <input type="date" className={input} aria-label="Novo prazo" value={due} onChange={(e) => setDue(e.target.value)} />
+            <DateInput className={input} aria-label="Novo prazo" value={due} onChange={(e) => setDue(e.target.value)} />
             <select className={input} value={who} onChange={(e) => setWho(e.target.value)} aria-label="Responsável"><option value="">Manter responsável</option>{people.map((p) => <option key={p.user_id + p.role} value={p.user_id}>{p.person_name} ({p.role})</option>)}</select>
           </> : null}
         </div>

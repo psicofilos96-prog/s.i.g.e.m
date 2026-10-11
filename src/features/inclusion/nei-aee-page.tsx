@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { OFFER_LABEL, WEEKDAY, conflictLabel, offerNext, offerProblem, type OfferStatus } from "./nei-aee";
 
+import { DateInput } from "@/components/sigem/date-input";
+import { operationalToday } from "@/lib/academic-date";
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
 const human = (m: string) => m.includes("stale") ? "Outra pessoa registrou antes. Recarregue." : m.includes("invalid-transition") ? "Essa situação não segue a atual." : m.includes("date-before-last") ? "A data não pode ser anterior à última situação." : m.includes("future-date") ? "Não se registra atividade em data futura." : m.includes("not-authorized") ? "Seu papel não permite esta ação." : "Não foi possível concluir.";
@@ -46,7 +48,7 @@ function ServiceDetail({ row, onSaved }: { row: Row; onSaved: () => void }) {
   const last = d?.events[d.events.length - 1];
   const cur: OfferStatus | "sem-registro" = last?.status ?? "sem-registro";
   const opts = offerNext(cur);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const [to, setTo] = useState<OfferStatus>(opts[0] ?? "encerrada"); const [eff, setEff] = useState(today); const [room, setRoom] = useState(""); const [cause, setCause] = useState(""); const [note, setNote] = useState("");
   const [date, setDate] = useState(today); const [acts, setActs] = useState(""); const [res, setRes] = useState(""); const [msg, setMsg] = useState<string | null>(null);
   useEffect(() => { if (opts[0]) setTo(opts[0]); }, [cur]);
@@ -64,14 +66,14 @@ function ServiceDetail({ row, onSaved }: { row: Row; onSaved: () => void }) {
       {opts.length ? <div className="space-y-1"><p className="text-xs font-medium">Registrar situação da oferta</p>
         <div className="grid gap-1 sm:grid-cols-3">
           <select className={input} value={to} onChange={(e) => setTo(e.target.value as OfferStatus)} aria-label="Nova situação">{opts.map((s) => <option key={s} value={s}>{OFFER_LABEL[s]}</option>)}</select>
-          <input type="date" className={input} aria-label="Data efetiva" value={eff} onChange={(e) => setEff(e.target.value)} />
+          <DateInput className={input} aria-label="Data efetiva" value={eff} onChange={(e) => setEff(e.target.value)} />
           <input className={input} placeholder="Sala (mantém a anterior se vazio)" value={room} onChange={(e) => setRoom(e.target.value)} /></div>
         {to === "interrompida" || to === "encerrada" ? <input className={input} placeholder="Causa (obrigatória)" value={cause} onChange={(e) => setCause(e.target.value)} /> : null}
         <input className={input} placeholder="Observação (opcional)" value={note} onChange={(e) => setNote(e.target.value)} />
         <Button size="sm" disabled={!!problem} onClick={sendStatus}>Registrar situação</Button>{problem ? <span className="ml-2 text-xs text-muted-foreground">{problem}</span> : null}</div> : null}
       <div className="space-y-1"><p className="text-xs font-medium">Atividades e recursos do atendimento</p>
         <p className="text-xs text-muted-foreground">A presença continua no registro de sessões AEE da escola; aqui ficam atividades e recursos usados.</p>
-        <div className="grid gap-1 sm:grid-cols-3"><input type="date" className={input} max={today} aria-label="Data do atendimento" value={date} onChange={(e) => setDate(e.target.value)} />
+        <div className="grid gap-1 sm:grid-cols-3"><DateInput className={input} max={today} aria-label="Data do atendimento" value={date} onChange={(e) => setDate(e.target.value)} />
           <input className={input + " sm:col-span-2"} placeholder="Recursos (opcional)" value={res} onChange={(e) => setRes(e.target.value)} /></div>
         <textarea className={input} rows={2} placeholder="Atividades realizadas" value={acts} onChange={(e) => setActs(e.target.value)} />
         <Button size="sm" disabled={acts.trim().length < 3} onClick={sendAct}>Registrar atividade</Button>

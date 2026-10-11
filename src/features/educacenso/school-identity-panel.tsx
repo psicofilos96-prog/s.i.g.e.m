@@ -8,6 +8,7 @@ import { GUIA_2026 } from "./layout/layout-schema";
 import { buildConferenceFile, type Manifest, type Classified } from "./export-builder";
 import { identityDuplicates, projectIdentity, summarizeIdentities, type ReceiptInput, type SchoolIdentity, type FieldState } from "./school-identity";
 
+import { LoadingState } from "@/components/sigem/states";
 const STATE: Record<FieldState, string> = { informado: "informado", pendente: "pendente", "sem-fonte": "sem fonte no SIGEM", "nao-aplicavel": "não se aplica", divergente: "divergente do recibo" };
 const CAT = { municipal: "Municipal", conveniada: "Conveniada", outra: "Outra", desconhecida: "Não classificada" } as const;
 
@@ -54,7 +55,7 @@ export function SchoolIdentityPanel({ year, referenceDate }: { year: string; ref
     <section className="rounded-md border p-3" aria-label="Identidade censitária das escolas">
       <h2 className="text-sm font-semibold">Identidade censitária das escolas (Registro 00)</h2>
       <p className="mb-2 text-xs text-muted-foreground">Leitura do cadastro institucional vigente em {new Date(asOf + "T12:00").toLocaleDateString("pt-BR")}, confrontada com o recibo do Censo importado. Nada é copiado: correções são feitas na ficha da unidade.</p>
-      {data === null ? <p className="text-xs" role="status">Carregando…</p> : data === "error" ? <p className="text-xs" role="alert">Não foi possível ler o cadastro das escolas com a sua sessão.</p> : sum && <>
+      {data === null ? <LoadingState label="Carregando…" /> : data === "error" ? <p className="text-xs" role="alert">Não foi possível ler o cadastro das escolas com a sua sessão.</p> : sum && <>
         <div className="mb-2 flex flex-wrap gap-3 text-xs">
           <span>{sum.total} escolas no seu escopo</span><span>{sum.municipal} municipais</span><span>{sum.conveniada} conveniadas</span>
           {sum.desconhecida > 0 && <span>{sum.desconhecida} sem classificação</span>}

@@ -12,6 +12,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { purgeDocservDocument } from "./docserv-purge.functions";
 import { NETWORK_REPORT, hasSecretColumns, parseIdentityCsv, reportRows, requirementLabel, type ImportRow, type PolicyState, type Season, type SchoolRow, type TypeRule } from "./docserv-rules";
 
+import { DateInput } from "@/components/sigem/date-input";
+import { LoadingState } from "@/components/sigem/states";
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
 type Overview = {
   season: string; can_validate: boolean;
@@ -57,7 +59,7 @@ export function NetworkPanel() {
   const chart = useMemo(() => (data && data !== "error" ? [
     { k: "Sem envio", v: data.totals["sem-envio"] }, { k: "Aguardando", v: data.totals.pendente }, { k: "Com problema", v: data.totals.problema }, { k: "Válidos", v: data.totals.valido }] : []), [data]);
 
-  if (data === null) return <p className="text-xs text-muted-foreground">Carregando…</p>;
+  if (data === null) return <LoadingState label="Carregando…" />;
   if (data === "error") return <p className="text-xs text-destructive">Sem acesso ao painel da rede do DocServ.</p>;
   const t = data.totals;
   return (
@@ -76,7 +78,7 @@ export function NetworkPanel() {
       {msg && <p role="status">{msg}</p>}
 
       <details open><summary className="cursor-pointer font-semibold">Escolas ({data.schools.length})</summary>
-        <table className="w-full"><thead><tr className="text-left"><th>Escola</th><th>Servidores</th><th>Sem envio</th><th>Aguardando</th><th>Problema</th><th>Válidos</th></tr></thead>
+        <table className="w-full"><thead><tr className="text-left"><th scope="col">Escola</th><th scope="col">Servidores</th><th scope="col">Sem envio</th><th scope="col">Aguardando</th><th scope="col">Problema</th><th scope="col">Válidos</th></tr></thead>
           <tbody>{data.schools.map((s) => <tr key={s.school_id} className="border-t"><td>{names.get(s.school_id) ?? s.school_id}</td><td>{s.servidores}</td><td>{s.sem_envio}</td><td>{s.pendente}</td><td>{s.problema}</td><td>{s.valido}</td></tr>)}</tbody></table>
       </details>
 
@@ -151,8 +153,8 @@ function SeasonEditor({ onMsg }: { onMsg: (m: string) => void }) {
       <div className="flex flex-wrap items-end gap-1">
         <input className={`${field} w-20`} value={f.year} onChange={(e) => setF({ ...f, year: e.target.value.replace(/\D/g, "").slice(0, 4) })} aria-label="Ano" />
         <select className={field} value={f.cycle} onChange={(e) => setF({ ...f, cycle: Number(e.target.value) })} aria-label="Ciclo">{[1, 2, 3].map((c) => <option key={c} value={c}>Ciclo {c}</option>)}</select>
-        <input type="date" className={field} value={f.opens} onChange={(e) => setF({ ...f, opens: e.target.value })} aria-label="Abre" />
-        <input type="date" className={field} value={f.closes} onChange={(e) => setF({ ...f, closes: e.target.value })} aria-label="Fecha" />
+        <DateInput className={field} value={f.opens} onChange={(e) => setF({ ...f, opens: e.target.value })} aria-label="Abre" />
+        <DateInput className={field} value={f.closes} onChange={(e) => setF({ ...f, closes: e.target.value })} aria-label="Fecha" />
         <input className={field} placeholder="Motivo" value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} />
         <Button size="sm" onClick={() => void rec("aberta")}>Abrir ciclo</Button>
       </div>
