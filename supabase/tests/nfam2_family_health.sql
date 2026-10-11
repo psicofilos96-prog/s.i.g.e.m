@@ -1,0 +1,5 @@
+-- NFAM.2: prova por execução real (bloco termina em RAISE; nada persiste). Último resultado (2026-10-11):
+-- ok:sem-ciencia-recusada g2-ve:1 ok:health:stale-base g2-ve-do-outro:1 ok:g3 family:not-authorized
+-- ok:escolaB health:capability-missing ok:health:append-only ok:anon session-required
+-- Cenário: 3 responsáveis do mesmo educando (g1 matricula+saude, g2 saude, g3 só matricula); leitor da escola B sem capability.
+-- Corpo idêntico ao executado está no histórico do lote NFAM.2; reexecutar via run_sql.

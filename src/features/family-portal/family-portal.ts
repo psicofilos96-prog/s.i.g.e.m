@@ -5,7 +5,7 @@ import { isShapeError, SHAPE_MESSAGE } from "@/lib/runtime-shape";
  * esta camada só apresenta. Nada aqui concede acesso, infere vínculo ou converte ausência em zero.
  */
 
-export const FAMILY_SECTIONS = ["matricula", "frequencia", "avaliacao", "calendario", "documentos", "comunicados"] as const;
+export const FAMILY_SECTIONS = ["matricula", "frequencia", "avaliacao", "calendario", "documentos", "comunicados", "saude"] as const;
 export type FamilySection = (typeof FAMILY_SECTIONS)[number];
 
 export type FamilyStudent = Readonly<{ student_id: string; display_name: string | null; sections: readonly FamilySection[]; valid_until: string | null }>;
@@ -45,7 +45,7 @@ export function resolveSelected(list: readonly FamilyStudent[], requested: strin
 
 export const SECTION_LABEL: Record<FamilySection, string> = {
   matricula: "Vida escolar", frequencia: "Frequência", avaliacao: "Avaliações e boletim",
-  calendario: "Calendário", documentos: "Documentos", comunicados: "Comunicados",
+  calendario: "Calendário", documentos: "Documentos", comunicados: "Comunicados", saude: "Saúde e alimentação",
 };
 
 export const fmtDate = (d: string | null) => (d ? new Date(`${d.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "sem registro");

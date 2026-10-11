@@ -9,6 +9,7 @@ import { CARD_KIND_LABEL, CARD_STATE_LABEL, cardMessage, issuedValidity, project
 import { cardPhotoUrl, findCardCandidates, readCardChain, readCardLayouts, recordCard, recordCardLayout, saveCardPhoto, type CardCandidate } from "./card-issuance-source";
 import { CardBatchSheets, StudentCardView } from "./student-card-view";
 import { PhotoCapture } from "./photo-capture";
+import { candidateDisambiguation } from "./student-lookup";
 import { CARD_ACCENT_LABEL, CARD_LOGOS, CARD_LOGO_LABEL, DEFAULT_CARD_LAYOUT, cardLayoutProblem, readCardLayout, type CardLayout } from "./card-layout";
 import type { StudentCard } from "./student-card";
 
@@ -34,6 +35,7 @@ export function CardAdminPage() {
   const inFlight = useRef(false);
   const [open, setOpen] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [birth, setBirth] = useState("");
   const [cands, setCands] = useState<CardCandidate[] | null>(null);
   const [pick, setPick] = useState<CardCandidate | null>(null);
   const [year, setYear] = useState(today().slice(0, 4));
@@ -65,10 +67,10 @@ export function CardAdminPage() {
 
   async function find() {
     setBusy(true); setErr(null); setPick(null);
-    try { setCands(await findCardCandidates(school, query)); } catch (e) { setCands(null); setErr(cardMessage((e as Error).message)); }
+    try { setCands(await findCardCandidates(school, query, birth)); } catch (e) { setCands(null); setErr(cardMessage((e as Error).message)); }
     setBusy(false);
   }
-  async function refreshCandidate() { if (pick) { const r = await findCardCandidates(school, pick.student_id); setPick(r[0] ?? pick); } }
+  async function refreshCandidate() { if (pick) { const r = await findCardCandidates(school, pick.student_id, null); setPick(r[0] ?? pick); } }
   function emit() {
     const v = validateCardDraft({ kind: "emissao", year, validUntil: until, reason: "" }); if (v) { setErr(v); return; }
     if (!pick) return;
@@ -122,14 +124,18 @@ export function CardAdminPage() {
               <label className="text-sm">Nome ou identificador<input className="mt-1 block rounded border bg-background p-2" value={query} onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter" && query.trim().length >= 3) void find(); }} /></label>
               <Button type="button" variant="outline" disabled={busy || query.trim().length < 3} onClick={() => void find()}>Buscar</Button>
+              <label className="text-sm">Data de nascimento (opcional)<input type="date" className="mt-1 block rounded border bg-background p-2" value={birth} onChange={(e) => setBirth(e.target.value)} /></label>
             </div>
             {cands && cands.length === 0 && <p className="text-sm text-muted-foreground">Nenhum estudante com matrícula vigente encontrado com esse dado nesta escola.</p>}
             {cands && cands.length > 0 && !pick && (
               <ul className="divide-y rounded border" aria-label="Estudantes encontrados">{cands.map((c) => (
                 <li key={c.student_id} className="flex flex-wrap items-center gap-2 p-2 text-sm">
                   <strong>{c.name}</strong><span className="text-muted-foreground">{c.class_label ?? "turma não registrada"}{c.internal_id ? ` · ${c.internal_id}` : ""}</span>
+                  <span className="text-muted-foreground">{c.birth_date ? `nasc. ${fmtDate(c.birth_date)}` : "nascimento não registrado"}</span>
                   {c.open_card && <span className="rounded border px-2 text-xs">já tem carteirinha</span>}
-                  <Button type="button" size="sm" variant="ghost" className="ml-auto" onClick={() => setPick(c)}>Selecionar</Button>
+                  {(() => { const d = candidateDisambiguation(c, cands); return d.ok
+                    ? <Button type="button" size="sm" variant="ghost" className="ml-auto" onClick={() => setPick(c)}>Selecionar</Button>
+                    : <span role="note" className="ml-auto text-xs text-destructive">{d.reason}</span>; })()}
                 </li>))}</ul>)}
             {pick && (
               <div className="space-y-3">

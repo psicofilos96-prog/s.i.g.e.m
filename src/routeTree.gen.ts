@@ -95,6 +95,7 @@ import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
 import { Route as VinculosLetivosRouteImport } from './routes/vinculos-letivos'
 import { Route as AlimentacaoEscolarCozinhaRouteImport } from './routes/alimentacao-escolar_.cozinha'
+import { Route as AlimentacaoEscolarSaudeDeclaradaRouteImport } from './routes/alimentacao-escolar_.saude-declarada'
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
 import { Route as AlunosIdRouteImport } from './routes/alunos.$id'
 import { Route as AlunosNovoRouteImport } from './routes/alunos.novo'
@@ -676,6 +677,12 @@ const AlimentacaoEscolarCozinhaRoute =
   AlimentacaoEscolarCozinhaRouteImport.update({
     id: '/alimentacao-escolar_/cozinha',
     path: '/alimentacao-escolar/cozinha',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AlimentacaoEscolarSaudeDeclaradaRoute =
+  AlimentacaoEscolarSaudeDeclaradaRouteImport.update({
+    id: '/alimentacao-escolar_/saude-declarada',
+    path: '/alimentacao-escolar/saude-declarada',
     getParentRoute: () => rootRouteImport,
   } as any)
 const AlunosIndexRoute = AlunosIndexRouteImport.update({
@@ -1608,6 +1615,7 @@ export interface FileRoutesByFullPath {
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
+  '/alimentacao-escolar/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
@@ -1835,6 +1843,7 @@ export interface FileRoutesByTo {
   '/transporte-escolar': typeof TransporteEscolarRoute
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
+  '/alimentacao-escolar/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
@@ -2053,6 +2062,7 @@ export interface FileRoutesById {
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
   '/alimentacao-escolar_/cozinha': typeof AlimentacaoEscolarCozinhaRoute
+  '/alimentacao-escolar_/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
@@ -2293,6 +2303,7 @@ export interface FileRouteTypes {
     | '/unidades'
     | '/vinculos-letivos'
     | '/alimentacao-escolar/cozinha'
+    | '/alimentacao-escolar/saude-declarada'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
@@ -2520,6 +2531,7 @@ export interface FileRouteTypes {
     | '/transporte-escolar'
     | '/vinculos-letivos'
     | '/alimentacao-escolar/cozinha'
+    | '/alimentacao-escolar/saude-declarada'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
@@ -2737,6 +2749,7 @@ export interface FileRouteTypes {
     | '/unidades'
     | '/vinculos-letivos'
     | '/alimentacao-escolar_/cozinha'
+    | '/alimentacao-escolar_/saude-declarada'
     | '/alunos/$id'
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
@@ -2976,6 +2989,7 @@ export interface RootRouteChildren {
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
   AlimentacaoEscolarCozinhaRoute: typeof AlimentacaoEscolarCozinhaRoute
+  AlimentacaoEscolarSaudeDeclaradaRoute: typeof AlimentacaoEscolarSaudeDeclaradaRoute
   AvaliacoesDoProfessorCartaoRespostaRoute: typeof AvaliacoesDoProfessorCartaoRespostaRoute
   DiarioFolhaFinalRoute: typeof DiarioFolhaFinalRoute
   DiarioLivroRoute: typeof DiarioLivroRoute
@@ -3605,6 +3619,13 @@ declare module '@tanstack/react-router' {
       path: '/alimentacao-escolar/cozinha'
       fullPath: '/alimentacao-escolar/cozinha'
       preLoaderRoute: typeof AlimentacaoEscolarCozinhaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alimentacao-escolar_/saude-declarada': {
+      id: '/alimentacao-escolar_/saude-declarada'
+      path: '/alimentacao-escolar/saude-declarada'
+      fullPath: '/alimentacao-escolar/saude-declarada'
+      preLoaderRoute: typeof AlimentacaoEscolarSaudeDeclaradaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alunos/': {
@@ -5421,6 +5442,7 @@ const rootRouteChildren: RootRouteChildren = {
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
   AlimentacaoEscolarCozinhaRoute: AlimentacaoEscolarCozinhaRoute,
+  AlimentacaoEscolarSaudeDeclaradaRoute: AlimentacaoEscolarSaudeDeclaradaRoute,
   AvaliacoesDoProfessorCartaoRespostaRoute:
     AvaliacoesDoProfessorCartaoRespostaRoute,
   DiarioFolhaFinalRoute: DiarioFolhaFinalRoute,
