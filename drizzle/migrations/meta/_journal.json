@@ -2367,6 +2367,13 @@
       "when": 1791712990633,
       "tag": "0337_nei3_storage_policy_definer",
       "breakpoints": true
+    },
+    {
+      "idx": 338,
+      "version": "7",
+      "when": 1791713502387,
+      "tag": "0338_nei4_support_coverage_barriers",
+      "breakpoints": true
     }
   ]
 }

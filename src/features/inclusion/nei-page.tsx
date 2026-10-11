@@ -50,6 +50,7 @@ function NeiWorkspace({ access }: { access: NeiAccess[] }) {
     <div className="space-y-6">
       <Link to="/inclusao/nei/ficha" className="text-sm font-medium underline">Abrir ficha NEI, planos e casos de um estudante →</Link>
       <Link to="/inclusao/nei/aee" className="ml-4 text-sm font-medium underline">Oferta e agenda do AEE →</Link>
+      <Link to="/inclusao/nei/apoio" className="ml-4 text-sm font-medium underline">Apoio e acessibilidade →</Link>
       <PageHeader eyebrow="Núcleo de Educação Inclusiva" title="Painel do NEI"
         description={`Seu acesso: ${[...new Set(access.map((a) => NEI_ROLE_LABEL[a.role] ?? a.role))].join(" · ")} — ${scopeLabel(access)}. Só contagens; dados individuais ficam nas telas próprias, com a permissão de cada uma.`} />
 
