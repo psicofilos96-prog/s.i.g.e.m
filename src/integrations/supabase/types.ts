@@ -457,6 +457,98 @@ export type Database = {
           },
         ]
       }
+      aa_outreach_cases: {
+        Row: {
+          basis_mode: string
+          basis_period: string
+          basis_presence_pct: number
+          class_id: string
+          enrollment_id: string | null
+          id: string
+          opened_at: string
+          opened_by: string
+          responsible_label: string | null
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          basis_mode: string
+          basis_period: string
+          basis_presence_pct: number
+          class_id: string
+          enrollment_id?: string | null
+          id?: string
+          opened_at?: string
+          opened_by: string
+          responsible_label?: string | null
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          basis_mode?: string
+          basis_period?: string
+          basis_presence_pct?: number
+          class_id?: string
+          enrollment_id?: string | null
+          id?: string
+          opened_at?: string
+          opened_by?: string
+          responsible_label?: string | null
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: []
+      }
+      aa_outreach_events: {
+        Row: {
+          author_user_id: string
+          case_id: string
+          channel: string | null
+          destination: string | null
+          due_date: string | null
+          guardian_label: string | null
+          id: string
+          kind: string
+          note: string
+          recorded_at: string
+          seq: number
+        }
+        Insert: {
+          author_user_id: string
+          case_id: string
+          channel?: string | null
+          destination?: string | null
+          due_date?: string | null
+          guardian_label?: string | null
+          id?: string
+          kind: string
+          note: string
+          recorded_at?: string
+          seq: number
+        }
+        Update: {
+          author_user_id?: string
+          case_id?: string
+          channel?: string | null
+          destination?: string | null
+          due_date?: string | null
+          guardian_label?: string | null
+          id?: string
+          kind?: string
+          note?: string
+          recorded_at?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aa_outreach_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academic_standing_batch_acts: {
         Row: {
           author_person_id: string
@@ -23288,9 +23380,36 @@ export type Database = {
         }
         Returns: number
       }
+      aa_infrequency_at: {
+        Args: { _from?: string; _school?: string; _to?: string }
+        Returns: {
+          absent: number
+          class_id: string
+          enrollment_id: string
+          period_id: string
+          period_start: string
+          present: number
+          school_id: string
+          student_id: string
+          unmarked: number
+        }[]
+      }
       aa_instrument_completeness_internal: {
         Args: { _instrument: string }
         Returns: Json
+      }
+      aa_open_outreach_case: {
+        Args: {
+          _class: string
+          _enrollment: string
+          _mode: string
+          _pct: number
+          _period: string
+          _responsible: string
+          _school: string
+          _student: string
+        }
+        Returns: string
       }
       aa_period_window: {
         Args: { _known_at: string; _period: string }
@@ -23326,6 +23445,19 @@ export type Database = {
           _responsible: string
         }
         Returns: number
+      }
+      aa_record_outreach_event: {
+        Args: {
+          _case: string
+          _channel: string
+          _destination: string
+          _due: string
+          _expected_seq: number
+          _guardian: string
+          _kind: string
+          _note: string
+        }
+        Returns: string
       }
       ab_scope_allows: {
         Args: { _capability: string; _on: string; _school: string }
