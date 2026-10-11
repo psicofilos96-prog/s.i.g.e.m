@@ -5,3 +5,4 @@
 - Provedor é interface: Lovable AI com `store: false` quando há chave; falha ⇒ modo extrativo local; nada é usado para treino.
 - Propostas assistidas (`proposals-core.ts`, migration 0093): a IA só gera JSON validado por schema estrito contra a lista fechada `PROPOSAL_KINDS`; nota/frequência/capability/política/homologação/exclusão/dado sensível nunca são tipos, porque autonomia nesses dados seria norma sem humano.
 - Gerar não grava; confirmar exige a mesma impressão digital da prévia, revalida escopo e executa pelo writer canônico com o cliente do próprio usuário, registrando em `ai_assisted_actions` (append-only, ator = auth.uid()), porque a IA não tem capability própria.
+- Lote 03 Expansão (`intelligence-core.ts`): domínios da pergunta são lista fechada; toda medida exige fonte, fórmula e período válido e ausência é "não apurado"; log de uso nunca guarda a pergunta, porque número sem origem ou texto livre com nome vazariam ou inventariam dado.
