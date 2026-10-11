@@ -19821,6 +19821,207 @@ export type Database = {
           },
         ]
       }
+      sl_entry_reviews: {
+        Row: {
+          author_user_id: string
+          decision: string
+          entry_version_id: string
+          id: string
+          note: string | null
+          recorded_at: string
+          school_id: string
+        }
+        Insert: {
+          author_user_id: string
+          decision: string
+          entry_version_id: string
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          school_id: string
+        }
+        Update: {
+          author_user_id?: string
+          decision?: string
+          entry_version_id?: string
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sl_entry_reviews_entry_version_id_fkey"
+            columns: ["entry_version_id"]
+            isOneToOne: false
+            referencedRelation: "sl_entry_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sl_entry_versions: {
+        Row: {
+          author_user_id: string
+          class_id: string
+          id: string
+          instrument_version_id: string
+          item_results: Json
+          logical_id: string
+          participation: string | null
+          presence: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          version: number
+          writing_stage: string | null
+        }
+        Insert: {
+          author_user_id: string
+          class_id: string
+          id?: string
+          instrument_version_id: string
+          item_results?: Json
+          logical_id?: string
+          participation?: string | null
+          presence: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          version: number
+          writing_stage?: string | null
+        }
+        Update: {
+          author_user_id?: string
+          class_id?: string
+          id?: string
+          instrument_version_id?: string
+          item_results?: Json
+          logical_id?: string
+          participation?: string | null
+          presence?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          version?: number
+          writing_stage?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sl_entry_versions_instrument_version_id_fkey"
+            columns: ["instrument_version_id"]
+            isOneToOne: false
+            referencedRelation: "sl_instrument_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sl_entry_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "sl_entry_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sl_instrument_homologations: {
+        Row: {
+          author_user_id: string
+          decision: string
+          id: string
+          instrument_version_id: string
+          reason: string
+          recorded_at: string
+        }
+        Insert: {
+          author_user_id: string
+          decision: string
+          id?: string
+          instrument_version_id: string
+          reason: string
+          recorded_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          decision?: string
+          id?: string
+          instrument_version_id?: string
+          reason?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sl_instrument_homologations_instrument_version_id_fkey"
+            columns: ["instrument_version_id"]
+            isOneToOne: false
+            referencedRelation: "sl_instrument_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sl_instrument_versions: {
+        Row: {
+          author_user_id: string
+          edition_year: number
+          grade: number
+          id: string
+          items: Json
+          logical_id: string
+          percent_bands: Json | null
+          reason: string | null
+          recorded_at: string
+          source_ref: string
+          supersedes_id: string | null
+          version: number
+          week: number
+          writing_stages: Json
+        }
+        Insert: {
+          author_user_id: string
+          edition_year: number
+          grade: number
+          id?: string
+          items: Json
+          logical_id?: string
+          percent_bands?: Json | null
+          reason?: string | null
+          recorded_at?: string
+          source_ref: string
+          supersedes_id?: string | null
+          version: number
+          week: number
+          writing_stages?: Json
+        }
+        Update: {
+          author_user_id?: string
+          edition_year?: number
+          grade?: number
+          id?: string
+          items?: Json
+          logical_id?: string
+          percent_bands?: Json | null
+          reason?: string | null
+          recorded_at?: string
+          source_ref?: string
+          supersedes_id?: string | null
+          version?: number
+          week?: number
+          writing_stages?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sl_instrument_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "sl_instrument_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_administrative_records: {
         Row: {
           cargo: string | null
@@ -31662,6 +31863,49 @@ export type Database = {
         }[]
       }
       sipe_my_schools: { Args: never; Returns: string[] }
+      sl_homologate_instrument: {
+        Args: { _decision: string; _reason: string; _version: string }
+        Returns: string
+      }
+      sl_instrument_is_homologated: {
+        Args: { _version: string }
+        Returns: boolean
+      }
+      sl_record_entry: {
+        Args: {
+          _class: string
+          _expected_version: number
+          _instrument: string
+          _items: Json
+          _logical: string
+          _participation: string
+          _presence: string
+          _reason: string
+          _school: string
+          _stage: string
+          _student: string
+        }
+        Returns: string
+      }
+      sl_record_instrument: {
+        Args: {
+          _bands: Json
+          _expected_version: number
+          _grade: number
+          _items: Json
+          _logical: string
+          _reason: string
+          _source: string
+          _stages: Json
+          _week: number
+          _year: number
+        }
+        Returns: string
+      }
+      sl_review_entry: {
+        Args: { _decision: string; _entry_version: string; _note: string }
+        Returns: string
+      }
       stage_import_batch: {
         Args: {
           _adapter_id: string
