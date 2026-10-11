@@ -21,7 +21,7 @@ export function AuxTablesPanel({ year }: { year: string }) {
     void b.then((r) => setCodes((r.data ?? []) as Code[]));
   }, [sel, q, page, sources]);
   const check = async () => {
-    const r = await supabase.rpc("educacenso_aux_check", { _year: chk.kind === "deficiencia-recurso" ? year : year, _kind: chk.kind, _a: chk.a, _b: chk.b || undefined, _c: chk.c || undefined });
+    const r = await supabase.rpc("educacenso_aux_check", { _year: year, _kind: chk.kind, _a: chk.a, ...(chk.b ? { _b: chk.b } : {}), ...(chk.c ? { _c: chk.c } : {}) });
     setRes(r.error ? "Não foi possível conferir." : `${RESULT[(r.data as { result: string }).result] ?? (r.data as { result: string }).result}`);
   };
   if (sources === null) return <section className="rounded-md border p-3"><p role="status" className="text-xs">Carregando tabelas auxiliares…</p></section>;
