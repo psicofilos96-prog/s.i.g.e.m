@@ -94,3 +94,18 @@ export type PrintSettings = { instrument_version_id: string; label: string; head
 export const printSettingsOf = async (versionId: string) => (await must<PrintSettings[]>(db.from("sia_instrument_print_settings").select("instrument_version_id, label, header_version_id").eq("instrument_version_id", versionId)))[0] ?? null;
 export const savePrintSettings = (versionId: string, label: string, header: string | null) => must<string>(db.rpc("record_sia_instrument_print_settings", { _instrument_version: versionId, _label: label, _header: header }));
 export const schoolNames = async (ids: string[]) => ids.length ? must<{ school_id: string; official_name: string; version_number: number }[]>(db.from("institutional_school_record_versions").select("school_id, official_name, version_number").in("school_id", ids).order("version_number", { ascending: false })) : [];
+
+/** SIA.READ.1 — v2: estado por questão, nota manual de discursiva e pontuação pelos pesos da versão; o banco recalcula. */
+export type RecordCorrectionV2 = Omit<RecordCorrection, "lines"> & { lines: unknown[] };
+export const recordCorrectionV2 = (c: RecordCorrectionV2) => must<string>(db.rpc("record_sia_card_correction_v2", {
+  _instrument_version: c.instrumentVersionId, _variant: c.variant, _student: c.studentId, _card_code: c.cardCode, _image_path: c.imagePath, _image_sha256: c.imageSha,
+  _print_fingerprint: c.fingerprint, _lines: c.lines, _human_confirmed: true, _expected_head: c.expectedHead, _reason: c.reason, _launch_to_diary: c.launch,
+}));
+Object.assign(SIA_CORRECTION_ERROR, {
+  "sia:unread-blocks-diary": "Há questões não lidas: a nota não vai ao Diário até você decidir cada uma.",
+  "sia:weights-incomplete": "A prova tem questões sem peso: a nota não pode ser calculada nem lançada.",
+  "sia:diary-has-result-use-rectification": "O Diário já tem resultado diferente para este estudante. Corrija pela retificação da Pauta.",
+  "sia:points-out-of-range": "Nota da discursiva fora do intervalo do peso.",
+  "sia:student-not-in-class": "O estudante não está matriculado nesta turma.",
+  "sia:lines-mismatch": "As questões não correspondem à versão aprovada.",
+});
