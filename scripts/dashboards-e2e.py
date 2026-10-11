@@ -119,7 +119,8 @@ async def main():
         p(arts == ["Matrículas por escola", "Turmas por escola", "Total de matrículas"], "modelo do setor abre 3 gráficos sobre o catálogo", str(arts))
         await pg.get_by_role("article", name="Total de matrículas").get_by_text("linha(s)").wait_for(timeout=60000)
         kpi = await pg.get_by_role("article", name="Total de matrículas").inner_text(); p("9.811" in kpi, "indicador do modelo = 9.811 matrículas reais", kpi[-40:])
-        await pg.get_by_role("article", name="Total de matrículas").locator("h3").drag_to(pg.get_by_role("article", name="Matrículas por escola").locator("h3"))
+        await pg.evaluate("""() => { const arts=[...document.querySelectorAll('article')]; const src=arts.find(a=>a.getAttribute('aria-label')==='Total de matrículas'), dst=arts.find(a=>a.getAttribute('aria-label')==='Matrículas por escola');
+          const dt=new DataTransfer(); src.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:dt})); dst.dispatchEvent(new DragEvent('dragover',{bubbles:true,cancelable:true,dataTransfer:dt})); dst.dispatchEvent(new DragEvent('drop',{bubbles:true,cancelable:true,dataTransfer:dt})); src.dispatchEvent(new DragEvent('dragend',{bubbles:true,dataTransfer:dt})); }""")
         await pg.wait_for_timeout(500)
         arts = await pg.get_by_role("article").evaluate_all("els => els.map(e => e.getAttribute('aria-label'))")
         p(arts[0] == "Total de matrículas", "arrastar e soltar reordena", str(arts))
