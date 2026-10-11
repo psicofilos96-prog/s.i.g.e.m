@@ -39,7 +39,7 @@ try {
   const st = await admin.from("institutional_students").select("id, display_name").eq("id", enr.school_enrollments.student_id).single();
   const tpl = await AU.c.rpc("record_school_document_template_version", { _template_id: `declaracao-${op}`, _document_kind: "declaracao-de-matricula", _expected_head_id: null,
     _title: "DECLARAÇÃO DE MATRÍCULA", _blocks: [
-      { type: "paragraph", text: "Declaramos, para os devidos fins, que {{aluno.nome}} está regularmente matriculado(a) nesta unidade escolar, {{escola.nome}}, no ano letivo {{ano_letivo.nome}}, desde {{matricula.abertura}}." },
+      { type: "paragraph", text: "Declaramos, para os devidos fins, que {{aluno.nome}} está regularmente matriculado(a) nesta unidade escolar, {{escola.nome}}, no {{ano_letivo.nome}}, desde {{matricula.abertura}}." },
       { type: "field", label: "Turma", fact: "turma.rotulo" }, { type: "field", label: "Data de referência", fact: "documento.data_de_referencia" },
       { type: "signature", label: "Secretário(a) Escolar" }, { type: "signature", label: "Diretor(a)" }],
     _identity: { header_lines: ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO"], logo_url: null, footer: "Documento de teste técnico (conta sintética) — removido após o teste." },

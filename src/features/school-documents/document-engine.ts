@@ -52,6 +52,8 @@ export type TemplateVersion = {
 };
 
 const PLACEHOLDER = /\{\{\s*([a-z0-9_.-]+)\s*\}\}/gi;
+/** Data ISO aparece no padrão brasileiro; o snapshot guarda o valor original. */
+const show = (v: FactValue) => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v) ? `${v.slice(8, 10)}/${v.slice(5, 7)}/${v.slice(0, 4)}` : String(v);
 const present = (v: unknown): v is FactValue => (typeof v === "string" && v.trim() !== "") || (typeof v === "number" && Number.isFinite(v));
 
 export type RenderedBlock =
@@ -76,14 +78,14 @@ export function renderDocument(blocks: readonly DocumentBlock[], facts: FactMap)
       const text = b.text.replace(PLACEHOLDER, (_, k: string) => {
         mark(k);
         const v = facts[k];
-        if (present(v)) return String(v);
+        if (present(v)) return show(v);
         miss.push(k); return `[${k}: sem registro]`;
       });
       out.push({ type: b.type, text, missing: miss });
     } else if (b.type === "field") {
       mark(b.fact);
       const v = facts[b.fact];
-      out.push({ type: "field", label: b.label, fact: b.fact, value: present(v) ? String(v) : null });
+      out.push({ type: "field", label: b.label, fact: b.fact, value: present(v) ? show(v) : null });
     } else out.push({ type: "signature", label: b.label });
   }
   return { blocks: out, usedFacts: [...used].sort(), missingFacts: [...missing].sort() };
