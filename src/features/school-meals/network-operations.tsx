@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { operationalToday } from "@/lib/academic-date";
 import { mealMessage } from "./meals-model";
+import { receivingMessage } from "./receiving-model";
 import type { OrderLine } from "./order-model";
 
 const field = "mt-1 block w-full rounded border bg-background p-2";
@@ -47,7 +48,7 @@ export function ScheduleForm({ order, lines, contracts, itemLabel, onDone }: { o
       await callRpc("record_meal_delivery_schedule", { _logical: null, _expected_version: null, _action: "programacao", _order: order, _item: l.item_ref, _unit: l.unidade_ref,
         _presentation: l.apresentacao_ref ?? null, _contract: l.contrato_ref ?? null, _frequency: null, _quantity: qty, _expected_on: on, _reason: null });
       setQty(""); await onDone(`Entrega programada: ${qty} de ${itemLabel(l.item_ref)} para ${on.split("-").reverse().join("/")}.`);
-    } catch (e) { setErr(mealMessage((e as Error).message)); }
+    } catch (e) { setErr(receivingMessage((e as Error).message)); }
   };
   return (
     <form aria-label="Programar entrega" className="grid gap-2 rounded border p-2 sm:grid-cols-4" onSubmit={(e) => { e.preventDefault(); void send(); }}>
