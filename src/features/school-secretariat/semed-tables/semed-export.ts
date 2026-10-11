@@ -6,6 +6,7 @@
 import { neutralize } from "@/features/reports/report-engine";
 import { distortion } from "./t04-distortion";
 import { colTotal, pct, rowTotal, t06Final, type TableDef, type Values } from "./semed-catalog";
+import { T06_COLS, T06_GAP, type T06Totals } from "./t06-movement";
 
 export type Central = Partial<Record<string, string | number | null>>;
 export type Block = { title: string; head: string[]; body: (string | number)[][] };
@@ -14,7 +15,8 @@ const show = (v: unknown): string | number => (v === null || v === undefined || 
 
 export const HEADER_LINES = ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO", "NÚCLEO DE INFORMAÇÃO E ESTATÍSTICA"];
 
-export function documentBlocks(def: TableDef, v: Values, central: Central, t04Thresholds: Readonly<Record<string, number>> | null = null): Block[] {
+export type T06Apur = { rule_version: number | null; totals: T06Totals; gaps: string[] };
+export function documentBlocks(def: TableDef, v: Values, central: Central, t04Thresholds: Readonly<Record<string, number>> | null = null, t06: T06Apur | null = null): Block[] {
   const out: Block[] = [];
   for (const s of def.sections) {
     if (s.kind === "fields") {
@@ -48,6 +50,14 @@ export function documentBlocks(def: TableDef, v: Values, central: Central, t04Th
     out.push({ title: s.title, head, body });
     if (def.code === "04") out.push({ title: "DISTORÇÃO SÉRIE x IDADE (alunos a partir da idade de distorção da regra registrada)", head: ["Ano/etapa", "Idade de distorção", "Total", "Em distorção", "%"],
       body: distortion(v, t04Thresholds).map((d) => [d.label, show(d.threshold), show(d.total), show(d.distorted), d.pct === null ? (d.threshold === null ? "sem regra" : ABS) : `${String(d.pct).replace(".", ",")}%`]) });
+    if (is06 && t06) {
+      out.push({ title: `APURAÇÃO POR EVENTOS REAIS (regra ${t06.rule_version ? `v${t06.rule_version}` : "não registrada"}) — total da escola`, head: ["Coluna", "Total informado", "Apurado", "Situação"],
+        body: [...T06_COLS, "final" as const].map((c) => {
+          const typed = c === "final" ? null : colTotal(v, s.id, c, s.rows); const ap = t06.totals[c];
+          return [s.cols.find((x) => x.key === c)?.label ?? "Matrícula final", show(typed), show(ap), typeof ap !== "number" ? "não apurado" : c === "final" || (typed ?? 0) === ap ? "confere" : "DIVERGENTE"];
+        }) });
+      if (t06.gaps.length) out.push({ title: "LACUNAS DA APURAÇÃO", head: ["Lacuna"], body: t06.gaps.map((g) => [T06_GAP[g] ?? g]) });
+    }
   }
   return out;
 }

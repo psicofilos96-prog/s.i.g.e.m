@@ -90,6 +90,23 @@ try {
   const adjB = await FILLB.c.rpc("semed_t04_record_adjustments", { _school: A, _year: 2026, _items: [{ cell: "m.ef1.a7", computed: null, value: 3 }], _reason: "tentativa de outra escola" }); check(!!adjB.error, "secretaria B não ajusta escola A");
   const adjX = await FILL.c.rpc("semed_t04_record_adjustments", { _school: A, _year: 2026, _items: [{ cell: "id.inep", computed: null, value: 3 }], _reason: "campo central" }); check(!!adjX.error, "ajuste fora da matriz recusado");
 
+  // TSEMED.6 — Tabela 06 por eventos reais
+  const r06F = await FILL.c.rpc("semed_t06_record_rule", { _year: 2026, _expected_version: 0, _initial: "2026-03-31", _final: "2026-12-18", _movement_map: {}, _standing_map: {}, _basis: "tentativa escola" }); check(!!r06F.error, "escola não registra regra da Tabela 06");
+  const cur06 = (await admin.from("semed_t06_rule_versions").select("version").eq("year", 2026).order("version", { ascending: false }).limit(1)).data?.[0]?.version ?? 0;
+  const r06Bad = await NET.c.rpc("semed_t06_record_rule", { _year: 2026, _expected_version: cur06, _initial: "2026-03-31", _final: "2026-12-18", _movement_map: { x: "aprovados" }, _standing_map: {}, _basis: "coluna errada" }); check(!!r06Bad.error, "mapa com coluna inválida recusado");
+  const r06Dt = await NET.c.rpc("semed_t06_record_rule", { _year: 2026, _expected_version: cur06, _initial: "2026-12-18", _final: "2026-03-31", _movement_map: {}, _standing_map: {}, _basis: "datas invertidas" }); check(!!r06Dt.error, "datas invertidas recusadas");
+  const r06 = await NET.c.rpc("semed_t06_record_rule", { _year: 2026, _expected_version: cur06, _initial: "2026-03-31", _final: "2026-12-18", _movement_map: {}, _standing_map: {}, _basis: `Teste sintético ${op}` }); check(!r06.error, "rede registra regra da Tabela 06", r06.error?.message);
+  const a06 = await FILL.c.rpc("semed_t06_apuracao", { _school: A, _year: 2026 });
+  check(!a06.error && a06.data.totals.inicial === undefined && a06.data.gaps.includes("matriculas-sem-data-de-inicio"), "matrícula inicial não apurada sem data de início (nunca zero)", JSON.stringify(a06.data?.counts));
+  check(!a06.error && a06.data.totals.aprovados === undefined && a06.data.gaps.includes("resultado-sem-fechamento"), "aprovados/reprovados não contados antes do fechamento");
+  check(!a06.error && a06.data.totals.evasao === 0 && a06.data.totals.transferencia === 0, "saídas apuradas só de eventos reais (nenhum evento = 0 eventos)", JSON.stringify(a06.data?.totals));
+  const a06B = await FILLB.c.rpc("semed_t06_apuracao", { _school: A, _year: 2026 }); check(!a06B.error && a06B.data === null, "secretaria B não lê apuração 06 da escola A");
+  const a06An = await anon.rpc("semed_t06_apuracao", { _school: A, _year: 2026 }); check(!!a06An.error, "anônimo recusado na apuração 06");
+  const s06B = await act(FILLB, "salvar", 0, { school: B, values: { "m.ef1.inicial": 20, "m.ef1.evasao": 2 } }); check(!s06B.error, "secretaria B salva rascunho com evasão digitada", s06B.error?.message);
+  const eB = await act(FILLB, "enviar-conferencia", 1, { school: B }); check(!!eB.error && eB.error.message.includes("t06-divergente:evasao"), "evasão digitada sem evento oficial bloqueia o envio", eB.error?.message);
+  const s06B2 = await act(FILLB, "salvar", 1, { school: B, values: { "m.ef1.inicial": 20, "m.ef1.evasao": 0 } }); check(!s06B2.error, "rascunho corrigido para a apuração");
+  const eB2 = await act(FILLB, "enviar-conferencia", 2, { school: B }); check(!eB2.error, "envio aceito quando o total confere com a apuração", eB2.error?.message);
+
   mkdirSync("/tmp/semed", { recursive: true });
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/semed/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, school: A, sessions: { fill: FILL.session, net: NET.session, none: NONE.session } }), { mode: 0o600 });
@@ -104,6 +121,7 @@ finally {
   for (const id of users) await admin.auth.admin.deleteUser(id);
   const l1 = await admin.from("semed_table_submission_events").select("id", { count: "exact", head: true }).in("actor_user_id", users);
   const l2 = await admin.from("semed_table_submissions").select("id", { count: "exact", head: true }).in("created_by", users);
-  check((l1.count ?? 0) + (l2.count ?? 0) === 0, "sem resíduo após limpeza");
+  const l3 = await admin.from("semed_t06_rule_versions").select("id", { count: "exact", head: true }).in("recorded_by", users);
+  check((l1.count ?? 0) + (l2.count ?? 0) + (l3.count ?? 0) === 0, "sem resíduo após limpeza");
   console.log(`RESUMO falhas=${fails}`);
 }

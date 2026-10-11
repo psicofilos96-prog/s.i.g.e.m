@@ -55,7 +55,7 @@ export function NeiIndicatorsPage() {
               <div key={d.key} className="rounded-md border border-border p-3" title={`${d.formula}. Fonte: ${d.source}`}>
                 <p className="text-xs text-muted-foreground">{d.label}</p>
                 <p className="text-xl font-semibold tabular-nums">{fmt(tot[d.key], d)}{p !== null ? <span className="ml-1 text-xs font-normal text-muted-foreground">({p}% de {d.denominator?.toLowerCase()})</span> : null}</p>
-                <p className="text-[11px] text-muted-foreground">{d.formula}{d.unit ? "" : ""}</p>
+                <p className="text-micro text-muted-foreground">{d.formula}{d.unit ? "" : ""}</p>
               </div>); })}
           </div>
           <section className="space-y-2">
