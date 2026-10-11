@@ -45,6 +45,20 @@ async def main():
         print(("PASS" if ok and "Estudantes distintos" in txt else "FAIL") + " prévia de 3 cruzamentos com cálculo renomeado", "" if ok else txt)
         print(("PASS" if "TOTAL GERAL" in txt or "SUBTOTAL" in txt else "FAIL") + " subtotais na prévia")
         await pg.screenshot(path=f"{SH}/1-previa.png")
+        # Gráfico no mesmo documento (motor SVG compartilhado)
+        await pg.get_by_label("Incluir gráfico").check(); await pick(pg, "Tipo de gráfico", "barras-horizontais"); await pick(pg, "Categoria do gráfico", "c2")
+        await pg.get_by_label("Medida Estudantes distintos").check(); await pg.get_by_label("Título do gráfico").fill("Estudantes por turma")
+        await pick(pg, "Papel", "A3"); await pick(pg, "Orientação", "paisagem"); await pg.wait_for_timeout(500)
+        gp = pg.get_by_label("Prévia do gráfico"); svgn = await gp.locator("svg rect").count() if await gp.count() else 0
+        print(("PASS" if svgn > 1 else "FAIL") + f" prévia do gráfico desenhada ({svgn} barras)")
+        await gp.screenshot(path=f"{SH}/1b-grafico.png") if await gp.count() else None
+        for f in ["SVG", "PNG"]:
+            try:
+                async with pg.expect_download(timeout=60000) as d: await pg.get_by_role("button", name=f"Gráfico {f}").click()
+                dl = await d.value; path = f"/tmp/rep/grafico.{f.lower()}"; await dl.save_as(path); head = open(path, "rb").read(8)
+                ok = head.startswith(b"\x89PNG") if f == "PNG" else b"<svg" in open(path, "rb").read(200)
+                print(("PASS" if ok else "FAIL") + f" gráfico {f} baixado", os.path.getsize(path), "bytes")
+            except Exception as e: print("FAIL gráfico", f, str(e)[:200])
         await pg.get_by_label("Nome do modelo").fill("Aceite RCQ — alunos por turma")
         await pg.get_by_role("button", name="Salvar versão").click(); await pg.wait_for_timeout(2500)
         await pg.reload(); await pg.wait_for_selector("select[aria-label='Fonte principal']", timeout=30000); await pg.wait_for_timeout(2500)
@@ -60,12 +74,16 @@ async def main():
         try:
             async with pg.expect_download(timeout=60000) as d: await pg.get_by_role("button", name="XLSX").click()
             dl = await d.value; path = f"/tmp/rep/{dl.suggested_filename}"; await dl.save_as(path); print("PASS XLSX baixado", os.path.getsize(path), "bytes")
+            import zipfile; z = zipfile.ZipFile(path); wbx = z.read("xl/workbook.xml").decode()
+            sheets = [x for x in ["Relatório", "Dados do gráfico", "Identificação e verificação"] if x in wbx]; imgs = [n for n in z.namelist() if n.startswith("xl/media/")]
+            print(("PASS" if len(sheets) == 3 and imgs else "FAIL") + f" XLSX com abas {sheets} e imagem do gráfico ({len(imgs)})")
         except Exception as e: print("FAIL XLSX", str(e)[:200])
         await pg.wait_for_timeout(1500)
         try:
             async with pg.expect_popup(timeout=60000) as pp: await pg.get_by_role("button", name="PDF (imprimir)").click()
-            pop = await pp.value; await pop.wait_for_load_state(); html = await pop.content()
+            pop = await pp.value; await pop.wait_for_load_state(); html = await pop.content(); open("/tmp/rep/pdf.html","w").write(html)
             print(("PASS" if "QR de verificação" in html and "Estudantes por escola e turma" in html else "FAIL") + " PDF com QR e título")
+            print(("PASS" if "chartimg" in html and "Dados do gráfico" in html and "A3 landscape" in html and "Secretário(a) escolar" in html else "FAIL") + " PDF A3 paisagem com gráfico, tabela e assinaturas")
             await pop.emulate_media(media="print"); await pop.pdf(path="/tmp/rep/custom.pdf", prefer_css_page_size=True); print("INFO PDF salvo /tmp/rep/custom.pdf")
             await pop.close()
         except Exception as e: print("FAIL PDF", str(e)[:200])

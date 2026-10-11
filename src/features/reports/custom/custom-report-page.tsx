@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useSessionUser } from "@/features/authority/session-authority";
-import { cellText, fingerprint, toCsv, toXlsx, type ReportResult } from "../report-engine";
+import { cellText, fingerprint, toCsv, type ReportResult } from "../report-engine";
 import { listMyEmissions, recordEmission, reissueComparison, verificationBlock, type ReportEmission } from "../report-emissions";
 import { INSTITUTIONAL_LOGOS } from "../report-analytics";
 import {
@@ -11,6 +11,8 @@ import {
   type Aggregate, type Catalog, type Condition, type CustomSpec, type Group, type Operator, type ServerPage,
 } from "./custom-report";
 import { defaultLayout, layoutProblems, renderCustomHtml, type CustomLayout } from "./custom-layout";
+import { CHART_LABEL, chartProblems, customChartData, customChartSvg, svgToPng, toCustomXlsx, type CustomChart } from "./custom-chart";
+import { CHART_KINDS, type ChartKind } from "../report-analytics";
 import { CUSTOM_SHARE_REASON, copyName, listCustomTemplates, saveCustomTemplate, type CustomTemplate } from "./custom-templates";
 
 const inp = "min-h-9 rounded-md border border-input bg-background px-2 py-1 text-sm";
@@ -90,14 +92,33 @@ function Builder() {
       const brand = { headerLines: s.layout.headerLines, title: s.layout.title || "Relatório personalizado" };
       const base = (s.layout.title || "relatorio").toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").slice(0, 50);
       if (fmt === "csv") download(`${base}.csv`, new Blob([toCsv(r, brand, prov)], { type: "text/csv;charset=utf-8" }));
-      else if (fmt === "xlsx") download(`${base}.xlsx`, new Blob([await toXlsx(r, brand, prov)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
-      else {
-        const doc = renderCustomHtml(r, s.layout, prov, verificationBlock(em.verification_code, window.location.origin));
+      const cd = s.layout.chart ? customChartData(r, s.layout.chart) : null;
+      const chart = cd && !("refused" in cd) ? cd : null;
+      if (cd && "refused" in cd) prov.push(`Gráfico não incluído: ${cd.refused.join(" ")}`);
+      if (fmt === "xlsx") {
+        const png = chart ? await (await svgToPng(customChartSvg(chart))).arrayBuffer().catch(() => null) : null;
+        download(`${base}.xlsx`, new Blob([await toCustomXlsx(r, brand, prov, chart ? { data: chart, png } : null, s.layout.signatures)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+      } else if (fmt === "pdf") {
+        const doc = renderCustomHtml(r, s.layout, prov, verificationBlock(em.verification_code, window.location.origin), chart ? { svg: customChartSvg(chart), table: chart.table, notes: chart.notes } : null);
         const w = window.open("", "_blank"); if (w) { w.document.write(doc); w.document.close(); w.focus(); w.print(); } else setErr("O navegador bloqueou a janela de impressão; permita janelas para este site.");
       }
       const cmp = reissueComparison(reissue?.content_sha256 ?? null, sha);
       setNote(`Emitido (${fmt.toUpperCase()}, ${r.rows.length} linhas), código ${em.verification_code}.${reissue ? cmp === "identico" ? " Conteúdo idêntico ao original." : " Conteúdo DIFERENTE do original: os dados mudaram ou seu acesso mudou." : ""}`);
       void refresh();
+    } catch (e) { setErr(say(e)); } finally { setBusy(false); }
+  }
+
+  async function chartFile(fmt: "png" | "svg") {
+    if (!cat || !layout.chart) return;
+    setBusy(true); setErr(null);
+    try {
+      const all = await runAll(cat, spec);
+      if (all.truncated) throw new Error("A consulta passa de 50.000 linhas; filtre antes de exportar.");
+      const d = customChartData(toResult(cat, spec, all.page, all.rows), layout.chart);
+      if ("refused" in d) throw new Error(d.refused.join(" "));
+      const svg = customChartSvg(d); const base = (d.spec.title || "grafico").toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").slice(0, 50);
+      download(`${base}.${fmt}`, fmt === "svg" ? new Blob([svg], { type: "image/svg+xml" }) : await svgToPng(svg));
+      setNote(`Gráfico ${fmt.toUpperCase()} gerado com ${d.points.length} categoria(s), a partir da consulta inteira.`);
     } catch (e) { setErr(say(e)); } finally { setBusy(false); }
   }
 
@@ -222,6 +243,9 @@ function Builder() {
         </>}
       </section>
 
+      {/* 8. Gráfico */}
+      <ChartSection layout={layout} setLayout={setLayout} result={result} total={page?.total ?? null} busy={busy} onFile={chartFile} outs={outs} agg={agg} />
+
       {/* 7. Layout */}
       <section className={box} aria-label="Layout">
         <h2 className="font-semibold">7. Página e identidade</h2>
@@ -300,5 +324,37 @@ function ConditionRow({ cat, fields, c, onChange }: { cat: Catalog; fields: stri
         : <input aria-label="Valor do filtro" type={c.operator === "in" ? "text" : kind} className={inp} value={String(c.value ?? "")} onChange={(e) => onChange({ ...c, value: e.target.value })} />}
       <Button size="sm" variant="ghost" onClick={() => onChange(null)}>Remover</Button>
     </div>
+  );
+}
+
+function ChartSection({ layout, setLayout, result, total, busy, onFile, outs, agg }: { layout: CustomLayout; setLayout: (l: CustomLayout) => void; result: ReportResult | null; total: number | null; busy: boolean; onFile: (f: "png" | "svg") => void; outs: { id: string; label: string }[]; agg: boolean }) {
+  const c = layout.chart ?? null;
+  const set = (x: Partial<CustomChart>) => setLayout({ ...layout, chart: { kind: "barras", category: "c1", measures: [], title: "", placement: "antes", ...c, ...x } });
+  const numeric = result ? result.columns.filter((x) => x.kind === "number") : [];
+  const d = c && result ? customChartData(result, c) : null;
+  const probs = c && result ? chartProblems(result, c) : [];
+  return (
+    <section className={box} aria-label="Gráfico">
+      <h2 className="font-semibold">8. Gráfico no documento</h2>
+      {!agg && <p className="text-sm text-muted-foreground">Gráfico pede agrupamento e ao menos um cálculo (seção 4).</p>}
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" aria-label="Incluir gráfico" checked={!!c} disabled={!agg} onChange={(e) => (e.target.checked ? set({}) : setLayout({ ...layout, chart: null }))} />Incluir gráfico no PDF/XLSX</label>
+      {c && <div className="grid gap-2 text-sm sm:grid-cols-2">
+        <label>Tipo <select aria-label="Tipo de gráfico" className={inp} value={c.kind} onChange={(e) => set({ kind: e.target.value as ChartKind })}>{CHART_KINDS.map((k) => <option key={k} value={k}>{CHART_LABEL[k]}</option>)}</select></label>
+        <label>Categoria <select aria-label="Categoria do gráfico" className={inp} value={c.category} onChange={(e) => set({ category: e.target.value })}>{outs.map((o) => <option key={o.id} value={o.id}>{o.label}</option>)}</select></label>
+        <fieldset className="sm:col-span-2"><legend>Medidas</legend>{(numeric.length ? numeric.map((x) => ({ id: x.id, label: x.label })) : outs).map((o) => <label key={o.id} className="mr-3 inline-flex items-center gap-1"><input type="checkbox" aria-label={`Medida ${o.label}`} checked={c.measures.includes(o.id)} onChange={(e) => set({ measures: e.target.checked ? [...c.measures, o.id] : c.measures.filter((m) => m !== o.id) })} />{o.label}</label>)}</fieldset>
+        <label>Título <input aria-label="Título do gráfico" className={`${inp} w-full`} value={c.title} onChange={(e) => set({ title: e.target.value })} /></label>
+        <label>Posição <select aria-label="Posição do gráfico" className={inp} value={c.placement} onChange={(e) => set({ placement: e.target.value as "antes" | "depois" })}><option value="antes">Antes da tabela</option><option value="depois">Depois da tabela</option></select></label>
+      </div>}
+      {c && !result && <p className="text-sm text-muted-foreground">Execute a prévia para ver o gráfico.</p>}
+      {c && result && probs.map((p) => <p key={p} className="text-sm text-destructive">{p}</p>)}
+      {d && "refused" in d && !probs.length && d.refused.map((p) => <p key={p} className="text-sm text-destructive">{p}</p>)}
+      {d && !("refused" in d) && <>
+        {total !== null && total > result!.rows.length && <p className="text-xs text-muted-foreground">Prévia desenha a página exibida; o arquivo usa todas as {total} linhas.</p>}
+        <div className="overflow-x-auto rounded border border-border bg-background" aria-label="Prévia do gráfico" dangerouslySetInnerHTML={{ __html: customChartSvg(d) }} />
+        {d.notes.map((n) => <p key={n} className="text-xs text-muted-foreground">{n}</p>)}
+        <details><summary className="text-sm">Ver dados do gráfico em tabela</summary><table className="mt-2 text-sm" aria-label="Dados do gráfico"><thead><tr>{d.table.headers.map((h) => <th key={h} className="border border-border px-2">{h}</th>)}</tr></thead><tbody>{d.table.rows.map((r, i) => <tr key={i}>{r.map((v, k) => <td key={k} className="border border-border px-2">{v}</td>)}</tr>)}</tbody></table></details>
+        <div className="flex gap-2"><Button size="sm" variant="outline" disabled={busy} onClick={() => onFile("png")}>Gráfico PNG</Button><Button size="sm" variant="outline" disabled={busy} onClick={() => onFile("svg")}>Gráfico SVG</Button></div>
+      </>}
+    </section>
   );
 }
