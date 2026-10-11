@@ -20,7 +20,7 @@ describe("mapa de compras", () => {
   });
   it("sem referência contratual: fornecedor, contrato e empenho ficam 'não informado', nunca inventados", () => {
     const [r] = purchaseMapRows([{ item_ref: "i2", unidade_ref: "u1", apresentacao_ref: null, contrato_ref: null, total: 5, by_school: { s1: 5 } }], ctx);
-    expect([r!.supplier, r!.contract, r!.commitment]).toEqual([MISSING, MISSING, MISSING]);
+    expect([r!["supplier"], r!["contract"], r!["commitment"]]).toEqual([MISSING, MISSING, MISSING]);
   });
   it("só pedidos autorizados entram na consolidação", () => {
     const line = { item_ref: "i1", unidade_ref: "u1", quantidade: 10 };
