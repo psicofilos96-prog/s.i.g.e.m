@@ -97,5 +97,14 @@ const MESSAGES: Record<string, string> = {
   "instrument:empty": "Inclua ao menos um item antes de publicar.",
   "instrument:results-instrument-mismatch": "O instrumento de resultados não é desta turma.",
   "instrument:invalid-randomization": "Randomização exige uma semente.",
+  "sia:header-capability-missing": "Sua conta não tem permissão para configurar cabeçalhos desta escola (OP ou secretaria).",
+  "sia:stale-head": "O cabeçalho foi alterado em outra janela. Recarregue.",
+  "sia:invalid-labels": "Nomes de avaliação inválidos (1 a 12, até 40 caracteres).",
+  "sia:invalid-logos": "Logo fora da lista permitida.",
+  "sia:only-author": "Só o autor da prova define nome e cabeçalho.",
+  "sia:settings-frozen-after-submission": "Nome e cabeçalho ficam fixos depois do envio à OP. Copie a prova para mudar.",
+  "sia:settings-already-recorded": "Nome e cabeçalho desta versão já foram gravados.",
+  "sia:header-other-school": "O cabeçalho é de outra escola.",
+  "sia:label-not-configured": "Esse nome de avaliação não está no cabeçalho escolhido.",
 };
 export const authoringMessage = (raw: string) => { const k = Object.keys(MESSAGES).find((m) => raw.includes(m)); return k ? MESSAGES[k]! : "Não foi possível concluir. Tente novamente."; };

@@ -84,3 +84,13 @@ export const SIA_CORRECTION_ERROR: Record<string, string> = {
   "aa:instrument-not-applied": "A avaliação do Diário ainda não foi marcada como aplicada.",
 };
 export const siaCorrectionMessage = (raw: string) => { const k = Object.keys(SIA_CORRECTION_ERROR).find((x) => raw.includes(x)); return k ? SIA_CORRECTION_ERROR[k]! : `Não gravado: ${raw}`; };
+
+/** SIA.ED.1 — cabeçalho institucional (OP/secretaria) e ajustes de impressão por versão da prova. */
+export type HeaderVersion = { id: string; school_id: string; version: number; supersedes_id: string | null; unit_name_snapshot: string; config: import("./sia-editor").HeaderConfig; recorded_at: string };
+export const headersOf = (schoolIds: string[]) => schoolIds.length ? must<HeaderVersion[]>(db.from("sia_print_header_versions").select("id, school_id, version, supersedes_id, unit_name_snapshot, config, recorded_at").in("school_id", schoolIds).order("version", { ascending: false })) : Promise.resolve([] as HeaderVersion[]);
+export const headerById = async (id: string) => (await must<HeaderVersion[]>(db.from("sia_print_header_versions").select("id, school_id, version, supersedes_id, unit_name_snapshot, config, recorded_at").eq("id", id)))[0] ?? null;
+export const saveHeader = (school: string, head: string | null, config: import("./sia-editor").HeaderConfig) => must<string>(db.rpc("record_sia_print_header", { _school: school, _expected_head: head, _config: config }));
+export type PrintSettings = { instrument_version_id: string; label: string; header_version_id: string | null };
+export const printSettingsOf = async (versionId: string) => (await must<PrintSettings[]>(db.from("sia_instrument_print_settings").select("instrument_version_id, label, header_version_id").eq("instrument_version_id", versionId)))[0] ?? null;
+export const savePrintSettings = (versionId: string, label: string, header: string | null) => must<string>(db.rpc("record_sia_instrument_print_settings", { _instrument_version: versionId, _label: label, _header: header }));
+export const schoolNames = async (ids: string[]) => ids.length ? must<{ school_id: string; official_name: string; version_number: number }[]>(db.from("institutional_school_record_versions").select("school_id, official_name, version_number").in("school_id", ids).order("version_number", { ascending: false })) : [];
