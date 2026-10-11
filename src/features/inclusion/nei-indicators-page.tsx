@@ -31,7 +31,7 @@ export function NeiIndicatorsPage() {
 
   const result = (): ReportResult => ({
     definitionId: "nei-indicadores", definitionVersion: 1, params: { escola: school || "todas no escopo" }, groups: null, generatedAt: new Date().toISOString(), mode: "sync",
-    columns: [{ key: "ind", label: "Indicador" }, { key: "val", label: "Valor" }, { key: "pct", label: "% do denominador" }, { key: "f", label: "Fórmula / denominador" }] as never,
+    columns: [{ id: "ind", label: "Indicador", kind: "text" }, { id: "val", label: "Valor", kind: "number" }, { id: "pct", label: "% do denominador", kind: "text" }, { id: "f", label: "Fórmula / denominador", kind: "text" }],
     rows: INDICATORS.map((d) => { const p = share(d, tot); return [d.label, tot[d.key] === null ? null : Number(tot[d.key]), p === null ? null : `${p}%`, `${d.formula}${d.denominator ? ` ÷ ${d.denominator}` : ""}`]; }),
   });
   const meta = () => [`Recorte: ${school ? nameOf(school) : "todas as escolas no seu escopo"}`, `Gerado em ${new Date().toLocaleString("pt-BR")}`, "Somente contagens; sem nomes de estudantes nem dado clínico."];
