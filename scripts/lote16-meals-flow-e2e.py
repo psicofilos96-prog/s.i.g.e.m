@@ -10,6 +10,11 @@ d = lambda n: (today + datetime.timedelta(days=n)).isoformat()
 async def as_user(br, tag):
     ctx = await br.new_context(viewport={"width": 1280, "height": 1800}, accept_downloads=True); pg = await ctx.new_page()
     errs = []; pg.on("pageerror", lambda e: errs.append(str(e)[:160]))
+    async def onresp(r):
+        if "/rpc/" in r.url and r.status >= 400:
+            try: print("RPCERR", r.url.split("/rpc/")[1], r.status, (await r.text())[:220])
+            except Exception: pass
+    pg.on("response", lambda r: asyncio.ensure_future(onresp(r)))
     await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"][tag])])
     await pg.goto(B + "/alimentacao-escolar"); await pg.wait_for_timeout(7000); return ctx, pg, errs
 async def status(scope, ms=2500):
