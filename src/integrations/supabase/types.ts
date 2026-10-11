@@ -9290,6 +9290,136 @@ export type Database = {
         }
         Relationships: []
       }
+      ext_result_homologations: {
+        Row: {
+          author_user_id: string
+          decision: string
+          id: string
+          reason: string
+          recorded_at: string
+          result_version_id: string
+        }
+        Insert: {
+          author_user_id: string
+          decision: string
+          id?: string
+          reason: string
+          recorded_at?: string
+          result_version_id: string
+        }
+        Update: {
+          author_user_id?: string
+          decision?: string
+          id?: string
+          reason?: string
+          recorded_at?: string
+          result_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ext_result_homologations_result_version_id_fkey"
+            columns: ["result_version_id"]
+            isOneToOne: false
+            referencedRelation: "ext_result_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ext_result_versions: {
+        Row: {
+          area: string
+          author_user_id: string
+          edition_year: number
+          expected_count: number | null
+          flow_p: number | null
+          id: string
+          ideb: number | null
+          levels: Json | null
+          logical_id: string
+          matrix_ref: string
+          perf_n: number | null
+          present_count: number | null
+          proficiency: number | null
+          program_key: string
+          reason: string | null
+          recorded_at: string
+          sample_kind: string
+          scale_key: string
+          school_id: string | null
+          scope: string
+          source_hash: string | null
+          source_ref: string
+          stage: string
+          supersedes_id: string | null
+          target: number | null
+          version: number
+        }
+        Insert: {
+          area: string
+          author_user_id: string
+          edition_year: number
+          expected_count?: number | null
+          flow_p?: number | null
+          id?: string
+          ideb?: number | null
+          levels?: Json | null
+          logical_id: string
+          matrix_ref: string
+          perf_n?: number | null
+          present_count?: number | null
+          proficiency?: number | null
+          program_key: string
+          reason?: string | null
+          recorded_at?: string
+          sample_kind: string
+          scale_key: string
+          school_id?: string | null
+          scope: string
+          source_hash?: string | null
+          source_ref: string
+          stage: string
+          supersedes_id?: string | null
+          target?: number | null
+          version: number
+        }
+        Update: {
+          area?: string
+          author_user_id?: string
+          edition_year?: number
+          expected_count?: number | null
+          flow_p?: number | null
+          id?: string
+          ideb?: number | null
+          levels?: Json | null
+          logical_id?: string
+          matrix_ref?: string
+          perf_n?: number | null
+          present_count?: number | null
+          proficiency?: number | null
+          program_key?: string
+          reason?: string | null
+          recorded_at?: string
+          sample_kind?: string
+          scale_key?: string
+          school_id?: string | null
+          scope?: string
+          source_hash?: string | null
+          source_ref?: string
+          stage?: string
+          supersedes_id?: string | null
+          target?: number | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ext_result_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "ext_result_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       family_health_access_events: {
         Row: {
           accessed_at: string
@@ -25837,6 +25967,37 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      ext_homologate_result: {
+        Args: { _decision: string; _reason: string; _version: string }
+        Returns: string
+      }
+      ext_record_result: {
+        Args: {
+          _area: string
+          _expected: number
+          _expected_version: number
+          _flow_p: number
+          _ideb: number
+          _levels: Json
+          _logical: string
+          _matrix: string
+          _perf_n: number
+          _present: number
+          _proficiency: number
+          _program: string
+          _reason: string
+          _sample: string
+          _scale: string
+          _school: string
+          _scope: string
+          _source: string
+          _source_hash: string
+          _stage: string
+          _target: number
+          _year: number
+        }
+        Returns: string
       }
       family_authorization: {
         Args: { _student: string }
