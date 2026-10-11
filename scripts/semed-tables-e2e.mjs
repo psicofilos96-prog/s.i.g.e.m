@@ -122,6 +122,32 @@ try {
   const e11 = await act(FILL, "enviar-conferencia", 2, { code: "11" });
   check(p11.data?.totals?.sem_data > 0 || p11.data?.totals?.nao_informado > 0 ? !e11.error : !!e11.error, "apuração incompleta não bloqueia; completa e divergente bloqueia", e11.error?.message ?? "aceito");
 
+  // TSEMED.REC — conciliação CIECE
+  const rc = await FILL.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 });
+  check(!rc.error && rc.data?.length === 6, "conciliação devolve as verificações da escola A", (rc.data ?? []).map((x) => `${x.key}=${x.status}`).join(" "));
+  const c611 = (rc.data ?? []).find((x) => x.key === "t06-x-t11");
+  check(!!c611 && c611.date_a === c611.date_b && ["confere", "divergente", "sem-dado"].includes(c611.status), "T06 × T11 comparadas só com a mesma data", c611 && `${c611.a}×${c611.b} ${c611.status}`);
+  const cm = (rc.data ?? []).find((x) => x.key === "t11-x-matricula"); check(cm?.status === "nao-comparavel:matriculas-sem-data", "matrículas sem data tornam a comparação não comparável (sem zero falso)");
+  const rcB = await FILLB.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check(!!rcB.error, "escola B não lê a conciliação da escola A");
+  const rcAn = await anon.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check(!!rcAn.error, "anônimo recusado na conciliação");
+  const div = (rc.data ?? []).find((x) => x.status === "divergente");
+  if (div) {
+    const recAct = (u, a, seq, reason = "Diferença conferida na fonte", fp = div.fingerprint) => u.c.rpc("semed_reconciliation_act", { _school: A, _year: 2026, _check: div.key, _fingerprint: fp, _act: a, _reason: reason, _expected_seq: seq });
+    const o0 = await recAct(REV, "abrir", 0, ""); check(!!o0.error, "abrir pendência sem justificativa recusado");
+    const oX = await recAct(REV, "abrir", 0, "Diferença", "x"); check(!!oX.error, "ato sobre valores desatualizados recusado");
+    const o1 = await recAct(REV, "abrir", 0); check(!o1.error, "direção abre pendência na divergência", o1.error?.message);
+    const rF = await recAct(FILL, "retornar", 1); check(!!rF.error, "escola não retorna nem aprova pendência");
+    const rN = await recAct(NET, "retornar", 1, "Corrigir a Tabela 11 na fonte"); check(!rN.error, "rede retorna à escola com justificativa");
+    const aN = await recAct(NET, "aprovar", 2, "Diferença explicada por transferência registrada"); check(!aN.error, "rede aprova com justificativa");
+    const tr = await FILL.c.from("semed_reconciliation_events").select("seq, act").eq("school_id", A).eq("check_key", div.key).order("seq"); check((tr.data ?? []).map((x) => x.act).join(",") === "abrir,retornar,aprovar", "trilha preserva os três atos");
+    const trB = await FILLB.c.from("semed_reconciliation_events").select("id").eq("school_id", A); check((trB.data ?? []).length === 0, "escola B não vê a trilha da escola A");
+    const del = await admin.from("semed_reconciliation_events").delete().eq("school_id", A).eq("check_key", div.key); const still = await admin.from("semed_reconciliation_events").select("id", { count: "exact", head: true }).eq("school_id", A).eq("check_key", div.key);
+    check((still.count ?? 0) === 3, "pendência não pode ser apagada", del.error?.message ?? "");
+    const rc2 = await FILL.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check((rc2.data ?? []).find((x) => x.key === div.key)?.status === "divergente", "divergência aprovada continua visível");
+  } else check(false, "havia divergência para exercitar a pendência");
+  const nX = await FILL.c.rpc("semed_reconciliation_network", { _year: 2026 }); check(!!nX.error, "escola não consolida a rede");
+  const nN = await NET.c.rpc("semed_reconciliation_network", { _year: 2026 }); check(!nN.error && nN.data.length === 55 && nN.data.every((x) => x.zona), "rede consolida as 55 escolas com zona do cadastro", String(nN.data?.length));
+
   // TSEMED.9 — Tabela 09 (catálogo v2, limites, centrais agregados, anexos privados)
   const cat09 = (await admin.from("semed_table_catalog").select("version").eq("year", 2026).eq("table_code", "09").order("version", { ascending: false }).limit(1)).data?.[0]?.version;
   check(cat09 === 2, "Tabela 09 usa catálogo v2 com seções nomeadas", String(cat09));
@@ -208,8 +234,9 @@ finally {
   const l1 = await admin.from("semed_table_submission_events").select("id", { count: "exact", head: true }).in("actor_user_id", users);
   const l2 = await admin.from("semed_table_submissions").select("id", { count: "exact", head: true }).in("created_by", users);
   const l3 = await admin.from("semed_t06_rule_versions").select("id", { count: "exact", head: true }).in("recorded_by", users);
+  const l6 = await admin.from("semed_reconciliation_events").select("id", { count: "exact", head: true }).in("recorded_by", users);
   const l5 = await admin.from("semed_t11_rule_versions").select("id", { count: "exact", head: true }).in("recorded_by", users);
   const l4 = await admin.from("semed_t10_formation_versions").select("id", { count: "exact", head: true }).in("recorded_by", users);
-  check((l1.count ?? 0) + (l2.count ?? 0) + (l3.count ?? 0) + (l4.count ?? 0) + (l5.count ?? 0) === 0, "sem resíduo após limpeza");
+  check((l1.count ?? 0) + (l2.count ?? 0) + (l3.count ?? 0) + (l4.count ?? 0) + (l5.count ?? 0) + (l6.count ?? 0) === 0, "sem resíduo após limpeza");
   console.log(`RESUMO falhas=${fails}`);
 }
