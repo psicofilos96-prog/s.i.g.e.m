@@ -122,11 +122,11 @@ function MasterForm({ kind, all, schools, record }: { kind: string; all: Record<
               <option value="">—</option>
               {(all[f.refKind!] ?? []).filter((x) => x.status === "homologada").map((x) => <option key={x.logical_id} value={x.logical_id}>{summarize(x)}</option>)}
             </select>
-          ) : f.kind === "date" ? <DateInput className={field} value={v[f.key] ?? ""} onChange={(x: string) => setV({ ...v, [f.key]: x })} />
+          ) : f.kind === "date" ? <DateInput className={field} value={v[f.key] ?? ""} onChange={(e) => setV({ ...v, [f.key]: e.target.value })} />
             : <input className={field} value={v[f.key] ?? ""} onChange={(e) => setV({ ...v, [f.key]: e.target.value })} />}
         </label>
       ))}
-      <label>Vigência a partir de<DateInput className={field} value={from} onChange={(x: string) => setFrom(x)} /></label>
+      <label>Vigência a partir de<DateInput className={field} value={from} onChange={(e) => setFrom(e.target.value)} /></label>
       <div className="flex items-end gap-2 sm:col-span-3"><Button type="submit">Registrar rascunho</Button>
         <span className="text-xs text-muted-foreground">Conferência e homologação são feitas por outras pessoas com competência; o banco recusa autoaprovação.</span></div>
       {err && <p role="alert" className="text-destructive sm:col-span-3">{err}</p>}
