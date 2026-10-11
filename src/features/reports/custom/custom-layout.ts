@@ -1,6 +1,8 @@
 /** Desenho de página do gerador personalizado: A4/A3, retrato/paisagem, margens, brasão, cabeçalho, rodapé, assinaturas, quebras. */
 import { cellText, type ReportResult } from "../report-engine";
 import { isAllowedLogo } from "../report-analytics";
+import type { CustomChart } from "./custom-chart";
+import { svgDataUri } from "../report-studio";
 
 export type CustomLayout = {
   paper: "A4" | "A3";
@@ -17,12 +19,14 @@ export type CustomLayout = {
   /** Quebra de página quando muda o valor da 1ª coluna (agrupamento). */
   breakOnFirstColumn: boolean;
   fontPt: number;
+  /** Gráfico opcional sobre o mesmo resultado (só escolhas; nunca dado). */
+  chart?: CustomChart | null;
 };
 export const defaultLayout = (): CustomLayout => ({
   paper: "A4", orientation: "retrato", marginMm: 12, logoUrl: null,
   headerLines: ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO"],
   title: "Relatório personalizado", subtitle: "", footer: "SIGEM — relatório de trabalho", signatures: [], pageNumbers: true,
-  showProvenance: true, breakOnFirstColumn: false, fontPt: 9,
+  showProvenance: true, breakOnFirstColumn: false, fontPt: 9, chart: null,
 });
 export function layoutProblems(l: CustomLayout, columns: number): string[] {
   const e: string[] = [];
@@ -36,7 +40,7 @@ export function layoutProblems(l: CustomLayout, columns: number): string[] {
 }
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 
-export function renderCustomHtml(r: ReportResult, l: CustomLayout, provenance: readonly string[], verification = ""): string {
+export function renderCustomHtml(r: ReportResult, l: CustomLayout, provenance: readonly string[], verification = "", chart: { svg: string; table: { headers: string[]; rows: string[][] }; notes: string[] } | null = null): string {
   const size = `${l.paper} ${l.orientation === "paisagem" ? "landscape" : "portrait"}`;
   const pages = l.pageNumbers ? `@bottom-right{content:"Página " counter(page) " de " counter(pages);font:8pt sans-serif}` : "";
   const foot = l.footer ? `@bottom-left{content:"${esc(l.footer).replace(/"/g, "'")}";font:8pt sans-serif}` : "";
@@ -63,11 +67,20 @@ table{border-collapse:separate;border-spacing:0;width:100%;table-layout:auto;bor
 thead{display:table-header-group}tr{break-inside:avoid;page-break-inside:avoid}th{background:#e8e8e8}
 td,th{border-right:0.75pt solid #222;border-bottom:0.75pt solid #222;padding:2.5pt 4pt;text-align:left;vertical-align:top;overflow-wrap:anywhere}.n{text-align:right}
 tr.tot td{font-weight:700;background:#f2f2f2}.brk{break-before:page;page-break-before:always}
+figure{margin:8px 0}.chartimg{display:block;max-width:100%;max-height:150mm;margin:0 auto;break-inside:avoid}figcaption{font-size:7pt;color:#333}
 .sig{display:flex;gap:24px;margin-top:36px;flex-wrap:wrap;break-inside:avoid}.sig div{flex:1;min-width:140px;border-top:0.75pt solid #000;text-align:center;padding-top:3px}
 </style></head><body>${head}<h1>${esc(l.title)}</h1>${l.subtitle ? `<p class="sub">${esc(l.subtitle)}</p>` : ""}
 ${l.showProvenance ? `<section class="prov">${provenance.map((p) => `<p>${esc(p)}</p>`).join("")}</section>` : ""}
+${chart && l.chart?.placement !== "depois" ? chartBlock(chart) : ""}
 ${tables}
+${chart && l.chart?.placement === "depois" ? chartBlock(chart) : ""}
 ${l.signatures.length ? `<div class="sig">${l.signatures.map((s) => `<div>${esc(s)}</div>`).join("")}</div>` : ""}
 ${verification}
 <p style="font-size:7pt;margin-top:8px">Gerado em ${esc(new Date(r.generatedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }))}. Relatório de trabalho; não é documento oficial.</p></body></html>`;
+}
+
+/** SVG vem de `chartSvg` (texto escapado, sem script); tabela equivalente acompanha o gráfico. */
+function chartBlock(c: { svg: string; table: { headers: string[]; rows: string[][] }; notes: string[] }): string {
+  const t = `<table aria-label="Dados do gráfico"><thead><tr>${c.table.headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${c.table.rows.map((r) => `<tr>${r.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  return `<figure class="chart"><img class="chartimg" alt="Gráfico; dados na tabela a seguir" src="${svgDataUri(c.svg)}"><figcaption>${c.notes.map(esc).join(" ")}</figcaption><details open><summary style="font-size:7pt">Dados do gráfico</summary>${t}</details></figure>`;
 }
