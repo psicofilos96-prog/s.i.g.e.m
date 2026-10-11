@@ -386,5 +386,16 @@
  "drizzle/migrations/0335_nei2_assignees_fix.sql": "546d67f506fbf6a42a900f9855d5a1e8f6d793adaebebe57157effe2ebb75ed5",
  "drizzle/migrations/0336_nei3_aee_offer_plans.sql": "7709bf6e85a72c51d6cb3b154926f0749dbaf7e8cd52763d75e9e65ca77b38a5",
  "drizzle/migrations/0337_nei3_storage_policy_definer.sql": "4bc1b7c4a4a7144b1cf5040611132ce7e410f16cbdf9b6eca660f06717ea1fda",
- "drizzle/migrations/0338_nei4_support_coverage_barriers.sql": "77db76a89173c30d1364f261f6d910cbd634bdf9fe8089838355f17a61ccc9f9"
+ "drizzle/migrations/0338_nei4_support_coverage_barriers.sql": "77db76a89173c30d1364f261f6d910cbd634bdf9fe8089838355f17a61ccc9f9",
+ "drizzle/migrations/0339_nei5_visits_protocols_documents.sql": "acf46df60ca260ad7ca606e366574e158fd434750b18b8beabbe563a3ead93ee",
+ "drizzle/migrations/0340_nei6_indicators.sql": "48296c8d4656191fe4ed8112f6cbf17b1ecdf20373106f2325a5b3644ac2de65",
+ "drizzle/migrations/0341_nei7_fixture_harness_and_recipient_fix.sql": "eabd08f150a9c92b9efb4947ccd369c5fdd5f467fb805ca1887df43462b76877",
+ "drizzle/migrations/0342_nei7_indicator_functions_volatile.sql": "42fb8d6c30fe21018ca806a0ef5bf64ecf153a5d1ddd1fa1718d72ccacf0ba5a",
+ "drizzle/migrations/0343_semed_tables_structure_access.sql": "b8e9380618d8bc792095171e81088003b4db40a54e64fd4b577905bb88a4bad0",
+ "drizzle/migrations/0344_semed_tables_revoke_catalog_load.sql": "c150dd11bc6a85877dfdf7b9c5721141d68462f149275e06bf98711b29614f36",
+ "drizzle/migrations/0345_semed_tables_fixture_cleanup.sql": "8686eb2c89029337b63e635a13c7fffba0c758f130409c1e7ec64c7a7cc53f41",
+ "drizzle/migrations/0346_semed_tables_fixture_capabilities.sql": "d2aa19a1b6665a8f4cb2759de0333462cc5a15b9b2d5c3da7b340734d7684353",
+ "drizzle/migrations/0347_semed_tables_central_undated.sql": "a4be98a1bc0cd0291c997973b7cb1860ca203666ddbb5e7e25e53399f3b33087",
+ "drizzle/migrations/0348_semed_t04_rule_apuracao_adjustments.sql": "7cd5f85614e16e43985f5974414a7e7e3656e3c408e007014154d8b2a16489d9",
+ "drizzle/migrations/0349_semed_t06_movement_apuracao.sql": "1442eb9c5bcfbf28403077797133726639e7168bbd8fba616f9bde32916621e9"
 }
