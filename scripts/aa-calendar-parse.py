@@ -62,12 +62,13 @@ for n, line in enumerate(txt.split("\n"), 1):
     if m or m2:
         if m: d, seg, act, rel = m.groups()
         else: d, seg, rel = m2.groups(); act = ""
+        wrapped = bool(pend) or not act
         act = (" ".join(pend) + " " + act).strip(); pend = []
         s, e = parse_dates(d)
-        rows.append(dict(source="pdf", line=n, date_text=d, start=s, end=e, segment=seg.strip(), action=act, note=None, relation=rel))
+        rows.append(dict(source="pdf", line=n, date_text=d, start=s, end=e, segment=seg.strip(), action=act, note=None, relation=rel, wrapped=wrapped))
     elif re.match(r"^\s{20,}\S", line) and not re.search(r"SECRETARIA|Página|CALENDÁRIO|^\s*(JULHO|AGOSTO|SETEMBRO|OUTUBRO|NOVEMBRO|DEZEMBRO)", line) and "DATA" not in line:
         t = line.strip()
-        if rows and rows[-1]["source"] == "pdf" and rows[-1]["line"] == n - 1 and pend == []: rows[-1]["action"] += " " + t
+        if rows and rows[-1]["source"] == "pdf" and rows[-1]["line"] == n - 1 and rows[-1].get("wrapped"): rows[-1]["action"] = (rows[-1]["action"] + " " + t).strip(); rows[-1]["wrapped"] = False
         else: pend.append(t)
     else:
         pend = [] if not line.strip() else pend
