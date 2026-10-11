@@ -24661,6 +24661,10 @@ export type Database = {
         Returns: string
       }
       nei_plan_content_problem: { Args: { _c: Json }; Returns: string }
+      nei_plan_object_allowed: {
+        Args: { _name: string; _upload: boolean }
+        Returns: boolean
+      }
       nei_plan_role: { Args: { _plan: string }; Returns: string }
       nei_plans_for: {
         Args: { _school: string; _student: string }
