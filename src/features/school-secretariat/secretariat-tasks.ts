@@ -17,6 +17,6 @@ export const SECRETARIAT_TASKS: readonly SecretariatTask[] = [
   { id: "vagas", title: "Ver vagas", hint: "Lugares livres em cada turma.", target: { kind: "route", to: "/secretaria/vagas" } },
   { id: "livro", title: "Livro de Matrícula", hint: "Lista das matrículas do ano.", target: { kind: "route", to: "/secretaria/livro-matricula" } },
   { id: "tabelas-semed", title: "Tabelas SEMED", hint: "Tabelas 04, 06, 09, 10 e 11 do ano.", target: { kind: "route", to: "/secretaria/tabelas-semed" } },
-  { id: "docserv", title: "Documentos dos servidores", hint: "Certidões de antecedentes dos servidores da escola.", target: { kind: "route", to: "/docserv" } },
+  { id: "docserv", title: "Documentos dos servidores", hint: "Certidões dos servidores da escola.", target: { kind: "route", to: "/docserv" } },
   { id: "educacenso", title: "Educacenso", hint: "Situação da escola na coleta do ano.", target: { kind: "route", to: "/educacenso" } },
 ];
