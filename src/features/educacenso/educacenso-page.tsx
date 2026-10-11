@@ -7,6 +7,7 @@ import {
   ACT_LABEL, COLLECTION_STATE_LABEL, SCHOOL_STATE_LABEL, STAGE_SUGGESTIONS, collectionNext, educacensoMessage, layoutStatusText, schoolNext, summarize,
   type CollectionAct, type DocState, type SchoolRow, type SchoolState,
 } from "./educacenso-control";
+import { LayoutCatalogPanel } from "./layout-catalog-panel";
 
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
@@ -116,6 +117,8 @@ export function EducacensoPage() {
         </table></div>
         <p className="mt-2 text-xs text-muted-foreground">“Envio ao INEP declarado” é declaração da escola com número de recibo/protocolo; não é confirmação do INEP. Recibo importado vem da carga oficial do Censo já registrada.</p>
       </section>
+
+      <LayoutCatalogPanel year={year} stage={stage} canConfigure={ctl.can_configure} />
 
       <section className="rounded-md border p-3"><h2 className="mb-2 text-sm font-semibold">Histórico da etapa</h2>
         {stageEvents.length === 0 ? <p className="text-xs text-muted-foreground">Nenhuma ação ainda.</p> :
