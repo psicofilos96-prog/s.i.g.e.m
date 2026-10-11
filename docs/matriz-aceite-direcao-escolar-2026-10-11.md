@@ -4,7 +4,7 @@
 
 Evidência em 2026-10-11 22:08 UTC, commit local `12c6bbf6` (sincronização com GitHub é automática pela plataforma; nenhum push manual, nenhum force push). Suíte completa: 653 arquivos, 5.700 aprovados, 7 pulados, 0 falhas. Direção (lotes 03–11): 57/57. Lotes 01–02: 59 + 24. Typecheck limpo após corrigir uma falha real (tipos opcionais em `demand-center.ts` e `management-plan.ts`, só detectada pelo typecheck completo).
 
-**Especificação de 30 seções:** não encontrada nos uploads. Os arquivos existentes (`SIGEM-especificacao-mestra-para-IA.md` §6.14, `sigem-especificacao-detalhada-por-setor.md` §6, `sigem-op-direcao-pedidos-e-decisoes.md`) foram a base. A matriz abaixo é por lote, não por seção; o mapeamento às 30 seções depende do documento.
+**Especificação de 30 seções:** não encontrada nos uploads. Os arquivos existentes (SIGEM-especificacao-mestra-para-IA §6.14, sigem-especificacao-detalhada-por-setor §6, sigem-op-direcao-pedidos-e-decisoes — arquivos enviados, fora do repositório) foram a base. A matriz abaixo é por lote, não por seção; o mapeamento às 30 seções depende do documento.
 
 **Testes autenticados:** não executados. A chave de serviço existe neste ambiente, mas o portão `scripts/harness-gate.mjs` exige `SIGEM_TEST_HARNESS=1` (ausente) e, principalmente, os núcleos dos lotes 03–11 não estão ligados a tabela, função ou tela — um teste autenticado não teria o que provar. Contas diretor A/B, adjunto com/sem delegação, secretaria e setor central não foram criadas.
 
