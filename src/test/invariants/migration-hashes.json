@@ -385,5 +385,6 @@
  "drizzle/migrations/0334_nei2_student_file_cases.sql": "bb822330f4174ffacbe148885234883caa9ef89a0bc3407af5010e47adaa6972",
  "drizzle/migrations/0335_nei2_assignees_fix.sql": "546d67f506fbf6a42a900f9855d5a1e8f6d793adaebebe57157effe2ebb75ed5",
  "drizzle/migrations/0336_nei3_aee_offer_plans.sql": "7709bf6e85a72c51d6cb3b154926f0749dbaf7e8cd52763d75e9e65ca77b38a5",
- "drizzle/migrations/0337_nei3_storage_policy_definer.sql": "4bc1b7c4a4a7144b1cf5040611132ce7e410f16cbdf9b6eca660f06717ea1fda"
+ "drizzle/migrations/0337_nei3_storage_policy_definer.sql": "4bc1b7c4a4a7144b1cf5040611132ce7e410f16cbdf9b6eca660f06717ea1fda",
+ "drizzle/migrations/0338_nei4_support_coverage_barriers.sql": "77db76a89173c30d1364f261f6d910cbd634bdf9fe8089838355f17a61ccc9f9"
 }
