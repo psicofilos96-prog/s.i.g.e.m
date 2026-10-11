@@ -13,7 +13,7 @@ async function mk(tag) {
   const email = `${op}-secretaria-escolar-${tag}@bo-fixture.invalid`, password = randomBytes(24).toString("base64url");
   const { data, error } = await admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { sigem_fixture: "BO", operation_id: op, source_hash: hash } });
   if (error) throw error; users.push(data.user.id);
-  const prep = await admin.rpc("bo_fixture_prepare", { _operation_id: op, _source_hash: hash, _user_id: data.user.id, _kind: "secretaria-escolar", _with_person: true });
+  const prep = await admin.rpc("bo_fixture_prepare", { _operation_id: op, _source_hash: hash, _user_id: data.user.id, _kind: process.env.FIXTURE_KIND ?? "secretaria-escolar", _with_person: true });
   if (prep.error) throw new Error("prepare " + prep.error.message);
   const c = createClient(URL, PK, { auth: { persistSession: false, autoRefreshToken: false } });
   const s = await c.auth.signInWithPassword({ email, password }); if (s.error) throw s.error;
