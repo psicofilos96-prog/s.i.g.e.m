@@ -22,6 +22,11 @@ async def main():
             async with p.expect_download() as d: await p.get_by_role("button", name=btn).click()
             dl = await d.value; path = f"{OUT}/t06.{ext}"; await dl.save_as(path)
             check(os.path.getsize(path) > 1000, f"download {ext.upper()} gerado")
+        check(await p.get_by_text("Apuração por eventos reais (total da escola)").count() == 1, "Tabela 06 mostra apuração por eventos reais")
+        check(await p.get_by_text("Total informado diverge da apuração").count() == 1, "divergência entre digitado e apurado aparece na tela")
+        import subprocess
+        txt = subprocess.run(["pdftotext", "-layout", f"{OUT}/t06.pdf", "-"], capture_output=True, text=True).stdout
+        check("APURAÇÃO POR EVENTOS REAIS" in txt and "DIVERGENTE" in txt and "não apurado" in txt, "PDF da Tabela 06 traz apuração, divergência e não apurado")
         await p.get_by_role("tab", name="Tabela 04").click(); await p.wait_for_timeout(800)
         check(await p.get_by_role("button", name="Salvar rascunho").count() == 1, "Tabela 04 em rascunho editável")
         check(await p.get_by_text("Apuração pelo cadastro central").count() == 1, "Tabela 04 mostra apuração e lacunas")

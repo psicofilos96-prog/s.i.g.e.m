@@ -7,6 +7,8 @@ import { ACT_LABEL, STATE_LABEL, actNeedsReason, actWho, nextState, ACTS, valida
   type SemedAct, type SemedState, type TableDef, type Values } from "./semed-catalog";
 import { documentBlocks, semedPdf, semedXlsx, type Central } from "./semed-export";
 import { T04Panel, type T04Rule } from "./t04-panel";
+import { T06Panel } from "./t06-panel";
+import type { T06Apur } from "./semed-export";
 
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
@@ -21,6 +23,7 @@ const download = (b: Blob, n: string) => { const a = document.createElement("a")
 const ERR: Record<string, string> = {
   "sem-permissao": "Sua conta não tem permissão para esta ação nesta escola.", "base-desatualizada": "Outra pessoa alterou esta tabela. Recarregue antes de continuar.",
   "conferente-igual-preenchedor": "Quem conferiu não pode ser quem preencheu por último.", "motivo-obrigatorio": "Informe o motivo.", "sem-rascunho": "Salve o rascunho primeiro.",
+  "t06-divergente": "O total informado diverge da apuração por eventos reais. Corrija o rascunho ou registre o evento oficial que falta.",
 };
 const friendly = (m: string) => { const k = Object.keys(ERR).find((x) => m.includes(`semed:${x}`)); return k ? ERR[k]! : m.replace(/^.*semed:/, "Recusado: "); };
 
@@ -32,7 +35,7 @@ export function SemedTablesPage() {
   const [school, setSchool] = useState(""); const [code, setCode] = useState<string>("04");
   const [central, setCentral] = useState<Central>({});
   const [draft, setDraft] = useState<Record<string, string | number | null>>({});
-  const [reason, setReason] = useState(""); const [t04Rule, setT04Rule] = useState<T04Rule>(null); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
+  const [reason, setReason] = useState(""); const [t04Rule, setT04Rule] = useState<T04Rule>(null); const [t06Apur, setT06Apur] = useState<T06Apur | null>(null); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     const s = await rpc("semed_scope_schools");
@@ -73,8 +76,8 @@ export function SemedTablesPage() {
   };
 
   const meta = () => ({ year: YEAR, tableCode: code, title: def!.title, school: String(central["escola"] ?? names.get(school) ?? school), inep: String(central["inep"] ?? ""), state: STATE_LABEL[state], version: cat!.version, generatedAt: new Date() });
-  const pdf = async () => download(await semedPdf(def!, documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null), meta()), `tabela-${code}-${YEAR}.pdf`);
-  const xlsx = async () => download(new Blob([await semedXlsx(documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null), meta())]), `tabela-${code}-${YEAR}.xlsx`);
+  const pdf = async () => download(await semedPdf(def!, documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null, code === "06" ? t06Apur : null), meta()), `tabela-${code}-${YEAR}.pdf`);
+  const xlsx = async () => download(new Blob([await semedXlsx(documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null, code === "06" ? t06Apur : null), meta())]), `tabela-${code}-${YEAR}.xlsx`);
 
   if (scope === undefined) return <StatePanel title="Carregando…" description="Conferindo seu acesso." />;
   if (scope === null) return <EmptyState title="Não foi possível abrir" description="Tente novamente." />;
@@ -139,6 +142,7 @@ export function SemedTablesPage() {
             </section>
           ))}
           {code === "04" && <T04Panel school={school} year={YEAR} network={!!perm?.network} canFill={!!perm?.can_fill} editable={editable} draft={draft as Values} setDraft={setDraft} onRule={setT04Rule} />}
+          {code === "06" && def && <T06Panel school={school} year={YEAR} network={!!perm?.network} draft={draft as Values} rows={(def.sections.find((x) => x.id === "m" && x.kind === "grid") as { rows: { key: string }[] } | undefined)?.rows ?? []} onApur={setT06Apur} />}
           <p className="text-xs text-muted-foreground">“—” significa não informado; totais só somam o que foi informado e nunca transformam vazio em zero.</p>
 
           <div className="flex flex-wrap items-end gap-2 rounded-md border p-3">

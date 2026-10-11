@@ -17595,6 +17595,45 @@ export type Database = {
         }
         Relationships: []
       }
+      semed_t06_rule_versions: {
+        Row: {
+          basis: string
+          created_at: string
+          final_date: string
+          id: string
+          initial_date: string
+          movement_map: Json
+          recorded_by: string
+          standing_map: Json
+          version: number
+          year: number
+        }
+        Insert: {
+          basis: string
+          created_at?: string
+          final_date: string
+          id?: string
+          initial_date: string
+          movement_map?: Json
+          recorded_by: string
+          standing_map?: Json
+          version: number
+          year: number
+        }
+        Update: {
+          basis?: string
+          created_at?: string
+          final_date?: string
+          id?: string
+          initial_date?: string
+          movement_map?: Json
+          recorded_by?: string
+          standing_map?: Json
+          version?: number
+          year?: number
+        }
+        Relationships: []
+      }
       semed_table_catalog: {
         Row: {
           created_at: string
@@ -29385,6 +29424,26 @@ export type Database = {
           _expected_version: number
           _reference_date: string
           _thresholds: Json
+          _year: number
+        }
+        Returns: number
+      }
+      semed_t06_apuracao: {
+        Args: { _school: string; _year: number }
+        Returns: Json
+      }
+      semed_t06_compute: {
+        Args: { _school: string; _year: number }
+        Returns: Json
+      }
+      semed_t06_record_rule: {
+        Args: {
+          _basis: string
+          _expected_version: number
+          _final: string
+          _initial: string
+          _movement_map: Json
+          _standing_map: Json
           _year: number
         }
         Returns: number

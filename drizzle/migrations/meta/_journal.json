@@ -2444,6 +2444,13 @@
       "when": 1791718480418,
       "tag": "0348_semed_t04_rule_apuracao_adjustments",
       "breakpoints": true
+    },
+    {
+      "idx": 349,
+      "version": "7",
+      "when": 1791719441634,
+      "tag": "0349_semed_t06_movement_apuracao",
+      "breakpoints": true
     }
   ]
 }
