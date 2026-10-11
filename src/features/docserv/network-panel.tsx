@@ -8,6 +8,8 @@ import { STATUS_LABEL, reviewNeedsNote, sha256Hex } from "./documents-model";
 import { typeLabel } from "./server-portal";
 import { openSigned } from "./my-documents";
 import { downloadZip } from "./docserv-files";
+import { useServerFn } from "@tanstack/react-start";
+import { purgeDocservDocument } from "./docserv-purge.functions";
 import { NETWORK_REPORT, hasSecretColumns, parseIdentityCsv, reportRows, requirementLabel, type ImportRow, type PolicyState, type Season, type SchoolRow, type TypeRule } from "./docserv-rules";
 
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
@@ -93,6 +95,7 @@ export function NetworkPanel() {
       <PolicyEditor onMsg={setMsg} />
       <SeasonEditor onMsg={setMsg} />
       <ImportDryRun onMsg={setMsg} />
+      <PurgeBox onMsg={setMsg} />
 
       <details><summary className="cursor-pointer font-semibold">Histórico (últimos 200)</summary>
         <ul>{data.history.map((h, i) => <li key={i}>{h.at.slice(0, 16).replace("T", " ")} · {h.action}{h.school_id ? ` · ${names.get(h.school_id) ?? h.school_id}` : ""}</li>)}</ul>
@@ -186,6 +189,22 @@ function ImportDryRun({ onMsg }: { onMsg: (m: string) => void }) {
       {rows.length > 0 && <div className="space-x-1"><Button size="sm" variant="outline" disabled={busy} onClick={() => void run(false)}>Simular</Button><Button size="sm" disabled={busy || !rows.some((r) => r.outcome)} onClick={() => void run(true)}>Aplicar</Button></div>}
       {Object.keys(sum).length > 0 && <p>{Object.entries(sum).map(([k, v]) => `${k}: ${v}`).join(" · ")}</p>}
       <ul className="max-h-48 overflow-auto">{rows.slice(0, 200).map((r) => <li key={r.line}>linha {r.line} · {r.kind} · {r.problem ?? r.outcome ?? "—"}</li>)}</ul>
+    </details>
+  );
+}
+
+function PurgeBox({ onMsg }: { onMsg: (m: string) => void }) {
+  const purge = useServerFn(purgeDocservDocument);
+  const [doc, setDoc] = useState(""); const [reason, setReason] = useState("");
+  const go = async () => {
+    const r = await purge({ data: { document: doc, reason } }).catch(() => ({ ok: false as const, error: "falha" }));
+    onMsg(r.ok ? `Arquivo(s) apagado(s) de vez: ${r.removed}. O registro e o hash continuam.` : r.error.includes("retention-undecided") ? "Sem prazo de guarda aprovado na política: não é possível apagar de vez." : r.error.includes("retention-not-reached") ? "O prazo de guarda ainda não terminou." : r.error.includes("not-deleted") ? "Exclua o documento antes (exclusão comum)." : "Exclusão permanente recusada.");
+  };
+  return (
+    <details><summary className="cursor-pointer font-semibold">Exclusão permanente (sob prazo de guarda)</summary>
+      <p className="text-muted-foreground">Só para documento já excluído, com prazo de guarda aprovado e cumprido. Apaga o arquivo; o registro e o hash ficam como prova.</p>
+      <div className="flex flex-wrap gap-1"><input className={field} placeholder="Código do documento" value={doc} onChange={(e) => setDoc(e.target.value.trim())} /><input className={field} placeholder="Motivo" value={reason} onChange={(e) => setReason(e.target.value)} />
+        <Button size="sm" variant="destructive" disabled={!/^[0-9a-f-]{36}$/.test(doc) || reason.trim().length < 5} onClick={() => void go()}>Apagar de vez</Button></div>
     </details>
   );
 }

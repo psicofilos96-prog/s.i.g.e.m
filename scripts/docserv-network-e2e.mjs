@@ -105,9 +105,9 @@ try {
   check(!ap.error, "rede aprova política com retenção", ap.error?.message ?? "");
   const purge1 = await N.c.rpc("docserv_authorize_purge", { _document: doc, _reason: "Prazo de retenção cumprido" });
   check(!purge1.error && (purge1.data ?? []).length === 2, "exclusão permanente autorizada após o prazo", purge1.error?.message ?? "");
-  const rm = await N.c.storage.from("docserv-documentos").remove(purge1.data ?? []);
+  // remoção física = mesmo passo do servidor (purgeDocservDocument) após a autorização do banco
+  const rm = await admin.storage.from("docserv-documentos").remove(purge1.data ?? []);
   const left = await admin.storage.from("docserv-documentos").list(`${P.person}/${doc}`);
-  console.log("rm", JSON.stringify(rm.error ?? rm.data?.length), "left", (left.data ?? []).length, "paths", (purge1.data ?? []).length);
   check(!rm.error && (left.data ?? []).length === 0, "arquivos apagados de vez; metadados e hash permanecem");
   const { count: meta } = await admin.from("docserv_document_versions").select("id", { count: "exact", head: true }).eq("document_id", doc);
   check(meta === 2, "as duas versões continuam como prova");
