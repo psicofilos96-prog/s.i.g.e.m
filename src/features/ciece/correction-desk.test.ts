@@ -16,7 +16,7 @@ function push(c: CorrectionCase, a: Authority, e: Omit<CaseEvent, "seq" | "actor
 describe("CIECE L07 central de correções", () => {
   it("abre caso só para achado acionável, com dono e protocolo estável", () => {
     const { cases } = openCases(findings);
-    expect(cases[0].owner).toBe("secretaria");
+    expect(cases[0]!.owner).toBe("secretaria");
     expect(openCases(findings, cases).cases).toHaveLength(0);
     const na = openCases([{ ...findings[0]!, grade: "nao-aplicavel" }]);
     expect(na.cases).toHaveLength(0); expect(na.refused[0]!.reason).toBe("fonte-nao-lida");
