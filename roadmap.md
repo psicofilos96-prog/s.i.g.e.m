@@ -639,3 +639,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Cadastro dos alunos a partir das planilhas das escolas (observação com fonte; identidade oficial depende do catálogo de sexo e de autor humano).
 - [ ] Cadastrar código IBGE de municípios/distritos (DTB 2024) ligado ao Censo/GPE.
 - [ ] Analisar Matriz_Escolas_Censo2026, relações de servidores (SEMED/escolas) e Secretaria_2026.rar.
+
+- [x] A&A Lote 6 — intervenções pedagógicas (aba Intervenções, 0369); pendente: permissões e ligação automática com Diário/CIECE/Direção
