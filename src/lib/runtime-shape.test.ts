@@ -12,7 +12,7 @@ describe("NVALID.1 fronteiras de dados", () => {
     expect(() => parseBoundary(familySummarySchema, { sections: [] }, "t")).toThrow(ShapeError);
   });
   it("enum inválido falha fechado (seção inexistente nunca aparece)", () => {
-    expect(() => parseBoundary(familyStudentsSchema, [{ ...ok, sections: ["saude"] }], "t")).toThrow(ShapeError);
+    expect(() => parseBoundary(familyStudentsSchema, [{ ...ok, sections: ["secao-inexistente"] }], "t")).toThrow(ShapeError);
   });
   it("campo extra é descartado, não chega à tela", () => {
     const [r] = parseBoundary(familyStudentsSchema, [{ ...ok, cpf: "123" }], "t");
@@ -26,6 +26,7 @@ describe("NVALID.1 fronteiras de dados", () => {
     expect(familyMessage(new ShapeError("x").message)).toBe(SHAPE_MESSAGE);
   });
   it("carteirinha pública: status inválido cai em indisponível sem detalhes", () => {
-    expect(publicCardView({ status: "hackeado", student_name: "Ana" } as never)).toMatchObject({ status: "indisponivel", student_name: null });
+    const v = publicCardView({ status: "hackeado", student_name: "Ana" } as never);
+    expect(v).toMatchObject({ status: "indisponivel" }); expect(JSON.stringify(v)).not.toContain("Ana");
   });
 });
