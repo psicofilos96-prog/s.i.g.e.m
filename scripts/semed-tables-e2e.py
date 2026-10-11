@@ -39,7 +39,7 @@ async def main():
         import subprocess
         info = subprocess.run(["pdfinfo", f"{OUT}/t09.pdf"], capture_output=True, text=True).stdout
         size = [l for l in info.splitlines() if l.startswith("Page size")][0].split()
-        check(float(size[2]) < float(size[4]), "PDF da Tabela 09 em retrato", size[2] + "x" + size[4])
+        check(float(size[2]) < float(size[4]), "PDF da Tabela 09 em retrato " + size[2] + "x" + size[4])
         txt = subprocess.run(["pdftotext", f"{OUT}/t09.pdf", "-"], capture_output=True, text=True).stdout
         check("Acessibilidade" in txt and "Municipal" in txt and "Telhado do pátio" in txt, "PDF traz seções e valores salvos (inclusive o autosave)")
         await p.get_by_role("tab", name="Tabela 04").click(); await p.wait_for_timeout(800)
