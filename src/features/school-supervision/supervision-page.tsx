@@ -145,6 +145,7 @@ function Records({ school, schoolName, knownAt }: { school: string; schoolName: 
   const [editing, setEditing] = useState<{ base: SupervisionRecord; kind: "retificacao" | "anulacao" } | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [q, setQ] = useState("");
   const labels = useMemo(() => new Map([...mods, ...sts].map((o) => [o.value_id, o.label])), [mods, sts]);
   const load = () => readSupervisionRecords(school, knownAt).then((r) => { setRows(r); setDenied(null); }, (e: Error) => { setRows(null); setDenied(supervisionError(e.message)); });
   useEffect(() => { void load(); readCatalog("modalidade-de-acompanhamento-da-supervisao").then(setMods); readCatalog("situacao-de-acompanhamento-da-supervisao").then(setSts); }, [school, knownAt]);
@@ -174,10 +175,11 @@ function Records({ school, schoolName, knownAt }: { school: string; schoolName: 
   return (
     <section aria-label="Acompanhamento da Supervisão" className="space-y-3">
       <h2 className="font-semibold">Acompanhamento da Supervisão</h2>
-      {denied ? <StatePanel tone="info" title="Não disponível" description={denied} /> : !rows ? <p role="status" className="text-sm text-muted-foreground">Lendo registros…</p> : (
+      {denied ? <div className="space-y-2"><StatePanel tone="info" title="Não disponível" description={denied} /><Button size="sm" variant="outline" onClick={() => void load()}>Tentar novamente</Button></div> : !rows ? <p role="status" className="text-sm text-muted-foreground">Lendo registros…</p> : (
         <>
+          {rows.length > 0 && <label className="block text-sm">Buscar nos registros<input type="search" className={field} value={q} onChange={(e) => setQ(e.target.value)} /></label>}
           {rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro da Supervisão para esta escola até o momento consultado.</p> : (
-            <ul className="space-y-2">{rows.map((r) => (
+            <ul className="space-y-2">{filterRecords(rows, q).map((r) => (
               <li key={r.id} className="rounded-lg border bg-card p-3 text-sm space-y-1">
                 <div className="flex flex-wrap items-baseline justify-between gap-2"><strong>{r.subject}</strong><span className="text-xs text-muted-foreground">{r.occurred_on} · {labels.get(r.modality_value_id) ?? r.modality_value_id}</span></div>
                 {r.referral && <p>Encaminhamento: {r.referral}</p>}
