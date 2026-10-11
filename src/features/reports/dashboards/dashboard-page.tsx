@@ -21,7 +21,7 @@ import { listBoards, saveBoard, type Dashboard, type SavedDashboard, type Widget
 
 const inp = "min-h-9 rounded-md border border-input bg-background px-2 py-1 text-sm";
 const box = "space-y-3 rounded-md border border-border bg-card p-4";
-const COLORS = [1, 2, 3, 4, 5, 6].map((i) => `var(--chart-${i})`);
+const col = (i: number) => `var(--chart-${(i % 6) + 1})`;
 const CAP = 5000;
 const say = (e: unknown) => (e instanceof Error && /^[A-ZÀ-Ú]/.test(e.message) && !/SQLSTATE|permission denied/i.test(e.message) ? e.message : "Não foi possível concluir. Tente de novo.");
 function download(name: string, blob: Blob) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
@@ -328,39 +328,39 @@ function ChartBody({ cat, w, rows, onDrill }: { cat: Catalog; w: Widget; rows: R
       const pct = /percent/.test(w.spec.measures[0]?.agg ?? "") ? Math.max(0, Math.min(100, v)) : null;
       return pct === null ? <p className="text-sm text-muted-foreground">O medidor só mostra percentuais (0–100%). Valor: {v.toLocaleString("pt-BR")}. Use o cálculo “Percentual”.</p> : (
         <ResponsiveContainer width="100%" height={180}><PieChart><Pie data={[{ v: pct }, { v: 100 - pct }]} dataKey="v" startAngle={180} endAngle={0} innerRadius="60%" outerRadius="90%" cy="80%">
-          <Cell fill={COLORS[0]} /><Cell fill="var(--muted)" /></Pie><text x="50%" y="75%" textAnchor="middle" fontSize={22}>{pct.toLocaleString("pt-BR")}%</text></PieChart></ResponsiveContainer>);
+          <Cell fill={col(0)} /><Cell fill="var(--muted)" /></Pie><text x="50%" y="75%" textAnchor="middle" fontSize={22}>{pct.toLocaleString("pt-BR")}%</text></PieChart></ResponsiveContainer>);
     }
     case "table": return (
       <div className="max-h-80 overflow-auto"><table className="w-full text-sm"><thead><tr>{cols.map((c) => <th key={c.id} scope="col" className="text-left">{c.label}</th>)}</tr></thead>
         <tbody>{rows.slice(0, 200).map((r, i) => <tr key={i} className="border-t border-border">{cols.map((c) => <td key={c.id}>{r[c.id] === null || r[c.id] === undefined ? <span className="text-muted-foreground">sem registro</span> : String(r[c.id])}</td>)}</tr>)}</tbody></table>
         {rows.length > 200 ? <p className="text-xs text-muted-foreground">Mostrando 200 de {rows.length}; a exportação XLSX traz todas.</p> : null}</div>);
-    case "histogram": { const h = histogram(rows.map((r) => r["c1"])); return <>{excludedNote(h.excluded)}<ResponsiveContainer width="100%" height={H}><BarChart data={h.data}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="faixa" fontSize={11} /><YAxis allowDecimals={false} /><Tooltip /><Bar dataKey="quantidade" name="Quantidade" fill={COLORS[0]} /></BarChart></ResponsiveContainer></>; }
+    case "histogram": { const h = histogram(rows.map((r) => r["c1"])); return <>{excludedNote(h.excluded)}<ResponsiveContainer width="100%" height={H}><BarChart data={h.data}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="faixa" fontSize={11} /><YAxis allowDecimals={false} /><Tooltip /><Bar dataKey="quantidade" name="Quantidade" fill={col(0)} /></BarChart></ResponsiveContainer></>; }
     case "boxplot": { const b = boxplot(rows, "c1", w.spec.columns.length > 1 ? "c2" : undefined); return <>{excludedNote(b.excluded)}<BoxPlot data={b.data} /></>; }
     case "heatmap": { const h = heatmap(rows, "c1", "c2", "c3"); return <>{excludedNote(h.excluded)}<HeatMap h={h} xLabel={mName("c1")} yLabel={mName("c2")} /></>; }
     case "scatter": case "bubble": {
       const pts = rows.map((r) => ({ categoria: label(r["c1"]), x: num(r["c2"]), y: num(r["c3"]), z: w.kind === "bubble" ? num(r["c4"]) : 1 })).filter((p) => p.x !== null && p.y !== null && p.z !== null);
       return <>{excludedNote(rows.length - pts.length)}<ResponsiveContainer width="100%" height={H}><ScatterChart><CartesianGrid /><XAxis type="number" dataKey="x" name={mName("c2")} /><YAxis type="number" dataKey="y" name={mName("c3")} />
-        {w.kind === "bubble" ? <ZAxis type="number" dataKey="z" range={[40, 600]} name={mName("c4")} /> : null}<Tooltip cursor={{ strokeDasharray: "3 3" }} /><Scatter data={pts} fill={COLORS[0]} onClick={click} /></ScatterChart></ResponsiveContainer></>;
+        {w.kind === "bubble" ? <ZAxis type="number" dataKey="z" range={[40, 600]} name={mName("c4")} /> : null}<Tooltip cursor={{ strokeDasharray: "3 3" }} /><Scatter data={pts} fill={col(0)} onClick={click} /></ScatterChart></ResponsiveContainer></>;
     }
   }
   if (!cs) return null;
   const data = cs.data;
   switch (w.kind) {
     case "pie": case "donut": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><PieChart><Pie data={data} dataKey="c2" nameKey="categoria" innerRadius={w.kind === "donut" ? "50%" : 0} outerRadius="80%" onClick={click} label>
-      {data.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}</Pie><Tooltip /><Legend /></PieChart></ResponsiveContainer></>;
-    case "treemap": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><Treemap data={data.map((d) => ({ name: d["categoria"], size: (d["c2"] as number) ?? 0 }))} dataKey="size" nameKey="name" stroke="var(--background)" fill={COLORS[0]} onClick={click} /></ResponsiveContainer></>;
-    case "funnel": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><FunnelChart><Tooltip /><Funnel data={[...data].sort((a, b) => ((b["c2"] as number) ?? 0) - ((a["c2"] as number) ?? 0)).map((d, i) => ({ ...d, fill: COLORS[i % COLORS.length] }))} dataKey="c2" nameKey="categoria" onClick={click}>
+      {data.map((_, i) => <Cell key={i} fill={col(i)} />)}</Pie><Tooltip /><Legend /></PieChart></ResponsiveContainer></>;
+    case "treemap": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><Treemap data={data.map((d) => ({ name: d["categoria"], size: (d["c2"] as number) ?? 0 }))} dataKey="size" nameKey="name" stroke="var(--background)" fill={col(0)} onClick={click} /></ResponsiveContainer></>;
+    case "funnel": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><FunnelChart><Tooltip /><Funnel data={[...data].sort((a, b) => ((b["c2"] as number) ?? 0) - ((a["c2"] as number) ?? 0)).map((d, i) => ({ ...d, fill: col(i) }))} dataKey="c2" nameKey="categoria" onClick={click}>
       <LabelList position="right" dataKey="categoria" fontSize={11} /></Funnel></FunnelChart></ResponsiveContainer></>;
     case "radar": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><RadarChart data={data}><PolarGrid /><PolarAngleAxis dataKey="categoria" fontSize={11} /><PolarRadiusAxis />
-      {cs.series.map((k, i) => <Radar key={k} dataKey={k} name={seriesName(k)} stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.3} />)}<Legend /><Tooltip /></RadarChart></ResponsiveContainer></>;
+      {cs.series.map((k, i) => <Radar key={k} dataKey={k} name={seriesName(k)} stroke={col(i)} fill={col(i)} fillOpacity={0.3} />)}<Legend /><Tooltip /></RadarChart></ResponsiveContainer></>;
     case "waterfall": { const wf = waterfall(data, "c2"); return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><BarChart data={wf}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="categoria" fontSize={11} /><YAxis /><Tooltip />
-      <Bar dataKey="base" stackId="w" fill="transparent" /><Bar dataKey="valor" stackId="w" name={mName("c2")} onClick={click}>{wf.map((s, i) => <Cell key={i} fill={s.categoria === "Total" ? COLORS[4] : s.sinal > 0 ? COLORS[2] : COLORS[3]} />)}</Bar></BarChart></ResponsiveContainer></>; }
+      <Bar dataKey="base" stackId="w" fill="transparent" /><Bar dataKey="valor" stackId="w" name={mName("c2")} onClick={click}>{wf.map((s, i) => <Cell key={i} fill={s.categoria === "Total" ? col(4) : s.sinal > 0 ? col(2) : col(3)} />)}</Bar></BarChart></ResponsiveContainer></>; }
     case "line": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><LineChart data={data} onClick={(e) => click({ categoria: e?.activeLabel as string })}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="categoria" fontSize={11} /><YAxis /><Tooltip /><Legend />
-      {cs.series.map((k, i) => <Line key={k} dataKey={k} name={seriesName(k)} stroke={COLORS[i % COLORS.length]} connectNulls={false} />)}</LineChart></ResponsiveContainer></>;
+      {cs.series.map((k, i) => <Line key={k} dataKey={k} name={seriesName(k)} stroke={col(i)} connectNulls={false} />)}</LineChart></ResponsiveContainer></>;
     case "area": return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><AreaChart data={data} onClick={(e) => click({ categoria: e?.activeLabel as string })}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="categoria" fontSize={11} /><YAxis /><Tooltip /><Legend />
-      {cs.series.map((k, i) => <Area key={k} dataKey={k} name={seriesName(k)} stroke={COLORS[i % COLORS.length]} fill={COLORS[i % COLORS.length]} fillOpacity={0.3} stackId={dims === 2 ? "a" : undefined} />)}</AreaChart></ResponsiveContainer></>;
+      {cs.series.map((k, i) => <Area key={k} dataKey={k} name={seriesName(k)} stroke={col(i)} fill={col(i)} fillOpacity={0.3} {...(dims === 2 ? { stackId: "a" } : {})} />)}</AreaChart></ResponsiveContainer></>;
     default: return <>{excludedNote(cs.excluded)}<ResponsiveContainer width="100%" height={H}><BarChart data={data}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="categoria" fontSize={11} /><YAxis /><Tooltip /><Legend />
-      {cs.series.map((k, i) => <Bar key={k} dataKey={k} name={seriesName(k)} fill={COLORS[i % COLORS.length]} stackId={dims === 2 ? "b" : undefined} onClick={click} cursor="pointer" />)}</BarChart></ResponsiveContainer></>;
+      {cs.series.map((k, i) => <Bar key={k} dataKey={k} name={seriesName(k)} fill={col(i)} {...(dims === 2 ? { stackId: "b" } : {})} onClick={click} cursor="pointer" />)}</BarChart></ResponsiveContainer></>;
   }
 }
 
