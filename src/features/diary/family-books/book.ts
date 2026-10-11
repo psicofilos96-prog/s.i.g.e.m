@@ -261,7 +261,7 @@ const delegated = (s: SheetSpec, c: Ctx) => `${head(c, s.title.toUpperCase())}<p
 
 export type BookSheet = { spec: SheetSpec; periodIndex: number | null; html: string };
 
-export function renderSheets(i: BookInput, opts: { kinds?: readonly SheetKind[]; emblem?: string | null; issuedAt: string }): BookSheet[] {
+export function renderSheets(i: BookInput, opts: { kinds?: readonly SheetKind[] | undefined; emblem?: string | null; issuedAt: string }): BookSheet[] {
   const fam = familyOf(i.family); const c: Ctx = { i, emblem: opts.emblem ?? null, issuedAt: opts.issuedAt };
   const out: BookSheet[] = [];
   for (const spec of fam.sheets) {
@@ -302,7 +302,7 @@ export function bookIssues(i: BookInput): string[] {
   return out;
 }
 
-export function renderBook(i: BookInput, opts: { kinds?: readonly SheetKind[]; emblem?: string | null; issuedAt: string }): string {
+export function renderBook(i: BookInput, opts: { kinds?: readonly SheetKind[] | undefined; emblem?: string | null; issuedAt: string }): string {
   const sheets = renderSheets(i, opts);
   const issues = bookIssues(i);
   const draft = issues.length > 0;
