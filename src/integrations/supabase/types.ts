@@ -24245,6 +24245,10 @@ export type Database = {
         Returns: string
       }
       bo_fixture_cleanup: { Args: { _operation_id: string }; Returns: number }
+      bo_fixture_cleanup_aa: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_cards: {
         Args: { _operation_id: string }
         Returns: number
