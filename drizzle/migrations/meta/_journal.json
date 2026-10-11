@@ -2108,6 +2108,13 @@
       "when": 1791686789619,
       "tag": "0300_0300_bo_fixture_meal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 301,
+      "version": "7",
+      "when": 1791688072676,
+      "tag": "0301_0301_meal_summary_counts_rectified_as_authorized",
+      "breakpoints": true
     }
   ]
 }
