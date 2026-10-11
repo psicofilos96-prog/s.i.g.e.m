@@ -10,6 +10,10 @@ async def as_user(br, tag):
     await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"][tag])])
     await pg.goto(B + "/alimentacao-escolar"); await pg.wait_for_timeout(6000); return ctx, pg, errs
 async def st(pg): await pg.wait_for_timeout(2500); return " | ".join(await pg.get_by_role("status").all_inner_texts())
+async def has(pg, text, want, ms=15000):
+    loc = pg.locator("li", has_text=text).filter(has_text=want)
+    try: await loc.first.wait_for(timeout=ms); return True
+    except Exception: return False
 async def tab(pg, name): await pg.get_by_role("tab", name=name).click(); await pg.wait_for_timeout(800)
 async def row_action(pg, text, btn):
     li = pg.locator("li", has_text=text).first; await li.get_by_role("button", name=btn).click(); return await st(pg)
@@ -32,7 +36,7 @@ async def main():
         await f.get_by_role("button", name="Registrar rascunho").click(); s = await st(pg); p("permissão" in s, "revisor sem competência de cadastro é recusado", s)
         await ctx.close()
         ctx, pg, e = await as_user(br, "ho"); errs += e
-        s = await row_action(pg, SUP, "Homologar"); p("Registrado" in s and "Homologada" in await pg.locator("li", has_text=SUP).first.inner_text(), "homologador homologa fornecedor", s)
+        s = await row_action(pg, SUP, "Homologar"); p("Registrado" in s and await has(pg, SUP, "Homologada"), "homologador homologa fornecedor", s)
         await ctx.close()
         # 3) autor registra contrato com o fornecedor homologado; revisor homologa
         ctx, pg, e = await as_user(br, "au"); errs += e
@@ -58,8 +62,8 @@ async def main():
         s = await row_action(pg, f"{OP}/2026", "Homologar"); p("Registrado" in s, "homologador homologa contrato", s)
         await tab(pg, "Inspetores")
         s2 = await row_action(pg, cfg["inspector"][:8], "Homologar"); p("Registrado" in s2, "homologador homologa a designação", s2)
-        txt = await pg.locator("li", has_text=cfg["inspector"][:8]).first.inner_text()
-        p("Homologada" in txt and "FUNCTIONAL_SOURCE_REQUIRED" in txt, "designação homologada segue sinalizando fonte funcional pendente", txt[-80:])
+        ok = await has(pg, cfg["inspector"][:8], "Homologada"); txt = await pg.locator("li", has_text=cfg["inspector"][:8]).first.inner_text()
+        p(ok and "FUNCTIONAL_SOURCE_REQUIRED" in txt, "designação homologada segue sinalizando fonte funcional pendente", txt[-80:])
         await pg.screenshot(path=f"{SH}/2_revisor_homologa.png"); await ctx.close()
         # 5) conta sem permissão
         ctx, pg, e = await as_user(br, "np"); errs += e
