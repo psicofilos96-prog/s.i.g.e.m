@@ -2073,6 +2073,13 @@
       "when": 1791685361331,
       "tag": "0295_0295_bo_fixture_diary_capability_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 296,
+      "version": "7",
+      "when": 1791685591027,
+      "tag": "0296_0296_bo_fixture_scope_capabilities",
+      "breakpoints": true
     }
   ]
 }
