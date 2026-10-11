@@ -3,3 +3,4 @@
 - Só processos que exigem tramitação/aprovação usam o motor; CRUD continua no writer canônico, e a transição nunca altera o fato de origem.
 - Eventos são append-only com `seq` contínuo (concorrência otimista) e chave idempotente; `workflow_outbox` registra cada evento para notificação, porque entrega duplicada ou perdida divergiria.
 - Prazo só existe se declarado num evento; papel responsável é rótulo, nunca autorização.
+- Lote 02 Expansão (`process-automation.ts`): prazo útil só sobre dias de calendário lido (sem calendário ⇒ null), escalonamento só declarado, anti-loop, retry transitório e escopo de fila falham fechado; SLA exclui itens sem prazo do denominador, porque prazo ou setor presumidos seriam norma no código.
