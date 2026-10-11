@@ -23,7 +23,7 @@ export function openDemand(d: Omit<Demand, "events">, by: string, isNaturalPerso
   if (d.urgent && !d.urgencyReason?.trim()) return { ok: false as const, code: "demanda:urgencia-sem-justificativa" };
   const bad = attachments.find((a) => !a.startsWith(`demandas/${d.schoolId}/${d.id}/`));
   if (bad) return { ok: false as const, code: "demanda:anexo-fora-da-pasta-privada" };
-  return { ok: true as const, demand: { ...d, events: [{ seq: 1, step: "abertura" as const, by, isNaturalPerson, on, attachments }] } };
+  return { ok: true as const, demand: { ...d, events: [{ seq: 1, step: "abertura", by, isNaturalPerson, on, attachments }] } as Demand };
 }
 
 /** Avanço com seq esperado (concorrência), papel do lado certo (escola × SEMED), responsável no encaminhamento, motivo na devolução. */
@@ -37,7 +37,7 @@ export function advanceDemand(d: Demand, ev: Omit<DemandEvent, "seq">, expectedS
     return { ok: false as const, code: "demanda:ator-nao-competente" };
   if (ev.step === "encaminhamento" && !ev.assignee) return { ok: false as const, code: "demanda:responsavel-obrigatorio" };
   if ((ev.step === "devolucao" || ev.step === "devolutiva") && !ev.note?.trim()) return { ok: false as const, code: "demanda:motivo-obrigatorio" };
-  return { ok: true as const, demand: { ...d, events: [...d.events, { ...ev, seq: last.seq + 1 }] },
+  return { ok: true as const, demand: { ...d, events: [...d.events, { ...ev, seq: last.seq + 1 }] } as Demand,
     notify: { event_kind: `demanda.${ev.step}`, idempotency_key: `${d.id}:${last.seq + 1}` } };
 }
 
