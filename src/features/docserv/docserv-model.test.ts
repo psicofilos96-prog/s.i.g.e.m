@@ -15,8 +15,8 @@ describe("DocServ — painéis por capacidade", () => {
 describe("DocServ — identidade", () => {
   it("CPF só com 11 dígitos", () => { expect(cpfDigits("123.456.789-01")).toBe("12345678901"); expect(cpfDigits("123")).toBeNull(); });
   it("ambíguo exige decisão manual; vinculado não", () => {
-    const base = { key: "k", seq: 1, kind: "servidor", matricula: null, cpf: true, inep: null, candidates: [], masked_names: null, manual: false, recorded_at: "" } as const;
-    expect(needsManualDecision({ ...base, outcome: "ambiguo" } as QueueItem)).toBe(true);
-    expect(needsManualDecision({ ...base, outcome: "vinculado" } as QueueItem)).toBe(false);
+    const base: Omit<QueueItem, "outcome"> = { key: "k", seq: 1, kind: "servidor", matricula: null, cpf: true, inep: null, candidates: [], masked_names: null, manual: false, recorded_at: "" };
+    expect(needsManualDecision({ ...base, outcome: "ambiguo" })).toBe(true);
+    expect(needsManualDecision({ ...base, outcome: "vinculado" })).toBe(false);
   });
 });
