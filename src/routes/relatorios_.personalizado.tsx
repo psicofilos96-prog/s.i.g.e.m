@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CustomReportPage } from "@/features/reports/custom/custom-report-page";
+import { PageHeader } from "@/components/sigem/patterns";
 
 export const Route = createFileRoute("/relatorios_/personalizado")({
   head: () => ({
@@ -17,11 +18,10 @@ export const Route = createFileRoute("/relatorios_/personalizado")({
 
 function Page() {
   return (
-    <main className="mx-auto max-w-6xl space-y-4 p-4">
+    <div className="mx-auto max-w-6xl space-y-4">
       <nav className="text-sm"><Link to="/relatorios" className="underline">Relatórios</Link> › Gerador personalizado</nav>
-      <h1 className="text-2xl font-semibold">Gerador personalizado</h1>
-      <p className="text-sm text-muted-foreground">Escolha a fonte, cruze com outras, filtre, agrupe e exporte. A consulta roda no servidor com o seu acesso: cada escola vê só o que já pode ver.</p>
+      <PageHeader eyebrow="Relatórios" title="Gerador personalizado" description="Escolha a fonte, cruze com outras, filtre, agrupe e exporte. A consulta roda no servidor com o seu acesso: cada escola vê só o que já pode ver." />
       <CustomReportPage />
-    </main>
+    </div>
   );
 }

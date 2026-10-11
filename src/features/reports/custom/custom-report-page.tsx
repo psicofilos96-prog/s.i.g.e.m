@@ -16,6 +16,8 @@ import { CUSTOM_SHARE_REASON, copyName, listCustomTemplates, saveCustomTemplate,
 const inp = "min-h-9 rounded-md border border-input bg-background px-2 py-1 text-sm";
 const box = "space-y-3 rounded-md border border-border bg-card p-4";
 const PAGE = 50;
+/** Mensagens já traduzidas por customError/serviços deste módulo; outros erros viram texto genérico. */
+const say = (e: unknown) => (e instanceof Error && /^[A-ZÀ-Ú]/.test(e.message) && !/SQLSTATE|permission denied|violates/i.test(e.message) ? e.message : "Não foi possível concluir. Tente de novo.");
 export const CUSTOM_REPORT_ID = "personalizado";
 
 function download(name: string, blob: Blob) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
@@ -56,7 +58,7 @@ function Builder() {
 
   useEffect(() => { loadCatalog().then(setCat).catch((e) => setErr(customError(e))); }, []);
   const refresh = useCallback(async () => {
-    try { setTemplates(await listCustomTemplates()); } catch (e) { setErr((e as Error).message); }
+    try { setTemplates(await listCustomTemplates()); } catch (e) { setErr(say(e)); }
     try { setEmissions((await listMyEmissions(100)).filter((e) => e.report_id === CUSTOM_REPORT_ID)); } catch { setEmissions([]); }
   }, []);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -69,7 +71,7 @@ function Builder() {
   async function preview(off = 0) {
     if (!cat || problems.length) return;
     setBusy(true); setErr(null);
-    try { setPage(await runPage(cat, spec, PAGE, off)); setOffset(off); } catch (e) { setErr((e as Error).message); setPage(null); } finally { setBusy(false); }
+    try { setPage(await runPage(cat, spec, PAGE, off)); setOffset(off); } catch (e) { setErr(say(e)); setPage(null); } finally { setBusy(false); }
   }
 
   async function exportAs(fmt: "pdf" | "xlsx" | "csv", reissue: ReportEmission | null = null) {
@@ -96,7 +98,7 @@ function Builder() {
       const cmp = reissueComparison(reissue?.content_sha256 ?? null, sha);
       setNote(`Emitido (${fmt.toUpperCase()}, ${r.rows.length} linhas), código ${em.verification_code}.${reissue ? cmp === "identico" ? " Conteúdo idêntico ao original." : " Conteúdo DIFERENTE do original: os dados mudaram ou seu acesso mudou." : ""}`);
       void refresh();
-    } catch (e) { setErr((e as Error).message); } finally { setBusy(false); }
+    } catch (e) { setErr(say(e)); } finally { setBusy(false); }
   }
 
   if (!cat) return <p role="status" className="text-sm text-muted-foreground">{err ?? "Carregando o catálogo de fontes…"}</p>;
@@ -136,13 +138,13 @@ function Builder() {
       <section className={box} aria-label="Modelos">
         <h2 className="font-semibold">Meus modelos</h2>
         <div className="flex flex-wrap gap-2"><input aria-label="Nome do modelo" className={inp} value={tplName} onChange={(e) => setTplName(e.target.value)} placeholder="Nome do modelo" />
-          <Button size="sm" disabled={busy || !spec.source || problems.length > 0 || !tplName.trim()} onClick={async () => { try { await saveCustomTemplate(tplName, spec, layout); setNote(`Modelo "${tplName.trim()}" salvo (nova versão).`); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Salvar versão</Button>
+          <Button size="sm" disabled={busy || !spec.source || problems.length > 0 || !tplName.trim()} onClick={async () => { try { await saveCustomTemplate(tplName, spec, layout); setNote(`Modelo "${tplName.trim()}" salvo (nova versão).`); void refresh(); } catch (e) { setErr(say(e)); } }}>Salvar versão</Button>
           <Button size="sm" variant="outline" disabled title={CUSTOM_SHARE_REASON}>Compartilhar</Button></div>
         <p className="text-xs text-muted-foreground">{CUSTOM_SHARE_REASON}</p>
         <ul className="space-y-1 text-sm" aria-label="Meus modelos">{templates.map((t) => <li key={t.name} className="flex flex-wrap items-center gap-2"><span className="font-medium">{t.name}</span><span className="text-xs text-muted-foreground">v{t.version}</span>
           <Button size="sm" variant="outline" onClick={() => { setSpecRaw(pruneSpec(cat, { ...emptySpec(), ...t.spec })); setLayout({ ...defaultLayout(), ...t.layout }); setTplName(t.name); setPage(null); setNote(`Modelo "${t.name}" v${t.version} aberto.`); }}>Abrir</Button>
-          <Button size="sm" variant="ghost" onClick={async () => { try { await saveCustomTemplate(copyName(t.name, templates), t.spec, t.layout); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Duplicar</Button>
-          <Button size="sm" variant="ghost" onClick={async () => { try { await saveCustomTemplate(t.name, t.spec, t.layout, true); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Arquivar</Button></li>)}
+          <Button size="sm" variant="ghost" onClick={async () => { try { await saveCustomTemplate(copyName(t.name, templates), t.spec, t.layout); void refresh(); } catch (e) { setErr(say(e)); } }}>Duplicar</Button>
+          <Button size="sm" variant="ghost" onClick={async () => { try { await saveCustomTemplate(t.name, t.spec, t.layout, true); void refresh(); } catch (e) { setErr(say(e)); } }}>Arquivar</Button></li>)}
           {!templates.length && <li className="text-muted-foreground">Nenhum modelo salvo.</li>}</ul>
       </section>
 
