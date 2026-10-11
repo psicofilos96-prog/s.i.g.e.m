@@ -6,8 +6,8 @@
  * Campos `central` não são digitados: vêm do cadastro central na leitura.
  */
 export type FieldType = "int" | "text" | "enum";
-export type CentralRef = "escola" | "inep" | "distrito" | "zona" | "telefone" | "email" | "matricula-ativa" | "diretor";
-export type Field = { key: string; label: string; type: FieldType; options?: readonly string[]; central?: CentralRef };
+export type CentralRef = "escola" | "inep" | "distrito" | "zona" | "telefone" | "email" | "matricula-ativa" | "diretor" | "nei-mediacao" | "matricula-etapa";
+export type Field = { key: string; label: string; type: FieldType; options?: readonly string[]; central?: CentralRef; min?: number; max?: number };
 export type GridCol = { key: string; label: string; type: FieldType; options?: readonly string[] };
 export type Section =
   | { id: string; title: string; kind: "fields"; fields: readonly Field[] }
@@ -16,7 +16,7 @@ export type TableCode = "04" | "06" | "09" | "10" | "11";
 export type TableDef = { code: TableCode; title: string; landscape: boolean; sections: readonly Section[] };
 
 const SN = ["Sim", "Não"] as const;
-const int = (key: string, label: string): Field => ({ key, label, type: "int" });
+const int = (key: string, label: string, max?: number, min?: number): Field => ({ key, label, type: "int", ...(max !== undefined ? { max } : {}), ...(min !== undefined ? { min } : {}) });
 const txt = (key: string, label: string): Field => ({ key, label, type: "text" });
 const yn = (key: string, label: string): Field => ({ key, label, type: "enum", options: SN });
 const central = (key: string, label: string, c: CentralRef): Field => ({ key, label, type: "text", central: c });
@@ -44,20 +44,22 @@ export const SEMED_TABLES_2026: readonly TableDef[] = [
       .map(([key, label]) => ({ key: key!, label: label!, type: "int" as const })),
   }, FOOTER] },
   { code: "09", title: "LEVANTAMENTO DE INFRAESTRUTURA FÍSICA E EQUIPAMENTOS DA UNIDADE ESCOLAR", landscape: false, sections: [
-    { id: "id", title: "Identificação", kind: "fields", fields: [central("escola", "Escola", "escola"), central("inep", "Código INEP", "inep"), central("distrito", "Distrito", "distrito"), central("zona", "Zona", "zona"), int("turnos", "Nº de turnos"), int("turmas", "Nº de turmas")] },
+    { id: "id", title: "Identificação", kind: "fields", fields: [central("escola", "Escola", "escola"), central("inep", "Código INEP", "inep"), central("distrito", "Distrito", "distrito"), central("zona", "Zona", "zona"), int("turnos", "Nº de turnos", 4), int("turmas", "Nº de turmas", 200)] },
     { id: "gestao", title: "Contato e gestão", kind: "fields", fields: [central("diretor", "Diretor(a) geral", "diretor"), txt("adjunto", "Diretor(a) adjunto(a)"), txt("mat_diretor", "Matrícula funcional do(a) diretor(a)"), central("telefone", "Telefone", "telefone"), central("email", "E-mail", "email")] },
-    { id: "predial", title: "Situação predial", kind: "fields", fields: [txt("regime", "Regime do imóvel"), int("ano_construcao", "Ano de construção"), yn("rampas", "Possui rampas de acessibilidade"), yn("banheiro_pcd", "Banheiro adaptado PCD"), yn("laudo_acess", "Possui laudo de acessibilidade"), yn("compartilha", "Compartilha prédio com outra unidade"), { key: "situacao", label: "Situação do prédio", type: "enum", options: ["Próprio", "Cedido", "Alugado"] }, { key: "estado", label: "Estado de uso", type: "enum", options: ["S/Condições", "Precário", "Adequado", "Excelente"] }, txt("manutencao", "Data do último serviço (pintura/telhado/estrutura)")] },
-    { id: "transporte", title: "Transporte escolar", kind: "fields", fields: [int("alunos", "Alunos que dependem de transporte"), { key: "tipo", label: "Tipo", type: "enum", options: ["Próprio", "Terceirizado"] }, int("rotas", "Nº de rotas")] },
-    { id: "aee", title: "Inclusão / AEE (somente contagens)", kind: "fields", fields: [int("com_laudo", "Alunos com laudo"), int("com_mediador", "Alunos com mediador"), yn("srm", "Possui sala de recursos multifuncional")] },
+    { id: "predial", title: "Situação predial", kind: "fields", fields: [txt("regime", "Regime do imóvel"), int("ano_construcao", "Ano de construção", 2100, 1800), yn("compartilha", "Compartilha prédio com outra unidade"), { key: "situacao", label: "Situação do prédio", type: "enum", options: ["Próprio", "Cedido", "Alugado"] }, { key: "estado", label: "Estado de uso", type: "enum", options: ["S/Condições", "Precário", "Adequado", "Excelente"] }] },
+    { id: "acessibilidade", title: "Acessibilidade", kind: "fields", fields: [yn("rampas", "Possui rampas de acessibilidade"), yn("banheiro_pcd", "Banheiro adaptado PCD"), yn("laudo_acess", "Possui laudo de acessibilidade")] },
+    { id: "transporte", title: "Transporte escolar", kind: "fields", fields: [int("alunos", "Alunos que dependem de transporte", 5000), { key: "tipo", label: "Tipo", type: "enum", options: ["Próprio", "Terceirizado"] }, int("rotas", "Nº de rotas", 100)] },
+    { id: "aee", title: "Inclusão / AEE (somente contagens)", kind: "fields", fields: [int("com_laudo", "Alunos com laudo", 5000), int("com_mediador", "Alunos com mediador", 5000), central("nei_mediacao", "Estudantes com mediação vigente registrada no NEI (referência)", "nei-mediacao"), yn("srm", "Possui sala de recursos multifuncional")] },
     { id: "espacos", title: "Biblioteca e espaços", kind: "fields", fields: [yn("biblioteca", "Biblioteca/sala de leitura"), yn("quadra", "Quadra esportiva"), yn("quadra_coberta", "Quadra coberta")] },
-    { id: "seguranca", title: "Segurança", kind: "fields", fields: [yn("cameras", "Possui câmeras"), int("qtd_cameras", "Quantidade de câmeras"), yn("portao", "Portão eletrônico"), txt("vigilancia", "Tipo de vigilância")] },
-    { id: "matricula", title: "Matrícula por etapa", kind: "fields", fields: [central("ativa", "Matrícula ativa no cadastro central", "matricula-ativa"), ...["Creche", "Pré-Escola", "1º Ano", "2º ao 5º Ano", "6º ao 9º Ano", "EJA F I-V", "EJA F VI-IX"].map((l, i) => int(`e${i + 1}`, l))] },
-    { id: "salas", title: "Salas", kind: "fields", fields: [int("uso", "Em uso"), int("ociosas", "Ociosas")] },
-    { id: "sanitarios", title: "Sanitários (vasos)", kind: "fields", fields: [int("masc", "Masculino"), int("fem", "Feminino"), int("prof", "Professor")] },
-    { id: "equip", title: "Equipamentos em condição de uso", kind: "fields", fields: [...["Computador administrativo", "Computador para alunos", "Notebook", "Tablet", "Impressora", "Projetor", "TV", "Aparelho de som", "Ar-condicionado", "Ventilador", "Bebedouro", "Bomba d'água"].map((l, i) => int(`q${i + 1}`, l)), yn("internet", "Possui internet")] },
-    { id: "cozinha", title: "Cozinha e alimentação", kind: "fields", fields: [...["Fogão industrial", "Fogão doméstico", "Freezer", "Geladeira", "Liquidificador", "Micro-ondas", "Forno", "Balança", "Filtro"].map((l, i) => int(`q${i + 1}`, l)), { key: "alimentacao", label: "Alimentação", type: "enum", options: ["Própria", "Terceirizada"] }, txt("fornecedor", "Fornecedor")] },
+    { id: "seguranca", title: "Segurança", kind: "fields", fields: [yn("cameras", "Possui câmeras"), int("qtd_cameras", "Quantidade de câmeras", 500), yn("portao", "Portão eletrônico"), txt("vigilancia", "Tipo de vigilância")] },
+    { id: "matricula", title: "Matrícula por etapa (cadastro central)", kind: "fields", fields: [central("ativa", "Matrícula ativa no cadastro central", "matricula-ativa"), ...["Creche", "Pré-Escola", "1º Ano", "2º ao 5º Ano", "6º ao 9º Ano", "EJA F I-V", "EJA F VI-IX"].map((l, i) => central(`e${i + 1}`, l, "matricula-etapa"))] },
+    { id: "salas", title: "Salas", kind: "fields", fields: [int("uso", "Em uso", 200), int("ociosas", "Ociosas", 200)] },
+    { id: "sanitarios", title: "Sanitários (vasos)", kind: "fields", fields: [int("masc", "Masculino", 200), int("fem", "Feminino", 200), int("prof", "Professor", 200)] },
+    { id: "equip", title: "Equipamentos em condição de uso", kind: "fields", fields: [...["Computador administrativo", "Computador para alunos", "Notebook", "Tablet", "Impressora", "Projetor", "TV", "Aparelho de som", "Ar-condicionado", "Ventilador", "Bebedouro", "Bomba d'água"].map((l, i) => int(`q${i + 1}`, l, 2000)), yn("internet", "Possui internet")] },
+    { id: "cozinha", title: "Cozinha e alimentação", kind: "fields", fields: [...["Fogão industrial", "Fogão doméstico", "Freezer", "Geladeira", "Liquidificador", "Micro-ondas", "Forno", "Balança", "Filtro"].map((l, i) => int(`q${i + 1}`, l, 200)), { key: "alimentacao", label: "Alimentação", type: "enum", options: ["Própria", "Terceirizada"] }, txt("fornecedor", "Fornecedor")] },
     { id: "instalacoes", title: "Instalações físicas", kind: "fields", fields: ["Diretoria", "Secretaria", "Sala de professores", "Biblioteca", "Sala de AEE", "Laboratório de informática", "Laboratório de ciências", "Sala de TV/vídeo", "Quadra", "Quadra coberta", "Pátio coberto", "Refeitório", "Cozinha", "Depósito de alimentos", "Sanitário adequado à pré-escola"].map((l, i) => yn(`d${i + 1}`, l)) },
-    { id: "outras", title: "Outras informações", kind: "fields", fields: [txt("texto", "Outras informações importantes")] },
+    { id: "manutencao", title: "Manutenção", kind: "fields", fields: [txt("ultimo_servico", "Data do último serviço (pintura/telhado/estrutura)"), txt("necessidades", "Serviços de manutenção necessários")] },
+    { id: "outras", title: "Observações", kind: "fields", fields: [txt("texto", "Outras informações importantes")] },
     FOOTER,
   ] },
   { code: "10", title: "ESCOLARIZAÇÃO DO SERVIDOR", landscape: true, sections: [HEADER, {
@@ -77,13 +79,13 @@ export const SEMED_TABLES_2026: readonly TableDef[] = [
   }, FOOTER] },
 ];
 
-export type KeySpec = { type: FieldType; options?: readonly string[] };
+export type KeySpec = { type: FieldType; options?: readonly string[]; min?: number; max?: number };
 
 /** Chaves digitáveis (exclui centrais). Grid: `sec.row.col`; campos: `sec.key`. */
 export function editableKeys(def: TableDef): Record<string, KeySpec> {
   const out: Record<string, KeySpec> = {};
   for (const s of def.sections) {
-    if (s.kind === "fields") { for (const f of s.fields) if (!f.central) out[`${s.id}.${f.key}`] = f.options ? { type: f.type, options: f.options } : { type: f.type }; }
+    if (s.kind === "fields") { for (const f of s.fields) if (!f.central) out[`${s.id}.${f.key}`] = { type: f.type, ...(f.options ? { options: f.options } : {}), ...(f.min !== undefined ? { min: f.min } : {}), ...(f.max !== undefined ? { max: f.max } : {}) }; }
     else for (const r of s.rows) for (const c of s.cols) out[`${s.id}.${r.key}.${c.key}`] = c.options ? { type: c.type, options: c.options } : { type: c.type };
   }
   return out;
@@ -125,7 +127,7 @@ export function validateValues(def: TableDef, v: Values): string[] {
     if (x === null || x === undefined || x === "") continue;
     const s = keys[k];
     if (!s) { errs.push(`Campo desconhecido: ${k}`); continue; }
-    if (s.type === "int" && !(typeof x === "number" && Number.isInteger(x) && x >= 0 && x <= 100000)) errs.push(`${k}: inteiro ≥ 0`);
+    if (s.type === "int" && !(typeof x === "number" && Number.isInteger(x) && x >= (s.min ?? 0) && x <= (s.max ?? 100000))) errs.push(`${k}: inteiro entre ${s.min ?? 0} e ${s.max ?? 100000}`);
     if (s.type === "text" && !(typeof x === "string" && x.length <= 500)) errs.push(`${k}: texto até 500`);
     if (s.type === "enum" && !(typeof x === "string" && s.options?.includes(x))) errs.push(`${k}: opção inválida`);
   }

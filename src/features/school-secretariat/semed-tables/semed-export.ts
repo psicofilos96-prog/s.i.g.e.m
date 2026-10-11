@@ -16,11 +16,21 @@ const show = (v: unknown): string | number => (v === null || v === undefined || 
 export const HEADER_LINES = ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO", "NÚCLEO DE INFORMAÇÃO E ESTATÍSTICA"];
 
 export type T06Apur = { rule_version: number | null; totals: T06Totals; gaps: string[] };
+const CENTRAL_ABSENT: Record<string, string> = {
+  "matricula-etapa": "não apurado (turmas sem ano/etapa registrados)",
+  "nei-mediacao": "nenhuma mediação vigente registrada no NEI",
+  diretor: "não ligado ao cadastro central",
+};
+/** Valor central para tela/PDF: ausência é explicada, nunca vira zero. */
+export function centralText(ref: string, central: Central): string {
+  const v = central[ref];
+  return v === null || v === undefined || v === "" ? (CENTRAL_ABSENT[ref] ?? "não apurado no cadastro") : String(v);
+}
 export function documentBlocks(def: TableDef, v: Values, central: Central, t04Thresholds: Readonly<Record<string, number>> | null = null, t06: T06Apur | null = null): Block[] {
   const out: Block[] = [];
   for (const s of def.sections) {
     if (s.kind === "fields") {
-      out.push({ title: s.title, head: ["Campo", "Resposta"], body: s.fields.map((f) => [f.label + (f.central ? " (cadastro central)" : ""), show(f.central ? central[f.central] : v[`${s.id}.${f.key}`])]) });
+      out.push({ title: s.title, head: ["Campo", "Resposta"], body: s.fields.map((f) => [f.label + (f.central ? " (cadastro central)" : ""), f.central ? centralText(f.central, central) : show(v[`${s.id}.${f.key}`])]) });
       continue;
     }
     const is06 = def.code === "06", is11 = def.code === "11";

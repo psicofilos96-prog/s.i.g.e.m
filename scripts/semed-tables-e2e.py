@@ -27,6 +27,21 @@ async def main():
         import subprocess
         txt = subprocess.run(["pdftotext", "-layout", f"{OUT}/t06.pdf", "-"], capture_output=True, text=True).stdout
         check("APURAÇÃO POR EVENTOS REAIS" in txt and "DIVERGENTE" in txt and "não apurado" in txt, "PDF da Tabela 06 traz apuração, divergência e não apurado")
+        await p.get_by_role("tab", name="Tabela 09").click(); await p.wait_for_timeout(1500)
+        for t in ("Acessibilidade", "Manutenção", "Observações", "Matrícula por etapa (cadastro central)"):
+            check(await p.get_by_role("heading", name=t, exact=True).count() == 1, f"seção '{t}' na Tabela 09")
+        check(await p.get_by_text("não apurado (turmas sem ano/etapa registrados)").count() >= 1, "matrícula por etapa mostra não apurado")
+        check(await p.get_by_role("button", name="predio2.png").count() == 1 and await p.get_by_role("button", name="predio.png", exact=True).count() == 0, "anexo ativo listado e retirado oculto")
+        await p.get_by_label("predial.regime").fill("Municipal"); await p.wait_for_timeout(7000)
+        check(await p.get_by_text("Salvamento automático ligado · último às").count() == 1, "salvamento automático gravou o rascunho")
+        async with p.expect_download() as d: await p.get_by_role("button", name="Baixar PDF").click()
+        dl = await d.value; await dl.save_as(f"{OUT}/t09.pdf")
+        import subprocess
+        info = subprocess.run(["pdfinfo", f"{OUT}/t09.pdf"], capture_output=True, text=True).stdout
+        size = [l for l in info.splitlines() if l.startswith("Page size")][0].split()
+        check(float(size[2]) < float(size[4]), "PDF da Tabela 09 em retrato " + size[2] + "x" + size[4])
+        txt = subprocess.run(["pdftotext", f"{OUT}/t09.pdf", "-"], capture_output=True, text=True).stdout
+        check("Acessibilidade" in txt and "Municipal" in txt and "Telhado do pátio" in txt, "PDF traz seções e valores salvos (inclusive o autosave)")
         await p.get_by_role("tab", name="Tabela 04").click(); await p.wait_for_timeout(800)
         check(await p.get_by_role("button", name="Salvar rascunho").count() == 1, "Tabela 04 em rascunho editável")
         check(await p.get_by_text("Apuração pelo cadastro central").count() == 1, "Tabela 04 mostra apuração e lacunas")
@@ -41,7 +56,7 @@ async def main():
             await (await d.value).save_as(f"{OUT}/t04.{ext}")
         check(os.path.getsize(f"{OUT}/t04.pdf") > 1000, "PDF da Tabela 04 gerado")
         n = await page_for(b, S["sessions"]["net"])
-        check(await n.get_by_text("Situação na rede").count() == 1, "rede vê quadro da rede"); await n.screenshot(path=f"{OUT}/net.png")
+        await n.get_by_text("Situação na rede").first.wait_for(timeout=20000); check(await n.get_by_text("Situação na rede").count() == 1, "rede vê quadro da rede"); await n.screenshot(path=f"{OUT}/net.png")
         x = await page_for(b, S["sessions"]["none"]); await x.wait_for_timeout(1500)
         check(await x.get_by_text("Sem acesso às Tabelas SEMED").count() == 1, "conta sem permissão recusada na tela")
         await b.close()
