@@ -73,7 +73,7 @@ async def main():
         await pg.goto(B + "/diario/folha-final"); await pg.wait_for_timeout(5000)
         if chosen:
             await pg.get_by_label("Turma").select_option(index=chosen); await pg.get_by_label("Modalidade da folha (declarada por você)").select_option("fundamental-anos-finais"); await pg.wait_for_timeout(4000)
-            t = await pg.inner_text("body"); p("Conferência" in t and "Rascunho" in t, "segunda secretaria lê a cadeia de atos")
+            t = await pg.inner_text("body"); p("Conferida" in t and "Rascunho" in t, "segunda secretaria lê a cadeia de atos")
             await pg.screenshot(path=f"{SH}/4_folha_a2.png")
         await ctx.close()
         errs = e1 + e2 + e3 + e4; p(not errs, "sem erro de execução no navegador", str(errs[:2]))
