@@ -353,5 +353,13 @@
  "drizzle/migrations/0302_custom_report_query_engine.sql": "8ba34430153133567c3413490062421c4b1a4a8e8a789d81c7101c1b85f95df3",
  "drizzle/migrations/0303_custom_report_query_fix_join_loop.sql": "d1ff9b0a56f35d38df0c454aeabeedfdf11aed7951fba8578789886fd67a7e6e",
  "drizzle/migrations/0304_custom_report_rollup_order.sql": "302d193a500570270edf0519b5d8c586d8665fa43e635c995f55c6e63b7b6055",
- "drizzle/migrations/0305_staff_records_policy_initplan.sql": "85e062fa3fa4386fdcb9991270dc77c86e6f77304044049bf6144f861c8efa6f"
+ "drizzle/migrations/0305_staff_records_policy_initplan.sql": "85e062fa3fa4386fdcb9991270dc77c86e6f77304044049bf6144f861c8efa6f",
+ "drizzle/migrations/0306_bo_fixture_meal_operations.sql": "b35e3ef39fe5d2a8ba889386315b6ec82e941672b41ae01e691e20f97b02d85d",
+ "drizzle/migrations/0307_bo_fixture_scope_engagement_null.sql": "82e57f05c193184fdd5840d1a55c17fcca1176d9c93959fd71798b2a8723d48d",
+ "drizzle/migrations/0308_bo_fixture_meal_planning_cap.sql": "febc7d290fc149f5cd040f512c7b03b4f9e921f585bc4c40600f7a1d126ac4df",
+ "drizzle/migrations/0309_meal_readers_accept_bo_fixture.sql": "2c6f54f3930e1f49e7f1833b11356736f79b3aeb6dab59d9b919f041abd4bda0",
+ "drizzle/migrations/0310_meal_master_school_reads_network_catalog.sql": "136221cbe33bad4e1c1490590374af38873ae55decf8072fe4db0e8001accda8",
+ "drizzle/migrations/0311_meal_grant_on_bo_fixture_engagement.sql": "bdf806cd53b7a4107248737b6fce19b666c5e77fc3f5068e48f67eb67cb48cc6",
+ "drizzle/migrations/0312_meal_order_capability_before_existence.sql": "245d3f8fcde23502c270123ddee3d44cc9180646b1f30255c2967604c0792874",
+ "drizzle/migrations/0313_meal_order_capability_first_branch_only.sql": "4a665e86e92d23f47d14230c72a7d5c0d980c014ba84ebd265781c775b3b5c1a"
 }
