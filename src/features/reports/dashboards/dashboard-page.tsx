@@ -165,7 +165,7 @@ function Builder() {
       <div ref={boardRef} data-board className={`grid gap-4 md:grid-cols-3 print:grid-cols-2 ${theme.font === "serif" ? "font-serif" : "font-sans"}`}>
         {board.widgets.map((w) => (
           <WidgetCard key={w.id} cat={cat} w={w} d={data[w.id]} onDrill={(f, c) => (w.drillThrough ? void drillThrough(w, f, c) : drill(f, c))}
-            dragging={dragId === w.id} onDragStart={() => setDragId(w.id)} onDropOn={() => { if (dragId) setBoard((b) => ({ ...b, widgets: moveWidget(b.widgets, dragId, w.id) })); setDragId(null); }}
+            dragging={dragId === w.id} onDragStart={() => setDragId(w.id)} onDropOn={(from) => { const f = from || dragId; if (f) setBoard((b) => ({ ...b, widgets: moveWidget(b.widgets, f, w.id) })); setDragId(null); }}
             onResize={(patch) => setW(w.id, patch)}
             onEdit={() => setEditing(w)} onRemove={() => setBoard({ ...board, widgets: board.widgets.filter((x) => x.id !== w.id) })}
             onMove={(dir) => { const i = board.widgets.indexOf(w), j = i + dir; if (j < 0 || j >= board.widgets.length) return; const ws = [...board.widgets]; [ws[i], ws[j]] = [ws[j]!, ws[i]!]; setBoard({ ...board, widgets: ws }); }} />
@@ -323,7 +323,7 @@ async function pngOf(svg: string, w: number, h: number): Promise<Blob> {
 }
 
 function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove, dragging, onDragStart, onDropOn, onResize }: { cat: Catalog; w: Widget; d: Loaded | "loading" | undefined; onDrill: (field: string, cat: string) => void; onEdit: () => void; onRemove: () => void; onMove: (dir: number) => void;
-  dragging: boolean; onDragStart: () => void; onDropOn: () => void; onResize: (p: Partial<Widget>) => void }) {
+  dragging: boolean; onDragStart: () => void; onDropOn: (from: string) => void; onResize: (p: Partial<Widget>) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const file = (w.title || w.kind).replace(/\W+/g, "-");
   async function exp(kind: "svg" | "png") {
@@ -334,7 +334,7 @@ function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove, dragging, on
   const hasSvg = w.kind !== "table" && w.kind !== "kpi";
   return (
     <article className={`${box} min-w-0 break-inside-avoid ${["", "md:col-span-1", "md:col-span-2", "md:col-span-3"][spanOf(w)]} ${dragging ? "opacity-50" : ""}`} aria-label={w.title}
-      draggable onDragStart={(e) => { e.dataTransfer.setData("text/plain", w.id); onDragStart(); }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onDropOn(); }} data-span={spanOf(w)} data-height={w.height ?? "m"}>
+      draggable onDragStart={(e) => { e.dataTransfer.setData("text/plain", w.id); onDragStart(); }} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onDropOn(e.dataTransfer.getData("text/plain")); }} data-span={spanOf(w)} data-height={w.height ?? "m"}>
       <header className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0"><h3 className="font-semibold">{w.title}</h3><p className="text-xs text-muted-foreground">{CHARTS[w.kind].label} · {cat.sources[w.spec.source]?.label}{w.compare ? " · comparação de períodos" : ""}{w.drillThrough ? " · clique abre as linhas" : ""}</p>
           {w.description ? <p className="text-sm">{w.description}</p> : null}</div>
