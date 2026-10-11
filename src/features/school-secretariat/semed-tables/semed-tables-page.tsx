@@ -10,6 +10,7 @@ import { T04Panel, type T04Rule } from "./t04-panel";
 import { T06Panel } from "./t06-panel";
 import { T10Panel } from "./t10-panel";
 import { T11Panel } from "./t11-panel";
+import { SemedReconciliation } from "./reconciliation-panel";
 import { t11Blocks, type T11Apur } from "./t11-gender";
 import { t10Blocks, type T10Formation, type T10Staff } from "./t10-staff";
 import { SemedAttachments } from "./semed-attachments";
@@ -132,6 +133,8 @@ export function SemedTablesPage() {
             <tbody>{scope.map((s) => <tr key={s.school_id} className="border-t"><td>{names.get(s.school_id) ?? s.school_id}</td>{CODES.map((c) => { const st = stOf(s.school_id, c); return <td key={c} className="text-center">{st ? STATE_LABEL[st as SemedState] : "não iniciada"}</td>; })}</tr>)}</tbody></table></div>
         </details>
       )}
+
+      {school && <SemedReconciliation key={school} school={school} schoolName={String(central["escola"] ?? names.get(school) ?? school)} year={YEAR} network={network} canAct={network || !!perm?.can_review || !!perm?.can_fill} />}
 
       {!def ? <EmptyState title="Sem catálogo para esta tabela" description="A estrutura desta tabela ainda não foi registrada para o ano." /> : (
         <div className="space-y-4">
