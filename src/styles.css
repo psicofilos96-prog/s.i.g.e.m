@@ -1548,3 +1548,16 @@
   background: linear-gradient(135deg, var(--login-gold-soft), var(--login-gold) 55%, color-mix(in oklab, var(--login-gold) 80%, black));
   color: var(--login-navy);
 }
+
+/* Campos "Escolher arquivo" com aparência de botão do sistema, em todas as telas (inclusive os que têm classe própria). */
+@layer components {
+  input[type="file"] { font-size: 0.875rem; color: var(--muted-foreground); max-width: 100%; }
+  input[type="file"]::file-selector-button {
+    margin-right: 0.75rem; padding: 0.45rem 0.9rem; border-radius: var(--radius); cursor: pointer;
+    border: 1px solid var(--border); background: var(--secondary); color: var(--secondary-foreground);
+    font: inherit; font-weight: 500; transition: background-color .15s, border-color .15s;
+  }
+  input[type="file"]:hover::file-selector-button { background: var(--accent); color: var(--accent-foreground); }
+  input[type="file"]:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: var(--radius); }
+  input[type="file"]:disabled::file-selector-button { opacity: .5; cursor: not-allowed; }
+}
