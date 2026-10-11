@@ -67,3 +67,5 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Aceitação integrada
 - Aceitação entre setores só por `scripts/integration-acceptance-e2e.mjs`, porque suítes soltas deixam de rodar juntas.
+
+- Tabela 10 (TSEMED.10, `0351`, `t10-staff.ts`/`t10-panel.tsx`): quadro = todos os servidores de `staff_administrative_records` da escola via `semed_t10_roster` (agrupados por pessoa conciliada ou nome+matrícula, divergências listadas, nunca cria pessoa); formação só por `semed_t10_record_formation` (ledger append-only, base esperada, motivo na correção/retirada, bloqueado fora de rascunho); comprovante no bucket `semed-t10-comprovantes`, legível só por quem preenche e pela rede, porque identidade digitada ou grade fixa criariam segunda verdade.
