@@ -73,6 +73,21 @@ try {
   const cA2 = await SA.c.rpc("educacenso_control_at", { _year: Y, _stage_key: ST }); check(cA2.data?.schools?.[0]?.head?.state === "declarada-enviada-ao-inep" && cA2.data.schools[0].head.seq === 5, "painel mostra o último estado sem duplicar (seq 5)");
   const en = await coll(NET, "encerrar", 2); check(!en.error, "coleta encerrada");
   const late = await sch(SA, A, "em-retificacao", 5); check(!!late.error && late.error.message.includes("collection-not-open"), "sem gravação após encerramento");
+  // LOTE 04 — pessoas e identidade (leitura mascarada, sem gravação de pessoa)
+  const pAn = await anon.rpc("educacenso_people_at", { _school: A }); check(!!pAn.error, "pessoas: anônimo recusado");
+  const pA = await SA.c.rpc("educacenso_people_at", { _school: A, _limit: 500 }); check(!pA.error && pA.data?.summary?.students > 0, "pessoas: secretaria A lê a própria escola", String(pA.data?.summary?.students ?? pA.error?.message));
+  const leak = JSON.stringify(pA.data ?? {}); check(!/\d{11,12}/.test(leak.replace(/"(local_ref|person_id|key)":"[^"]*"/g, "")), "pessoas: nenhum CPF/INEP completo na resposta");
+  check((pA.data?.people ?? []).every((x) => !x.masked_name || x.masked_name.split(" ").slice(1).every((w) => /^.\.$/.test(w))), "pessoas: nomes mascarados");
+  check((pA.data?.people ?? []).every((x) => x.birth !== "registrado" || pA.data.summary.birth_present > 0), "pessoas: nascimento só quando registrado");
+  check(pA.data?.summary?.sex_present === (pA.data?.people ?? []).filter((x) => x.sex === "registrado").length || pA.data?.people?.length === 500, "pessoas: sexo nunca inferido");
+  const pAB = await SA.c.rpc("educacenso_people_at", { _school: B }); check(!!pAB.error && pAB.error.message.includes("forbidden"), "pessoas: secretaria A recusada na escola B");
+  const pX = await NONE.c.rpc("educacenso_people_at", { _school: A }); check(!!pX.error, "pessoas: sem permissão recusado");
+  const pN = await NET.c.rpc("educacenso_people_at", { _school: A }); check(!pN.error && pN.data.network, "pessoas: CIECE lê qualquer escola");
+  const rvA = await SA.c.rpc("educacenso_identity_review", { _key: "x", _kind: "inep-pessoa", _persons: ["a", "b"], _decision: "manter-separados", _reason: "teste sintético", _expected_seq: 0 }); check(!!rvA.error && rvA.error.message.includes("forbidden"), "revisão: escola não decide duplicidade");
+  const rv1 = await NET.c.rpc("educacenso_identity_review", { _key: "x", _kind: "inep-pessoa", _persons: ["a"], _decision: "manter-separados", _reason: "teste sintético", _expected_seq: 0 }); check(!!rv1.error && rv1.error.message.includes("invalid-collision"), "revisão: exige duas pessoas");
+  const rv2 = await NET.c.rpc("educacenso_identity_review", { _key: "x", _kind: "inep-pessoa", _persons: ["a", "b"], _decision: "reabrir", _reason: "teste sintético", _expected_seq: 0 }); check(!!rv2.error && rv2.error.message.includes("invalid-transition"), "revisão: reabrir sem decisão é recusado");
+  const rv3 = await NET.c.rpc("educacenso_identity_review", { _key: "x", _kind: "inep-pessoa", _persons: ["a", "b"], _decision: "manter-separados", _reason: "x", _expected_seq: 0 }); check(!!rv3.error && rv3.error.message.includes("reason-required"), "revisão: motivo obrigatório");
+  const pv = await SA.c.from("institutional_person_identifiers").select("value").limit(1); check((pv.data ?? []).length === 0, "identificadores brutos ilegíveis pela escola");
 } catch (e) { fails++; console.log("ERRO", String(e.message ?? e)); }
 finally {
   const ce = await admin.rpc("bo_fixture_cleanup_educacenso", { _operation_id: op }); console.log("cleanup Educacenso:", ce.error ? "ERRO " + ce.error.message : `ok (${ce.data} linhas)`);
