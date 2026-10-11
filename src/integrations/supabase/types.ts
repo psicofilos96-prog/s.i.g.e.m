@@ -13430,6 +13430,115 @@ export type Database = {
         }
         Relationships: []
       }
+      nei_access_events: {
+        Row: {
+          action: string
+          id: number
+          outcome: string
+          recorded_at: string
+          school_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          id?: never
+          outcome: string
+          recorded_at?: string
+          school_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          id?: never
+          outcome?: string
+          recorded_at?: string
+          school_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nei_role_grants: {
+        Row: {
+          granted_by: string
+          id: string
+          reason: string
+          recorded_at: string
+          role: string
+          school_id: string | null
+          scope_kind: string
+          student_id: string | null
+          user_id: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          granted_by: string
+          id?: string
+          reason: string
+          recorded_at?: string
+          role: string
+          school_id?: string | null
+          scope_kind: string
+          student_id?: string | null
+          user_id: string
+          valid_from: string
+          valid_until?: string | null
+        }
+        Update: {
+          granted_by?: string
+          id?: string
+          reason?: string
+          recorded_at?: string
+          role?: string
+          school_id?: string | null
+          scope_kind?: string
+          student_id?: string | null
+          user_id?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_role_grants_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_role_revocations: {
+        Row: {
+          grant_id: string
+          reason: string
+          recorded_at: string
+          revoked_by: string
+          revoked_on: string
+        }
+        Insert: {
+          grant_id: string
+          reason: string
+          recorded_at?: string
+          revoked_by: string
+          revoked_on: string
+        }
+        Update: {
+          grant_id?: string
+          reason?: string
+          recorded_at?: string
+          revoked_by?: string
+          revoked_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_role_revocations_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: true
+            referencedRelation: "nei_role_grants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_deliveries: {
         Row: {
           channel: string
@@ -24046,6 +24155,103 @@ export type Database = {
         }[]
       }
       my_unread_notification_count: { Args: never; Returns: number }
+      nei_access_log: {
+        Args: { _limit?: number }
+        Returns: {
+          action: string
+          outcome: string
+          person_name: string
+          recorded_at: string
+          school_id: string
+        }[]
+      }
+      nei_active_grants: {
+        Args: { _user: string }
+        Returns: {
+          granted_by: string
+          id: string
+          reason: string
+          recorded_at: string
+          role: string
+          school_id: string | null
+          scope_kind: string
+          student_id: string | null
+          user_id: string
+          valid_from: string
+          valid_until: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "nei_role_grants"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      nei_can_manage: { Args: { _role: string }; Returns: boolean }
+      nei_candidate_accounts: {
+        Args: { _query: string }
+        Returns: {
+          person_name: string
+          user_id: string
+        }[]
+      }
+      nei_dashboard: {
+        Args: { _school?: string }
+        Returns: {
+          aee_active: number
+          aee_sessions_30d: number
+          clinical_students: number
+          mediations_active: number
+          school_id: string
+          school_name: string
+          students_in_case_scope: number
+          students_with_record: number
+        }[]
+      }
+      nei_is_admin: { Args: never; Returns: boolean }
+      nei_is_station: { Args: { _user: string }; Returns: boolean }
+      nei_log: {
+        Args: { _action: string; _outcome: string; _school: string }
+        Returns: undefined
+      }
+      nei_my_access: {
+        Args: never
+        Returns: {
+          can_manage_coordinators: boolean
+          can_manage_staff: boolean
+          role: string
+          school_id: string
+          school_name: string
+          scope_kind: string
+          source: string
+          student_scoped: boolean
+          valid_until: string
+        }[]
+      }
+      nei_role_grants_list: {
+        Args: never
+        Returns: {
+          id: string
+          person_name: string
+          reason: string
+          recorded_at: string
+          revoked: boolean
+          role: string
+          school_id: string
+          scope_kind: string
+          student_scoped: boolean
+          user_id: string
+          valid_from: string
+          valid_until: string
+        }[]
+      }
+      nei_scope_schools: {
+        Args: { _user: string }
+        Returns: {
+          network: boolean
+          school_id: string
+        }[]
+      }
       network_indicators_at: {
         Args: {
           _known_at?: string
@@ -26042,6 +26248,19 @@ export type Database = {
         }
         Returns: number
       }
+      record_nei_role_grant: {
+        Args: {
+          _from: string
+          _reason: string
+          _role: string
+          _school: string
+          _scope: string
+          _student: string
+          _until: string
+          _user: string
+        }
+        Returns: string
+      }
       record_notification_rule: {
         Args: {
           _base: string
@@ -27078,6 +27297,10 @@ export type Database = {
       revoke_curricular_reference_relation: {
         Args: { _effective_on: string; _reason: string; _relation: string }
         Returns: string
+      }
+      revoke_nei_role_grant: {
+        Args: { _grant: string; _reason: string }
+        Returns: undefined
       }
       roster_readable_classes: { Args: never; Returns: string[] }
       s_active_enrollment: {

@@ -2311,6 +2311,13 @@
       "when": 1791711036335,
       "tag": "0329_accept1_share_event_order",
       "breakpoints": true
+    },
+    {
+      "idx": 330,
+      "version": "7",
+      "when": 1791711429664,
+      "tag": "0330_nei1_roles_scopes_dashboard",
+      "breakpoints": true
     }
   ]
 }
