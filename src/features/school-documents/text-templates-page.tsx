@@ -20,7 +20,7 @@ type Hit = { enrollment_id: string; student_name: string | null; institutional_i
 const dateBr = (iso: string) => new Date(`${iso}T12:00:00`).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric", timeZone: "America/Sao_Paulo" });
 
 /** Editor versionado dos textos-padrão da escola e geração do documento em PDF. Permissão é do banco. */
-export function TextTemplatesPage({ initialKind }: { initialKind?: TextTemplateKind }) {
+export function TextTemplatesPage({ initialKind }: { initialKind?: TextTemplateKind | undefined }) {
   const [kind, setKind] = useState<TextTemplateKind>(initialKind ?? "atestado-de-escolaridade");
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [school, setSchool] = useState("");
