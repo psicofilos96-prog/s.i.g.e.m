@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
 import { institution } from "@/config/institution";
-import { runReport, toCsv, toXlsx } from "@/features/reports/report-engine";
+import { downloadBlob, runReport, toCsv, toPdfFile, toXlsx } from "@/features/reports/report-engine";
+import { supabase } from "@/integrations/supabase/client";
+import { Link } from "@tanstack/react-router";
 import { secretariatMessage } from "./secretariat";
 import { SchoolContextPicker, useSchoolContext } from "./school-context";
 import { inepOf, readEnrollmentBook, readVacancies } from "./vacancies-book-source";
 import {
-  bookPrintHtml, bookReportRows, ENROLLMENT_BOOK_REPORT, filterBook, VACANCY_LABEL, vacancySummary,
+  bookReportRows, ENROLLMENT_BOOK_REPORT, filterBook, VACANCY_LABEL, vacancySummary,
   type BookFilter, type BookRow, type VacancyRow,
 } from "./vacancies-book";
 
@@ -123,7 +125,7 @@ export function EnrollmentBookPage() {
                 </select></label>
             </section>
             <div className="flex flex-wrap items-center gap-2">
-              <Button onClick={print} disabled={!shown.length}>Imprimir Livro (PDF)</Button>
+              <Button onClick={() => void print()} disabled={!shown.length}>Imprimir Livro (PDF)</Button>
               <Button variant="outline" disabled={!shown.length} onClick={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}>Baixar planilha (CSV)</Button>
               <Button variant="outline" disabled={!shown.length} onClick={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}>Baixar Excel</Button>
               <span className="text-sm text-muted-foreground">{shown.length} de {rows.length} matrícula(s)</span>
