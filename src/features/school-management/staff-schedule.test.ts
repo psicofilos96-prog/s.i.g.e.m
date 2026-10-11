@@ -28,9 +28,9 @@ describe("Direção — pessoal e horários", () => {
     const o = openCoverage({ protocol: "P1", schoolId: "A", requestedBy: "dir", isNaturalPerson: true, reason: "licença", blockIds: ["b3"] }, []);
     if (!o.ok) throw 0;
     expect(openCoverage({ protocol: "P1", schoolId: "A", requestedBy: "dir", isNaturalPerson: true, reason: "x", blockIds: ["b3"] }, [o.request])).toMatchObject({ idempotent: true });
-    expect(resolveCoverage(o.request, "dir", ["manter-vida-funcional"], "atendido", "ato1", "")).toMatchObject({ code: "cobertura:autodecisao" });
+    expect(resolveCoverage(o.request, "dir", ["manter-registro-funcional"], "atendido", "ato1", "")).toMatchObject({ code: "cobertura:autodecisao" });
     expect(resolveCoverage(o.request, "rh", [], "atendido", "ato1", "")).toMatchObject({ code: "cobertura:setor-nao-competente" });
-    expect(resolveCoverage(o.request, "rh", ["manter-vida-funcional"], "atendido", null, "")).toMatchObject({ code: "cobertura:sem-ato-funcional" });
-    expect(resolveCoverage(o.request, "rh", ["manter-vida-funcional"], "atendido", "ato1", "").ok).toBe(true);
+    expect(resolveCoverage(o.request, "rh", ["manter-registro-funcional"], "atendido", null, "")).toMatchObject({ code: "cobertura:sem-ato-funcional" });
+    expect(resolveCoverage(o.request, "rh", ["manter-registro-funcional"], "atendido", "ato1", "").ok).toBe(true);
   });
 });
