@@ -10,6 +10,9 @@ async def pick(pg, label, value):
         await pg.screenshot(path=f"{SH}/erro-{label}.png"); sec = await pg.get_by_role("region", name="Agrupamento e cálculos").inner_text() if await pg.get_by_role("region", name="Agrupamento e cálculos").count() else ""
         print("DEBUG", label, value, "|", sec[:400].replace("\n", " / ")); raise
     await pg.wait_for_timeout(250)
+    if os.environ.get("RCQ_DEBUG"):
+        r = pg.get_by_role("region", name="Agrupamento e cálculos")
+        if await r.count(): print("TRACE", label, value, "|", (await r.inner_text())[:160].replace("\n", " / "))
 
 async def main():
     cfg = json.load(open("/tmp/rep/s.json"))

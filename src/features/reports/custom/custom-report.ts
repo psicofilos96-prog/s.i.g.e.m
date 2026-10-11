@@ -17,7 +17,7 @@ export type Operator = "eq" | "neq" | "contains" | "not_contains" | "starts" | "
 export type Condition = { field: string; operator: Operator; value?: unknown };
 export type Group = { op: "and" | "or"; items: (Condition | Group)[] };
 export type Aggregate = "count" | "count_distinct" | "sum" | "avg" | "min" | "max" | "percent";
-export type Measure = { agg: Aggregate; field?: string; label?: string };
+export type Measure = { agg: Aggregate; field?: string | undefined; label?: string | undefined };
 export type Sort = { col: string; dir: "asc" | "desc" };
 
 export type CustomSpec = {
