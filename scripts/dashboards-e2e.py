@@ -8,13 +8,13 @@ def p(ok, l, x=""): print(f"{'PASS' if ok else 'FAIL'} {l} {x}".rstrip())
 
 async def open_as(br, tag):
     ctx = await br.new_context(viewport={"width": 1280, "height": 1800}, accept_downloads=True); pg = await ctx.new_page()
-    errs = []; pg.on("pageerror", lambda e: errs.append(str(e)[:160]))
-    await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"][tag])])
+    errs = []; pg.on("pageerror", lambda e: (errs.append(str(e)[:160]), print("PGERR", str(e)[:400]))); pg.on("console", lambda c: c.type == "error" and print("CONERR", c.text[:400]))
+    await pg.goto(B + "/", wait_until="networkidle"); await pg.wait_for_timeout(1500); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"][tag])])
     await pg.goto(B + "/relatorios/paineis"); await pg.wait_for_timeout(9000); await pg.screenshot(path=f"{SH}/0_{tag}.png"); print("PAGE", (await pg.inner_text("main"))[:300].replace("\n"," "))
     await pg.get_by_role("button", name="Adicionar gráfico").wait_for(timeout=30000)
     return ctx, pg, errs
 
-async def add(pg, title, source, join, kind, groups, measure=None):
+async def add(pg, title, source, join, kind, groups, measure=None, calcs=1):
     await pg.get_by_role("button", name="Adicionar gráfico").click()
     ed = pg.locator("section[aria-labelledby=ed-w]")
     await ed.get_by_label("Título do gráfico").fill(title)
@@ -22,7 +22,7 @@ async def add(pg, title, source, join, kind, groups, measure=None):
     if join: await ed.get_by_label("Cruzar com").select_option(label=join)
     await ed.get_by_label("Tipo de gráfico").select_option(value=kind)
     for g in groups: await ed.get_by_label("Acrescentar agrupamento").select_option(label=g)
-    await ed.get_by_role("button", name="Acrescentar cálculo").click()
+    for _ in range(calcs): await ed.get_by_role("button", name="Acrescentar cálculo").click()
     await ed.get_by_role("button", name="Pôr no painel").click()
     card = pg.get_by_role("article", name=title); await card.wait_for(timeout=15000)
     try: await card.get_by_text("linha(s)").wait_for(timeout=40000)
@@ -61,6 +61,7 @@ async def main():
         p(await ed.get_by_role("button", name="Pôr no painel").is_disabled(), "botão bloqueado até a consulta servir ao gráfico")
         await ed.get_by_role("button", name="Cancelar").click()
         # exportações
+        await card.get_by_text("linha(s)").wait_for(timeout=60000)
         async with pg.expect_download() as d: await card.get_by_role("button", name="SVG").click()
         f = await (await d.value).path(); s = open(f).read(); p(s.startswith("<svg") and "var(--" not in s, "SVG exportado com cores resolvidas")
         async with pg.expect_download() as d: await card.get_by_role("button", name="PNG").click()
@@ -85,5 +86,30 @@ async def main():
         except Exception: pass
         p(await pg.get_by_role("article").count() == 2, "painel reaberto com os 2 gráficos relidos do servidor")
         p(not errs, "rede sem erros de página", str(errs)[:200]); await ctx.close()
+        # cada família com dados reais
+        ctx, pg, errs = await open_as(br, "net")
+        fam1 = {"barh": ".recharts-bar-rectangle", "line": ".recharts-line-curve", "area": ".recharts-area-area", "pie": ".recharts-sector", "donut": ".recharts-sector",
+                "treemap": ".recharts-treemap-depth-1, .recharts-rectangle", "funnel": ".recharts-funnel-trapezoid", "radar": ".recharts-radar-polygon", "waterfall": ".recharts-bar-rectangle"}
+        for k, sel in fam1.items():
+            c = await add(pg, f"F {k}", "Matrículas", "Escolas (por school_id)", k, ["Escola (Escolas)"])
+            await pg.wait_for_timeout(2000); n = await c.locator(sel).count(); p(n > 0, f"família {k} desenhada com dados reais", str(n))
+            if n == 0: await c.screenshot(path=f"{SH}/f_{k}.png")
+            await c.get_by_role("button", name="Remover").dispatch_event("click")
+        for k, sel in {"stacked": ".recharts-bar-rectangle", "stacked100": ".recharts-bar-rectangle", "pivot": "table[data-chart=pivot] tbody tr"}.items():
+            c = await add(pg, f"F {k}", "Turmas", "Escolas (por school_id)", k, ["Escola (Escolas)", "Etapa (Turmas)"])
+            n = await c.locator(sel).count(); p(n > 0, f"família {k} desenhada com dados reais", str(n))
+            if k == "pivot": await pg.screenshot(path=f"{SH}/3_pivot.png")
+            await c.get_by_role("button", name="Remover").dispatch_event("click")
+        c = await add(pg, "F combo", "Matrículas", "Escolas (por school_id)", "combo", ["Escola (Escolas)"], calcs=2)
+        p(await c.locator(".recharts-bar-rectangle").count() > 0 and await c.locator(".recharts-line-curve").count() > 0, "família misto (barras + linha)")
+        p(await c.get_by_text("Ver dados do gráfico em tabela").count() == 1, "alternativa acessível: dados em tabela")
+        await pg.get_by_role("button", name="Adicionar gráfico").click(); ed = pg.locator("section[aria-labelledby=ed-w]")
+        await ed.get_by_label("Fonte principal").select_option(label="Escolas"); await ed.get_by_label("Tipo de gráfico").select_option(value="map"); await pg.wait_for_timeout(500)
+        st = await ed.get_by_role("status").inner_text(); p("latitude" in st, "mapa recusado sem coordenadas reais", st[:110])
+        await ed.get_by_role("button", name="Cancelar").click()
+        await pg.set_viewport_size({"width": 390, "height": 1800}); await pg.wait_for_timeout(800)
+        ov = await pg.evaluate("document.documentElement.scrollWidth - innerWidth")
+        await pg.screenshot(path=f"{SH}/4_mobile.png"); p(ov <= 4, "celular sem rolagem lateral da página", str(ov))
+        p(not errs, "famílias sem erros de página", str(errs)[:200]); await ctx.close()
         await br.close()
 asyncio.run(main())
