@@ -23565,6 +23565,7 @@ export type Database = {
         Returns: string
       }
       aa_conference_state: { Args: { _instrument: string }; Returns: string }
+      aa_fixture_row: { Args: { _old: Json }; Returns: boolean }
       aa_homologate_calc_rule: {
         Args: { _decision: string; _reason: string; _version: string }
         Returns: string
@@ -24245,6 +24246,10 @@ export type Database = {
         Returns: string
       }
       bo_fixture_cleanup: { Args: { _operation_id: string }; Returns: number }
+      bo_fixture_cleanup_aa: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_cards: {
         Args: { _operation_id: string }
         Returns: number

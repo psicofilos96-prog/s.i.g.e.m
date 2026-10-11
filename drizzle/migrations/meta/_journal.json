@@ -2640,6 +2640,20 @@
       "when": 1791748042056,
       "tag": "0376_aa_calc_rules_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 377,
+      "version": "7",
+      "when": 1791748413391,
+      "tag": "0377_bo_fixture_aa_acceptance",
+      "breakpoints": true
+    },
+    {
+      "idx": 378,
+      "version": "7",
+      "when": 1791748632071,
+      "tag": "0378_bo_fixture_aa_cleanup_marker",
+      "breakpoints": true
     }
   ]
 }
