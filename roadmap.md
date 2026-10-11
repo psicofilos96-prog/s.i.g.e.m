@@ -632,3 +632,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Ficha NEI sobre estudante central + gestão de casos com histórico imutável
 - [x] NEI AEE: estados da oferta, interrupções, planos AEE/PEI versionados com PDF
 - [x] NEI profissionais e recursos: pedidos de apoio, designação via mediação existente, cobertura/afastamentos, barreiras
+- [x] NEI visitas, providências, protocolos com devolutiva, anexos e notificação sem dado clínico

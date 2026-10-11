@@ -13495,6 +13495,92 @@ export type Database = {
           },
         ]
       }
+      nei_action_events: {
+        Row: {
+          action_id: string
+          id: string
+          note: string
+          recorded_at: string
+          recorded_by: string
+          seq: number
+          status: string
+        }
+        Insert: {
+          action_id: string
+          id?: string
+          note: string
+          recorded_at?: string
+          recorded_by: string
+          seq: number
+          status: string
+        }
+        Update: {
+          action_id?: string
+          id?: string
+          note?: string
+          recorded_at?: string
+          recorded_by?: string
+          seq?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_action_events_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "nei_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_actions: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string
+          due_on: string | null
+          id: string
+          responsible_label: string | null
+          school_id: string
+          visit_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description: string
+          due_on?: string | null
+          id?: string
+          responsible_label?: string | null
+          school_id: string
+          visit_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string
+          due_on?: string | null
+          id?: string
+          responsible_label?: string | null
+          school_id?: string
+          visit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_actions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nei_actions_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "nei_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nei_aee_activity_logs: {
         Row: {
           activities: string
@@ -13743,6 +13829,70 @@ export type Database = {
           },
         ]
       }
+      nei_documents: {
+        Row: {
+          file_name: string
+          id: string
+          mime_type: string
+          object_path: string
+          protocol_id: string | null
+          recorded_at: string
+          recorded_by: string
+          retention_class: string | null
+          school_id: string
+          size_bytes: number
+          visit_id: string | null
+        }
+        Insert: {
+          file_name: string
+          id?: string
+          mime_type: string
+          object_path: string
+          protocol_id?: string | null
+          recorded_at?: string
+          recorded_by: string
+          retention_class?: string | null
+          school_id: string
+          size_bytes: number
+          visit_id?: string | null
+        }
+        Update: {
+          file_name?: string
+          id?: string
+          mime_type?: string
+          object_path?: string
+          protocol_id?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          retention_class?: string | null
+          school_id?: string
+          size_bytes?: number
+          visit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_documents_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "nei_protocols"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nei_documents_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nei_documents_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "nei_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nei_plan_attachments: {
         Row: {
           file_name: string
@@ -13940,6 +14090,94 @@ export type Database = {
           },
         ]
       }
+      nei_protocol_events: {
+        Row: {
+          id: string
+          note: string | null
+          protocol_id: string
+          recorded_at: string
+          recorded_by: string
+          seq: number
+          stage: string
+        }
+        Insert: {
+          id?: string
+          note?: string | null
+          protocol_id: string
+          recorded_at?: string
+          recorded_by: string
+          seq: number
+          stage: string
+        }
+        Update: {
+          id?: string
+          note?: string | null
+          protocol_id?: string
+          recorded_at?: string
+          recorded_by?: string
+          seq?: number
+          stage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_protocol_events_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "nei_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_protocols: {
+        Row: {
+          body: string
+          destination_kind: string
+          id: string
+          number: number
+          recipient_user: string
+          reply_due_on: string | null
+          school_id: string
+          sent_at: string
+          sent_by: string
+          student_id: string | null
+          subject: string
+        }
+        Insert: {
+          body: string
+          destination_kind: string
+          id?: string
+          number?: never
+          recipient_user: string
+          reply_due_on?: string | null
+          school_id: string
+          sent_at?: string
+          sent_by: string
+          student_id?: string | null
+          subject: string
+        }
+        Update: {
+          body?: string
+          destination_kind?: string
+          id?: string
+          number?: never
+          recipient_user?: string
+          reply_due_on?: string | null
+          school_id?: string
+          sent_at?: string
+          sent_by?: string
+          student_id?: string | null
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_protocols_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       nei_role_grants: {
         Row: {
           granted_by: string
@@ -14100,6 +14338,85 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "nei_support_requests_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_visit_events: {
+        Row: {
+          id: string
+          on_date: string
+          recorded_at: string
+          recorded_by: string
+          report: string | null
+          seq: number
+          status: string
+          visit_id: string
+        }
+        Insert: {
+          id?: string
+          on_date: string
+          recorded_at?: string
+          recorded_by: string
+          report?: string | null
+          seq: number
+          status: string
+          visit_id: string
+        }
+        Update: {
+          id?: string
+          on_date?: string
+          recorded_at?: string
+          recorded_by?: string
+          report?: string | null
+          seq?: number
+          status?: string
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_visit_events_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "nei_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nei_visits: {
+        Row: {
+          created_at: string
+          id: string
+          purpose: string
+          scheduled_by: string
+          scheduled_on: string
+          school_id: string
+          student_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          purpose: string
+          scheduled_by: string
+          scheduled_on: string
+          school_id: string
+          student_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          purpose?: string
+          scheduled_by?: string
+          scheduled_on?: string
+          school_id?: string
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nei_visits_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "institutional_schools"
@@ -24845,6 +25162,10 @@ export type Database = {
           students_with_record: number
         }[]
       }
+      nei_document_allowed: {
+        Args: { _name: string; _upload: boolean }
+        Returns: boolean
+      }
       nei_engagement_active_at: {
         Args: { _eng: string; _school: string }
         Returns: boolean
@@ -24917,6 +25238,35 @@ export type Database = {
         Args: { _school: string; _student: string }
         Returns: Json
       }
+      nei_protocol_inbox: {
+        Args: never
+        Returns: {
+          id: string
+          last_seq: number
+          last_stage: string
+          number: number
+          reply_due_on: string
+          school_id: string
+          sent_at: string
+          subject: string
+        }[]
+      }
+      nei_recipient_candidates: {
+        Args: { _kind: string; _school: string; _student?: string }
+        Returns: {
+          label: string
+          user_id: string
+        }[]
+      }
+      nei_recipient_eligible: {
+        Args: {
+          _kind: string
+          _school: string
+          _student: string
+          _user: string
+        }
+        Returns: boolean
+      }
       nei_role_grants_list: {
         Args: never
         Returns: {
@@ -24934,6 +25284,7 @@ export type Database = {
           valid_until: string
         }[]
       }
+      nei_school_agenda: { Args: { _school: string }; Returns: Json }
       nei_school_manager: { Args: { _school: string }; Returns: boolean }
       nei_school_name: { Args: { _school: string }; Returns: string }
       nei_school_support: { Args: { _school: string }; Returns: Json }
@@ -24964,6 +25315,7 @@ export type Database = {
         Args: { _from: string; _to: string }
         Returns: boolean
       }
+      nei_text_has_clinical: { Args: { _t: string }; Returns: boolean }
       network_indicators_at: {
         Args: {
           _known_at?: string
@@ -25055,6 +25407,16 @@ export type Database = {
             Returns: string
           }
       open_map_correction_id: { Args: { _map: string }; Returns: string }
+      open_nei_action: {
+        Args: {
+          _description: string
+          _due: string
+          _responsible: string
+          _school: string
+          _visit: string
+        }
+        Returns: string
+      }
       open_nei_barrier: {
         Args: {
           _category: string
@@ -25077,6 +25439,7 @@ export type Database = {
         }
         Returns: string
       }
+      open_nei_protocol: { Args: { _protocol: string }; Returns: Json }
       open_nei_support_request: {
         Args: {
           _justification: string
@@ -26991,6 +27354,15 @@ export type Database = {
         }
         Returns: number
       }
+      record_nei_action_event: {
+        Args: {
+          _action: string
+          _expected_seq: number
+          _note: string
+          _status: string
+        }
+        Returns: undefined
+      }
       record_nei_aee_activity: {
         Args: {
           _activities: string
@@ -27077,6 +27449,15 @@ export type Database = {
         }
         Returns: string
       }
+      record_nei_protocol_event: {
+        Args: {
+          _expected_seq: number
+          _note: string
+          _protocol: string
+          _stage: string
+        }
+        Returns: undefined
+      }
       record_nei_role_grant: {
         Args: {
           _from: string
@@ -27101,6 +27482,16 @@ export type Database = {
           _stage: string
         }
         Returns: number
+      }
+      record_nei_visit_event: {
+        Args: {
+          _expected_seq: number
+          _on: string
+          _report: string
+          _status: string
+          _visit: string
+        }
+        Returns: undefined
       }
       record_notification_rule: {
         Args: {
@@ -27990,6 +28381,16 @@ export type Database = {
         }
         Returns: string
       }
+      register_nei_document: {
+        Args: {
+          _file_name: string
+          _mime: string
+          _protocol: string
+          _size: number
+          _visit: string
+        }
+        Returns: string
+      }
       register_operational_task_priority: {
         Args: { _id: string; _label: string; _ordinal: number }
         Returns: string
@@ -28174,6 +28575,15 @@ export type Database = {
           _source_key: string
         }
         Returns: Json
+      }
+      schedule_nei_visit: {
+        Args: {
+          _on: string
+          _purpose: string
+          _school: string
+          _student: string
+        }
+        Returns: string
       }
       school_capability_grant: {
         Args: { _capability: string; _school: string }
@@ -28671,6 +29081,18 @@ export type Database = {
           school_id: string
           scope_level: string
         }[]
+      }
+      send_nei_protocol: {
+        Args: {
+          _body: string
+          _due: string
+          _kind: string
+          _recipient: string
+          _school: string
+          _student: string
+          _subject: string
+        }
+        Returns: number
       }
       set_notification_preference: {
         Args: { _kind: string; _opted_out: boolean }
