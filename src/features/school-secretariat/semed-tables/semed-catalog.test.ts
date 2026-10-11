@@ -8,9 +8,9 @@ describe("Tabelas SEMED", () => {
   it("cobre exatamente as tabelas 04, 06, 09, 10 e 11", () => {
     expect(SEMED_TABLES_2026.map((d) => d.code)).toEqual(["04", "06", "09", "10", "11"]);
   });
-  it("Tabela 04 tem 25 faixas etárias e 21 linhas de etapa", () => {
+  it("Tabela 04 tem 26 faixas etárias (colunas D–AC do guia) e 21 linhas de etapa", () => {
     const g = t("04").sections.find((s) => s.kind === "grid")!;
-    expect(g.kind === "grid" && [g.cols.length, g.rows.length]).toEqual([25, 21]);
+    expect(g.kind === "grid" && [g.cols.length, g.rows.length]).toEqual([26, 21]);
   });
   it("Tabela 10 limita a 30 servidores", () => {
     expect(Object.keys(editableKeys(t("10"))).filter((k) => k.endsWith(".nome")).length).toBe(30);
