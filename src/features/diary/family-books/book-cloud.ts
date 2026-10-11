@@ -116,3 +116,10 @@ export async function loadBookInput(a: { family: FamilyId; classId: string; comp
   };
   return { input, info };
 }
+
+/** Regras de resultado (Folha Final) visíveis com a sessão; a escolha da aplicável é `applicableRule`. */
+export async function readResultRules() {
+  const r = await db.from("final_sheet_rule_versions").select("id,logical_id,version,label,scope,params,source_ref,status").limit(1000);
+  if (r.error) throw new Error("Não foi possível ler as regras de resultado com o seu acesso.");
+  return (r.data ?? []) as import("../final-sheet-cloud").RuleRow[];
+}
