@@ -20,14 +20,14 @@ export function SchoolIdentityPanel({ year, referenceDate }: { year: string; ref
     let live = true; setData(null);
     void (async () => {
       const reg = await loadSchoolRegistryRows();
-      const rec = await supabase.from("census_official_receipt_snapshots").select("school_id, census_year, version, school_declared, recorded_at, source_ref").eq("census_year", Number(year));
+      const rec = await supabase.from("census_official_receipt_snapshots").select("school_id, census_year, version, school_declared, recorded_at, source_ref").eq("census_year", year);
       const infra = await readPages<{ school_id: string }>((a, b) => supabase.from("school_infrastructure_observations").select("school_id").order("id").range(a, b), 20000);
       if (!live) return;
       if (!reg || rec.error) return setData("error");
       const units = unitsFromRows(reg.schools, reg.identifiers, reg.versions);
       const receipts = new Map<string, ReceiptInput>();
       for (const r of [...(rec.data ?? [])].sort((x, y) => x.version - y.version))
-        receipts.set(r.school_id, { censusYear: r.census_year, declared: r.school_declared as never, recordedAt: r.recorded_at, sourceRef: r.source_ref });
+        receipts.set(r.school_id, { censusYear: Number(r.census_year), declared: r.school_declared as never, recordedAt: r.recorded_at, sourceRef: r.source_ref });
       const counts = new Map<string, number>();
       for (const r of infra.data ?? []) counts.set(r.school_id, (counts.get(r.school_id) ?? 0) + 1);
       const infraKnown = !infra.error && !infra.truncated;

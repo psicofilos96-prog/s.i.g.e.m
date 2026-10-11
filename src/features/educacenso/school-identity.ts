@@ -11,7 +11,7 @@ import { schoolVersionAt, type SchoolUnit, type SchoolRecordVersion } from "@/fe
 
 export type Provenance = { source: "cadastro" | "identificador" | "recibo-inep" | "infraestrutura"; validFrom?: string | null; knownAt?: string | null; ref?: string | null };
 export type FieldState = "informado" | "pendente" | "sem-fonte" | "nao-aplicavel" | "divergente";
-export type IdentityField = { n: number; label: string; value: string | null; state: FieldState; provenance: Provenance | null; note?: string };
+export type IdentityField = { n: number; label: string; value: string | null; state: FieldState; provenance: Provenance | null; note?: string | undefined };
 export type ReceiptDeclared = { name?: string; dependencia?: string; localizacao?: string; situacao?: string } | null;
 export type ReceiptInput = { censusYear: number; declared: ReceiptDeclared; recordedAt: string; sourceRef: string | null } | null;
 export type SchoolCategory = "municipal" | "conveniada" | "outra" | "desconhecida";
