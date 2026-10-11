@@ -342,5 +342,15 @@
  "drizzle/migrations/0291_final_sheet_rule_scope_attendance.sql": "b4c7e8d10c1dc609310ca602e5a8c86757822ca116e5fc93949df4f360554bff",
  "drizzle/migrations/0292_sia_corrections_op_board.sql": "14b079a43d49e5f1088beed8ae69a4080b9e3b477d44d170e635895a71bf636c",
  "drizzle/migrations/0293_meal_ceiling_evaluation_samples.sql": "c03589773ceeb3fede469343762a63bc7f84f7174880051ee851140a4e631ed7",
- "drizzle/migrations/0294_meal_food_samples_revoke.sql": "0931451d830543533536e14ea77044e29ca7fe9003dad56e1cb92a44280c79d0"
+ "drizzle/migrations/0294_meal_food_samples_revoke.sql": "0931451d830543533536e14ea77044e29ca7fe9003dad56e1cb92a44280c79d0",
+ "drizzle/migrations/0295_0295_bo_fixture_diary_capability_grants.sql": "ff8df6eee3df77d92676ad2f579a260dfe7a1ff24500dae7ef7bcf2c148fa85f",
+ "drizzle/migrations/0296_0296_bo_fixture_scope_capabilities.sql": "36296037e634cafe1902be2f1bc70add4f11a97eaf03da725c51bbbf69534380",
+ "drizzle/migrations/0297_0297_final_sheet_no_components_guard.sql": "0f9ecc0c1d3c78597b63477d9bbe95c19fa4e4cafbd9439e1428b71dee642b40",
+ "drizzle/migrations/0298_0298_bo_fixture_op_board.sql": "4c4a965eb8f91ec22a16c4abae1ad61660fac3f24dd040b84be023a944e0c7eb",
+ "drizzle/migrations/0299_0299_op_board_network_capability_fix.sql": "09770787044c1b506a7ce7a534403dc1f9f5bcd96d19e679452160e08a877c93",
+ "drizzle/migrations/0300_0300_bo_fixture_meal_master.sql": "c498a2f4ebb4583725550855b8526e4eec8e59f5919e63b1bfaa494141b006f6",
+ "drizzle/migrations/0301_0301_meal_summary_counts_rectified_as_authorized.sql": "440946900bd3e9b52d0ed6b0dd7991c1bde244ef9eabb3eb65e7c97584090888",
+ "drizzle/migrations/0302_custom_report_query_engine.sql": "8ba34430153133567c3413490062421c4b1a4a8e8a789d81c7101c1b85f95df3",
+ "drizzle/migrations/0303_custom_report_query_fix_join_loop.sql": "d1ff9b0a56f35d38df0c454aeabeedfdf11aed7951fba8578789886fd67a7e6e",
+ "drizzle/migrations/0304_custom_report_rollup_order.sql": "302d193a500570270edf0519b5d8c586d8665fa43e635c995f55c6e63b7b6055"
 }
