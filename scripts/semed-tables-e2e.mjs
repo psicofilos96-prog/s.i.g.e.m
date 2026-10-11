@@ -118,8 +118,8 @@ try {
   const p11An = await anon.rpc("semed_t11_apuracao", { _school: A, _year: 2026 }); check(!!p11An.error, "anônimo recusado na apuração T11");
   const z11 = await FILL.c.rpc("semed_table_central", { _school: A }); const zr = (await admin.from("institutional_school_record_versions").select("location_kind").eq("school_id", A).order("version_number", { ascending: false }).limit(1)).data?.[0]?.location_kind;
   check(!z11.error && z11.data?.zona === zr, "zona vem do cadastro da escola", String(z11.data?.zona));
-  const s11 = await act(FILL, "salvar", 0, { code: "11", values: { "m.a1.masc": 1 } }); check(!s11.error, "Tabela 11 salva", s11.error?.message);
-  const e11 = await act(FILL, "enviar-conferencia", 1, { code: "11" });
+  const s11 = await act(FILL, "salvar", 1, { code: "11", values: { "m.ef1.masc": 10, "m.ef1.fem": 12 } }); check(!s11.error, "Tabela 11 salva", s11.error?.message);
+  const e11 = await act(FILL, "enviar-conferencia", 2, { code: "11" });
   check(p11.data?.totals?.sem_data > 0 || p11.data?.totals?.nao_informado > 0 ? !e11.error : !!e11.error, "apuração incompleta não bloqueia; completa e divergente bloqueia", e11.error?.message ?? "aceito");
 
   // TSEMED.9 — Tabela 09 (catálogo v2, limites, centrais agregados, anexos privados)
