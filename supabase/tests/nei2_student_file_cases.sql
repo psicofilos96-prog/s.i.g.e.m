@@ -1,5 +1,4 @@
 -- NEI.2: ficha e casos. Executa como contas sintéticas dentro de transação e termina em ROLLBACK.
-BEGIN;
 DO $$
 DECLARE st text; sc text; other text; u_tec uuid := gen_random_uuid(); u_aee uuid := gen_random_uuid(); u_none uuid := gen_random_uuid();
   cid uuid; f jsonb; ok boolean;
@@ -32,6 +31,5 @@ BEGIN
   f := public.nei_student_file(st, sc);
   IF jsonb_array_length(f->'entries') <> 2 OR jsonb_array_length(f->'cases'->0->'events') <> 3 THEN RAISE EXCEPTION 'FAIL file %', f; END IF;
   BEGIN UPDATE public.nei_case_events SET note = 'x' WHERE case_id = cid; RAISE EXCEPTION 'FAIL mutable'; EXCEPTION WHEN others THEN IF SQLERRM LIKE 'FAIL%' THEN RAISE; END IF; END;
-  RAISE NOTICE 'NEI2_PASS';
+  RAISE EXCEPTION 'NEI2_PASS';  -- termina em exceção: nada persiste
 END $$;
-ROLLBACK;
