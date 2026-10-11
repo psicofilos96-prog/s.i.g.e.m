@@ -2402,6 +2402,13 @@
       "when": 1791715708368,
       "tag": "0342_nei7_indicator_functions_volatile",
       "breakpoints": true
+    },
+    {
+      "idx": 343,
+      "version": "7",
+      "when": 1791717507705,
+      "tag": "0343_semed_tables_structure_access",
+      "breakpoints": true
     }
   ]
 }
