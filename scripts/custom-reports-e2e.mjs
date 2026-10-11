@@ -35,7 +35,7 @@ try {
     ["turmas por escola/etapa", { source: "turmas", joins: ["turma_escola"], groupBy: ["escolas.nome", "turmas.etapa"], measures: [{ agg: "count" }], limit: 1000 }],
     ["jornadas por escola", { source: "jornadas", joins: ["jornada_escola"], groupBy: ["escolas.nome", "jornadas.horario"], measures: [{ agg: "count" }], limit: 1000 }],
     ["matrículas por escola (filtro E/OU)", { source: "matriculas", joins: ["matricula_escola"], groupBy: ["escolas.nome"], measures: [{ agg: "count" }, { agg: "percent" }], subtotals: true,
-      filter: { op: "and", items: [{ field: "escolas.ativa", operator: "eq", value: true }, { op: "or", items: [{ field: "matriculas.aberta_em", operator: "not_null" }, { field: "matriculas.oferta", operator: "not_null" }] }] }, limit: 1000 }],
+      filter: { op: "and", items: [{ field: "escolas.ativa", operator: "eq", value: true }, { op: "or", items: [{ field: "escolas.localizacao", operator: "contains", value: "urb" }, { field: "escolas.localizacao", operator: "contains", value: "rur" }] }] }, limit: 1000 }],
   ];
   for (const [name, spec] of tests) {
     const r = await q(A.c, spec);
