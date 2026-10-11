@@ -7715,6 +7715,90 @@ export type Database = {
           },
         ]
       }
+      docserv_audit_events: {
+        Row: {
+          action: string
+          actor: string
+          detail: Json
+          id: string
+          recorded_at: string
+          school_id: string | null
+          subject_ref: string | null
+        }
+        Insert: {
+          action: string
+          actor: string
+          detail?: Json
+          id?: string
+          recorded_at?: string
+          school_id?: string | null
+          subject_ref?: string | null
+        }
+        Update: {
+          action?: string
+          actor?: string
+          detail?: Json
+          id?: string
+          recorded_at?: string
+          school_id?: string | null
+          subject_ref?: string | null
+        }
+        Relationships: []
+      }
+      docserv_identity_links: {
+        Row: {
+          candidates: Json
+          cpf_hmac: string | null
+          decided_manually: boolean
+          id: string
+          inep: string | null
+          link_key: string
+          matricula: string | null
+          outcome: string
+          person_id: string | null
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          school_id: string | null
+          seq: number
+          subject_kind: string
+        }
+        Insert: {
+          candidates?: Json
+          cpf_hmac?: string | null
+          decided_manually?: boolean
+          id?: string
+          inep?: string | null
+          link_key: string
+          matricula?: string | null
+          outcome: string
+          person_id?: string | null
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          school_id?: string | null
+          seq: number
+          subject_kind: string
+        }
+        Update: {
+          candidates?: Json
+          cpf_hmac?: string | null
+          decided_manually?: boolean
+          id?: string
+          inep?: string | null
+          link_key?: string
+          matricula?: string | null
+          outcome?: string
+          person_id?: string | null
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string | null
+          seq?: number
+          subject_kind?: string
+        }
+        Relationships: []
+      }
       educacenso_aux_codes: {
         Row: {
           attrs: Json
@@ -23827,6 +23911,27 @@ export type Database = {
         }
       }
       dispatch_notification_event: { Args: { _event: string }; Returns: number }
+      docserv_context: { Args: never; Returns: Json }
+      docserv_decide_identity: {
+        Args: {
+          _choice: string
+          _expected_seq: number
+          _key: string
+          _reason: string
+        }
+        Returns: number
+      }
+      docserv_identity_queue: { Args: { _limit?: number }; Returns: Json }
+      docserv_resolve_identity: {
+        Args: {
+          _commit?: boolean
+          _cpf: string
+          _inep: string
+          _kind: string
+          _matricula: string
+        }
+        Returns: Json
+      }
       draft_class_designation_policy: {
         Args: {
           _criterion_params: Json

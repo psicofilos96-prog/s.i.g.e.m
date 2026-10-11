@@ -1,0 +1,4 @@
+## DocServ nativo (`src/features/docserv/`, `/docserv`, migration 0361)
+- DocServ é módulo do SIGEM, sem iframe, app paralelo ou segundo login; painéis vêm de `docserv_context()` (pessoa canônica + `gerir-documentos-funcionais` na escola + `administrar-docserv` na rede), nunca de "tipo de usuário", porque perfil próprio criaria segunda autorização.
+- Identidade só por `docserv_resolve_identity`/`docserv_decide_identity`: CPF vira `technical_cpf_hmac` no servidor e nunca é chave nem gravado em claro; >1 candidato = ambíguo e só se decide manualmente entre candidatos apurados; nenhuma pessoa é criada, porque duplicar pessoa quebra o cadastro canônico.
+- Ligações e trilha são append-only (`docserv_identity_links`, `docserv_audit_events`); nada do DocServ de origem (.env, senhas CSV, chaves, banco) é reutilizado.

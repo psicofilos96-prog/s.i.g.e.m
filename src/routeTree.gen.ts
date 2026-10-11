@@ -45,6 +45,7 @@ import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as DiagnosticoRouteImport } from './routes/diagnostico'
 import { Route as DiarioRouteImport } from './routes/diario'
 import { Route as DirecaoRouteImport } from './routes/direcao'
+import { Route as DocservRouteImport } from './routes/docserv'
 import { Route as DocumentosEscolaresRouteImport } from './routes/documentos-escolares'
 import { Route as EducacensoRouteImport } from './routes/educacenso'
 import { Route as EnturmacoesRouteImport } from './routes/enturmacoes'
@@ -436,6 +437,11 @@ const DiarioRoute = DiarioRouteImport.update({
 const DirecaoRoute = DirecaoRouteImport.update({
   id: '/direcao',
   path: '/direcao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocservRoute = DocservRouteImport.update({
+  id: '/docserv',
+  path: '/docserv',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocumentosEscolaresRoute = DocumentosEscolaresRouteImport.update({
@@ -1626,6 +1632,7 @@ export interface FileRoutesByFullPath {
   '/diagnostico': typeof DiagnosticoRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
+  '/docserv': typeof DocservRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/educacenso': typeof EducacensoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
@@ -1872,6 +1879,7 @@ export interface FileRoutesByTo {
   '/design-system': typeof DesignSystemRoute
   '/diagnostico': typeof DiagnosticoRoute
   '/direcao': typeof DirecaoRoute
+  '/docserv': typeof DocservRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/educacenso': typeof EducacensoRoute
   '/estacao-administrativa': typeof EstacaoAdministrativaRoute
@@ -2093,6 +2101,7 @@ export interface FileRoutesById {
   '/diagnostico': typeof DiagnosticoRoute
   '/diario': typeof DiarioRouteWithChildren
   '/direcao': typeof DirecaoRoute
+  '/docserv': typeof DocservRoute
   '/documentos-escolares': typeof DocumentosEscolaresRoute
   '/educacenso': typeof EducacensoRoute
   '/enturmacoes': typeof EnturmacoesRouteWithChildren
@@ -2344,6 +2353,7 @@ export interface FileRouteTypes {
     | '/diagnostico'
     | '/diario'
     | '/direcao'
+    | '/docserv'
     | '/documentos-escolares'
     | '/educacenso'
     | '/enturmacoes'
@@ -2590,6 +2600,7 @@ export interface FileRouteTypes {
     | '/design-system'
     | '/diagnostico'
     | '/direcao'
+    | '/docserv'
     | '/documentos-escolares'
     | '/educacenso'
     | '/estacao-administrativa'
@@ -2810,6 +2821,7 @@ export interface FileRouteTypes {
     | '/diagnostico'
     | '/diario'
     | '/direcao'
+    | '/docserv'
     | '/documentos-escolares'
     | '/educacenso'
     | '/enturmacoes'
@@ -3060,6 +3072,7 @@ export interface RootRouteChildren {
   DiagnosticoRoute: typeof DiagnosticoRoute
   DiarioRoute: typeof DiarioRouteWithChildren
   DirecaoRoute: typeof DirecaoRoute
+  DocservRoute: typeof DocservRoute
   DocumentosEscolaresRoute: typeof DocumentosEscolaresRoute
   EducacensoRoute: typeof EducacensoRoute
   EnturmacoesRoute: typeof EnturmacoesRouteWithChildren
@@ -3400,6 +3413,13 @@ declare module '@tanstack/react-router' {
       path: '/direcao'
       fullPath: '/direcao'
       preLoaderRoute: typeof DirecaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docserv': {
+      id: '/docserv'
+      path: '/docserv'
+      fullPath: '/docserv'
+      preLoaderRoute: typeof DocservRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/documentos-escolares': {
@@ -5593,6 +5613,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiagnosticoRoute: DiagnosticoRoute,
   DiarioRoute: DiarioRouteWithChildren,
   DirecaoRoute: DirecaoRoute,
+  DocservRoute: DocservRoute,
   DocumentosEscolaresRoute: DocumentosEscolaresRoute,
   EducacensoRoute: EducacensoRoute,
   EnturmacoesRoute: EnturmacoesRouteWithChildren,
