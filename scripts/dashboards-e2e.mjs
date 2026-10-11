@@ -39,6 +39,13 @@ try {
   const anon = createClient(URL, PK, { auth: { persistSession: false } });
   const an = await anon.rpc("report_custom_query", { _spec: q(["escolas.nome"]) });
   check(!!an.error, "sem sessão: consulta recusada", an.error?.message ?? "");
+  const ins = (board) => A.c.from("report_template_versions").insert({ sector: "painel", name: "x-" + randomBytes(3).toString("hex"), choice: { kind: "dashboard-v1", board }, idempotency_key: "dash-" + randomBytes(8).toString("hex") });
+  const okW = { id: "w", title: "t", kind: "bar", spec: q(["escolas.nome"]) };
+  const r1 = await ins({ filters: [], widgets: [{ ...okW, rows: [{ c1: "x" }] }] }); check(/dado-gravado/.test(r1.error?.message ?? ""), "servidor recusa painel com linhas de dados", r1.error?.message);
+  const r2 = await ins({ filters: [], theme: { logo: "javascript:alert(1)" }, widgets: [okW] }); check(/logo-recusado/.test(r2.error?.message ?? ""), "servidor recusa logo fora da lista", r2.error?.message);
+  const r3 = await ins({ filters: [], widgets: [{ ...okW, kind: "foguete" }] }); check(/tipo-desconhecido/.test(r3.error?.message ?? ""), "servidor recusa tipo de gráfico desconhecido", r3.error?.message);
+  const r4 = await ins({ filters: [], widgets: [{ ...okW, span: 7 }] }); check(/tamanho-invalido/.test(r4.error?.message ?? ""), "servidor recusa tamanho inválido", r4.error?.message);
+  const r5 = await ins({ filters: [], theme: { logo: "brasao", font: "serif" }, widgets: [{ ...okW, span: 3, height: "l", description: "d" }] }); check(!r5.error, "servidor aceita painel válido (versão gravada com autor e data)", r5.error?.message);
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/fdash/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, expectedA: ra.data.rows, netRows: rn.data.rows.length, sessions: { net: NET.session, a: A.session } }), { mode: 0o600 });
   const py = spawnSync("python3", ["scripts/dashboards-e2e.py"], { encoding: "utf8", timeout: 450000 });

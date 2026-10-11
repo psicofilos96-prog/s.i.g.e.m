@@ -7,14 +7,18 @@ import type { Condition, CustomSpec } from "../custom/custom-report";
 import type { ChartKind } from "./chart-model";
 
 export const DASHBOARD_SECTOR = "painel";
-export type Widget = { id: string; title: string; kind: ChartKind; spec: CustomSpec; raw?: string | undefined; wide?: boolean | undefined };
-export type Dashboard = { widgets: Widget[]; filters: Condition[] };
+export type Compare = { field: string; a: [string, string]; b: [string, string] };
+export type Widget = { id: string; title: string; kind: ChartKind; spec: CustomSpec; raw?: string | undefined; wide?: boolean | undefined;
+  span?: 1 | 2 | 3 | undefined; height?: "s" | "m" | "l" | undefined; description?: string | undefined; palette?: number | undefined;
+  drillThrough?: boolean | undefined; compare?: Compare | undefined };
+export type Theme = { font?: "sans" | "serif" | undefined; palette?: number | undefined; logo?: string | undefined; description?: string | undefined };
+export type Dashboard = { widgets: Widget[]; filters: Condition[]; theme?: Theme | undefined };
 export type SavedDashboard = { name: string; version: number; recordedAt: string; board: Dashboard };
 type Row = { name: string; version: number; archived: boolean; choice: unknown; recorded_at: string };
 
 /** Remove campos vazios para caber no limite de 8 KB por versão. */
 export function compact(d: Dashboard): Dashboard {
-  return { filters: d.filters, widgets: d.widgets.map((w) => ({ ...w, spec: { ...w.spec, labels: {}, sort: w.spec.sort.slice(0, 2) } })) };
+  return { filters: d.filters, ...(d.theme ? { theme: d.theme } : {}), widgets: d.widgets.map((w) => ({ ...w, spec: { ...w.spec, labels: {}, sort: w.spec.sort.slice(0, 2) } })) };
 }
 export function latestBoards(rows: readonly Row[]): SavedDashboard[] {
   const head = new Map<string, Row>();
@@ -34,5 +38,5 @@ export async function saveBoard(name: string, board: Dashboard, archived = false
   const choice = { kind: "dashboard-v1", board: compact(board) };
   if (JSON.stringify(choice).length > 7800) throw new Error("Painel grande demais para salvar: reduza gráficos ou filtros (máx. ~8 KB).");
   const r = await supabase.from("report_template_versions").insert({ sector: DASHBOARD_SECTOR, name: n, choice: choice as never, archived, idempotency_key: `dash-${crypto.randomUUID()}` });
-  if (r.error) throw new Error("Não foi possível salvar o painel.");
+  if (r.error) throw new Error(/painel:/.test(r.error.message) ? `O servidor recusou o painel (${r.error.message.match(/painel:[a-z-]+/)?.[0]}).` : "Não foi possível salvar o painel.");
 }
