@@ -16368,6 +16368,63 @@ export type Database = {
           },
         ]
       }
+      school_text_template_versions: {
+        Row: {
+          body: string
+          id: string
+          kind: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          signatures: string[]
+          supersedes_id: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          body: string
+          id?: string
+          kind: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          signatures?: string[]
+          supersedes_id?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          body?: string
+          id?: string
+          kind?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          signatures?: string[]
+          supersedes_id?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_text_template_versions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_text_template_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "school_text_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_transport_facts: {
         Row: {
           author_user_id: string
@@ -26348,6 +26405,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_text_template: {
+        Args: {
+          _body: string
+          _expected: string
+          _kind: string
+          _reason: string
+          _school: string
+          _signatures: string[]
+          _title: string
+        }
+        Returns: number
+      }
       record_school_transport_fact: {
         Args: {
           _expected_version: number
@@ -27315,6 +27384,27 @@ export type Database = {
           starts_at: string
           substitution_id: string
           weekday: number
+        }[]
+      }
+      school_text_template_allowed: {
+        Args: { _kind: string; _school: string }
+        Returns: boolean
+      }
+      school_text_template_capability: {
+        Args: { _kind: string }
+        Returns: string
+      }
+      school_text_templates: {
+        Args: { _kind: string; _school: string }
+        Returns: {
+          body: string
+          by_me: boolean
+          id: string
+          reason: string
+          recorded_at: string
+          signatures: string[]
+          title: string
+          version: number
         }[]
       }
       scope_key_matches: {
