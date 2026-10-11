@@ -12,6 +12,7 @@ import { SkillsPanel } from "./skills-panel";
 import { AttendancePanel } from "./attendance-panel";
 import { AaCalendarPanel } from "./aa-calendar-panel";
 import { InterventionsPanel } from "./interventions-panel";
+import { SaberLerPanel } from "./saber-ler-panel";
 import { ResultImportPanel } from "./result-import-panel";
 
 type Rpc = (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
@@ -54,7 +55,7 @@ export function IntelligenceStudioPage() {
         description="Resultados de avaliações externas e internas lidos das fontes canônicas, com proveniência, natureza do dado e comparabilidade declarada." />
       <Tabs defaultValue="visao">
         <TabsList className="flex h-auto flex-wrap justify-start">
-          {([["visao", "Visão Geral"], ["programas", "Programas"], ["calendario", "Calendário"], ["intervencoes", "Intervenções"], ["importacao", "Importação"], ["frequencia", "Frequência e Rendimento"], ["avaliacoes", "Avaliações"], ["evolucao", "Evolução Histórica"], ["habilidades", "Habilidades/Descritores"], ["escolas", "Escolas e Turmas"], ["alunos", "Alunos"], ["relatorios", "Relatórios"], ["paineis", "Painéis"], ["qualidade", "Qualidade dos Dados"]] as const).map(([v, l]) => (
+          {([["visao", "Visão Geral"], ["programas", "Programas"], ["calendario", "Calendário"], ["saberler", "Saber Ler"], ["intervencoes", "Intervenções"], ["importacao", "Importação"], ["frequencia", "Frequência e Rendimento"], ["avaliacoes", "Avaliações"], ["evolucao", "Evolução Histórica"], ["habilidades", "Habilidades/Descritores"], ["escolas", "Escolas e Turmas"], ["alunos", "Alunos"], ["relatorios", "Relatórios"], ["paineis", "Painéis"], ["qualidade", "Qualidade dos Dados"]] as const).map(([v, l]) => (
             <TabsTrigger key={v} value={v}>{l}</TabsTrigger>))}
         </TabsList>
 
@@ -76,6 +77,7 @@ export function IntelligenceStudioPage() {
 
         <TabsContent value="programas">{programs.state === "loading" ? <SkeletonState /> : <ProgramsPanel registeredNames={programs.state === "ok" ? live(programs).map((p) => p.name) : null} onChanged={() => window.location.reload()} />}</TabsContent>
         <TabsContent value="calendario"><AaCalendarPanel /></TabsContent>
+        <TabsContent value="saberler"><SaberLerPanel /></TabsContent>
         <TabsContent value="intervencoes"><InterventionsPanel /></TabsContent>
         <TabsContent value="importacao"><ResultImportPanel /></TabsContent>
         <TabsContent value="frequencia"><AttendancePanel /></TabsContent>
