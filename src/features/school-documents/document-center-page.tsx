@@ -1,3 +1,5 @@
+import { EnrollmentLookup } from "./enrollment-lookup";
+import { QrCode } from "@/features/calendar/calendar-external-qr";
 import { createActionGuard } from "@/lib/idempotency";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -128,6 +130,7 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
         <label className="text-sm">Data de referência<DateInput value={validOn} onChange={(e) => setValidOn(e.target.value)} /></label>
         <div className="flex items-end"><Button onClick={load} disabled={busy}>{busy ? "Carregando…" : "Abrir aluno"}</Button></div>
       </section>
+      <EnrollmentLookup school={school} validOn={validOn} onPick={(id) => setStudent(id)} />
       {msg ? <p role="status" className={msg.tone === "ok" ? "text-sm text-success" : "text-sm text-destructive"}>{msg.text}</p> : null}
 
       <section aria-labelledby="tpl" className="space-y-2">
@@ -203,9 +206,11 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
           </div>
           <DocumentView title={viewing.snapshot.template.title} identity={viewing.snapshot.template.identity}
             render={renderFromSnapshot(viewing.snapshot)}
-            footer={<p className="mt-4 break-all text-xs text-muted-foreground">
-              Verificação: {typeof window !== "undefined" ? window.location.origin : ""}/verificar/{viewing.verification_code} · impressão {viewing.snapshot_sha256}
-              {viewing.emission_kind === "reproducao" ? " · reprodução de documento já emitido" : ""}</p>} />
+            footer={<div className="mt-4 flex items-start gap-3">
+              {typeof window !== "undefined" ? <QrCode value={`${window.location.origin}/verificar/documento/${viewing.verification_code}`} sizeMm={22} /> : null}
+              <p className="break-all text-xs text-muted-foreground">
+              Verificação: {typeof window !== "undefined" ? window.location.origin : ""}/verificar/documento/{viewing.verification_code} · código {viewing.verification_code} · impressão {viewing.snapshot_sha256}
+              {viewing.emission_kind === "reproducao" ? " · reprodução de documento já emitido" : ""}</p></div>} />
         </section>
       ) : null}
 

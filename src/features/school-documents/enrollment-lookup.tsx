@@ -7,7 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
-import { formatDate } from "@/lib/academic-date";
+import { formatAcademicDateNumeric, type IsoDate } from "@/lib/academic-date";
+const formatDate = (d: string) => formatAcademicDateNumeric(d as IsoDate);
 import { documentMessage } from "./document-engine";
 
 export type EnrollmentHit = {

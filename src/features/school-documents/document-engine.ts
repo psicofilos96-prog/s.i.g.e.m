@@ -163,5 +163,9 @@ export function documentMessage(error: unknown): string {
   if (/document:(not-found|emission-not-found)/.test(m)) return "Aluno ou documento não encontrado nesta escola.";
   if (/emission-not-active/.test(m)) return "Documento cancelado ou retificado não pode ser reproduzido.";
   if (/kind-immutable/.test(m)) return "O tipo de documento de um modelo não pode mudar.";
+  if (/enrollment:not-found/.test(m)) return "Matrícula não encontrada nesta escola ou sem permissão para alterá-la.";
+  if (/start-already-recorded/.test(m)) return "Esta matrícula já tem data de início registrada.";
+  if (/enrollment:start-invalid/.test(m)) return "Informe uma data de início que não seja futura.";
+  if (/search:query-too-short/.test(m)) return "Digite ao menos 3 letras.";
   return m;
 }
