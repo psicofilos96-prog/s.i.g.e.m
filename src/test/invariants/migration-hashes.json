@@ -416,5 +416,6 @@
  "drizzle/migrations/0365_0365_docserv_lotes_05_13.sql": "90cdcd3ab3594f069f8c10d2c53c02605e7b19e3d0335f78da04e9ffb93d13bd",
  "drizzle/migrations/0366_0366_docserv_network_overview_fix.sql": "dec65c0e2a1da30c4c84303252e88af7a52cf2b1423c2c632173d0d06bef67bb",
  "drizzle/migrations/0367_aa_operational_calendar.sql": "b5cbc47deffe4ee8b5a7010a86462105000b47e213e009bf6ebe3e74155621be",
- "drizzle/migrations/0368_student_registration_observations.sql": "d7e9a798b5bef824abc64909aa768aeddd85994e57e60641b64c5cc080b395ce"
+ "drizzle/migrations/0368_student_registration_observations.sql": "d7e9a798b5bef824abc64909aa768aeddd85994e57e60641b64c5cc080b395ce",
+ "drizzle/migrations/0369_aa_pedagogical_interventions.sql": "e462d67853200d4b40720630a5c469193d0029f067d33d2ee2c44c45a98c898c"
 }

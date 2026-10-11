@@ -158,6 +158,119 @@ export type Database = {
         }
         Relationships: []
       }
+      aa_intervention_events: {
+        Row: {
+          author_user_id: string
+          body: string
+          due_date: string | null
+          id: string
+          kind: string
+          plan_logical_id: string
+          progress: string | null
+          reassessment_ref: string | null
+          recorded_at: string
+          responsible_label: string | null
+          school_id: string
+          seq: number
+        }
+        Insert: {
+          author_user_id: string
+          body: string
+          due_date?: string | null
+          id?: string
+          kind: string
+          plan_logical_id: string
+          progress?: string | null
+          reassessment_ref?: string | null
+          recorded_at?: string
+          responsible_label?: string | null
+          school_id: string
+          seq: number
+        }
+        Update: {
+          author_user_id?: string
+          body?: string
+          due_date?: string | null
+          id?: string
+          kind?: string
+          plan_logical_id?: string
+          progress?: string | null
+          reassessment_ref?: string | null
+          recorded_at?: string
+          responsible_label?: string | null
+          school_id?: string
+          seq?: number
+        }
+        Relationships: []
+      }
+      aa_intervention_versions: {
+        Row: {
+          author_user_id: string
+          class_id: string | null
+          due_date: string | null
+          id: string
+          is_infant: boolean
+          logical_id: string
+          objective: string
+          origin_kind: string
+          origin_ref: string
+          reason: string | null
+          recorded_at: string
+          responsible_label: string | null
+          school_id: string
+          segment: string
+          sipe_plan_version_id: string | null
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_user_id: string
+          class_id?: string | null
+          due_date?: string | null
+          id?: string
+          is_infant?: boolean
+          logical_id?: string
+          objective: string
+          origin_kind: string
+          origin_ref: string
+          reason?: string | null
+          recorded_at?: string
+          responsible_label?: string | null
+          school_id: string
+          segment: string
+          sipe_plan_version_id?: string | null
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_user_id?: string
+          class_id?: string | null
+          due_date?: string | null
+          id?: string
+          is_infant?: boolean
+          logical_id?: string
+          objective?: string
+          origin_kind?: string
+          origin_ref?: string
+          reason?: string | null
+          recorded_at?: string
+          responsible_label?: string | null
+          school_id?: string
+          segment?: string
+          sipe_plan_version_id?: string | null
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aa_intervention_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "aa_intervention_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       academic_standing_batch_acts: {
         Row: {
           author_person_id: string
@@ -22442,6 +22555,37 @@ export type Database = {
       aa_period_window: {
         Args: { _known_at: string; _period: string }
         Returns: Record<string, unknown>
+      }
+      aa_record_intervention: {
+        Args: {
+          _class: string
+          _due: string
+          _expected_version: number
+          _is_infant: boolean
+          _logical: string
+          _objective: string
+          _origin_kind: string
+          _origin_ref: string
+          _reason: string
+          _responsible: string
+          _school: string
+          _segment: string
+          _sipe: string
+        }
+        Returns: string
+      }
+      aa_record_intervention_event: {
+        Args: {
+          _body: string
+          _due: string
+          _expected_seq: number
+          _kind: string
+          _plan: string
+          _progress: string
+          _reassessment: string
+          _responsible: string
+        }
+        Returns: number
       }
       ab_scope_allows: {
         Args: { _capability: string; _on: string; _school: string }
