@@ -2066,6 +2066,27 @@
       "when": 1791672173168,
       "tag": "0294_meal_food_samples_revoke",
       "breakpoints": true
+    },
+    {
+      "idx": 295,
+      "version": "7",
+      "when": 1791685361331,
+      "tag": "0295_0295_bo_fixture_diary_capability_grants",
+      "breakpoints": true
+    },
+    {
+      "idx": 296,
+      "version": "7",
+      "when": 1791685591027,
+      "tag": "0296_0296_bo_fixture_scope_capabilities",
+      "breakpoints": true
+    },
+    {
+      "idx": 297,
+      "version": "7",
+      "when": 1791685845482,
+      "tag": "0297_0297_final_sheet_no_components_guard",
+      "breakpoints": true
     }
   ]
 }

@@ -57,6 +57,8 @@ export function projectFinalSheet(i: SheetInput): { rows: SheetRow[]; blocked: s
     const sig = statusSigla(st.status);
     if (sig) overall = sig.long;
     else if (i.rule === null) overall = AWAITING_RULE;
+    // Sem componente avaliado não há resultado: "todos aprovados" sobre lista vazia seria aprovação inventada.
+    else if (comps.length === 0) { overall = "PENDENTE"; missing.push("nenhum componente avaliado"); }
     else if (i.modality === "eja") {
       const given = comps.reduce((a, c, k) => a + (i.cells[cellKey(st.id, i.components[k]!.id)]?.lessonsGiven ?? 0), 0);
       const abs = comps.map((_, k) => i.cells[cellKey(st.id, i.components[k]!.id)]?.absences ?? null);
