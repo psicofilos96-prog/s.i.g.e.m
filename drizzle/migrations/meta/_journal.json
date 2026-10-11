@@ -2129,6 +2129,13 @@
       "when": 1791689649754,
       "tag": "0303_custom_report_query_fix_join_loop",
       "breakpoints": true
+    },
+    {
+      "idx": 304,
+      "version": "7",
+      "when": 1791690196831,
+      "tag": "0304_custom_report_rollup_order",
+      "breakpoints": true
     }
   ]
 }
