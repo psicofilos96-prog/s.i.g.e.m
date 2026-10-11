@@ -636,6 +636,6 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 
 ## Pedidos de 2026-10-11 (abertos)
 - [ ] A&A Lote 5/10 — painel e gráficos do setor (filtros cruzados, drill-down, PDF/XLSX).
-- [ ] Atualizar cadastro dos alunos a partir dos 57 "Banco de dados" das escolas (prévia → confirmação → gravação governada).
+- [x] Cadastro dos alunos a partir das planilhas das escolas (observação com fonte; identidade oficial depende do catálogo de sexo e de autor humano).
 - [ ] Cadastrar código IBGE de municípios/distritos (DTB 2024) ligado ao Censo/GPE.
 - [ ] Analisar Matriz_Escolas_Censo2026, relações de servidores (SEMED/escolas) e Secretaria_2026.rar.
