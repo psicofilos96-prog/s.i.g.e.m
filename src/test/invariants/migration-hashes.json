@@ -352,5 +352,6 @@
  "drizzle/migrations/0301_0301_meal_summary_counts_rectified_as_authorized.sql": "440946900bd3e9b52d0ed6b0dd7991c1bde244ef9eabb3eb65e7c97584090888",
  "drizzle/migrations/0302_custom_report_query_engine.sql": "8ba34430153133567c3413490062421c4b1a4a8e8a789d81c7101c1b85f95df3",
  "drizzle/migrations/0303_custom_report_query_fix_join_loop.sql": "d1ff9b0a56f35d38df0c454aeabeedfdf11aed7951fba8578789886fd67a7e6e",
- "drizzle/migrations/0304_custom_report_rollup_order.sql": "302d193a500570270edf0519b5d8c586d8665fa43e635c995f55c6e63b7b6055"
+ "drizzle/migrations/0304_custom_report_rollup_order.sql": "302d193a500570270edf0519b5d8c586d8665fa43e635c995f55c6e63b7b6055",
+ "drizzle/migrations/0305_staff_records_policy_initplan.sql": "85e062fa3fa4386fdcb9991270dc77c86e6f77304044049bf6144f861c8efa6f"
 }
