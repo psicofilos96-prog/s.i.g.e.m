@@ -5,7 +5,7 @@
 export type BookKind = "matricula" | "resultados-finais" | "atas" | "transferencias";
 export interface SourceFact { ref: string; kind: BookKind; schoolId: string; effectiveOn: string | null; fields: Record<string, string | number | null> }
 export interface BookEntry { seq: number; factRef: string; effectiveOn: string; fields: Record<string, string | number>; rectifies?: number; reason?: string; actorPrincipalId: string }
-export interface Book { id: string; kind: BookKind; schoolId: string; year: number; requiredFields: string[]; entries: BookEntry[]; closedAt: string | null; closedBy: string | null; closingHash: string | null }
+export interface Book { id: string; kind: BookKind; schoolId: string; year: number; requiredFields: string[]; entries: BookEntry[]; closedAt: string | null; closedBy: string | null; closingHash: string | null; closedCount?: number }
 
 export type Res<T> = { ok: true; value: T } | { ok: false; code: string; missing?: string[] };
 
@@ -26,7 +26,7 @@ export function appendEntry(book: Book, fact: SourceFact, actorPrincipalId: stri
 export function closeBook(book: Book, at: string, actorPrincipalId: string, hash: (s: string) => string): Res<Book> {
   if (book.closedAt) return { ok: false, code: "book:closed" };
   if (!actorPrincipalId) return { ok: false, code: "book:actor-required" };
-  return { ok: true, value: { ...book, closedAt: at, closedBy: actorPrincipalId, closingHash: hash(canonical(book.entries)) } };
+  return { ok: true, value: { ...book, closedAt: at, closedBy: actorPrincipalId, closedCount: book.entries.length, closingHash: hash(canonical(book.entries)) } };
 }
 
 /** Retificação após fechamento: novo lançamento que aponta o original, com motivo e a partir de fato corrigido. */
@@ -41,13 +41,11 @@ export function rectify(book: Book, originalSeq: number, corrected: SourceFact, 
   return { ok: true, value: { ...book, entries: [...book.entries, { seq: book.entries.length + 1, factRef: orig.factRef, effectiveOn: corrected.effectiveOn, fields, rectifies: originalSeq, reason, actorPrincipalId }] } };
 }
 
-/** Integridade: lançamentos originais (até o fechamento) continuam com o mesmo hash. */
+/** Integridade: os lançamentos existentes no fechamento continuam com o mesmo hash. */
 export function verifyClosing(book: Book, hash: (s: string) => string): boolean | null {
-  if (!book.closedAt || !book.closingHash) return null;
-  const upTo = book.entries.filter((e) => e.rectifies == null || e.seq <= countAtClose(book));
-  return hash(canonical(upTo.slice(0, countAtClose(book)))) === book.closingHash;
+  if (!book.closedAt || !book.closingHash || book.closedCount == null) return null;
+  return hash(canonical(book.entries.slice(0, book.closedCount))) === book.closingHash;
 }
-function countAtClose(book: Book) { return book.entries.findIndex((e) => e.rectifies != null && e.seq > 0) === -1 ? book.entries.length : book.entries.findIndex((e) => e.rectifies != null); }
 
 /** Visão vigente: última retificação de cada lançamento prevalece; original continua no livro. */
 export function currentView(book: Book): BookEntry[] {
