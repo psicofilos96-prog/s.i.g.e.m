@@ -40,7 +40,8 @@ function Page() {
   const view = useMemo(() => {
     if (!data || !modality) return null;
     const periods = [...new Set(data.instruments.map((i) => i.period_id))].sort();
-    const base = cellsFrom(data.entries, data.instruments, periods);
+    const compose = modality === "fundamental-anos-iniciais" ? "fundamental-i" : modality === "educacao-infantil" ? undefined : "fundamental-ii";
+    const base = cellsFrom(data.entries, data.instruments, periods, compose);
     const cells = withAttendance(base.cells, attendanceFrom(data.attendance), periods);
     const compIds = new Set(base.components.map((c) => c.id));
     const components = [...base.components, ...[...new Set(data.attendance.map((a) => a.component_id))].filter((c) => !compIds.has(c)).map((id) => ({ id, label: id }))];
