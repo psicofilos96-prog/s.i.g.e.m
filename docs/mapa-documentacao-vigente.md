@@ -327,6 +327,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `isolamento-setorial-nsector4.md` — Registro de lote: matriz de isolamento por setor e escola.
 - `docs/bq1-matriz-autoridades-institucionais.md` — Canônico — matriz real de autoridades (BQ.1).
 | docs/alimentacao-escolar-produto-final.md | Registro de lote |
+| docs/alimentacao-mapa-de-compras-layout.md | Referência vigente |
 | docs/secretaria-escolar-produto-final.md | Registro de lote |
 | docs/direcao-escolar-produto-final.md | Registro de lote |
 | docs/orientacao-pedagogica-produto-final.md | Registro de lote |
