@@ -7804,6 +7804,71 @@ export type Database = {
         }
         Relationships: []
       }
+      educacenso_layout_specs: {
+        Row: {
+          actor_user_id: string
+          census_year: string
+          content: Json
+          content_sha256: string
+          field_count: number
+          id: string
+          inep_confronted: boolean
+          layout_registration_id: string | null
+          reason: string
+          record_count: number
+          recorded_at: string
+          source_file: string
+          source_kind: string
+          source_sha256: string
+          stage_key: string
+          version: number
+        }
+        Insert: {
+          actor_user_id: string
+          census_year: string
+          content: Json
+          content_sha256: string
+          field_count: number
+          id?: string
+          inep_confronted?: boolean
+          layout_registration_id?: string | null
+          reason: string
+          record_count: number
+          recorded_at?: string
+          source_file: string
+          source_kind: string
+          source_sha256: string
+          stage_key: string
+          version: number
+        }
+        Update: {
+          actor_user_id?: string
+          census_year?: string
+          content?: Json
+          content_sha256?: string
+          field_count?: number
+          id?: string
+          inep_confronted?: boolean
+          layout_registration_id?: string | null
+          reason?: string
+          record_count?: number
+          recorded_at?: string
+          source_file?: string
+          source_kind?: string
+          source_sha256?: string
+          stage_key?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "educacenso_layout_specs_layout_registration_id_fkey"
+            columns: ["layout_registration_id"]
+            isOneToOne: false
+            referencedRelation: "educacenso_layout_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       educacenso_school_status_events: {
         Row: {
           actor_scope: string
@@ -23543,6 +23608,17 @@ export type Database = {
           _year: string
         }
         Returns: string
+      }
+      educacenso_register_layout_spec: {
+        Args: {
+          _content: Json
+          _expected_version: number
+          _layout: string
+          _reason: string
+          _stage_key: string
+          _year: string
+        }
+        Returns: Json
       }
       educacenso_school_act: {
         Args: {

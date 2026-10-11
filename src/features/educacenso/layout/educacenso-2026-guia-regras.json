@@ -1,0 +1,24 @@
+{
+  "source": { "kind": "guia-do-usuario", "section": "4.1 Regras gerais do arquivo", "inepConfronted": false },
+  "encoding": "ISO-8859-1",
+  "separator": "|",
+  "lineTerminator": null,
+  "lineTerminatorNote": "O guia não define se a linha termina com '|'. Os exemplos do Arquivo de Identificação (seção 3) são contraditórios entre si. Bloqueio até confronto com o leiaute oficial INEP.",
+  "fileTerminator": { "record": "99", "line": "99|" },
+  "maxSchoolsPerFile": 100,
+  "maxClassesPerSchool": 1500,
+  "maxRecordPerSchool": { "00": 1, "10": 1, "40": 3 },
+  "follows": {
+    "00": ["^", "40", "60"],
+    "10": ["00"],
+    "20": ["10", "20"],
+    "30": ["00", "20", "30"],
+    "40": ["30", "40"],
+    "50": ["40", "50"],
+    "60": ["50", "60"],
+    "99": ["*"]
+  },
+  "uppercaseOnly": true,
+  "maxFileBytes": 20971520,
+  "maxFileNameLength": 20
+}

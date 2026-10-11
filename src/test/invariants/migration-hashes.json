@@ -404,5 +404,6 @@
  "drizzle/migrations/0353_semed_ciece_reconciliation.sql": "da03152c9e208526d38cb978451061edef2f7b14fda75be709cadf5ffedea793",
  "drizzle/migrations/0354_educacenso_core_control.sql": "bfd16c51cc6a544a4e17c0369255037d394791292006d46b40db79f282e8947c",
  "drizzle/migrations/0355_educacenso_fixture_cleanup.sql": "3067b12e4c4989f5e6c1d47da70f811f59778f62b6fd453f108796bca6d6969a",
- "drizzle/migrations/0356_educacenso_year_resolution.sql": "02542aaac3e40ac7388a5ebbf6059e22823ff5381766684d1d233b9c5611d880"
+ "drizzle/migrations/0356_educacenso_year_resolution.sql": "02542aaac3e40ac7388a5ebbf6059e22823ff5381766684d1d233b9c5611d880",
+ "drizzle/migrations/0357_educacenso_layout_specs.sql": "e8a548d9b5e8101c61787378eb87263be628117e0c0fed6b87c27894684c2fe4"
 }
