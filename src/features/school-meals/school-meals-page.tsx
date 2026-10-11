@@ -1,5 +1,6 @@
 import { callRpc } from "@/lib/rpc-call";
 import { SamplesSection } from "./samples-section";
+import { IntegrationsSection } from "./integrations-section";
 import { Link } from "@tanstack/react-router";
 import { operationalToday, monthBounds, operationalMonthKey } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -73,6 +74,7 @@ export function SchoolMealsPage() {
         : !schools ? <SkeletonState label="Carregando" />
         : schools.length === 0 ? <EmptyState title="Sem acesso à alimentação escolar" description="Sua atuação não tem permissão vigente de alimentação escolar." />
         : <>
+            <IntegrationsSection />
             <div className="flex flex-wrap gap-3 text-sm">
               <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
               <label>De<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
