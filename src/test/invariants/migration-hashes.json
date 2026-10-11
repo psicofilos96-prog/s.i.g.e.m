@@ -422,5 +422,6 @@
  "drizzle/migrations/0371_aa_saber_ler_cycle.sql": "3f1dae3af1ef8c3a352b274bcfad715268d96c6eb0734db972bb7732c7d30b19",
  "drizzle/migrations/0372_aa_local_assessments.sql": "fee008fbbe6d0ecadd6a8285906ecf4d92d6809f6e40b2acf5ef110e951ab9f5",
  "drizzle/migrations/0373_aa_external_results.sql": "32659abec64ed5f790e0818cfc0d25471414c7dd0bf6107707a2402c1da4c432",
- "drizzle/migrations/0374_aa_infrequency_outreach.sql": "83cf1d1d67a901a4d3813ff2b040647b00ae10112f53972328e667c5ed25de71"
+ "drizzle/migrations/0374_aa_infrequency_outreach.sql": "83cf1d1d67a901a4d3813ff2b040647b00ae10112f53972328e667c5ed25de71",
+ "drizzle/migrations/0375_aa_infant_followup.sql": "36a50b94313ceb44348f8eb74fdb0899ecee8b6f7d08ec4042ec9d1c704e2843"
 }
