@@ -61,11 +61,9 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 - Cabeçalhos de segurança/no-store só via `src/lib/security-headers.ts` (middleware em `src/start.ts`), porque cabeçalho por rota é esquecido.
 
-## Studio de documentos
-- Regras em `src/features/document-studio/AGENTS.md`.
 
 ## Navegação × capacidades (NACL.UI.1)
 - Menu, paleta, busca, cards de início e deep link decidem só por `pathAllowed` (`src/features/authority/nav-capabilities.ts`: estação × capacidade exigida pela tela; autoridade incompleta ⇒ nada), porque regras paralelas voltam a oferecer área inutilizável.
 
 ## Aceitação integrada
-- `scripts/integration-acceptance-e2e.mjs` é a suíte única de aceitação entre setores (reconciliação entre superfícies + sub-suítes positivas com cleanup + tabelas oficiais antes = depois), porque suítes soltas deixam de ser rodadas juntas.
+- Aceitação entre setores só por `scripts/integration-acceptance-e2e.mjs`, porque suítes soltas deixam de rodar juntas.
