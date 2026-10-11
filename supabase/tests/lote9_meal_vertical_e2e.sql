@@ -63,13 +63,11 @@ BEGIN
   RESET ROLE; SET LOCAL ROLE authenticated;
   PERFORM pg_temp.nae8_as(NULL);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'session-required');
-  PERFORM pg_temp.nae8_as(uT);
-  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'natural-person-required');
   PERFORM pg_temp.nae8_as(uS);
   PERFORM pg_temp.nae8_fail(format('INSERT INTO public.meal_inventory_movements(logical_id,version,event_kind,school_id,item_value_id,item_value_version,unit_value_id,unit_value_version,movement_kind,quantity,moved_on) VALUES (gen_random_uuid(),1,%L,%L,%L,1,%L,1,%L,1,%L)','registro',s1,'nae8-arroz','nae8-kg','entrada',td), 'permission denied');
   PERFORM pg_temp.nae8_fail('UPDATE public.meal_order_versions SET status = ''autorizado-total''', 'permission denied');
   PERFORM pg_temp.nae8_fail('DELETE FROM public.meal_master_records', 'permission denied');
-  _ok := _ok || 'anon,sem-sessao,ator-tecnico,dml;';
+  _ok := _ok || 'anon,sem-sessao,dml;';
   RESET ROLE; -- writers seguem autorizando por auth.uid()+capability; leituras de verificação usam o canal da prova
 
   -- 1. base mestra: autor ≠ conferente/homologador; catálogo sem homologação é recusado no pedido
@@ -181,8 +179,11 @@ BEGIN
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'entrada','nae8-arroz','nae8-kg',td,tz), 'class-not-allowed');
   PERFORM pg_temp.nae8_as(uO);
   PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'capability:registrar-estoque-alimentar');
+  -- ator técnico (não pessoa natural) só é testado com saldo positivo: com saldo zero a recusa por saldo vem antes
+  PERFORM pg_temp.nae8_as(uT);
+  PERFORM pg_temp.nae8_fail(format('SELECT public.record_meal_stock_movement(NULL,%L,%L,%L,%L,%L,1,NULL,%L,%L,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)','registro',s1,'perda','nae8-arroz','nae8-kg',td,tz), 'natural-person-required');
   IF (SELECT count(*) FROM public.meal_inventory_movements) <> n0 + 2 THEN RAISE EXCEPTION 'falha: ficha técnica/recusas geraram movimento'; END IF;
-  _ok := _ok || 'nao-conformidade,perda,devolucao,unidade,ficha-sem-baixa;';
+  _ok := _ok || 'nao-conformidade,perda,devolucao,unidade,ator-tecnico,ficha-sem-baixa;';
 
   -- 9. execução: planejado ≠ executado, refeições ≠ alunos, consumo observado = 1 movimento; duplicidade e correção
   PERFORM pg_temp.nae8_as(uS);
