@@ -4,13 +4,19 @@
  * e é contado em `excluded`, nunca vira zero.
  */
 export type ChartKind =
-  | "bar" | "line" | "area" | "pie" | "donut" | "scatter" | "bubble" | "histogram" | "heatmap" | "treemap"
+  | "bar" | "barh" | "stacked" | "stacked100" | "combo" | "pivot" | "map" | "line" | "area" | "pie" | "donut" | "scatter" | "bubble" | "histogram" | "heatmap" | "treemap"
   | "funnel" | "radar" | "waterfall" | "boxplot" | "gauge" | "table" | "kpi";
 
 /** Forma da consulta exigida por tipo: dimensões (agrupamentos) e medidas (agregações) ou linhas brutas numéricas. */
 type Need = { label: string; dims: [number, number]; measures: [number, number]; raw?: "numeric1" | "numeric2" | "numeric3" };
 export const CHARTS: Readonly<Record<ChartKind, Need>> = {
-  bar: { label: "Barras", dims: [1, 2], measures: [1, 3] },
+  bar: { label: "Barras verticais", dims: [1, 2], measures: [1, 3] },
+  barh: { label: "Barras horizontais", dims: [1, 2], measures: [1, 3] },
+  stacked: { label: "Barras empilhadas", dims: [2, 2], measures: [1, 1] },
+  stacked100: { label: "Barras empilhadas 100%", dims: [2, 2], measures: [1, 1] },
+  combo: { label: "Misto (barras + linha)", dims: [1, 1], measures: [2, 2] },
+  pivot: { label: "Tabela dinâmica (pivot)", dims: [2, 2], measures: [1, 1] },
+  map: { label: "Mapa", dims: [0, 1], measures: [0, 1], raw: "numeric2" },
   line: { label: "Linhas", dims: [1, 2], measures: [1, 3] },
   area: { label: "Áreas", dims: [1, 2], measures: [1, 3] },
   pie: { label: "Pizza", dims: [1, 1], measures: [1, 1] },
@@ -29,10 +35,11 @@ export const CHARTS: Readonly<Record<ChartKind, Need>> = {
   kpi: { label: "Indicador", dims: [0, 0], measures: [1, 1] },
 };
 
-export type Shape = { dims: number; measures: number; numericColumns: number; raw: boolean };
+export type Shape = { dims: number; measures: number; numericColumns: number; raw: boolean; geo?: boolean };
 /** Motivo por extenso quando a consulta não serve ao gráfico; null = compatível. */
 export function incompatibility(kind: ChartKind, s: Shape): string | null {
   const n = CHARTS[kind];
+  if (kind === "map") return s.geo ? null : "Mapa precisa de latitude e longitude válidas; nenhuma fonte do catálogo tem coordenadas das escolas (não são inventadas).";
   if (n.raw) {
     if (s.raw) return s.numericColumns >= 1 ? null : `${n.label} precisa de uma coluna numérica nas linhas (sem agrupamento).`;
     return `${n.label} usa os valores individuais: tire os agrupamentos e escolha uma coluna numérica.`;
@@ -98,7 +105,7 @@ export function boxplot(rows: readonly Row[], value: string, group?: string) {
 
 export function waterfall(data: readonly Row[], key: string) {
   let acc = 0;
-  const steps = data.map((d) => { const v = num(d[key]) ?? 0; const base = v >= 0 ? acc : acc + v; acc += v; return { categoria: String(d["categoria"]), base, valor: Math.abs(v), sinal: v >= 0 ? 1 : -1, acumulado: acc }; });
+  const steps = data.filter((d) => num(d[key]) !== null).map((d) => { const v = num(d[key])!; const base = v >= 0 ? acc : acc + v; acc += v; return { categoria: String(d["categoria"]), base, valor: Math.abs(v), sinal: v >= 0 ? 1 : -1, acumulado: acc }; });
   return [...steps, { categoria: "Total", base: Math.min(0, acc), valor: Math.abs(acc), sinal: acc >= 0 ? 1 : -1, acumulado: acc }];
 }
 
@@ -114,4 +121,32 @@ export function heatmap(rows: readonly Row[], dx: string, dy: string, m: string)
 /** Drill-down: clicar numa categoria vira filtro "igual a" no campo da dimensão; "(sem registro)" vira "sem valor". */
 export function drillCondition(field: string, category: string) {
   return category === "(sem registro)" ? { field, operator: "is_null" as const } : { field, operator: "eq" as const, value: category };
+}
+
+/** Empilhado 100%: cada categoria vira proporção das séries presentes; categoria sem valor some (não vira 0%). */
+export function percentStack(data: readonly Row[], series: readonly string[]) {
+  return data.flatMap((d) => {
+    const tot = series.reduce((a, k) => a + (num(d[k]) ?? 0), 0);
+    if (tot === 0) return [];
+    const o: Row = { categoria: d["categoria"] };
+    for (const k of series) { const v = num(d[k]); if (v !== null) o[k] = Math.round((v / tot) * 10000) / 100; }
+    return [o];
+  });
+}
+
+/** Pivot: linhas = dimensão 1, colunas = dimensão 2; total só quando todas as células da linha/coluna têm valor. */
+export function pivot(rows: readonly Row[], dr: string, dc: string, m: string) {
+  const h = heatmap(rows, dc, dr, m);
+  const rowTotal = (y: string) => { const vs = h.xs.map((x) => h.cell(x, y)); return vs.every((v) => v !== null) ? vs.reduce((a, v) => a + v!, 0) : null; };
+  const colTotal = (x: string) => { const vs = h.ys.map((y) => h.cell(x, y)); return vs.every((v) => v !== null) ? vs.reduce((a, v) => a + v!, 0) : null; };
+  return { rows: h.ys, cols: h.xs, cell: (r: string, c: string) => h.cell(c, r), rowTotal, colTotal, excluded: h.excluded };
+}
+
+/** Geocodificação válida: latitude [-90,90] e longitude [-180,180], ambas numéricas; o resto é excluído e contado. */
+export function geoPoints(rows: readonly Row[], lat: string, lng: string, name?: string) {
+  const pts: { nome: string; lat: number; lng: number }[] = []; let excluded = 0;
+  for (const r of rows) { const a = num(r[lat]), o = num(r[lng]);
+    if (a === null || o === null || a < -90 || a > 90 || o < -180 || o > 180) { excluded++; continue; }
+    pts.push({ nome: label(name ? r[name] : ""), lat: a, lng: o }); }
+  return { pts, excluded };
 }
