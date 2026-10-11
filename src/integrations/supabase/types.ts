@@ -9156,6 +9156,116 @@ export type Database = {
           },
         ]
       }
+      ei_feedback_events: {
+        Row: {
+          author_user_id: string
+          class_id: string
+          family_visible: boolean
+          id: string
+          kind: string
+          recorded_at: string
+          school_id: string
+          sipe_ref: string | null
+          student_id: string
+          text_body: string
+        }
+        Insert: {
+          author_user_id: string
+          class_id: string
+          family_visible?: boolean
+          id?: string
+          kind: string
+          recorded_at?: string
+          school_id: string
+          sipe_ref?: string | null
+          student_id: string
+          text_body: string
+        }
+        Update: {
+          author_user_id?: string
+          class_id?: string
+          family_visible?: boolean
+          id?: string
+          kind?: string
+          recorded_at?: string
+          school_id?: string
+          sipe_ref?: string | null
+          student_id?: string
+          text_body?: string
+        }
+        Relationships: []
+      }
+      ei_followup_versions: {
+        Row: {
+          adaptation_note: string | null
+          author_user_id: string
+          class_id: string
+          evidence: Json
+          family_visible: boolean
+          field_key: string
+          id: string
+          logical_id: string
+          modality: string
+          objective_code: string | null
+          observation: string
+          observed_on: string
+          reason: string | null
+          recorded_at: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          adaptation_note?: string | null
+          author_user_id: string
+          class_id: string
+          evidence?: Json
+          family_visible?: boolean
+          field_key: string
+          id?: string
+          logical_id: string
+          modality: string
+          objective_code?: string | null
+          observation: string
+          observed_on: string
+          reason?: string | null
+          recorded_at?: string
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          adaptation_note?: string | null
+          author_user_id?: string
+          class_id?: string
+          evidence?: Json
+          family_visible?: boolean
+          field_key?: string
+          id?: string
+          logical_id?: string
+          modality?: string
+          objective_code?: string | null
+          observation?: string
+          observed_on?: string
+          reason?: string | null
+          recorded_at?: string
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ei_followup_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "ei_followup_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       engagement_endings: {
         Row: {
           act_ref: string | null
@@ -25906,10 +26016,52 @@ export type Database = {
         }[]
       }
       ei_can_read: { Args: never; Returns: boolean }
+      ei_family_view: {
+        Args: { _student: string }
+        Returns: {
+          field_key: string
+          kind: string
+          observed_on: string
+          recorded_at: string
+          text_body: string
+        }[]
+      }
       ei_grant: {
         Args: { _capability: string; _school: string }
         Returns: string
       }
+      ei_record_feedback: {
+        Args: {
+          _class: string
+          _family_visible: boolean
+          _kind: string
+          _school: string
+          _sipe: string
+          _student: string
+          _text: string
+        }
+        Returns: string
+      }
+      ei_record_followup: {
+        Args: {
+          _adaptation: string
+          _class: string
+          _evidence: Json
+          _expected_version: number
+          _family_visible: boolean
+          _field: string
+          _logical: string
+          _modality: string
+          _objective: string
+          _observation: string
+          _observed: string
+          _reason: string
+          _school: string
+          _student: string
+        }
+        Returns: string
+      }
+      ei_text_forbidden: { Args: { _t: string }; Returns: boolean }
       ei_widgets_valid: { Args: { _w: Json }; Returns: boolean }
       emit_notification_event: {
         Args: {
