@@ -142,6 +142,7 @@ import { Route as RelatoriosPaineisRouteImport } from './routes/relatorios_.pain
 import { Route as RelatoriosPersonalizadoRouteImport } from './routes/relatorios_.personalizado'
 import { Route as RelatoriosSetoresRouteImport } from './routes/relatorios_.setores'
 import { Route as SecretariaLivroMatriculaRouteImport } from './routes/secretaria_.livro-matricula'
+import { Route as SecretariaModelosDeTextoRouteImport } from './routes/secretaria_.modelos-de-texto'
 import { Route as SecretariaServicosRouteImport } from './routes/secretaria_.servicos'
 import { Route as SecretariaVagasRouteImport } from './routes/secretaria_.vagas'
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
@@ -922,6 +923,12 @@ const SecretariaLivroMatriculaRoute =
     path: '/secretaria/livro-matricula',
     getParentRoute: () => rootRouteImport,
   } as any)
+const SecretariaModelosDeTextoRoute =
+  SecretariaModelosDeTextoRouteImport.update({
+    id: '/secretaria_/modelos-de-texto',
+    path: '/secretaria/modelos-de-texto',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SecretariaServicosRoute = SecretariaServicosRouteImport.update({
   id: '/secretaria_/servicos',
   path: '/secretaria/servicos',
@@ -1651,6 +1658,7 @@ export interface FileRoutesByFullPath {
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios/setores': typeof RelatoriosSetoresRoute
   '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
+  '/secretaria/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria/servicos': typeof SecretariaServicosRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
@@ -1875,6 +1883,7 @@ export interface FileRoutesByTo {
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios/setores': typeof RelatoriosSetoresRoute
   '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
+  '/secretaria/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria/servicos': typeof SecretariaServicosRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
@@ -2098,6 +2107,7 @@ export interface FileRoutesById {
   '/relatorios_/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios_/setores': typeof RelatoriosSetoresRoute
   '/secretaria_/livro-matricula': typeof SecretariaLivroMatriculaRoute
+  '/secretaria_/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria_/servicos': typeof SecretariaServicosRoute
   '/secretaria_/vagas': typeof SecretariaVagasRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
@@ -2339,6 +2349,7 @@ export interface FileRouteTypes {
     | '/relatorios/personalizado'
     | '/relatorios/setores'
     | '/secretaria/livro-matricula'
+    | '/secretaria/modelos-de-texto'
     | '/secretaria/servicos'
     | '/secretaria/vagas'
     | '/transferencias/nova'
@@ -2563,6 +2574,7 @@ export interface FileRouteTypes {
     | '/relatorios/personalizado'
     | '/relatorios/setores'
     | '/secretaria/livro-matricula'
+    | '/secretaria/modelos-de-texto'
     | '/secretaria/servicos'
     | '/secretaria/vagas'
     | '/transferencias/nova'
@@ -2785,6 +2797,7 @@ export interface FileRouteTypes {
     | '/relatorios_/personalizado'
     | '/relatorios_/setores'
     | '/secretaria_/livro-matricula'
+    | '/secretaria_/modelos-de-texto'
     | '/secretaria_/servicos'
     | '/secretaria_/vagas'
     | '/transferencias/nova'
@@ -3003,6 +3016,7 @@ export interface RootRouteChildren {
   RelatoriosPersonalizadoRoute: typeof RelatoriosPersonalizadoRoute
   RelatoriosSetoresRoute: typeof RelatoriosSetoresRoute
   SecretariaLivroMatriculaRoute: typeof SecretariaLivroMatriculaRoute
+  SecretariaModelosDeTextoRoute: typeof SecretariaModelosDeTextoRoute
   SecretariaServicosRoute: typeof SecretariaServicosRoute
   SecretariaVagasRoute: typeof SecretariaVagasRoute
   VerificarCodigoRoute: typeof VerificarCodigoRoute
@@ -3948,6 +3962,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria/livro-matricula'
       fullPath: '/secretaria/livro-matricula'
       preLoaderRoute: typeof SecretariaLivroMatriculaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secretaria_/modelos-de-texto': {
+      id: '/secretaria_/modelos-de-texto'
+      path: '/secretaria/modelos-de-texto'
+      fullPath: '/secretaria/modelos-de-texto'
+      preLoaderRoute: typeof SecretariaModelosDeTextoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/secretaria_/servicos': {
@@ -5457,6 +5478,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosPersonalizadoRoute: RelatoriosPersonalizadoRoute,
   RelatoriosSetoresRoute: RelatoriosSetoresRoute,
   SecretariaLivroMatriculaRoute: SecretariaLivroMatriculaRoute,
+  SecretariaModelosDeTextoRoute: SecretariaModelosDeTextoRoute,
   SecretariaServicosRoute: SecretariaServicosRoute,
   SecretariaVagasRoute: SecretariaVagasRoute,
   VerificarCodigoRoute: VerificarCodigoRoute,

@@ -73,8 +73,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   const download = async (format: "csv" | "xlsx" | "pdf") => {
     const blob = await exportMap(MONTHLY_REPORT, monthlyCells(rows), format, { headerLines: [brand.name, "Mapa Estatístico mensal 2026"], title: `${MONTHLY_REPORT.title} — ${MONTHS[month - 1]}` }, meta);
     const url = URL.createObjectURL(blob);
-    if (format === "pdf") { const w = window.open(url, "_blank"); w?.addEventListener("load", () => w.print()); }
-    else { const a = document.createElement("a"); a.href = url; a.download = `mapa-mensal-2026-${String(month).padStart(2, "0")}.${format}`; a.click(); }
+    { const a = document.createElement("a"); a.href = url; a.download = `mapa-mensal-2026-${String(month).padStart(2, "0")}.${format}`; a.click(); }
     setTimeout(() => URL.revokeObjectURL(url), 60_000);
   };
   const record = async () => {
@@ -253,7 +252,7 @@ function DeclaredCoveragePanel({ names }: { names: Map<string, { name: string; i
       anterior: p.previous_month_check, total: totals.get(`${p.school_id}:${p.month}`) ?? null, turmas: p.class_groups.length }));
     const blob = await exportMap(DECLARED_REPORT, cells, format, { headerLines: [brand.name, "Mapas mensais declarados 2026"], title: DECLARED_REPORT.title },
       ["Ano letivo 2026 · meses de fevereiro a setembro", "Declaração documental; não é apuração do SIGEM nem homologação", `${cov.schools_declared}/${cov.schools_total} escolas · ${cov.competences} competências`]);
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `mapas-declarados-2026.${format === "pdf" ? "html" : format}`; a.click(); URL.revokeObjectURL(a.href);
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `mapas-declarados-2026.${format}`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
   }
   return (
     <section aria-labelledby="cov-h" className="space-y-2 rounded-md border border-border p-4">

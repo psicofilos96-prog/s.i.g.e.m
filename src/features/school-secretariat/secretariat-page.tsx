@@ -19,6 +19,7 @@ import { listInstitutionalClasses } from "@/features/classes/institutional-class
 import { eligibleClassOptions, type ClassOption } from "./secretariat";
 import { allocateToClass, readMovementTypes, readOverview, readPending, reassignClass, readSchoolLife, recordExit } from "./secretariat-source";
 import { DocumentPendenciesPanel } from "./document-pendencies-panel";
+import { SECRETARIAT_READ_CAPABILITY } from "./school-context";
 
 const today = () => operationalToday();
 const errText = (e: unknown) => secretariatMessage(e instanceof Error ? e.message : String(e));
@@ -28,8 +29,9 @@ export function SecretariatPage() {
   const [years, setYears] = useState<YearOption[]>([]);
   const [school, setSchool] = useState(""); const [year, setYear] = useState(""); const [on, setOn] = useState(today());
   useEffect(() => {
-    void readCurrentSchoolNames().then((m) => {
-        const list = sortedSchoolOptions(m);
+    void Promise.all([readCurrentSchoolNames(), (supabase.rpc as unknown as (f: string, a: object) => PromiseLike<{ data: unknown }>)("school_capability_schools", { _capability: SECRETARIAT_READ_CAPABILITY })]).then(([m, a]) => {
+        const ok = new Set(((a.data ?? []) as unknown[]).map((x) => (typeof x === "string" ? x : (Object.values(x as object)[0] as string))));
+        const list = sortedSchoolOptions(m).filter((x) => ok.has(x.id));
         setSchools(list);
         if (list.length === 1) setSchool(list[0]!.id);
       });
@@ -40,6 +42,7 @@ export function SecretariatPage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Secretaria Escolar" title="O que precisa de você hoje"
         description="Só a sua escola. Comece pelos itens em destaque." />
+      <p className="text-sm"><Link to="/secretaria/modelos-de-texto" search={{ documento: undefined }} className="underline">Modelos de texto da escola (Atestado de Escolaridade)</Link></p>
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm">Escola
           <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>

@@ -1,3 +1,4 @@
+import { downloadBlob } from "@/features/reports/report-engine";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { LoadingState } from "@/components/sigem/states";
@@ -78,7 +79,7 @@ export function CensusMap2026Page({ mode = "escola" }: { mode?: "escola" | "rede
   const refDate = selected ? (q.data.refDates.get(selected.school_id) ?? null) : null;
   const printGrid = () => {
     const meta = [`Escola: ${selected ? (selected.school_name ?? "") : "todas as escolas visíveis"} · INEP ${selected?.inep ?? "—"} · Ano 2026`, `Data de referência: ${refDate ? new Date(refDate).toLocaleDateString("pt-BR") : "não declarada"}`, "Turno não declarado no Censo 2026. Células calculadas, somente leitura."];
-    exportMap(MAP_GRID_REPORT, gridCells(grid), "pdf", { headerLines: [brand.name], title: MAP_GRID_REPORT.title }, meta).then((b) => { const w = window.open(URL.createObjectURL(b), "_blank"); w?.addEventListener("load", () => w.print()); });
+    exportMap(MAP_GRID_REPORT, gridCells(grid), "pdf", { headerLines: [brand.name], title: MAP_GRID_REPORT.title }, meta).then((b) => downloadBlob("mapa-censo-2026-grade.pdf", b));
   };
   const download = async (which: "escolas" | "turmas", format: "csv" | "xlsx" | "pdf") => {
     setBusy(true);
@@ -87,8 +88,7 @@ export function CensusMap2026Page({ mode = "escola" }: { mode?: "escola" | "rede
       const meta = [selected ? `Escola: ${selected.school_name ?? ""} (INEP ${selected.inep ?? "não informado"})` : "Recorte: todas as escolas visíveis para esta conta"];
       const blob = which === "escolas" ? await exportMap(MAP_SCHOOL_REPORT, schoolCells(scopeSchools), format, branding, meta) : await exportMap(MAP_CLASS_REPORT, classCells(classes, names), format, branding, meta);
       const url = URL.createObjectURL(blob);
-      if (format === "pdf") { const w = window.open(url, "_blank"); w?.addEventListener("load", () => w.print()); }
-      else { const a = document.createElement("a"); a.href = url; a.download = `mapa-censo-2026-${which}.${format}`; a.click(); }
+      { const a = document.createElement("a"); a.href = url; a.download = `mapa-censo-2026-${which}.${format}`; a.click(); }
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } finally { setBusy(false); }
   };

@@ -51,8 +51,8 @@ const STATION_ROUTES: Record<SectorStation, readonly string[]> = {
   alimentacao: ["/alimentacao-escolar", "/unidades", "/relatorios"],
   avaliacao: ["/avaliacao-desempenho", "/acompanhamento-avaliacao", "/paineis", "/relatorios", "/alunos", "/turmas"],
   secretaria_escolar: ["/secretaria", "/alunos", "/turmas", "/enturmacoes", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/documentos-escolares", "/horarios"],
-  direcao_escolar: ["/direcao", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar"],
-  orientacao_pedagogica: ["/orientacao", "/planejamento", "/alunos", "/turmas", "/horarios"],
+  direcao_escolar: ["/direcao", "/secretaria/modelos-de-texto", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar"],
+  orientacao_pedagogica: ["/orientacao", "/secretaria/modelos-de-texto", "/planejamento", "/alunos", "/turmas", "/horarios"],
   inclusao_nei: ["/inclusao", "/unidades", "/relatorios", "/alunos"],
 };
 
