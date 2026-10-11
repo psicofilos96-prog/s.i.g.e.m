@@ -31,7 +31,6 @@ async def main():
         p("FREQUÊNCIA" in body and "ANO LETIVO DE" in body, "pré-visualização tem capa e frequência por período")
         p("Escolha o componente" in body, "sem componente com registro, notas/FINAL pedem o componente em vez de imprimir vazio como final")
         p("RASCUNHO" in body, "sem regra homologada sai como rascunho")
-        p(" 0 " not in re.sub(r"\s+", " ", body.split("RESULTADO FINAL DO COMPONENTE")[-1])[:4000] or True, "sem nota não aparece zero (verificado no teste unitário)")
         html = await pg.locator("iframe[title='Pré-visualização do livro']").get_attribute("srcdoc")
         pp = await ctx.new_page(); await pp.set_content(html); await pp.wait_for_timeout(800)
         await pp.pdf(path="/tmp/lv/livro.pdf", prefer_css_page_size=True, print_background=True); await pp.close()
