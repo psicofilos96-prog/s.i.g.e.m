@@ -3,6 +3,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { createHash, randomBytes } from "node:crypto";
 import { resolveHarness } from "./harness-gate.mjs";
+import { readFileSync } from "node:fs";
 const gate = resolveHarness(process.env); if (gate.layer === "static") process.exit(3);
 const URL = process.env.SUPABASE_URL, SR = process.env.SUPABASE_SERVICE_ROLE_KEY, PK = process.env.SUPABASE_PUBLISHABLE_KEY;
 const op = "bo-" + randomBytes(6).toString("hex"); const hash = createHash("sha256").update(op + ":educacenso").digest("hex");
@@ -41,6 +42,17 @@ try {
   const ldr = await NET.c.from("educacenso_layout_registrations").select("documentation_state").eq("id", ld.data).single(); check(ldr.data?.documentation_state === "documentacao-inep-registrada", "com hash ⇒ documento registrado");
   const lA = await SA.c.rpc("educacenso_register_layout", { _year: Y, _label: "x", _doc_title: null, _doc_ref: null, _doc_sha256: null, _reason: "teste" }); check(!!lA.error, "escola não registra leiaute");
   const up = await NET.c.from("educacenso_layout_registrations").update({ layout_label: "y" }).eq("id", lp.data).select("id"); check(!!up.error || (up.data ?? []).length === 0, "leiaute não é editável diretamente");
+  const spec = JSON.parse(readFileSync("src/features/educacenso/layout/educacenso-2026-guia.json", "utf8"));
+  const sp1 = await NET.c.rpc("educacenso_register_layout_spec", { _year: Y, _stage_key: ST, _content: spec, _expected_version: 0, _layout: lp.data, _reason: "teste sintético" });
+  check(!sp1.error && sp1.data.version === 1 && sp1.data.fields === 503 && sp1.data.records === 8, "catálogo do guia registrado v1 (8 registros, 503 campos)", sp1.error?.message ?? JSON.stringify(sp1.data));
+  const spS = await NET.c.rpc("educacenso_register_layout_spec", { _year: Y, _stage_key: ST, _content: spec, _expected_version: 0, _layout: null, _reason: "teste sintético" }); check(!!spS.error && spS.error.message.includes("stale-base"), "versão sobre base antiga recusada");
+  const bad = structuredClone(spec); bad.records[1].fields.pop();
+  const spB = await NET.c.rpc("educacenso_register_layout_spec", { _year: Y, _stage_key: ST, _content: bad, _expected_version: 1, _layout: null, _reason: "teste sintético" }); check(!!spB.error && spB.error.message.includes("field-count-mismatch"), "catálogo com contagem divergente recusado");
+  const fake = structuredClone(spec); fake.source.inepConfronted = true;
+  const spF = await NET.c.rpc("educacenso_register_layout_spec", { _year: Y, _stage_key: ST, _content: fake, _expected_version: 1, _layout: null, _reason: "teste sintético" }); check(!!spF.error && spF.error.message.includes("confrontation-not-declarable"), "confronto INEP não pode ser autodeclarado");
+  const spA = await SA.c.rpc("educacenso_register_layout_spec", { _year: Y, _stage_key: ST, _content: spec, _expected_version: 1, _layout: null, _reason: "teste" }); check(!!spA.error && spA.error.message.includes("not-authorized"), "escola não registra catálogo");
+  const spR = await SA.c.from("educacenso_layout_specs").select("version, inep_confronted, content_sha256").eq("stage_key", ST); check(spR.data?.length === 1 && spR.data[0].inep_confronted === false, "catálogo legível, sem confronto INEP");
+  const spU = await NET.c.from("educacenso_layout_specs").update({ reason: "x" }).eq("stage_key", ST).select("id"); check(!!spU.error || (spU.data ?? []).length === 0, "catálogo não é editável");
   const pre = await sch(SA, A, "em-preparacao", 0); check(!!pre.error && pre.error.message.includes("collection-not-open"), "escola não registra com coleta fechada");
   const bd = await coll(NET, "configurar", 0, { date: "2025-05-28" }); check(!!bd.error && bd.error.message.includes("reference-date"), "data fora do ano-base recusada");
   const c1 = await coll(NET, "configurar", 0, { date: "2026-05-27", layout: lp.data }); check(!c1.error && c1.data === 1, "CIECE configura etapa", c1.error?.message);
@@ -66,6 +78,6 @@ finally {
   const ce = await admin.rpc("bo_fixture_cleanup_educacenso", { _operation_id: op }); console.log("cleanup Educacenso:", ce.error ? "ERRO " + ce.error.message : `ok (${ce.data} linhas)`);
   const cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); console.log("cleanup contas:", cl.error ? "ERRO " + cl.error.message : `ok (${cl.data})`);
   for (const id of users) await admin.auth.admin.deleteUser(id);
-  let left = 0; for (const t of ["educacenso_school_status_events", "educacenso_collection_events", "educacenso_layout_registrations"]) { const r = await admin.from(t).select("id", { count: "exact", head: true }).in("actor_user_id", users); left += r.count ?? 0; }
+  let left = 0; for (const t of ["educacenso_layout_specs", "educacenso_school_status_events", "educacenso_collection_events", "educacenso_layout_registrations"]) { const r = await admin.from(t).select("id", { count: "exact", head: true }).in("actor_user_id", users); left += r.count ?? 0; }
   check(left === 0, "sem resíduo após limpeza"); console.log(`RESUMO falhas=${fails}`);
 }
