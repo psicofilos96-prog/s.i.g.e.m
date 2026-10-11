@@ -2381,6 +2381,13 @@
       "when": 1791714235291,
       "tag": "0339_nei5_visits_protocols_documents",
       "breakpoints": true
+    },
+    {
+      "idx": 340,
+      "version": "7",
+      "when": 1791714733499,
+      "tag": "0340_nei6_indicators",
+      "breakpoints": true
     }
   ]
 }

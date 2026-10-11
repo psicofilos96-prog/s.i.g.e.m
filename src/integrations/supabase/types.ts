@@ -25101,6 +25101,7 @@ export type Database = {
           weekday: number
         }[]
       }
+      nei_aee_current_status: { Args: { _logical: string }; Returns: string }
       nei_aee_service_detail: { Args: { _service: string }; Returns: Json }
       nei_aee_service_head: {
         Args: { _logical: string }
@@ -25174,6 +25175,41 @@ export type Database = {
         Args: { _school: string; _student: string }
         Returns: boolean
       }
+      nei_indicator_drill: {
+        Args: { _key: string; _school: string }
+        Returns: {
+          ref_date: string
+          situation: string
+          student_name: string
+        }[]
+      }
+      nei_indicators: {
+        Args: { _school?: string }
+        Returns: {
+          actions_open: number
+          actions_overdue: number
+          aee_interrupted: number
+          aee_planned: number
+          aee_services: number
+          aee_started: number
+          barriers_open: number
+          cases_open: number
+          cases_overdue: number
+          followed: number
+          mediations: number
+          mediations_uncovered: number
+          plans_overdue: number
+          plans_total: number
+          protocol_reply_days_median: number
+          protocols_answered: number
+          protocols_sent: number
+          school_id: string
+          support_first_move_days_median: number
+          support_open: number
+          with_paee: number
+          with_pei: number
+        }[]
+      }
       nei_is_admin: { Args: never; Returns: boolean }
       nei_is_station: { Args: { _user: string }; Returns: boolean }
       nei_log: {
@@ -25220,6 +25256,14 @@ export type Database = {
           valid_until: string
         }[]
       }
+      nei_network_aggregate: {
+        Args: never
+        Returns: {
+          indicator: string
+          suppressed: boolean
+          value: number
+        }[]
+      }
       nei_offer_next_allowed: {
         Args: { _from: string; _to: string }
         Returns: boolean
@@ -25233,6 +25277,7 @@ export type Database = {
         Args: { _name: string; _upload: boolean }
         Returns: boolean
       }
+      nei_plan_overdue: { Args: { _plan: string }; Returns: boolean }
       nei_plan_role: { Args: { _plan: string }; Returns: string }
       nei_plans_for: {
         Args: { _school: string; _student: string }

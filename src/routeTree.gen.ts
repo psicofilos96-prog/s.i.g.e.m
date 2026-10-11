@@ -173,6 +173,7 @@ import { Route as InclusaoNeiAeeRouteImport } from './routes/inclusao_.nei_.aee'
 import { Route as InclusaoNeiAgendaRouteImport } from './routes/inclusao_.nei_.agenda'
 import { Route as InclusaoNeiApoioRouteImport } from './routes/inclusao_.nei_.apoio'
 import { Route as InclusaoNeiFichaRouteImport } from './routes/inclusao_.nei_.ficha'
+import { Route as InclusaoNeiIndicadoresRouteImport } from './routes/inclusao_.nei_.indicadores'
 import { Route as InclusaoNeiProtocolosRouteImport } from './routes/inclusao_.nei_.protocolos'
 import { Route as MatrizesCurricularesImpressaoIdRouteImport } from './routes/matrizes-curriculares.impressao.$id'
 import { Route as MatrizesCurricularesNovaVersaoIdRouteImport } from './routes/matrizes-curriculares.nova-versao.$id'
@@ -1091,6 +1092,11 @@ const InclusaoNeiFichaRoute = InclusaoNeiFichaRouteImport.update({
   path: '/inclusao/nei/ficha',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InclusaoNeiIndicadoresRoute = InclusaoNeiIndicadoresRouteImport.update({
+  id: '/inclusao_/nei_/indicadores',
+  path: '/inclusao/nei/indicadores',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InclusaoNeiProtocolosRoute = InclusaoNeiProtocolosRouteImport.update({
   id: '/inclusao_/nei_/protocolos',
   path: '/inclusao/nei/protocolos',
@@ -1732,6 +1738,7 @@ export interface FileRoutesByFullPath {
   '/inclusao/nei/agenda': typeof InclusaoNeiAgendaRoute
   '/inclusao/nei/apoio': typeof InclusaoNeiApoioRoute
   '/inclusao/nei/ficha': typeof InclusaoNeiFichaRoute
+  '/inclusao/nei/indicadores': typeof InclusaoNeiIndicadoresRoute
   '/inclusao/nei/protocolos': typeof InclusaoNeiProtocolosRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
@@ -1959,6 +1966,7 @@ export interface FileRoutesByTo {
   '/inclusao/nei/agenda': typeof InclusaoNeiAgendaRoute
   '/inclusao/nei/apoio': typeof InclusaoNeiApoioRoute
   '/inclusao/nei/ficha': typeof InclusaoNeiFichaRoute
+  '/inclusao/nei/indicadores': typeof InclusaoNeiIndicadoresRoute
   '/inclusao/nei/protocolos': typeof InclusaoNeiProtocolosRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
@@ -2193,6 +2201,7 @@ export interface FileRoutesById {
   '/inclusao_/nei_/agenda': typeof InclusaoNeiAgendaRoute
   '/inclusao_/nei_/apoio': typeof InclusaoNeiApoioRoute
   '/inclusao_/nei_/ficha': typeof InclusaoNeiFichaRoute
+  '/inclusao_/nei_/indicadores': typeof InclusaoNeiIndicadoresRoute
   '/inclusao_/nei_/protocolos': typeof InclusaoNeiProtocolosRoute
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
@@ -2441,6 +2450,7 @@ export interface FileRouteTypes {
     | '/inclusao/nei/agenda'
     | '/inclusao/nei/apoio'
     | '/inclusao/nei/ficha'
+    | '/inclusao/nei/indicadores'
     | '/inclusao/nei/protocolos'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
@@ -2668,6 +2678,7 @@ export interface FileRouteTypes {
     | '/inclusao/nei/agenda'
     | '/inclusao/nei/apoio'
     | '/inclusao/nei/ficha'
+    | '/inclusao/nei/indicadores'
     | '/inclusao/nei/protocolos'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
@@ -2901,6 +2912,7 @@ export interface FileRouteTypes {
     | '/inclusao_/nei_/agenda'
     | '/inclusao_/nei_/apoio'
     | '/inclusao_/nei_/ficha'
+    | '/inclusao_/nei_/indicadores'
     | '/inclusao_/nei_/protocolos'
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
@@ -3101,6 +3113,7 @@ export interface RootRouteChildren {
   InclusaoNeiAgendaRoute: typeof InclusaoNeiAgendaRoute
   InclusaoNeiApoioRoute: typeof InclusaoNeiApoioRoute
   InclusaoNeiFichaRoute: typeof InclusaoNeiFichaRoute
+  InclusaoNeiIndicadoresRoute: typeof InclusaoNeiIndicadoresRoute
   InclusaoNeiProtocolosRoute: typeof InclusaoNeiProtocolosRoute
   VerificarCarteirinhaCodigoRoute: typeof VerificarCarteirinhaCodigoRoute
   VerificarDocumentoCodigoRoute: typeof VerificarDocumentoCodigoRoute
@@ -4257,6 +4270,13 @@ declare module '@tanstack/react-router' {
       path: '/inclusao/nei/ficha'
       fullPath: '/inclusao/nei/ficha'
       preLoaderRoute: typeof InclusaoNeiFichaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inclusao_/nei_/indicadores': {
+      id: '/inclusao_/nei_/indicadores'
+      path: '/inclusao/nei/indicadores'
+      fullPath: '/inclusao/nei/indicadores'
+      preLoaderRoute: typeof InclusaoNeiIndicadoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inclusao_/nei_/protocolos': {
@@ -5612,6 +5632,7 @@ const rootRouteChildren: RootRouteChildren = {
   InclusaoNeiAgendaRoute: InclusaoNeiAgendaRoute,
   InclusaoNeiApoioRoute: InclusaoNeiApoioRoute,
   InclusaoNeiFichaRoute: InclusaoNeiFichaRoute,
+  InclusaoNeiIndicadoresRoute: InclusaoNeiIndicadoresRoute,
   InclusaoNeiProtocolosRoute: InclusaoNeiProtocolosRoute,
   VerificarCarteirinhaCodigoRoute: VerificarCarteirinhaCodigoRoute,
   VerificarDocumentoCodigoRoute: VerificarDocumentoCodigoRoute,
