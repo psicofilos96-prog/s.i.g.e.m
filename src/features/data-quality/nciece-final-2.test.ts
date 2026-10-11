@@ -35,7 +35,7 @@ describe("NCIECE.FINAL.2 — Mapa no gerador", () => {
   it("fontes disponíveis e packs CIECE ativos", () => {
     for (const id of ["gerador-mapa", "gerador-censo"]) expect(BUILDER_SOURCES.find((s) => s.id === id)?.unavailable).toBeUndefined();
     for (const id of ["ciece-mapa", "ciece-qualidade", "ciece-censo"]) expect(SECTOR_PACKS.find((p) => p.id === id)?.blockedBy).toBeUndefined();
-    expect(SECTOR_PACKS).toHaveLength(54);
+    expect(SECTOR_PACKS).toHaveLength(67);
   });
 });
 

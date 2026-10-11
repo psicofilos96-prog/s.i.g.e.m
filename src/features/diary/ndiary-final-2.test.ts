@@ -68,7 +68,7 @@ describe("NDIARY.FINAL.2 — fontes de relatório do Diário", () => {
   });
   it("contagem só de marcações explícitas", () => { expect(attendanceCounts({ a: { s1: "Presente", s2: "Ausente" }, b: { s1: "Presente" } })).toEqual({ presentes: 2, faltas: 1 }); });
   it("ainda são 54 pacotes e os do Diário apontam para fontes reais", () => {
-    expect(SECTOR_PACKS).toHaveLength(54);
+    expect(SECTOR_PACKS).toHaveLength(67);
     for (const p of SECTOR_PACKS.filter((x) => x.sourceId.startsWith("diario-") && !x.blockedBy)) expect(ids).toContain(p.sourceId);
   });
 });

@@ -6,6 +6,7 @@ import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/cu
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { ACTION_LABEL, DESTINATION, STAGE_LABEL, VISIT_LABEL, actionClosed, overdue, protocolProblem, visitClosed, visitProblem, type ActionStatus, type ProtocolStage, type VisitStatus } from "./nei-visits";
 
+import { DateInput } from "@/components/sigem/date-input";
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
 const MSG: Record<string, string> = {
@@ -103,7 +104,7 @@ function Visits({ d, school, schoolName, onSaved }: { d: Agenda; school: string;
       <div className="space-y-1 rounded-md border border-dashed border-border p-3 text-sm">
         <p className="font-medium">Agendar visita</p>
         <input className={input} placeholder="Finalidade da visita (mín. 5)" value={purpose} onChange={(e) => setPurpose(e.target.value)} />
-        <input type="date" className={input + " w-auto"} value={on} onChange={(e) => setOn(e.target.value)} aria-label="Data da visita" />
+        <DateInput className={input + " w-auto"} value={on} onChange={(e) => setOn(e.target.value)} aria-label="Data da visita" />
         <StudentPicker school={school} value={student} onChange={setStudent} />
         <Button size="sm" disabled={purpose.trim().length < 5 || !on} onClick={create}>Agendar</Button>{msg ? <span className="ml-2 text-xs text-destructive">{msg}</span> : null}
       </div>
@@ -132,7 +133,7 @@ function VisitCard({ v, schoolName, onSaved }: { v: Visit; schoolName: string; o
         <div className="mt-2 space-y-1">
           <div className="flex flex-wrap gap-1">
             <select className={input + " w-auto"} value={to} onChange={(e) => setTo(e.target.value as VisitStatus)} aria-label="Próxima situação"><option value="realizada">Realizada</option><option value="reagendada">Reagendar</option><option value="cancelada">Cancelar</option></select>
-            {to === "reagendada" ? <input type="date" className={input + " w-auto"} value={date} onChange={(e) => setDate(e.target.value)} aria-label="Nova data" /> : null}
+            {to === "reagendada" ? <DateInput className={input + " w-auto"} value={date} onChange={(e) => setDate(e.target.value)} aria-label="Nova data" /> : null}
           </div>
           {to !== "reagendada" ? <textarea className={input} rows={2} placeholder={to === "realizada" ? "Relatório da visita (sem dado clínico)" : "Justificativa"} value={report} onChange={(e) => setReport(e.target.value)} /> : null}
           <Button size="sm" variant="outline" onClick={save}>Registrar</Button>
@@ -156,7 +157,7 @@ function Actions({ d, school, onSaved }: { d: Agenda; school: string; onSaved: (
         <p className="font-medium">Nova providência</p>
         <input className={input} placeholder="O que precisa ser feito (mín. 5)" value={desc} onChange={(e) => setDesc(e.target.value)} />
         <div className="flex flex-wrap gap-1">
-          <input type="date" className={input + " w-auto"} value={due} onChange={(e) => setDue(e.target.value)} aria-label="Prazo (opcional)" />
+          <DateInput className={input + " w-auto"} value={due} onChange={(e) => setDue(e.target.value)} aria-label="Prazo (opcional)" />
           <input className={input + " w-auto"} placeholder="Responsável (texto)" value={resp} onChange={(e) => setResp(e.target.value)} />
           <select className={input + " w-auto"} value={visit} onChange={(e) => setVisit(e.target.value)} aria-label="Visita de origem"><option value="">Sem visita de origem</option>{d.visits.map((v) => <option key={v.id} value={v.id}>{dt(v.events[v.events.length - 1]!.on_date)} — {v.purpose.slice(0, 40)}</option>)}</select>
         </div>
@@ -208,7 +209,7 @@ function Protocols({ d, school, onSaved }: { d: Agenda; school: string; onSaved:
         ) : <select className={input} value={recipient} onChange={(e) => setRecipient(e.target.value)} aria-label="Destinatário"><option value="">Escolha o destinatário</option>{cands.map((c) => <option key={c.user_id} value={c.user_id}>{c.label}</option>)}</select>}
         <input className={input} placeholder="Assunto (aparece na caixa de entrada; sem dado clínico)" value={subject} onChange={(e) => setSubject(e.target.value)} maxLength={120} />
         <textarea className={input} rows={3} placeholder="Mensagem (sem CID, laudo ou diagnóstico)" value={body} onChange={(e) => setBody(e.target.value)} />
-        <label className="text-xs">Devolutiva até (opcional) <input type="date" className={input + " w-auto"} value={due} onChange={(e) => setDue(e.target.value)} /></label>
+        <label className="text-xs">Devolutiva até (opcional) <DateInput className={input + " w-auto"} value={due} onChange={(e) => setDue(e.target.value)} /></label>
         <div><Button size="sm" onClick={send}>Enviar protocolo</Button>{msg ? <span className="ml-2 text-xs">{msg}</span> : null}</div>
       </div>
     </section>

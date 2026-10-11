@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { distortion, mergeAdjusted, T04_ROWS, type DistortionRow } from "./t04-distortion";
 import type { Values } from "./semed-catalog";
 
+import { DateInput } from "@/components/sigem/date-input";
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
 export type T04Rule = { version: number; reference_date: string; thresholds: Record<string, number>; basis: string } | null;
@@ -91,7 +92,7 @@ export function T04Panel({ school, year, network, canFill, editable, draft, setD
       {network && (
         <details className="rounded border p-2 text-xs"><summary className="cursor-pointer font-medium">Registrar nova versão da regra (rede)</summary>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <label>Data de referência<br /><input type="date" aria-label="Data de referência" className="rounded-md border border-input bg-background p-1" value={rd} onChange={(e) => setRd(e.target.value)} /></label>
+            <label>Data de referência<br /><DateInput aria-label="Data de referência" className="rounded-md border border-input bg-background p-1" value={rd} onChange={(e) => setRd(e.target.value)} /></label>
             <label>Fundamento (decisão ou norma)<br /><input aria-label="Fundamento" className="w-full rounded-md border border-input bg-background p-1" value={basis} onChange={(e) => setBasis(e.target.value)} /></label>
           </div>
           <p className="mt-2">Idade a partir da qual há distorção, por linha (vazio = linha sem indicador):</p>

@@ -6,6 +6,7 @@ import { StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { EMPTY_PLAN, PLAN_FIELDS, PLAN_LABEL, STATUS_LABEL, canWritePlan, planProblem, type PlanContent, type PlanKind, type PlanStatus } from "./nei-aee";
 
+import { DateInput } from "@/components/sigem/date-input";
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const human = (m: string) => m.includes("stale") ? "Outra pessoa salvou antes. Recarregue." : m.includes("not-authorized") ? "Seu papel não permite esta ação neste plano." : m.includes("plan-content") ? "Conteúdo do plano inválido." : "Não foi possível concluir.";
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
@@ -92,7 +93,7 @@ function PlanCard({ p, role, onSaved, studentName }: { p: Plan; role: "gestao" |
         <div className="space-y-1"><p className="text-xs font-medium">Metas</p>
           {c.metas.map((m, i) => <div key={i} className="flex gap-1">
             <input className={input} disabled={!can} value={m.texto} aria-label={`Meta ${i + 1}`} onChange={(e) => setC({ ...c, metas: c.metas.map((x, j) => j === i ? { ...x, texto: e.target.value } : x) })} />
-            <input type="date" className={input + " w-40"} disabled={!can} aria-label={`Prazo da meta ${i + 1}`} value={m.prazo ?? ""} onChange={(e) => setC({ ...c, metas: c.metas.map((x, j) => j === i ? { ...x, prazo: e.target.value || null } : x) })} />
+            <DateInput className={input + " w-40"} disabled={!can} aria-label={`Prazo da meta ${i + 1}`} value={m.prazo ?? ""} onChange={(e) => setC({ ...c, metas: c.metas.map((x, j) => j === i ? { ...x, prazo: e.target.value || null } : x) })} />
             {can ? <Button size="sm" variant="ghost" onClick={() => setC({ ...c, metas: c.metas.filter((_, j) => j !== i) })}>Remover</Button> : null}</div>)}
           {can ? <Button size="sm" variant="outline" onClick={() => setC({ ...c, metas: [...c.metas, { texto: "", prazo: null }] })}>Adicionar meta</Button> : null}</div>
         {can ? <div className="grid gap-1 sm:grid-cols-3">

@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { PEOPLE_STATE_LABEL, COLLISION_LABEL, REVIEW_LABEL, peoplePendencies, type PeopleAt } from "./people-identity";
 
+import { LoadingState } from "@/components/sigem/states";
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
 
 /** LOTE 04 — pessoas da escola para o Educacenso: só leitura mascarada; nenhum dado ausente é inferido. */
@@ -31,7 +32,7 @@ export function PeopleIdentityPanel({ schools, names, network }: { schools: stri
         <select aria-label="Escola" className={field} value={school} onChange={(e) => { setSchool(e.target.value); setPage(0); }}>
           {schools.map((s) => <option key={s} value={s}>{names.get(s) ?? s}</option>)}
         </select></label>
-      {data === null ? <p role="status" className="mt-2 text-xs">Carregando…</p> : data === "error" ? <p role="alert" className="mt-2 text-xs">Sem permissão para ver as pessoas desta escola ou falha na leitura.</p> : <>
+      {data === null ? <LoadingState label="Carregando…" /> : data === "error" ? <p role="alert" className="mt-2 text-xs">Sem permissão para ver as pessoas desta escola ou falha na leitura.</p> : <>
         <div className="my-2 grid gap-2 text-xs sm:grid-cols-4">
           <div>{data.summary.students} alunos com enturmação · {data.summary.professionals} profissionais com atuação</div>
           <div>INEP: {data.summary.inep_valid} válidos · {data.summary.inep_invalid} inválidos · {data.summary.inep_missing} ausentes</div>

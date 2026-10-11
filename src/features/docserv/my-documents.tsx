@@ -7,6 +7,9 @@ import { canReplace, currentByType, deriveAlerts, typeLabel } from "./server-por
 import { extractPdfSuggestion } from "./docserv-files";
 import { extractionRecord, requirementLabel, submissionWindow, suggestedValidUntil, type Extraction, type PolicyState, type Season } from "./docserv-rules";
 
+import { DateInput } from "@/components/sigem/date-input";
+import { operationalToday } from "@/lib/academic-date";
+import { LoadingState } from "@/components/sigem/states";
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
 const TYPES = ["antecedente_criminal", "antecedente_civil"];
 type History = { versions: { version: number; size: number; mime: string; issuer: string | null; valid_until: string | null; submitted_at: string; via_school: boolean; path: string }[];
@@ -20,7 +23,7 @@ export async function openSigned(path: string) {
 
 /** "Meus documentos": só os documentos da pessoa ligada ao login. O banco recusa qualquer outra pessoa. */
 export function MyDocuments({ person }: { person: string }) {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const [season, setSeason] = useState(today.slice(0, 4));
   const [rows, setRows] = useState<DocRow[] | "error" | null>(null);
   const [read, setRead] = useState<string[]>([]);
@@ -50,7 +53,7 @@ export function MyDocuments({ person }: { person: string }) {
     if (r.error) setMsg("Histórico indisponível."); else setHist({ id, data: r.data as unknown as History });
   };
 
-  if (rows === null) return <p className="text-xs text-muted-foreground">Carregando…</p>;
+  if (rows === null) return <LoadingState label="Carregando…" />;
   if (rows === "error") return <p className="text-xs text-destructive">Não foi possível ler seus documentos.</p>;
   return (
     <div className="space-y-3">
@@ -125,8 +128,8 @@ function Upload({ person, type, season, cycles, policy, document, expected, labe
       {sug && sug.confidence === "nenhuma" && <span className="text-muted-foreground">Não foi possível ler datas do arquivo; preencha manualmente.</span>}
       {cycles.length > 0 && <select className={field} value={cycle ?? ""} onChange={(e) => setCycle(Number(e.target.value))} aria-label="Ciclo">{cycles.map((c) => <option key={c} value={c}>Ciclo {c}</option>)}</select>}
       <input className={field} placeholder="Emissor" value={issuer} onChange={(e) => setIssuer(e.target.value)} />
-      <label>Emissão <input type="date" className={field} value={issued} onChange={(e) => setIssued(e.target.value)} /></label>
-      <label>Validade <input type="date" className={field} value={until} onChange={(e) => setUntil(e.target.value)} /></label>
+      <label>Emissão <DateInput className={field} value={issued} onChange={(e) => setIssued(e.target.value)} /></label>
+      <label>Validade <DateInput className={field} value={until} onChange={(e) => setUntil(e.target.value)} /></label>
       <Button size="sm" disabled={busy} onClick={() => void send()}>{busy ? "Enviando…" : label}</Button>
     </div>
   );

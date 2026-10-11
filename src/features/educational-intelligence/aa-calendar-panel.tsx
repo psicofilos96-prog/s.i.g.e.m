@@ -6,6 +6,8 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { governError } from "@/lib/observability/governed-errors";
 import { projectCalendar, KIND_LABEL, type CalItem, type StatusEv, type CalView } from "./aa-calendar";
 
+import { DateInput } from "@/components/sigem/date-input";
+import { operationalToday } from "@/lib/academic-date";
 type Rpc = (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
@@ -14,7 +16,7 @@ const STATE_LABEL = { planejado: "Planejado", "em-andamento": "Em andamento", co
 export function AaCalendarPanel() {
   const [data, setData] = useState<{ items: CalItem[]; st: StatusEv[] } | { error: string } | null>(null);
   const [caps, setCaps] = useState({ manter: false, acompanhar: false });
-  const [today] = useState(() => new Date().toISOString().slice(0, 10));
+  const [today] = useState(() => operationalToday());
   const [year, setYear] = useState(2026);
   const [warn, setWarn] = useState(7);
   const [seg, setSeg] = useState(""); const [kind, setKind] = useState(""); const [rel, setRel] = useState("DIRETA"); const [onlyAlerts, setOnlyAlerts] = useState(false);
@@ -110,7 +112,7 @@ function ItemDetail({ v, caps, onDone }: { v: CalView; caps: { manter: boolean; 
       <div className="space-y-3">
         {caps.manter && v.current.event_kind !== "cancelamento" ? (
           <div className="space-y-1"><h4 className="font-semibold">Reprogramar</h4>
-            <div className="flex flex-wrap gap-1"><input type="date" className={field} value={start} onChange={(e) => setStart(e.target.value)} /><input type="date" className={field} value={end} onChange={(e) => setEnd(e.target.value)} />
+            <div className="flex flex-wrap gap-1"><DateInput className={field} value={start} onChange={(e) => setStart(e.target.value)} /><DateInput className={field} value={end} onChange={(e) => setEnd(e.target.value)} />
               <input className={field} placeholder="Responsável" value={resp} onChange={(e) => setResp(e.target.value)} /><input className={field} placeholder="Motivo (obrigatório)" value={reason} onChange={(e) => setReason(e.target.value)} /></div>
             <div className="flex gap-1"><Button size="sm" disabled={reason.trim().length < 5 || !start} onClick={() => void reprogram("reprogramacao")}>Registrar nova data</Button>
               <Button size="sm" variant="outline" disabled={reason.trim().length < 5} onClick={() => void reprogram("cancelamento")}>Cancelar ação</Button></div></div>

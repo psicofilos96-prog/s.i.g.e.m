@@ -5,6 +5,7 @@ import type { Values } from "./semed-catalog";
 import type { T06Apur } from "./semed-export";
 import { T06_GAP, t06Divergences } from "./t06-movement";
 
+import { DateInput } from "@/components/sigem/date-input";
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
 type Rule = { version: number; initial_date: string; final_date: string; movement_map: Record<string, string>; standing_map: Record<string, string>; basis: string } | null;
@@ -56,8 +57,8 @@ export function T06Panel({ school, year, network, draft, rows, onApur }: {
       {network && (
         <details className="rounded border p-2 text-xs"><summary className="cursor-pointer font-medium">Registrar nova versão da regra (rede)</summary>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <label>Data da matrícula inicial<br /><input type="date" aria-label="Data da matrícula inicial" className="rounded-md border border-input bg-background p-1" value={ini} onChange={(e) => setIni(e.target.value)} /></label>
-            <label>Data da matrícula final<br /><input type="date" aria-label="Data da matrícula final" className="rounded-md border border-input bg-background p-1" value={fin} onChange={(e) => setFin(e.target.value)} /></label>
+            <label>Data da matrícula inicial<br /><DateInput aria-label="Data da matrícula inicial" className="rounded-md border border-input bg-background p-1" value={ini} onChange={(e) => setIni(e.target.value)} /></label>
+            <label>Data da matrícula final<br /><DateInput aria-label="Data da matrícula final" className="rounded-md border border-input bg-background p-1" value={fin} onChange={(e) => setFin(e.target.value)} /></label>
             <label>Tipo de movimentação homologado = coluna (transferencia/cancelamento/evasao), um por linha<br /><textarea aria-label="Mapa de movimentações" className="w-full rounded-md border border-input bg-background p-1" rows={3} value={mv} onChange={(e) => setMv(e.target.value)} /></label>
             <label>Situação acadêmica oficial = coluna (aprovados/reprovados), uma por linha<br /><textarea aria-label="Mapa de situações" className="w-full rounded-md border border-input bg-background p-1" rows={3} value={st} onChange={(e) => setSt(e.target.value)} /></label>
             <label className="sm:col-span-2">Fundamento (decisão ou norma)<br /><input aria-label="Fundamento da Tabela 06" className="w-full rounded-md border border-input bg-background p-1" value={basis} onChange={(e) => setBasis(e.target.value)} /></label>

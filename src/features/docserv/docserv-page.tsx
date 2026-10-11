@@ -7,12 +7,13 @@ import { SchoolDocsPanel } from "./school-panel";
 import { NetworkPanel } from "./network-panel";
 import { API_PORT_STATUS, OUTCOME_LABEL, availablePanels, cpfDigits, needsManualDecision, type DocservContext, type QueueItem } from "./docserv-model";
 
+import { LoadingState } from "@/components/sigem/states";
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
 
 export function DocservPage() {
   const [ctx, setCtx] = useState<DocservContext | "error" | null>(null);
   useEffect(() => { void supabase.rpc("docserv_context").then((r) => setCtx(r.error ? "error" : (r.data as unknown as DocservContext))); }, []);
-  if (ctx === null) return <p className="p-4 text-sm text-muted-foreground">Carregando…</p>;
+  if (ctx === null) return <LoadingState label="Carregando…" />;
   if (ctx === "error") return <p className="p-4 text-sm text-destructive">Não foi possível ler suas permissões no DocServ.</p>;
   const panels = availablePanels(ctx);
   return (
@@ -66,7 +67,7 @@ function IdentityConsole() {
       </div>
       {msg && <p className="mt-2 text-xs" role="status">{msg}</p>}
       <input className={`${field} mt-2 w-full`} placeholder="Motivo da decisão manual" value={reason} onChange={(e) => setReason(e.target.value)} />
-      {queue === null ? <p className="mt-2 text-xs text-muted-foreground">Carregando…</p> : queue.length === 0 ? <p className="mt-2 text-xs text-muted-foreground">Nenhuma correspondência registrada.</p> : (
+      {queue === null ? <LoadingState label="Carregando…" /> : queue.length === 0 ? <p className="mt-2 text-xs text-muted-foreground">Nenhuma correspondência registrada.</p> : (
         <ul className="mt-2 space-y-1 text-xs">{queue.map((q) => (
           <li key={q.key} className="rounded border p-2">
             {q.kind} · {OUTCOME_LABEL[q.outcome]}{q.manual ? " (manual)" : ""} · {q.matricula ? `matrícula ${q.matricula} · ` : ""}{q.cpf ? "CPF informado · " : ""}{q.inep ? `INEP ${q.inep}` : ""}

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 
+import { LoadingState } from "@/components/sigem/states";
 type Source = { id: string; reference_year: string; table_key: string; title: string; file_name: string; sheet_name: string; file_sha256: string; in_package: boolean; row_count: number; extracted_count: number; notes: string | null; recorded_at: string };
 type Code = { code: string; label: string | null; parent_code: string | null; row_no: number };
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
@@ -24,7 +25,7 @@ export function AuxTablesPanel({ year }: { year: string }) {
     const r = await supabase.rpc("educacenso_aux_check", { _year: year, _kind: chk.kind, _a: chk.a, ...(chk.b ? { _b: chk.b } : {}), ...(chk.c ? { _c: chk.c } : {}) });
     setRes(r.error ? "Não foi possível conferir." : `${RESULT[(r.data as { result: string }).result] ?? (r.data as { result: string }).result}`);
   };
-  if (sources === null) return <section className="rounded-md border p-3"><p role="status" className="text-xs">Carregando tabelas auxiliares…</p></section>;
+  if (sources === null) return <section className="rounded-md border p-3"><LoadingState label="Carregando tabelas auxiliares…" /></section>;
   if (sources === "error") return null;
   return (
     <section className="rounded-md border p-3" aria-label="Tabelas auxiliares">

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { BARRIER_CATEGORY, BARRIER_LABEL, SUPPORT_KIND, SUPPORT_LABEL, barrierClosed, coverageState, supportNext, supportProblem, type BarrierStatus, type SupportStage } from "./nei-support";
 
+import { DateInput } from "@/components/sigem/date-input";
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
 const MSG: Record<string, string> = {
@@ -117,8 +118,8 @@ function Coverage({ d, school, onSaved }: { d: Data; school: string; onSaved: ()
         <select className={input} value={covered} onChange={(e) => setCovered(e.target.value)} aria-label="Profissional"><option value="">Profissional</option>{d.professionals.map((p) => <option key={p.engagement_id} value={p.engagement_id}>{p.name}</option>)}</select>
         <select className={input} value={kind} onChange={(e) => setKind(e.target.value)} aria-label="Tipo"><option value="afastamento">Afastamento</option><option value="substituicao">Substituição</option></select>
         {kind === "substituicao" ? <select className={input} value={sub} onChange={(e) => setSub(e.target.value)} aria-label="Substituto"><option value="">Substituto</option>{d.professionals.filter((p) => p.engagement_id !== covered).map((p) => <option key={p.engagement_id} value={p.engagement_id}>{p.name}</option>)}</select> : <span />}
-        <input type="date" className={input} aria-label="Início" value={start} onChange={(e) => setStart(e.target.value)} />
-        <input type="date" className={input} aria-label="Fim (opcional)" value={end} onChange={(e) => setEnd(e.target.value)} />
+        <DateInput className={input} aria-label="Início" value={start} onChange={(e) => setStart(e.target.value)} />
+        <DateInput className={input} aria-label="Fim (opcional)" value={end} onChange={(e) => setEnd(e.target.value)} />
         <input className={input} placeholder="Observação (mín. 5)" value={note} onChange={(e) => setNote(e.target.value)} />
         <Button size="sm" disabled={!ok} onClick={send}>Registrar</Button>{msg ? <span className="text-xs text-destructive sm:col-span-2">{msg}</span> : null}
       </div>
