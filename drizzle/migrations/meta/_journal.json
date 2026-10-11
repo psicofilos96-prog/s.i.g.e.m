@@ -2171,6 +2171,13 @@
       "when": 1791694402024,
       "tag": "0309_meal_readers_accept_bo_fixture",
       "breakpoints": true
+    },
+    {
+      "idx": 310,
+      "version": "7",
+      "when": 1791694530013,
+      "tag": "0310_meal_master_school_reads_network_catalog",
+      "breakpoints": true
     }
   ]
 }
