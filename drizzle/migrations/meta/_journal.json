@@ -2353,6 +2353,20 @@
       "when": 1791712359088,
       "tag": "0335_nei2_assignees_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 336,
+      "version": "7",
+      "when": 1791712925837,
+      "tag": "0336_nei3_aee_offer_plans",
+      "breakpoints": true
+    },
+    {
+      "idx": 337,
+      "version": "7",
+      "when": 1791712990633,
+      "tag": "0337_nei3_storage_policy_definer",
+      "breakpoints": true
     }
   ]
 }
