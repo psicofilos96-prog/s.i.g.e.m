@@ -46,7 +46,7 @@ export function documentBlocks(def: TableDef, v: Values, central: Central, t04Th
       body.push(tot);
     }
     out.push({ title: s.title, head, body });
-    if (def.code === "04") out.push({ title: "DISTORÇÃO SÉRIE x IDADE (idade ≥ idade de distorção da regra registrada)", head: ["Ano/etapa", "Idade de distorção", "Total", "Em distorção", "%"],
+    if (def.code === "04") out.push({ title: "DISTORÇÃO SÉRIE x IDADE (alunos a partir da idade de distorção da regra registrada)", head: ["Ano/etapa", "Idade de distorção", "Total", "Em distorção", "%"],
       body: distortion(v, t04Thresholds).map((d) => [d.label, show(d.threshold), show(d.total), show(d.distorted), d.pct === null ? (d.threshold === null ? "sem regra" : ABS) : `${String(d.pct).replace(".", ",")}%`]) });
   }
   return out;

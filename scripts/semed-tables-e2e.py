@@ -28,6 +28,7 @@ async def main():
         check(await p.get_by_role("img", name="Gráfico de distorção série × idade por linha").count() == 1, "gráfico de distorção na tela")
         await p.get_by_label("m.ef1.a6", exact=True).fill("8"); await p.get_by_label("m.ef1.a8", exact=True).fill("2"); await p.get_by_label("m.ef1.a7", exact=True).fill("")
         await p.get_by_role("button", name="Salvar rascunho").click(); await p.wait_for_timeout(1500)
+        check(await p.get_by_text("Salvar rascunho: feito.").count() == 1, "rascunho da Tabela 04 salvo pela tela")
         check(await p.get_by_text("20% (2/10)").count() == 1, "indicador do 1º ano pela regra registrada (2 de 10)")
         await p.screenshot(path=f"{OUT}/fill_t04.png")
         for btn, ext in (("Baixar PDF", "pdf"), ("Baixar XLSX", "xlsx")):
