@@ -307,9 +307,10 @@ export function renderBook(i: BookInput, opts: { kinds?: readonly SheetKind[] | 
   const issues = bookIssues(i);
   const draft = issues.length > 0;
   const fam = familyOf(i.family);
-  const body = sheets.map((s) => `<section class="sheet ${s.spec.orientation === "landscape" ? "land" : "port"}" data-sheet="${s.spec.kind}">${draft ? `<div class="wm" aria-hidden="true">RASCUNHO</div>` : ""}${s.html}<footer class="ft">${esc(fam.label)} · folha do modelo "${esc(s.spec.source.replace("nº", s.periodIndex === null ? "nº" : `${s.periodIndex + 1}º`))}" · gerado em ${esc(opts.issuedAt.slice(0, 10).split("-").reverse().join("/"))} com o acesso de quem imprime${draft ? " · RASCUNHO, não é documento final" : ""}</footer></section>`).join("");
+  const banner = draft ? `<div class="st"><b>Rascunho.</b> ${issues.map(esc).join(" ")}</div>` : "";
+  const body = sheets.map((s, idx) => `<section class="sheet ${s.spec.orientation === "landscape" ? "land" : "port"}" data-sheet="${s.spec.kind}">${draft ? `<div class="wm" aria-hidden="true">RASCUNHO</div>` : ""}${idx === 0 ? banner : ""}${s.html}<footer class="ft">${esc(fam.label)} · folha do modelo "${esc(s.spec.source.replace("nº", s.periodIndex === null ? "nº" : `${s.periodIndex + 1}º`))}" · gerado em ${esc(opts.issuedAt.slice(0, 10).split("-").reverse().join("/"))} com o acesso de quem imprime${draft ? " · RASCUNHO, não é documento final" : ""}</footer></section>`).join("");
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${esc(`${fam.label} — ${i.header.className ?? "turma"}`)}</title><style>
-@page port{size:A4 portrait;margin:10mm}@page land{size:A4 landscape;margin:8mm}
+@page{size:A4 portrait;margin:10mm}@page port{size:A4 portrait;margin:10mm}@page land{size:A4 landscape;margin:8mm}
 body{font:9px/1.25 Arial,Helvetica,sans-serif;margin:0;color:#000}.sheet{position:relative;page-break-after:always}.sheet:last-child{page-break-after:auto}.port{page:port}.land{page:land}
 .hd{display:flex;align-items:center;gap:8px;border-bottom:1.5px solid #000;padding-bottom:3px;margin-bottom:4px}.hd h2{margin-left:auto;font-size:11px;text-align:right}.em{height:34px}
 .capa{text-align:center;padding-top:30mm}.emc{height:90px}.capa .big{font-size:20px;font-weight:bold;margin:12mm 0}.capa dl{display:grid;grid-template-columns:1fr;gap:2mm;max-width:150mm;margin:0 auto;text-align:left}.capa dt{font-size:8px;border-top:1px solid #000;padding-top:1mm}.capa dd{margin:0 0 4mm;font-size:13px;font-weight:bold}
@@ -319,5 +320,5 @@ table{border-collapse:collapse;width:100%;margin:3px 0}th,td{border:.6px solid #
 .sg{display:flex;gap:16mm;justify-content:center;margin-top:8mm}.sg div{text-align:center;font-size:8px}.sg span{display:block;width:65mm;border-top:1px solid #000;margin-bottom:1mm}
 .brk{page-break-before:always}h3{font-size:10px;margin:4px 0}.ft{font-size:7px;margin-top:4px;color:#333}
 .wm{position:absolute;top:40%;left:0;right:0;text-align:center;font-size:60px;color:rgba(0,0,0,.07);transform:rotate(-20deg);pointer-events:none}
-</style></head><body>${draft ? `<div class="st"><b>Rascunho.</b> ${issues.map(esc).join(" ")}</div>` : ""}${body}</body></html>`;
+</style></head><body>${body || banner}</body></html>`;
 }
