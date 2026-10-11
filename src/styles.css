@@ -71,6 +71,12 @@
   --card-foreground: oklch(0.23 0.03 238);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.23 0.03 238);
+  --chart-1: oklch(0.43 0.095 232);
+  --chart-2: oklch(0.68 0.14 65);
+  --chart-3: oklch(0.55 0.12 160);
+  --chart-4: oklch(0.55 0.16 25);
+  --chart-5: oklch(0.5 0.1 300);
+  --chart-6: oklch(0.62 0.08 200);
   --primary: oklch(0.43 0.095 232);
   --primary-foreground: oklch(0.99 0.002 250);
   --secondary: oklch(0.945 0.016 80);

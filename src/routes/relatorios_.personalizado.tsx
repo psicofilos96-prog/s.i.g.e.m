@@ -19,7 +19,7 @@ export const Route = createFileRoute("/relatorios_/personalizado")({
 function Page() {
   return (
     <div className="mx-auto max-w-6xl space-y-4">
-      <nav className="text-sm"><Link to="/relatorios" className="underline">Relatórios</Link> › Gerador personalizado</nav>
+      <nav className="text-sm"><Link to="/relatorios" className="underline">Relatórios</Link> › Gerador personalizado · <Link to="/relatorios/paineis" className="underline">Painéis e gráficos</Link></nav>
       <PageHeader eyebrow="Relatórios" title="Gerador personalizado" description="Escolha a fonte, cruze com outras, filtre, agrupe e exporte. A consulta roda no servidor com o seu acesso: cada escola vê só o que já pode ver." />
       <CustomReportPage />
     </div>
