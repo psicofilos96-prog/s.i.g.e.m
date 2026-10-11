@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/sigem/date-input";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { governError } from "@/lib/observability/governed-errors";
@@ -116,7 +117,7 @@ export function AttendancePanel() {
                 <select className={field} value={f.kind} onChange={setF("kind")} aria-label="Tipo de registro"><option value="responsavel">Responsável pelo caso</option><option value="contato">Contato com responsável</option><option value="encaminhamento">Encaminhamento</option><option value="retorno">Retorno</option><option value="resolucao">Resolução</option></select>
                 {(f.kind === "contato" || f.kind === "responsavel") && <input className={field} placeholder={f.kind === "contato" ? "Responsável contatado" : "Responsável pelo caso"} value={f.guardian} onChange={setF("guardian")} />}
                 {f.kind === "contato" && <input className={field} placeholder="Meio (telefone, visita…)" value={f.channel} onChange={setF("channel")} />}
-                {f.kind === "encaminhamento" && <><input className={field} placeholder="Destino (Conselho Tutelar, CRAS…)" value={f.destination} onChange={setF("destination")} /><input type="date" className={field} aria-label="Prazo" value={f.due} onChange={setF("due")} /></>}
+                {f.kind === "encaminhamento" && <><input className={field} placeholder="Destino (Conselho Tutelar, CRAS…)" value={f.destination} onChange={setF("destination")} /><DateInput className={field} aria-label="Prazo" value={f.due} onChange={setF("due")} /></>}
                 <input className={`${field} min-w-64`} placeholder="Descrição (mín. 5 caracteres)" value={f.note} onChange={setF("note")} />
                 <Button size="sm" onClick={() => void record(c, evs.length)}>Registrar</Button>
               </div>}
