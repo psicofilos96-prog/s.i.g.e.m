@@ -2115,6 +2115,34 @@
       "when": 1791688072676,
       "tag": "0301_0301_meal_summary_counts_rectified_as_authorized",
       "breakpoints": true
+    },
+    {
+      "idx": 302,
+      "version": "7",
+      "when": 1791689574129,
+      "tag": "0302_custom_report_query_engine",
+      "breakpoints": true
+    },
+    {
+      "idx": 303,
+      "version": "7",
+      "when": 1791689649754,
+      "tag": "0303_custom_report_query_fix_join_loop",
+      "breakpoints": true
+    },
+    {
+      "idx": 304,
+      "version": "7",
+      "when": 1791690196831,
+      "tag": "0304_custom_report_rollup_order",
+      "breakpoints": true
+    },
+    {
+      "idx": 305,
+      "version": "7",
+      "when": 1791690428120,
+      "tag": "0305_staff_records_policy_initplan",
+      "breakpoints": true
     }
   ]
 }

@@ -15003,6 +15003,36 @@ export type Database = {
         }
         Relationships: []
       }
+      report_custom_runs: {
+        Row: {
+          actor_id: string
+          base_source: string
+          id: string
+          joins: string[]
+          ran_at: string
+          row_total: number | null
+          spec_sha256: string
+        }
+        Insert: {
+          actor_id?: string
+          base_source: string
+          id?: string
+          joins?: string[]
+          ran_at?: string
+          row_total?: number | null
+          spec_sha256: string
+        }
+        Update: {
+          actor_id?: string
+          base_source?: string
+          id?: string
+          joins?: string[]
+          ran_at?: string
+          row_total?: number | null
+          spec_sha256?: string
+        }
+        Relationships: []
+      }
       report_emissions: {
         Row: {
           actor_id: string
@@ -23806,6 +23836,26 @@ export type Database = {
           supersedes: string
         }[]
       }
+      rcq_catalog_internal: { Args: never; Returns: Json }
+      rcq_field: {
+        Args: { aliases: Json; cat: Json; ref: string; sens: boolean }
+        Returns: string
+      }
+      rcq_filter: {
+        Args: {
+          aliases: Json
+          cat: Json
+          depth: number
+          node: Json
+          sens: boolean
+        }
+        Returns: string
+      }
+      rcq_num: {
+        Args: { aliases: Json; cat: Json; ref: string }
+        Returns: string
+      }
+      rcq_raise: { Args: { msg: string }; Returns: string }
       readable_class_ids: { Args: never; Returns: string[] }
       readable_enrollments_count: { Args: never; Returns: number }
       readable_students_count: { Args: never; Returns: number }
@@ -26315,6 +26365,8 @@ export type Database = {
         }
         Returns: string
       }
+      report_custom_catalog: { Args: never; Returns: Json }
+      report_custom_query: { Args: { _spec: Json }; Returns: Json }
       require_catalog: {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: undefined
