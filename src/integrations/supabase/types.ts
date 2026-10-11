@@ -19836,6 +19836,10 @@ export type Database = {
         Returns: string
       }
       bo_fixture_is_user: { Args: { _uid: string }; Returns: boolean }
+      bo_fixture_network_engagement: {
+        Args: { _capability: string }
+        Returns: string
+      }
       bo_fixture_prepare: {
         Args: {
           _kind: string

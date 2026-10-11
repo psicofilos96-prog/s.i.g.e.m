@@ -2101,6 +2101,13 @@
       "when": 1791686469409,
       "tag": "0299_0299_op_board_network_capability_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 300,
+      "version": "7",
+      "when": 1791686789619,
+      "tag": "0300_0300_bo_fixture_meal_master",
+      "breakpoints": true
     }
   ]
 }
