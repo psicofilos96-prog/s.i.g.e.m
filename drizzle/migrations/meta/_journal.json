@@ -2122,6 +2122,13 @@
       "when": 1791689574129,
       "tag": "0302_custom_report_query_engine",
       "breakpoints": true
+    },
+    {
+      "idx": 303,
+      "version": "7",
+      "when": 1791689649754,
+      "tag": "0303_custom_report_query_fix_join_loop",
+      "breakpoints": true
     }
   ]
 }
