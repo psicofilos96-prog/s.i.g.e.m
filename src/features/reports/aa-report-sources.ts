@@ -4,6 +4,7 @@
  * Nenhum assunto expõe nome de estudante; Educação Infantil nunca recebe coluna de promoção/retenção.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { readPages } from "@/lib/list-paging";
 import type { CellValue, ColumnDef, ReportDefinition } from "./report-engine";
 import type { BuilderSource, LoadCtx, Page } from "./report-builder";
 
@@ -61,8 +62,8 @@ export const AA_SOURCES: readonly BuilderSource[] = [
     load: async (a) => {
       const b = await page("aa_import_batches", "id, file_name, sheet, program_key, edition_year, measure_kind, school_label", "recorded_at", a);
       const ids = b.rows.map((x) => String(x["id"]));
-      const r = ids.length ? await supabase.from("aa_import_rows").select("batch_id, match_state").in("batch_id", ids).limit(10000) : { data: [], error: null };
-      if (r.error) fail();
+      const r = ids.length ? await readPages((f, t) => supabase.from("aa_import_rows").select("batch_id, match_state").in("batch_id", ids).order("id").range(f, t), 50_000) : { data: [], error: null, truncated: false };
+      if (r.error || r.truncated) fail();
       const cnt = new Map<string, number>();
       for (const x of (r.data ?? []) as Raw[]) { const k = `${x["batch_id"]}|${x["match_state"]}`; cnt.set(k, (cnt.get(k) ?? 0) + 1); }
       const rows = b.rows.flatMap((x) => [...cnt.entries()].filter(([k]) => k.startsWith(`${x["id"]}|`)).map(([k, n]) => ({
