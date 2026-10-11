@@ -5,7 +5,7 @@ const o = { id: "c", seats: 2, hours: 40, minAttendancePct: 75 };
 describe("formação continuada", () => {
   it("vagas por ordem e espera; duplicata conta uma vez", () => {
     const e = [{ personId: "a", at: "1", state: "inscrita" as const }, { personId: "b", at: "2", state: "inscrita" as const }, { personId: "a", at: "3", state: "inscrita" as const }, { personId: "c", at: "4", state: "inscrita" as const }];
-    expect(seatAllocation(o, e)).toEqual({ ok: true, confirmed: ["b", "a"].sort((x, y) => (x === "b" ? 1 : -1)), waitlist: ["c"] });
+    expect(seatAllocation(o, e)).toEqual({ ok: true, confirmed: ["a", "b"], waitlist: ["c"] });
     expect(seatAllocation({ ...o, seats: null }, e).ok).toBe(false);
   });
   it("frequência só sobre sessões realizadas e completas", () => {

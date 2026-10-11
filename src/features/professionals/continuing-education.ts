@@ -10,8 +10,9 @@ export type Enrollment = Readonly<{ personId: string; at: string; state: "inscri
 /** Vagas: confirmadas até o limite pela ordem de inscrição; resto em espera. Sem limite configurado ⇒ não decide. */
 export function seatAllocation(o: Offering, enrollments: readonly Enrollment[]) {
   if (o.seats == null) return { ok: false as const, reason: "vagas-nao-configuradas" };
-  const active = [...new Map(enrollments.filter((e) => e.state !== "cancelada").map((e) => [e.personId, e])).values()]
-    .sort((a, b) => a.at.localeCompare(b.at) || a.personId.localeCompare(b.personId));
+  const first = new Map<string, Enrollment>();
+  for (const e of enrollments) if (e.state !== "cancelada" && !first.has(e.personId)) first.set(e.personId, e);
+  const active = [...first.values()].sort((a, b) => a.at.localeCompare(b.at) || a.personId.localeCompare(b.personId));
   return { ok: true as const, confirmed: active.slice(0, o.seats).map((e) => e.personId), waitlist: active.slice(o.seats).map((e) => e.personId) };
 }
 
