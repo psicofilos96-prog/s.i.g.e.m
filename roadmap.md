@@ -629,4 +629,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Trocar brasão da tela de entrada pelo enviado (com borda)
 
 ## NEI — Estudantes e casos (2026-10-11)
-- [ ] Ficha NEI sobre estudante central + gestão de casos com histórico imutável
+- [x] Ficha NEI sobre estudante central + gestão de casos com histórico imutável
