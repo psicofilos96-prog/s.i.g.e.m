@@ -17303,16 +17303,21 @@ export type Database = {
       student_card_issuances: {
         Row: {
           academic_year: string
-          actor_engagement: string
+          actor_engagement: string | null
           actor_user_id: string
           class_label: string | null
           id: string
+          internal_id: string | null
           kind: string
+          layout_version: number | null
+          name_kind: string | null
+          photo_path: string | null
           public_id: string
           reason: string | null
           recorded_at: string
           school_id: string
           school_name: string
+          shift_label: string | null
           student_id: string
           student_name: string
           valid_until: string
@@ -17320,16 +17325,21 @@ export type Database = {
         }
         Insert: {
           academic_year: string
-          actor_engagement: string
+          actor_engagement?: string | null
           actor_user_id: string
           class_label?: string | null
           id?: string
+          internal_id?: string | null
           kind: string
+          layout_version?: number | null
+          name_kind?: string | null
+          photo_path?: string | null
           public_id: string
           reason?: string | null
           recorded_at?: string
           school_id: string
           school_name: string
+          shift_label?: string | null
           student_id: string
           student_name: string
           valid_until: string
@@ -17337,22 +17347,95 @@ export type Database = {
         }
         Update: {
           academic_year?: string
-          actor_engagement?: string
+          actor_engagement?: string | null
           actor_user_id?: string
           class_label?: string | null
           id?: string
+          internal_id?: string | null
           kind?: string
+          layout_version?: number | null
+          name_kind?: string | null
+          photo_path?: string | null
           public_id?: string
           reason?: string | null
           recorded_at?: string
           school_id?: string
           school_name?: string
+          shift_label?: string | null
           student_id?: string
           student_name?: string
           valid_until?: string
           version?: number
         }
         Relationships: []
+      }
+      student_card_layout_versions: {
+        Row: {
+          actor_user_id: string
+          config: Json
+          id: string
+          recorded_at: string
+          school_id: string
+          version: number
+        }
+        Insert: {
+          actor_user_id: string
+          config: Json
+          id?: string
+          recorded_at?: string
+          school_id: string
+          version: number
+        }
+        Update: {
+          actor_user_id?: string
+          config?: Json
+          id?: string
+          recorded_at?: string
+          school_id?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      student_card_photos: {
+        Row: {
+          actor_user_id: string
+          id: string
+          object_path: string
+          origin: string
+          recorded_at: string
+          school_id: string
+          sha256: string
+          student_id: string
+        }
+        Insert: {
+          actor_user_id: string
+          id?: string
+          object_path: string
+          origin: string
+          recorded_at?: string
+          school_id: string
+          sha256: string
+          student_id: string
+        }
+        Update: {
+          actor_user_id?: string
+          id?: string
+          object_path?: string
+          origin?: string
+          recorded_at?: string
+          school_id?: string
+          sha256?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_card_photos_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_class_bond_observations: {
         Row: {
@@ -19915,6 +19998,10 @@ export type Database = {
         Returns: string
       }
       bo_fixture_cleanup: { Args: { _operation_id: string }; Returns: number }
+      bo_fixture_cleanup_cards: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_row: { Args: { _old: Json }; Returns: boolean }
       bo_fixture_cleanup_school_extras: {
         Args: { _operation_id: string }
@@ -21718,6 +21805,23 @@ export type Database = {
         Returns: {
           academic_year: string
           class_label: string
+          public_id: string
+          school_name: string
+          status: string
+          student_name: string
+          valid_until: string
+          version: number
+        }[]
+      }
+      family_student_cards_v2: {
+        Args: { _student: string }
+        Returns: {
+          academic_year: string
+          class_label: string
+          internal_id: string
+          layout: Json
+          name_kind: string
+          photo_path: string
           public_id: string
           school_name: string
           status: string
@@ -25966,6 +26070,33 @@ export type Database = {
         }
         Returns: string
       }
+      record_student_card_layout: {
+        Args: { _config: Json; _expected: number; _school: string }
+        Returns: number
+      }
+      record_student_card_photo: {
+        Args: {
+          _origin: string
+          _path: string
+          _school: string
+          _sha256: string
+          _student: string
+        }
+        Returns: string
+      }
+      record_student_card_v2: {
+        Args: {
+          _expected_version: number
+          _kind: string
+          _public_id: string
+          _reason: string
+          _school: string
+          _student: string
+          _valid_until: string
+          _year: string
+        }
+        Returns: string
+      }
       record_student_document_pendency: {
         Args: {
           _description: string
@@ -27050,6 +27181,18 @@ export type Database = {
         }
         Returns: string
       }
+      student_card_candidates: {
+        Args: { _query: string; _school: string }
+        Returns: {
+          class_label: string
+          has_photo: boolean
+          internal_id: string
+          name: string
+          name_kind: string
+          open_card: string
+          student_id: string
+        }[]
+      }
       student_card_chain: {
         Args: { _school: string }
         Returns: {
@@ -27065,7 +27208,61 @@ export type Database = {
           version: number
         }[]
       }
+      student_card_chain_v2: {
+        Args: { _school: string }
+        Returns: {
+          academic_year: string
+          class_label: string
+          internal_id: string
+          kind: string
+          layout_version: number
+          name_kind: string
+          photo_path: string
+          public_id: string
+          reason: string
+          recorded_at: string
+          school_name: string
+          student_id: string
+          student_name: string
+          valid_until: string
+          version: number
+        }[]
+      }
+      student_card_enrollment: {
+        Args: { _school: string; _student: string }
+        Returns: {
+          class_label: string
+          enrollment_id: string
+        }[]
+      }
+      student_card_family_photo_ok: {
+        Args: { _name: string }
+        Returns: boolean
+      }
       student_card_grant: { Args: { _school: string }; Returns: string }
+      student_card_identity: {
+        Args: { _student: string }
+        Returns: {
+          internal_id: string
+          name: string
+          name_kind: string
+        }[]
+      }
+      student_card_layout_problem: { Args: { _c: Json }; Returns: string }
+      student_card_layouts: {
+        Args: { _school: string }
+        Returns: {
+          config: Json
+          recorded_at: string
+          version: number
+        }[]
+      }
+      student_card_photo_current: {
+        Args: { _school: string; _student: string }
+        Returns: string
+      }
+      student_card_school_name: { Args: { _school: string }; Returns: string }
+      student_card_storage_ok: { Args: { _name: string }; Returns: boolean }
       student_curricular_matrix_at: {
         Args: {
           _class_id: string
@@ -27466,6 +27663,18 @@ export type Database = {
           school_name: string
           status: string
           student_name: string
+        }[]
+      }
+      verify_student_card_v2: {
+        Args: { _public_id: string; _version: number }
+        Returns: {
+          academic_year: string
+          issued_on: string
+          public_id: string
+          school_name: string
+          status: string
+          valid_until: string
+          version: number
         }[]
       }
       verify_studio_document: { Args: { _code: string }; Returns: Json }

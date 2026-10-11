@@ -6,8 +6,10 @@ import { governError } from "@/lib/observability/governed-errors";
 import { cardVerifyPath } from "./card-public-code";
 import type { StudentCard } from "./student-card";
 
-export type IssuedCard = Readonly<{ public_id: string; version: number; status: "valida" | "expirada"; academic_year: string; valid_until: string; student_name: string; school_name: string; class_label: string | null }>;
-export type CardChainRow = Readonly<{ public_id: string; version: number; kind: "emissao" | "reemissao" | "cancelamento"; student_id: string; academic_year: string; valid_until: string; student_name: string; class_label: string | null; reason: string | null; recorded_at: string }>;
+export type IssuedCard = Readonly<{ public_id: string; version: number; status: "valida" | "expirada"; academic_year: string; valid_until: string; student_name: string; school_name: string; class_label: string | null;
+  name_kind?: "civil" | "social" | null; internal_id?: string | null; photo_path?: string | null; layout?: unknown }>;
+export type CardChainRow = Readonly<{ public_id: string; version: number; kind: "emissao" | "reemissao" | "cancelamento"; student_id: string; academic_year: string; valid_until: string; student_name: string; class_label: string | null; reason: string | null; recorded_at: string;
+  name_kind?: "civil" | "social" | null; internal_id?: string | null; school_name?: string | null; photo_path?: string | null; layout_version?: number | null }>;
 export type CardState = "valida" | "expirada" | "cancelada";
 export type CardChainView = Readonly<{ publicId: string; studentId: string; head: CardChainRow; state: CardState; history: readonly CardChainRow[] }>;
 
@@ -42,7 +44,7 @@ export function verifyUrlFor(origin: string, publicId: string, version: number):
 export function withIssuance(card: StudentCard, issued: IssuedCard | null, origin: string): StudentCard {
   if (!issued) return card;
   return { ...card, name: issued.student_name, school: issued.school_name, className: issued.class_label, year: issued.academic_year,
-    code: `${issued.public_id}.${issued.version}`, verifyUrl: verifyUrlFor(origin, issued.public_id, issued.version), validity: issuedValidity(issued) };
+    code: `${issued.public_id}.${issued.version}`, internalId: issued.internal_id ?? null, verifyUrl: verifyUrlFor(origin, issued.public_id, issued.version), validity: issuedValidity(issued) };
 }
 
 export const CARD_STATE_LABEL: Record<CardState, string> = { valida: "Válida", expirada: "Expirada", cancelada: "Cancelada" };
@@ -66,6 +68,13 @@ export function cardMessage(raw: string): string {
   if (raw.includes("card:head-changed")) return "A carteirinha foi alterada por outra pessoa. Recarregue antes de continuar.";
   if (raw.includes("card:already-cancelled")) return "Esta carteirinha já foi cancelada.";
   if (raw.includes("card:validity-invalid")) return "A validade não pode ser anterior ao início do ano letivo.";
+  if (raw.includes("card:already-open")) return "Este estudante já tem carteirinha vigente neste ano. Use Reemitir ou Cancelar.";
+  if (raw.includes("card:reason-required")) return "Informe o motivo.";
+  if (raw.includes("card:identity-missing")) return "O cadastro do estudante não tem nome registrado.";
+  if (raw.includes("card:school-name-missing")) return "A escola não tem nome oficial registrado.";
+  if (raw.includes("card:photo")) return "A foto não pôde ser registrada. Tente enviar novamente.";
+  if (raw.includes("layout:")) return "O modelo da carteirinha tem um valor que não é aceito.";
+  if (raw.includes("search:query-too-short")) return "Digite ao menos 3 letras do nome ou o código do estudante.";
   if (raw.includes("lookup:capability-missing")) return "Sua atuação não pode localizar estudantes nesta escola.";
   if (raw.includes("session-required")) return "Sua sessão expirou. Entre novamente.";
   return governError(raw).userMessage;

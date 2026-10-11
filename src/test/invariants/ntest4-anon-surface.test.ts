@@ -11,7 +11,8 @@ const ACCEPTED_ANON_FUNCTIONS = new Set([
   "verify_school_document",
   "public_portal_list",
   "public_portal_get",
-  "verify_student_card",
+  "verify_student_card", // concedido em 0230, revogado em 0321 (devolvia nome)
+  "verify_student_card_v2",
   "verify_studio_document",
   "verify_report_emission",
 ]);

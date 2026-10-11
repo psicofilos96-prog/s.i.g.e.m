@@ -11,6 +11,8 @@ export type StudentCard = Readonly<{
   status: "vigente" | "sem-matricula-vigente";
   /** N9.2.4: validade da emissão oficial ("Válida até …"/"Expirada em …"); ausente sem emissão. */
   validity?: string | null;
+  /** NCARD.1: identificador interno do cadastro (nunca CPF). */
+  internalId?: string | null;
 }>;
 
 export function projectStudentCard(st: FamilyStudent, s: FamilySummary, today: string): StudentCard {

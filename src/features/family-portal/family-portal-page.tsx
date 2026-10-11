@@ -9,7 +9,8 @@ import { readFamilyStudents, readFamilySummary } from "./family-source";
 import { projectStudentCard } from "./student-card";
 import { StudentCardView } from "./student-card-view";
 import { withIssuance, type IssuedCard } from "./card-issuance";
-import { readFamilyCards } from "./card-issuance-source";
+import { cardPhotoUrl, readFamilyCards } from "./card-issuance-source";
+import { readCardLayout } from "./card-layout";
 
 export function FamilyPortalPage({ requested }: { requested: string | undefined }) {
   const navigate = useNavigate();
@@ -84,16 +85,21 @@ function Section({ s, k, studentId }: { s: FamilySummary; k: FamilySection; stud
 /** Carteirinha emitida pela Secretaria (com QR) quando existir; senão, só a projeção sem código. Expirada é sinalizada. */
 function FamilyCard({ student, s, studentId }: { student: FamilyStudent; s: FamilySummary; studentId: string }) {
   const [issued, setIssued] = useState<IssuedCard[] | null | "erro">(null);
+  const [photo, setPhoto] = useState<string | null>(null);
   useEffect(() => { readFamilyCards(studentId).then(setIssued, () => setIssued("erro")); }, [studentId]);
+  const photoPath = issued && issued !== "erro" ? issued[0]?.photo_path ?? null : null;
+  useEffect(() => { void cardPhotoUrl(photoPath).then(setPhoto, () => setPhoto(null)); }, [photoPath]);
   if (issued === null) return <SkeletonState label="Carregando carteirinha" />;
   const head = issued === "erro" ? null : issued[0] ?? null;
-  const card = withIssuance(projectStudentCard(student, s, operationalToday()), head, typeof window !== "undefined" ? window.location.origin : "");
+  const base = withIssuance(projectStudentCard(student, s, operationalToday()), head, typeof window !== "undefined" ? window.location.origin : "");
+  const card = head ? { ...base, photoUrl: photo } : base;
+  const layout = readCardLayout(head?.layout ?? null).layout;
   return (
     <div className="space-y-2">
       {issued === "erro" && <p className="text-sm text-muted-foreground">Não foi possível consultar a carteirinha emitida agora.</p>}
       {issued !== "erro" && !head && <p className="text-sm text-muted-foreground">A escola ainda não emitiu a carteirinha; a prévia abaixo não tem valor de verificação.</p>}
       {head?.status === "expirada" && <StatePanel tone="warning" title="Carteirinha expirada" description={`A validade terminou em ${fmtDate(head.valid_until)}. Procure a secretaria da escola.`} />}
-      <div className="card-print-area"><StudentCardView card={card} /></div>
+      <div className="card-print-area"><StudentCardView card={card} layout={layout} /></div>
       {head && <button type="button" className="text-sm underline" onClick={() => window.print()}>Imprimir ou salvar em PDF</button>}
     </div>
   );

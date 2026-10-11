@@ -28,7 +28,7 @@ function VerifyCardPage() {
   useEffect(() => {
     const p = parseCardCode(codigo);
     if (!p) { setV(publicCardView(null)); return; }
-    (supabase.rpc as unknown as Rpc)("verify_student_card", { _public_id: p.publicId, _version: p.version })
+    (supabase.rpc as unknown as Rpc)("verify_student_card_v2", { _public_id: p.publicId, _version: p.version })
       .then(({ data, error }) => { if (error) setErr(true); else setV(publicCardView(((data as PublicCardRow[]) ?? [])[0])); });
   }, [codigo]);
   return (
@@ -38,12 +38,14 @@ function VerifyCardPage() {
         : !v ? <p className="text-muted-foreground">Verificando…</p> : (
         <div role="status" className="space-y-1 rounded-md border border-border p-4 text-sm">
           <p className="text-base font-semibold">{CARD_STATUS_LABEL[v.status]}</p>
-          {v.student_name ? <>
-            <p>{v.student_name}</p>
-            <p>{v.school_name}{v.class_label ? ` · ${v.class_label}` : ""}</p>
-            <p>{v.academic_year ? `Ano letivo ${v.academic_year} · ` : ""}Código {v.public_id}</p>
-          </> : null}
-          <p className="pt-2 text-xs text-muted-foreground">Por proteção, documentos pessoais, endereço, responsáveis e informações de saúde nunca aparecem aqui.</p>
+          {v.public_id ? <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+            <dt className="text-muted-foreground">Escola</dt><dd>{v.school_name ?? "—"}</dd>
+            <dt className="text-muted-foreground">Ano letivo</dt><dd>{v.academic_year ?? "—"}</dd>
+            <dt className="text-muted-foreground">Válida até</dt><dd>{v.valid_until ? v.valid_until.split("-").reverse().join("/") : "—"}</dd>
+            <dt className="text-muted-foreground">Emitida em</dt><dd>{v.issued_on ? v.issued_on.split("-").reverse().join("/") : "—"}</dd>
+            <dt className="text-muted-foreground">Código</dt><dd>{v.public_id}.{v.version}</dd>
+          </dl> : null}
+          <p className="pt-2 text-xs text-muted-foreground">Por proteção do estudante, nome, foto, turma, documentos pessoais, endereço, responsáveis e informações de saúde nunca aparecem aqui. Compare com a carteirinha apresentada.</p>
         </div>)}
     </div></PublicLayout>
   );
