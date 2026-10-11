@@ -6,7 +6,7 @@
 DO $t$
 DECLARE ok text := ''; e text; a uuid := gen_random_uuid(); b uuid := gen_random_uuid(); c uuid := gen_random_uuid(); op uuid := gen_random_uuid();
   cls record; stu text; sB text; pa uuid := gen_random_uuid(); pb uuid := gen_random_uuid(); pc uuid := gen_random_uuid(); g uuid := gen_random_uuid();
-  asg text := 'ta-acc-'||gen_random_uuid(); plan text := 'plan-acc-'||gen_random_uuid(); copyp text := 'plan-acc-copy-'||gen_random_uuid();
+  asg text := 'ta-'||gen_random_uuid(); plan text := 'plan-acc-'||gen_random_uuid(); copyp text := 'plan-acc-copy-'||gen_random_uuid();
   pv uuid; v uuid; r uuid; n int; img text;
   items jsonb := '[{"item_version_id":"i1","weight":2},{"item_version_id":"i2","weight":3},{"item_version_id":"i3"}]';
 BEGIN
