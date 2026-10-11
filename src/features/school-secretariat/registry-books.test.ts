@@ -23,7 +23,7 @@ describe("escrituração", () => {
     expect(rectify(closed, 1, fact({ fields: { estudante: "E1", resultado: "Retido" } }), " ", "sint")).toMatchObject({ code: "book:reason-required" });
     const r = (rectify(closed, 1, fact({ fields: { estudante: "E1", resultado: "Retido" } }), "erro de digitação na ata", "sint") as any).value as Book;
     expect(r.entries).toHaveLength(2);
-    expect(currentView(r)[0]!.fields.resultado).toBe("Retido");
+    expect(currentView(r)[0]!.fields['resultado']).toBe("Retido");
     expect(verifyClosing(r, h)).toBe(true);
   });
   it("livro aberto não tem verificação de fechamento", () => {
