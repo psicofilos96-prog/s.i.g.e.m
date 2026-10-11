@@ -88,11 +88,12 @@ async def main():
         p(not errs, "rede sem erros de página", str(errs)[:200]); await ctx.close()
         # cada família com dados reais
         ctx, pg, errs = await open_as(br, "net")
-        fam1 = {"barh": ".recharts-bar-rectangle", "line": ".recharts-line-curve", "area": ".recharts-area-area", "pie": ".recharts-pie-sector", "donut": ".recharts-pie-sector",
+        fam1 = {"barh": ".recharts-bar-rectangle", "line": ".recharts-line-curve", "area": ".recharts-area-area", "pie": ".recharts-sector", "donut": ".recharts-sector",
                 "treemap": ".recharts-treemap-depth-1, .recharts-rectangle", "funnel": ".recharts-funnel-trapezoid", "radar": ".recharts-radar-polygon", "waterfall": ".recharts-bar-rectangle"}
         for k, sel in fam1.items():
             c = await add(pg, f"F {k}", "Matrículas", "Escolas (por school_id)", k, ["Escola (Escolas)"])
-            n = await c.locator(sel).count(); p(n > 0, f"família {k} desenhada com dados reais", str(n))
+            await pg.wait_for_timeout(2000); n = await c.locator(sel).count(); p(n > 0, f"família {k} desenhada com dados reais", str(n))
+            if n == 0: await c.screenshot(path=f"{SH}/f_{k}.png")
             await c.get_by_role("button", name="Remover").click()
         for k, sel in {"stacked": ".recharts-bar-rectangle", "stacked100": ".recharts-bar-rectangle", "pivot": "table[data-chart=pivot] tbody tr"}.items():
             c = await add(pg, f"F {k}", "Turmas", "Escolas (por school_id)", k, ["Escola (Escolas)", "Etapa (Turmas)"])
