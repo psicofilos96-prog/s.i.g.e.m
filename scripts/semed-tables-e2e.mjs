@@ -107,6 +107,21 @@ try {
   const s06B2 = await act(FILLB, "salvar", 1, { school: B, values: { "m.ef1.inicial": 20, "m.ef1.evasao": 0 } }); check(!s06B2.error, "rascunho corrigido para a apuração");
   const eB2 = await act(FILLB, "enviar-conferencia", 2, { school: B }); check(!eB2.error, "envio aceito quando o total confere com a apuração", eB2.error?.message);
 
+  // TSEMED.11 — Tabela 11 (gênero do cadastro, data de corte da rede, zona automática)
+  const a11x = await FILL.c.rpc("semed_t11_record_rule", { _year: 2026, _expected_version: 0, _cutoff: "2026-03-31", _sex_map: { "x/m": "masc" }, _basis: "Teste sintético" }); check(!!a11x.error, "escola não registra regra da T11");
+  const prev11 = (await admin.from("semed_t11_rule_versions").select("version").eq("year", 2026).order("version", { ascending: false }).limit(1)).data?.[0]?.version ?? 0;
+  const b11 = await NET.c.rpc("semed_t11_record_rule", { _year: 2026, _expected_version: prev11, _cutoff: "2026-03-31", _sex_map: { "x/m": "outro" }, _basis: "Teste sintético" }); check(!!b11.error, "mapa com coluna fora de masc/fem recusado");
+  const r11 = await NET.c.rpc("semed_t11_record_rule", { _year: 2026, _expected_version: prev11, _cutoff: "2026-03-31", _sex_map: { "sexo/m": "masc", "sexo/f": "fem" }, _basis: "Teste sintético" }); check(!r11.error, "rede registra regra da T11", r11.error?.message);
+  const p11 = await FILL.c.rpc("semed_t11_apuracao", { _school: A, _year: 2026 }); check(!p11.error && p11.data?.rule_version > 0 && Array.isArray(p11.data.gaps), "apuração T11 da escola A", JSON.stringify(p11.data?.totals));
+  check((p11.data?.gaps ?? []).length > 0 || p11.data?.totals?.nao_informado === 0, "lacunas explícitas quando falta data/sexo", (p11.data?.gaps ?? []).join(","));
+  const p11B = await FILLB.c.rpc("semed_t11_apuracao", { _school: A, _year: 2026 }); check(!p11B.error && p11B.data === null, "escola B não lê a apuração T11 da escola A");
+  const p11An = await anon.rpc("semed_t11_apuracao", { _school: A, _year: 2026 }); check(!!p11An.error, "anônimo recusado na apuração T11");
+  const z11 = await FILL.c.rpc("semed_table_central", { _school: A }); const zr = (await admin.from("institutional_school_record_versions").select("location_kind").eq("school_id", A).order("version_number", { ascending: false }).limit(1)).data?.[0]?.location_kind;
+  check(!z11.error && z11.data?.zona === zr, "zona vem do cadastro da escola", String(z11.data?.zona));
+  const s11 = await act(FILL, "salvar", 0, { code: "11", values: { "m.a1.masc": 1 } }); check(!s11.error, "Tabela 11 salva", s11.error?.message);
+  const e11 = await act(FILL, "enviar-conferencia", 1, { code: "11" });
+  check(p11.data?.totals?.sem_data > 0 || p11.data?.totals?.nao_informado > 0 ? !e11.error : !!e11.error, "apuração incompleta não bloqueia; completa e divergente bloqueia", e11.error?.message ?? "aceito");
+
   // TSEMED.9 — Tabela 09 (catálogo v2, limites, centrais agregados, anexos privados)
   const cat09 = (await admin.from("semed_table_catalog").select("version").eq("year", 2026).eq("table_code", "09").order("version", { ascending: false }).limit(1)).data?.[0]?.version;
   check(cat09 === 2, "Tabela 09 usa catálogo v2 com seções nomeadas", String(cat09));
@@ -193,7 +208,8 @@ finally {
   const l1 = await admin.from("semed_table_submission_events").select("id", { count: "exact", head: true }).in("actor_user_id", users);
   const l2 = await admin.from("semed_table_submissions").select("id", { count: "exact", head: true }).in("created_by", users);
   const l3 = await admin.from("semed_t06_rule_versions").select("id", { count: "exact", head: true }).in("recorded_by", users);
+  const l5 = await admin.from("semed_t11_rule_versions").select("id", { count: "exact", head: true }).in("recorded_by", users);
   const l4 = await admin.from("semed_t10_formation_versions").select("id", { count: "exact", head: true }).in("recorded_by", users);
-  check((l1.count ?? 0) + (l2.count ?? 0) + (l3.count ?? 0) + (l4.count ?? 0) === 0, "sem resíduo após limpeza");
+  check((l1.count ?? 0) + (l2.count ?? 0) + (l3.count ?? 0) + (l4.count ?? 0) + (l5.count ?? 0) === 0, "sem resíduo após limpeza");
   console.log(`RESUMO falhas=${fails}`);
 }
