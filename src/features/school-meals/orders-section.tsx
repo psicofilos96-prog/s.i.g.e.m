@@ -12,6 +12,8 @@ import { MAPA_COMPRAS, purchaseMapRows } from "./purchase-map";
 import { mealMessage } from "./meals-model";
 import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from "./ceiling-explain";
 import { operationalToday } from "@/lib/academic-date";
+import { OrderWindowForm, ScheduleForm } from "./network-operations";
+import { institution } from "@/config/institution";
 
 /** LOTE 9 — teto calculado pelo banco (mesma função que congela a avaliação no ato). */
 async function evaluate(school: string, lines: OrderLine[]) {
@@ -48,19 +50,20 @@ export function OrdersSection({ school, network, names }: { school: string; netw
   // NDATE.2: próxima competência com virada de ano (dezembro → janeiro do ano seguinte).
   const [competence, setCompetence] = useState(() => shiftMonthKey(operationalMonthKey(), 1));
   const [orders, setOrders] = useState<Order[] | null>(null);
-  const [items, setItems] = useState<Named[]>([]); const [units, setUnits] = useState<Named[]>([]);
+  const [items, setItems] = useState<Named[]>([]); const [units, setUnits] = useState<Named[]>([]); const [pubs, setPubs] = useState<Named[]>([]);
   const [contracts, setContracts] = useState<Named[]>([]); const [suppliers, setSuppliers] = useState<Named[]>([]);
   const [cons, setCons] = useState<Cons[] | null>(null);
   const [msg, setMsg] = useState<string | null>(null); const [err, setErr] = useState<string | null>(null);
   const label = (list: Named[], id: string) => String(list.find((x) => x.logical_id === id)?.payload["nome"] ?? "item não identificado");
   const load = useCallback(async () => {
     try {
-      const [o, it, un] = await Promise.all([
+      const [o, it, un, pb] = await Promise.all([
         call<Order[]>("meal_orders_at", { _competence: competence, _school: network ? null : school || null, _known_at: null }),
         call<Named[]>("meal_master_at", { _kind: "item-alimentar", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
         call<Named[]>("meal_master_at", { _kind: "unidade-de-medida", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
+        call<Named[]>("meal_master_at", { _kind: "publico-de-atendimento", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
       ]);
-      setOrders(o); setItems(it); setUnits(un); setErr(null);
+      setOrders(o); setItems(it); setUnits(un); setPubs(pb); setErr(null);
       if (network) {
         setCons(await call<Cons[]>("meal_demand_consolidation_at", { _competence: competence }).catch(() => null));
         const [ct, sp] = await Promise.all([
@@ -89,7 +92,8 @@ export function OrdersSection({ school, network, names }: { school: string; netw
   async function exportPurchaseMap(fmt: "pdf" | "xlsx") {
     const rows = purchaseMapRows((cons ?? []).map((c) => ({ ...c, total: Number(c.total) })), { items, units, contracts, suppliers, schools: names });
     const result = runReport(MAPA_COMPRAS, { params: { competence } }, rows);
-    const branding = { headerLines: ["SIGEM — Alimentação Escolar"], title: MAPA_COMPRAS.title };
+    const logo = new URL(institution.emblemUrl, window.location.href).href;
+    const branding = { headerLines: [institution.governmentName, institution.departmentName, "Núcleo de Alimentação Escolar — SIGEM"], title: MAPA_COMPRAS.title, logoUrl: logo };
     const meta = [`Competência: ${competence}`, "Somente pedidos autorizados vigentes.", "Não é ordem de compra nem empenho.", `Gerado em ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`];
     if (fmt === "xlsx") {
       const buf = await toXlsx(result, branding, meta);
@@ -107,8 +111,8 @@ export function OrdersSection({ school, network, names }: { school: string; netw
       {msg && <p role="status">{msg}</p>}
       {err ? <StatePanel tone="warning" title="Não disponível" description={err} />
         : !orders ? <SkeletonState label="Carregando" />
-        : network ? <NetworkQueue orders={orders} names={names} act={act} itemLabel={(id) => label(items, id)} />
-        : <SchoolOrder school={school} competence={competence} order={mine ?? null} items={items} units={units} act={act} />}
+        : network ? <><OrderWindowForm competence={competence} onDone={async (m) => { setMsg(m); await load(); }} /><NetworkQueue orders={orders} names={names} act={act} itemLabel={(id) => label(items, id)} contracts={contracts} onDone={async (m) => { setMsg(m); await load(); }} /></>
+        : <SchoolOrder school={school} competence={competence} order={mine ?? null} items={items} units={units} pubs={pubs} act={act} />}
       {orders && orders.length > 0 && <Button variant="outline" onClick={() => void exportOrders()}>Exportar pedidos (CSV)</Button>}
       {network && cons && (
         <div className="space-y-1">
@@ -127,7 +131,7 @@ export function OrdersSection({ school, network, names }: { school: string; netw
   );
 }
 
-function SchoolOrder({ school, competence, order, items, units, act }: { school: string; competence: string; order: Order | null; items: Named[]; units: Named[]; act: (a: Record<string, unknown>) => Promise<void> }) {
+function SchoolOrder({ school, competence, order, items, units, pubs, act }: { school: string; competence: string; order: Order | null; items: Named[]; units: Named[]; pubs: Named[]; act: (a: Record<string, unknown>) => Promise<void> }) {
   const [lines, setLines] = useState<OrderLine[]>(order?.lines ?? []);
   useEffect(() => setLines(order?.lines ?? []), [order]);
   const editable = !order || schoolCanEdit(order.status);
@@ -145,6 +149,7 @@ function SchoolOrder({ school, competence, order, items, units, act }: { school:
           <label>Se zero, por quê<select className={field} disabled={!editable || l.quantidade > 0} value={l.zero_motivo ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, zero_motivo: (e.target.value || undefined) as OrderLine["zero_motivo"] } : x)))}>
             <option value="">—</option><option value="saldo-suficiente">Saldo suficiente</option><option value="nao-aplicavel">Não aplicável</option><option value="outro">Outro</option></select>
             {classifyZero(l) === "zero-sem-justificativa" && <span className="text-muted-foreground">Zero sem justificativa (permitido).</span>}</label>
+          <label>Público (per capita)<select className={field} disabled={!editable} value={l.publico_ref ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_ref: e.target.value || undefined } : x)))}><option value="">não informado</option>{pubs.map((p) => <option key={p.logical_id} value={p.logical_id}>{String(p.payload["rotulo"] ?? p.payload["nome"] ?? "público")}</option>)}</select></label>
           <label>Público atendido<input type="number" min={0} className={field} disabled={!editable} value={l.publico_atendido ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_atendido: e.target.value === "" ? undefined : Number(e.target.value) } : x)))} /></label>
           <label>Base do público<input className={field} disabled={!editable} value={l.publico_base ?? ""} placeholder="ex.: matrícula de agosto" onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_base: e.target.value || undefined } : x)))} /></label>
           <label>Dias letivos<input type="number" min={0} className={field} disabled={!editable} value={l.dias_letivos ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, dias_letivos: e.target.value === "" ? undefined : Number(e.target.value) } : x)))} /></label>
@@ -163,7 +168,8 @@ function SchoolOrder({ school, competence, order, items, units, act }: { school:
   );
 }
 
-function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; names: Map<string, string>; act: (a: Record<string, unknown>) => Promise<void>; itemLabel: (id: string) => string }) {
+function NetworkQueue({ orders, names, act, itemLabel, contracts, onDone }: { orders: Order[]; names: Map<string, string>; act: (a: Record<string, unknown>) => Promise<void>; itemLabel: (id: string) => string; contracts: Named[]; onDone: (m: string) => Promise<void> }) {
+  const [contractOf, setContractOf] = useState<Record<string, string>>({});
   if (orders.length === 0) return <p className="text-muted-foreground">Nenhum pedido nesta competência.</p>;
   const go = async (o: Order, action: string, needReason: boolean) => {
     const reason = needReason ? await askText("Motivo:") : null; if (needReason && !reason?.trim()) return;
@@ -172,9 +178,10 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
     let ev: ServerCeilingLine[];
     try { ev = await evaluate(o.school_id, o.lines); } catch { return; } // sem avaliação não há autorização
     const needs = authorizationNeeds(ev);
-    let lines: OrderLine[] | null = null;
+    const chosen = contractOf[o.logical_id];
+    let lines: OrderLine[] | null = chosen ? o.lines.map((l) => ({ ...l, contrato_ref: chosen })) : null;
     if (needs.exceeding.length) {
-      lines = [...o.lines];
+      lines = lines ?? [...o.lines];
       for (const n of needs.exceeding) {
         const j = await askText(`Item ${n} excede o teto calculado (${explainServerLine(ev[n - 1]!)}) Justifique (mín. 10 caracteres):`);
         if (!j || j.trim().length < 10) return;
@@ -197,6 +204,7 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
           <p className="font-medium">{names.get(o.school_id) ?? o.school_id} — {knownLabel(ORDER_STATUS_LABEL, o.status)} · v{o.version}</p>
           <p className="text-muted-foreground">{o.lines.map((l) => `${itemLabel(l.item_ref)}: ${l.quantidade}`).join(" · ") || "sem itens"}</p>
           {orderAllows(o.status, "autorizacao") && <CeilingPanel school={o.school_id} lines={o.lines} />}
+          {orderAllows(o.status, "autorizacao") && contracts.length > 0 && <label className="block max-w-sm">Contrato/empenho para atender<select className={field} value={contractOf[o.logical_id] ?? ""} onChange={(e) => setContractOf({ ...contractOf, [o.logical_id]: e.target.value })}><option value="">não informado</option>{contracts.map((c) => <option key={c.logical_id} value={c.logical_id}>{String(c.payload["numero"] ?? "contrato")}{c.payload["empenho"] ? ` · empenho ${String(c.payload["empenho"])}` : ""}</option>)}</select></label>}
           <div className="flex flex-wrap gap-2">
             {orderAllows(o.status, "analise") && <Button size="sm" variant="outline" onClick={() => go(o, "analise", false)}>Iniciar análise</Button>}
             {orderAllows(o.status, "autorizacao") && <>
@@ -205,6 +213,7 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
               <Button size="sm" variant="destructive" onClick={() => go(o, "rejeicao", true)}>Rejeitar</Button>
             </>}
           </div>
+          {orderAllows(o.status, "retificacao") && <ScheduleForm order={o.logical_id} lines={o.lines} contracts={contracts} itemLabel={itemLabel} onDone={onDone} />}
         </li>
       ))}
     </ul>

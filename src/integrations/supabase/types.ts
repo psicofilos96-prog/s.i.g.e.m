@@ -19851,7 +19851,17 @@ export type Database = {
         Args: { _from: string; _until: string; _year: string }
         Returns: boolean
       }
+      bo_fixture_attribute_value: {
+        Args: {
+          _label: string
+          _operation_id: string
+          _scheme: string
+          _suffix: string
+        }
+        Returns: string
+      }
       bo_fixture_cleanup: { Args: { _operation_id: string }; Returns: number }
+      bo_fixture_cleanup_row: { Args: { _old: Json }; Returns: boolean }
       bo_fixture_expire: {
         Args: { _operation_id: string; _user_id: string }
         Returns: undefined
