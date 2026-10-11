@@ -11,11 +11,12 @@ async function call<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   return data as T;
 }
 
-export type CardCandidate = { student_id: string; name: string; name_kind: "civil" | "social"; internal_id: string | null; class_label: string | null; has_photo: boolean; open_card: string | null };
+export type CardCandidate = { student_id: string; name: string; name_kind: "civil" | "social"; internal_id: string | null; class_label: string | null; has_photo: boolean; open_card: string | null;
+  birth_date?: string | null; homonyms?: number };
 
 export const readCardChain = (school: string) => call<CardChainRow[]>("student_card_chain_v2", { _school: school });
 export const readFamilyCards = (student: string) => call<IssuedCard[]>("family_student_cards_v2", { _student: student });
-export const findCardCandidates = (school: string, query: string) => call<CardCandidate[]>("student_card_candidates", { _school: school, _query: query });
+export const findCardCandidates = (school: string, query: string, birth?: string | null) => call<CardCandidate[]>("student_card_candidates_v2", { _school: school, _query: query, _birth: birth || null });
 export const readCardLayouts = (school: string) => call<{ version: number; config: unknown; recorded_at: string }[]>("student_card_layouts", { _school: school });
 export const recordCardLayout = (school: string, expected: number | null, config: unknown) =>
   call<number>("record_student_card_layout", { _school: school, _expected: expected, _config: config });

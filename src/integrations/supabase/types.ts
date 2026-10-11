@@ -7941,6 +7941,113 @@ export type Database = {
         }
         Relationships: []
       }
+      family_health_access_events: {
+        Row: {
+          accessed_at: string
+          actor_user_id: string
+          id: string
+          rows_returned: number
+          school_id: string
+        }
+        Insert: {
+          accessed_at?: string
+          actor_user_id: string
+          id?: string
+          rows_returned: number
+          school_id: string
+        }
+        Update: {
+          accessed_at?: string
+          actor_user_id?: string
+          id?: string
+          rows_returned?: number
+          school_id?: string
+        }
+        Relationships: []
+      }
+      family_health_declarations: {
+        Row: {
+          consent_at: string
+          consent_text_version: string
+          declared_by: string
+          description: string
+          event_kind: string
+          guardian_authorization_id: string
+          id: string
+          instructions: string | null
+          kind: string
+          logical_id: string
+          recorded_at: string
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          consent_at: string
+          consent_text_version: string
+          declared_by: string
+          description: string
+          event_kind: string
+          guardian_authorization_id: string
+          id?: string
+          instructions?: string | null
+          kind: string
+          logical_id: string
+          recorded_at?: string
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          consent_at?: string
+          consent_text_version?: string
+          declared_by?: string
+          description?: string
+          event_kind?: string
+          guardian_authorization_id?: string
+          id?: string
+          instructions?: string | null
+          kind?: string
+          logical_id?: string
+          recorded_at?: string
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_health_declarations_guardian_authorization_id_fkey"
+            columns: ["guardian_authorization_id"]
+            isOneToOne: false
+            referencedRelation: "guardian_authorizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_health_declarations_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_health_declarations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_health_declarations_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "family_health_declarations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       final_sheet_acts: {
         Row: {
           action: string
@@ -21992,6 +22099,22 @@ export type Database = {
         Args: { _on: string; _student: string }
         Returns: string
       }
+      family_health_history: {
+        Args: { _student: string }
+        Returns: {
+          by_me: boolean
+          consent_text_version: string
+          description: string
+          event_kind: string
+          id: string
+          instructions: string
+          is_head: boolean
+          kind: string
+          logical_id: string
+          recorded_at: string
+          version: number
+        }[]
+      }
       family_published_menus: {
         Args: { _on: string; _student: string }
         Returns: {
@@ -25089,6 +25212,18 @@ export type Database = {
         Args: { _kind: string; _student: string; _version: string }
         Returns: undefined
       }
+      record_family_health_declaration: {
+        Args: {
+          _base: string
+          _consent_version: string
+          _description: string
+          _event: string
+          _instructions: string
+          _kind: string
+          _student: string
+        }
+        Returns: string
+      }
       record_final_sheet_act: {
         Args: {
           _action: string
@@ -26998,6 +27133,18 @@ export type Database = {
           valid_until: string
         }[]
       }
+      school_family_health_declarations: {
+        Args: { _school: string }
+        Returns: {
+          description: string
+          instructions: string
+          internal_id: string
+          kind: string
+          recorded_at: string
+          student_name: string
+          version: number
+        }[]
+      }
       school_followup_grant: {
         Args: { _capability: string; _school: string }
         Returns: string
@@ -27441,6 +27588,20 @@ export type Database = {
         Returns: {
           class_label: string
           has_photo: boolean
+          internal_id: string
+          name: string
+          name_kind: string
+          open_card: string
+          student_id: string
+        }[]
+      }
+      student_card_candidates_v2: {
+        Args: { _birth: string; _query: string; _school: string }
+        Returns: {
+          birth_date: string
+          class_label: string
+          has_photo: boolean
+          homonyms: number
           internal_id: string
           name: string
           name_kind: string

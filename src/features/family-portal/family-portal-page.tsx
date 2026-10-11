@@ -11,6 +11,7 @@ import { StudentCardView } from "./student-card-view";
 import { withIssuance, type IssuedCard } from "./card-issuance";
 import { cardPhotoUrl, readFamilyCards } from "./card-issuance-source";
 import { readCardLayout } from "./card-layout";
+import { FamilyHealth } from "./family-health-panel";
 
 export function FamilyPortalPage({ requested }: { requested: string | undefined }) {
   const navigate = useNavigate();
@@ -64,6 +65,7 @@ function Section({ s, k, studentId }: { s: FamilySummary; k: FamilySection; stud
     <section className="rounded-lg border bg-card p-4 space-y-2" aria-labelledby={`sec-${k}`}>
       <h2 id={`sec-${k}`} className="font-semibold">{SECTION_LABEL[k]}</h2>
       {k === "comunicados" ? <FamilyCommunications studentId={studentId} />
+        : k === "saude" ? <FamilyHealth studentId={studentId} />
         : st.kind === "sem-publicacao" ? <p className="text-sm text-muted-foreground">{st.reason}</p>
         : st.kind === "vazia" ? <p className="text-sm text-muted-foreground">{st.message}</p>
         : k === "matricula" ? (
