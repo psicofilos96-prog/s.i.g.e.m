@@ -54,7 +54,7 @@ export function SemedTablesPage() {
   const cat = sub ? cats.find((c) => c.id === sub.catalog_id) : [...cats].filter((c) => c.table_code === code).sort((a, b) => b.version - a.version)[0];
   const def = cat?.definition;
   const perm = scope?.find((s) => s.school_id === school);
-  useEffect(() => { setDraft({ ...saved }); setReason(""); setMsg(null); }, [school, code, last?.seq]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setDraft({ ...saved } as Record<string, string | number | null>); setReason(""); setMsg(null); }, [school, code, last?.seq]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const editable = !!perm?.can_fill && ["rascunho", "devolvido", "revisao-solicitada"].includes(state);
   const allowed = (a: SemedAct) => nextState(state, a) !== null && (actWho(a) === "preenche" ? perm?.can_fill : actWho(a) === "confere" ? perm?.can_review : perm?.network);
