@@ -7745,6 +7745,149 @@ export type Database = {
         }
         Relationships: []
       }
+      docserv_document_events: {
+        Row: {
+          actor: string
+          document_id: string
+          id: string
+          kind: string
+          note: string | null
+          recorded_at: string
+          seq: number
+          status: string | null
+          version_id: string
+        }
+        Insert: {
+          actor: string
+          document_id: string
+          id?: string
+          kind: string
+          note?: string | null
+          recorded_at?: string
+          seq: number
+          status?: string | null
+          version_id: string
+        }
+        Update: {
+          actor?: string
+          document_id?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          recorded_at?: string
+          seq?: number
+          status?: string | null
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "docserv_document_events_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      docserv_document_types: {
+        Row: {
+          approved_policy_ref: string | null
+          code: string
+          created_at: string
+          label: string
+          legacy_requirement: string
+        }
+        Insert: {
+          approved_policy_ref?: string | null
+          code: string
+          created_at?: string
+          label: string
+          legacy_requirement: string
+        }
+        Update: {
+          approved_policy_ref?: string | null
+          code?: string
+          created_at?: string
+          label?: string
+          legacy_requirement?: string
+        }
+        Relationships: []
+      }
+      docserv_document_versions: {
+        Row: {
+          document_id: string
+          id: string
+          issued_on: string | null
+          issuer: string | null
+          mime_type: string
+          person_id: string
+          previous_version_id: string | null
+          school_id: string | null
+          season: string
+          sha256: string
+          size_bytes: number
+          storage_path: string
+          submitted_at: string
+          submitted_by: string
+          type_code: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          document_id: string
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          mime_type: string
+          person_id: string
+          previous_version_id?: string | null
+          school_id?: string | null
+          season: string
+          sha256: string
+          size_bytes: number
+          storage_path: string
+          submitted_at?: string
+          submitted_by: string
+          type_code: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          document_id?: string
+          id?: string
+          issued_on?: string | null
+          issuer?: string | null
+          mime_type?: string
+          person_id?: string
+          previous_version_id?: string | null
+          school_id?: string | null
+          season?: string
+          sha256?: string
+          size_bytes?: number
+          storage_path?: string
+          submitted_at?: string
+          submitted_by?: string
+          type_code?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "docserv_document_versions_previous_version_id_fkey"
+            columns: ["previous_version_id"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "docserv_document_versions_type_code_fkey"
+            columns: ["type_code"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_types"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       docserv_identity_links: {
         Row: {
           candidates: Json
@@ -23911,6 +24054,10 @@ export type Database = {
         }
       }
       dispatch_notification_event: { Args: { _event: string }; Returns: number }
+      docserv_can_read: {
+        Args: { _person: string; _school: string }
+        Returns: boolean
+      }
       docserv_context: { Args: never; Returns: Json }
       docserv_decide_identity: {
         Args: {
@@ -23921,7 +24068,20 @@ export type Database = {
         }
         Returns: number
       }
+      docserv_delete_document: {
+        Args: { _document: string; _expected_seq: number; _reason: string }
+        Returns: number
+      }
+      docserv_documents_at: {
+        Args: { _include_deleted?: boolean; _person?: string; _school?: string }
+        Returns: Json
+      }
       docserv_identity_queue: { Args: { _limit?: number }; Returns: Json }
+      docserv_my_person: { Args: never; Returns: string }
+      docserv_person_in_school: {
+        Args: { _person: string; _school: string }
+        Returns: boolean
+      }
       docserv_resolve_identity: {
         Args: {
           _commit?: boolean
@@ -23931,6 +24091,33 @@ export type Database = {
           _matricula: string
         }
         Returns: Json
+      }
+      docserv_review_document: {
+        Args: {
+          _document: string
+          _expected_seq: number
+          _note: string
+          _status: string
+        }
+        Returns: number
+      }
+      docserv_submit_document: {
+        Args: {
+          _document: string
+          _expected_version: number
+          _issued: string
+          _issuer: string
+          _mime: string
+          _path: string
+          _person: string
+          _school: string
+          _season: string
+          _sha: string
+          _size: number
+          _type: string
+          _valid_until: string
+        }
+        Returns: string
       }
       draft_class_designation_policy: {
         Args: {
