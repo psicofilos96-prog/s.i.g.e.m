@@ -377,5 +377,9 @@
  "drizzle/migrations/0326_nfam2_family_health_declarations.sql": "c8c646ee26951dce888aba288d992d646ad32bc69fe5095ca74bca701e66ff74",
  "drizzle/migrations/0327_nfam2_guardian_section_saude.sql": "5b9dd44a6247d4889ba1e3c55f9f150e39befdbc3947092c7978f7afa024d658",
  "drizzle/migrations/0328_nsec_fix_school_text_templates.sql": "bb6b65813c95103bb446ffa614785295a2416c9cc4d98ad025ec8b4dd85d55dd",
- "drizzle/migrations/0329_accept1_share_event_order.sql": "b799a2815139991e5a37a5cbab47541179cabfe9f5eeee5ddb4178408e09526c"
+ "drizzle/migrations/0329_accept1_share_event_order.sql": "b799a2815139991e5a37a5cbab47541179cabfe9f5eeee5ddb4178408e09526c",
+ "drizzle/migrations/0330_nei1_roles_scopes_dashboard.sql": "dea8cb7fbd0adf82c2b1ec3d2b4186e0f90e0f1c064c1adeee0b38bbfdcdb41c",
+ "drizzle/migrations/0331_nei1_school_name_fix.sql": "956c3553707f5d76fe422acbc861317e466a93905db9325746975575e5d46c7c",
+ "drizzle/migrations/0332_nei1_revoke_table_privileges.sql": "3af8b75a79a133e810965753b5d525587c37635b368267bff939aeb9cb22f833",
+ "drizzle/migrations/0333_nei1_refusal_keeps_log.sql": "23a30c2116a0cb0093adb27f31a5a335fcb73bdf286ec33c4719decc2c030bac"
 }

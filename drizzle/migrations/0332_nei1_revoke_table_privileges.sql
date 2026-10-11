@@ -1,0 +1,1 @@
+REVOKE ALL ON public.nei_role_grants, public.nei_role_revocations, public.nei_access_events FROM PUBLIC, anon, authenticated;
