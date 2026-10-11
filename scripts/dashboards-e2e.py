@@ -61,7 +61,7 @@ async def main():
         p(await ed.get_by_role("button", name="Pôr no painel").is_disabled(), "botão bloqueado até a consulta servir ao gráfico")
         await ed.get_by_role("button", name="Cancelar").click()
         # exportações
-        print("DBG", await card.locator("svg.recharts-surface").count(), await card.get_by_role("button", name="SVG").count(), (await card.inner_text())[:200].replace("\n"," "))
+        await card.get_by_text("linha(s)").wait_for(timeout=60000)
         async with pg.expect_download() as d: await card.get_by_role("button", name="SVG").click()
         f = await (await d.value).path(); s = open(f).read(); p(s.startswith("<svg") and "var(--" not in s, "SVG exportado com cores resolvidas")
         async with pg.expect_download() as d: await card.get_by_role("button", name="PNG").click()
