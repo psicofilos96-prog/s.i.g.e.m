@@ -43,11 +43,11 @@ async def run(br, cfg, sector, subject, tag):
         await steps.nth(6).click(); await g.get_by_label("Cabeçalho (uma linha por linha)").fill("Prefeitura Municipal de Itaperuna\nSecretaria Municipal de Educação\nCIECE")
         await steps.nth(8).click(); await pg.wait_for_timeout(500)
         await g.get_by_role("button", name="Salvar nova versão").click(); await pg.wait_for_timeout(3000)
-        t = await g.inner_text(); ok = "v2" in t
+        t = await g.inner_text(); ok = "versão 2" in t
         print(f"{'PASS' if ok else 'FAIL'} [{tag}] modelo versionado salvo na conta (v1 → v2)")
         await pg.screenshot(path=f"{OUT}/{tag}-1b-modelo.png")
         await pg.reload(); await g.get_by_role("button", name="Escolher").first.wait_for(timeout=30000)
-        b = g.get_by_role("button", name="Aceite L11 escolas · v2")
+        await pg.wait_for_timeout(3000); b = g.get_by_role("button", name="Aceite L11 escolas · v2")
         print(f"{'PASS' if await b.count() else 'FAIL'} [{tag}] modelo v2 reaberto após recarregar (persistido no servidor)")
         if await b.count():
             await b.click(); await steps.nth(6).click()
