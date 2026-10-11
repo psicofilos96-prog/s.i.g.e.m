@@ -14,6 +14,100 @@ export type Database = {
   }
   public: {
     Tables: {
+      aa_calc_rule_homologations: {
+        Row: {
+          author_user_id: string
+          decision: string
+          id: string
+          reason: string
+          recorded_at: string
+          rule_version_id: string
+        }
+        Insert: {
+          author_user_id: string
+          decision: string
+          id?: string
+          reason: string
+          recorded_at?: string
+          rule_version_id: string
+        }
+        Update: {
+          author_user_id?: string
+          decision?: string
+          id?: string
+          reason?: string
+          recorded_at?: string
+          rule_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aa_calc_rule_homologations_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: false
+            referencedRelation: "aa_calc_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aa_calc_rule_versions: {
+        Row: {
+          author_user_id: string
+          edition_label: string
+          id: string
+          logical_id: string
+          payload: Json
+          program_key: string
+          reason: string | null
+          recorded_at: string
+          rule_key: string
+          rule_kind: string
+          source_hash: string | null
+          source_ref: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_user_id: string
+          edition_label: string
+          id?: string
+          logical_id: string
+          payload: Json
+          program_key: string
+          reason?: string | null
+          recorded_at?: string
+          rule_key: string
+          rule_kind: string
+          source_hash?: string | null
+          source_ref: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_user_id?: string
+          edition_label?: string
+          id?: string
+          logical_id?: string
+          payload?: Json
+          program_key?: string
+          reason?: string | null
+          recorded_at?: string
+          rule_key?: string
+          rule_kind?: string
+          source_hash?: string | null
+          source_ref?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aa_calc_rule_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "aa_calc_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aa_calendar_items: {
         Row: {
           action: string
@@ -23471,6 +23565,10 @@ export type Database = {
         Returns: string
       }
       aa_conference_state: { Args: { _instrument: string }; Returns: string }
+      aa_homologate_calc_rule: {
+        Args: { _decision: string; _reason: string; _version: string }
+        Returns: string
+      }
       aa_import_batch_act: {
         Args: {
           _batch: string
@@ -23524,6 +23622,21 @@ export type Database = {
       aa_period_window: {
         Args: { _known_at: string; _period: string }
         Returns: Record<string, unknown>
+      }
+      aa_record_calc_rule: {
+        Args: {
+          _edition: string
+          _expected_version: number
+          _key: string
+          _kind: string
+          _logical: string
+          _payload: Json
+          _program: string
+          _reason: string
+          _source: string
+          _source_hash: string
+        }
+        Returns: string
       }
       aa_record_intervention: {
         Args: {
