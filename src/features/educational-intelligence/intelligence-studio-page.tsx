@@ -8,6 +8,7 @@ import { DATASETS, EI_BLOCKERS, EI_CAPABILITIES } from "./catalog";
 import { AssessmentCyclePanel, countByState } from "./assessment-cycle-panel";
 import type { CycleState } from "./assessment-cycle";
 import { ProgramsPanel } from "./programs-panel";
+import { SkillsPanel } from "./skills-panel";
 
 type Rpc = (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
@@ -89,7 +90,7 @@ export function IntelligenceStudioPage() {
         </TabsContent>
 
         <TabsContent value="evolucao"><StatePanel title="Séries só entre métricas comparáveis" description="A comparação entre edições exige declaração registrada (comparável, não comparável ou desconhecida). O nome do componente nunca decide." /></TabsContent>
-        <TabsContent value="habilidades"><StatePanel tone="info" title="CONTENT_SOURCE_PENDING" description="Habilidades e descritores dependem da edição oficial da matriz importada no repositório curricular. Nenhuma correspondência é criada sem fonte homologada." /></TabsContent>
+        <TabsContent value="habilidades"><SkillsPanel /></TabsContent>
         <TabsContent value="escolas"><StatePanel title="Agregado por escola e turma" description="Disponível quando houver resultados importados e permissão de escola ou rede. Grupos pequenos só são suprimidos com política de divulgação registrada." /></TabsContent>
         <TabsContent value="alunos"><StatePanel tone="warning" title="Dado pessoal" description="Resultado por estudante só com permissão específica e dimensão sensível escolhida explicitamente. Painéis executivos usam agregado." /></TabsContent>
         <TabsContent value="relatorios">
