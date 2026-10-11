@@ -17,7 +17,6 @@ import {
   type BookFilter, type BookRow, type VacancyRow,
 } from "./vacancies-book";
 
-import { operationalToday } from "@/lib/academic-date";
 const today = () => operationalToday();
 const errText = (e: unknown) => secretariatMessage(e instanceof Error ? e.message : String(e));
 const TONE = { "ha-vaga": "success", lotada: "warning", "capacidade-nao-informada": "neutral" } as const;
