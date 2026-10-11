@@ -36,6 +36,24 @@ async def run(br, cfg, sector, subject, tag):
     await steps.nth(7).click(); await pg.wait_for_timeout(6000)
     await pg.screenshot(path=f"{OUT}/{tag}-2-previa.png")
     txt = await g.inner_text(); print(f"INFO [{tag}] prévia:", " | ".join(l for l in txt.splitlines() if "inha" in l or "não" in l.lower())[:300])
+    if tag == "escolas":
+        await steps.nth(8).click(); await pg.wait_for_timeout(1500)
+        await g.get_by_label("Nome do modelo").fill("Aceite L11 escolas")
+        await g.get_by_role("button", name="Salvar modelo").click(); await pg.wait_for_timeout(3000)
+        await steps.nth(6).click(); await g.get_by_label("Cabeçalho (uma linha por linha)").fill("Prefeitura Municipal de Itaperuna\nSecretaria Municipal de Educação\nCIECE")
+        await steps.nth(8).click(); await pg.wait_for_timeout(500)
+        await g.get_by_role("button", name="Salvar nova versão").click(); await pg.wait_for_timeout(3000)
+        t = await g.inner_text(); ok = "v2" in t
+        print(f"{'PASS' if ok else 'FAIL'} [{tag}] modelo versionado salvo na conta (v1 → v2)")
+        await pg.screenshot(path=f"{OUT}/{tag}-1b-modelo.png")
+        await pg.reload(); await g.get_by_role("button", name="Escolher").first.wait_for(timeout=30000)
+        b = g.get_by_role("button", name="Aceite L11 escolas · v2")
+        print(f"{'PASS' if await b.count() else 'FAIL'} [{tag}] modelo v2 reaberto após recarregar (persistido no servidor)")
+        if await b.count():
+            await b.click(); await steps.nth(6).click()
+            hv = await g.get_by_label("Cabeçalho (uma linha por linha)").input_value(); lv = await g.get_by_label("Logo ou brasão").input_value()
+            print(f"{'PASS' if 'CIECE' in hv and 'assets-v1' in lv else 'FAIL'} [{tag}] cabeçalho e brasão restaurados do modelo")
+        await steps.nth(7).click(); await pg.wait_for_timeout(5000)
     await steps.nth(9).click(); await pg.wait_for_timeout(800)
     for fmt in ["CSV", "XLSX"]:
         try:
