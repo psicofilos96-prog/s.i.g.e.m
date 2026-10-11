@@ -5,7 +5,7 @@ import { hasClinicalText, overdue } from "./nei-visits";
 /** Alertas por prazo: só itens com prazo declarado; janela "a vencer" só configurada (null ⇒ só vencidos). */
 export function deadlineAlerts(items: readonly { id: string; due: string | null; closed: boolean }[], today: string, soonDays: number | null) {
   const soonLimit = soonDays == null ? null : new Date(Date.parse(today) + soonDays * 86_400_000).toISOString().slice(0, 10);
-  return items.flatMap((i) => {
+  return items.flatMap((i): { id: string; kind: "vencido" | "a-vencer" }[] => {
     if (overdue(i.due, i.closed, today)) return [{ id: i.id, kind: "vencido" as const }];
     if (soonLimit && i.due && !i.closed && i.due >= today && i.due <= soonLimit) return [{ id: i.id, kind: "a-vencer" as const }];
     return [];
