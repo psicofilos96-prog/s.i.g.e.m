@@ -3,3 +3,4 @@
 - Fonte não lida ⇒ regra "não verificável", nunca achado; estado aberto/revisado/dispensado/resolvido é derivado (evidência nova reabre; não detectado mais ⇒ resolvido), porque correção vem só do writer canônico, nunca da central.
 - Severidade só por configuração (`SeverityConfig`, vazia por padrão) e nenhuma regra pedagógica sobre nota/frequência, porque julgamento normativo não pode nascer no código.
 - NDATA.2: cada achado ganha classe (`classifyFinding`: ERRO_TECNICO só para fonte não lida, DADO_A_REVISAR, AUSENCIA_CONFIGURACAO, ESPERADO) derivada da regra+evidência, nunca persistida nem usada para corrigir, porque classe gravada viraria segunda verdade.
+- Lote 01 Expansão (`integrity-catalog.ts`): catálogo de entidades canônicas e regras de integridade versionadas, puras; possível duplicata de pessoa é só candidata com decisão manual, nunca fusão, e divergência entre fontes exige duas fontes lidas, porque fusão ou fonte ausente como zero criariam fato falso.
