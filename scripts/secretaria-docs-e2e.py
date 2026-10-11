@@ -23,7 +23,9 @@ async def main():
         start = (today - datetime.timedelta(days=60)).isoformat()
         await g.get_by_label("Data de início").fill(start.split("-")[2] + "/" + start.split("-")[1] + "/" + start.split("-")[0])
         await g.get_by_label("Motivo").fill("Teste técnico: data conforme livro de matrícula (sintético)")
-        await g.get_by_role("button", name="Gravar declaração").click(); await pg.wait_for_timeout(3000)
+        await g.get_by_role("button", name="Gravar declaração").click()
+        try: await sec.get_by_role("status").filter(has_text="declarado").wait_for(timeout=10000)
+        except Exception: pass
         s = " | ".join(await sec.get_by_role("status").all_inner_texts()); p("declarado" in s, "secretaria declara início pela tela", s)
         row = sec.get_by_role("listitem").filter(has_text=cfg["studentName"]).first
         p("declarado pela secretaria" in await row.inner_text(), "lista mostra a origem da data (declaração da secretaria)")
@@ -53,7 +55,7 @@ async def main():
         subprocess.run(["pdftoppm", "-png", "-r", "70", "-f", "1", "-l", "1", f"{OUT}/declaracao.pdf", f"{SH}/pdf"])
         p(not errs, "sem erros de página", str(errs)[:200]); await ctx.close()
         a = await br.new_context(viewport={"width": 1280, "height": 1800}); ap = await a.new_page()
-        await ap.goto(f"{B}/verificar/documento/{code}"); await ap.wait_for_timeout(5000)
+        await ap.goto(f"{B}/verificar/{code}"); await ap.wait_for_timeout(5000)
         vt = await ap.inner_text("body"); await ap.screenshot(path=f"{SH}/2_verificacao.png")
         p(("válid" in vt.lower()) and cfg["studentName"] not in vt, "verificação pública sem sessão: válido e sem nome do estudante", vt[:160].replace("\n", " "))
         await br.close()

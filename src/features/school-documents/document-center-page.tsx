@@ -207,9 +207,9 @@ export function DocumentCenterPage({ initialSchool, initialStudent }: { initialS
           <DocumentView title={viewing.snapshot.template.title} identity={viewing.snapshot.template.identity}
             render={renderFromSnapshot(viewing.snapshot)}
             footer={<div className="mt-4 flex items-start gap-3">
-              {typeof window !== "undefined" ? <QrCode value={`${window.location.origin}/verificar/documento/${viewing.verification_code}`} sizeMm={22} /> : null}
+              {typeof window !== "undefined" ? <QrCode value={`${window.location.origin}/verificar/${viewing.verification_code}`} sizeMm={22} /> : null}
               <p className="break-all text-xs text-muted-foreground">
-              Verificação: {typeof window !== "undefined" ? window.location.origin : ""}/verificar/documento/{viewing.verification_code} · código {viewing.verification_code} · impressão {viewing.snapshot_sha256}
+              Verificação: {typeof window !== "undefined" ? window.location.origin : ""}/verificar/{viewing.verification_code} · código {viewing.verification_code} · impressão {viewing.snapshot_sha256}
               {viewing.emission_kind === "reproducao" ? " · reprodução de documento já emitido" : ""}</p></div>} />
         </section>
       ) : null}
