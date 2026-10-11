@@ -7,7 +7,8 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
-import { runReport, toCsv } from "@/features/reports/report-engine";
+import { runReport, toCsv, toPrintableHtml, toXlsx, fingerprint } from "@/features/reports/report-engine";
+import { MAPA_COMPRAS, purchaseMapRows } from "./purchase-map";
 import { mealMessage } from "./meals-model";
 import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from "./ceiling-explain";
 import { operationalToday } from "@/lib/academic-date";
@@ -48,6 +49,7 @@ export function OrdersSection({ school, network, names }: { school: string; netw
   const [competence, setCompetence] = useState(() => shiftMonthKey(operationalMonthKey(), 1));
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [items, setItems] = useState<Named[]>([]); const [units, setUnits] = useState<Named[]>([]);
+  const [contracts, setContracts] = useState<Named[]>([]); const [suppliers, setSuppliers] = useState<Named[]>([]);
   const [cons, setCons] = useState<Cons[] | null>(null);
   const [msg, setMsg] = useState<string | null>(null); const [err, setErr] = useState<string | null>(null);
   const label = (list: Named[], id: string) => String(list.find((x) => x.logical_id === id)?.payload["nome"] ?? "item não identificado");
@@ -59,7 +61,14 @@ export function OrdersSection({ school, network, names }: { school: string; netw
         call<Named[]>("meal_master_at", { _kind: "unidade-de-medida", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
       ]);
       setOrders(o); setItems(it); setUnits(un); setErr(null);
-      if (network) setCons(await call<Cons[]>("meal_demand_consolidation_at", { _competence: competence }).catch(() => null));
+      if (network) {
+        setCons(await call<Cons[]>("meal_demand_consolidation_at", { _competence: competence }).catch(() => null));
+        const [ct, sp] = await Promise.all([
+          call<Named[]>("meal_master_at", { _kind: "referencia-contratual", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
+          call<Named[]>("meal_master_at", { _kind: "fornecedor", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
+        ]);
+        setContracts(ct); setSuppliers(sp);
+      }
     } catch (e) { setErr(mealMessage((e as Error).message)); }
   }, [competence, school, network]);
   useEffect(() => { void load(); }, [load]);
@@ -76,6 +85,19 @@ export function OrdersSection({ school, network, names }: { school: string; netw
     const rows = (cons ?? []).map((c) => ({ item: label(items, c.item_ref), unit: label(units, c.unidade_ref), presentation: c.apresentacao_ref, contract: c.contrato_ref,
       total: c.total, schools: Object.entries(c.by_school).map(([s, q]) => `${names.get(s) ?? s}: ${q}`).join("; ") }));
     download(`consolidado-${competence}.csv`, toCsv(runReport(CONSOLIDADO_ALIMENTACAO, { params: { competence } }, rows), { headerLines: ["SIGEM"], title: CONSOLIDADO_ALIMENTACAO.title }, [`Competência: ${competence}`, "Não é ordem de compra."]));
+  }
+  async function exportPurchaseMap(fmt: "pdf" | "xlsx") {
+    const rows = purchaseMapRows((cons ?? []).map((c) => ({ ...c, total: Number(c.total) })), { items, units, contracts, suppliers, schools: names });
+    const result = runReport(MAPA_COMPRAS, { params: { competence } }, rows);
+    const branding = { headerLines: ["SIGEM — Alimentação Escolar"], title: MAPA_COMPRAS.title };
+    const meta = [`Competência: ${competence}`, "Somente pedidos autorizados vigentes.", "Não é ordem de compra nem empenho.", `Gerado em ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`];
+    if (fmt === "xlsx") {
+      const buf = await toXlsx(result, branding, meta);
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })); a.download = `mapa-compras-${competence}.xlsx`; a.click();
+      return;
+    }
+    const w = window.open("", "_blank"); if (!w) { setMsg("O navegador bloqueou a janela de impressão."); return; }
+    w.document.write(toPrintableHtml(result, branding, meta, await fingerprint(result))); w.document.close(); w.focus(); w.print();
   }
   const mine = orders?.find((o) => !network && o.school_id === school && o.status !== "cancelado" && o.status !== "rejeitado");
   return (
@@ -94,7 +116,11 @@ export function OrdersSection({ school, network, names }: { school: string; netw
           {cons.length === 0 ? <p className="text-muted-foreground">Nenhuma quantidade autorizada nesta competência.</p> : (
             <ul className="divide-y">{cons.map((c, i) => <li key={i} className="py-1">{label(items, c.item_ref)} — {c.total} {label(units, c.unidade_ref)} · {Object.keys(c.by_school).length} destino(s)</li>)}</ul>
           )}
-          {cons.length > 0 && <Button variant="outline" onClick={exportCons}>Exportar consolidado (CSV)</Button>}
+          {cons.length > 0 && <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={exportCons}>Exportar consolidado (CSV)</Button>
+            <Button variant="outline" onClick={() => void exportPurchaseMap("pdf")}>Mapa de compras (PDF A4)</Button>
+            <Button variant="outline" onClick={() => void exportPurchaseMap("xlsx")}>Mapa de compras (XLSX)</Button>
+          </div>}
         </div>
       )}
     </section>
