@@ -21499,6 +21499,10 @@ export type Database = {
         Args: { _operation_id: string }
         Returns: undefined
       }
+      bo_fixture_cleanup_semed: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_expire: {
         Args: { _operation_id: string; _user_id: string }
         Returns: undefined
@@ -29274,6 +29278,7 @@ export type Database = {
       semed_can_fill: { Args: { _school: string }; Returns: boolean }
       semed_can_read: { Args: { _school: string }; Returns: boolean }
       semed_can_review: { Args: { _school: string }; Returns: boolean }
+      semed_fixture_row: { Args: { _old: Json }; Returns: boolean }
       semed_is_network: { Args: never; Returns: boolean }
       semed_key_spec: { Args: { _def: Json; _key: string }; Returns: Json }
       semed_next_state: {

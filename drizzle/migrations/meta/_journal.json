@@ -2416,6 +2416,13 @@
       "when": 1791717573139,
       "tag": "0344_semed_tables_revoke_catalog_load",
       "breakpoints": true
+    },
+    {
+      "idx": 345,
+      "version": "7",
+      "when": 1791717961226,
+      "tag": "0345_semed_tables_fixture_cleanup",
+      "breakpoints": true
     }
   ]
 }
