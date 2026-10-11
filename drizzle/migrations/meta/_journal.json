@@ -2066,6 +2066,13 @@
       "when": 1791672173168,
       "tag": "0294_meal_food_samples_revoke",
       "breakpoints": true
+    },
+    {
+      "idx": 295,
+      "version": "7",
+      "when": 1791685361331,
+      "tag": "0295_0295_bo_fixture_diary_capability_grants",
+      "breakpoints": true
     }
   ]
 }

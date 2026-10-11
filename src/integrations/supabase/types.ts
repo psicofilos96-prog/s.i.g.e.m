@@ -2166,6 +2166,42 @@ export type Database = {
         }
         Relationships: []
       }
+      bo_fixture_capability_grants: {
+        Row: {
+          capability_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          operation_id: string
+          person_id: string
+          school_id: string | null
+          scope_level: string
+          user_id: string
+        }
+        Insert: {
+          capability_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          operation_id: string
+          person_id: string
+          school_id?: string | null
+          scope_level: string
+          user_id: string
+        }
+        Update: {
+          capability_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          operation_id?: string
+          person_id?: string
+          school_id?: string | null
+          scope_level?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       calendar_authority_designations: {
         Row: {
           capabilities: string[]
@@ -19790,6 +19826,16 @@ export type Database = {
         Args: { _operation_id: string; _user_id: string }
         Returns: undefined
       }
+      bo_fixture_grant_capability: {
+        Args: {
+          _capability: string
+          _operation_id: string
+          _school: string
+          _user_id: string
+        }
+        Returns: string
+      }
+      bo_fixture_is_user: { Args: { _uid: string }; Returns: boolean }
       bo_fixture_prepare: {
         Args: {
           _kind: string
