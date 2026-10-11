@@ -12664,6 +12664,210 @@ export type Database = {
         }
         Relationships: []
       }
+      lc_entry_reviews: {
+        Row: {
+          author_user_id: string
+          decision: string
+          entry_version_id: string
+          id: string
+          note: string | null
+          recorded_at: string
+          school_id: string
+        }
+        Insert: {
+          author_user_id: string
+          decision: string
+          entry_version_id: string
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          school_id: string
+        }
+        Update: {
+          author_user_id?: string
+          decision?: string
+          entry_version_id?: string
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lc_entry_reviews_entry_version_id_fkey"
+            columns: ["entry_version_id"]
+            isOneToOne: false
+            referencedRelation: "lc_entry_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lc_entry_versions: {
+        Row: {
+          author_user_id: string
+          class_id: string
+          id: string
+          instrument_version_id: string
+          logical_id: string
+          presence: string
+          reason: string | null
+          recorded_at: string
+          results: Json
+          school_id: string
+          student_id: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_user_id: string
+          class_id: string
+          id?: string
+          instrument_version_id: string
+          logical_id?: string
+          presence: string
+          reason?: string | null
+          recorded_at?: string
+          results?: Json
+          school_id: string
+          student_id: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_user_id?: string
+          class_id?: string
+          id?: string
+          instrument_version_id?: string
+          logical_id?: string
+          presence?: string
+          reason?: string | null
+          recorded_at?: string
+          results?: Json
+          school_id?: string
+          student_id?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lc_entry_versions_instrument_version_id_fkey"
+            columns: ["instrument_version_id"]
+            isOneToOne: false
+            referencedRelation: "lc_instrument_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lc_entry_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "lc_entry_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lc_instrument_homologations: {
+        Row: {
+          author_user_id: string
+          decision: string
+          id: string
+          instrument_version_id: string
+          reason: string
+          recorded_at: string
+        }
+        Insert: {
+          author_user_id: string
+          decision: string
+          id?: string
+          instrument_version_id: string
+          reason: string
+          recorded_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          decision?: string
+          id?: string
+          instrument_version_id?: string
+          reason?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lc_instrument_homologations_instrument_version_id_fkey"
+            columns: ["instrument_version_id"]
+            isOneToOne: false
+            referencedRelation: "lc_instrument_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lc_instrument_versions: {
+        Row: {
+          area: string
+          author_user_id: string
+          criteria: Json
+          edition_year: number
+          general_formula: Json | null
+          grade: string
+          id: string
+          items: Json
+          logical_id: string
+          matrix_ref: string
+          program_key: string
+          reason: string | null
+          recorded_at: string
+          round_label: string
+          source_ref: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          area: string
+          author_user_id: string
+          criteria?: Json
+          edition_year: number
+          general_formula?: Json | null
+          grade: string
+          id?: string
+          items?: Json
+          logical_id?: string
+          matrix_ref: string
+          program_key: string
+          reason?: string | null
+          recorded_at?: string
+          round_label: string
+          source_ref: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          area?: string
+          author_user_id?: string
+          criteria?: Json
+          edition_year?: number
+          general_formula?: Json | null
+          grade?: string
+          id?: string
+          items?: Json
+          logical_id?: string
+          matrix_ref?: string
+          program_key?: string
+          reason?: string | null
+          recorded_at?: string
+          round_label?: string
+          source_ref?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lc_instrument_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "lc_instrument_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_curricular_references: {
         Row: {
           edition_id: string
@@ -26580,6 +26784,50 @@ export type Database = {
           version: number
           version_id: string
         }[]
+      }
+      lc_homologate_instrument: {
+        Args: { _decision: string; _reason: string; _version: string }
+        Returns: string
+      }
+      lc_instrument_is_homologated: {
+        Args: { _version: string }
+        Returns: boolean
+      }
+      lc_record_entry: {
+        Args: {
+          _class: string
+          _expected_version: number
+          _instrument: string
+          _logical: string
+          _presence: string
+          _reason: string
+          _results: Json
+          _school: string
+          _student: string
+        }
+        Returns: string
+      }
+      lc_record_instrument: {
+        Args: {
+          _area: string
+          _criteria: Json
+          _expected_version: number
+          _formula: Json
+          _grade: string
+          _items: Json
+          _logical: string
+          _matrix: string
+          _program: string
+          _reason: string
+          _round: string
+          _source: string
+          _year: number
+        }
+        Returns: string
+      }
+      lc_review_entry: {
+        Args: { _decision: string; _entry_version: string; _note: string }
+        Returns: string
       }
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
