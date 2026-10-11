@@ -7,7 +7,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { governError } from "@/lib/observability/governed-errors";
 import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { runReport, toPdfFile, toXlsx } from "@/features/reports/report-engine";
-import { operationalToday } from "@/lib/operational-today";
+import { operationalToday } from "@/lib/academic-date";
 import { ALERT_THRESHOLD_PCT, DECLARED_2026, compareDeclared, outreachState, type AttendanceResult, type OutreachEvent } from "./attendance-performance";
 import { INFREQ_REPORT, canOpenCase, countBy, infreqReportRows, infrequencyAlerts, periodOrder, type InfrequencyRow } from "./infrequency-source";
 
