@@ -89,7 +89,7 @@ function IndicatorCard({ cat, i }: { cat: Catalog; i: SectorIndicator }) {
       {r === "loading" && <p role="status" className="text-sm text-muted-foreground">Lendo…</p>}
       {r !== "loading" && "error" in r && <p className="text-sm">Não disponível: {r.error}</p>}
       {r !== "loading" && "page" in r && (!grouped
-        ? <p className="text-3xl font-semibold" data-value>{r.page.rows[0]?.c1 === null || r.page.rows[0]?.c1 === undefined ? "não disponível" : String(r.page.rows[0]["c1"])}</p>
+        ? <p className="text-3xl font-semibold" data-value>{r.page.rows[0]?.["c1"] === null || r.page.rows[0]?.["c1"] === undefined ? "não disponível" : String(r.page.rows[0]["c1"])}</p>
         : r.page.rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro visível à sua conta.</p>
         : <table className="w-full text-sm"><thead><tr><th className="text-left">{fieldLabel(cat, field!)}</th><th className="text-right">Valor</th></tr></thead>
           <tbody>{r.page.rows.slice(0, 15).map((row, k) => { const c = catLabel(row["c1"]); return (
