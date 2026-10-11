@@ -16786,6 +16786,53 @@ export type Database = {
         }
         Relationships: []
       }
+      sipe_plan_template_versions: {
+        Row: {
+          author_user_id: string
+          change_reason: string | null
+          day_fields: Json
+          id: string
+          plan_mode: string
+          recorded_at: string
+          scope_key: string
+          segment_key: string
+          supersedes_id: string | null
+          version: number
+        }
+        Insert: {
+          author_user_id: string
+          change_reason?: string | null
+          day_fields: Json
+          id?: string
+          plan_mode: string
+          recorded_at?: string
+          scope_key: string
+          segment_key: string
+          supersedes_id?: string | null
+          version: number
+        }
+        Update: {
+          author_user_id?: string
+          change_reason?: string | null
+          day_fields?: Json
+          id?: string
+          plan_mode?: string
+          recorded_at?: string
+          scope_key?: string
+          segment_key?: string
+          supersedes_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sipe_plan_template_versions_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: false
+            referencedRelation: "sipe_plan_template_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_administrative_records: {
         Row: {
           cargo: string | null
@@ -18693,6 +18740,62 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      teaching_plan_share_copies: {
+        Row: {
+          author_user_id: string
+          new_plan_id: string
+          recorded_at: string
+          source_version_id: string
+        }
+        Insert: {
+          author_user_id: string
+          new_plan_id: string
+          recorded_at?: string
+          source_version_id: string
+        }
+        Update: {
+          author_user_id?: string
+          new_plan_id?: string
+          recorded_at?: string
+          source_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teaching_plan_share_copies_source_version_id_fkey"
+            columns: ["source_version_id"]
+            isOneToOne: false
+            referencedRelation: "teaching_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teaching_plan_share_events: {
+        Row: {
+          actor_user_id: string
+          event: string
+          id: string
+          plan_id: string
+          recipient_user_id: string
+          recorded_at: string
+        }
+        Insert: {
+          actor_user_id: string
+          event: string
+          id?: string
+          plan_id: string
+          recipient_user_id: string
+          recorded_at?: string
+        }
+        Update: {
+          actor_user_id?: string
+          event?: string
+          id?: string
+          plan_id?: string
+          recipient_user_id?: string
+          recorded_at?: string
+        }
+        Relationships: []
       }
       teaching_plan_versions: {
         Row: {
@@ -26126,6 +26229,10 @@ export type Database = {
         }
         Returns: string
       }
+      record_shared_plan_copy: {
+        Args: { _new_plan: string; _source_version: string }
+        Returns: string
+      }
       record_sia_card_correction: {
         Args: {
           _card_code: string
@@ -26166,6 +26273,17 @@ export type Database = {
       }
       record_sia_print_header: {
         Args: { _config: Json; _expected_head: string; _school: string }
+        Returns: string
+      }
+      record_sipe_plan_template: {
+        Args: {
+          _expected_head: string
+          _fields: Json
+          _mode: string
+          _reason: string
+          _scope: string
+          _segment: string
+        }
         Returns: string
       }
       record_staff_reconciliation_decision: {
@@ -27254,6 +27372,10 @@ export type Database = {
         Args: { _kind: string; _opted_out: boolean }
         Returns: undefined
       }
+      share_teaching_plan: {
+        Args: { _plan: string; _recipient: string; _revoke: boolean }
+        Returns: string
+      }
       sigem_administrative_capabilities: { Args: never; Returns: string[] }
       sigem_designated_installer_email: { Args: never; Returns: string }
       sigem_general_admin_coverage_issues: {
@@ -27273,6 +27395,15 @@ export type Database = {
         Returns: boolean
       }
       sigem_search_norm: { Args: { _t: string }; Returns: string }
+      sipe_colleagues: {
+        Args: never
+        Returns: {
+          display_name: string
+          school_id: string
+          user_id: string
+        }[]
+      }
+      sipe_my_schools: { Args: never; Returns: string[] }
       stage_import_batch: {
         Args: {
           _adapter_id: string
@@ -27669,6 +27800,40 @@ export type Database = {
           title: string
           version: number
         }[]
+      }
+      teaching_plans_shared_with_me: {
+        Args: never
+        Returns: {
+          assignment_id: string
+          assignment_version_id: string
+          author_engagement_id: string
+          author_user_id: string
+          blocks: Json
+          change_reason: string | null
+          class_id: string
+          copied_from_version_id: string | null
+          covers_from: string | null
+          covers_until: string | null
+          curricular_refs: Json
+          id: string
+          level_value_id: string | null
+          matrix_version_id: string
+          period_id: string | null
+          plan_id: string
+          recorded_at: string
+          school_id: string
+          status: string
+          supersedes_id: string | null
+          target_date: string | null
+          title: string
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "teaching_plan_versions"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       teaching_staff_fit: {
         Args: {
