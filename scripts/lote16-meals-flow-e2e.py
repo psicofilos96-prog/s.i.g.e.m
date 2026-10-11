@@ -34,6 +34,9 @@ async def main():
         ctx, pg, e = await as_user(br, "es"); errs += e
         ord_ = pg.locator("section[aria-labelledby=ord]"); await ord_.wait_for(timeout=20000)
         await ord_.get_by_label("Competência").fill(comp); await pg.wait_for_timeout(2500)
+        await pg.screenshot(path=f"{SH}/0_escola_inicio.png"); print("DBG", (await ord_.inner_text())[:300].replace("\n", " / "))
+        sel = pg.get_by_label("Escola", exact=True)
+        if await sel.count() and not await sel.input_value(): await sel.select_option(cfg["schoolA"]); await pg.wait_for_timeout(4000); ord_ = pg.locator("section[aria-labelledby=ord]")
         await ord_.get_by_role("button", name="Adicionar item").click()
         await ord_.get_by_label("Quantidade", exact=True).fill("100")
         await ord_.get_by_label("Público (per capita)").select_option(index=1)

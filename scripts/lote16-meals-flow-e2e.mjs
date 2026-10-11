@@ -13,6 +13,7 @@ const admin = createClient(URL, SR, { auth: { persistSession: false, autoRefresh
 const users = []; let fails = 0;
 const check = (ok, l, x = "") => { if (!ok) fails++; console.log(`${ok ? "PASS" : "FAIL"} ${l} ${x}`.trim()); };
 const today = new Date().toLocaleDateString("sv-SE", { timeZone: "America/Sao_Paulo" });
+const nextMonth = (() => { const [y, m] = today.split("-").map(Number); return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, "0")}`; })();
 const minus = (d, n) => { const x = new Date(`${d}T12:00:00Z`); x.setUTCDate(x.getUTCDate() - n); return x.toISOString().slice(0, 10); };
 async function mk(tag, kind) {
   const email = `${op}-${tag}@bo-fixture.invalid`, password = randomBytes(24).toString("base64url");
@@ -62,14 +63,15 @@ try {
   fails += (py.stdout?.match(/^FAIL/gm) ?? []).length;
   // servidor: o que a tela fez ficou no banco, uma única entrada por aceite; escola B isolada
   const comp = (await rpc(NU, "meal_orders_at", { _competence: null, _school: schoolA, _known_at: null }).catch(() => null));
-  const lines = await rpc(ES, "meal_stock_lines", { _school: schoolA, _on: "infinity", _known: null }).catch((e) => (console.log("stock", e.message), []));
-  const bal = (lines ?? []).filter((l) => l.item_value_id === vItem).reduce((a, l) => a + Number(l.balance ?? 0), 0);
-  check(bal === 25, "saldo no livro = 30 aceitos − 5 baixa (rejeitados 10 fora do estoque)", String(bal));
+  const mv = await admin.from("meal_inventory_movements").select("movement_class, quantity, source_receipt_version_id").eq("school_id", schoolA).eq("item_value_id", vItem);
+  const ins = (mv.data ?? []).filter((m) => m.source_receipt_version_id).reduce((a, m) => a + Number(m.quantity), 0);
+  const outs = (mv.data ?? []).filter((m) => !m.source_receipt_version_id).reduce((a, m) => a + Number(m.quantity), 0);
+  check(ins === 30 && outs === 5, "livro: entrada 30 (só aceitos; 10 rejeitados fora) e baixa 5 ⇒ saldo 25", `${ins}/${outs}`);
   const ent = await admin.from("meal_inventory_movements").select("id", { count: "exact", head: true }).eq("school_id", schoolA).eq("item_value_id", vItem).not("source_receipt_version_id", "is", null);
   check(ent.count === 1, "aceite gerou exatamente UMA entrada de estoque", String(ent.count));
   const bOrders = await OB.c.rpc("meal_orders_at", { _competence: null, _school: schoolA, _known_at: null });
   check(!!bOrders.error || (bOrders.data ?? []).length === 0, "conta da escola B não lê pedidos da escola A", bOrders.error?.message ?? String((bOrders.data ?? []).length));
-  const bWrite = await OB.c.rpc("record_meal_order", { _logical: null, _expected_version: null, _action: "rascunho", _school: schoolA, _competence: "2099-01", _lines: [], _reason: null });
+  const bWrite = await OB.c.rpc("record_meal_order", { _logical: null, _expected_version: null, _action: "rascunho", _school: schoolA, _competence: nextMonth, _lines: [], _reason: null });
   check(!!bWrite.error && /capability:/.test(bWrite.error.message), "escola B não grava pedido em nome da escola A", bWrite.error?.message ?? "");
   const bStock = await OB.c.rpc("record_meal_stock_movement", { _base_id: null, _kind: "registro", _school: schoolA, _class: "perda", _item: vItem, _unit: vUnit, _quantity: 1, _direction: null, _on: today, _tz: "America/Sao_Paulo", _lot: null, _expires: null, _contract: null, _schedule: null, _source_doc: null, _count: null, _literal: null, _note: null, _reason: "x" });
   check(!!bStock.error && /capability:/.test(bStock.error.message), "escola B não baixa estoque da escola A", bStock.error?.message ?? "");
