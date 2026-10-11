@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { GUIA_2026, generateFile, officialBlockers, parseFile, specSummary } from "./layout-schema";
 import { syntheticSchoolBlock } from "./synthetic-fixture";
 
-const golden = readFileSync(new URL("./golden/sintetico-sem-pipe.txt", import.meta.url), "utf8");
+const golden = readFileSync("src/features/educacenso/layout/golden/sintetico-sem-pipe.txt", "utf8");
 const errs = (t: string, spec = GUIA_2026) => parseFile(t, spec).issues.filter((i) => i.severity === "erro");
 const conf = { mode: "conferencia", terminator: "sem-pipe" } as const;
 
