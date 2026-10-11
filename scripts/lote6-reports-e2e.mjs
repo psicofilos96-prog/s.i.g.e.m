@@ -39,6 +39,7 @@ try {
   console.log(`${upd.error || !(upd.data?.length) ? "PASS" : "FAIL"} A não altera emissão (append-only)`);
   if (a.data?.[0]) { const v = await anon.rpc("verify_report_emission", { _code: a.data[0].verification_code }); console.log(`${v.data?.status === "emitido" && !("params" in v.data) ? "PASS" : "FAIL"} verificação anon sem params/ator`); }
   await admin.from("report_emissions").delete().in("actor_id", users).then(() => {}, () => {});
+  const tv = await admin.from("report_template_versions").delete().like("name", "Aceite L11%").select("id"); console.log("modelos sintéticos removidos:", tv.error ? "ERRO " + tv.error.message : tv.data?.length);
 } catch (e) { console.log("ERRO", String(e.message ?? e)); }
 finally {
   const cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); console.log("cleanup:", cl.error ? "ERRO " + cl.error.message : "ok");
