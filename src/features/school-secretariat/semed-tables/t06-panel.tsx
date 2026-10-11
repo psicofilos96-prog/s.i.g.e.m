@@ -41,7 +41,7 @@ export function T06Panel({ school, year, network, draft, rows, onApur }: {
       <p className="text-xs">Regra: {rule ? <>versão {rule.version} · matrícula inicial em {br(rule.initial_date)} · final em {br(rule.final_date)} · fundamento: {rule.basis}</> : "não registrada — nada é apurado."}</p>
       {apur && (
         <>
-          <table className="text-xs"><thead><tr><th className="pr-3 text-left">Coluna</th><th className="pr-3">Apurado</th></tr></thead>
+          <table className="text-xs"><thead><tr><th scope="col" className="pr-3 text-left">Coluna</th><th scope="col" className="pr-3">Apurado</th></tr></thead>
             <tbody>{Object.keys(LABEL).map((k) => <tr key={k}><td className="pr-3">{LABEL[k]}</td><td className="pr-3 text-center">{apur.totals[k as keyof typeof apur.totals] ?? "não apurado"}</td></tr>)}</tbody></table>
           {apur.counts && Object.keys(apur.counts).length > 0 && <p className="text-xs text-muted-foreground">Matrículas sem data de início: {apur.counts["sem_data_de_inicio"] ?? "—"} · movimentações sem coluna: {apur.counts["movimentacoes_sem_coluna"] ?? "—"} · saídas sem tipo: {apur.counts["saidas_sem_tipo"] ?? "—"} · situações sem fechamento: {apur.counts["situacoes_sem_fechamento"] ?? "—"}.</p>}
           <ul className="list-disc pl-5 text-xs text-muted-foreground">{apur.gaps.map((g) => <li key={g}>{T06_GAP[g] ?? g}</li>)}</ul>

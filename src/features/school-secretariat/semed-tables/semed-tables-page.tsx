@@ -129,7 +129,7 @@ export function SemedTablesPage() {
 
       {network && (
         <details className="rounded-md border p-3"><summary className="cursor-pointer text-sm font-medium">Situação na rede ({scope.length} escolas)</summary>
-          <div className="mt-2 max-h-80 overflow-auto"><table className="w-full text-xs"><thead><tr><th className="text-left">Escola</th>{CODES.map((c) => <th key={c}>T{c}</th>)}</tr></thead>
+          <div className="mt-2 max-h-80 overflow-auto"><table className="w-full text-xs"><thead><tr><th scope="col" className="text-left">Escola</th>{CODES.map((c) => <th scope="col" key={c}>T{c}</th>)}</tr></thead>
             <tbody>{scope.map((s) => <tr key={s.school_id} className="border-t"><td>{names.get(s.school_id) ?? s.school_id}</td>{CODES.map((c) => { const st = stOf(s.school_id, c); return <td key={c} className="text-center">{st ? STATE_LABEL[st as SemedState] : "não iniciada"}</td>; })}</tr>)}</tbody></table></div>
         </details>
       )}
@@ -152,7 +152,7 @@ export function SemedTablesPage() {
                     {f.central ? <span className="text-sm">{centralText(f.central, central)}</span> : cell(`${s.id}.${f.key}`, f.type, f.options)}</label>)}
                 </div>
               ) : (
-                <div className="overflow-x-auto"><table className="text-xs"><thead><tr><th className="text-left">{def.code === "10" ? "Nº" : "Ano/etapa"}</th>{s.cols.map((c) => <th key={c.key} className="px-1">{c.label}</th>)}{s.rowTotal && <th>TOTAL</th>}{def.code === "06" && <><th>Matr. final</th><th>% Aprov.</th></>}{def.code === "11" && <th>Matrícula inicial</th>}</tr></thead>
+                <div className="overflow-x-auto"><table className="text-xs"><thead><tr><th scope="col" className="text-left">{def.code === "10" ? "Nº" : "Ano/etapa"}</th>{s.cols.map((c) => <th scope="col" key={c.key} className="px-1">{c.label}</th>)}{s.rowTotal && <th scope="col">TOTAL</th>}{def.code === "06" && <><th scope="col">Matr. final</th><th scope="col">% Aprov.</th></>}{def.code === "11" && <th scope="col">Matrícula inicial</th>}</tr></thead>
                   <tbody>{s.rows.map((r) => <tr key={r.key} className="border-t"><td className="whitespace-nowrap pr-2">{r.label}</td>
                     {s.cols.map((c) => <td key={c.key} className={c.type === "int" ? "min-w-[3.25rem]" : "min-w-28"}>{cell(`${s.id}.${r.key}.${c.key}`, c.type, c.options)}</td>)}
                     {s.rowTotal && <td className="text-center font-medium">{rowTotal(vals, s.id, r.key, s.cols) ?? "—"}</td>}

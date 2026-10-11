@@ -43,7 +43,7 @@ export function SemedReconciliation({ school, schoolName, year, network, canAct 
     <section className="space-y-3 rounded-md border p-3" aria-label="Conciliação CIECE">
       <h3 className="text-sm font-semibold">Conciliação CIECE — {schoolName}</h3>
       <p className="text-xs text-muted-foreground">Só se comparam fontes com a mesma data de referência e a mesma escola. Divergência nunca é apagada: corrige-se na fonte (tabela, cadastro ou mapa) ou a rede aprova com justificativa; se os valores mudarem, a pendência reabre.</p>
-      <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr><th className="text-left">Verificação</th><th>A</th><th>B</th><th>Situação</th><th>Pendência</th><th className="text-left">Origem</th>{canAct && <th>Ato</th>}</tr></thead>
+      <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr><th scope="col" className="text-left">Verificação</th><th scope="col">A</th><th scope="col">B</th><th scope="col">Situação</th><th scope="col">Pendência</th><th scope="col" className="text-left">Origem</th>{canAct && <th scope="col">Ato</th>}</tr></thead>
         <tbody>{checks.map((c) => { const ps = pendingState(c, events); return <tr key={c.key} className="border-t align-top" data-testid="rec-check">
           <td>{c.label}</td><td className="text-center">{c.a ?? "—"}{c.date_a ? <div className="text-muted-foreground">{c.date_a}</div> : null}</td><td className="text-center">{c.b ?? "—"}{c.date_b ? <div className="text-muted-foreground">{c.date_b}</div> : null}</td>
           <td className={c.status === "divergente" ? "font-semibold text-destructive" : ""}>{statusText(c.status)}</td><td>{PENDING_LABEL[ps]}</td>
@@ -66,7 +66,7 @@ export function SemedReconciliation({ school, schoolName, year, network, canAct 
           <div className="flex h-3 flex-1 overflow-hidden rounded bg-muted">{(["confere", "divergente", "nao-comparavel", "sem-dado"] as const).map((k) => <div key={k} title={`${k}: ${c[k]}`} style={{ width: `${(c[k] / maxN) * 100}%` }} className={k === "confere" ? "bg-primary" : k === "divergente" ? "bg-destructive" : k === "sem-dado" ? "bg-accent" : "bg-muted-foreground/40"} />)}</div>
         </div>)}</div>
         <p className="text-xs text-muted-foreground">Legenda: confere · divergente · não comparável · sem dado. Tabela equivalente abaixo; etapa não é consolidada porque as turmas não têm ano/etapa registrados.</p>
-        <table className="w-full text-xs"><thead><tr><th className="text-left">Grupo</th><th>Escolas</th><th>Confere</th><th>Divergente</th><th>Não comparável</th><th>Sem dado</th></tr></thead>
+        <table className="w-full text-xs"><thead><tr><th scope="col" className="text-left">Grupo</th><th scope="col">Escolas</th><th scope="col">Confere</th><th scope="col">Divergente</th><th scope="col">Não comparável</th><th scope="col">Sem dado</th></tr></thead>
           <tbody>{cons.map((c) => <tr key={c.group} className="border-t"><td>{c.group}</td><td className="text-center">{c.schools}</td><td className="text-center">{c.confere}</td><td className="text-center">{c.divergente}</td><td className="text-center">{c["nao-comparavel"]}</td><td className="text-center">{c["sem-dado"]}</td></tr>)}</tbody></table>
       </div>}
       {msg && <p role="status" className="text-xs">{msg}</p>}

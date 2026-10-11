@@ -31,7 +31,7 @@ export function T11Panel({ school, year, network, draft, rows, onApur }: { schoo
       {!rule ? <p className="text-sm">Regra da rede não registrada: sem data de corte, nada é apurado.</p> : <p className="text-xs">Regra v{rule.version} · data de corte {new Date(rule.cutoff_date + "T12:00").toLocaleDateString("pt-BR")} · {rule.basis}</p>}
       {apur?.rule_version && <ul className="text-xs"><li>Matrícula válida na data de corte: {t.total ?? "—"}</li><li>Masculino: {t.masc ?? "—"} · Feminino: {t.fem ?? "—"}</li>
         <li>Sexo não informado: {t.nao_informado ?? "—"} · fora de Masculino/Feminino: {t.fora_do_mapa ?? "—"} · matrículas sem data de início: {t.sem_data ?? "—"}</li></ul>}
-      <table className="text-xs"><thead><tr><th className="text-left">Coluna</th><th className="px-2">Informado</th><th className="px-2">Apurado</th><th>Situação</th></tr></thead>
+      <table className="text-xs"><thead><tr><th scope="col" className="text-left">Coluna</th><th scope="col" className="px-2">Informado</th><th scope="col" className="px-2">Apurado</th><th scope="col">Situação</th></tr></thead>
         <tbody>{t11Compare(draft, rows, apur).map((c) => <tr key={c.col}><td>{c.label}</td><td className="text-center">{c.typed ?? "—"}</td><td className="text-center">{c.apurado ?? "—"}</td><td className={c.status === "divergente" ? "font-semibold text-destructive" : ""}>{c.status}</td></tr>)}</tbody></table>
       {apur?.gaps.length ? <ul className="list-disc pl-4 text-xs text-muted-foreground">{apur.gaps.map((g) => <li key={g}>{T11_GAP[g] ?? g}</li>)}</ul> : null}
       {network && <div className="grid gap-2 rounded border p-2 text-xs sm:grid-cols-3">
