@@ -4,7 +4,7 @@ const c = (version: number, kind: "emissao" | "reemissao" | "cancelamento") => (
 describe("N9.2 verificação pública", () => {
   it("válida mostra só campos permitidos", () => {
     const v = verifyCard([c(1, "emissao")], "P", 1, "2027-03-01");
-    expect(v.status).toBe("valida"); expect(Object.keys(v).sort()).toEqual(["academicYear", "classLabel", "publicId", "schoolName", "status", "studentName"]);
+    expect(v.status).toBe("valida"); expect(Object.keys(v).sort()).toEqual(["academicYear", "publicId", "schoolName", "status", "validUntil"]);
   });
   it("reemissão substitui, cancelamento cancela, expira, inexistente indisponível", () => {
     expect(verifyCard([c(1, "emissao"), c(2, "reemissao")], "P", 1, "2027-03-01").status).toBe("substituida");

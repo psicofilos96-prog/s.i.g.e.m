@@ -1400,6 +1400,10 @@
   /* NPRINT.FINAL.2: `body:has(.x) *` tem especificidade maior que `.x *`; sem !important o cartão saía em branco. */
   .card-print-area, .card-print-area * { visibility: visible !important; }
   .card-print-area { position: absolute; left: 0; top: 0; }
+  /* NCARD.1: lote A4 — cada folha (frentes/versos) em página própria, 2×4 cartões 85,6×54 mm. */
+  .card-batch { margin: 0; padding: 0 10mm; width: 210mm; }
+  .card-batch .card-sheet { break-after: page; grid-template-columns: 85.6mm 85.6mm; justify-content: center; padding-top: 10mm; }
+  .card-batch > div > .card-sheet:last-child { break-after: page; }
 }
 .cf-livre .cf-matriz td.cx-faixa-ini, .cf-livre .cf-matriz td.cx-faixa-unico { overflow: visible; z-index: 2; }
 .cf-livre .cf-matriz .cx-faixa-txt { z-index: 3; color: inherit; }

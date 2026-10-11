@@ -2,21 +2,21 @@ import { describe, expect, it } from "vitest";
 import { publicCardView } from "./card-public-code";
 import { issuedValidity, verifyUrlFor } from "./card-issuance";
 
-const row = { student_name: "A", school_name: "E", class_label: "T", academic_year: "2027", public_id: "ABCDEFGHIJ" };
+const row = { school_name: "E", academic_year: "2027", public_id: "ABCDEFGHIJ", version: 1, valid_until: "2027-12-31", issued_on: "2027-02-01" };
 
 describe("N9.2.5 — verificação pública da carteirinha", () => {
   it("status desconhecido do servidor vira 'não encontrada' sem nenhum dado", () => {
-    expect(publicCardView({ ...row, status: "rascunho" })).toEqual({ status: "indisponivel", student_name: null, school_name: null, class_label: null, academic_year: null, public_id: null });
-    expect(publicCardView({ ...row, status: "__proto__" }).student_name).toBeNull();
+    expect(publicCardView({ ...row, status: "rascunho" })).toEqual({ status: "indisponivel", public_id: null, version: null, school_name: null, academic_year: null, valid_until: null, issued_on: null });
+    expect(publicCardView({ ...row, status: "__proto__" }).public_id).toBeNull();
   });
   it("indisponível e resposta vazia nunca mostram dados", () => {
-    expect(publicCardView({ ...row, status: "indisponivel" }).student_name).toBeNull();
+    expect(publicCardView({ ...row, status: "indisponivel" }).public_id).toBeNull();
     expect(publicCardView(undefined).status).toBe("indisponivel");
   });
   it("status conhecido mantém só a allowlist", () => {
     const v = publicCardView({ ...row, status: "valida", cpf: "x" } as never);
     expect(v.status).toBe("valida");
-    expect(Object.keys(v).sort()).toEqual(["academic_year", "class_label", "public_id", "school_name", "status", "student_name"]);
+    expect(Object.keys(v).sort()).toEqual(["academic_year", "issued_on", "public_id", "school_name", "status", "valid_until", "version"]);
   });
   it("QR só com origem https", () => {
     expect(verifyUrlFor("http://x", "ABCDEFGHIJ", 1)).toBeNull();

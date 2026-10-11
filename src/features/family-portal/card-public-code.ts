@@ -16,11 +16,13 @@ export const CARD_STATUS_LABEL = {
 } as const;
 export type CardStatus = keyof typeof CARD_STATUS_LABEL;
 
-export type PublicCardRow = { status: string | null; student_name: string | null; school_name: string | null; class_label: string | null; academic_year: string | null; public_id: string | null };
-const EMPTY = { student_name: null, school_name: null, class_label: null, academic_year: null, public_id: null };
+/** NCARD.1: público só recebe status, código, versão, escola, ano, validade e data de emissão — nunca nome, turma, foto ou identificador. */
+export type PublicCardRow = { status: string | null; public_id: string | null; version: number | null; school_name: string | null; academic_year: string | null; valid_until: string | null; issued_on: string | null };
+const EMPTY = { public_id: null, version: null, school_name: null, academic_year: null, valid_until: null, issued_on: null };
 /** N9.2.5: status desconhecido (ou ausente) do servidor cai em "não encontrada" SEM detalhes, porque estado inesperado não pode revelar dado (NPUB.2). */
 export function publicCardView(row: Partial<PublicCardRow> | null | undefined): { status: CardStatus } & Omit<PublicCardRow, "status"> {
   const s = row?.status;
   if (!row || typeof s !== "string" || !Object.prototype.hasOwnProperty.call(CARD_STATUS_LABEL, s) || s === "indisponivel") return { status: "indisponivel", ...EMPTY };
-  return { status: s as CardStatus, student_name: row.student_name ?? null, school_name: row.school_name ?? null, class_label: row.class_label ?? null, academic_year: row.academic_year ?? null, public_id: row.public_id ?? null };
+  return { status: s as CardStatus, public_id: row.public_id ?? null, version: row.version ?? null, school_name: row.school_name ?? null, academic_year: row.academic_year ?? null,
+    valid_until: row.valid_until ?? null, issued_on: row.issued_on ?? null };
 }
