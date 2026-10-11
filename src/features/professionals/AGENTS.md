@@ -4,3 +4,4 @@
 - Atuação SIGEM só é lida de `institutional_engagements`; nenhum vínculo, cargo ou habilitação concede capability.
 - Projeção por escola usa validOn + knownAt (`functionalPicture`); sem lotação registrada ⇒ ausência, nunca quadro zerado.
 - INT.8 (0276): planilhas de pessoal 2026 entram só em `staff_administrative_records` (append-only, hash+aba+linha, escola por nome exato ou alias declarado); nunca viram atuação nem acesso, porque nome sem chave não identifica pessoa.
+- Formação continuada (Lote 09 Expansão, `continuing-education.ts`): participante é pessoa canônica e formação nunca vira titulação oficial; vagas, carga e frequência mínima só configuradas (ausente ⇒ recusa); externo só reconhecido por validação humana de outra pessoa; verificação pública sem CPF/matrícula, porque titulação duplicada ou certificado sem regra criariam fato funcional falso.
