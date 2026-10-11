@@ -137,6 +137,7 @@ import { Route as PublicoSlugRouteImport } from './routes/publico.$slug'
 import { Route as RegrasAvaliativasIndexRouteImport } from './routes/regras-avaliativas.index'
 import { Route as RegrasDeSituacaoIndexRouteImport } from './routes/regras-de-situacao.index'
 import { Route as RegrasDeSituacaoRegraIdRouteImport } from './routes/regras-de-situacao.$regraId'
+import { Route as RelatoriosPaineisRouteImport } from './routes/relatorios_.paineis'
 import { Route as RelatoriosPersonalizadoRouteImport } from './routes/relatorios_.personalizado'
 import { Route as SecretariaLivroMatriculaRouteImport } from './routes/secretaria_.livro-matricula'
 import { Route as SecretariaServicosRouteImport } from './routes/secretaria_.servicos'
@@ -892,6 +893,11 @@ const RegrasDeSituacaoRegraIdRoute = RegrasDeSituacaoRegraIdRouteImport.update({
   path: '/$regraId',
   getParentRoute: () => RegrasDeSituacaoRoute,
 } as any)
+const RelatoriosPaineisRoute = RelatoriosPaineisRouteImport.update({
+  id: '/relatorios_/paineis',
+  path: '/relatorios/paineis',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RelatoriosPersonalizadoRoute = RelatoriosPersonalizadoRouteImport.update({
   id: '/relatorios_/personalizado',
   path: '/relatorios/personalizado',
@@ -1627,6 +1633,7 @@ export interface FileRoutesByFullPath {
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
+  '/relatorios/paineis': typeof RelatoriosPaineisRoute
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
   '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria/servicos': typeof SecretariaServicosRoute
@@ -1848,6 +1855,7 @@ export interface FileRoutesByTo {
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
+  '/relatorios/paineis': typeof RelatoriosPaineisRoute
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
   '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria/servicos': typeof SecretariaServicosRoute
@@ -2068,6 +2076,7 @@ export interface FileRoutesById {
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
+  '/relatorios_/paineis': typeof RelatoriosPaineisRoute
   '/relatorios_/personalizado': typeof RelatoriosPersonalizadoRoute
   '/secretaria_/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria_/servicos': typeof SecretariaServicosRoute
@@ -2306,6 +2315,7 @@ export interface FileRouteTypes {
     | '/profissionais/novo'
     | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
+    | '/relatorios/paineis'
     | '/relatorios/personalizado'
     | '/secretaria/livro-matricula'
     | '/secretaria/servicos'
@@ -2527,6 +2537,7 @@ export interface FileRouteTypes {
     | '/profissionais/novo'
     | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
+    | '/relatorios/paineis'
     | '/relatorios/personalizado'
     | '/secretaria/livro-matricula'
     | '/secretaria/servicos'
@@ -2746,6 +2757,7 @@ export interface FileRouteTypes {
     | '/profissionais/novo'
     | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
+    | '/relatorios_/paineis'
     | '/relatorios_/personalizado'
     | '/secretaria_/livro-matricula'
     | '/secretaria_/servicos'
@@ -2961,6 +2973,7 @@ export interface RootRouteChildren {
   LaboratorioFolhaFinalRoute: typeof LaboratorioFolhaFinalRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
   PublicoSlugRoute: typeof PublicoSlugRoute
+  RelatoriosPaineisRoute: typeof RelatoriosPaineisRoute
   RelatoriosPersonalizadoRoute: typeof RelatoriosPersonalizadoRoute
   SecretariaLivroMatriculaRoute: typeof SecretariaLivroMatriculaRoute
   SecretariaServicosRoute: typeof SecretariaServicosRoute
@@ -3874,6 +3887,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/regras-de-situacao/$regraId'
       preLoaderRoute: typeof RegrasDeSituacaoRegraIdRouteImport
       parentRoute: typeof RegrasDeSituacaoRoute
+    }
+    '/relatorios_/paineis': {
+      id: '/relatorios_/paineis'
+      path: '/relatorios/paineis'
+      fullPath: '/relatorios/paineis'
+      preLoaderRoute: typeof RelatoriosPaineisRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/relatorios_/personalizado': {
       id: '/relatorios_/personalizado'
@@ -5391,6 +5411,7 @@ const rootRouteChildren: RootRouteChildren = {
   LaboratorioFolhaFinalRoute: LaboratorioFolhaFinalRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
   PublicoSlugRoute: PublicoSlugRoute,
+  RelatoriosPaineisRoute: RelatoriosPaineisRoute,
   RelatoriosPersonalizadoRoute: RelatoriosPersonalizadoRoute,
   SecretariaLivroMatriculaRoute: SecretariaLivroMatriculaRoute,
   SecretariaServicosRoute: SecretariaServicosRoute,
