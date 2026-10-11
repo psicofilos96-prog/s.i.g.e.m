@@ -56,7 +56,7 @@ txt = subprocess.run(["pdftotext", "-layout", PDF, "-"], capture_output=True, te
 REL = r"(DIRETA|ACOMPANHAMENTO|GERAL)"
 DATE = r"(\d{1,2}/\d{1,2}(?: a \d{1,2}/\d{1,2})?|\d{1,2} (?:a|e) \d{1,2}/\d{1,2}|Durante o mês|Semana de \d{1,2}/\d{1,2})"
 pend = []
-for n, line in enumerate(txt.splitlines(), 1):
+for n, line in enumerate(txt.split("\n"), 1):
     m = re.match(rf"^\s*{DATE}\s{{2,}}(.+?)\s{{2,}}(.+?)\s{{2,}}{REL}\s*$", line)
     m2 = re.match(rf"^\s*{DATE}\s{{2,}}(.+?)\s{{2,}}{REL}\s*$", line)
     if m or m2:
