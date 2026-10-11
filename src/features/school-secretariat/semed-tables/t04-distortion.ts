@@ -64,7 +64,7 @@ export function distortion(v: Values, thresholds: Readonly<Record<string, number
     const t = thresholds?.[r.key] ?? null;
     if (t === null || total === null) return { rowKey: r.key, label: r.label, total, distorted: null, pct: null, threshold: t };
     // Faixa agregada que atravessa o limiar (ex.: 20–24 com limiar 22) não se divide: fica fora e torna o indicador indeterminado.
-    if (present.some((x) => x.from < t && T04_COLS.some((c) => bucketFrom(c.key) > x.from && bucketFrom(c.key) <= t) === false && x.from < t && upper(x.from) >= t)) return { rowKey: r.key, label: r.label, total, distorted: null, pct: null, threshold: t };
+    if (present.some((x) => x.v > 0 && x.from < t && upper(x.from) >= t)) return { rowKey: r.key, label: r.label, total, distorted: null, pct: null, threshold: t };
     const distorted = present.filter((x) => x.from >= t).reduce((a, b) => a + b.v, 0);
     return { rowKey: r.key, label: r.label, total, distorted, pct: total === 0 ? null : Math.round((distorted / total) * 1000) / 10, threshold: t };
   });
