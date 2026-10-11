@@ -9,10 +9,10 @@ import regras from "./educacenso-2026-guia-regras.json";
 export type FieldKind = "num" | "alfa" | "selec" | "data" | "email" | "hora" | "reservado" | "desconhecido";
 export type FieldSpec = { n: number; name: string; obligation: string; size: { length?: number; fixed?: boolean; raw?: string }; type: string | null; rule: string | null; codes: { list: { code: string; label: string }[]; truncated: boolean } | null };
 export type RecordSpec = { file: string; record: string; title: string; declaredFieldCount: number; fields: FieldSpec[]; groups: { from: number; to: number; title: string }[] };
-export type FileRules = typeof regras;
+export type FileRules = Omit<typeof regras, "lineTerminator"> & { lineTerminator: "pipe" | "sem-pipe" | null };
 export type LayoutSpec = { source: { kind: string; file: string; sha256: string; inepConfronted: boolean }; year: string; stage: string; records: RecordSpec[]; rules: FileRules };
 
-export const GUIA_2026: LayoutSpec = { ...(guia as unknown as Omit<LayoutSpec, "rules">), rules: regras };
+export const GUIA_2026: LayoutSpec = { ...(guia as unknown as Omit<LayoutSpec, "rules">), rules: regras as FileRules };
 
 export function kindOf(f: FieldSpec): FieldKind {
   const t = (f.type ?? "").toLowerCase();
@@ -29,7 +29,7 @@ export function kindOf(f: FieldSpec): FieldKind {
 export type Severity = "erro" | "bloqueio" | "aviso";
 export type Issue = { severity: Severity; line: number | null; record: string | null; field: number | null; code: string; text: string };
 
-const validDate = (s: string) => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s); if (!m) return false; const d = new Date(Date.UTC(+m[3], +m[2] - 1, +m[1])); return d.getUTCDate() === +m[1] && d.getUTCMonth() === +m[2] - 1; };
+const validDate = (s: string) => { const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s); if (!m) return false; const [dd, mm, yy] = [Number(m[1]), Number(m[2]), Number(m[3])]; const d = new Date(Date.UTC(yy, mm - 1, dd)); return d.getUTCDate() === dd && d.getUTCMonth() === mm - 1; };
 
 /** Validação de UM campo exclusivamente pelo esquema. Vazio só é erro quando obrigatório "sim". */
 export function checkField(rec: RecordSpec, f: FieldSpec, v: string, line: number | null): Issue[] {
@@ -78,7 +78,7 @@ export function parseFile(text: string, spec: LayoutSpec, file: "importacao" | "
     const code = file === "identificacao" ? "ID" : raw.slice(0, 2);
     const rec = recordSpec(spec, code, file);
     if (!rec) { issues.push({ severity: "erro", line: ln, record: code, field: null, code: "registro-desconhecido", text: `Registro "${code}" não existe no leiaute` }); return; }
-    const sp = splitLine(raw, rec.declaredFieldCount, spec.rules.lineTerminator as "pipe" | "sem-pipe" | null);
+    const sp = splitLine(raw, rec.declaredFieldCount, spec.rules.lineTerminator);
     if (!sp.values) { issues.push({ severity: "erro", line: ln, record: code, field: null, code: "contagem", text: `Registro ${code} exige ${rec.declaredFieldCount} campos (linha tem ${raw.split("|").length} partes)` }); return; }
     if (file === "importacao") {
       const allowed = (spec.rules.follows as Record<string, string[]>)[code] ?? [];
@@ -105,7 +105,7 @@ export type GenerateMode = { mode: "oficial" } | { mode: "conferencia"; terminat
 export function generateFile(spec: LayoutSpec, lines: { record: string; values: string[] }[], opt: GenerateMode, file: "importacao" | "identificacao" = "importacao"): { text: string | null; issues: Issue[]; official: boolean } {
   const blockers = officialBlockers(spec);
   if (opt.mode === "oficial" && blockers.length) return { text: null, issues: blockers, official: false };
-  const term = opt.mode === "oficial" ? (spec.rules.lineTerminator as "pipe" | "sem-pipe") : opt.terminator;
+  const term = opt.mode === "oficial" ? (spec.rules.lineTerminator ?? "sem-pipe") : opt.terminator;
   const out: string[] = []; const issues: Issue[] = [];
   for (const l of lines) {
     const rec = recordSpec(spec, l.record, file);
@@ -116,7 +116,7 @@ export function generateFile(spec: LayoutSpec, lines: { record: string; values: 
   }
   if (file === "importacao") out.push(spec.rules.fileTerminator.line);
   const text = out.join("\n") + "\n";
-  const reparsed = parseFile(text, { ...spec, rules: { ...spec.rules, lineTerminator: term } as FileRules }, file);
+  const reparsed = parseFile(text, { ...spec, rules: { ...spec.rules, lineTerminator: term } }, file);
   issues.push(...reparsed.issues);
   return { text: issues.some((i) => i.severity === "erro") ? null : text, issues, official: opt.mode === "oficial" };
 }
