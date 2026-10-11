@@ -41,3 +41,9 @@ Situação: parcial. UNIVERSAL_REPORT_BUILDER_COMPLETE e SECTOR_REPORT_AND_CHART
 
 ### Fontes ainda sem reader governado (REPORT_SOURCES_PENDING)
 Alunos nominais, movimentações, Mapa, Censo/Qualidade, Diário/frequência, Avaliação, Direção/OP, DP, Auditoria, Livro, Vagas (reader existe só por escola+ano), Documentos emitidos. Cada uma exige reader estreito com decisão de supressão/capability antes de entrar.
+
+## LOTE 11 — aceite visual e documental (2026-10-11)
+- Navegador autenticado (conta sintética efêmera, removida ao final; `scripts/lote11-visual-docs.py` via `PY_SCRIPT=… scripts/lote6-reports-e2e.mjs`): layout com brasão institucional escolhido em lista, cabeçalho, rodapé e assinaturas; modelo salvo v1 → v2, reaberto após recarregar com cabeçalho e brasão restaurados; prévia 20 de 55; CSV, XLSX (abas Relatório/Filtros/Metodologia) e PDF real gerado pelo motor de impressão do navegador.
+- PDF Cadastro das escolas: A4, 4 páginas, cabeçalho de tabela repetido, "Página X de Y", brasão carregado, QR lido por leitor externo apontando para `/verificar/relatorio/<código>`; conferido em 50/100/200%. Corrigido: data de geração saía em ISO; agora dd/mm/aaaa hh:mm (Brasília).
+- Alimentação: a leitura da rede exige `acompanhar-alimentacao-rede`, que nenhum papel homologado concede hoje; nenhuma conta sintética permitida tem a permissão, então o PDF real da Alimentação NÃO foi gerado. Corrigido: a negação aparecia como "falha técnica"; agora diz que a conta não tem a permissão.
+- Retenção: relatório do gerador é documento de trabalho, não documento oficial; o arquivo não é guardado e "Reprocessar" relê os dados atuais com o acesso atual (não é download do original). Guardar original só quando houver decisão institucional de retenção (prazo/base legal hoje `null` no inventário de privacidade).
