@@ -424,5 +424,7 @@
  "drizzle/migrations/0373_aa_external_results.sql": "32659abec64ed5f790e0818cfc0d25471414c7dd0bf6107707a2402c1da4c432",
  "drizzle/migrations/0374_aa_infrequency_outreach.sql": "83cf1d1d67a901a4d3813ff2b040647b00ae10112f53972328e667c5ed25de71",
  "drizzle/migrations/0375_aa_infant_followup.sql": "36a50b94313ceb44348f8eb74fdb0899ecee8b6f7d08ec4042ec9d1c704e2843",
- "drizzle/migrations/0376_aa_calc_rules_catalog.sql": "c6e1a3d09df2b164ba8f3f08ac77b4ee4fad3101e791b014ad89531e41522007"
+ "drizzle/migrations/0376_aa_calc_rules_catalog.sql": "c6e1a3d09df2b164ba8f3f08ac77b4ee4fad3101e791b014ad89531e41522007",
+ "drizzle/migrations/0377_bo_fixture_aa_acceptance.sql": "c349cc52eed665de7f12eb3fb2aa841667e37b462609c97dca2faae06560edca",
+ "drizzle/migrations/0378_bo_fixture_aa_cleanup_marker.sql": "3dd4a888455349b82aa171326797b60bf4afcdebfd6d943172e7bf33997120c3"
 }
