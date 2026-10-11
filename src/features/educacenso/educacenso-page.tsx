@@ -10,6 +10,7 @@ import {
 import { LayoutCatalogPanel } from "./layout-catalog-panel";
 import { SchoolIdentityPanel } from "./school-identity-panel";
 import { PeopleIdentityPanel } from "./people-identity-panel";
+import { AuxTablesPanel } from "./aux-tables-panel";
 
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
@@ -123,6 +124,8 @@ export function EducacensoPage() {
       <SchoolIdentityPanel year={year} referenceDate={head?.reference_date ?? null} />
 
       <PeopleIdentityPanel schools={ctl.schools.map((s) => s.school_id)} names={names} network={ctl.network} />
+
+      <AuxTablesPanel year={year} />
 
       <LayoutCatalogPanel year={year} stage={stage} canConfigure={ctl.can_configure} />
 

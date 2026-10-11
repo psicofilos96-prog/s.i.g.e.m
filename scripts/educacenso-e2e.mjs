@@ -83,6 +83,22 @@ try {
   const cA2 = await SA.c.rpc("educacenso_control_at", { _year: Y, _stage_key: ST }); check(cA2.data?.schools?.[0]?.head?.state === "declarada-enviada-ao-inep" && cA2.data.schools[0].head.seq === 5, "painel mostra o último estado sem duplicar (seq 5)");
   const en = await coll(NET, "encerrar", 2); check(!en.error, "coleta encerrada");
   const late = await sch(SA, A, "em-retificacao", 5); check(!!late.error && late.error.message.includes("collection-not-open"), "sem gravação após encerramento");
+  // Tabelas auxiliares: leitura autenticada, conferências positivas/negativas, ano não aplicado a outro, sem escrita
+  const ax = (u, kind, a, b = null, c = null, y = Y) => u.c.rpc("educacenso_aux_check", { _year: y, _kind: kind, _a: a, _b: b, _c: c });
+  const xa = await anon.rpc("educacenso_aux_check", { _year: Y, _kind: "codigo", _a: "3302205", _b: "municipios", _c: null }); check(!!xa.error, "auxiliares: anônimo recusado");
+  const x1 = await ax(SA, "codigo", "3302205", "municipios"); check(x1.data?.result === "existe", "auxiliares: Itaperuna existe na Tabela de Municípios 2026");
+  const x2 = await ax(SA, "distrito-municipio", "330220535", "3302205"); check(x2.data?.result === "permitido", "auxiliares: Raposo pertence a Itaperuna");
+  const x3 = await ax(SA, "distrito-municipio", "330220535", "3300100"); check(x3.data?.result === "nao-pertence", "auxiliares: distrito em outro município recusado");
+  const x4 = await ax(SA, "orgao-municipio", "11011", "3302205"); check(x4.data?.result === "permitido", "auxiliares: órgão regional 11011 atende Itaperuna");
+  const x5 = await ax(SA, "deficiencia-recurso", "Baixa visão", "Auxílio ledor"); check(x5.data?.result === "sem-tabela-do-ano", "auxiliares: tabela deficiência×recurso 2025 não é aplicada a 2026");
+  const x6 = await ax(SA, "deficiencia-recurso", "Baixa visão", "Auxílio ledor", null, "2025"); check(x6.data?.result === "permitido", "auxiliares: regra 2025 vale para 2025");
+  const x7 = await ax(SA, "transtorno-recurso", "Dislexia", "Tempo adicional"); check(x7.data?.result === "permitido", "auxiliares: transtorno×recurso positivo");
+  const x8 = await ax(SA, "transtorno-recurso", "Dislexia", "Prova ampliada (Fonte 18)"); check(x8.data?.result === "nao-previsto", "auxiliares: transtorno×recurso negativo");
+  const x9 = await ax(SA, "etapa-tipo-turma", "Presencial", "Curricular (etapa de ensino)", "14"); check(x9.data?.result === "permitido", "auxiliares: etapa 14 habilitada em turma curricular presencial");
+  const x10 = await ax(SA, "etapa-tipo-turma", "Presencial", "Atividade complementar", "14"); check(x10.data?.result === "nao-habilitado", "auxiliares: etapa em atividade complementar recusada");
+  const xz = await ax(SA, "codigo", "05", "distritos"); check(xz.data?.result === "inexistente", "auxiliares: código curto não é confundido com código completo");
+  const xw = await SA.c.from("educacenso_aux_codes").insert({ source_id: "00000000-0000-0000-0000-000000000000", row_no: 1, table_key: "x", reference_year: Y, code: "1" }); check(!!xw.error, "auxiliares: conta não grava catálogo");
+  const xc = await SA.c.from("educacenso_aux_codes").select("code").eq("table_key", "orgaos_regionais").eq("code", "00001").limit(1); check(xc.data?.[0]?.code === "00001", "auxiliares: zeros iniciais preservados (00001)");
   // LOTE 04 — pessoas e identidade (leitura mascarada, sem gravação de pessoa)
   const pAn = await anon.rpc("educacenso_people_at", { _school: A }); check(!!pAn.error, "pessoas: anônimo recusado");
   const pA = await SA.c.rpc("educacenso_people_at", { _school: A, _limit: 500 }); check(!pA.error && pA.data?.summary?.students > 0, "pessoas: secretaria A lê a própria escola", String(pA.data?.summary?.students ?? pA.error?.message));

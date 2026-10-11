@@ -6,6 +6,7 @@
  */
 import { checkField, generateFile, officialBlockers, recordSpec, type Issue, type LayoutSpec } from "./layout/layout-schema";
 import type { SchoolIdentity } from "./school-identity";
+import { record00AuxIssues, type AuxCode } from "./aux-catalog";
 
 export type Classified = Issue & { impeditive: boolean };
 export type Manifest = {
@@ -48,10 +49,10 @@ export async function sha256Hex(text: string): Promise<string> {
 }
 
 /** Gera conferência só sem impeditivo; sempre devolve manifesto (com bloqueios oficiais). */
-export async function buildConferenceFile(spec: LayoutSpec, identities: SchoolIdentity[], terminator: "pipe" | "sem-pipe", now = new Date()) {
+export async function buildConferenceFile(spec: LayoutSpec, identities: SchoolIdentity[], terminator: "pipe" | "sem-pipe", now = new Date(), auxCodes: readonly AuxCode[] = []) {
   const sorted = [...identities].sort((a, b) => (a.inep ?? a.schoolId).localeCompare(b.inep ?? b.schoolId));
   const lines = sorted.map((id) => ({ record: "00", values: record00Values(spec, id) }));
-  const issues = validateLines(spec, lines);
+  const issues = [...validateLines(spec, lines), ...record00AuxIssues(lines, auxCodes, spec.year)];
   const impeditive = issues.filter((i) => i.impeditive);
   const text = impeditive.length ? null : generateFile(spec, lines, { mode: "conferencia", terminator }).text;
   const manifest: Manifest = {
