@@ -24,7 +24,7 @@ try {
   mkdirSync("/tmp/rep", { recursive: true });
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/rep/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, session: A.session }), { mode: 0o600 });
-  const py = spawnSync("python3", ["scripts/lote6-reports-e2e.py"], { encoding: "utf8", timeout: 300000 });
+  const py = spawnSync("python3", [process.env.PY_SCRIPT ?? "scripts/lote6-reports-e2e.py"], { encoding: "utf8", timeout: 300000 });
   rmSync("/tmp/rep/s.json", { force: true });
   process.stdout.write(py.stdout ?? ""); if (py.status !== 0) console.log("PY_ERR", (py.stderr ?? "").slice(-800));
   const a = await A.c.from("report_emissions").select("id,verification_code,format,reissue_of,content_sha256");
