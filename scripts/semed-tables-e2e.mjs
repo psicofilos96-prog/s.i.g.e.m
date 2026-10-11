@@ -123,30 +123,30 @@ try {
   check(p11.data?.totals?.sem_data > 0 || p11.data?.totals?.nao_informado > 0 ? !e11.error : !!e11.error, "apuração incompleta não bloqueia; completa e divergente bloqueia", e11.error?.message ?? "aceito");
 
   // TSEMED.REC — conciliação CIECE
-  const rc = await FILL.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 });
-  check(!rc.error && rc.data?.length === 6, "conciliação devolve as verificações da escola A", (rc.data ?? []).map((x) => `${x.key}=${x.status}`).join(" "));
-  const c611 = (rc.data ?? []).find((x) => x.key === "t06-x-t11");
-  check(!!c611 && c611.date_a === c611.date_b && ["confere", "divergente", "sem-dado"].includes(c611.status), "T06 × T11 comparadas só com a mesma data", c611 && `${c611.a}×${c611.b} ${c611.status}`);
-  const cm = (rc.data ?? []).find((x) => x.key === "t11-x-matricula"); check(cm?.status === "nao-comparavel:matriculas-sem-data", "matrículas sem data tornam a comparação não comparável (sem zero falso)");
-  const rcB = await FILLB.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check(!!rcB.error, "escola B não lê a conciliação da escola A");
-  const rcAn = await anon.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check(!!rcAn.error, "anônimo recusado na conciliação");
-  const div = (rc.data ?? []).find((x) => x.status === "divergente");
-  if (div) {
-    const recAct = (u, a, seq, reason = "Diferença conferida na fonte", fp = div.fingerprint) => u.c.rpc("semed_reconciliation_act", { _school: A, _year: 2026, _check: div.key, _fingerprint: fp, _act: a, _reason: reason, _expected_seq: seq });
-    const o0 = await recAct(REV, "abrir", 0, ""); check(!!o0.error, "abrir pendência sem justificativa recusado");
-    const oX = await recAct(REV, "abrir", 0, "Diferença", "x"); check(!!oX.error, "ato sobre valores desatualizados recusado");
-    const o1 = await recAct(REV, "abrir", 0); check(!o1.error, "direção abre pendência na divergência", o1.error?.message);
-    const rF = await recAct(FILL, "retornar", 1); check(!!rF.error, "escola não retorna nem aprova pendência");
-    const rN = await recAct(NET, "retornar", 1, "Corrigir a Tabela 11 na fonte"); check(!rN.error, "rede retorna à escola com justificativa");
-    const aN = await recAct(NET, "aprovar", 2, "Diferença explicada por transferência registrada"); check(!aN.error, "rede aprova com justificativa");
-    const tr = await FILL.c.from("semed_reconciliation_events").select("seq, act").eq("school_id", A).eq("check_key", div.key).order("seq"); check((tr.data ?? []).map((x) => x.act).join(",") === "abrir,retornar,aprovar", "trilha preserva os três atos");
-    const trB = await FILLB.c.from("semed_reconciliation_events").select("id").eq("school_id", A); check((trB.data ?? []).length === 0, "escola B não vê a trilha da escola A");
-    const del = await admin.from("semed_reconciliation_events").delete().eq("school_id", A).eq("check_key", div.key); const still = await admin.from("semed_reconciliation_events").select("id", { count: "exact", head: true }).eq("school_id", A).eq("check_key", div.key);
-    check((still.count ?? 0) === 3, "pendência não pode ser apagada", del.error?.message ?? "");
-    const rc2 = await FILL.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check((rc2.data ?? []).find((x) => x.key === div.key)?.status === "divergente", "divergência aprovada continua visível");
+  const rec_rc = await FILL.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 });
+  check(!rec_rc.error && rec_rc.data?.length === 6, "conciliação devolve as verificações da escola A", (rec_rc.data ?? []).map((x) => `${x.key}=${x.status}`).join(" "));
+  const rec_c611 = (rec_rc.data ?? []).find((x) => x.key === "t06-x-t11");
+  check(!!rec_c611 && rec_c611.date_a === rec_c611.date_b && ["confere", "divergente", "sem-dado"].includes(rec_c611.status), "T06 × T11 comparadas só com a mesma data", rec_c611 && `${rec_c611.a}×${rec_c611.b} ${rec_c611.status}`);
+  const rec_cm = (rec_rc.data ?? []).find((x) => x.key === "t11-x-matricula"); check(rec_cm?.status === "nao-comparavel:matriculas-sem-data", "matrículas sem data tornam a comparação não comparável (sem zero falso)");
+  const rec_rcB = await FILLB.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check(!!rec_rcB.error, "escola B não lê a conciliação da escola A");
+  const rec_rcAn = await anon.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check(!!rec_rcAn.error, "anônimo recusado na conciliação");
+  const rec_div = (rec_rc.data ?? []).find((x) => x.status === "divergente");
+  if (rec_div) {
+    const rec_recAct = (u, a, seq, reason = "Diferença conferida na fonte", fp = rec_div.fingerprint) => u.c.rpc("semed_reconciliation_act", { _school: A, _year: 2026, _check: rec_div.key, _fingerprint: fp, _act: a, _reason: reason, _expected_seq: seq });
+    const rec_o0 = await rec_recAct(REV, "abrir", 0, ""); check(!!rec_o0.error, "abrir pendência sem justificativa recusado");
+    const rec_oX = await rec_recAct(REV, "abrir", 0, "Diferença", "x"); check(!!rec_oX.error, "ato sobre valores desatualizados recusado");
+    const rec_o1 = await rec_recAct(REV, "abrir", 0); check(!rec_o1.error, "direção abre pendência na divergência", rec_o1.error?.message);
+    const rec_rF = await rec_recAct(FILL, "retornar", 1); check(!!rec_rF.error, "escola não retorna nem aprova pendência");
+    const rec_rN = await rec_recAct(NET, "retornar", 1, "Corrigir a Tabela 11 na fonte"); check(!rec_rN.error, "rede retorna à escola com justificativa");
+    const rec_aN = await rec_recAct(NET, "aprovar", 2, "Diferença explicada por transferência registrada"); check(!rec_aN.error, "rede aprova com justificativa");
+    const rec_tr = await FILL.c.from("semed_reconciliation_events").select("seq, act").eq("school_id", A).eq("check_key", rec_div.key).order("seq"); check((rec_tr.data ?? []).map((x) => x.act).join(",") === "abrir,retornar,aprovar", "trilha preserva os três atos");
+    const rec_trB = await FILLB.c.from("semed_reconciliation_events").select("id").eq("school_id", A); check((rec_trB.data ?? []).length === 0, "escola B não vê a trilha da escola A");
+    const rec_del = await admin.from("semed_reconciliation_events").delete().eq("school_id", A).eq("check_key", rec_div.key); const rec_still = await admin.from("semed_reconciliation_events").select("id", { count: "exact", head: true }).eq("school_id", A).eq("check_key", rec_div.key);
+    check((rec_still.count ?? 0) === 3, "pendência não pode ser apagada", rec_del.error?.message ?? "");
+    const rec_rc2 = await FILL.c.rpc("semed_reconciliation_at", { _school: A, _year: 2026 }); check((rec_rc2.data ?? []).find((x) => x.key === rec_div.key)?.status === "divergente", "divergência aprovada continua visível");
   } else check(false, "havia divergência para exercitar a pendência");
-  const nX = await FILL.c.rpc("semed_reconciliation_network", { _year: 2026 }); check(!!nX.error, "escola não consolida a rede");
-  const nN = await NET.c.rpc("semed_reconciliation_network", { _year: 2026 }); check(!nN.error && nN.data.length === 55 && nN.data.every((x) => x.zona), "rede consolida as 55 escolas com zona do cadastro", String(nN.data?.length));
+  const rec_nX = await FILL.c.rpc("semed_reconciliation_network", { _year: 2026 }); check(!!rec_nX.error, "escola não consolida a rede");
+  const rec_nN = await NET.c.rpc("semed_reconciliation_network", { _year: 2026 }); check(!rec_nN.error && rec_nN.data.length === 55 && rec_nN.data.every((x) => x.zona), "rede consolida as 55 escolas com zona do cadastro", String(rec_nN.data?.length));
 
   // TSEMED.9 — Tabela 09 (catálogo v2, limites, centrais agregados, anexos privados)
   const cat09 = (await admin.from("semed_table_catalog").select("version").eq("year", 2026).eq("table_code", "09").order("version", { ascending: false }).limit(1)).data?.[0]?.version;
