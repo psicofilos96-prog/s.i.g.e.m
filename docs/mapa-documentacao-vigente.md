@@ -341,3 +341,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `ciece-nciece-final-2.md` — Registro de lote: Censo oficial × base, Mapa no gerador e regra-base.
 - `nprint-final-2.md` — Registro de lote: validação rasterizada dos renderers fora do Document Studio.
 - `nimport-standard-1.md` — Registro de lote: carga 2026 adotada no pipeline padrão, sem duplicação.
+- [Proposta de capacidades do Diário (LOTE 12)](proposta-capacidades-diario-lote12.md) — Referência vigente (proposta não concedida)
