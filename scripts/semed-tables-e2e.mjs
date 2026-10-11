@@ -132,23 +132,28 @@ try {
   if (!reg2.error) await FILL.c.rpc("semed_attachment_register", { _school: A, _year: 2026, _code: "09", _path: `${A}/2026/09/${op}-predio2.png`, _name: "predio2.png", _mime: "image/png", _size: png.length, _description: "Pátio" });
 
   // TSEMED.10 — Tabela 10 (todos os servidores do cadastro central, formação em ledger, comprovante restrito)
-  const ros = await FILL.c.rpc("semed_t10_roster", { _school: A });
-  const nStaff = (await admin.from("staff_administrative_records").select("id", { count: "exact", head: true }).eq("school_id", A)).count ?? 0;
+  // A escola sintética pode não ter servidores no cadastro; usa a escola real com mais linhas, só para LER o cadastro
+  // (formações gravadas têm autoria sintética e saem na limpeza; o cadastro de pessoal não é alterado).
+  const S10 = (await admin.from("staff_administrative_records").select("school_id").not("school_id", "is", null).neq("school_id", B).limit(1)).data?.[0]?.school_id ?? A;
+  globalThis.__S10 = S10;
+  if (S10 !== A) { await grant(FILL, "preparar-mapa-estatistico", S10); await grant(REV, "oficializar-mapa-estatistico", S10); }
+  const ros = await FILL.c.rpc("semed_t10_roster", { _school: S10 });
+  const nStaff = (await admin.from("staff_administrative_records").select("id", { count: "exact", head: true }).eq("school_id", S10)).count ?? 0;
   check(!ros.error && Array.isArray(ros.data), "quadro de servidores da escola A lido", ros.error?.message);
   const keys = new Set((ros.data ?? []).map((x) => x.staff_key));
   check(keys.size === (ros.data ?? []).length && (ros.data ?? []).length <= nStaff && (nStaff === 0 || (ros.data ?? []).length > 0), "uma linha por servidor, sem pessoa duplicada", `${(ros.data ?? []).length} servidores / ${nStaff} linhas do cadastro`);
   check(nStaff <= 30 || (ros.data ?? []).length > 30, "sem limite de 30 linhas", String((ros.data ?? []).length));
-  const rosB = await FILLB.c.rpc("semed_t10_roster", { _school: A }); check(!!rosB.error, "secretaria B não lê o quadro da escola A");
-  const rosAn = await anon.rpc("semed_t10_roster", { _school: A }); check(!!rosAn.error, "anônimo recusado no quadro");
+  const rosB = await FILLB.c.rpc("semed_t10_roster", { _school: S10 }); check(!!rosB.error, "secretaria B não lê o quadro da escola A");
+  const rosAn = await anon.rpc("semed_t10_roster", { _school: S10 }); check(!!rosAn.error, "anônimo recusado no quadro");
   const st0 = (ros.data ?? [])[0];
   if (st0) {
-    const rec = (u, o) => u.c.rpc("semed_t10_record_formation", { _school: A, _year: 2026, _staff_record_id: st0.staff_record_id, _formation_id: null, _expected_version: null, _level: "superior", _kind: "licenciatura", _course: "Pedagogia", _institution: null, _conclusion_year: 2010, _withdraw: false, _reason: null, ...o });
+    const rec = (u, o) => u.c.rpc("semed_t10_record_formation", { _school: S10, _year: 2026, _staff_record_id: st0.staff_record_id, _formation_id: null, _expected_version: null, _level: "superior", _kind: "licenciatura", _course: "Pedagogia", _institution: null, _conclusion_year: 2010, _withdraw: false, _reason: null, ...o });
     const x1 = await rec(FILL, { _course: "" }); check(!!x1.error && x1.error.message.includes("curso-obrigatorio"), "superior sem curso recusado");
     const x2 = await rec(FILL, { _kind: "mestrado" }); check(!!x2.error, "tipo fora do nível recusado");
     const x3 = await rec(FILLB, {}); check(!!x3.error, "secretaria B não registra formação na escola A");
-    const outsider = (await admin.from("staff_administrative_records").select("id").neq("school_id", A).not("school_id", "is", null).limit(1)).data?.[0]?.id;
+    const outsider = (await admin.from("staff_administrative_records").select("id").neq("school_id", S10).not("school_id", "is", null).limit(1)).data?.[0]?.id;
     if (outsider) { const x4 = await rec(FILL, { _staff_record_id: outsider }); check(!!x4.error && x4.error.message.includes("fora-da-escola"), "servidor de outra escola recusado"); }
-    const epath = `${A}/2026/${op}-diploma.png`;
+    const epath = `${S10}/2026/${op}-diploma.png`;
     const eu = await FILL.c.storage.from("semed-t10-comprovantes").upload(epath, png, { contentType: "image/png" }); check(!eu.error, "comprovante enviado ao espaço restrito", eu.error?.message);
     const f1 = await rec(FILL, { _evidence_path: epath, _evidence_name: "diploma.png", _evidence_mime: "image/png" }); check(!f1.error && f1.data?.version === 1, "formação registrada (v1) com comprovante", f1.error?.message);
     const fid = f1.data?.formation_id;
@@ -158,16 +163,16 @@ try {
     const p2 = await rec(FILL, { _level: "pos", _kind: "especializacao", _course: "Educação Especial" }); check(!p2.error, "segunda formação (pós) no mesmo servidor");
     const hist = await FILL.c.from("semed_t10_formation_versions").select("version").eq("formation_id", fid); check((hist.data ?? []).length === 2, "as duas versões continuam gravadas");
     const upd = await FILL.c.from("semed_t10_formation_versions").update({ course: "X" }).eq("formation_id", fid).select(); check(!!upd.error || (upd.data ?? []).length === 0, "formação não é editável direto na tabela");
-    const vB = await FILLB.c.from("semed_t10_formation_versions").select("id").eq("school_id", A); check((vB.data ?? []).length === 0, "secretaria B não vê formações da escola A");
-    const vN = await NET.c.from("semed_t10_formation_versions").select("id").eq("school_id", A); check((vN.data ?? []).length >= 3, "rede vê formações da escola A");
+    const vB = await FILLB.c.from("semed_t10_formation_versions").select("id").eq("school_id", S10); check((vB.data ?? []).length === 0, "secretaria B não vê formações da escola A");
+    const vN = await NET.c.from("semed_t10_formation_versions").select("id").eq("school_id", S10); check((vN.data ?? []).length >= 3, "rede vê formações da escola A");
     const eR = await REV.c.storage.from("semed-t10-comprovantes").createSignedUrl(epath, 60);
-    const eRp = await REV.c.rpc("semed_t10_can_see_evidence", { _school: A }); check(eRp.data === false ? !!eR.error : true, "quem só confere não abre comprovante", `pode=${eRp.data}`);
+    const eRp = await REV.c.rpc("semed_t10_can_see_evidence", { _school: S10 }); check(eRp.data === false ? !!eR.error : true, "quem só confere não abre comprovante", `pode=${eRp.data}`);
     const eB = await FILLB.c.storage.from("semed-t10-comprovantes").createSignedUrl(epath, 60); check(!!eB.error, "secretaria B não abre comprovante da escola A");
     const eN = await NET.c.storage.from("semed-t10-comprovantes").createSignedUrl(epath, 60); check(!eN.error, "rede abre comprovante");
     const eAn = await anon.storage.from("semed-t10-comprovantes").download(epath); check(!!eAn.error, "anônimo não baixa comprovante");
     const wd1 = await rec(FILL, { _formation_id: p2.data?.formation_id, _expected_version: 1, _withdraw: true, _reason: "Registrada por engano" }); check(!wd1.error, "formação retirada com motivo", wd1.error?.message);
-    const s10 = await act(FILL, "salvar", 0, { code: "10", values: { "rodape.preenchimento": "Teste sintético" } });
-    if (!s10.error) { await act(FILL, "enviar-conferencia", 1, { code: "10" }); const lk = await rec(FILL, { _level: "fundamental", _kind: "completo", _course: null }); check(!!lk.error && lk.error.message.includes("bloqueada"), "formação bloqueada com a tabela em conferência"); }
+    const s10 = await act(FILL, "salvar", 0, { school: S10, code: "10", values: { "rodape.preenchimento": "Teste sintético" } });
+    if (!s10.error) { await act(FILL, "enviar-conferencia", 1, { school: S10, code: "10" }); const lk = await rec(FILL, { _level: "fundamental", _kind: "completo", _course: null }); check(!!lk.error && lk.error.message.includes("bloqueada"), "formação bloqueada com a tabela em conferência"); }
     else check(false, "Tabela 10 salva", s10.error.message);
   } else console.log("INFO escola A sem servidores no cadastro central — escrita da T10 não exercitada");
 
@@ -181,7 +186,7 @@ try {
 } catch (e) { fails++; console.log("ERRO", String(e.message ?? e)); }
 finally {
   { const ls = await admin.storage.from("semed-anexos").list(`${ctx?.school}/2026/09`, { limit: 100 }); const mine = (ls.data ?? []).filter((o) => o.name.startsWith(op)).map((o) => `${ctx.school}/2026/09/${o.name}`); if (mine.length) await admin.storage.from("semed-anexos").remove(mine); }
-  { const ls = await admin.storage.from("semed-t10-comprovantes").list(`${ctx?.school}/2026`, { limit: 100 }); const mine = (ls.data ?? []).filter((o) => o.name.startsWith(op)).map((o) => `${ctx.school}/2026/${o.name}`); if (mine.length) await admin.storage.from("semed-t10-comprovantes").remove(mine); }
+  { const ls = await admin.storage.from("semed-t10-comprovantes").list(`${globalThis.__S10 ?? ctx?.school}/2026`, { limit: 100 }); const mine = (ls.data ?? []).filter((o) => o.name.startsWith(op)).map((o) => `${globalThis.__S10 ?? ctx.school}/2026/${o.name}`); if (mine.length) await admin.storage.from("semed-t10-comprovantes").remove(mine); }
   const cs = await admin.rpc("bo_fixture_cleanup_semed", { _operation_id: op }); console.log("cleanup SEMED:", cs.error ? "ERRO " + cs.error.message : `ok (${cs.data} linhas)`);
   const cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); console.log("cleanup contas:", cl.error ? "ERRO " + cl.error.message : `ok (${cl.data})`);
   for (const id of users) await admin.auth.admin.deleteUser(id);
