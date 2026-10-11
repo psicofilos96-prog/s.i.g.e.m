@@ -2661,6 +2661,13 @@
       "when": 1791754858965,
       "tag": "0379_ibge_dtb_territorial_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 380,
+      "version": "7",
+      "when": 1791755004271,
+      "tag": "0380_ibge_dtb_revoke_technical_load",
+      "breakpoints": true
     }
   ]
 }
