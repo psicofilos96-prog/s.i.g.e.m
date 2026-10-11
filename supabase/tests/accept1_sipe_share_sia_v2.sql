@@ -5,7 +5,7 @@
 -- A "aprovação da OP" aqui é dublê transacional desfeito pelo RAISE — não é homologação nem ato humano real.
 DO $t$
 DECLARE ok text := ''; e text; a uuid := gen_random_uuid(); b uuid := gen_random_uuid(); c uuid := gen_random_uuid(); op uuid := gen_random_uuid();
-  cls record; stu text; sB text; pa text := 'pes-acc-a-'||gen_random_uuid(); pb text := 'pes-acc-b-'||gen_random_uuid(); pc text := 'pes-acc-c-'||gen_random_uuid();
+  cls record; stu text; sB text; pa uuid := gen_random_uuid(); pb uuid := gen_random_uuid(); pc uuid := gen_random_uuid(); g uuid := gen_random_uuid();
   asg text := 'ta-acc-'||gen_random_uuid(); plan text := 'plan-acc-'||gen_random_uuid(); copyp text := 'plan-acc-copy-'||gen_random_uuid();
   pv uuid; v uuid; r uuid; n int; img text;
   items jsonb := '[{"item_version_id":"i1","weight":2},{"item_version_id":"i2","weight":3},{"item_version_id":"i3"}]';
@@ -19,7 +19,7 @@ BEGIN
     (pa,'professor',cls.school_id,CURRENT_DATE-1,'escola'),(pb,'professor',cls.school_id,CURRENT_DATE-1,'escola'),(pc,'professor',sB,CURRENT_DATE-1,'escola');
   INSERT INTO public.teaching_assignments(id, class_id) VALUES (asg, cls.id);
   INSERT INTO public.teaching_plan_versions(plan_id, version, assignment_id, assignment_version_id, matrix_version_id, class_id, school_id, title, blocks, curricular_refs, status, author_user_id, author_engagement_id)
-    VALUES (plan, 1, asg, 'asv-acc', 'mv-acc', cls.id, cls.school_id, 'Plano semanal (teste)', '[]', '[]', 'publicado', a, 'eng-acc') RETURNING id INTO pv;
+    VALUES (plan, 1, asg, g, g, cls.id, cls.school_id, 'Plano semanal (teste)', '[]', '[]', 'publicado', a, g) RETURNING id INTO pv;
 
   PERFORM set_config('role','authenticated',true);
   PERFORM set_config('request.jwt.claims', json_build_object('sub',a,'role','authenticated')::text, true);
@@ -32,7 +32,7 @@ BEGIN
   EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE '%only-author-shares%' THEN RAISE; END IF; ok := ok||' sipe-B-nao-recompartilha'; END;
   PERFORM set_config('role','postgres',true);
   INSERT INTO public.teaching_plan_versions(plan_id, version, assignment_id, assignment_version_id, matrix_version_id, class_id, school_id, title, blocks, curricular_refs, status, author_user_id, author_engagement_id)
-    VALUES (copyp, 1, asg, 'asv-acc', 'mv-acc', cls.id, cls.school_id, 'Cópia adaptada (teste)', '[]', '[]', 'rascunho', b, 'eng-acc-b');
+    VALUES (copyp, 1, asg, g, g, cls.id, cls.school_id, 'Cópia adaptada (teste)', '[]', '[]', 'rascunho', b, g);
   PERFORM set_config('role','authenticated',true);
   PERFORM public.record_shared_plan_copy(copyp, pv); ok := ok||' sipe-copia-registrada';
   IF (SELECT title FROM public.teaching_plan_versions WHERE id = pv) <> 'Plano semanal (teste)' THEN RAISE EXCEPTION 'ACC_FAIL:original-mudou'; END IF; ok := ok||' sipe-original-intacto';
