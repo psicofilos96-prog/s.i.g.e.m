@@ -13,6 +13,7 @@ import { mealMessage } from "./meals-model";
 import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from "./ceiling-explain";
 import { operationalToday } from "@/lib/academic-date";
 import { OrderWindowForm, ScheduleForm } from "./network-operations";
+import { institution } from "@/config/institution";
 
 /** LOTE 9 — teto calculado pelo banco (mesma função que congela a avaliação no ato). */
 async function evaluate(school: string, lines: OrderLine[]) {
@@ -91,7 +92,8 @@ export function OrdersSection({ school, network, names }: { school: string; netw
   async function exportPurchaseMap(fmt: "pdf" | "xlsx") {
     const rows = purchaseMapRows((cons ?? []).map((c) => ({ ...c, total: Number(c.total) })), { items, units, contracts, suppliers, schools: names });
     const result = runReport(MAPA_COMPRAS, { params: { competence } }, rows);
-    const branding = { headerLines: ["SIGEM — Alimentação Escolar"], title: MAPA_COMPRAS.title };
+    const logo = new URL(institution.emblemUrl, window.location.href).href;
+    const branding = { headerLines: [institution.governmentName, institution.departmentName, "Núcleo de Alimentação Escolar — SIGEM"], title: MAPA_COMPRAS.title, logoUrl: logo };
     const meta = [`Competência: ${competence}`, "Somente pedidos autorizados vigentes.", "Não é ordem de compra nem empenho.", `Gerado em ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`];
     if (fmt === "xlsx") {
       const buf = await toXlsx(result, branding, meta);
