@@ -16,6 +16,9 @@ async def run(br, cfg, sector, subject, tag):
         await pg.screenshot(path=f"{OUT}/{tag}-0-assuntos.png"); await ctx.close(); return
     await card.get_by_role("button", name="Escolher").click(); await pg.wait_for_timeout(500)
     steps = g.get_by_role("list", name="Etapas").get_by_role("button")
+    if tag == "alimentacao":
+        await steps.nth(1).click(); await pg.wait_for_timeout(300)
+        d = g.locator("input[type=date]"); await d.nth(0).fill("2026-01-01"); await d.nth(1).fill("2026-12-31")
     await steps.nth(6).click(); await pg.wait_for_timeout(400)
     await g.get_by_label("Título", exact=True).fill(f"{subject} — aceite visual")
     await g.get_by_label("Cabeçalho (uma linha por linha)").fill("Prefeitura Municipal de Itaperuna\nSecretaria Municipal de Educação")
