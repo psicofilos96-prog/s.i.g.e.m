@@ -121,6 +121,7 @@ import { Route as HorariosIndexRouteImport } from './routes/horarios.index'
 import { Route as HorariosProfissionaisRouteImport } from './routes/horarios.profissionais'
 import { Route as HorariosRevisoesRouteImport } from './routes/horarios.revisoes'
 import { Route as HorariosTurmasRouteImport } from './routes/horarios.turmas'
+import { Route as InclusaoNeiRouteImport } from './routes/inclusao_.nei'
 import { Route as LaboratorioCieceRouteImport } from './routes/laboratorio.ciece'
 import { Route as LaboratorioFolhaFinalRouteImport } from './routes/laboratorio.folha-final'
 import { Route as LaboratorioRecuperacaoRouteImport } from './routes/laboratorio.recuperacao'
@@ -812,6 +813,11 @@ const HorariosTurmasRoute = HorariosTurmasRouteImport.update({
   id: '/turmas',
   path: '/turmas',
   getParentRoute: () => HorariosRoute,
+} as any)
+const InclusaoNeiRoute = InclusaoNeiRouteImport.update({
+  id: '/inclusao_/nei',
+  path: '/inclusao/nei',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LaboratorioCieceRoute = LaboratorioCieceRouteImport.update({
   id: '/laboratorio/ciece',
@@ -1642,6 +1648,7 @@ export interface FileRoutesByFullPath {
   '/horarios/profissionais': typeof HorariosProfissionaisRouteWithChildren
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
+  '/inclusao/nei': typeof InclusaoNeiRoute
   '/laboratorio/ciece': typeof LaboratorioCieceRoute
   '/laboratorio/folha-final': typeof LaboratorioFolhaFinalRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
@@ -1868,6 +1875,7 @@ export interface FileRoutesByTo {
   '/enturmacoes/nova': typeof EnturmacoesNovaRoute
   '/ficha-longitudinal/$id': typeof FichaLongitudinalIdRoute
   '/horarios/revisoes': typeof HorariosRevisoesRoute
+  '/inclusao/nei': typeof InclusaoNeiRoute
   '/laboratorio/ciece': typeof LaboratorioCieceRoute
   '/laboratorio/folha-final': typeof LaboratorioFolhaFinalRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
@@ -2091,6 +2099,7 @@ export interface FileRoutesById {
   '/horarios/profissionais': typeof HorariosProfissionaisRouteWithChildren
   '/horarios/revisoes': typeof HorariosRevisoesRoute
   '/horarios/turmas': typeof HorariosTurmasRouteWithChildren
+  '/inclusao_/nei': typeof InclusaoNeiRoute
   '/laboratorio/ciece': typeof LaboratorioCieceRoute
   '/laboratorio/folha-final': typeof LaboratorioFolhaFinalRoute
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
@@ -2333,6 +2342,7 @@ export interface FileRouteTypes {
     | '/horarios/profissionais'
     | '/horarios/revisoes'
     | '/horarios/turmas'
+    | '/inclusao/nei'
     | '/laboratorio/ciece'
     | '/laboratorio/folha-final'
     | '/laboratorio/recuperacao'
@@ -2559,6 +2569,7 @@ export interface FileRouteTypes {
     | '/enturmacoes/nova'
     | '/ficha-longitudinal/$id'
     | '/horarios/revisoes'
+    | '/inclusao/nei'
     | '/laboratorio/ciece'
     | '/laboratorio/folha-final'
     | '/laboratorio/recuperacao'
@@ -2781,6 +2792,7 @@ export interface FileRouteTypes {
     | '/horarios/profissionais'
     | '/horarios/revisoes'
     | '/horarios/turmas'
+    | '/inclusao_/nei'
     | '/laboratorio/ciece'
     | '/laboratorio/folha-final'
     | '/laboratorio/recuperacao'
@@ -3008,6 +3020,7 @@ export interface RootRouteChildren {
   DiarioLivroRoute: typeof DiarioLivroRoute
   DiarioRegrasFolhaFinalRoute: typeof DiarioRegrasFolhaFinalRoute
   FichaLongitudinalIdRoute: typeof FichaLongitudinalIdRoute
+  InclusaoNeiRoute: typeof InclusaoNeiRoute
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioFolhaFinalRoute: typeof LaboratorioFolhaFinalRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
@@ -3816,6 +3829,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/horarios/turmas'
       preLoaderRoute: typeof HorariosTurmasRouteImport
       parentRoute: typeof HorariosRoute
+    }
+    '/inclusao_/nei': {
+      id: '/inclusao_/nei'
+      path: '/inclusao/nei'
+      fullPath: '/inclusao/nei'
+      preLoaderRoute: typeof InclusaoNeiRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/laboratorio/ciece': {
       id: '/laboratorio/ciece'
@@ -5470,6 +5490,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiarioLivroRoute: DiarioLivroRoute,
   DiarioRegrasFolhaFinalRoute: DiarioRegrasFolhaFinalRoute,
   FichaLongitudinalIdRoute: FichaLongitudinalIdRoute,
+  InclusaoNeiRoute: InclusaoNeiRoute,
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioFolhaFinalRoute: LaboratorioFolhaFinalRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
