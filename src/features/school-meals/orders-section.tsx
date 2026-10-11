@@ -12,6 +12,7 @@ import { MAPA_COMPRAS, purchaseMapRows } from "./purchase-map";
 import { mealMessage } from "./meals-model";
 import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from "./ceiling-explain";
 import { operationalToday } from "@/lib/academic-date";
+import { OrderWindowForm, ScheduleForm } from "./network-operations";
 
 /** LOTE 9 — teto calculado pelo banco (mesma função que congela a avaliação no ato). */
 async function evaluate(school: string, lines: OrderLine[]) {
@@ -107,7 +108,7 @@ export function OrdersSection({ school, network, names }: { school: string; netw
       {msg && <p role="status">{msg}</p>}
       {err ? <StatePanel tone="warning" title="Não disponível" description={err} />
         : !orders ? <SkeletonState label="Carregando" />
-        : network ? <NetworkQueue orders={orders} names={names} act={act} itemLabel={(id) => label(items, id)} />
+        : network ? <><OrderWindowForm competence={competence} onDone={async (m) => { setMsg(m); await load(); }} /><NetworkQueue orders={orders} names={names} act={act} itemLabel={(id) => label(items, id)} contracts={contracts} onDone={async (m) => { setMsg(m); await load(); }} /></>
         : <SchoolOrder school={school} competence={competence} order={mine ?? null} items={items} units={units} act={act} />}
       {orders && orders.length > 0 && <Button variant="outline" onClick={() => void exportOrders()}>Exportar pedidos (CSV)</Button>}
       {network && cons && (
@@ -163,7 +164,7 @@ function SchoolOrder({ school, competence, order, items, units, act }: { school:
   );
 }
 
-function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; names: Map<string, string>; act: (a: Record<string, unknown>) => Promise<void>; itemLabel: (id: string) => string }) {
+function NetworkQueue({ orders, names, act, itemLabel, contracts, onDone }: { orders: Order[]; names: Map<string, string>; act: (a: Record<string, unknown>) => Promise<void>; itemLabel: (id: string) => string; contracts: Named[]; onDone: (m: string) => Promise<void> }) {
   if (orders.length === 0) return <p className="text-muted-foreground">Nenhum pedido nesta competência.</p>;
   const go = async (o: Order, action: string, needReason: boolean) => {
     const reason = needReason ? await askText("Motivo:") : null; if (needReason && !reason?.trim()) return;
@@ -205,6 +206,7 @@ function NetworkQueue({ orders, names, act, itemLabel }: { orders: Order[]; name
               <Button size="sm" variant="destructive" onClick={() => go(o, "rejeicao", true)}>Rejeitar</Button>
             </>}
           </div>
+          {orderAllows(o.status, "retificacao") && <ScheduleForm order={o.logical_id} lines={o.lines} contracts={contracts} itemLabel={itemLabel} onDone={onDone} />}
         </li>
       ))}
     </ul>
