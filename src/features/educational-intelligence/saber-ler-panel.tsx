@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { StatePanel, StatusBadge } from "@/components/sigem/patterns";
@@ -152,13 +152,13 @@ function EntryGrid({ inst, students, entries, reviews, homologated, onDone, onPi
       <thead><tr><th scope="col">Estudante</th><th scope="col">Presença</th><th scope="col">Acerto</th><th scope="col">Faixa</th><th scope="col">Estágio</th><th scope="col">Revisão</th><th scope="col">Ações</th></tr></thead>
       <tbody>{students.map((s) => { const h = hs.find((x) => x.student_id === s.student_id && x.class_id === s.class_id); const sc = h ? score(h, inst.items) : null;
         const editing = edit?.student === s.student_id;
-        return (<>
-          <tr key={s.student_id}><td><button className="underline" onClick={() => onPick(s.student_id)}>{s.student_id.slice(0, 8)}</button></td>
+        return (<Fragment key={s.student_id}>
+          <tr><td><button className="underline" onClick={() => onPick(s.student_id)}>{s.student_id.slice(0, 8)}</button></td>
             <td>{h?.presence ?? "sem lançamento"}{h?.participation ? ` · ${h.participation}` : ""}</td><td>{sc ? fmt(sc.pct) : "—"}</td>
             <td>{sc ? bandOf(sc.pct, inst.percent_bands) ?? "sem faixa configurada" : "—"}</td><td>{h?.writing_stage ?? "—"}</td><td>{h ? entryState(h, reviews) : "—"}</td>
             <td className="space-x-1"><Button size="sm" variant="outline" onClick={() => setEdit({ student: s.student_id, presence: h?.presence ?? "presente", participation: h?.participation ?? "participou", items: { ...(h?.item_results ?? {}) }, stage: h?.writing_stage ?? "", reason: "" })}>{h ? "Retificar" : "Lançar"}</Button>
               {h ? <><Button size="sm" variant="ghost" onClick={() => review(h.id, "conferido")}>Conferir</Button><Button size="sm" variant="ghost" onClick={() => review(h.id, "devolvido")}>Devolver</Button><Button size="sm" variant="ghost" onClick={() => review(h.id, "homologado")}>Homologar</Button></> : null}</td></tr>
-          {editing && edit ? (<tr key={s.student_id + "-e"}><td colSpan={7} className="space-y-2 bg-muted/40 p-2">
+          {editing && edit ? (<tr><td colSpan={7} className="space-y-2 bg-muted/40 p-2">
             <div className="flex flex-wrap gap-2">
               <select aria-label="Presença" className={field} value={edit.presence} onChange={(e) => setEdit({ ...edit, presence: e.target.value as SlEntry["presence"] })}><option value="presente">Presente</option><option value="ausente">Ausente</option><option value="nao-registrado">Presença não registrada</option></select>
               {edit.presence === "presente" ? <select aria-label="Participação" className={field} value={edit.participation} onChange={(e) => setEdit({ ...edit, participation: e.target.value })}><option value="participou">Participou</option><option value="participou-parcialmente">Participou parcialmente</option><option value="nao-participou">Não participou</option></select> : null}
@@ -171,6 +171,6 @@ function EntryGrid({ inst, students, entries, reviews, homologated, onDone, onPi
             {h ? <input aria-label="Motivo da retificação" placeholder="Motivo da retificação (mín. 5)" className={field + " w-full"} value={edit.reason} onChange={(e) => setEdit({ ...edit, reason: e.target.value })} /> : null}
             <div className="space-x-1"><Button size="sm" onClick={() => save(s)}>Salvar</Button><Button size="sm" variant="ghost" onClick={() => setEdit(null)}>Cancelar</Button></div>
           </td></tr>) : null}
-        </>); })}</tbody></table>
+        </Fragment>); })}</tbody></table>
   );
 }
