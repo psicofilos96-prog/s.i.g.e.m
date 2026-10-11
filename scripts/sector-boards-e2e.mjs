@@ -24,11 +24,6 @@ async function mk(tag, kind) {
 const q = (cl, spec) => cl.rpc("report_custom_query", { _spec: spec });
 try {
   const A = await mk("secretaria", "secretaria-escolar"), B = await mk("professor", "professor");
-  // Referência direta (service role) da escola de A, para provar o escopo
-  const ref = await admin.from("school_enrollments").select("id, supersedes_id, school_id").eq("school_id", A.school).limit(5000);
-  const sup = new Set((ref.data ?? []).map((r) => r.supersedes_id).filter(Boolean));
-try {
-  const A = await mk("secretaria", "secretaria-escolar"), B = await mk("professor", "professor");
   const real = await A.c.rpc("report_custom_query", { _spec: { source: "matriculas", measures: [{ agg: "count" }] } });
   mkdirSync("/tmp/rep", { recursive: true });
   const host = new globalThis.URL(URL).hostname.split(".")[0];
