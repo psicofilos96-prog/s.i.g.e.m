@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { DocumentsPanel } from "./documents-panel";
 import { MyDocuments } from "./my-documents";
+import { SchoolDocsPanel } from "./school-panel";
 import { API_PORT_STATUS, OUTCOME_LABEL, availablePanels, cpfDigits, needsManualDecision, type DocservContext, type QueueItem } from "./docserv-model";
 
 const field = "h-8 rounded-md border bg-background px-2 text-sm";
@@ -21,7 +22,7 @@ export function DocservPage() {
       </header>
       {panels.length === 0 && <p className="rounded-md border p-3 text-sm">Sua conta ainda não tem acesso ao DocServ. Servidores precisam de pessoa vinculada à conta; escolas e rede precisam de permissão documental atribuída.</p>}
       {panels.includes("servidor") && <section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Meus documentos</h2>{ctx.person_id && <MyDocuments person={ctx.person_id} />}</section>}
-      {panels.includes("escola") && <section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Documentos da escola</h2>{ctx.escola_schools.map((s) => <DocumentsPanel key={s} mode="escola" school={s} />)}</section>}
+      {panels.includes("escola") && <section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Documentos da escola</h2>{ctx.escola_schools.map((s) => <SchoolDocsPanel key={s} school={s} />)}</section>}
       {panels.includes("rede") && <><section className="rounded-md border p-3"><h2 className="text-sm font-semibold">Documentos da rede</h2><DocumentsPanel mode="rede" /></section><IdentityConsole /></>}
       <section className="rounded-md border p-3">
         <h2 className="text-sm font-semibold">Situação da portabilidade</h2>
