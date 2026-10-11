@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { buildSecretariatPanel, secretariatSearch, buildStudentRecord, studentTimeline, duplicateSuspicions, type SourceRead } from "./academic-panel";
 
 const read = <T,>(rows: T[]): SourceRead<T> => ({ status: "read", rows, knownAt: "2026-10-01", source: "x" });
-const none = { status: "not-read", rows: [], knownAt: null, source: "x" } as const;
+const none: SourceRead<never> = { status: "not-read", rows: [], knownAt: null, source: "x" };
 
 describe("painel da secretaria", () => {
   it("conta só a escola/ano, enturmação desconhecida não é 'sem enturmação', fonte não lida é UNKNOWN", () => {
