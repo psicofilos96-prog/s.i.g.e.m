@@ -5,7 +5,7 @@
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Funnel, FunnelChart, LabelList, Legend, Line, LineChart, Pie, PieChart,
+  ComposedChart,   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Funnel, FunnelChart, LabelList, Legend, Line, LineChart, Pie, PieChart,
   PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Scatter, ScatterChart, Tooltip, Treemap,
   XAxis, YAxis, ZAxis,
 } from "recharts";
@@ -16,7 +16,7 @@ import {
   AGG_LABEL, AGG_NEEDS_FIELD, availableJoins, customError, emptySpec, fieldLabel, fieldOf, fieldsInScope, gapsFor, loadCatalog, runAll,
   type Aggregate, type Catalog, type Condition, type CustomSpec,
 } from "../custom/custom-report";
-import { CHARTS, boxplot, categorySeries, compatibleKinds, drillCondition, heatmap, histogram, incompatibility, label, num, waterfall, type ChartKind, type Row } from "./chart-model";
+import { CHARTS, boxplot, categorySeries, compatibleKinds, drillCondition, heatmap, histogram, incompatibility, label, num, percentStack, pivot, waterfall, type ChartKind, type Row } from "./chart-model";
 import { listBoards, saveBoard, type Dashboard, type SavedDashboard, type Widget } from "./dashboard-store";
 
 const inp = "min-h-9 rounded-md border border-input bg-background px-2 py-1 text-sm";
