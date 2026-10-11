@@ -2080,6 +2080,13 @@
       "when": 1791685591027,
       "tag": "0296_0296_bo_fixture_scope_capabilities",
       "breakpoints": true
+    },
+    {
+      "idx": 297,
+      "version": "7",
+      "when": 1791685845482,
+      "tag": "0297_0297_final_sheet_no_components_guard",
+      "breakpoints": true
     }
   ]
 }
