@@ -64,7 +64,7 @@ export function transitionDoc(d: InstDoc, to: DocState, by: string, caps: string
   }
   if (to === "devolvido" && !opts.reason?.trim()) return { ok: false as const, code: "doc:motivo-obrigatorio" };
   if (to === "aprovado" && d.kind === "ata" && !opts.deliberationRef) return { ok: false as const, code: "doc:ata-sem-deliberacao" };
-  return { ok: true as const, doc: { ...d, events: [...d.events, { to, by, reason: opts.reason }] } };
+  return { ok: true as const, doc: { ...d, events: [...d.events, { to, by, ...(opts.reason ? { reason: opts.reason } : {}) }] } as InstDoc };
 }
 
 /** Assinatura: só o próprio signatário, só em documento aprovado; simples nunca é rotulada qualificada sem evidência. */
