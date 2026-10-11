@@ -58,13 +58,13 @@ const BRANDING = (title: string) => ({ title, headerLines: ["Núcleo de Educaç�
 export function protocolPrint(p: { number: string; subject: string; body: string; destination: string; sentAt: string }) {
   if (hasClinicalText(p.subject) || hasClinicalText(p.body)) return { ok: false as const, reason: "texto-clinico" };
   const result = { columns: [{ key: "k", label: "Campo" }, { key: "v", label: "Conteúdo" }],
-    rows: [["Protocolo", p.number], ["Destino", p.destination], ["Enviado em", p.sentAt], ["Assunto", p.subject], ["Mensagem", p.body]].map(([k, v]) => ({ k, v })) };
+    rows: [["Protocolo", p.number], ["Destino", p.destination], ["Enviado em", p.sentAt], ["Assunto", p.subject], ["Mensagem", p.body]], generatedAt: p.sentAt };
   return { ok: true as const, html: toPrintableHtml(result as never, BRANDING(`Protocolo ${p.number}`) as never) };
 }
 
 /** PDF do plano (PAEE/PEI): metas como escritas; sem prazo ⇒ "não declarado". */
 export function planPrint(p: { kind: "PAEE" | "PEI"; version: number; status: string; goals: readonly { text: string; due: string | null }[] }) {
   const result = { columns: [{ key: "meta", label: "Meta" }, { key: "prazo", label: "Prazo" }],
-    rows: p.goals.map((g) => ({ meta: g.text, prazo: g.due ?? "não declarado" })) };
+    rows: p.goals.map((g) => [g.text, g.due ?? "não declarado"]), generatedAt: "" };
   return toPrintableHtml(result as never, BRANDING(`${p.kind} — versão ${p.version}`) as never, [`Situação: ${p.status} (concluído pela equipe não é aprovação institucional)`]);
 }
