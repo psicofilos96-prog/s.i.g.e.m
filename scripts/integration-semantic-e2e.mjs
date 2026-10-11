@@ -20,8 +20,6 @@ async function mk(tag, kind) {
   const s = await c.auth.signInWithPassword({ email, password }); if (s.error) throw s.error;
   return { tag, uid: data.user.id, c, session: s.data.session, ctx: prep.data };
 }
-try {
-  mkdirSync("/tmp/fdash", { recursive: true });
 const spec = { source: "vinculos", joins: ["vinculo_turma", "vinculo_escola"], includeSensitive: false, columns: [], groupBy: ["escolas.nome"], measures: [{ agg: "count" }], subtotals: false, filter: { op: "and", items: [] }, sort: [], limit: 1000, offset: 0 };
 const rec = async (u) => { const r = await u.c.rpc("integration_reconciliation_at"); if (r.error) throw new Error(r.error.message); return Object.fromEntries(r.data.map((x) => [x.check_key, x])); };
 const sum = (r) => (r.data?.rows ?? []).reduce((a, x) => a + Number(x.c2), 0);
@@ -41,6 +39,7 @@ try {
   check(!!an.error, "anônimo recusado", an.error?.message);
 } catch (e) { fails++; console.log("ERRO", e.message); }
 finally {
-  for (const u of users) { await admin.rpc("bo_fixture_cleanup", { _operation_id: op }).then(() => {}, () => {}); await admin.from("report_custom_runs").delete().eq("actor_id", u).then(() => {}, () => {}); await admin.auth.admin.deleteUser(u).catch(() => {}); }
-  console.log(`cleanup: ${users.length} contas`); console.log(`RESUMO falhas=${fails}`);
+  await admin.from("report_custom_runs").delete().in("actor_id", users).then(() => {}, () => {});
+  const cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); console.log("cleanup:", cl.error ? "ERRO " + cl.error.message : `ok (${cl.data})`);
+  console.log(`RESUMO falhas=${fails}`);
 }
