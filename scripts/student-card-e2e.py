@@ -83,9 +83,6 @@ async def main():
         if await pg.get_by_role("button", name="Voltar").count(): await pg.get_by_role("button", name="Voltar").click()
         await pg.wait_for_selector("text=Carteirinhas emitidas")
         await pg.wait_for_timeout(800)
-        wide = await pg.evaluate("() => [...document.querySelectorAll('main *')].filter(e => e.getBoundingClientRect().right > 380).slice(0,4).map(e => e.tagName + '.' + (e.className||'').toString().slice(0,60) + ':' + Math.round(e.getBoundingClientRect().right))")
-        wide = await pg.evaluate("() => [...document.querySelectorAll('body *')].filter(e => e.getBoundingClientRect().right > 380 && e.children.length < 3).slice(0,6).map(e => e.tagName + '.' + (e.className||'').toString().slice(0,50) + ':' + Math.round(e.getBoundingClientRect().width))")
-        print("DBG wide:", wide)
         sw = await pg.evaluate("document.documentElement.scrollWidth"); ok(sw <= 380, f"cabe no celular sem rolagem lateral ({sw}px)")
         await ctx.close()
         # 5) verificação pública sem login
@@ -93,7 +90,6 @@ async def main():
         pid, ver = code.split(".")
         await pg.goto(f"{B}/verificar/carteirinha/{pid}.{ver}"); await pg.wait_for_selector("[role=status]", timeout=20000)
         t = await pg.inner_text("main")
-        print("DBG pub:", t[:200].replace(chr(10)," | ") if "Carteirinha válida" not in t else "")
         ok("Carteirinha válida" in t, "QR/código atual verifica como válida")
         ok(cfg["name"] not in t and "Foto" not in t.split("Por proteção")[0], "página pública não mostra nome nem foto")
         await pg.goto(f"{B}/verificar/carteirinha/{pid}.1"); await pg.wait_for_selector("[role=status]", timeout=20000)
