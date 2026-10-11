@@ -108,3 +108,11 @@ describe("Folha Final compõe a nota pelas colunas do modelo", () => {
     expect(r.cells["a:lp"]!.periodGrades).toEqual([null]);
   });
 });
+
+describe("faltas sem aula", () => {
+  it("período sem chamada não imprime zero falta", () => {
+    const i = base();
+    expect(absencesOf(i, "a", P2, "lp").absences).toBeNull();
+    expect(finalRow(i, i.students[0]!, "lp").totalAbs).toBe(1);
+  });
+});

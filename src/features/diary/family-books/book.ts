@@ -59,7 +59,8 @@ export function absencesOf(i: BookInput, studentId: string, p: BookPeriod, compo
     const m = a.marks[studentId];
     if (m === "Ausente") { given++; absences++; } else if (m === "Presente") given++; else unknown = true;
   }
-  return { given, absences: unknown ? null : absences, rawAbsences: absences, unknown };
+  // Sem aula com chamada no recorte não há falta observada: "—", nunca zero.
+  return { given, absences: unknown || given === 0 ? null : absences, rawAbsences: absences, unknown };
 }
 
 /** Aulas dadas no período = colunas de chamada registradas (modelo: COUNTA dos dias). */
@@ -96,13 +97,14 @@ export function finalRecovery(i: BookInput, studentId: string, componentId: stri
 /** Linha final do componente: notas dos PL, média, RF, faltas e resultado (rascunho sem regra homologada). */
 export function finalRow(i: BookInput, s: BookStudent, componentId: string) {
   const notes = i.periods.map((_, k) => gradeCells(i, s.id, componentId, k).note);
-  const absences = i.periods.map((p) => absencesOf(i, s.id, p, componentId).absences);
+  const per = i.periods.map((p) => absencesOf(i, s.id, p, componentId));
+  const absences = per.map((a) => a.absences);
   const avg = finalAverage(notes);
   const rf = finalRecovery(i, s.id, componentId);
   const sigla = statusSigla(s.status);
   const pass = i.rule?.passMark ?? PASS_MARK;
   const result = sigla ? sigla.long : avg === null ? "PENDENTE" : Math.max(avg, rf ?? -Infinity) >= pass ? "APROVADO" : "REPROVADO";
-  const totalAbs = absences.some((a) => a === null) ? null : absences.reduce<number>((a, b) => a + (b ?? 0), 0);
+  const totalAbs = per.some((a) => a.unknown) || per.every((a) => a.given === 0) ? null : per.reduce((t, a) => t + a.rawAbsences, 0);
   return { notes, avg, rf, absences, totalAbs, result, draft: i.rule === null };
 }
 
