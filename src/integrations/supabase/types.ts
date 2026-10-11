@@ -16375,13 +16375,17 @@ export type Database = {
           instrument_id: string
           instrument_version_id: string
           lines: Json
+          max_score: number | null
           print_fingerprint: string
           recorded_at: string
           reviewer_user_id: string
           school_id: string
+          score: number | null
+          scoring_version: string | null
           student_id: string
           supersedes_id: string | null
           total: number
+          unread_count: number | null
           variant: string
         }
         Insert: {
@@ -16398,13 +16402,17 @@ export type Database = {
           instrument_id: string
           instrument_version_id: string
           lines: Json
+          max_score?: number | null
           print_fingerprint: string
           recorded_at?: string
           reviewer_user_id: string
           school_id: string
+          score?: number | null
+          scoring_version?: string | null
           student_id: string
           supersedes_id?: string | null
           total: number
+          unread_count?: number | null
           variant: string
         }
         Update: {
@@ -16421,13 +16429,17 @@ export type Database = {
           instrument_id?: string
           instrument_version_id?: string
           lines?: Json
+          max_score?: number | null
           print_fingerprint?: string
           recorded_at?: string
           reviewer_user_id?: string
           school_id?: string
+          score?: number | null
+          scoring_version?: string | null
           student_id?: string
           supersedes_id?: string | null
           total?: number
+          unread_count?: number | null
           variant?: string
         }
         Relationships: [
@@ -26115,6 +26127,23 @@ export type Database = {
         Returns: string
       }
       record_sia_card_correction: {
+        Args: {
+          _card_code: string
+          _expected_head: string
+          _human_confirmed: boolean
+          _image_path: string
+          _image_sha256: string
+          _instrument_version: string
+          _launch_to_diary: boolean
+          _lines: Json
+          _print_fingerprint: string
+          _reason: string
+          _student: string
+          _variant: string
+        }
+        Returns: string
+      }
+      record_sia_card_correction_v2: {
         Args: {
           _card_code: string
           _expected_head: string
