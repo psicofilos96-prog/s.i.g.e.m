@@ -174,7 +174,9 @@ def main(folder, rar):
             rows = [[cell_text(c) for c in r] for r in ws.iter_rows()]
             while rows and not any(rows[-1]): rows.pop()
             kw = {"deficiencia_recurso": "recurso", "transtorno_recurso": "recurso", "mediacao": "tipo de turma", "etapas_tipo_turma": "tipo de  turma", "regras_horarios": "regras horarios", "etapas": "nome etapa"}.get(key)
-            hi = next((i for i, r in enumerate(rows) if kw in norm(" ".join(r))), None) if kw else header_index(rows)
+            exact = {"deficiencia_recurso": "deficiencia", "transtorno_recurso": "transtorno", "mediacao": "tipo de mediacao didatico-pedagogica", "etapas_tipo_turma": "tipo de mediacao didatico-pedagogica"}.get(key)
+            if exact: hi = next((i for i, r in enumerate(rows) if r and norm(next((x for x in r if x), "")) == exact), None)
+            else: hi = next((i for i, r in enumerate(rows) if kw in norm(" ".join(r))), None) if kw else header_index(rows)
             if key == "etapas_tipo_turma" and hi is None: hi = next((i for i, r in enumerate(rows) if "tipo de turma" in norm(" ".join(r)).replace("  ", " ")), None)
             if hi is None: report.append(("SEM-CABECALHO", f, ws.title)); continue
             codes, rules = extract(key, rows, hi)
