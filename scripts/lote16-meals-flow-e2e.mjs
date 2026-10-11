@@ -38,7 +38,7 @@ try {
   const NU = await mk("nucleo", "gestao-pedagogica-da-rede"), ES = await mk("escola-a", "secretaria-escolar"), OB = await mk("escola-b", "secretaria-escolar");
   const schoolA = ES.ctx.school, schoolB = ES.ctx.other_school;
   check(!!schoolA && !!schoolB && schoolA !== schoolB, "escolas A e B distintas para o teste");
-  await grant(AU, ["manter-catalogo-tecnico-alimentar", "manter-parametros-nutricionais", "manter-referencias-contratuais-alimentacao"]);
+  await grant(AU, ["manter-catalogo-tecnico-alimentar", "manter-parametros-nutricionais", "manter-planejamento-nutricional", "manter-referencias-contratuais-alimentacao"]);
   await grant(RV, ["conferir-conteudo-tecnico-alimentar"]); await grant(HO, ["homologar-conteudo-tecnico-alimentar"]);
   await grant(NU, ["administrar-janela-de-pedido-alimentar", "analisar-pedido-alimentar", "autorizar-pedido-alimentar", "consolidar-demanda-alimentar",
     "registrar-programacao-de-entrega-alimentar", "acompanhar-alimentacao-rede", "exportar-relatorios-alimentacao", "manter-catalogo-tecnico-alimentar", "manter-referencias-contratuais-alimentacao"]);
