@@ -7765,6 +7765,42 @@ export type Database = {
           },
         ]
       }
+      educacenso_identity_review_events: {
+        Row: {
+          collision_key: string
+          collision_kind: string
+          decision: string
+          id: string
+          person_ids: string[]
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          seq: number
+        }
+        Insert: {
+          collision_key: string
+          collision_kind: string
+          decision: string
+          id?: string
+          person_ids: string[]
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          seq: number
+        }
+        Update: {
+          collision_key?: string
+          collision_kind?: string
+          decision?: string
+          id?: string
+          person_ids?: string[]
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          seq?: number
+        }
+        Relationships: []
+      }
       educacenso_layout_registrations: {
         Row: {
           actor_user_id: string
@@ -23596,6 +23632,22 @@ export type Database = {
       }
       educacenso_control_at: {
         Args: { _stage_key: string; _year: string }
+        Returns: Json
+      }
+      educacenso_identity_review: {
+        Args: {
+          _decision: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _persons: string[]
+          _reason: string
+        }
+        Returns: number
+      }
+      educacenso_mask_name: { Args: { _n: string }; Returns: string }
+      educacenso_people_at: {
+        Args: { _limit?: number; _offset?: number; _school: string }
         Returns: Json
       }
       educacenso_register_layout: {
