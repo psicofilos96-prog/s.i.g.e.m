@@ -40,7 +40,7 @@ export function EnrollmentLookup({ school, validOn, onPick }: { school: string; 
     const r = await rpc("secretariat_declare_enrollment_start", { _enrollment: declaring.enrollment_id, _start_on: start || null,
       _expected_head: declaring.declaration_head, _reason: reason, _source_ref: src || null });
     if (r.error) { setMsg(documentMessage(new Error(r.error.message))); return; }
-    setMsg("Início da matrícula declarado."); setDeclaring(null); setStart(""); setReason(""); setSrc(""); await search();
+    setDeclaring(null); setStart(""); setReason(""); setSrc(""); await search(); setMsg("Início da matrícula declarado.");
   }
 
   return (

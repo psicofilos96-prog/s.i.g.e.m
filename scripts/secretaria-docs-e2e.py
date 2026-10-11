@@ -29,7 +29,7 @@ async def main():
         p("declarado pela secretaria" in await row.inner_text(), "lista mostra a origem da data (declaração da secretaria)")
         await row.get_by_role("button", name="Usar este estudante").click()
         await pg.get_by_role("button", name="Abrir aluno").click(); await pg.wait_for_timeout(4000)
-        sel = pg.get_by_label("Modelo", exact=True); opts = await sel.locator("option").all_inner_texts()
+        sel = pg.get_by_role("combobox", name="Modelo", exact=True); opts = await sel.locator("option").all_inner_texts()
         lab = next((o for o in opts if "DECLARAÇÃO DE MATRÍCULA" in o), None); p(lab is not None, "modelo versionado listado", str(opts)[:120])
         await sel.select_option(label=lab); await pg.wait_for_timeout(1500)
         prev = pg.locator("section[aria-labelledby=prev]"); txt = await prev.inner_text()
