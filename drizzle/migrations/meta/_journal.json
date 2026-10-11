@@ -2437,6 +2437,13 @@
       "when": 1791718218765,
       "tag": "0347_semed_tables_central_undated",
       "breakpoints": true
+    },
+    {
+      "idx": 348,
+      "version": "7",
+      "when": 1791718480418,
+      "tag": "0348_semed_t04_rule_apuracao_adjustments",
+      "breakpoints": true
     }
   ]
 }

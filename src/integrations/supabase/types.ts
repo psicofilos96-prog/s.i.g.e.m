@@ -17518,6 +17518,83 @@ export type Database = {
         }
         Relationships: []
       }
+      semed_t04_adjustments: {
+        Row: {
+          cell_key: string
+          computed_value: number | null
+          created_at: string
+          id: string
+          reason: string
+          recorded_by: string
+          school_id: string
+          value: number | null
+          year: number
+        }
+        Insert: {
+          cell_key: string
+          computed_value?: number | null
+          created_at?: string
+          id?: string
+          reason: string
+          recorded_by: string
+          school_id: string
+          value?: number | null
+          year: number
+        }
+        Update: {
+          cell_key?: string
+          computed_value?: number | null
+          created_at?: string
+          id?: string
+          reason?: string
+          recorded_by?: string
+          school_id?: string
+          value?: number | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semed_t04_adjustments_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      semed_t04_rule_versions: {
+        Row: {
+          basis: string
+          created_at: string
+          id: string
+          recorded_by: string
+          reference_date: string
+          thresholds: Json
+          version: number
+          year: number
+        }
+        Insert: {
+          basis: string
+          created_at?: string
+          id?: string
+          recorded_by: string
+          reference_date: string
+          thresholds: Json
+          version: number
+          year: number
+        }
+        Update: {
+          basis?: string
+          created_at?: string
+          id?: string
+          recorded_by?: string
+          reference_date?: string
+          thresholds?: Json
+          version?: number
+          year?: number
+        }
+        Relationships: []
+      }
       semed_table_catalog: {
         Row: {
           created_at: string
@@ -29293,6 +29370,24 @@ export type Database = {
           network: boolean
           school_id: string
         }[]
+      }
+      semed_t04_apuracao: {
+        Args: { _school: string; _year: number }
+        Returns: Json
+      }
+      semed_t04_record_adjustments: {
+        Args: { _items: Json; _reason: string; _school: string; _year: number }
+        Returns: number
+      }
+      semed_t04_record_rule: {
+        Args: {
+          _basis: string
+          _expected_version: number
+          _reference_date: string
+          _thresholds: Json
+          _year: number
+        }
+        Returns: number
       }
       semed_table_act: {
         Args: {
