@@ -15,6 +15,11 @@ export const itemTypes = () => [...registry.values()];
 registerItemType({ id: "escolha", label: "Escolha entre alternativas", usesOptions: true, answerHint: "Alternativa(s) correta(s)" });
 registerItemType({ id: "resposta-curta", label: "Resposta curta", usesOptions: false, answerHint: "Resposta esperada" });
 registerItemType({ id: "discursiva", label: "Discursiva", usesOptions: false, answerHint: "Critério de correção" });
+registerItemType({ id: "objetiva-4", label: "Objetiva (4 alternativas)", usesOptions: true, answerHint: "Letra da alternativa correta" });
+registerItemType({ id: "objetiva-5", label: "Objetiva (5 alternativas)", usesOptions: true, answerHint: "Letra da alternativa correta" });
+registerItemType({ id: "verdadeiro-falso", label: "Verdadeiro ou falso", usesOptions: true, answerHint: "V ou F" });
+/** V/F tem ordem fixa: embaralhar "Verdadeiro/Falso" não muda a prova e confundiria o estudante. */
+export const FIXED_OPTION_TYPES = new Set(["verdadeiro-falso"]);
 
 /** Interface de extensão para sugestão de itens; não há provedor registrado neste bloco. */
 export interface ItemSuggestionProvider { id: string; suggest(input: { refIds: string[] }): Promise<never> }
@@ -57,7 +62,7 @@ export function printProjection(ins: InstrumentVersion, items: ReadonlyMap<strin
   const order = rz?.shuffleItems ? shuffled(ids, rz.seed) : ids;
   const questions: PrintQuestion[] = order.filter((id) => items.has(id)).map((id, i) => {
     const it = items.get(id)!; const opts = parseOptions(it.options);
-    return { number: i + 1, itemVersionId: id, typeLabel: itemType(it.item_type_id)?.label ?? it.item_type_id, stem: it.stem, options: rz?.shuffleOptions ? shuffled(opts, `${rz.seed}:${id}`) : opts };
+    return { number: i + 1, itemVersionId: id, typeLabel: itemType(it.item_type_id)?.label ?? it.item_type_id, stem: it.stem, options: rz?.shuffleOptions && !FIXED_OPTION_TYPES.has(it.item_type_id) ? shuffled(opts, `${rz.seed}:${id}`) : opts };
   });
   return { title: ins.title, instructions: ins.instructions, instrumentVersionId: ins.id, version: ins.version, questions, missing };
 }
