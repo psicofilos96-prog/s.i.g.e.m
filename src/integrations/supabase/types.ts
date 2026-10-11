@@ -17634,6 +17634,69 @@ export type Database = {
         }
         Relationships: []
       }
+      semed_table_attachments: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_name: string
+          id: string
+          mime_type: string
+          object_path: string
+          recorded_by: string
+          school_id: string
+          size_bytes: number
+          table_code: string
+          withdraw_reason: string | null
+          withdrawn_of: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_name: string
+          id?: string
+          mime_type: string
+          object_path: string
+          recorded_by: string
+          school_id: string
+          size_bytes: number
+          table_code: string
+          withdraw_reason?: string | null
+          withdrawn_of?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_name?: string
+          id?: string
+          mime_type?: string
+          object_path?: string
+          recorded_by?: string
+          school_id?: string
+          size_bytes?: number
+          table_code?: string
+          withdraw_reason?: string | null
+          withdrawn_of?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "semed_table_attachments_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "semed_table_attachments_withdrawn_of_fkey"
+            columns: ["withdrawn_of"]
+            isOneToOne: false
+            referencedRelation: "semed_table_attachments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       semed_table_catalog: {
         Row: {
           created_at: string
@@ -29390,6 +29453,23 @@ export type Database = {
           school_id: string
           scope_level: string
         }[]
+      }
+      semed_attachment_register: {
+        Args: {
+          _code: string
+          _description: string
+          _mime: string
+          _name: string
+          _path: string
+          _school: string
+          _size: number
+          _year: number
+        }
+        Returns: string
+      }
+      semed_attachment_withdraw: {
+        Args: { _id: string; _reason: string }
+        Returns: string
       }
       semed_can_fill: { Args: { _school: string }; Returns: boolean }
       semed_can_read: { Args: { _school: string }; Returns: boolean }

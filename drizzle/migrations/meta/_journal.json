@@ -2451,6 +2451,13 @@
       "when": 1791719441634,
       "tag": "0349_semed_t06_movement_apuracao",
       "breakpoints": true
+    },
+    {
+      "idx": 350,
+      "version": "7",
+      "when": 1791720181598,
+      "tag": "0350_semed_t09_infra_attachments",
+      "breakpoints": true
     }
   ]
 }

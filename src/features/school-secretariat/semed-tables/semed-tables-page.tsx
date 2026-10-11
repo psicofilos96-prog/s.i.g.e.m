@@ -8,6 +8,8 @@ import { ACT_LABEL, STATE_LABEL, actNeedsReason, actWho, nextState, ACTS, valida
 import { documentBlocks, semedPdf, semedXlsx, type Central } from "./semed-export";
 import { T04Panel, type T04Rule } from "./t04-panel";
 import { T06Panel } from "./t06-panel";
+import { SemedAttachments } from "./semed-attachments";
+import { centralText } from "./semed-export";
 import type { T06Apur } from "./semed-export";
 
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
@@ -64,7 +66,8 @@ export function SemedTablesPage() {
   const allowed = (a: SemedAct) => nextState(state, a) !== null && (actWho(a) === "preenche" ? perm?.can_fill : actWho(a) === "confere" ? perm?.can_review : perm?.network);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
 
-  const act = async (a: SemedAct) => {
+  const [autoAt, setAutoAt] = useState<Date | null>(null);
+  const act = async (a: SemedAct, silent = false) => {
     if (!def) return;
     if (a === "salvar") { const errs = validateValues(def, draft); if (errs.length) { setMsg(errs.slice(0, 3).join(" · ")); return; } }
     if (actNeedsReason(a) && reason.trim().length < 3) { setMsg("Informe o motivo."); return; }
@@ -72,8 +75,15 @@ export function SemedTablesPage() {
     const r = await rpc("semed_table_act", { _school: school, _year: YEAR, _code: code, _act: a, _expected_seq: last?.seq ?? 0, _values: a === "salvar" ? draft : null, _reason: reason || null });
     setBusy(false);
     if (r.error) { setMsg(friendly(r.error.message)); return; }
-    setMsg(`${ACT_LABEL[a]}: feito.`); await load();
+    if (silent) setAutoAt(new Date()); else setMsg(`${ACT_LABEL[a]}: feito.`);
+    await load();
   };
+  // Salvamento automático (só Tabela 09): grava o rascunho válido 4 s após a última alteração, pelo mesmo ato "salvar".
+  useEffect(() => {
+    if (code !== "09" || !editable || !dirty || busy || !def || validateValues(def, draft).length) return;
+    const t = setTimeout(() => void act("salvar", true), 4000);
+    return () => clearTimeout(t);
+  }, [draft, code, editable, dirty, busy]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const meta = () => ({ year: YEAR, tableCode: code, title: def!.title, school: String(central["escola"] ?? names.get(school) ?? school), inep: String(central["inep"] ?? ""), state: STATE_LABEL[state], version: cat!.version, generatedAt: new Date() });
   const pdf = async () => download(await semedPdf(def!, documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null, code === "06" ? t06Apur : null), meta()), `tabela-${code}-${YEAR}.pdf`);
@@ -126,7 +136,7 @@ export function SemedTablesPage() {
               {s.kind === "fields" ? (
                 <div className="grid gap-2 sm:grid-cols-2">
                   {s.fields.map((f) => <label key={f.key} className="text-xs">{f.label}{f.central ? <span className="ml-1 text-muted-foreground">(cadastro central)</span> : null}<br />
-                    {f.central ? <span className="text-sm">{central[f.central] === null || central[f.central] === undefined ? "Não apurado no cadastro" : String(central[f.central])}</span> : cell(`${s.id}.${f.key}`, f.type, f.options)}</label>)}
+                    {f.central ? <span className="text-sm">{centralText(f.central, central)}</span> : cell(`${s.id}.${f.key}`, f.type, f.options)}</label>)}
                 </div>
               ) : (
                 <div className="overflow-x-auto"><table className="text-xs"><thead><tr><th className="text-left">{def.code === "10" ? "Nº" : "Ano/etapa"}</th>{s.cols.map((c) => <th key={c.key} className="px-1">{c.label}</th>)}{s.rowTotal && <th>TOTAL</th>}{def.code === "06" && <><th>Matr. final</th><th>% Aprov.</th></>}{def.code === "11" && <th>Matrícula inicial</th>}</tr></thead>
@@ -142,6 +152,8 @@ export function SemedTablesPage() {
             </section>
           ))}
           {code === "04" && <T04Panel school={school} year={YEAR} network={!!perm?.network} canFill={!!perm?.can_fill} editable={editable} draft={draft as Values} setDraft={setDraft} onRule={setT04Rule} />}
+          {code === "09" && editable && <p className="text-xs text-muted-foreground" role="status">Salvamento automático ligado{autoAt ? ` · último às ${autoAt.toLocaleTimeString("pt-BR")}` : ""}{dirty ? " · alterações pendentes" : ""}.</p>}
+          {code === "09" && <SemedAttachments school={school} year={YEAR} code="09" canFill={!!perm?.can_fill && state !== "fechado"} />}
           {code === "06" && def && <T06Panel school={school} year={YEAR} network={!!perm?.network} draft={draft as Values} rows={(def.sections.find((x) => x.id === "m" && x.kind === "grid") as { rows: { key: string }[] } | undefined)?.rows ?? []} onApur={setT06Apur} />}
           <p className="text-xs text-muted-foreground">“—” significa não informado; totais só somam o que foi informado e nunca transformam vazio em zero.</p>
 

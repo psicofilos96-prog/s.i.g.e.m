@@ -18,7 +18,7 @@ describe("Tabelas SEMED", () => {
   it("campo do cadastro central não é digitável", () => {
     const k = editableKeys(t("09"));
     expect(k["id.inep"]).toBeUndefined();
-    expect(k["id.turnos"]).toEqual({ type: "int" });
+    expect(k["id.turnos"]).toEqual({ type: "int", max: 4 });
     expect(validateValues(t("09"), { "id.inep": "123" })).toHaveLength(1);
   });
   it("ausência nunca vira zero", () => {

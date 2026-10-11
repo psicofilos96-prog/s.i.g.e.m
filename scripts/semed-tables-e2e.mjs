@@ -107,6 +107,30 @@ try {
   const s06B2 = await act(FILLB, "salvar", 1, { school: B, values: { "m.ef1.inicial": 20, "m.ef1.evasao": 0 } }); check(!s06B2.error, "rascunho corrigido para a apuração");
   const eB2 = await act(FILLB, "enviar-conferencia", 2, { school: B }); check(!eB2.error, "envio aceito quando o total confere com a apuração", eB2.error?.message);
 
+  // TSEMED.9 — Tabela 09 (catálogo v2, limites, centrais agregados, anexos privados)
+  const cat09 = (await admin.from("semed_table_catalog").select("version").eq("year", 2026).eq("table_code", "09").order("version", { ascending: false }).limit(1)).data?.[0]?.version;
+  check(cat09 === 2, "Tabela 09 usa catálogo v2 com seções nomeadas", String(cat09));
+  const v09 = { "id.turnos": 2, "predial.ano_construcao": 1985, "acessibilidade.rampas": "Sim", "seguranca.cameras": "Não", "manutencao.necessidades": "Telhado do pátio", "rodape.preenchimento": "Teste sintético" };
+  const n09a = await act(FILL, "salvar", 1, { code: "09", values: { "predial.ano_construcao": 1700 } }); check(!!n09a.error && n09a.error.message.includes("inteiro-invalido"), "ano de construção fora do limite recusado no banco");
+  const n09b = await act(FILL, "salvar", 1, { code: "09", values: { "matricula.e1": "12" } }); check(!!n09b.error && n09b.error.message.includes("campo-desconhecido"), "matrícula por etapa não é digitável");
+  const n09c = await act(FILL, "salvar", 1, { code: "09", values: { "acessibilidade.rampas": "Talvez" } }); check(!!n09c.error, "opção fora de Sim/Não recusada");
+  const n09 = await act(FILL, "salvar", 1, { code: "09", values: v09 }); check(!n09.error, "Tabela 09 salva com seções nomeadas", n09.error?.message);
+  const c09 = await FILL.c.rpc("semed_table_central", { _school: A }); check(!c09.error && c09.data["matricula-etapa"] === null && "nei-mediacao" in c09.data, "matrícula por etapa e mediação NEI vêm só do cadastro (sem fonte = nulo)", `nei=${c09.data?.["nei-mediacao"]}`);
+  const path = `${A}/2026/09/${op}-predio.png`;
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+  const upB = await FILLB.c.storage.from("semed-anexos").upload(`${A}/2026/09/${op}-b.png`, png, { contentType: "image/png" }); check(!!upB.error, "secretaria B não envia anexo para a escola A");
+  const up = await FILL.c.storage.from("semed-anexos").upload(path, png, { contentType: "image/png" }); check(!up.error, "secretaria A envia anexo privado", up.error?.message);
+  const regX = await FILL.c.rpc("semed_attachment_register", { _school: A, _year: 2026, _code: "09", _path: `${B}/2026/09/x.png`, _name: "x.png", _mime: "image/png", _size: png.length, _description: null }); check(!!regX.error, "registro com caminho de outra escola recusado");
+  const reg = await FILL.c.rpc("semed_attachment_register", { _school: A, _year: 2026, _code: "09", _path: path, _name: "predio.png", _mime: "image/png", _size: png.length, _description: "Fachada" }); check(!reg.error, "anexo registrado", reg.error?.message);
+  const rdB = await FILLB.c.from("semed_table_attachments").select("id").eq("school_id", A); check((rdB.data ?? []).length === 0, "secretaria B não vê anexos da escola A");
+  const dlB = await FILLB.c.storage.from("semed-anexos").download(path); check(!!dlB.error, "secretaria B não baixa o arquivo da escola A");
+  const dlN = await NET.c.storage.from("semed-anexos").createSignedUrl(path, 60); check(!dlN.error, "rede abre o anexo por URL assinada");
+  const dlAn = await anon.storage.from("semed-anexos").download(path); check(!!dlAn.error, "anônimo não baixa anexo");
+  const wd0 = await FILL.c.rpc("semed_attachment_withdraw", { _id: reg.data, _reason: "" }); check(!!wd0.error, "retirada sem motivo recusada");
+  const wd = await FILL.c.rpc("semed_attachment_withdraw", { _id: reg.data, _reason: "Foto errada da fachada" }); check(!wd.error, "retirada com motivo registrada (histórico preservado)", wd.error?.message);
+  const reg2 = await FILL.c.storage.from("semed-anexos").upload(`${A}/2026/09/${op}-predio2.png`, png, { contentType: "image/png" });
+  if (!reg2.error) await FILL.c.rpc("semed_attachment_register", { _school: A, _year: 2026, _code: "09", _path: `${A}/2026/09/${op}-predio2.png`, _name: "predio2.png", _mime: "image/png", _size: png.length, _description: "Pátio" });
+
   mkdirSync("/tmp/semed", { recursive: true });
   const ref = new globalThis.URL(URL).hostname.split(".")[0];
   writeFileSync("/tmp/semed/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, school: A, sessions: { fill: FILL.session, net: NET.session, none: NONE.session } }), { mode: 0o600 });
@@ -116,6 +140,7 @@ try {
   fails += (py.stdout?.match(/^FAIL/gm) ?? []).length;
 } catch (e) { fails++; console.log("ERRO", String(e.message ?? e)); }
 finally {
+  { const ls = await admin.storage.from("semed-anexos").list(`${ctx?.school}/2026/09`, { limit: 100 }); const mine = (ls.data ?? []).filter((o) => o.name.startsWith(op)).map((o) => `${ctx.school}/2026/09/${o.name}`); if (mine.length) await admin.storage.from("semed-anexos").remove(mine); }
   const cs = await admin.rpc("bo_fixture_cleanup_semed", { _operation_id: op }); console.log("cleanup SEMED:", cs.error ? "ERRO " + cs.error.message : `ok (${cs.data} linhas)`);
   const cl = await admin.rpc("bo_fixture_cleanup", { _operation_id: op }); console.log("cleanup contas:", cl.error ? "ERRO " + cl.error.message : `ok (${cl.data})`);
   for (const id of users) await admin.auth.admin.deleteUser(id);
