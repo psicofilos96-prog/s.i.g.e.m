@@ -59,7 +59,7 @@ try {
   writeFileSync("/tmp/fs16/s.json", JSON.stringify({ key: `sb-${ref}-auth-token`, op, schoolA, contract: `CT-${op}`, sessions: { nu: NU.session, es: ES.session } }), { mode: 0o600 });
   const py = spawnSync("python3", ["scripts/lote16-meals-flow-e2e.py"], { encoding: "utf8", timeout: 520000 });
   rmSync("/tmp/fs16/s.json", { force: true });
-  process.stdout.write(py.stdout ?? ""); if (py.status !== 0) { fails++; console.log("PY_ERR", (py.stderr ?? "").slice(-1500)); }
+  process.stdout.write(py.stdout ?? ""); if (py.status !== 0) { fails++; console.log("PY_ERR", (py.stderr ?? "").slice(-1500).replace(/\n/g, " ¶ ")); }
   fails += (py.stdout?.match(/^FAIL/gm) ?? []).length;
   // servidor: o que a tela fez ficou no banco, uma única entrada por aceite; escola B isolada
   const comp = (await rpc(NU, "meal_orders_at", { _competence: null, _school: schoolA, _known_at: null }).catch(() => null));

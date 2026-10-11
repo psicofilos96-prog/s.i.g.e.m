@@ -33,7 +33,10 @@ async def main():
         comp = await ord_.get_by_label("Competência").input_value()
         f = ord_.get_by_role("form", name="Abrir janela de pedidos")
         await f.get_by_label("Fecha em").fill(d(5)); await f.get_by_label("Motivo da abertura").fill("Abertura sintética de teste")
-        await f.get_by_role("button", name="Abrir janela").click(); s = await status(ord_)
+        await f.get_by_role("button", name="Abrir janela").click()
+        try: await ord_.get_by_role("status").filter(has_text="Janela de").wait_for(timeout=15000)
+        except Exception: pass
+        s = await status(ord_, 500)
         p("Janela de" in s, "Núcleo abre a janela de pedidos pela tela", s); await ctx.close()
         # 2) Escola monta o pedido, vê o teto explicado e submete
         ctx, pg, e = await as_user(br, "es"); errs += e
