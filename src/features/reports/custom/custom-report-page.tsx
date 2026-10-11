@@ -132,6 +132,20 @@ function Builder() {
           Incluir dados pessoais (nomes, nascimento, matrícula) — só o que sua conta já pode ler; o QR público nunca mostra esses dados.</label>}
       </section>
 
+      {/* Meus modelos */}
+      <section className={box} aria-label="Modelos">
+        <h2 className="font-semibold">Meus modelos</h2>
+        <div className="flex flex-wrap gap-2"><input aria-label="Nome do modelo" className={inp} value={tplName} onChange={(e) => setTplName(e.target.value)} placeholder="Nome do modelo" />
+          <Button size="sm" disabled={busy || problems.length > 0 || !tplName.trim()} onClick={async () => { try { await saveCustomTemplate(tplName, spec, layout); setNote(`Modelo "${tplName.trim()}" salvo (nova versão).`); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Salvar versão</Button>
+          <Button size="sm" variant="outline" disabled title={CUSTOM_SHARE_REASON}>Compartilhar</Button></div>
+        <p className="text-xs text-muted-foreground">{CUSTOM_SHARE_REASON}</p>
+        <ul className="space-y-1 text-sm" aria-label="Meus modelos">{templates.map((t) => <li key={t.name} className="flex flex-wrap items-center gap-2"><span className="font-medium">{t.name}</span><span className="text-xs text-muted-foreground">v{t.version}</span>
+          <Button size="sm" variant="outline" onClick={() => { setSpecRaw(pruneSpec(cat, { ...emptySpec(), ...t.spec })); setLayout({ ...defaultLayout(), ...t.layout }); setTplName(t.name); setPage(null); setNote(`Modelo "${t.name}" v${t.version} aberto.`); }}>Abrir</Button>
+          <Button size="sm" variant="ghost" onClick={async () => { try { await saveCustomTemplate(copyName(t.name, templates), t.spec, t.layout); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Duplicar</Button>
+          <Button size="sm" variant="ghost" onClick={async () => { try { await saveCustomTemplate(t.name, t.spec, t.layout, true); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Arquivar</Button></li>)}
+          {!templates.length && <li className="text-muted-foreground">Nenhum modelo salvo.</li>}</ul>
+      </section>
+
       {spec.source && <>
       {/* 2. Colunas */}
       <section className={box} aria-label="Colunas">
@@ -225,20 +239,6 @@ function Builder() {
           <label className="flex items-center gap-2"><input type="checkbox" checked={layout.breakOnFirstColumn} onChange={(e) => setLayout({ ...layout, breakOnFirstColumn: e.target.checked })} />Nova página quando muda a 1ª coluna</label>
         </div>
         {layoutProblems(layout, outs.length).map((p) => <p key={p} className="text-sm text-destructive">{p}</p>)}
-      </section>
-
-      {/* 8. Modelos */}
-      <section className={box} aria-label="Modelos">
-        <h2 className="font-semibold">8. Modelos</h2>
-        <div className="flex flex-wrap gap-2"><input aria-label="Nome do modelo" className={inp} value={tplName} onChange={(e) => setTplName(e.target.value)} placeholder="Nome do modelo" />
-          <Button size="sm" disabled={busy || problems.length > 0 || !tplName.trim()} onClick={async () => { try { await saveCustomTemplate(tplName, spec, layout); setNote(`Modelo "${tplName.trim()}" salvo (nova versão).`); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Salvar versão</Button>
-          <Button size="sm" variant="outline" disabled title={CUSTOM_SHARE_REASON}>Compartilhar</Button></div>
-        <p className="text-xs text-muted-foreground">{CUSTOM_SHARE_REASON}</p>
-        <ul className="space-y-1 text-sm" aria-label="Meus modelos">{templates.map((t) => <li key={t.name} className="flex flex-wrap items-center gap-2"><span className="font-medium">{t.name}</span><span className="text-xs text-muted-foreground">v{t.version}</span>
-          <Button size="sm" variant="outline" onClick={() => { setSpecRaw(pruneSpec(cat, { ...emptySpec(), ...t.spec })); setLayout({ ...defaultLayout(), ...t.layout }); setTplName(t.name); setPage(null); setNote(`Modelo "${t.name}" v${t.version} aberto.`); }}>Abrir</Button>
-          <Button size="sm" variant="ghost" onClick={async () => { try { await saveCustomTemplate(copyName(t.name, templates), t.spec, t.layout); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Duplicar</Button>
-          <Button size="sm" variant="ghost" onClick={async () => { try { await saveCustomTemplate(t.name, t.spec, t.layout, true); void refresh(); } catch (e) { setErr((e as Error).message); } }}>Arquivar</Button></li>)}
-          {!templates.length && <li className="text-muted-foreground">Nenhum modelo salvo.</li>}</ul>
       </section>
 
       {/* 9. Exportar */}
