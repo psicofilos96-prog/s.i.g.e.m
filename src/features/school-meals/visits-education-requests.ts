@@ -74,6 +74,8 @@ export function openMealRequest(input: { id: string; schoolId: string; kind: Mea
   if (!MEAL_REQUEST_KINDS.includes(input.kind)) return { ok: false as const, code: "tipo de solicitação desconhecido" };
   if (!input.description.trim()) return { ok: false as const, code: "descrição obrigatória" };
   const d = openDemand({ id: input.id, schoolId: input.schoolId, area: "alimentacao", urgent: input.urgent, urgencyReason: input.urgencyReason }, by, isPerson, on, attachments);
-  return { ...d, kind: input.kind } as typeof d & { kind: MealRequestKind };
+  if (!d.ok) return d;
+  const demand: MealRequest = { ...d.demand, kind: input.kind, events: [{ ...d.demand.events[0]!, note: `${input.kind}: ${input.description}` }] };
+  return { ok: true as const, demand };
 }
 export type MealRequest = Demand & { kind: MealRequestKind };
