@@ -47,7 +47,7 @@ async def main():
         p("identificador inválido" in await f.inner_text(), "formulário recusa identificador inválido")
         await pg.screenshot(path=f"{SH}/1_autor_inspetores.png"); await ctx.close()
         ctx, pg, e = await as_user(br, "rv"); errs += e
-        s = await row_action(pg, f"contrato {OP}/2026", "Conferir"); s2 = await row_action(pg, f"contrato {OP}/2026", "Homologar")
+        s = await row_action(pg, f"{OP}/2026", "Conferir"); s2 = await row_action(pg, f"{OP}/2026", "Homologar")
         p("Registrado" in s and "Registrado" in s2, "revisor confere e homologa contrato", s2)
         await tab(pg, "Inspetores")
         s = await row_action(pg, cfg["inspector"][:8], "Conferir"); s2 = await row_action(pg, cfg["inspector"][:8], "Homologar")
