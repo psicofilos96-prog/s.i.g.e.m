@@ -6,6 +6,7 @@ import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { ACT_LABEL, STATE_LABEL, actNeedsReason, actWho, nextState, ACTS, validateValues, rowTotal, colTotal, t06Final, pct,
   type SemedAct, type SemedState, type TableDef, type Values } from "./semed-catalog";
 import { documentBlocks, semedPdf, semedXlsx, type Central } from "./semed-export";
+import { T04Panel, type T04Rule } from "./t04-panel";
 
 const rpc = (fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }> }).rpc(fn, args);
 const db = supabase as unknown as { from: (t: string) => any };
@@ -31,7 +32,7 @@ export function SemedTablesPage() {
   const [school, setSchool] = useState(""); const [code, setCode] = useState<string>("04");
   const [central, setCentral] = useState<Central>({});
   const [draft, setDraft] = useState<Record<string, string | number | null>>({});
-  const [reason, setReason] = useState(""); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
+  const [reason, setReason] = useState(""); const [t04Rule, setT04Rule] = useState<T04Rule>(null); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
     const s = await rpc("semed_scope_schools");
@@ -72,8 +73,8 @@ export function SemedTablesPage() {
   };
 
   const meta = () => ({ year: YEAR, tableCode: code, title: def!.title, school: String(central["escola"] ?? names.get(school) ?? school), inep: String(central["inep"] ?? ""), state: STATE_LABEL[state], version: cat!.version, generatedAt: new Date() });
-  const pdf = async () => download(await semedPdf(def!, documentBlocks(def!, saved, central), meta()), `tabela-${code}-${YEAR}.pdf`);
-  const xlsx = async () => download(new Blob([await semedXlsx(documentBlocks(def!, saved, central), meta())]), `tabela-${code}-${YEAR}.xlsx`);
+  const pdf = async () => download(await semedPdf(def!, documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null), meta()), `tabela-${code}-${YEAR}.pdf`);
+  const xlsx = async () => download(new Blob([await semedXlsx(documentBlocks(def!, saved, central, t04Rule?.thresholds ?? null), meta())]), `tabela-${code}-${YEAR}.xlsx`);
 
   if (scope === undefined) return <StatePanel title="Carregando…" description="Conferindo seu acesso." />;
   if (scope === null) return <EmptyState title="Não foi possível abrir" description="Tente novamente." />;
@@ -137,6 +138,7 @@ export function SemedTablesPage() {
               )}
             </section>
           ))}
+          {code === "04" && <T04Panel school={school} year={YEAR} network={!!perm?.network} canFill={!!perm?.can_fill} editable={editable} draft={draft as Values} setDraft={setDraft} onRule={setT04Rule} />}
           <p className="text-xs text-muted-foreground">“—” significa não informado; totais só somam o que foi informado e nunca transformam vazio em zero.</p>
 
           <div className="flex flex-wrap items-end gap-2 rounded-md border p-3">

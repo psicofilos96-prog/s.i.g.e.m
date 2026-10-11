@@ -103,4 +103,3 @@ export function T04Panel({ school, year, network, canFill, editable, draft, setD
     </section>
   );
 }
-export const t04PendingDiffs = (apurCells: Record<string, number>, draft: Values) => Object.keys(apurCells).filter((k) => (draft[k] ?? null) !== apurCells[k]);

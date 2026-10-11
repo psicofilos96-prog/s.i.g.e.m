@@ -4,6 +4,7 @@
  * nunca base: valores vêm dos eventos gravados e do cadastro central.
  */
 import { neutralize } from "@/features/reports/report-engine";
+import { distortion } from "./t04-distortion";
 import { colTotal, pct, rowTotal, t06Final, type TableDef, type Values } from "./semed-catalog";
 
 export type Central = Partial<Record<string, string | number | null>>;
@@ -13,7 +14,7 @@ const show = (v: unknown): string | number => (v === null || v === undefined || 
 
 export const HEADER_LINES = ["PREFEITURA MUNICIPAL DE ITAPERUNA", "SECRETARIA MUNICIPAL DE EDUCAÇÃO", "NÚCLEO DE INFORMAÇÃO E ESTATÍSTICA"];
 
-export function documentBlocks(def: TableDef, v: Values, central: Central): Block[] {
+export function documentBlocks(def: TableDef, v: Values, central: Central, t04Thresholds: Readonly<Record<string, number>> | null = null): Block[] {
   const out: Block[] = [];
   for (const s of def.sections) {
     if (s.kind === "fields") {
@@ -45,6 +46,8 @@ export function documentBlocks(def: TableDef, v: Values, central: Central): Bloc
       body.push(tot);
     }
     out.push({ title: s.title, head, body });
+    if (def.code === "04") out.push({ title: "DISTORÇÃO SÉRIE x IDADE (idade ≥ idade de distorção da regra registrada)", head: ["Ano/etapa", "Idade de distorção", "Total", "Em distorção", "%"],
+      body: distortion(v, t04Thresholds).map((d) => [d.label, show(d.threshold), show(d.total), show(d.distorted), d.pct === null ? (d.threshold === null ? "sem regra" : ABS) : `${String(d.pct).replace(".", ",")}%`]) });
   }
   return out;
 }
@@ -74,6 +77,19 @@ export async function semedPdf(def: TableDef, blocks: Block[], m: DocMeta): Prom
       styles: { font: "times", fontSize: font, cellPadding: 0.8, overflow: "linebreak", lineColor: [34, 34, 34], lineWidth: 0.2, textColor: [0, 0, 0] },
       headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold" }, showHead: "everyPage", rowPageBreak: "avoid",
     });
+  }
+  const dist = blocks.find((b) => b.title.startsWith("DISTORÇÃO"));
+  if (dist) {
+    const bars = dist.body.filter((r) => typeof r[4] === "string" && /%$/.test(String(r[4])));
+    let gy = ((doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 8;
+    if (gy + 10 + bars.length * 5 > H - 14) { doc.addPage(); gy = M + 6; }
+    doc.setFont("times", "bold"); doc.setFontSize(9); doc.text(`GRÁFICO DISTORÇÃO SÉRIE x IDADE - ${m.year}`, M, gy); doc.setFont("times", "normal");
+    if (!bars.length) { doc.setFontSize(8); doc.text("Sem indicador calculável (regra ou valores ausentes).", M, gy + 5); }
+    bars.forEach((r, i) => {
+      const p = Number(String(r[4]).replace("%", "").replace(",", ".")), by = gy + 4 + i * 5, bw = (W - 2 * M - 70) * p / 100;
+      doc.setFontSize(7.5); doc.text(String(r[0]), M, by + 3); doc.setDrawColor(34); doc.rect(M + 40, by, W - 2 * M - 70, 3.5); doc.setFillColor(60, 60, 60); if (bw > 0) doc.rect(M + 40, by, bw, 3.5, "F"); doc.text(String(r[4]), W - M - 26, by + 3);
+    });
+    (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable = { finalY: gy + 6 + bars.length * 5 };
   }
   let sy = ((doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 20;
   if (sy + 12 > H - 14) { doc.addPage(); sy = M + 24; }
