@@ -89,12 +89,12 @@ function IndicatorCard({ cat, i }: { cat: Catalog; i: SectorIndicator }) {
       {r === "loading" && <p role="status" className="text-sm text-muted-foreground">Lendo…</p>}
       {r !== "loading" && "error" in r && <p className="text-sm">Não disponível: {r.error}</p>}
       {r !== "loading" && "page" in r && (!grouped
-        ? <p className="text-3xl font-semibold" data-value>{r.page.rows[0]?.c1 === null || r.page.rows[0]?.c1 === undefined ? "não disponível" : String(r.page.rows[0].c1)}</p>
+        ? <p className="text-3xl font-semibold" data-value>{r.page.rows[0]?.c1 === null || r.page.rows[0]?.c1 === undefined ? "não disponível" : String(r.page.rows[0]["c1"])}</p>
         : r.page.rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro visível à sua conta.</p>
         : <table className="w-full text-sm"><thead><tr><th className="text-left">{fieldLabel(cat, field!)}</th><th className="text-right">Valor</th></tr></thead>
-          <tbody>{r.page.rows.slice(0, 15).map((row, k) => { const c = catLabel(row.c1); return (
+          <tbody>{r.page.rows.slice(0, 15).map((row, k) => { const c = catLabel(row["c1"]); return (
             <tr key={k}><td>{i.detail ? <button type="button" className="text-left underline" onClick={() => setDrill(drill === c ? null : c)}>{c}</button> : c}</td>
-              <td className="text-right">{row.c2 === null || row.c2 === undefined ? "não disponível" : typeof row.c2 === "number" && !Number.isInteger(row.c2) ? row.c2.toFixed(2).replace(".", ",") : String(row.c2)}</td></tr>); })}</tbody></table>)}
+              <td className="text-right">{row["c2"] === null || row["c2"] === undefined ? "não disponível" : typeof row["c2"] === "number" && !Number.isInteger(row["c2"]) ? row["c2"].toFixed(2).replace(".", ",") : String(row["c2"])}</td></tr>); })}</tbody></table>)}
       {r !== "loading" && "page" in r && grouped && r.page.total > 15 && <p className="text-xs text-muted-foreground">Mostrando 15 de {r.page.total} grupos.</p>}
       {drill !== null && i.detail && field && <Detail cat={cat} spec={drillSpec(i.spec, i.detail, drillCondition(field, drill))} title={`Registros: ${drill}`} />}
     </div>
