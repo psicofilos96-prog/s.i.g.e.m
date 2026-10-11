@@ -2094,6 +2094,13 @@
       "when": 1791686175500,
       "tag": "0298_0298_bo_fixture_op_board",
       "breakpoints": true
+    },
+    {
+      "idx": 299,
+      "version": "7",
+      "when": 1791686469409,
+      "tag": "0299_0299_op_board_network_capability_fix",
+      "breakpoints": true
     }
   ]
 }
