@@ -131,7 +131,7 @@ export function SemedTablesPage() {
     if (t === "enum" && def && fieldError(def, k, v)) return <select aria-label={k} aria-invalid="true" className={`${input} border-destructive`} value={val} onChange={(e) => set(k, e.target.value, t)}><option value="">—</option>{options?.map((o) => <option key={o}>{o}</option>)}</select>;
     if (t === "enum") return <select aria-label={k} className={input} value={val} onChange={(e) => set(k, e.target.value, t)}><option value="">—</option>{options?.map((o) => <option key={o}>{o}</option>)}</select>;
     const err = def ? fieldError(def, k, v) : null;
-    if (err) return <span className="block"><input aria-label={k} aria-invalid="true" title={err} className={`${input} border-destructive`} inputMode={t === "int" ? "numeric" : "text"} value={val} onChange={(e) => set(k, e.target.value, t)} /><span className="text-[10px] text-destructive">{err}</span></span>;
+    if (err) return <span className="block"><input aria-label={k} aria-invalid="true" title={err} className={`${input} border-destructive`} inputMode={t === "int" ? "numeric" : "text"} value={val} onChange={(e) => set(k, e.target.value, t)} /><span className="text-2xs text-destructive">{err}</span></span>;
     return <input aria-label={k} className={input} inputMode={t === "int" ? "numeric" : "text"} value={val} onChange={(e) => set(k, e.target.value, t)} />;
   };
   const vals = draft as Values;
@@ -148,7 +148,7 @@ export function SemedTablesPage() {
             {scope.map((s) => <option key={s.school_id} value={s.school_id}>{names.get(s.school_id) ?? s.school_id}</option>)}
           </select></label>
         <div className="flex flex-wrap gap-1" role="tablist">
-          {CODES.map((c) => { const st = stOf(school, c); return <Button key={c} role="tab" aria-selected={c === code} size="sm" variant={c === code ? "default" : "outline"} onClick={() => setCode(c)} className="h-auto flex-col items-start py-1"><span>Tabela {c}</span><span className="text-[10px] font-normal opacity-80">{st ? STATE_LABEL[st as SemedState] : "não iniciada"}</span></Button>; })}
+          {CODES.map((c) => { const st = stOf(school, c); return <Button key={c} role="tab" aria-selected={c === code} size="sm" variant={c === code ? "default" : "outline"} onClick={() => setCode(c)} className="h-auto flex-col items-start py-1"><span>Tabela {c}</span><span className="text-2xs font-normal opacity-80">{st ? STATE_LABEL[st as SemedState] : "não iniciada"}</span></Button>; })}
         </div>
       </div>
 
@@ -182,7 +182,7 @@ export function SemedTablesPage() {
               </ol>
               <div className="text-xs text-muted-foreground">Preenchimento: {pr.filled}/{pr.total} (seções de grade contam linhas com dados; linha vazia pode ser etapa não ofertada).</div>
               <div className="h-1.5 w-full rounded bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={pr.total} aria-valuenow={pr.filled}><div className="h-1.5 rounded bg-primary" style={{ width: `${pr.total ? (100 * pr.filled) / pr.total : 0}%` }} /></div>
-              <div className="flex flex-wrap gap-3 text-[11px] text-muted-foreground"><span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-primary" />Fonte: cadastro central (somente leitura)</span><span>Campos com caixa: preenchidos pela Secretaria</span></div>
+              <div className="flex flex-wrap gap-3 text-micro text-muted-foreground"><span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-primary" />Fonte: cadastro central (somente leitura)</span><span>Campos com caixa: preenchidos pela Secretaria</span></div>
             </div>); })()}
           {def.sections.filter((s) => !(def.code === "10" && s.kind === "grid")).map((s) => (
             <section key={s.id} className="rounded-md border p-3">
