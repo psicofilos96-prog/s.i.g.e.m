@@ -37,7 +37,7 @@ interface Named { logical_id: string; payload: Record<string, unknown> }
 /** Programação de entrega sobre pedido autorizado (soma ≤ autorizado é conferida pelo banco). */
 export function ScheduleForm({ order, lines, contracts, itemLabel, onDone }: { order: string; lines: OrderLine[]; contracts: Named[]; itemLabel: (id: string) => string; onDone: (m: string) => Promise<void> }) {
   const [line, setLine] = useState(0); const [qty, setQty] = useState<number | "">(""); const [on, setOn] = useState(operationalToday());
-  const [contract, setContract] = useState(""); const [err, setErr] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const l = lines[line];
   if (!l) return null;
   const send = async () => {
@@ -45,7 +45,7 @@ export function ScheduleForm({ order, lines, contracts, itemLabel, onDone }: { o
     if (qty === "" || qty <= 0) { setErr("Informe a quantidade a entregar."); return; }
     try {
       await callRpc("record_meal_delivery_schedule", { _logical: null, _expected_version: null, _action: "programacao", _order: order, _item: l.item_ref, _unit: l.unidade_ref,
-        _presentation: null, _contract: contract || null, _frequency: null, _quantity: qty, _expected_on: on, _reason: null });
+        _presentation: l.apresentacao_ref ?? null, _contract: l.contrato_ref ?? null, _frequency: null, _quantity: qty, _expected_on: on, _reason: null });
       setQty(""); await onDone(`Entrega programada: ${qty} de ${itemLabel(l.item_ref)} para ${on.split("-").reverse().join("/")}.`);
     } catch (e) { setErr(mealMessage((e as Error).message)); }
   };
@@ -54,7 +54,7 @@ export function ScheduleForm({ order, lines, contracts, itemLabel, onDone }: { o
       <label>Item autorizado<select className={field} value={line} onChange={(e) => setLine(Number(e.target.value))}>{lines.map((x, i) => <option key={i} value={i}>{itemLabel(x.item_ref)} (autorizado {x.quantidade})</option>)}</select></label>
       <label>Quantidade desta entrega<input type="number" min={0} className={field} value={qty} onChange={(e) => setQty(e.target.value === "" ? "" : Number(e.target.value))} /></label>
       <label>Data prevista<DateInput className={field} value={on} onChange={(e) => setOn(e.target.value)} /></label>
-      <label>Contrato (opcional)<select className={field} value={contract} onChange={(e) => setContract(e.target.value)}><option value="">não informado</option>{contracts.map((c) => <option key={c.logical_id} value={c.logical_id}>{String(c.payload["numero"] ?? c.payload["nome"] ?? "contrato")}</option>)}</select></label>
+      <p className="self-end text-muted-foreground">Contrato da linha: {l.contrato_ref ? String(contracts.find((c) => c.logical_id === l.contrato_ref)?.payload["numero"] ?? "registrado") : "não informado"}</p>
       {err && <p role="alert" className="sm:col-span-4 text-destructive">{err}</p>}
       <div className="sm:col-span-4"><Button type="submit" size="sm">Programar entrega</Button></div>
     </form>

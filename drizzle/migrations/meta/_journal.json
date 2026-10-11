@@ -2185,6 +2185,13 @@
       "when": 1791694664598,
       "tag": "0311_meal_grant_on_bo_fixture_engagement",
       "breakpoints": true
+    },
+    {
+      "idx": 312,
+      "version": "7",
+      "when": 1791694995163,
+      "tag": "0312_meal_order_capability_before_existence",
+      "breakpoints": true
     }
   ]
 }

@@ -167,6 +167,7 @@ function SchoolOrder({ school, competence, order, items, units, pubs, act }: { s
 }
 
 function NetworkQueue({ orders, names, act, itemLabel, contracts, onDone }: { orders: Order[]; names: Map<string, string>; act: (a: Record<string, unknown>) => Promise<void>; itemLabel: (id: string) => string; contracts: Named[]; onDone: (m: string) => Promise<void> }) {
+  const [contractOf, setContractOf] = useState<Record<string, string>>({});
   if (orders.length === 0) return <p className="text-muted-foreground">Nenhum pedido nesta competência.</p>;
   const go = async (o: Order, action: string, needReason: boolean) => {
     const reason = needReason ? await askText("Motivo:") : null; if (needReason && !reason?.trim()) return;
@@ -175,9 +176,10 @@ function NetworkQueue({ orders, names, act, itemLabel, contracts, onDone }: { or
     let ev: ServerCeilingLine[];
     try { ev = await evaluate(o.school_id, o.lines); } catch { return; } // sem avaliação não há autorização
     const needs = authorizationNeeds(ev);
-    let lines: OrderLine[] | null = null;
+    const chosen = contractOf[o.logical_id];
+    let lines: OrderLine[] | null = chosen ? o.lines.map((l) => ({ ...l, contrato_ref: chosen })) : null;
     if (needs.exceeding.length) {
-      lines = [...o.lines];
+      lines = lines ?? [...o.lines];
       for (const n of needs.exceeding) {
         const j = await askText(`Item ${n} excede o teto calculado (${explainServerLine(ev[n - 1]!)}) Justifique (mín. 10 caracteres):`);
         if (!j || j.trim().length < 10) return;
@@ -200,6 +202,7 @@ function NetworkQueue({ orders, names, act, itemLabel, contracts, onDone }: { or
           <p className="font-medium">{names.get(o.school_id) ?? o.school_id} — {knownLabel(ORDER_STATUS_LABEL, o.status)} · v{o.version}</p>
           <p className="text-muted-foreground">{o.lines.map((l) => `${itemLabel(l.item_ref)}: ${l.quantidade}`).join(" · ") || "sem itens"}</p>
           {orderAllows(o.status, "autorizacao") && <CeilingPanel school={o.school_id} lines={o.lines} />}
+          {orderAllows(o.status, "autorizacao") && contracts.length > 0 && <label className="block max-w-sm">Contrato/empenho para atender<select className={field} value={contractOf[o.logical_id] ?? ""} onChange={(e) => setContractOf({ ...contractOf, [o.logical_id]: e.target.value })}><option value="">não informado</option>{contracts.map((c) => <option key={c.logical_id} value={c.logical_id}>{String(c.payload["numero"] ?? "contrato")}{c.payload["empenho"] ? ` · empenho ${String(c.payload["empenho"])}` : ""}</option>)}</select></label>}
           <div className="flex flex-wrap gap-2">
             {orderAllows(o.status, "analise") && <Button size="sm" variant="outline" onClick={() => go(o, "analise", false)}>Iniciar análise</Button>}
             {orderAllows(o.status, "autorizacao") && <>
