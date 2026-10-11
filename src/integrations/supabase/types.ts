@@ -18942,6 +18942,7 @@ export type Database = {
           plan_id: string
           recipient_user_id: string
           recorded_at: string
+          seq: number
         }
         Insert: {
           actor_user_id: string
@@ -18950,6 +18951,7 @@ export type Database = {
           plan_id: string
           recipient_user_id: string
           recorded_at?: string
+          seq?: never
         }
         Update: {
           actor_user_id?: string
@@ -18958,6 +18960,7 @@ export type Database = {
           plan_id?: string
           recipient_user_id?: string
           recorded_at?: string
+          seq?: never
         }
         Relationships: []
       }
