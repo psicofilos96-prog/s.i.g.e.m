@@ -6,7 +6,7 @@ import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { STAGE_LABEL, hasClinicalText, overdue, type ProtocolStage } from "./nei-visits";
 import { human, openNeiDocument } from "./nei-agenda-page";
 
-const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
 const dt = (s: string | null) => (s ? s.slice(0, 10).split("-").reverse().join("/") : "—");
 type Item = { id: string; number: number; subject: string; school_id: string; sent_at: string; reply_due_on: string | null; last_stage: ProtocolStage; last_seq: number };

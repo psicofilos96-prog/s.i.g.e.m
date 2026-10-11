@@ -6,7 +6,7 @@ import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/cu
 import { PlansBox } from "./nei-plans";
 import { NEI_SECTIONS, SECTION_LABEL, STAGE_LABEL, allowedNext, canWriteSection, currentEvent, eventProblem, isOverdue, timeline, type Entry, type NeiCase, type NeiSection, type NeiStage } from "./nei-cases";
 
-const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const MSG: Record<string, string> = {
   "nei:not-authorized": "Sua conta não tem papel do NEI para este estudante.",
   "nei:student-not-in-school": "O estudante não tem matrícula vigente nesta escola.",

@@ -83,7 +83,7 @@ export function describeLoad(item: InstitutionalMatrixItem, unitLabel?: string |
   return `${item.load.quantity.toLocaleString("pt-BR")} ${unitLabel ?? item.load.unitValueId}`;
 }
 
-const rpc = supabase.rpc as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 
 export async function loadInstitutionalMatrices(ctx: MatrixReadContext): Promise<InstitutionalMatrix[]> {
   const c = requireContext(ctx);

@@ -21365,6 +21365,10 @@ export type Database = {
         Args: { _operation_id: string }
         Returns: number
       }
+      bo_fixture_cleanup_nei: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_row: { Args: { _old: Json }; Returns: boolean }
       bo_fixture_cleanup_school_extras: {
         Args: { _operation_id: string }
@@ -21384,6 +21388,16 @@ export type Database = {
         Returns: string
       }
       bo_fixture_is_user: { Args: { _uid: string }; Returns: boolean }
+      bo_fixture_nei_grant: {
+        Args: {
+          _operation_id: string
+          _role: string
+          _school: string
+          _scope: string
+          _user_id: string
+        }
+        Returns: string
+      }
       bo_fixture_network_engagement: {
         Args: { _capability: string }
         Returns: string
@@ -25175,6 +25189,7 @@ export type Database = {
         Args: { _school: string; _student: string }
         Returns: boolean
       }
+      nei_fixture_row: { Args: { _old: Json }; Returns: boolean }
       nei_indicator_drill: {
         Args: { _key: string; _school: string }
         Returns: {
@@ -25339,6 +25354,10 @@ export type Database = {
           network: boolean
           school_id: string
         }[]
+      }
+      nei_staff_engaged: {
+        Args: { _kind: string; _school: string; _user: string }
+        Returns: boolean
       }
       nei_student_file: {
         Args: { _school: string; _student: string }

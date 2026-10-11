@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { EMPTY_PLAN, PLAN_FIELDS, PLAN_LABEL, STATUS_LABEL, canWritePlan, planProblem, type PlanContent, type PlanKind, type PlanStatus } from "./nei-aee";
 
-const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const human = (m: string) => m.includes("stale") ? "Outra pessoa salvou antes. Recarregue." : m.includes("not-authorized") ? "Seu papel não permite esta ação neste plano." : m.includes("plan-content") ? "Conteúdo do plano inválido." : "Não foi possível concluir.";
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
 

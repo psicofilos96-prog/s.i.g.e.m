@@ -163,7 +163,7 @@ export const BOOK_SIGNATURES = ["Secretário(a) Escolar", "Diretor(a)"] as const
 function BookRowEditor({ school, row, onDone }: { school: string; row: BookRow; onDone: () => void }) {
   const [start, setStart] = useState(row.opened_on ?? ""); const [reason, setReason] = useState(""); const [src, setSrc] = useState("");
   const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
-  const rpc = supabase.rpc as unknown as (f: string, a: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
   async function save() {
     setMsg(null);
     if (!start) { setMsg("Informe a data de início."); return; }

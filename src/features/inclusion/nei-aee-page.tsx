@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { OFFER_LABEL, WEEKDAY, conflictLabel, offerNext, offerProblem, type OfferStatus } from "./nei-aee";
 
-const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
 const human = (m: string) => m.includes("stale") ? "Outra pessoa registrou antes. Recarregue." : m.includes("invalid-transition") ? "Essa situação não segue a atual." : m.includes("date-before-last") ? "A data não pode ser anterior à última situação." : m.includes("future-date") ? "Não se registra atividade em data futura." : m.includes("not-authorized") ? "Seu papel não permite esta ação." : "Não foi possível concluir.";
 

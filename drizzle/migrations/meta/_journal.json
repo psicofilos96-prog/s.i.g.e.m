@@ -2388,6 +2388,20 @@
       "when": 1791714733499,
       "tag": "0340_nei6_indicators",
       "breakpoints": true
+    },
+    {
+      "idx": 341,
+      "version": "7",
+      "when": 1791715120107,
+      "tag": "0341_nei7_fixture_harness_and_recipient_fix",
+      "breakpoints": true
+    },
+    {
+      "idx": 342,
+      "version": "7",
+      "when": 1791715708368,
+      "tag": "0342_nei7_indicator_functions_volatile",
+      "breakpoints": true
     }
   ]
 }

@@ -6,7 +6,7 @@ import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { toPdfFile, toXlsx, type ReportResult } from "@/features/reports/report-engine";
 import { INDICATORS, share, totals, type IndicatorDef, type IndicatorRow } from "./nei-indicators";
 
-const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const input = "rounded-md border border-input bg-background p-2 text-sm";
 const BRANDING = { headerLines: ["Prefeitura Municipal — Secretaria de Educação", "Núcleo de Educação Inclusiva"], title: "Indicadores do NEI" };
 const fmt = (v: unknown, d: IndicatorDef) => (v === null || v === undefined ? "sem dado" : d.unit ? `${v} ${d.unit}` : String(v));

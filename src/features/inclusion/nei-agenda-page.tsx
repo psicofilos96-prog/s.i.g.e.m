@@ -6,7 +6,7 @@ import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/cu
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { ACTION_LABEL, DESTINATION, STAGE_LABEL, VISIT_LABEL, actionClosed, overdue, protocolProblem, visitClosed, visitProblem, type ActionStatus, type ProtocolStage, type VisitStatus } from "./nei-visits";
 
-const rpc = supabase.rpc as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as (f: string, a?: object) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const input = "w-full rounded-md border border-input bg-background p-2 text-sm";
 const MSG: Record<string, string> = {
   stale: "Outra pessoa registrou antes. Recarregue.", "invalid-transition": "Essa etapa não segue a atual.", "clinical-text": "Retire CID, laudo ou menção clínica do texto.",
