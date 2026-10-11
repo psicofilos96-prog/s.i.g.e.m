@@ -24,7 +24,7 @@ describe("instrumentos", () => {
     chain = ok(saveVersion(chain, { instrumentId: "i", title: "V", sections: [{ key: "x", title: "X", questions: [] }], authorPrincipalId: "sup", at: "t", reason: "nova" }, 1, true));
     expect(r.version).toBe(1);
     expect(r.frozenSections[0]!.key).toBe("calendario");
-    chain = ok(editDraft(chain, [{ ...TEMPLATE_SKELETONS.ppp! }], "sup"));
+    chain = ok(editDraft(chain, [{ ...TEMPLATE_SKELETONS["ppp"]! }], "sup"));
     chain = ok(publish(chain, { principalId: "c", human: true, hasCapability: true }, 2));
     expect(chain.map((v) => v.state)).toEqual(["retirada", "publicada"]);
     expect(r.frozenSections[0]!.key).toBe("calendario");
