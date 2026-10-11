@@ -38,7 +38,9 @@ async def main():
         await pg.get_by_label("Título do relatório").fill("Estudantes por escola e turma")
         await pick(pg, "Logo", (await pg.get_by_label("Logo").locator("option").nth(1).get_attribute("value")))
         await pg.get_by_label("Assinaturas").fill("Secretário(a) escolar\nDiretor(a)")
-        await pg.get_by_role("button", name="Executar prévia").click(); await pg.wait_for_timeout(6000)
+        await pg.get_by_role("button", name="Executar prévia").click()
+        try: await pg.get_by_role("table", name="Resultado da prévia").wait_for(timeout=60000)
+        except Exception: pass
         prev = pg.get_by_role("table", name="Resultado da prévia")
         ok = await prev.count() > 0
         txt = await prev.inner_text() if ok else (await pg.inner_text("main"))[-400:]

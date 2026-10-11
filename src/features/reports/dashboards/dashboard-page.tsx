@@ -1,3 +1,5 @@
+import { DateInput } from "@/components/sigem/date-input";
+import { LoadingState } from "@/components/sigem/states";
 /**
  * Construtor de painéis: cada gráfico é uma consulta do catálogo fechado executada por `report_custom_query`
  * (SECURITY INVOKER, RLS de quem vê). Filtros do painel e drill-down viram condições na própria consulta, no servidor.
@@ -101,7 +103,7 @@ function Builder() {
   const logo = INSTITUTIONAL_LOGOS.find((l) => l.id === theme.logo);
 
   if (err) return <p role="alert" className="text-sm text-destructive">{err}</p>;
-  if (!cat) return <p role="status" className="text-sm text-muted-foreground">Carregando catálogo de dados…</p>;
+  if (!cat) return <LoadingState label="Carregando catálogo de dados…" />;
 
   const dateFields = [...new Map(board.widgets.flatMap((w) => fieldsInScope(cat, w.spec)).filter((f) => f.def.type === "date").map((f) => [f.ref, f])).values()];
 
@@ -185,8 +187,8 @@ function BoardFilters({ cat, filters, dateFields, onChange }: { cat: Catalog; fi
             <option value="">{dateFields.length ? "Escolha o campo de data" : "Nenhum gráfico tem campo de data"}</option>
             {dateFields.map((f) => <option key={f.ref} value={f.ref}>{fieldLabel(cat, f.ref)}</option>)}
           </select></label>
-        <label className="text-sm">De<input type="date" className={`${inp} block`} value={from} onChange={(e) => setFrom(e.target.value)} aria-label="Período de" /></label>
-        <label className="text-sm">Até<input type="date" className={`${inp} block`} value={to} onChange={(e) => setTo(e.target.value)} aria-label="Período até" /></label>
+        <label className="text-sm">De<DateInput className={`${inp} block`} value={from} onChange={(e) => setFrom(e.target.value)} aria-label="Período de" /></label>
+        <label className="text-sm">Até<DateInput className={`${inp} block`} value={to} onChange={(e) => setTo(e.target.value)} aria-label="Período até" /></label>
         <Button size="sm" variant="outline" disabled={!field || !from || !to} onClick={() => onChange([...filters.filter((f) => f.field !== field), { field, operator: "between", value: [from, to] }])}>Aplicar período</Button>
       </div>
       {filters.length ? (
@@ -349,7 +351,7 @@ function WidgetCard({ cat, w, d, onDrill, onEdit, onRemove, onMove, dragging, on
         </div>
       </header>
       <div ref={ref} className="overflow-hidden">
-        {d === undefined || d === "loading" ? <p role="status" className="text-sm text-muted-foreground">Carregando dados…</p>
+        {d === undefined || d === "loading" ? <LoadingState label="Carregando dados…" />
         : d.error ? <p role="alert" className="text-sm text-destructive">{d.error}</p>
         : d.rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum dado visível com o seu acesso para esta consulta.</p>
         : <>{d.compare ? <CompareChart rows={d.compare} h={HEIGHT_PX[w.height ?? "m"]} onDrill={(c) => w.spec.groupBy[0] && onDrill(w.spec.groupBy[0], c)} /> : <ChartBody cat={cat} w={w} rows={d.rows} onDrill={onDrill} />}
@@ -484,8 +486,8 @@ function WidgetExtras({ cat, w, setW }: { cat: Catalog; w: Widget; setW: (f: (x:
         <label className="text-sm">Comparar períodos por<select className={`${inp} block`} aria-label="Campo de data da comparação" value={c?.field ?? ""} onChange={(e) => e.target.value ? setC({ field: e.target.value }) : setW((x) => ({ ...x, compare: undefined }))}>
           <option value="">{dates.length ? "Sem comparação" : "A fonte não tem campo de data"}</option>{dates.map((f) => <option key={f.ref} value={f.ref}>{fieldLabel(cat, f.ref)}</option>)}</select></label>
         {c?.field ? <>{(["a", "b"] as const).map((k) => <span key={k} className="flex items-end gap-1 text-sm">Período {k.toUpperCase()}
-          <input type="date" className={inp} aria-label={`Período ${k.toUpperCase()} de`} value={c[k][0]} onChange={(e) => setC({ [k]: [e.target.value, c[k][1]] } as never)} />
-          <input type="date" className={inp} aria-label={`Período ${k.toUpperCase()} até`} value={c[k][1]} onChange={(e) => setC({ [k]: [c[k][0], e.target.value] } as never)} /></span>)}
+          <DateInput className={inp} aria-label={`Período ${k.toUpperCase()} de`} value={c[k][0]} onChange={(e) => setC({ [k]: [e.target.value, c[k][1]] } as never)} />
+          <DateInput className={inp} aria-label={`Período ${k.toUpperCase()} até`} value={c[k][1]} onChange={(e) => setC({ [k]: [c[k][0], e.target.value] } as never)} /></span>)}
           <span className="text-xs text-muted-foreground">Exige 1 agrupamento e 1 cálculo; categoria ausente num período fica sem valor.</span></> : null}
       </div>
     </div>

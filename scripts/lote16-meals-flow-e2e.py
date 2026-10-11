@@ -18,8 +18,15 @@ async def as_user(br, tag):
     await pg.goto(B + "/"); await pg.evaluate("([k,v]) => localStorage.setItem(k, v)", [cfg["key"], json.dumps(cfg["sessions"][tag])])
     await pg.goto(B + "/alimentacao-escolar"); await pg.wait_for_timeout(7000); return ctx, pg, errs
 async def status(scope, ms=2500):
-    await scope.page.wait_for_timeout(ms) if hasattr(scope, "page") else None
-    return " | ".join(await scope.get_by_role("status").all_inner_texts())
+    # espera mínima e depois sonda até aparecer texto de status (até 20 s), em vez de espera fixa frágil
+    pg = scope.page if hasattr(scope, "page") else None
+    if pg: await pg.wait_for_timeout(min(ms, 1500))
+    txt = ""
+    for _ in range(40):
+        txt = " | ".join(t for t in await scope.get_by_role("status").all_inner_texts() if t.strip() and not t.strip().startswith(("Carregando", "Lendo", "Salvando", "Enviando", "Consultando")))
+        if txt: break
+        if pg: await pg.wait_for_timeout(500)
+    return txt
 async def answer(pg, text):
     dlg = pg.get_by_role("alertdialog"); await dlg.wait_for(timeout=10000)
     await dlg.locator("textarea").fill(text); await dlg.get_by_role("button", name="Continuar").click(); await pg.wait_for_timeout(800)
@@ -99,11 +106,11 @@ async def main():
         await dlg.get_by_label("Quantidade entregue").fill("40"); await dlg.get_by_label("Quantidade aceita").fill("30")
         await dlg.get_by_role("button", name="Continuar").click(); await dlg.get_by_label("Lote").fill("L-SINT-1"); await dlg.get_by_label("Validade").fill(d(90))
         await dlg.get_by_role("button", name="Continuar").click(); await dlg.get_by_label("Observações").fill("10 avariados (sintético)")
-        await dlg.get_by_role("button", name="Confirmar", exact=False).last.click(); s = await status(rec, 3500)
+        await dlg.get_by_role("button", name="Confirmar", exact=False).last.click(); s = await status(rec, 9000)
         p("Recebimento confirmado: 30" in s, "escola confirma recebimento parcial (30 aceitos, 10 rejeitados)", s)
         await pg.screenshot(path=f"{SH}/3_escola_recebimento.png")
         # 5) baixa diária no estoque (página recarregada: o livro relê o banco)
-        await pg.reload(); await pg.wait_for_timeout(7000)
+        await pg.reload(); await pg.wait_for_timeout(10000)
         stk = pg.locator("section[aria-labelledby=stk]"); await stk.wait_for(timeout=20000)
         saldo = await stk.inner_text(); p("30" in saldo, "saldo mostra os 30 aceitos (rejeitados fora)", "")
         await stk.get_by_role("tab", name="Registrar saída").click(); await pg.wait_for_timeout(800)
