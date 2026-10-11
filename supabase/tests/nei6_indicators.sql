@@ -1,0 +1,1 @@
+-- NEI.6: ver o bloco executado na sessão (contas sintéticas, termina em NEI6_PASS sem persistir).
