@@ -26,7 +26,7 @@ describe("CIECE L09 conferência de Matrícula Inicial", () => {
     expect(summarizeConference(r)["escola"]).toEqual({ impeditiva: 1, alerta: 0, informativa: 0, naoVerificavel: 1 });
   });
   it("por analogia nunca é oficial e regra de outro leiaute é pulada", () => {
-    const rule25 = { ...inep, layoutYear: "2025" };
+    const rule25 = { ...inep, layoutYear: "2025", version: 2 };
     const r = confer("2026", "matricula-inicial", [l25], [rule25, inep], recs, { fromYear: "2025", toYear: "2026", actor: "ciece", at: "x", reason: "sem leiaute 2026" });
     expect(r.officialStatus).toBe("conferencia-por-analogia");
     expect(r.findings[0]!.blocksExport).toBe(false);
