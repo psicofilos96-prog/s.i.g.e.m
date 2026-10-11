@@ -16,13 +16,13 @@ function push(c: CorrectionCase, a: Authority, e: Omit<CaseEvent, "seq" | "actor
 describe("CIECE L07 central de correções", () => {
   it("abre caso só para achado acionável, com dono e protocolo estável", () => {
     const { cases } = openCases(findings);
-    expect(cases[0].owner).toBe("secretaria");
+    expect(cases[0]!.owner).toBe("secretaria");
     expect(openCases(findings, cases).cases).toHaveLength(0);
-    const na = openCases([{ ...findings[0], grade: "nao-aplicavel" }]);
-    expect(na.cases).toHaveLength(0); expect(na.refused[0].reason).toBe("fonte-nao-lida");
+    const na = openCases([{ ...findings[0]!, grade: "nao-aplicavel" }]);
+    expect(na.cases).toHaveLength(0); expect(na.refused[0]!.reason).toBe("fonte-nao-lida");
   });
   it("fluxo completo exige ato da origem, reverificação limpa e validador distinto", () => {
-    const c = openCases(findings).cases[0];
+    const c = openCases(findings).cases[0]!;
     expect(push(c, ciece, { kind: "classificar", priority: "urgentissima" })).toBe("prioridade-nao-homologada");
     expect(push(c, ciece, { kind: "classificar", priority: "alta", dueOn: "2026-10-20" })).toBeNull();
     expect(push(c, ciece, { kind: "encaminhar" })).toBeNull();
@@ -42,13 +42,13 @@ describe("CIECE L07 central de correções", () => {
     expect(declared(c)).toEqual({ priority: "alta", dueOn: "2026-10-20" });
   });
   it("idempotência, ordem, descarte e prazo não declarado", () => {
-    const c = openCases(findings).cases[0];
+    const c = openCases(findings).cases[0]!;
     push(c, ciece, { kind: "classificar" });
-    expect(validateEvent(c, { ...c.events[0], seq: 2 }, ciece, prio)).toBe("evento-repetido");
+    expect(validateEvent(c, { ...c.events[0]!, seq: 2 }, ciece, prio)).toBe("evento-repetido");
     expect(validateEvent(c, { seq: 9, kind: "encaminhar", actor: "a", at: "x", idempotencyKey: "q" }, ciece, prio)).toBe("seq-fora-de-ordem");
     expect(push(c, ciece, { kind: "descartar" })).toBe("descarte-sem-motivo");
     expect(overdue(c, "2030-01-01")).toBeNull();
-    const conf = openCases([{ ...findings[0], grade: "erro-confirmado", subject: "zz" }]).cases[0];
+    const conf = openCases([{ ...findings[0]!, grade: "erro-confirmado", subject: "zz" }]).cases[0]!;
     expect(push(conf, ciece, { kind: "descartar", reason: "x" })).toBe("erro-confirmado-nao-descartavel");
   });
 });
