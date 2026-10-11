@@ -7715,6 +7715,24 @@ export type Database = {
           },
         ]
       }
+      docserv_alert_reads: {
+        Row: {
+          alert_key: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_key: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_key?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       docserv_audit_events: {
         Row: {
           action: string
@@ -22531,6 +22549,10 @@ export type Database = {
         Args: { _operation_id: string }
         Returns: number
       }
+      bo_fixture_cleanup_docserv: {
+        Args: { _operation_id: string }
+        Returns: number
+      }
       bo_fixture_cleanup_educacenso: {
         Args: { _operation_id: string }
         Returns: number
@@ -24054,6 +24076,7 @@ export type Database = {
         }
       }
       dispatch_notification_event: { Args: { _event: string }; Returns: number }
+      docserv_alert_reads_mine: { Args: never; Returns: string[] }
       docserv_can_read: {
         Args: { _person: string; _school: string }
         Returns: boolean
@@ -24072,11 +24095,13 @@ export type Database = {
         Args: { _document: string; _expected_seq: number; _reason: string }
         Returns: number
       }
+      docserv_document_history: { Args: { _document: string }; Returns: Json }
       docserv_documents_at: {
         Args: { _include_deleted?: boolean; _person?: string; _school?: string }
         Returns: Json
       }
       docserv_identity_queue: { Args: { _limit?: number }; Returns: Json }
+      docserv_mark_alert_read: { Args: { _key: string }; Returns: undefined }
       docserv_my_person: { Args: never; Returns: string }
       docserv_person_in_school: {
         Args: { _person: string; _school: string }
