@@ -127,7 +127,7 @@ export function SemedTablesPage() {
               ) : (
                 <div className="overflow-x-auto"><table className="text-xs"><thead><tr><th className="text-left">{def.code === "10" ? "Nº" : "Ano/etapa"}</th>{s.cols.map((c) => <th key={c.key} className="px-1">{c.label}</th>)}{s.rowTotal && <th>TOTAL</th>}{def.code === "06" && <><th>Matr. final</th><th>% Aprov.</th></>}{def.code === "11" && <th>Matrícula inicial</th>}</tr></thead>
                   <tbody>{s.rows.map((r) => <tr key={r.key} className="border-t"><td className="whitespace-nowrap pr-2">{r.label}</td>
-                    {s.cols.map((c) => <td key={c.key} className={c.type === "int" ? "w-12" : "min-w-28"}>{cell(`${s.id}.${r.key}.${c.key}`, c.type, c.options)}</td>)}
+                    {s.cols.map((c) => <td key={c.key} className={c.type === "int" ? "min-w-[3.25rem]" : "min-w-28"}>{cell(`${s.id}.${r.key}.${c.key}`, c.type, c.options)}</td>)}
                     {s.rowTotal && <td className="text-center font-medium">{rowTotal(vals, s.id, r.key, s.cols) ?? "—"}</td>}
                     {def.code === "06" && (() => { const f = t06Final(vals, r.key); const ap = vals[`m.${r.key}.aprovados`]; return <><td className="text-center">{f ?? "—"}</td><td className="text-center">{pct(typeof ap === "number" ? ap : null, f) ?? "—"}</td></>; })()}
                     {def.code === "11" && (() => { const m = vals[`m.${r.key}.masc`], f = vals[`m.${r.key}.fem`]; return <td className="text-center">{typeof m === "number" && typeof f === "number" ? m + f : "—"}</td>; })()}
