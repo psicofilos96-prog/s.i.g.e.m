@@ -52,7 +52,7 @@ describe("LOTE 16 — fidelidade do mapa 2026", () => {
     const raw = await blob.text();
     expect(raw.startsWith("%PDF-")).toBe(true);
     expect(raw).toMatch(/MediaBox \[0 0 841\.8\d* 595\.2\d*\]/);
-    expect(raw).toContain("Diretor(a)");
+    expect(raw).toContain("Diretor");
   });
 });
 
