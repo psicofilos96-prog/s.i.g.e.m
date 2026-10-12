@@ -14296,6 +14296,59 @@ export type Database = {
           },
         ]
       }
+      enr_assisted_attendances: {
+        Row: {
+          application_id: string
+          attendant_person_id: string
+          attended_at: string
+          attending_school_id: string | null
+          channel: string
+          created_at: string
+          evidences: Json
+          id: string
+          idempotency_key: string
+          protocol_number: string
+          requester_acknowledged: boolean
+          requester_present: boolean
+        }
+        Insert: {
+          application_id: string
+          attendant_person_id: string
+          attended_at?: string
+          attending_school_id?: string | null
+          channel: string
+          created_at?: string
+          evidences?: Json
+          id?: string
+          idempotency_key: string
+          protocol_number: string
+          requester_acknowledged: boolean
+          requester_present: boolean
+        }
+        Update: {
+          application_id?: string
+          attendant_person_id?: string
+          attended_at?: string
+          attending_school_id?: string | null
+          channel?: string
+          created_at?: string
+          evidences?: Json
+          id?: string
+          idempotency_key?: string
+          protocol_number?: string
+          requester_acknowledged?: boolean
+          requester_present?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_assisted_attendances_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_campaign_events: {
         Row: {
           action: string
@@ -37928,6 +37981,37 @@ export type Database = {
           related_key: string
           signal_kind: string
           strength: string
+        }[]
+      }
+      enr_assisted_submit: {
+        Args: {
+          _attending_school: string
+          _campaign: string
+          _channel: string
+          _documents_ack: boolean
+          _email: string
+          _evidences: Json
+          _key: string
+          _kinship: string
+          _modality: string
+          _phone: string
+          _requester_ack: boolean
+          _requester_cpf: string
+          _requester_kind: string
+          _requester_name: string
+          _requester_present: boolean
+          _schools: string[]
+          _stage: string
+          _student_birth: string
+          _student_cpf: string
+          _student_name: string
+          _truth: boolean
+        }
+        Returns: {
+          application_code: string
+          check_code: string
+          protocol_number: string
+          result: string
         }[]
       }
       enr_call_from_waitlist: {

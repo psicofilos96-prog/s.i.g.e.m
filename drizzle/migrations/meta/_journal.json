@@ -3319,6 +3319,13 @@
       "when": 1791811790487,
       "tag": "0473_enr20_allocation_transfer",
       "breakpoints": true
+    },
+    {
+      "idx": 474,
+      "version": "7",
+      "when": 1791812048640,
+      "tag": "0474_enr21_assisted_attendance",
+      "breakpoints": true
     }
   ]
 }
