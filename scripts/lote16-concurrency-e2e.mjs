@@ -57,8 +57,8 @@ try {
   // 2. Reservas: N chamadas simultâneas sobre o mesmo quadro.
   const pool = await admin.from("enr_seat_pools").select("id, campaign_id").limit(1);
   const poolId = pool.data?.[0]?.id ?? randomUUID();
-  const res = await Promise.all(Array.from({ length: N }, (_, i) => sec.c.rpc("enr_seat_reserve",
-    { _pool: poolId, _application: randomUUID(), _proposal: randomUUID(), _minutes: 60, _key: `${op}-r${i}` })));
+  const res = await Promise.all(Array.from({ length: N }, (_, i) => sec.c.rpc("enr_seat_reserve_v2",
+    { _pool: poolId, _application: randomUUID(), _proposal: randomUUID(), _origin: "lote16-concorrencia", _key: `${op}-r${i}` })));
   const granted = res.filter((r) => !r.error).length;
   ok("reservas: recusa paralela não grava nada", granted > 0 || (await admin.from("enr_seat_events").select("id", { count: "exact", head: true }).like("idempotency_key", `${op}-%`)).count === 0, res[0].error?.message ?? "");
   blocked("reservas: teto respeitado sob concorrência", pool.data?.length ? "quadro existe, mas não há pedidos com distribuição publicada nem 'reservar-vagas-de-ingresso' atribuída" : "nenhum quadro de vagas no banco");
