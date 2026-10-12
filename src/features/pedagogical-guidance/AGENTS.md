@@ -19,3 +19,6 @@ pertencem ao acompanhamento.
   pessoal não confere poder e capacidade não declarada falha fechada.
 - A tela é segunda perspectiva do Workspace Projection Framework (13G): nenhuma
   fila, contagem ou visão de turma cria segunda verdade, e indicadores são CIECE.
+
+## OP por escola (Lote 01 — `op-unit-architecture.ts`)
+- Matriz das 34 seções → tabela/função/rota/capacidade/teste vive só aqui e o teste exige que tudo citado exista; orientador da unidade = capacidade escopo escola da própria escola, coordenação central = escopo rede só para consulta (nunca registra pela unidade), e nenhum regimento no acervo ⇒ atribuições parametrizáveis, porque hierarquia ou matriz manual concederiam poder não verificado.
