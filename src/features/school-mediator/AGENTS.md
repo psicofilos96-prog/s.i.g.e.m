@@ -1,0 +1,4 @@
+## Perfil Mediador Escolar (`src/features/school-mediator/`)
+- LOTE 01 (`mediator-architecture.ts`): mapa das 30 seções → tabela/função/rota existente ou lacuna vive só aqui, e o teste exige que tudo citado exista, porque matriz manual fica stale e esconderia cadastro paralelo.
+- Mediador Escolar, Profissional de Apoio Escolar e Acompanhante Especializado são funções com identificador aberto; competência só vem de configuração homologada vigente × designação vigente × escola × estudante × data (ausente ou ambígua ⇒ nada), e funções nunca herdam competência umas das outras, porque atribuição municipal não verificada não pode nascer no código.
+- Estudante, escola, pessoal e mediação são reaproveitados (`institutional_engagements`, `inclusion_mediation_assignments`, readers NEI); nenhum cadastro próprio, porque cópia criaria segunda verdade.
