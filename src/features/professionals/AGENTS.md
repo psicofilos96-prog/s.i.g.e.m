@@ -32,3 +32,6 @@
 
 ## L19 Atos administrativos e comprovantes (`administrative-acts.ts`)
 - Ato de pessoal = ledger append-only (registro→publicação→retificação/revogação, seq contínuo, motivo, autor humano com capacidade, sem autoato, identidade imutável) que só referencia o documento do GED; tipo que exige ato oficial fica `aguardando-ato-oficial` e sem efeito até referência oficial, leitura exige capacidade+escopo e toda leitura/negação vai à trilha, porque registro digital não substitui ato legalmente exigido.
+
+## L20 Integração das atribuições (`assignment-integration.ts`)
+- Perfil Docente recebe só atribuição em vigência com ato na data (escola/turma/componente/horário/período); encerrada/revogada vira histórico somente leitura e nada é apagado; setores recebem projeção por allowlist de campos e escopo (CIECE/A&A sem pessoa, nenhum além da administração vê vínculo) e `grantsCapabilities` é falso, porque atribuição não é autorização digital e apagar histórico destruiria diário/avaliação.
