@@ -9049,6 +9049,79 @@ export type Database = {
         }
         Relationships: []
       }
+      dev_attendance_records: {
+        Row: {
+          activity_id: string | null
+          connected_minutes: number | null
+          created_at: string
+          enrollment_id: string
+          evidence_kind: string | null
+          evidence_ref: string | null
+          id: string
+          idempotency_key: string
+          meeting_id: string | null
+          mode: string
+          reason: string | null
+          recorder_person: string
+          status: string
+          version: number
+        }
+        Insert: {
+          activity_id?: string | null
+          connected_minutes?: number | null
+          created_at?: string
+          enrollment_id: string
+          evidence_kind?: string | null
+          evidence_ref?: string | null
+          id?: string
+          idempotency_key: string
+          meeting_id?: string | null
+          mode: string
+          reason?: string | null
+          recorder_person: string
+          status: string
+          version: number
+        }
+        Update: {
+          activity_id?: string | null
+          connected_minutes?: number | null
+          created_at?: string
+          enrollment_id?: string
+          evidence_kind?: string | null
+          evidence_ref?: string | null
+          id?: string
+          idempotency_key?: string
+          meeting_id?: string | null
+          mode?: string
+          reason?: string | null
+          recorder_person?: string
+          status?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_attendance_records_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "dev_class_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_attendance_records_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_attendance_records_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "dev_class_meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_certifications: {
         Row: {
           conclusion_event_id: string
@@ -9100,6 +9173,50 @@ export type Database = {
             columns: ["enrollment_id"]
             isOneToOne: true
             referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_class_activities: {
+        Row: {
+          author_person: string
+          class_id: string
+          closes_on: string
+          completion_evidence: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          opens_on: string
+          title: string
+        }
+        Insert: {
+          author_person: string
+          class_id: string
+          closes_on: string
+          completion_evidence: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          opens_on: string
+          title: string
+        }
+        Update: {
+          author_person?: string
+          class_id?: string
+          closes_on?: string
+          completion_evidence?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          opens_on?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_activities_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dev_classes"
             referencedColumns: ["id"]
           },
         ]
@@ -38210,6 +38327,22 @@ export type Database = {
         }
         Returns: string
       }
+      record_dev_attendance: {
+        Args: {
+          _activity: string
+          _enrollment: string
+          _evidence_kind: string
+          _evidence_ref: string
+          _expected_version: number
+          _key: string
+          _meeting: string
+          _minutes: number
+          _mode: string
+          _reason: string
+          _status: string
+        }
+        Returns: string
+      }
       record_dev_catalog_course_version: {
         Args: {
           _assessment: string
@@ -38239,6 +38372,17 @@ export type Database = {
           _school: string
           _seats: number
           _starts: string
+        }
+        Returns: string
+      }
+      record_dev_class_activity: {
+        Args: {
+          _class: string
+          _closes: string
+          _evidence: string
+          _key: string
+          _opens: string
+          _title: string
         }
         Returns: string
       }
