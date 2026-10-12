@@ -24,7 +24,7 @@ export const TEACHER_SECTIONS: readonly Section[] = [
   r(3, "Perfis docentes contemplados", "parcial", [], ["src/features/diary/institutional-teaching.ts"], ["teaching_assignment_versions", "teaching_substitution_versions"], "Regente/substituto existem; papel pedagógico não é declarado (UNREGISTERED_PEDAGOGICAL_ROLE)."),
   r(4, "Arquitetura do perfil", "nucleo", ["src/routes/diario.tsx"], ["src/features/teacher-diary/teacher-architecture.ts"], []),
   r(5, "Painel geral docente", "parcial", ["src/routes/diario.index.tsx"], ["src/features/teacher-diary/diary-overview-page.tsx"], [], "Central da Aula unificada (aula do momento + chamada + registro) ainda não existe."),
-  r(6, "Minhas turmas", "tela", ["src/routes/diario.turmas.index.tsx"], ["src/features/teacher-diary/my-diaries-page.tsx"], ["teaching_assignment_versions"]),
+  r(6, "Minhas turmas", "tela", ["src/routes/diario.turmas.index.tsx"], ["src/features/teacher-diary/my-diaries-page.tsx", "src/features/teacher-diary/teacher-context.ts"], ["teaching_assignment_versions"]),
   r(7, "Minha agenda", "parcial", ["src/routes/diario.aulas.tsx"], [], ["class_schedule_blocks"], "Agenda só de aulas da grade; sem eventos do calendário/AA."),
   r(8, "Diário de classe eletrônico", "tela", ["src/routes/diario_.livro.tsx"], ["src/features/diary/diary-pages.tsx"], ["teacher_diary_approvals"], "90 modelos de diário não foram fornecidos ao projeto; leiaute conferido só com os modelos presentes."),
   r(9, "Registro de aulas", "tela", ["src/routes/diario.registrar.tsx", "src/routes/diario.registros.$registroId.tsx"], ["src/features/diary/lesson-versions.ts"], ["lesson_record_versions", "lesson_record_drafts"]),
