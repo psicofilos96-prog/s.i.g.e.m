@@ -356,4 +356,5 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `aa-matriz-aceite-lote-20.md` | Acompanhamento e Avaliação — matriz de aceite técnico (Lote 20) | Registro de lote | — | — |
 | `docente-matriz-auditoria-lote-01.md` | Perfil Docente — auditoria e arquitetura (Lote 01) | Registro de lote | — | — |
 | `docente-matriz-aceite-lote-20.md` | Perfil Docente — matriz de aceite (Lote 20) | Registro de lote | — | — |
+| `gestao-de-pessoas-fechamento-lote-24.md` | Gestão de Pessoas — fechamento (Lote 24) | Registro de lote | — | — |
 - [Auditoria de cobertura das especificações](auditoria-cobertura-especificacoes-2026-10-12.md) — Registro de lote
