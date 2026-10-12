@@ -10315,6 +10315,142 @@ export type Database = {
           },
         ]
       }
+      dev_external_training_reviews: {
+        Row: {
+          created_at: string
+          grounds: string
+          id: string
+          outcome: string
+          reviewer_person: string
+          seq: number
+          stage: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          grounds: string
+          id?: string
+          outcome: string
+          reviewer_person: string
+          seq: number
+          stage: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          grounds?: string
+          id?: string
+          outcome?: string
+          reviewer_person?: string
+          seq?: number
+          stage?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_external_training_reviews_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_external_training_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_external_training_versions: {
+        Row: {
+          author_person: string
+          certificate_document_version: string
+          certificate_sha256: string
+          created_at: string
+          hours_minutes: number
+          id: string
+          idempotency_key: string
+          modality: string
+          period_end: string
+          period_start: string
+          provider: string
+          reason: string | null
+          title: string
+          training_id: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          certificate_document_version: string
+          certificate_sha256: string
+          created_at?: string
+          hours_minutes: number
+          id?: string
+          idempotency_key: string
+          modality: string
+          period_end: string
+          period_start: string
+          provider: string
+          reason?: string | null
+          title: string
+          training_id: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          certificate_document_version?: string
+          certificate_sha256?: string
+          created_at?: string
+          hours_minutes?: number
+          id?: string
+          idempotency_key?: string
+          modality?: string
+          period_end?: string
+          period_start?: string
+          provider?: string
+          reason?: string | null
+          title?: string
+          training_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_external_training_version_certificate_document_version_fkey"
+            columns: ["certificate_document_version"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_external_training_versions_training_id_fkey"
+            columns: ["training_id"]
+            isOneToOne: false
+            referencedRelation: "dev_external_trainings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_external_trainings: {
+        Row: {
+          created_at: string
+          id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_external_trainings_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_history_access_log: {
         Row: {
           created_at: string
@@ -34678,6 +34814,8 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      dev_ext_readable: { Args: { _training: string }; Returns: boolean }
+      dev_ext_version_state: { Args: { _version: string }; Returns: string }
       dev_formation_record: {
         Args: { _person: string; _purpose: string }
         Returns: Json
@@ -42318,6 +42456,16 @@ export type Database = {
         }
         Returns: number
       }
+      review_dev_external_training: {
+        Args: {
+          _expected_seq: number
+          _grounds: string
+          _outcome: string
+          _stage: string
+          _version: string
+        }
+        Returns: number
+      }
       review_meal_content_staging: {
         Args: {
           _action: string
@@ -43532,6 +43680,22 @@ export type Database = {
           _key: string
           _path: string
           _sha: string
+        }
+        Returns: string
+      }
+      submit_dev_external_training: {
+        Args: {
+          _certificate: string
+          _end: string
+          _expected_version: number
+          _hours: number
+          _key: string
+          _modality: string
+          _provider: string
+          _reason: string
+          _start: string
+          _title: string
+          _training: string
         }
         Returns: string
       }
