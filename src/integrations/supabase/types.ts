@@ -34102,6 +34102,262 @@ export type Database = {
           },
         ]
       }
+      tech_change_events: {
+        Row: {
+          act_ref: string | null
+          action: string
+          change_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          note: string
+          person_id: string
+          seq: number
+        }
+        Insert: {
+          act_ref?: string | null
+          action: string
+          change_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          note: string
+          person_id: string
+          seq: number
+        }
+        Update: {
+          act_ref?: string | null
+          action?: string
+          change_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          note?: string
+          person_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_change_events_act_ref_fkey"
+            columns: ["act_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_change_events_change_id_fkey"
+            columns: ["change_id"]
+            isOneToOne: false
+            referencedRelation: "tech_changes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_changes: {
+        Row: {
+          change_code: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          problem_id: string | null
+          risk: string
+          rollback_plan: string
+          school_id: string | null
+          title: string
+        }
+        Insert: {
+          change_code: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          problem_id?: string | null
+          risk: string
+          rollback_plan: string
+          school_id?: string | null
+          title: string
+        }
+        Update: {
+          change_code?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          problem_id?: string | null
+          risk?: string
+          rollback_plan?: string
+          school_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_changes_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "tech_problems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_changes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_code_counters: {
+        Row: {
+          last: number
+          prefix: string
+          year: number
+        }
+        Insert: {
+          last: number
+          prefix: string
+          year: number
+        }
+        Update: {
+          last?: number
+          prefix?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      tech_problem_events: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          note: string
+          person_id: string
+          problem_id: string
+          request_id: string | null
+          seq: number
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          note: string
+          person_id: string
+          problem_id: string
+          request_id?: string | null
+          seq: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          note?: string
+          person_id?: string
+          problem_id?: string
+          request_id?: string | null
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_problem_events_problem_id_fkey"
+            columns: ["problem_id"]
+            isOneToOne: false
+            referencedRelation: "tech_problems"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_problem_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_problems: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          problem_code: string
+          school_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          problem_code: string
+          school_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          problem_code?: string
+          school_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_problems_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_ticket_records: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          nature: string
+          person_id: string
+          reason: string | null
+          request_id: string
+          seq: number
+          ticket_code: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          nature: string
+          person_id: string
+          reason?: string | null
+          request_id: string
+          seq: number
+          ticket_code: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          nature?: string
+          person_id?: string
+          reason?: string | null
+          request_id?: string
+          seq?: number
+          ticket_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_ticket_records_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       technical_automation_settings: {
         Row: {
           decided_by: string
@@ -45161,6 +45417,28 @@ export type Database = {
         }
         Returns: Json
       }
+      record_tech_change_event: {
+        Args: {
+          _act: string
+          _action: string
+          _change: string
+          _expected_seq: number
+          _key: string
+          _note: string
+        }
+        Returns: number
+      }
+      record_tech_problem_event: {
+        Args: {
+          _action: string
+          _expected_seq: number
+          _key: string
+          _note: string
+          _problem: string
+          _request: string
+        }
+        Returns: number
+      }
       record_visit_version: {
         Args: {
           _act_ref: string
@@ -47278,6 +47556,47 @@ export type Database = {
           version: number
           version_id: string
         }[]
+      }
+      tech_can_manage: { Args: { _school: string }; Returns: boolean }
+      tech_can_read: { Args: { _school: string }; Returns: boolean }
+      tech_next_code: { Args: { _prefix: string }; Returns: string }
+      tech_open_problem: {
+        Args: { _key: string; _school: string; _title: string }
+        Returns: string
+      }
+      tech_open_ticket: {
+        Args: {
+          _key: string
+          _kind: string
+          _nature: string
+          _school: string
+          _subject: string
+        }
+        Returns: {
+          request_id: string
+          ticket_code: string
+        }[]
+      }
+      tech_propose_change: {
+        Args: {
+          _key: string
+          _problem: string
+          _risk: string
+          _rollback: string
+          _school: string
+          _title: string
+        }
+        Returns: string
+      }
+      tech_reclassify_ticket: {
+        Args: {
+          _expected_seq: number
+          _key: string
+          _nature: string
+          _reason: string
+          _request: string
+        }
+        Returns: number
       }
       technical_automation_enabled: { Args: never; Returns: boolean }
       technical_correct_educacenso_2026_temporal: {
