@@ -34314,6 +34314,71 @@ export type Database = {
           },
         ]
       }
+      tech_recurrence_rule_approvals: {
+        Row: {
+          created_at: string
+          decision: string
+          person_id: string
+          rule_version_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          person_id: string
+          rule_version_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          person_id?: string
+          rule_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_recurrence_rule_approvals_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: true
+            referencedRelation: "tech_recurrence_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_recurrence_rule_versions: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          min_incidents: number
+          person_id: string
+          reason: string | null
+          source: string
+          version: number
+          window_days: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          min_incidents: number
+          person_id: string
+          reason?: string | null
+          source: string
+          version: number
+          window_days: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          min_incidents?: number
+          person_id?: string
+          reason?: string | null
+          source?: string
+          version?: number
+          window_days?: number
+        }
+        Relationships: []
+      }
       tech_service_sessions: {
         Row: {
           created_at: string
@@ -36359,6 +36424,10 @@ export type Database = {
           _role: string
         }
         Returns: string
+      }
+      approve_tech_recurrence_rule: {
+        Args: { _decision: string; _version: string }
+        Returns: undefined
       }
       approve_tech_sla_policy: {
         Args: { _decision: string; _version: string }
@@ -45989,6 +46058,16 @@ export type Database = {
           _note: string
           _problem: string
           _request: string
+        }
+        Returns: number
+      }
+      record_tech_recurrence_rule: {
+        Args: {
+          _key: string
+          _min: number
+          _reason: string
+          _source: string
+          _window: number
         }
         Returns: number
       }
