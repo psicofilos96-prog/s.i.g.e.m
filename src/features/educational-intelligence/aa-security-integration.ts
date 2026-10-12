@@ -5,7 +5,7 @@ import { projectCalendar, KIND_LABEL, type CalItem, type StatusEv } from "./aa-c
 
 export const AGENDA_KINDS = ["aplicacao", "correcao", "conferencia", "reuniao", "intervencao", "reavaliacao", "entrega"] as const;
 export type AgendaKind = (typeof AGENDA_KINDS)[number];
-export const AGENDA_LABEL: Record<AgendaKind, string> = { aplicacao: KIND_LABEL.aplicacao!, correcao: "Correção", conferencia: "Conferência", reuniao: "Reunião", intervencao: "Intervenção", reavaliacao: "Reavaliação", entrega: "Entrega" };
+export const AGENDA_LABEL: Record<AgendaKind, string> = { aplicacao: KIND_LABEL['aplicacao'] ?? 'Aplicação', correcao: "Correção", conferencia: "Conferência", reuniao: "Reunião", intervencao: "Intervenção", reavaliacao: "Reavaliação", entrega: "Entrega" };
 
 export function agenda(items: CalItem[], statuses: StatusEv[], today: string, warnDays: number, year: number, kinds: ReadonlySet<AgendaKind> = new Set(AGENDA_KINDS)) {
   const unknown = items.filter(i => !(AGENDA_KINDS as readonly string[]).includes(i.kind) && !(i.kind in KIND_LABEL)).length;
