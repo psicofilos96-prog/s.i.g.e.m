@@ -16,15 +16,19 @@ async function load(): Promise<DashboardInput> {
   if (req.error) throw req.error;
   const ids: string[] = (req.data ?? []).map((r: any) => r.id);
   const inIds = (q: any) => (ids.length ? q.in("request_id", ids) : q.limit(0));
-  const [evs, recs, probs, pevs, chs, cevs] = await Promise.all([
+  const [evs, recs, probs, chs] = await Promise.all([
     inIds(db.from("ops_request_events").select("request_id, seq, kind, actor_person, created_at")),
     inIds(db.from("tech_ticket_records").select("request_id, seq, ticket_code, nature, reason")),
-    db.from("tech_problems").select("id, school_id").limit(LIMIT),
-    db.from("tech_problem_events").select("problem_id, seq, action").limit(5000),
-    db.from("tech_changes").select("id, school_id").limit(LIMIT),
-    db.from("tech_change_events").select("change_id, seq, action").limit(5000),
+    db.from("tech_problems").select("id, school_id").order("created_at", { ascending: false }).limit(LIMIT),
+    db.from("tech_changes").select("id, school_id").order("created_at", { ascending: false }).limit(LIMIT),
   ]);
-  for (const r of [evs, recs, probs, pevs, chs, cevs]) if (r.error) throw r.error;
+  for (const r of [evs, recs, probs, chs]) if (r.error) throw r.error;
+  const pIds = (probs.data ?? []).map((p: any) => p.id), cIds = (chs.data ?? []).map((c: any) => c.id);
+  const [pevs, cevs] = await Promise.all([
+    pIds.length ? db.from("tech_problem_events").select("problem_id, seq, action").in("problem_id", pIds) : { data: [] },
+    cIds.length ? db.from("tech_change_events").select("change_id, seq, action").in("change_id", cIds) : { data: [] },
+  ]);
+  for (const r of [pevs, cevs]) if (r.error) throw r.error;
   const by = (rows: any[], k: string, id: string) => rows.filter((r) => r[k] === id);
   return {
     today: new Date().toISOString().slice(0, 10),
