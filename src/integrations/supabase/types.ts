@@ -18579,6 +18579,103 @@ export type Database = {
         }
         Relationships: []
       }
+      permanence_plan_reviews: {
+        Row: {
+          action_key: string | null
+          author_person: string
+          case_id: string
+          created_at: string
+          evidence: string
+          idempotency_key: string
+          kind: string
+          outcome: string
+          plan_version: number
+          seq: number
+        }
+        Insert: {
+          action_key?: string | null
+          author_person: string
+          case_id: string
+          created_at?: string
+          evidence: string
+          idempotency_key: string
+          kind: string
+          outcome: string
+          plan_version: number
+          seq: number
+        }
+        Update: {
+          action_key?: string | null
+          author_person?: string
+          case_id?: string
+          created_at?: string
+          evidence?: string
+          idempotency_key?: string
+          kind?: string
+          outcome?: string
+          plan_version?: number
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_plan_reviews_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanence_plan_versions: {
+        Row: {
+          actions: Json
+          author_person: string
+          barrier_refs: string[]
+          case_id: string
+          created_at: string
+          id: string
+          objectives: Json
+          pedagogical_intervention_ref: string | null
+          reason: string | null
+          resources: Json
+          version: number
+        }
+        Insert: {
+          actions: Json
+          author_person: string
+          barrier_refs?: string[]
+          case_id: string
+          created_at?: string
+          id?: string
+          objectives: Json
+          pedagogical_intervention_ref?: string | null
+          reason?: string | null
+          resources?: Json
+          version: number
+        }
+        Update: {
+          actions?: Json
+          author_person?: string
+          barrier_refs?: string[]
+          case_id?: string
+          created_at?: string
+          id?: string
+          objectives?: Json
+          pedagogical_intervention_ref?: string | null
+          reason?: string | null
+          resources?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_plan_versions_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permanence_rule_approvals: {
         Row: {
           approved_at: string
@@ -33119,6 +33216,32 @@ export type Database = {
           _result: string
         }
         Returns: string
+      }
+      record_permanence_plan_review: {
+        Args: {
+          _action_key: string
+          _case: string
+          _evidence: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _outcome: string
+          _plan_version: number
+        }
+        Returns: number
+      }
+      record_permanence_plan_version: {
+        Args: {
+          _actions: Json
+          _barrier_refs: string[]
+          _case: string
+          _expected_version: number
+          _intervention: string
+          _objectives: Json
+          _reason: string
+          _resources: Json
+        }
+        Returns: number
       }
       record_permanence_visit: {
         Args: {
