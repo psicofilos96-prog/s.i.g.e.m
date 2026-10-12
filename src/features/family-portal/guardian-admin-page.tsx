@@ -88,9 +88,17 @@ function SectionPicker({ value, onChange }: { value: FamilySection[]; onChange: 
 }
 
 function DraftFields({ d, set }: { d: GrantDraft; set: (d: GrantDraft) => void }) {
+  const r = d.restrictions ?? [];
   return (
     <div className="space-y-2">
+      <fieldset className="flex flex-wrap gap-3 text-sm"><legend className="mb-1 font-medium">Tipo de vínculo</legend>
+        {LINK_TYPES.map((t) => <label key={t} className="flex items-center gap-1"><input type="radio" name="link-type" checked={(d.linkType ?? "cadastrado") === t} onChange={() => set({ ...d, linkType: t })} />{LINK_TYPE_LABEL[t]}</label>)}
+      </fieldset>
+      {(d.linkType ?? "cadastrado") === "legal" && <label className="block text-sm">Documento que comprova a responsabilidade legal (referência)<input className="mt-1 block w-full rounded border border-input bg-background p-2" value={d.sourceRef ?? ""} onChange={(e) => set({ ...d, sourceRef: e.target.value })} /></label>}
       <SectionPicker value={d.sections} onChange={(sections) => set({ ...d, sections })} />
+      <fieldset className="flex flex-wrap gap-3 text-sm"><legend className="mb-1 font-medium">Restrições (retiram a seção)</legend>
+        {(Object.keys(RESTRICTIONS) as Restriction[]).map((k) => <label key={k} className="flex items-center gap-1"><input type="checkbox" checked={r.includes(k)} onChange={(e) => set({ ...d, restrictions: e.target.checked ? [...r, k] : r.filter((x) => x !== k) })} />Sem {SECTION_LABEL[RESTRICTIONS[k]].toLowerCase()}</label>)}
+      </fieldset>
       <div className="flex flex-wrap gap-3">
         <label className="text-sm">Início <DateInput value={d.validFrom} onChange={(e) => set({ ...d, validFrom: e.target.value })} /></label>
         <label className="text-sm">Fim (opcional) <DateInput value={d.validUntil} onChange={(e) => set({ ...d, validUntil: e.target.value })} /></label>
