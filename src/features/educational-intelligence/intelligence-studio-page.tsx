@@ -59,12 +59,13 @@ export function IntelligenceStudioPage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Acompanhamento e Avaliação" title="Estúdio de Inteligência Educacional"
         description="Resultados de avaliações externas e internas lidos das fontes canônicas, com proveniência, natureza do dado e comparabilidade declarada." />
-      <Tabs defaultValue="visao">
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="flex h-auto flex-wrap justify-start">
-          {([["visao", "Visão Geral"], ["programas", "Programas"], ["calendario", "Calendário"], ["saberler", "Saber Ler"], ["locais", "Diagnóstica/Formativa/Simula/PT"], ["externas", "Avaliações externas"], ["infantil", "Educação Infantil"], ["regras", "Matrizes e Regras"], ["intervencoes", "Intervenções"], ["importacao", "Importação"], ["frequencia", "Frequência e Rendimento"], ["avaliacoes", "Avaliações"], ["evolucao", "Evolução Histórica"], ["habilidades", "Habilidades/Descritores"], ["escolas", "Escolas e Turmas"], ["alunos", "Alunos"], ["relatorios", "Relatórios"], ["paineis", "Painéis"], ["qualidade", "Qualidade dos Dados"]] as const).map(([v, l]) => (
+          {([["hoje", "Hoje"], ["visao", "Visão Geral"], ["programas", "Programas"], ["calendario", "Calendário"], ["saberler", "Saber Ler"], ["locais", "Diagnóstica/Formativa/Simula/PT"], ["externas", "Avaliações externas"], ["infantil", "Educação Infantil"], ["regras", "Matrizes e Regras"], ["intervencoes", "Intervenções"], ["importacao", "Importação"], ["frequencia", "Frequência e Rendimento"], ["avaliacoes", "Avaliações"], ["evolucao", "Evolução Histórica"], ["habilidades", "Habilidades/Descritores"], ["escolas", "Escolas e Turmas"], ["alunos", "Alunos"], ["relatorios", "Relatórios"], ["paineis", "Painéis"], ["qualidade", "Qualidade dos Dados"]] as const).map(([v, l]) => (
             <TabsTrigger key={v} value={v}>{l}</TabsTrigger>))}
         </TabsList>
 
+        <TabsContent value="hoje"><AaDailyPanel onGo={(t) => { setTab(t); window.scrollTo({ top: 0 }); }} /></TabsContent>
         <TabsContent value="visao" className="space-y-4">
           <section aria-label="Indicadores do acervo" className="grid grid-cols-1 rounded-md border sm:grid-cols-3">
             <StatCard label="Programas avaliativos" value={count(programs)} helper="registrados por pessoa autorizada" />
