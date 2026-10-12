@@ -182,6 +182,7 @@ import { Route as InclusaoNeiProtocolosRouteImport } from './routes/inclusao_.ne
 import { Route as MatrizesCurricularesImpressaoIdRouteImport } from './routes/matrizes-curriculares.impressao.$id'
 import { Route as MatrizesCurricularesNovaVersaoIdRouteImport } from './routes/matrizes-curriculares.nova-versao.$id'
 import { Route as MatrizesCurricularesRascunhoIdRouteImport } from './routes/matrizes-curriculares.rascunho.$id'
+import { Route as MediadorAcompanhamentoStudentIdRouteImport } from './routes/mediador_.acompanhamento.$studentId'
 import { Route as ProfissionaisIdIndexRouteImport } from './routes/profissionais.$id.index'
 import { Route as ProfissionaisIdAtuacoesRouteImport } from './routes/profissionais.$id.atuacoes'
 import { Route as ProfissionaisEditarIdRouteImport } from './routes/profissionais.editar.$id'
@@ -1144,6 +1145,12 @@ const MatrizesCurricularesRascunhoIdRoute =
     path: '/rascunho/$id',
     getParentRoute: () => MatrizesCurricularesRoute,
   } as any)
+const MediadorAcompanhamentoStudentIdRoute =
+  MediadorAcompanhamentoStudentIdRouteImport.update({
+    id: '/mediador_/acompanhamento/$studentId',
+    path: '/mediador/acompanhamento/$studentId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProfissionaisIdIndexRoute = ProfissionaisIdIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -1771,6 +1778,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
+  '/mediador/acompanhamento/$studentId': typeof MediadorAcompanhamentoStudentIdRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesRouteWithChildren
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
@@ -2003,6 +2011,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
+  '/mediador/acompanhamento/$studentId': typeof MediadorAcompanhamentoStudentIdRoute
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
@@ -2242,6 +2251,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares/impressao/$id': typeof MatrizesCurricularesImpressaoIdRoute
   '/matrizes-curriculares/nova-versao/$id': typeof MatrizesCurricularesNovaVersaoIdRoute
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
+  '/mediador_/acompanhamento/$studentId': typeof MediadorAcompanhamentoStudentIdRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesRouteWithChildren
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
@@ -2495,6 +2505,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
+    | '/mediador/acompanhamento/$studentId'
     | '/profissionais/$id/atuacoes'
     | '/profissionais/editar/$id'
     | '/regras-avaliativas/$regraId/comparar'
@@ -2727,6 +2738,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
+    | '/mediador/acompanhamento/$studentId'
     | '/profissionais/editar/$id'
     | '/regras-avaliativas/$regraId/comparar'
     | '/regras-avaliativas/$regraId/editar'
@@ -2965,6 +2977,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/impressao/$id'
     | '/matrizes-curriculares/nova-versao/$id'
     | '/matrizes-curriculares/rascunho/$id'
+    | '/mediador_/acompanhamento/$studentId'
     | '/profissionais/$id/atuacoes'
     | '/profissionais/editar/$id'
     | '/regras-avaliativas/$regraId/comparar'
@@ -3167,6 +3180,7 @@ export interface RootRouteChildren {
   InclusaoNeiFichaRoute: typeof InclusaoNeiFichaRoute
   InclusaoNeiIndicadoresRoute: typeof InclusaoNeiIndicadoresRoute
   InclusaoNeiProtocolosRoute: typeof InclusaoNeiProtocolosRoute
+  MediadorAcompanhamentoStudentIdRoute: typeof MediadorAcompanhamentoStudentIdRoute
   VerificarCarteirinhaCodigoRoute: typeof VerificarCarteirinhaCodigoRoute
   VerificarDocumentoCodigoRoute: typeof VerificarDocumentoCodigoRoute
   VerificarRelatorioCodigoRoute: typeof VerificarRelatorioCodigoRoute
@@ -4386,6 +4400,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/matrizes-curriculares/rascunho/$id'
       preLoaderRoute: typeof MatrizesCurricularesRascunhoIdRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/mediador_/acompanhamento/$studentId': {
+      id: '/mediador_/acompanhamento/$studentId'
+      path: '/mediador/acompanhamento/$studentId'
+      fullPath: '/mediador/acompanhamento/$studentId'
+      preLoaderRoute: typeof MediadorAcompanhamentoStudentIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/profissionais/$id/': {
       id: '/profissionais/$id/'
@@ -5718,6 +5739,7 @@ const rootRouteChildren: RootRouteChildren = {
   InclusaoNeiFichaRoute: InclusaoNeiFichaRoute,
   InclusaoNeiIndicadoresRoute: InclusaoNeiIndicadoresRoute,
   InclusaoNeiProtocolosRoute: InclusaoNeiProtocolosRoute,
+  MediadorAcompanhamentoStudentIdRoute: MediadorAcompanhamentoStudentIdRoute,
   VerificarCarteirinhaCodigoRoute: VerificarCarteirinhaCodigoRoute,
   VerificarDocumentoCodigoRoute: VerificarDocumentoCodigoRoute,
   VerificarRelatorioCodigoRoute: VerificarRelatorioCodigoRoute,

@@ -38,7 +38,7 @@ export function MediatorPanelPage() {
           <ul className="grid gap-2 sm:grid-cols-2">
             {p.students.map((s) => (
               <li key={`${s.schoolId}-${s.id}`} className="rounded-lg border border-border bg-card p-3">
-                <p className="font-medium text-foreground">{s.name}</p>
+                <Link to="/mediador/acompanhamento/$studentId" params={{ studentId: s.id }} className="font-medium text-foreground underline-offset-4 hover:underline">{s.name}</Link>
                 <p className="text-sm text-muted-foreground">Turma {s.classId ?? "não registrada"} · Escola {s.schoolId}{s.until ? ` · até ${s.until.split("-").reverse().join("/")}` : ""}</p>
               </li>
             ))}
