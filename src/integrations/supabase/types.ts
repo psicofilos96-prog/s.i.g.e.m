@@ -1019,6 +1019,94 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_case_dispatch_events: {
+        Row: {
+          author_person: string
+          created_at: string
+          dispatch_id: string
+          event_type: string
+          id: string
+          note: string | null
+          responsible_engagement_id: string | null
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          dispatch_id: string
+          event_type: string
+          id?: string
+          note?: string | null
+          responsible_engagement_id?: string | null
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          dispatch_id?: string
+          event_type?: string
+          id?: string
+          note?: string | null
+          responsible_engagement_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_dispatch_events_dispatch_id_fkey"
+            columns: ["dispatch_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_dispatches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_dispatches: {
+        Row: {
+          case_id: string
+          dispatch_seq: number
+          due_basis: string | null
+          due_on: string | null
+          from_unit_id: string
+          id: string
+          note: string | null
+          responsible_engagement_id: string | null
+          sent_at: string
+          sent_by_person: string
+          to_unit_id: string
+        }
+        Insert: {
+          case_id: string
+          dispatch_seq: number
+          due_basis?: string | null
+          due_on?: string | null
+          from_unit_id: string
+          id?: string
+          note?: string | null
+          responsible_engagement_id?: string | null
+          sent_at?: string
+          sent_by_person: string
+          to_unit_id: string
+        }
+        Update: {
+          case_id?: string
+          dispatch_seq?: number
+          due_basis?: string | null
+          due_on?: string | null
+          from_unit_id?: string
+          id?: string
+          note?: string | null
+          responsible_engagement_id?: string | null
+          sent_at?: string
+          sent_by_person?: string
+          to_unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_dispatches_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_case_events: {
         Row: {
           author_person: string
@@ -1115,6 +1203,81 @@ export type Database = {
             columns: ["protocol_registration_id"]
             isOneToOne: false
             referencedRelation: "protocol_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_sensitive_access_log: {
+        Row: {
+          case_event_id: string
+          id: string
+          purpose: string
+          read_at: string
+          reader_person: string
+        }
+        Insert: {
+          case_event_id: string
+          id?: string
+          purpose: string
+          read_at?: string
+          reader_person: string
+        }
+        Update: {
+          case_event_id?: string
+          id?: string
+          purpose?: string
+          read_at?: string
+          reader_person?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_sensitive_access_log_case_event_id_fkey"
+            columns: ["case_event_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_case_sensitive_access_log_case_event_id_fkey"
+            columns: ["case_event_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_sensitive_documents: {
+        Row: {
+          case_event_id: string
+          marked_at: string
+          marked_by_person: string
+          reason: string
+        }
+        Insert: {
+          case_event_id: string
+          marked_at?: string
+          marked_by_person: string
+          reason: string
+        }
+        Update: {
+          case_event_id?: string
+          marked_at?: string
+          marked_by_person?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_sensitive_documents_case_event_id_fkey"
+            columns: ["case_event_id"]
+            isOneToOne: true
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_case_sensitive_documents_case_event_id_fkey"
+            columns: ["case_event_id"]
+            isOneToOne: true
+            referencedRelation: "admin_case_events_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -24122,7 +24285,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_case_events_safe: {
+        Row: {
+          author_person: string | null
+          case_id: string | null
+          content_sha256: string | null
+          created_at: string | null
+          document_order: number | null
+          document_ref: string | null
+          event_type: string | null
+          id: string | null
+          sensitive: boolean | null
+          seq: number | null
+          text_body: string | null
+          to_unit_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       aa_calendar_record_status: {
@@ -24347,6 +24534,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_case_current_unit: { Args: { _case_id: string }; Returns: string }
       aee_services_at: {
         Args: { _known_at: string; _school: string; _student: string }
         Returns: {
@@ -26391,6 +26579,18 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      dispatch_admin_case: {
+        Args: {
+          _case_id: string
+          _due_basis: string
+          _due_on: string
+          _expected_dispatch_seq: number
+          _note: string
+          _responsible_engagement_id: string
+          _to_unit_id: string
+        }
+        Returns: number
+      }
       dispatch_notification_event: { Args: { _event: string }; Returns: number }
       docserv_alert_reads_mine: { Args: never; Returns: string[] }
       docserv_append_only_row: {
@@ -28090,6 +28290,10 @@ export type Database = {
       map_snapshot_criterion_issue: { Args: { _s: Json }; Returns: string }
       map_snapshot_digest: { Args: { _snapshot: Json }; Returns: string }
       map_year_state_on: { Args: { _on: string }; Returns: string }
+      mark_case_document_sensitive: {
+        Args: { _case_event_id: string; _reason: string }
+        Returns: undefined
+      }
       meal_audit_trail_at: {
         Args: { _from: string; _school: string; _to: string }
         Returns: {
@@ -29746,6 +29950,13 @@ export type Database = {
         Returns: string
       }
       rcq_raise: { Args: { msg: string }; Returns: string }
+      read_sensitive_case_document: {
+        Args: { _case_event_id: string; _purpose: string }
+        Returns: {
+          content_sha256: string
+          document_ref: string
+        }[]
+      }
       readable_class_ids: { Args: never; Returns: string[] }
       readable_enrollments_count: { Args: never; Returns: number }
       readable_students_count: { Args: never; Returns: number }
@@ -30583,6 +30794,15 @@ export type Database = {
           _to: string
         }
         Returns: string
+      }
+      record_dispatch_event: {
+        Args: {
+          _dispatch_id: string
+          _event_type: string
+          _note: string
+          _responsible_engagement_id: string
+        }
+        Returns: undefined
       }
       record_engagement: {
         Args: {
