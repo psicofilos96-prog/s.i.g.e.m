@@ -44,3 +44,4 @@
 
 ## L23 Testes integrados (`people-scenario.integration.test.ts`, `supabase/tests/gp23_people_rls_isolation.sql`)
 - O cenário sintético (dois vínculos, duas escolas, transferência, designação, durações, afastamento/substituição, sobreposição, proposta recusada, atribuição válida, cobertura, simulação, isolamento) encadeia os núcleos sobre as mesmas fixtures; a prova de RLS é bloco SQL que substitui `school_capability_grant` por nome (políticas guardam a identidade de `has_school_capability`) e termina em RAISE, porque fixture persistida ou stub da função errada dariam falsa prova.
+- Gestão de Pessoas L24 (`people-closure.ts`): matriz de fechamento 37 seções + 18 critérios → fonte/tela/teste/status, com arquivos conferidos em disco por teste; não existe status "homologado", porque o código não comprova decisão humana nem ato oficial.
