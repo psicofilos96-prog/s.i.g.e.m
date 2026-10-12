@@ -92,8 +92,8 @@ function LookupPicker({ id, spec, value, onPick }: { id: string; spec: LookupSpe
         : q.isError ? <span className="mt-1 block text-destructive">{userErrorText(q.error, { operation: `buscar-${spec.table}` })}</span>
         : q.data.length === 0 ? <span className="mt-1 block">Nenhum registro visível para sua conta.</span>
         : <span className="mt-1 flex max-h-40 flex-col gap-1 overflow-y-auto">{q.data.map((r) => (
-            <button type="button" key={String(r.id)} className="rounded border border-border px-2 py-1 text-left text-foreground hover:bg-muted"
-              onClick={() => { onPick(String(r.id)); setOpen(false); }}>
+            <button type="button" key={String(r["id"])} className="rounded border border-border px-2 py-1 text-left text-foreground hover:bg-muted"
+              onClick={() => { onPick(String(r["id"])); setOpen(false); }}>
               {spec.label.map((c) => { const v = r[c]; return v === null || v === undefined ? "—" : c.endsWith("_at") ? formatDateTime(String(v)) : String(v); }).join(" · ")}
             </button>))}</span>) : null}
     </span>
