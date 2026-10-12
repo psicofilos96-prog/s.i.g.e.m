@@ -3515,6 +3515,13 @@
       "when": 1791827776340,
       "tag": "0501_enr14_official_parameters",
       "breakpoints": true
+    },
+    {
+      "idx": 502,
+      "version": "7",
+      "when": 1791828106434,
+      "tag": "0502_tech15_registry_network_guard",
+      "breakpoints": true
     }
   ]
 }
