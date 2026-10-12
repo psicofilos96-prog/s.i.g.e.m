@@ -14026,6 +14026,56 @@ export type Database = {
           },
         ]
       }
+      enr_application_documents: {
+        Row: {
+          application_id: string
+          created_at: string
+          declared_sha256: string
+          doc_type: string
+          id: string
+          idempotency_key: string
+          mime_type: string
+          object_path: string
+          size_bytes: number
+          slot_expires_at: string
+          version: number
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          declared_sha256: string
+          doc_type: string
+          id?: string
+          idempotency_key: string
+          mime_type: string
+          object_path: string
+          size_bytes: number
+          slot_expires_at: string
+          version: number
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          declared_sha256?: string
+          doc_type?: string
+          id?: string
+          idempotency_key?: string
+          mime_type?: string
+          object_path?: string
+          size_bytes?: number
+          slot_expires_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_application_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_applications: {
         Row: {
           application_code: string
@@ -14255,6 +14305,57 @@ export type Database = {
           kind?: string
         }
         Relationships: []
+      }
+      enr_document_reviews: {
+        Row: {
+          created_at: string
+          document_id: string
+          ged_case_id: string | null
+          id: string
+          idempotency_key: string
+          outcome: string
+          reason: string
+          reviewer_person: string
+          seq: number
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          ged_case_id?: string | null
+          id?: string
+          idempotency_key: string
+          outcome: string
+          reason: string
+          reviewer_person: string
+          seq: number
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          ged_case_id?: string | null
+          id?: string
+          idempotency_key?: string
+          outcome?: string
+          reason?: string
+          reviewer_person?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_document_reviews_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "enr_application_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_document_reviews_ged_case_id_fkey"
+            columns: ["ged_case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       enr_preference_policies: {
         Row: {
@@ -36757,6 +36858,7 @@ export type Database = {
       }
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
+      enr_document_slot_open: { Args: { _name: string }; Returns: boolean }
       enr_norm_name: { Args: { _t: string }; Returns: string }
       enr_preference_policy_current: {
         Args: { _c: string }
@@ -36780,6 +36882,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      enr_public_application_documents: {
+        Args: { _check: string; _code: string }
+        Returns: {
+          doc_type: string
+          situation: string
+          version: number
+        }[]
       }
       enr_public_application_status: {
         Args: { _check: string; _code: string }
@@ -36814,6 +36924,21 @@ export type Database = {
         Returns: {
           last_update_on: string
           registered_on: string
+          status: string
+        }[]
+      }
+      enr_public_request_document_slot: {
+        Args: {
+          _check: string
+          _code: string
+          _doc_type: string
+          _key: string
+          _mime: string
+          _sha256: string
+          _size: number
+        }
+        Returns: {
+          object_path: string
           status: string
         }[]
       }
@@ -41348,6 +41473,17 @@ export type Database = {
             }
             Returns: number
           }
+      record_enr_document_review: {
+        Args: {
+          _doc: string
+          _expected_seq: number
+          _ged_case: string
+          _key: string
+          _outcome: string
+          _reason: string
+        }
+        Returns: string
+      }
       record_enr_preference_policy: {
         Args: {
           _campaign: string
