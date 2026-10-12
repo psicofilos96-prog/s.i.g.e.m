@@ -18452,6 +18452,59 @@ export type Database = {
           },
         ]
       }
+      permanence_contact_attempts: {
+        Row: {
+          attempted_on: string
+          authorization_logical_id: string
+          authorization_version: number
+          case_id: string
+          channel: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          next_follow_up: string | null
+          professional_person: string
+          providence: string | null
+          result: string
+        }
+        Insert: {
+          attempted_on: string
+          authorization_logical_id: string
+          authorization_version: number
+          case_id: string
+          channel: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          next_follow_up?: string | null
+          professional_person: string
+          providence?: string | null
+          result: string
+        }
+        Update: {
+          attempted_on?: string
+          authorization_logical_id?: string
+          authorization_version?: number
+          case_id?: string
+          channel?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          next_follow_up?: string | null
+          professional_person?: string
+          providence?: string | null
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_contact_attempts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permanence_out_of_school_events: {
         Row: {
           author_person: string
@@ -32979,6 +33032,19 @@ export type Database = {
           _kind: string
         }
         Returns: number
+      }
+      record_permanence_contact_attempt: {
+        Args: {
+          _attempted_on: string
+          _authorization: string
+          _case: string
+          _channel: string
+          _key: string
+          _next: string
+          _providence: string
+          _result: string
+        }
+        Returns: string
       }
       record_position_matrix_correspondence_version: {
         Args: {
