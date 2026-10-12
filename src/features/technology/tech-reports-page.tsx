@@ -9,7 +9,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { buildTimeline, reportStatus, TECH_REPORTS, TECH_TIMELINE_REPORT, timelineRows, type TimelineItem } from "./tech-reports";
 import { runReport, downloadBlob, type ReportDefinition } from "@/features/reports/report-engine";
 import { auditedExport } from "@/features/reports/audited-export";
-import { safeErrorMessage } from "@/lib/safe-error";
 
 const db = supabase as unknown as { from: (t: string) => any };
 const SATISFIED = new Set<string>(); // nenhuma decisão institucional registrada ainda
@@ -49,7 +48,7 @@ export function TechReportsPage() {
       const out = await auditedExport({ sector: "tecnologia", definitionId: def.id, definitionVersion: def.version, title: def.title, source: def.source, result, format, meta: [`Chamado: ${code.trim()}`, `Registros sem data fora: ${state.t.undated}`], branding: { headerLines: ["SIGEM — Tecnologia"], title: def.title }, idempotencyKey: `tech-ficha-${crypto.randomUUID()}` }, window.location.origin);
       downloadBlob(out.name, out.blob);
       setExp(`Emissão registrada. Código de verificação ${out.code}.`);
-    } catch (e) { setExp(safeErrorMessage(e)); }
+    } catch (e) { setExp(e instanceof Error && e.message === "export:sensitive-column" ? "Exportação recusada: coluna sensível." : "Não foi possível registrar a emissão; nada foi baixado."); }
   };
 
   const search = async () => {
