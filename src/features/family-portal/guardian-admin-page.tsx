@@ -7,6 +7,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { FAMILY_SECTIONS, SECTION_LABEL, fmtDate, type FamilySection } from "./family-portal";
 import { adminMessage, projectAuthorizations, validateDraft, type AuthorizationView, type GrantDraft } from "./guardian-admin";
+import { LINK_TYPES, LINK_TYPE_LABEL, RESTRICTIONS, type Restriction } from "./guardian-link";
 import { locateGuardian, locateStudentForGuardian, readChain, recordAuthorization, type GuardianLookup, type StudentLookup } from "./guardian-admin-source";
 
 const today = () => operationalToday();

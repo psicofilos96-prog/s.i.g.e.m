@@ -28,9 +28,9 @@ describe("AC.2 gestão de autorizações", () => {
     expect(adminMessage("ERROR: family:base-superseded")).toMatch(/Recarregue/);
     expect(adminMessage("relation guardian_authorizations does not exist")).toBe("Não foi possível concluir. Nada foi gravado.");
   });
-  it("superfície usa só o writer v3 e readers governados; sem conta, sem DML, sem parentesco inventado", () => {
+  it("superfície usa só o writer v4 (que reaproveita a v3) e readers governados; sem conta, sem DML, sem parentesco inventado", () => {
     const src = ["guardian-admin-page.tsx", "guardian-admin-source.ts"].map((f) => readFileSync(`src/features/family-portal/${f}`, "utf8")).join("\n");
-    expect(src).toContain("record_guardian_authorization_v3");
+    expect(src).toContain("record_guardian_authorization_v4");
     expect(src).not.toMatch(/record_guardian_authorization["_v2]*"/);
     expect(src).not.toMatch(/record_guardian_authorization_v2|guardian_user_id|\.(insert|update|upsert|delete)\(/);
     expect(src).not.toMatch(/from\("guardian_authorizations"\)|from\("user_person_links"\)/);

@@ -31,7 +31,7 @@ export interface LinkDraft {
 }
 
 export function effectiveSections(sections: readonly FamilySection[], restrictions: readonly Restriction[]): FamilySection[] {
-  const cut = new Set(restrictions.map((r) => RESTRICTIONS[r]));
+  const cut = new Set<FamilySection>(restrictions.map((r) => RESTRICTIONS[r]));
   return FAMILY_SECTIONS.filter((s) => sections.includes(s) && !cut.has(s));
 }
 
