@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { PublicLayout } from "@/features/public-portal/public-layout";
 import { listPublicCampaigns, readableId, TERM_LABEL, campaignWindow } from "@/features/enrollments/ingress-public";
 import {
-  emptyDraft, firstInvalidStep, STEP_LABEL, STEPS, stepErrors, submitApplication, SUBMIT_MESSAGE, effectiveStudentName,
+  emptyDraft, firstInvalidStep, STEP_LABEL, STEPS, stepErrors, submitApplication, SUBMIT_MESSAGE, effectiveStudentName, fetchPreferencePolicy,
   type Draft, type Errs,
 } from "@/features/enrollments/application-wizard";
 import { EmptyState } from "@/components/sigem/patterns";
@@ -58,6 +58,8 @@ function Wizard({ campaign }: { campaign: C }) {
   const [done, setDone] = useState<{ code: string; check: string } | null>(null);
   const [fail, setFail] = useState<string | null>(null);
   const keyRef = useRef<string>(crypto.randomUUID());
+  const pq = useQuery({ queryKey: ["enr-public-preference-policy", campaign.campaign_id], queryFn: () => fetchPreferencePolicy(campaign.campaign_id), staleTime: 60_000 });
+  const policy = pq.isSuccess ? pq.data : undefined;
   const headRef = useRef<HTMLHeadingElement>(null);
   const step = STEPS[i]!;
   const t = today();
@@ -73,12 +75,12 @@ function Wizard({ campaign }: { campaign: C }) {
 
   const set = <K extends keyof Draft>(k: K, v: Draft[K]) => setD((p) => ({ ...p, [k]: v }));
   function next() {
-    const e = stepErrors(step, d, campaign, t); setErrors(e);
+    const e = stepErrors(step, d, campaign, t, policy); setErrors(e);
     if (!Object.keys(e).length) setI((x) => Math.min(x + 1, STEPS.length - 1));
   }
   async function send() {
-    const bad = firstInvalidStep(d, campaign, t);
-    if (bad) { setI(STEPS.indexOf(bad)); setErrors(stepErrors(bad, d, campaign, t)); return; }
+    const bad = firstInvalidStep(d, campaign, t, policy);
+    if (bad) { setI(STEPS.indexOf(bad)); setErrors(stepErrors(bad, d, campaign, t, policy)); return; }
     setBusy(true); setFail(null);
     const r = await submitApplication(campaign.campaign_id, d, keyRef.current);
     setBusy(false);
@@ -95,7 +97,10 @@ function Wizard({ campaign }: { campaign: C }) {
         <div><dt className="text-muted-foreground">Código de conferência</dt><dd className="font-mono text-lg text-foreground">{done.check}</dd></div>
       </dl>
       <p className="mt-3 text-sm text-muted-foreground">O pedido não garante vaga. Ele será analisado conforme o edital; a matrícula só existe depois de confirmada pela escola.</p>
-      <Button className="mt-4 min-h-11" onClick={() => window.print()}>Imprimir comprovante</Button>
+      <div className="mt-4 flex flex-wrap gap-2 print:hidden">
+        <Button className="min-h-11" onClick={() => window.print()}>Imprimir comprovante</Button>
+        <Button asChild variant="outline" className="min-h-11"><Link to="/publico/acompanhar-inscricao">Acompanhar pedido e enviar documentos</Link></Button>
+      </div>
     </section>
   );
 
@@ -159,6 +164,26 @@ function Wizard({ campaign }: { campaign: C }) {
                   <span className="min-w-0 flex-1">{s.name ?? "Escola sem nome registrado"}</span>
                   {pos >= 0 && <span className="shrink-0 rounded bg-muted px-2 text-xs">{pos + 1}ª opção</span>}
                 </label>
+              );
+            })}
+            {policy && d.schools.length > 0 && (policy.shifts.length > 0 || policy.offers.length > 0) && d.schools.map((sid) => {
+              const name = campaign.schools.find((s) => s.school_id === sid)?.name ?? "Escola sem nome registrado";
+              const cur = d.choices[sid] ?? { shift: null, offer: null };
+              const put = (k: "shift" | "offer", v: string) => set("choices", { ...d.choices, [sid]: { ...cur, [k]: v || null } });
+              return (
+                <div key={`c-${sid}`} className="grid gap-2 rounded-md border border-border p-2 sm:grid-cols-2">
+                  <p className="text-sm font-medium text-foreground sm:col-span-2">{name}</p>
+                  {policy.shifts.length > 0 && <label className="grid gap-1 text-sm text-foreground">Turno preferido
+                    <select className="min-h-11 rounded-md border border-input bg-background px-2" value={cur.shift ?? ""} onChange={(e) => put("shift", e.target.value)}>
+                      <option value="">Sem preferência de turno</option>
+                      {policy.shifts.map((x) => <option key={x} value={x}>{readableId(x)}</option>)}
+                    </select></label>}
+                  {policy.offers.length > 0 && <label className="grid gap-1 text-sm text-foreground">Oferta preferida
+                    <select className="min-h-11 rounded-md border border-input bg-background px-2" value={cur.offer ?? ""} onChange={(e) => put("offer", e.target.value)}>
+                      <option value="">Sem preferência de oferta</option>
+                      {policy.offers.map((x) => <option key={x} value={x}>{readableId(x)}</option>)}
+                    </select></label>}
+                </div>
               );
             })}
             <p className="text-sm text-muted-foreground">{NO_PROMISE_NOTICE}</p>
