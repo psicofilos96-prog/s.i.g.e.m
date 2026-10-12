@@ -487,5 +487,6 @@
  "drizzle/migrations/0436_dev08_formative_classes.sql": "d190dcbcd156ecc2eb4830e20f6492266f7026211d62536853c263d6ac0e1afd",
  "drizzle/migrations/0437_dev09_formative_calendar.sql": "e63f44a9dee74ed6b08e024ab684ef55db83b48f4ef472bb71bfb297ab6d9ca4",
  "drizzle/migrations/0438_dev10_enrollment_flow.sql": "97ace897748e97e54dee29e8fb1a5afc253b8c14a12b2448bbb961f00ae3934f",
- "drizzle/migrations/0439_dev10_fix_school_capability.sql": "16dd5ea206b6d8ffcc7ee8a59cc5920b62bda97571176b58f55fb707ed0efbc1"
+ "drizzle/migrations/0439_dev10_fix_school_capability.sql": "16dd5ea206b6d8ffcc7ee8a59cc5920b62bda97571176b58f55fb707ed0efbc1",
+ "drizzle/migrations/0440_dev11_participants_trainers.sql": "0be2b2fd921ebbf859e9b73d00688090cbc1380ba739961cd0add51fcef66ce6"
 }
