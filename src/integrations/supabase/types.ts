@@ -34314,6 +34314,106 @@ export type Database = {
           },
         ]
       }
+      tech_service_sessions: {
+        Row: {
+          created_at: string
+          ended_at: string
+          engagement_id: string
+          evidence_ref: string | null
+          id: string
+          idempotency_key: string
+          mode: string
+          person_id: string
+          reason: string | null
+          rectifies: string | null
+          request_id: string
+          result: string
+          seq: number
+          space_id: string | null
+          started_at: string
+          summary: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at: string
+          engagement_id: string
+          evidence_ref?: string | null
+          id?: string
+          idempotency_key: string
+          mode: string
+          person_id: string
+          reason?: string | null
+          rectifies?: string | null
+          request_id: string
+          result: string
+          seq: number
+          space_id?: string | null
+          started_at: string
+          summary: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string
+          engagement_id?: string
+          evidence_ref?: string | null
+          id?: string
+          idempotency_key?: string
+          mode?: string
+          person_id?: string
+          reason?: string | null
+          rectifies?: string | null
+          request_id?: string
+          result?: string
+          seq?: number
+          space_id?: string | null
+          started_at?: string
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_service_sessions_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_service_sessions_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_service_sessions_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_service_sessions_rectifies_fkey"
+            columns: ["rectifies"]
+            isOneToOne: false
+            referencedRelation: "tech_service_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_service_sessions_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_service_sessions_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_sla_policy_approvals: {
         Row: {
           created_at: string
@@ -45889,6 +45989,23 @@ export type Database = {
           _note: string
           _problem: string
           _request: string
+        }
+        Returns: number
+      }
+      record_tech_service_session: {
+        Args: {
+          _ended: string
+          _evidence: string
+          _expected_seq: number
+          _key: string
+          _mode: string
+          _reason: string
+          _rectifies: string
+          _request: string
+          _result: string
+          _space: string
+          _started: string
+          _summary: string
         }
         Returns: number
       }
