@@ -62,7 +62,7 @@ export async function proposeDistribution(crit: DistributionCriterion, requests:
     const explanation = all.map((x) => ({ factKey: x.factKey, value: r.facts[x.factKey]!.value, evidenceRef: r.facts[x.factKey]!.evidenceRef, basis: x.basis }));
     const tie = tieOf.get(r.protocol);
     // Se um grupo empatado disputa vagas insuficientes na mesma preferência, ninguém do grupo é contemplado pelo motor.
-    if (tie && !blockedTie.has(tie.join())) {
+    if (tie && tie[0] === r.protocol) {
       const firstPref = r.preferences.find((p) => (left.get(p) ?? 0) > 0);
       const competing = tie.filter((p) => requests.find((x) => x.protocol === p)!.preferences.find((q) => (left.get(q) ?? 0) > 0) === firstPref);
       if (firstPref && competing.length > (left.get(firstPref) ?? 0)) { blockedTie.add(tie.join()); conflicts.push(`Empate sem desempate fundamentado disputando ${firstPref}: ${competing.join(", ")}.`); }
