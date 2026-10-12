@@ -7,7 +7,7 @@ estudante → matrícula (`cycle_participations`) → enturmação (`class_enrol
 
 ## Resumo das 34 seções
 - **Tela (9):** 6 Minhas turmas, 8 Diário, 9 Registro de aulas, 10 Frequência, 11 Planejamento, 14 Avaliações, 17 Educação Infantil, 22 Documentos, 25 Encerramento.
-- **Parcial (14):** 3, 5, 7, 12, 15, 16, 18, 19, 23, 26, 27, 29, 31.
+- **Parcial (13):** 3, 5, 7, 12, 15, 16, 18, 19, 23, 26, 27, 29, 31.
 - **Lacuna (4):** 13 Atividades, 20 Materiais, 21 Comunicação, 24 Meu histórico.
 - **Bloqueado (1):** 28 Perfis e permissões (sem política de capacidades homologada vigente).
 - **Núcleo/descritivas:** 4, 30; 1, 2, 32–34.
