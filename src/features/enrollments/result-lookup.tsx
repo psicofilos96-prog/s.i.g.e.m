@@ -2,6 +2,7 @@ import { useId, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { acceptSeat, ACCEPT_MESSAGE } from "./seat-acceptance";
 import { consultResult, SITUATION_LABEL, STATUS_MESSAGE, type IndividualResult } from "./individual-result";
 
 const fmtDateTime = (d: string) => new Date(d).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo", dateStyle: "short", timeStyle: "short" });
@@ -12,6 +13,12 @@ export function ResultLookup() {
   const [code, setCode] = useState(""); const [check, setCheck] = useState("");
   const [busy, setBusy] = useState(false); const [err, setErr] = useState<string | null>(null);
   const [res, setRes] = useState<IndividualResult | null>(null);
+  const [acc, setAcc] = useState<string | null>(null);
+  async function accept() {
+    setAcc(null); setBusy(true);
+    try { const r = await acceptSeat(code, check); setAcc(ACCEPT_MESSAGE[r.status] + (r.receipt ? ` Comprovante: ${r.receipt}` : "")); }
+    catch { setAcc("Não foi possível registrar agora. Tente novamente."); } finally { setBusy(false); }
+  }
   async function submit(e: FormEvent) {
     e.preventDefault(); setErr(null); setRes(null); setBusy(true);
     try { setRes(await consultResult(code, check)); } catch { setErr("Consulta indisponível no momento. Tente novamente."); } finally { setBusy(false); }
@@ -38,6 +45,8 @@ export function ResultLookup() {
           <div className="space-y-2 rounded-md border border-border bg-muted p-3 text-sm text-foreground">
             {res.situation ? <p className="font-medium">{SITUATION_LABEL[res.situation]}</p> : null}
             {res.deadline ? <p>Prazo: até {fmtDateTime(res.deadline)}</p> : null}
+            {res.situation === "vaga-reservada" ? <Button type="button" onClick={accept} disabled={busy} className="min-h-11">Quero esta vaga</Button> : null}
+            {acc ? <p>{acc}</p> : null}
             {res.status === "ok" ? (
               <>
                 <p><span className="font-medium">Motivo: </span>{res.justification}</p>

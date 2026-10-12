@@ -14026,6 +14026,39 @@ export type Database = {
           },
         ]
       }
+      enr_admin_validations: {
+        Row: {
+          created_at: string
+          hold_id: string
+          id: string
+          idempotency_key: string
+          outcome: string
+          reason: string
+          receipt_hash: string
+          validator_person: string
+        }
+        Insert: {
+          created_at?: string
+          hold_id: string
+          id?: string
+          idempotency_key: string
+          outcome: string
+          reason: string
+          receipt_hash: string
+          validator_person: string
+        }
+        Update: {
+          created_at?: string
+          hold_id?: string
+          id?: string
+          idempotency_key?: string
+          outcome?: string
+          reason?: string
+          receipt_hash?: string
+          validator_person?: string
+        }
+        Relationships: []
+      }
       enr_application_analyses: {
         Row: {
           application_id: string
@@ -14688,6 +14721,64 @@ export type Database = {
             columns: ["ged_case_id"]
             isOneToOne: false
             referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_family_acceptances: {
+        Row: {
+          application_id: string
+          created_at: string
+          hold_id: string
+          receipt_hash: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          hold_id: string
+          receipt_hash: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          hold_id?: string
+          receipt_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_family_acceptances_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_formalization_links: {
+        Row: {
+          created_at: string
+          enrollment_id: string
+          hold_id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id: string
+          hold_id: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string
+          hold_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_formalization_links_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: true
+            referencedRelation: "school_enrollments"
             referencedColumns: ["id"]
           },
         ]
@@ -37755,6 +37846,10 @@ export type Database = {
       enr_classifier: { Args: never; Returns: boolean }
       enr_distribution_conflicts: { Args: { _run: string }; Returns: Json }
       enr_document_slot_open: { Args: { _name: string }; Returns: boolean }
+      enr_link_formalized_enrollment: {
+        Args: { _enrollment: string; _hold: string }
+        Returns: undefined
+      }
       enr_norm_name: { Args: { _t: string }; Returns: string }
       enr_open_waitlist: {
         Args: { _cell: string; _key: string; _proposal: string }
@@ -37789,6 +37884,13 @@ export type Database = {
         Returns: {
           protocol_number: string
           reused: boolean
+        }[]
+      }
+      enr_public_accept_seat: {
+        Args: { _check: string; _code: string }
+        Returns: {
+          receipt: string
+          status: string
         }[]
       }
       enr_public_application_documents: {
@@ -42425,6 +42527,13 @@ export type Database = {
           _valid_until: string
         }
         Returns: string
+      }
+      record_enr_admin_validation: {
+        Args: { _hold: string; _key: string; _outcome: string; _reason: string }
+        Returns: {
+          seat_seq: number
+          validation_receipt: string
+        }[]
       }
       record_enr_application_analysis: {
         Args: {
