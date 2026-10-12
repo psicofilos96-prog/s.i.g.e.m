@@ -17978,6 +17978,208 @@ export type Database = {
           },
         ]
       }
+      ops_maintenance_catalog_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          catalog_version_id: string
+          decision_ref: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          catalog_version_id: string
+          decision_ref: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          catalog_version_id?: string
+          decision_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_maintenance_catalog_approvals_catalog_version_id_fkey"
+            columns: ["catalog_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_maintenance_catalog_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_maintenance_catalog_versions: {
+        Row: {
+          author_person: string
+          catalog_key: string
+          categories: string[]
+          created_at: string
+          id: string
+          reason: string | null
+          urgencies: string[]
+          version: number
+        }
+        Insert: {
+          author_person: string
+          catalog_key: string
+          categories: string[]
+          created_at?: string
+          id?: string
+          reason?: string | null
+          urgencies: string[]
+          version: number
+        }
+        Update: {
+          author_person?: string
+          catalog_key?: string
+          categories?: string[]
+          created_at?: string
+          id?: string
+          reason?: string | null
+          urgencies?: string[]
+          version?: number
+        }
+        Relationships: []
+      }
+      ops_maintenance_events: {
+        Row: {
+          actor_person: string
+          category: string | null
+          conference_result: string | null
+          created_at: string
+          evidence_refs: string[]
+          executed_on: string | null
+          executor_engagement: string | null
+          id: string
+          idempotency_key: string
+          note: string | null
+          order_id: string
+          requires_technical_report: boolean | null
+          scheduled_for: string | null
+          seq: number
+          stage: string
+          technical_assessment: string | null
+          urgency: string | null
+          urgency_reason: string | null
+        }
+        Insert: {
+          actor_person: string
+          category?: string | null
+          conference_result?: string | null
+          created_at?: string
+          evidence_refs?: string[]
+          executed_on?: string | null
+          executor_engagement?: string | null
+          id?: string
+          idempotency_key: string
+          note?: string | null
+          order_id: string
+          requires_technical_report?: boolean | null
+          scheduled_for?: string | null
+          seq: number
+          stage: string
+          technical_assessment?: string | null
+          urgency?: string | null
+          urgency_reason?: string | null
+        }
+        Update: {
+          actor_person?: string
+          category?: string | null
+          conference_result?: string | null
+          created_at?: string
+          evidence_refs?: string[]
+          executed_on?: string | null
+          executor_engagement?: string | null
+          id?: string
+          idempotency_key?: string
+          note?: string | null
+          order_id?: string
+          requires_technical_report?: boolean | null
+          scheduled_for?: string | null
+          seq?: number
+          stage?: string
+          technical_assessment?: string | null
+          urgency?: string | null
+          urgency_reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_maintenance_events_executor_engagement_fkey"
+            columns: ["executor_engagement"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_maintenance_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "ops_maintenance_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_maintenance_orders: {
+        Row: {
+          author_person: string
+          catalog_version_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          protocol_ref: string | null
+          request_id: string
+          space_id: string | null
+        }
+        Insert: {
+          author_person: string
+          catalog_version_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          protocol_ref?: string | null
+          request_id: string
+          space_id?: string | null
+        }
+        Update: {
+          author_person?: string
+          catalog_version_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          protocol_ref?: string | null
+          request_id?: string
+          space_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_maintenance_orders_catalog_version_id_fkey"
+            columns: ["catalog_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_maintenance_catalog_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_maintenance_orders_protocol_ref_fkey"
+            columns: ["protocol_ref"]
+            isOneToOne: false
+            referencedRelation: "protocol_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_maintenance_orders_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_maintenance_orders_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_request_events: {
         Row: {
           actor_person: string
@@ -26675,6 +26877,10 @@ export type Database = {
         Args: { _cv: string; _decision_ref: string }
         Returns: undefined
       }
+      approve_ops_maintenance_catalog: {
+        Args: { _cv: string; _decision_ref: string }
+        Returns: undefined
+      }
       approve_ops_space_type_version: {
         Args: { _decision_ref: string; _type_version: string }
         Returns: undefined
@@ -31646,6 +31852,16 @@ export type Database = {
         Returns: string
       }
       open_notification: { Args: { _delivery: string }; Returns: Json }
+      open_ops_maintenance_order: {
+        Args: {
+          _catalog: string
+          _key: string
+          _protocol: string
+          _request: string
+          _space: string
+        }
+        Returns: string
+      }
       open_ops_request: {
         Args: {
           _key: string
@@ -31684,6 +31900,10 @@ export type Database = {
         Returns: boolean
       }
       ops_checklist_usable: { Args: { _cv: string }; Returns: boolean }
+      ops_maintenance_next_ok: {
+        Args: { _last: string; _last_result: string; _stage: string }
+        Returns: boolean
+      }
       ops_space_parent_level: { Args: { _level: string }; Returns: string }
       ops_space_type_usable: { Args: { _tv: string }; Returns: boolean }
       own_engagement_network_now: { Args: never; Returns: boolean }
@@ -33878,6 +34098,26 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_maintenance_event: {
+        Args: {
+          _assessment: string
+          _category: string
+          _evidence: string[]
+          _executed_on: string
+          _executor: string
+          _expected_seq: number
+          _key: string
+          _note: string
+          _order: string
+          _requires_report: boolean
+          _result: string
+          _scheduled_for: string
+          _stage: string
+          _urgency: string
+          _urgency_reason: string
+        }
+        Returns: number
+      }
       record_ops_request_event: {
         Args: {
           _case_event: string
@@ -34899,6 +35139,16 @@ export type Database = {
           _label: string
           _priorities: string[]
           _reason: string
+        }
+        Returns: string
+      }
+      register_ops_maintenance_catalog: {
+        Args: {
+          _categories: string[]
+          _expected_version: number
+          _key: string
+          _reason: string
+          _urgencies: string[]
         }
         Returns: string
       }
