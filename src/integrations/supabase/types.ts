@@ -34391,6 +34391,95 @@ export type Database = {
         }
         Relationships: []
       }
+      tech_support_group_members: {
+        Row: {
+          action: string
+          created_at: string
+          engagement_id: string
+          group_id: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          reason: string
+          seq: number
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          engagement_id: string
+          group_id: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          reason: string
+          seq: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          engagement_id?: string
+          group_id?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          reason?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_support_group_members_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_support_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "tech_support_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_support_groups: {
+        Row: {
+          created_at: string
+          group_key: string
+          id: string
+          idempotency_key: string
+          label: string
+          person_id: string
+          school_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_key: string
+          id?: string
+          idempotency_key: string
+          label: string
+          person_id: string
+          school_id: string
+        }
+        Update: {
+          created_at?: string
+          group_key?: string
+          id?: string
+          idempotency_key?: string
+          label?: string
+          person_id?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_support_groups_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_ticket_assessments: {
         Row: {
           created_at: string
@@ -34648,6 +34737,54 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "tech_ticket_reviews_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_ticket_routings: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          reason: string
+          request_id: string
+          seq: number
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          reason: string
+          request_id: string
+          seq: number
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          reason?: string
+          request_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_ticket_routings_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "tech_support_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_ticket_routings_request_id_fkey"
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "ops_requests"
@@ -45733,6 +45870,17 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_group_member: {
+        Args: {
+          _action: string
+          _engagement: string
+          _expected_seq: number
+          _group: string
+          _key: string
+          _reason: string
+        }
+        Returns: number
+      }
       record_tech_problem_event: {
         Args: {
           _action: string
@@ -47922,6 +48070,15 @@ export type Database = {
         }
         Returns: number
       }
+      tech_create_support_group: {
+        Args: {
+          _group_key: string
+          _key: string
+          _label: string
+          _school: string
+        }
+        Returns: string
+      }
       tech_fields_valid: { Args: { _f: Json }; Returns: boolean }
       tech_next_code: { Args: { _prefix: string }; Returns: string }
       tech_open_problem: {
@@ -47957,6 +48114,16 @@ export type Database = {
           _expected_seq: number
           _key: string
           _nature: string
+          _reason: string
+          _request: string
+        }
+        Returns: number
+      }
+      tech_route_ticket: {
+        Args: {
+          _expected_seq: number
+          _group: string
+          _key: string
           _reason: string
           _request: string
         }
