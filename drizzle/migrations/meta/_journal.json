@@ -2780,6 +2780,13 @@
       "when": 1791791909037,
       "tag": "0396_perm06_cases_out_of_school",
       "breakpoints": true
+    },
+    {
+      "idx": 397,
+      "version": "7",
+      "when": 1791792309901,
+      "tag": "0397_perm09_barrier_catalog",
+      "breakpoints": true
     }
   ]
 }
