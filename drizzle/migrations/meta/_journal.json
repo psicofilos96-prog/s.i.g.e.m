@@ -3046,6 +3046,13 @@
       "when": 1791801495372,
       "tag": "0434_dev06_programs_tracks",
       "breakpoints": true
+    },
+    {
+      "idx": 435,
+      "version": "7",
+      "when": 1791801673921,
+      "tag": "0435_dev07_course_catalog",
+      "breakpoints": true
     }
   ]
 }
