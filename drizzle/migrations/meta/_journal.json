@@ -3074,6 +3074,13 @@
       "when": 1791802251941,
       "tag": "0438_dev10_enrollment_flow",
       "breakpoints": true
+    },
+    {
+      "idx": 439,
+      "version": "7",
+      "when": 1791802325177,
+      "tag": "0439_dev10_fix_school_capability",
+      "breakpoints": true
     }
   ]
 }
