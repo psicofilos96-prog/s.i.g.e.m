@@ -23,12 +23,12 @@ describe("Lote 10 — frequência e permanência", () => {
     expect(classAttendancePanel({ classId: "c1", periods, marks, expected, sources: { ...src, marks: false } }).blocked).toBeTruthy();
   });
   it("estudante autorizado: evolução por período, sequência, alerta só homologado", () => {
-    const r = studentAttendancePanel({ studentId: "a", window: { studentId: "a", from: "2026-02-01", to: null }, periods, marks, params: null, access, sources: src });
+    const r: any = studentAttendancePanel({ studentId: "a", window: { studentId: "a", from: "2026-02-01", to: null }, periods, marks, params: null, access, sources: src });
     if (r.blocked) throw new Error(r.blocked);
     expect(r.evolution.map((e) => e.state)).toEqual(["apurado", "apurado"]);
     expect(r.longestStreak).toBe(3);
     expect(r.alert.alert).toBe(false);
-    const h = studentAttendancePanel({ studentId: "a", window: { studentId: "a", from: "2026-02-01", to: null }, periods, marks, params: { version: "v1", homologated: true, minRate: 0.75, recurringAbsences: 3, windowDays: 30 }, access, sources: src });
+    const h: any = studentAttendancePanel({ studentId: "a", window: { studentId: "a", from: "2026-02-01", to: null }, periods, marks, params: { version: "v1", homologated: true, minRate: 0.75, recurringAbsences: 3, windowDays: 30 }, access, sources: src });
     expect(!h.blocked && h.alert.alert).toBe(true);
   });
   it("acesso individual fail-closed", () => {
