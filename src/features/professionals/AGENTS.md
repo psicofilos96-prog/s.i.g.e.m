@@ -35,3 +35,6 @@
 
 ## L20 Integração das atribuições (`assignment-integration.ts`)
 - Perfil Docente recebe só atribuição em vigência com ato na data (escola/turma/componente/horário/período); encerrada/revogada vira histórico somente leitura e nada é apagado; setores recebem projeção por allowlist de campos e escopo (CIECE/A&A sem pessoa, nenhum além da administração vê vínculo) e `grantsCapabilities` é falso, porque atribuição não é autorização digital e apagar histórico destruiria diário/avaliação.
+
+## L21 Tela de Gestão de Pessoas (`/gestao-de-pessoas`, `people-hub-*`)
+- A tela lê só com a sessão (sem sessão = `SignInRequired`, nenhuma leitura antes do portão) as mesmas fontes do DP e do Quadro docente; indicadores e alertas vêm de `dashboard()` puro, que recusa origem de demonstração e devolve null para fonte não lida; atribuições ficam sem lista até haver registro institucional, porque número de protótipo ou proposta exibidos pareceriam oficiais.
