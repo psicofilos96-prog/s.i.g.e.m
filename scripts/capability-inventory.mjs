@@ -7,7 +7,7 @@ const DIR = "drizzle/migrations";
 const OUT = "src/features/institutional-admin/capability-inventory.json";
 const CALL = /has_(network_|school_)?capability\s*\(\s*'([a-z][a-z0-9-]+)'/g;
 const MODULES = [
-  [/^enr_|matricul|inscric|vaga|reserva|enturma/, "Matrículas"],
+  [/_enr_|enr0|matricul|inscric|vaga|reserva|enturma/, "Matrículas"],
   [/tecnolog|chamado|backup|restaura|conectiv|catalogo-digital|acessos-digitais|incidentes-de-seguranca|conhecimento-tecnico|mudancas/, "Tecnologia"],
   [/acervo|docserv|document|protocol|process|numerar|anexos|assinat/, "Documentos e Acervo"],
   [/formac|formacao|desenvolvimento|trilha|certific/, "Desenvolvimento"],

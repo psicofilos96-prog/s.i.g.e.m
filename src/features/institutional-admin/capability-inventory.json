@@ -1265,14 +1265,6 @@
   ]
  },
  {
-  "id": "reconciliar-estudante-de-ingresso",
-  "module": "Demais módulos",
-  "firstMigration": "0458_enr06_preliminary_student_reconciliation.sql",
-  "scopes": [
-   "rede"
-  ]
- },
- {
   "id": "registrar-acompanhamento-ei",
   "module": "Demais módulos",
   "firstMigration": "0375_aa_infant_followup.sql",
@@ -1310,14 +1302,6 @@
   "firstMigration": "0398_perm10_contact_attempts.sql",
   "scopes": [
    "escola"
-  ]
- },
- {
-  "id": "registrar-identificacao-de-ingresso",
-  "module": "Demais módulos",
-  "firstMigration": "0458_enr06_preliminary_student_reconciliation.sql",
-  "scopes": [
-   "rede"
   ]
  },
  {
@@ -1626,14 +1610,6 @@
   ]
  },
  {
-  "id": "conferir-documentos-de-ingresso",
-  "module": "Documentos e Acervo",
-  "firstMigration": "0461_enr09_application_documents.sql",
-  "scopes": [
-   "rede"
-  ]
- },
- {
   "id": "configurar-prazos-documentais",
   "module": "Documentos e Acervo",
   "firstMigration": "0392_doc11_18_review_signature_archive.sql",
@@ -1772,6 +1748,14 @@
   ]
  },
  {
+  "id": "conferir-documentos-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0461_enr09_application_documents.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
   "id": "confirmar-vagas-de-ingresso",
   "module": "Matrículas",
   "firstMigration": "0469_enr16_temporal_reservations.sql",
@@ -1825,6 +1809,22 @@
   "id": "publicar-campanhas-de-matricula",
   "module": "Matrículas",
   "firstMigration": "0455_enr03_campaigns_persisted.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "reconciliar-estudante-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0458_enr06_preliminary_student_reconciliation.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-identificacao-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0458_enr06_preliminary_student_reconciliation.sql",
   "scopes": [
    "rede"
   ]

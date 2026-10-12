@@ -21,7 +21,7 @@ export function extractCapabilities(sql: string): { id: string; scope: "rede" | 
 }
 
 const MODULES: [RegExp, string][] = [
-  [/^enr_|matricul|inscric|vaga|reserva|enturma/, "Matrículas"],
+  [/_enr_|enr0|matricul|inscric|vaga|reserva|enturma/, "Matrículas"],
   [/tecnolog|chamado|backup|restaura|conectiv|catalogo-digital|acessos-digitais|incidentes-de-seguranca|conhecimento-tecnico|mudancas/, "Tecnologia"],
   [/acervo|docserv|document|protocol|process|numerar|anexos|assinat/, "Documentos e Acervo"],
   [/formac|formacao|desenvolvimento|trilha|certific/, "Desenvolvimento"],

@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
 import { LoginsInventorySection } from "./logins-inventory-section";
+import { CapabilityMatrixSection } from "./capability-matrix-section";
 import {
   diffPolicies, effectiveVersion, engagementActive, headVersion, humanizePolicyError, validateDraft,
   type PolicyRule, type PolicyVersion,
@@ -61,6 +62,11 @@ export function AccessCenterPage() {
       <LoginsInventorySection sessionKey={key ?? "anon"} />
       <Loadable q={people} label="pessoas e atuações">{(d) => <PeopleSection data={d} accounts={accounts.data ?? null} accountsError={accounts.isError} />}</Loadable>
       <Loadable q={policies} label="políticas">{(d) => <PolicySection data={d} canDraft={held.has("registrar-politica-de-capacidades")} canHomologate={held.has("homologar-politica-de-capacidades")} onDone={refresh} />}</Loadable>
+      {people.data && policies.data && (() => {
+        const eff = effectiveVersion(policies.data.versions, today());
+        return <CapabilityMatrixSection rules={eff ? policies.data.rules.get(eff.id) ?? [] : null} policyVersion={eff?.version ?? null}
+          engagements={people.data.engagements} endings={new Map(people.data.endings.map((e) => [e.engagement_id, e.ended_on]))} on={today()} />;
+      })()}
     </Shell>
   );
 }
