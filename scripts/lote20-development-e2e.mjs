@@ -19,7 +19,7 @@ const anon = createClient(URL, PK, { auth: { persistSession: false, autoRefreshT
 const results = [], users = [];
 const ok = (name, cond, extra = "") => { results.push({ name, pass: !!cond }); console.log(`${cond ? "PASS" : "FAIL"} ${name}${extra ? " — " + extra : ""}`); };
 const msg = (r) => (r.error?.message ?? "ACEITO").split("\n")[0].slice(0, 120);
-const refused = (r) => !!r.error;
+const refused = (r) => !!r.error && !/Could not find the function|PGRST202/.test(r.error.message ?? "");
 
 async function mk(label, kind) {
   const email = `${op}-${label}@${DOMAIN}`, password = randomBytes(24).toString("base64url");
@@ -54,7 +54,7 @@ try {
   ok("gestor: conclusão pelo writer genérico recusada", term.error?.message?.includes("dev:use-completion-engine"), msg(term));
 
   // Formador sem designação vigente não lança frequência.
-  const att = await formador.c.rpc("record_dev_attendance", { _enrollment: fake, _meeting: fake, _activity: null, _status: "presente", _evidence_kind: "lista-de-presenca", _evidence_ref: fake, _connected_minutes: null, _expected_version: 0, _reason: null, _key: randomUUID() });
+  const att = await formador.c.rpc("record_dev_attendance", { _enrollment: fake, _meeting: fake, _activity: null, _status: "presente", _evidence_kind: "lista-de-presenca", _evidence_ref: fake, _minutes: null, _mode: "presencial", _expected_version: 0, _reason: null, _key: randomUUID() });
   ok("formador sem designação: frequência recusada", refused(att), msg(att));
 
   // Apuração/confirmação: participante não confirma a própria conclusão; gestor sem capacidade também não.
@@ -76,16 +76,16 @@ try {
   ok("participante: formações externas visíveis são só as próprias", !ext.error && (ext.data ?? []).every((r) => r.person_id === participante.person), `${(ext.data ?? []).length} linha(s)`);
   const ref = await participante.c.from("dev_external_training_versions").select("certificate_document_version").limit(1);
   ok("participante: referência do certificado externo oculta", refused(ref), msg(ref));
-  const extRev = await participante.c.rpc("review_dev_external_training", { _version: fake, _stage: "decisao", _outcome: "validado", _grounds: "Autovalidação de formação externa proibida." });
+  const extRev = await participante.c.rpc("review_dev_external_training", { _version: fake, _expected_seq: 0, _stage: "decisao", _outcome: "validado", _grounds: "Autovalidação de formação externa proibida." });
   ok("participante: análise de formação externa recusada", refused(extRev), msg(extRev));
 
   // Programa → impacto: leitura exige competência; respostas individuais de pesquisa ilegíveis.
-  const rd = await gestor.c.rpc("record_dev_impact_reading", { _indicator_version: fake, _interpretation: "O indicador subiu graças à formação oferecida pela rede neste semestre.", _limitations: "Sem grupo de comparação.", _key: randomUUID() });
+  const rd = await gestor.c.rpc("record_dev_impact_reading", { _indicator: fake, _interpretation: "O indicador subiu graças à formação oferecida pela rede neste semestre.", _limitations: "Sem grupo de comparação.", _key: randomUUID() });
   ok("gestor sem competência: leitura de impacto recusada", refused(rd), msg(rd));
   const surv = await gestor.c.from("dev_survey_responses").select("*").limit(1);
   ok("gestor: respostas individuais de pesquisa ilegíveis", refused(surv), msg(surv));
 
-  const an = await anon.rpc("record_dev_attendance", { _enrollment: fake, _meeting: fake, _activity: null, _status: "presente", _evidence_kind: "lista-de-presenca", _evidence_ref: fake, _connected_minutes: null, _expected_version: 0, _reason: null, _key: randomUUID() });
+  const an = await anon.rpc("record_dev_attendance", { _enrollment: fake, _meeting: fake, _activity: null, _status: "presente", _evidence_kind: "lista-de-presenca", _evidence_ref: fake, _minutes: null, _mode: "presencial", _expected_version: 0, _reason: null, _key: randomUUID() });
   ok("anônimo: frequência recusada", refused(an), msg(an));
 } catch (e) { ok("harness sem exceção", false, String(e?.message ?? e)); }
 finally {
