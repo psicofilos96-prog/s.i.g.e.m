@@ -433,5 +433,6 @@
  "drizzle/migrations/0382_family_l03_keep_link_type_on_change.sql": "8c9653cafa03390fb07b1300b8eb0de38d2976c1973a7bf39846a9bf0184fc7e",
  "drizzle/migrations/0383_fix_functional_links_read_policy.sql": "d2191ad4376d1776df5adc3842ecb9a22e28497e0716683a658ee80606bd78ae",
  "drizzle/migrations/0384_net24_revoke_students_direct_dml.sql": "bd81eca2eabf34694b5acf7bcd6f436f24520422a378e2f9dcb94006d7b2467c",
- "drizzle/migrations/0385_doc05_institutional_numbering.sql": "b5570cbd240b92ac76859af7eb8faf314924ea1df0b40f4ae69827691a6f534b"
+ "drizzle/migrations/0385_doc05_institutional_numbering.sql": "b5570cbd240b92ac76859af7eb8faf314924ea1df0b40f4ae69827691a6f534b",
+ "drizzle/migrations/0386_doc06_single_protocol.sql": "8af77f6f4fb6acad3daac33ac6d92d957ef827e400d632068987c513f9d157a0"
 }
