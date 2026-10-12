@@ -134,6 +134,7 @@ import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-cu
 import { Route as MatrizesCurricularesCorrespondenciaRouteImport } from './routes/matrizes-curriculares.correspondencia'
 import { Route as MatrizesCurricularesImportacaoRouteImport } from './routes/matrizes-curriculares.importacao'
 import { Route as MatrizesCurricularesNovaRouteImport } from './routes/matrizes-curriculares.nova'
+import { Route as OrientacaoCentralRouteImport } from './routes/orientacao_.central'
 import { Route as ProfissionaisIndexRouteImport } from './routes/profissionais.index'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
 import { Route as ProfissionaisNovoRouteImport } from './routes/profissionais.novo'
@@ -894,6 +895,11 @@ const MatrizesCurricularesNovaRoute =
     path: '/nova',
     getParentRoute: () => MatrizesCurricularesRoute,
   } as any)
+const OrientacaoCentralRoute = OrientacaoCentralRouteImport.update({
+  id: '/orientacao_/central',
+  path: '/orientacao/central',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfissionaisIndexRoute = ProfissionaisIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -1727,6 +1733,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
   '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/orientacao/central': typeof OrientacaoCentralRoute
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
@@ -1965,6 +1972,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
   '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/orientacao/central': typeof OrientacaoCentralRoute
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
@@ -2200,6 +2208,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
   '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
   '/matrizes-curriculares/nova': typeof MatrizesCurricularesNovaRoute
+  '/orientacao_/central': typeof OrientacaoCentralRoute
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
@@ -2454,6 +2463,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/correspondencia'
     | '/matrizes-curriculares/importacao'
     | '/matrizes-curriculares/nova'
+    | '/orientacao/central'
     | '/profissionais/$id'
     | '/profissionais/novo'
     | '/publico/$slug'
@@ -2692,6 +2702,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/correspondencia'
     | '/matrizes-curriculares/importacao'
     | '/matrizes-curriculares/nova'
+    | '/orientacao/central'
     | '/profissionais/novo'
     | '/publico/$slug'
     | '/regras-de-situacao/$regraId'
@@ -2926,6 +2937,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/correspondencia'
     | '/matrizes-curriculares/importacao'
     | '/matrizes-curriculares/nova'
+    | '/orientacao_/central'
     | '/profissionais/$id'
     | '/profissionais/novo'
     | '/publico/$slug'
@@ -3160,6 +3172,7 @@ export interface RootRouteChildren {
   LaboratorioCieceRoute: typeof LaboratorioCieceRoute
   LaboratorioFolhaFinalRoute: typeof LaboratorioFolhaFinalRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
+  OrientacaoCentralRoute: typeof OrientacaoCentralRoute
   PublicoSlugRoute: typeof PublicoSlugRoute
   RelatoriosPaineisRoute: typeof RelatoriosPaineisRoute
   RelatoriosPersonalizadoRoute: typeof RelatoriosPersonalizadoRoute
@@ -4064,6 +4077,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/matrizes-curriculares/nova'
       preLoaderRoute: typeof MatrizesCurricularesNovaRouteImport
       parentRoute: typeof MatrizesCurricularesRoute
+    }
+    '/orientacao_/central': {
+      id: '/orientacao_/central'
+      path: '/orientacao/central'
+      fullPath: '/orientacao/central'
+      preLoaderRoute: typeof OrientacaoCentralRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/profissionais/': {
       id: '/profissionais/'
@@ -5718,6 +5738,7 @@ const rootRouteChildren: RootRouteChildren = {
   LaboratorioCieceRoute: LaboratorioCieceRoute,
   LaboratorioFolhaFinalRoute: LaboratorioFolhaFinalRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
+  OrientacaoCentralRoute: OrientacaoCentralRoute,
   PublicoSlugRoute: PublicoSlugRoute,
   RelatoriosPaineisRoute: RelatoriosPaineisRoute,
   RelatoriosPersonalizadoRoute: RelatoriosPersonalizadoRoute,

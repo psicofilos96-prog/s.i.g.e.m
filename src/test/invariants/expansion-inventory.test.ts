@@ -30,9 +30,10 @@ function walk(dir: string): string[] {
 }
 const sources = walk("src").map((p) => [p, readFileSync(p, "utf8")] as const);
 
+// "Chega a uma tela" = importado por componente (.tsx); núcleo puro que reaproveita outro núcleo não conta como tela.
 function wired(core: string): boolean {
   const name = core.split("/").pop()!;
-  return sources.some(([p, s]) => !p.startsWith(core) && s.includes(`/${name}"`));
+  return sources.some(([p, s]) => !p.startsWith(core) && p.endsWith(".tsx") && !p.endsWith(".test.tsx") && s.includes(`/${name}"`));
 }
 
 describe("inventário da expansão estrutural", () => {
