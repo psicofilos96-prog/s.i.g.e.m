@@ -35,14 +35,16 @@ export function AreaWorkspacePage({ areaId }: { areaId: string }) {
       {authority.status === "loading" ? <p className="text-sm text-muted-foreground">Conferindo sua sessão…</p> : (
         <ul className="mb-6 grid gap-3 sm:grid-cols-2">
           {acts.map((x) => {
-            const ok = pathAllowed(authority, x.to);
+            const allowed = pathAllowed(authority, x.to) && authority.status === "signed-in" && authority.capabilities.length > 0;
+            const status = activityStatus(allowed, rules.length > 0);
+            const ok = status !== "Sem acesso";
             return (
               <li key={x.to} className="rounded-lg border border-border bg-card p-4">
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-medium">{x.label}</span>
-                  <StatusBadge tone={ok ? "success" : "neutral"}>{ok ? "Disponível" : "Sem acesso"}</StatusBadge>
+                  <StatusBadge tone={status === "Disponível" ? "success" : status === "Sem acesso" ? "neutral" : "warning"}>{status}</StatusBadge>
                 </div>
-                {ok ? <a href={x.to} className="mt-2 inline-block text-sm text-primary hover:underline">Abrir</a>
+                {ok ? <><a href={x.to} className="mt-2 inline-block text-sm text-primary hover:underline">Abrir</a>{status !== "Disponível" && <p className="mt-1 text-xs text-muted-foreground">A tela mostra só o que sua atuação atual permite; as operações desta área esperam a homologação do perfil.</p>}</>
                   : <p className="mt-2 text-sm text-muted-foreground">Exige atuação vigente com a capacidade da tela.</p>}
               </li>
             );
@@ -57,4 +59,10 @@ export function AreaWorkspacePage({ areaId }: { areaId: string }) {
       {area.blocker && !rules.length && <NoteBox>{area.blocker}</NoteBox>}
     </div>
   );
+}
+
+/** Perfil em rascunho nunca é "Disponível": a operação da área espera homologação. */
+export function activityStatus(allowed: boolean, draftArea: boolean): "Disponível" | "Aguarda homologação" | "Sem acesso" {
+  if (!allowed) return "Sem acesso";
+  return draftArea ? "Aguarda homologação" : "Disponível";
 }

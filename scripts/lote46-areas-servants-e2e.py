@@ -22,16 +22,19 @@ async def main():
             page = await session(b, cfg, cfg["session"] if who == "rh" else cfg["prof"])
             await page.goto(BASE + "/areas", wait_until="load", timeout=90000)
             await page.get_by_role("heading", name="Áreas de trabalho").wait_for(timeout=60000)
+            await page.locator("main a[href^='/areas/']").nth(9).wait_for(timeout=60000)
             ok(f"{who}: /areas lista as áreas", await page.locator("a[href^='/areas/']").count() >= 10)
             for a in AREAS:
                 await page.goto(f"{BASE}/areas/{a}", wait_until="load", timeout=90000)
                 await page.get_by_text("Área de trabalho", exact=True).first.wait_for(timeout=60000)
                 await page.get_by_text("Conferindo sua sessão…").wait_for(state="detached", timeout=60000)
                 draft = await page.get_by_text("rascunho, sem homologação").count()
-                n_ok = await page.get_by_text("Disponível", exact=True).count(); n_no = await page.get_by_text("Sem acesso", exact=True).count()
-                ok(f"{who}: {a} renderiza ({n_ok} disponível/{n_no} sem acesso) e mostra rascunho", draft == 1 and n_ok + n_no >= 1)
+                n_ok = await page.get_by_text("Disponível", exact=True).count(); n_wait = await page.get_by_text("Aguarda homologação", exact=True).count(); n_no = await page.get_by_text("Sem acesso", exact=True).count()
+                ok(f"{who}: {a} renderiza ({n_wait} aguarda/{n_no} sem acesso), nada 'Disponível' em perfil rascunho", draft == 1 and n_ok == 0 and n_wait + n_no >= 1)
             await page.goto(BASE + "/areas/inexistente", wait_until="load")
-            ok(f"{who}: área inexistente recusa", await page.get_by_text("Área não encontrada").count() == 1)
+            try: await page.get_by_text("Área não encontrada").wait_for(timeout=30000); nf = True
+            except Exception: nf = False
+            ok(f"{who}: área inexistente recusa", nf)
             if who == "rh":
                 await page.goto(BASE + "/gestao-de-pessoas", wait_until="load", timeout=90000)
                 await page.get_by_text("Folha de agosto/2026").first.click(timeout=60000)
