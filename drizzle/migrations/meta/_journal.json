@@ -2871,6 +2871,20 @@
       "when": 1791795835466,
       "tag": "0409_ops06_service_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 410,
+      "version": "7",
+      "when": 1791796048346,
+      "tag": "0410_ops07_preventive_availability",
+      "breakpoints": true
+    },
+    {
+      "idx": 411,
+      "version": "7",
+      "when": 1791796167923,
+      "tag": "0411_ops07_hide_certificate_doc",
+      "breakpoints": true
     }
   ]
 }
