@@ -1682,6 +1682,41 @@ export type Database = {
           },
         ]
       }
+      admin_case_origin_links: {
+        Row: {
+          author_person: string
+          case_id: string
+          created_at: string
+          id: string
+          origin_module: string
+          origin_ref: string
+        }
+        Insert: {
+          author_person: string
+          case_id: string
+          created_at?: string
+          id?: string
+          origin_module: string
+          origin_ref: string
+        }
+        Update: {
+          author_person?: string
+          case_id?: string
+          created_at?: string
+          id?: string
+          origin_module?: string
+          origin_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_origin_links_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_case_sensitive_access_log: {
         Row: {
           case_event_id: string
@@ -28726,6 +28761,10 @@ export type Database = {
       lc_review_entry: {
         Args: { _decision: string; _entry_version: string; _note: string }
         Returns: string
+      }
+      link_admin_case_origin: {
+        Args: { _case_id: string; _origin_module: string; _origin_ref: string }
+        Returns: undefined
       }
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
