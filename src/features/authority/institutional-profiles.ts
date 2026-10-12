@@ -49,7 +49,7 @@ const SEM_TIPO = "Sem tipo de atuação na política homologada vigente; exige n
 export const AREAS: readonly Area[] = [
   { id: "administracao-central", label: "Administração central da SEMED", kinds: ["administrador-geral-do-sigem", "cadastro-institucional-da-rede"], scopes: ["rede"], forbidden: [] },
   { id: "direcao-escolar", label: "Direção Escolar", kinds: ["direcao-escolar"], scopes: ["escola"], forbidden: ["politica"] },
-  { id: "secretaria-escolar", label: "Secretaria Escolar", kinds: ["secretaria-escolar"], scopes: ["escola"], forbidden: ["politica", "saude", "rh"] },
+  { id: "secretaria-escolar", label: "Secretaria Escolar", kinds: ["secretaria-escolar"], scopes: ["escola"], forbidden: ["politica", "saude"] }, // política v8 dá lotação/quadro DA ESCOLA à Secretaria
   { id: "supervisao-escolar", label: "Supervisão Escolar", kinds: ["gestao-pedagogica-da-rede"], scopes: ["rede", "escola"], forbidden: ["politica", "rh"] },
   { id: "orientacao-pedagogica", label: "Orientação Pedagógica", kinds: ["orientacao-pedagogica"], scopes: ["escola", "turma"], forbidden: ["politica", "rh"] },
   { id: "docente", label: "Docente", kinds: ["professor"], scopes: ["turma"], forbidden: ["politica", "rh", "identidadeEstudante"] },
