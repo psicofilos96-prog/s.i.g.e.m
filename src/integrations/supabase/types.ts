@@ -14026,6 +14026,153 @@ export type Database = {
           },
         ]
       }
+      enr_campaign_events: {
+        Row: {
+          action: string
+          campaign_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          on_version: number
+          person_id: string
+          reason: string
+          seq: number
+          to_state: string
+        }
+        Insert: {
+          action: string
+          campaign_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          on_version: number
+          person_id: string
+          reason: string
+          seq: number
+          to_state: string
+        }
+        Update: {
+          action?: string
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          on_version?: number
+          person_id?: string
+          reason?: string
+          seq?: number
+          to_state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_campaign_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_campaign_versions: {
+        Row: {
+          author_person: string
+          campaign_id: string
+          change_reason: string | null
+          created_at: string
+          edital_act_version_id: string | null
+          id: string
+          modality_ids: string[]
+          period_from: string
+          period_to: string
+          rules_act_version_id: string | null
+          school_ids: string[]
+          stage_ids: string[]
+          version: number
+        }
+        Insert: {
+          author_person: string
+          campaign_id: string
+          change_reason?: string | null
+          created_at?: string
+          edital_act_version_id?: string | null
+          id?: string
+          modality_ids: string[]
+          period_from: string
+          period_to: string
+          rules_act_version_id?: string | null
+          school_ids: string[]
+          stage_ids: string[]
+          version: number
+        }
+        Update: {
+          author_person?: string
+          campaign_id?: string
+          change_reason?: string | null
+          created_at?: string
+          edital_act_version_id?: string | null
+          id?: string
+          modality_ids?: string[]
+          period_from?: string
+          period_to?: string
+          rules_act_version_id?: string | null
+          school_ids?: string[]
+          stage_ids?: string[]
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_campaign_versions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_campaign_versions_edital_act_version_id_fkey"
+            columns: ["edital_act_version_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_campaign_versions_rules_act_version_id_fkey"
+            columns: ["rules_act_version_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_campaigns: {
+        Row: {
+          author_person: string
+          created_at: string
+          cycle_term: string
+          cycle_year: number
+          id: string
+          idempotency_key: string
+          kind: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          cycle_term: string
+          cycle_year: number
+          id?: string
+          idempotency_key: string
+          kind: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          cycle_term?: string
+          cycle_year?: number
+          id?: string
+          idempotency_key?: string
+          kind?: string
+        }
+        Relationships: []
+      }
       enrollment_wizard_draft_events: {
         Row: {
           author_actor_kind: string
@@ -35221,6 +35368,10 @@ export type Database = {
         }
         Returns: string
       }
+      create_enr_campaign: {
+        Args: { _key: string; _kind: string; _term: string; _year: number }
+        Returns: string
+      }
       create_nei_plan: {
         Args: {
           _content: Json
@@ -36334,6 +36485,8 @@ export type Database = {
         Args: { _act_ref: string; _ended_on: string; _engagement: string }
         Returns: undefined
       }
+      enr_campaign_manager: { Args: never; Returns: boolean }
+      enr_campaign_state: { Args: { _c: string }; Returns: string }
       enroll_dev_class: {
         Args: { _class: string; _key: string; _link: string; _person: string }
         Returns: string
@@ -40790,6 +40943,31 @@ export type Database = {
           _valid_until: string
         }
         Returns: string
+      }
+      record_enr_campaign_event: {
+        Args: {
+          _action: string
+          _c: string
+          _expected_seq: number
+          _key: string
+          _reason: string
+        }
+        Returns: number
+      }
+      record_enr_campaign_version: {
+        Args: {
+          _c: string
+          _edital: string
+          _expected_version: number
+          _from: string
+          _modalities: string[]
+          _reason: string
+          _rules: string
+          _schools: string[]
+          _stages: string[]
+          _to: string
+        }
+        Returns: number
       }
       record_family_communication_receipt: {
         Args: { _kind: string; _student: string; _version: string }

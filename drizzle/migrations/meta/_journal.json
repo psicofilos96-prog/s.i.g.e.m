@@ -3186,6 +3186,13 @@
       "when": 1791805632825,
       "tag": "0454_dev24_append_only_role_tracks_partners",
       "breakpoints": true
+    },
+    {
+      "idx": 455,
+      "version": "7",
+      "when": 1791806328120,
+      "tag": "0455_enr03_campaigns_persisted",
+      "breakpoints": true
     }
   ]
 }
