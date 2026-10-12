@@ -34826,6 +34826,109 @@ export type Database = {
         }
         Relationships: []
       }
+      tech_equipment_loan_returns: {
+        Row: {
+          condition_note: string
+          created_at: string
+          loan_id: string
+          receiver_person: string
+          returned_on: string
+        }
+        Insert: {
+          condition_note: string
+          created_at?: string
+          loan_id: string
+          receiver_person: string
+          returned_on: string
+        }
+        Update: {
+          condition_note?: string
+          created_at?: string
+          loan_id?: string
+          receiver_person?: string
+          returned_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_equipment_loan_returns_loan_id_fkey"
+            columns: ["loan_id"]
+            isOneToOne: true
+            referencedRelation: "tech_equipment_loans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_equipment_loans: {
+        Row: {
+          asset_id: string
+          borrower_engagement: string
+          created_at: string
+          due_on: string
+          id: string
+          idempotency_key: string
+          lender_person: string
+          lent_on: string
+          purpose: string
+          school_id: string
+          term_doc_ref: string | null
+        }
+        Insert: {
+          asset_id: string
+          borrower_engagement: string
+          created_at?: string
+          due_on: string
+          id?: string
+          idempotency_key: string
+          lender_person: string
+          lent_on: string
+          purpose: string
+          school_id: string
+          term_doc_ref?: string | null
+        }
+        Update: {
+          asset_id?: string
+          borrower_engagement?: string
+          created_at?: string
+          due_on?: string
+          id?: string
+          idempotency_key?: string
+          lender_person?: string
+          lent_on?: string
+          purpose?: string
+          school_id?: string
+          term_doc_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_equipment_loans_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_equipment_loans_borrower_engagement_fkey"
+            columns: ["borrower_engagement"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_equipment_loans_term_doc_ref_fkey"
+            columns: ["term_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_equipment_loans_term_doc_ref_fkey"
+            columns: ["term_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_equipment_sheets: {
         Row: {
           asset_id: string
@@ -34878,6 +34981,100 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tech_innovation_events: {
+        Row: {
+          created_at: string
+          doc_ref: string | null
+          evidence_source: string | null
+          idempotency_key: string
+          kind: string
+          note: string
+          person_id: string
+          project_id: string
+          seq: number
+        }
+        Insert: {
+          created_at?: string
+          doc_ref?: string | null
+          evidence_source?: string | null
+          idempotency_key: string
+          kind: string
+          note: string
+          person_id: string
+          project_id: string
+          seq: number
+        }
+        Update: {
+          created_at?: string
+          doc_ref?: string | null
+          evidence_source?: string | null
+          idempotency_key?: string
+          kind?: string
+          note?: string
+          person_id?: string
+          project_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_innovation_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_innovation_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_innovation_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "tech_innovation_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_innovation_projects: {
+        Row: {
+          created_at: string
+          evidence_plan: string
+          id: string
+          idempotency_key: string
+          objective: string
+          proposer_person: string
+          school_id: string | null
+          service_keys: string[]
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          evidence_plan: string
+          id?: string
+          idempotency_key: string
+          objective: string
+          proposer_person: string
+          school_id?: string | null
+          service_keys?: string[]
+          title: string
+        }
+        Update: {
+          created_at?: string
+          evidence_plan?: string
+          id?: string
+          idempotency_key?: string
+          objective?: string
+          proposer_person?: string
+          school_id?: string | null
+          service_keys?: string[]
+          title?: string
+        }
+        Relationships: []
       }
       tech_kb_link_validations: {
         Row: {
@@ -34945,6 +35142,70 @@ export type Database = {
             columns: ["kb_document_id"]
             isOneToOne: false
             referencedRelation: "kb_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_lab_designation_approvals: {
+        Row: {
+          created_at: string
+          designation_id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          designation_id: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          designation_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_lab_designation_approvals_designation_id_fkey"
+            columns: ["designation_id"]
+            isOneToOne: true
+            referencedRelation: "tech_lab_designations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_lab_designations: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          purpose: string
+          space_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          purpose: string
+          space_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          purpose?: string
+          space_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_lab_designations_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
             referencedColumns: ["id"]
           },
         ]
@@ -35433,6 +35694,76 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_service_accessibility: {
+        Row: {
+          created_at: string
+          features: string[]
+          id: string
+          idempotency_key: string
+          person_id: string
+          service_version_id: string
+          standard_ref: string | null
+        }
+        Insert: {
+          created_at?: string
+          features: string[]
+          id?: string
+          idempotency_key: string
+          person_id: string
+          service_version_id: string
+          standard_ref?: string | null
+        }
+        Update: {
+          created_at?: string
+          features?: string[]
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          service_version_id?: string
+          standard_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_service_accessibility_service_version_id_fkey"
+            columns: ["service_version_id"]
+            isOneToOne: false
+            referencedRelation: "tech_digital_service_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_service_accessibility_checks: {
+        Row: {
+          confirmed: string[]
+          created_at: string
+          declaration_id: string
+          note: string
+          person_id: string
+        }
+        Insert: {
+          confirmed: string[]
+          created_at?: string
+          declaration_id: string
+          note: string
+          person_id: string
+        }
+        Update: {
+          confirmed?: string[]
+          created_at?: string
+          declaration_id?: string
+          note?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_service_accessibility_checks_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: true
+            referencedRelation: "tech_service_accessibility"
             referencedColumns: ["id"]
           },
         ]
@@ -37492,6 +37823,7 @@ export type Database = {
         Args: { _decision: string; _mark: string }
         Returns: undefined
       }
+      approve_tech_lab_designation: { Args: { _d: string }; Returns: undefined }
       approve_tech_pedagogical_rubric: {
         Args: { _rubric: string }
         Returns: undefined
@@ -38330,6 +38662,10 @@ export type Database = {
       census_take_snapshot: {
         Args: { _cycle: string; _expected_head: string; _reason: string }
         Returns: Json
+      }
+      check_tech_service_accessibility: {
+        Args: { _confirmed: string[]; _decl: string; _note: string }
+        Returns: undefined
       }
       class_allocations_at: {
         Args: {
@@ -39353,6 +39689,15 @@ export type Database = {
           _nature_version: number
           _valid_from: string
           _valid_until: string
+        }
+        Returns: string
+      }
+      declare_tech_service_accessibility: {
+        Args: {
+          _features: string[]
+          _key: string
+          _service: string
+          _standard: string
         }
         Returns: string
       }
@@ -41573,6 +41918,17 @@ export type Database = {
         Args: { _decision: string; _entry_version: string; _note: string }
         Returns: string
       }
+      lend_tech_equipment: {
+        Args: {
+          _asset: string
+          _due: string
+          _engagement: string
+          _key: string
+          _purpose: string
+          _term: string
+        }
+        Returns: string
+      }
       link_admin_case_origin: {
         Args: { _case_id: string; _origin_module: string; _origin_ref: string }
         Returns: undefined
@@ -43466,6 +43822,17 @@ export type Database = {
           _justification: string
           _key: string
           _reason: string
+        }
+        Returns: string
+      }
+      propose_tech_innovation_project: {
+        Args: {
+          _key: string
+          _objective: string
+          _plan: string
+          _school: string
+          _services: string[]
+          _title: string
         }
         Returns: string
       }
@@ -47239,6 +47606,18 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_innovation_event: {
+        Args: {
+          _doc: string
+          _expected: number
+          _key: string
+          _kind: string
+          _note: string
+          _proj: string
+          _source: string
+        }
+        Returns: number
+      }
       record_tech_kb_link: {
         Args: {
           _action: string
@@ -47246,6 +47625,15 @@ export type Database = {
           _key: string
           _kind: string
           _target: string
+        }
+        Returns: string
+      }
+      record_tech_lab_designation: {
+        Args: {
+          _action: string
+          _key: string
+          _purpose: string
+          _space: string
         }
         Returns: string
       }
@@ -48038,6 +48426,10 @@ export type Database = {
       return_statistical_map: {
         Args: { _expected_conference: string; _map: string; _reason: string }
         Returns: string
+      }
+      return_tech_equipment: {
+        Args: { _condition: string; _loan: string }
+        Returns: undefined
       }
       review_admin_act_version: {
         Args: {
@@ -49549,6 +49941,7 @@ export type Database = {
         }
         Returns: string
       }
+      tech_doc_ok: { Args: { _d: string }; Returns: boolean }
       tech_fields_valid: { Args: { _f: Json }; Returns: boolean }
       tech_next_code: { Args: { _prefix: string }; Returns: string }
       tech_open_problem: {
