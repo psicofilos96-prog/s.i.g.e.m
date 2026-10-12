@@ -34687,6 +34687,7 @@ export type Database = {
         Args: { _class: string }
         Returns: boolean
       }
+      dev_my_formation_record: { Args: never; Returns: Json }
       dev_person_formation_history: {
         Args: { _person: string }
         Returns: {
