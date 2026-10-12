@@ -64,6 +64,8 @@ export function panorama(rows: ResultRow[], level: Level, f: Filters, minN: numb
     groups.set(k, [...(groups.get(k) ?? []), r.score]);
   }
   const sup = suppressSmallGroups([...groups].map(([key, v]) => ({ key, n: v.length })), minN);
+  const fine = LEVEL_ORDER.indexOf(level) >= LEVEL_ORDER.indexOf("turma");
+  if (sup.policy === "sem-politica" && fine) return { level, policy: sup.policy, withheld: "nivel-fino-sem-politica-de-divulgacao" as const, missingKey, missingScore, rows: [], next: null };
   return {
     level, policy: sup.policy, missingKey, missingScore,
     rows: sup.rows.sort((a, b) => a.key.localeCompare(b.key)).map((g) => ({ key: g.key, n: g.suppressed ? null : g.n, mean: g.suppressed ? null : round(avg(groups.get(g.key)!)), suppressed: g.suppressed })),
