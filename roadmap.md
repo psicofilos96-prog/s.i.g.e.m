@@ -653,3 +653,14 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Persistência (tabelas + writers) dos núcleos A&A L03–L06
 - [x] A&A Lote 07 respostas e correção (núcleo; sem tabela)
 - [x] A&A Lote 08 importação QR/OMR e digital (núcleo; sem tabela de tokens)
+
+## Lotes corretivos 23–31 (2026-10-12)
+- [x] L23 auditoria histórica integral + matriz única de pendências
+- [ ] L24 reconciliação banco × migrations
+- [ ] L25 reconciliação Censo 2026 (55 escolas)
+- [ ] L26 matrículas, vagas e vida escolar
+- [ ] L27 gestão de pessoas, lotação e atribuição
+- [ ] L28 perfis Docente e Mediador
+- [ ] L29 NEI/AEE e portal da Família
+- [ ] L30 relatórios oficiais e indicadores
+- [ ] L31 homologação técnica integral
