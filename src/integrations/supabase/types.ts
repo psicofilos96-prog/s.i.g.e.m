@@ -8984,6 +8984,71 @@ export type Database = {
           },
         ]
       }
+      dev_aggregate_threshold_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          reason: string
+          version_id: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          reason: string
+          version_id: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          reason?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_aggregate_threshold_approvals_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_aggregate_threshold_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_aggregate_threshold_versions: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          min_group_size: number
+          reason: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          min_group_size: number
+          reason: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          min_group_size?: number
+          reason?: string
+          version?: number
+        }
+        Relationships: []
+      }
       dev_certifications: {
         Row: {
           conclusion_event_id: string
@@ -9214,6 +9279,166 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_need_consolidations: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          need_id: string
+          priority: string
+          priority_reason: string
+          submission_id: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          need_id: string
+          priority: string
+          priority_reason: string
+          submission_id: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          need_id?: string
+          priority?: string
+          priority_reason?: string
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_need_consolidations_need_id_fkey"
+            columns: ["need_id"]
+            isOneToOne: false
+            referencedRelation: "dev_needs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_need_consolidations_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: true
+            referencedRelation: "dev_need_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_need_evidence: {
+        Row: {
+          created_at: string
+          document_version_ref: string | null
+          group_size: number | null
+          id: string
+          instrument_ref: string | null
+          kind: string
+          record_ref: string | null
+          submission_id: string
+          summary: string
+          threshold_version_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_version_ref?: string | null
+          group_size?: number | null
+          id?: string
+          instrument_ref?: string | null
+          kind: string
+          record_ref?: string | null
+          submission_id: string
+          summary: string
+          threshold_version_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_version_ref?: string | null
+          group_size?: number | null
+          id?: string
+          instrument_ref?: string | null
+          kind?: string
+          record_ref?: string | null
+          submission_id?: string
+          summary?: string
+          threshold_version_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_need_evidence_document_version_ref_fkey"
+            columns: ["document_version_ref"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_need_evidence_instrument_ref_fkey"
+            columns: ["instrument_ref"]
+            isOneToOne: false
+            referencedRelation: "assessment_instruments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_need_evidence_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "dev_need_submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_need_evidence_threshold_version_id_fkey"
+            columns: ["threshold_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_aggregate_threshold_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_need_submissions: {
+        Row: {
+          audience: string | null
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          justification: string
+          origin: string
+          school_id: string | null
+          topic: string
+        }
+        Insert: {
+          audience?: string | null
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          justification: string
+          origin: string
+          school_id?: string | null
+          topic: string
+        }
+        Update: {
+          audience?: string | null
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          origin?: string
+          school_id?: string | null
+          topic?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_need_submissions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
             referencedColumns: ["id"]
           },
         ]
@@ -30444,6 +30669,10 @@ export type Database = {
         }
         Returns: string
       }
+      approve_dev_threshold: {
+        Args: { _key: string; _reason: string; _version: string }
+        Returns: string
+      }
       approve_ops_asset_category: {
         Args: { _cv: string; _decision_ref: string }
         Returns: undefined
@@ -31831,6 +32060,16 @@ export type Database = {
         Args: { _m: string; _note: string; _result: string }
         Returns: undefined
       }
+      consolidate_dev_need: {
+        Args: {
+          _key: string
+          _need: string
+          _priority: string
+          _reason: string
+          _submission: string
+        }
+        Returns: string
+      }
       constitute_cycle_enrollment: {
         Args: {
           _academic_year: string
@@ -32336,6 +32575,24 @@ export type Database = {
       designation_year_valid_on: { Args: { _year: string }; Returns: string }
       designation_year_writable: { Args: { _year: string }; Returns: undefined }
       dev_can_manage: { Args: never; Returns: boolean }
+      dev_current_threshold: {
+        Args: never
+        Returns: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          min_group_size: number
+          reason: string
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "dev_aggregate_threshold_versions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       dev_version_usable: {
         Args: { _subject: string; _version: string }
         Returns: boolean
@@ -36924,6 +37181,15 @@ export type Database = {
         Args: { _key: string; _plan_version: string; _title: string }
         Returns: string
       }
+      record_dev_threshold_version: {
+        Args: {
+          _expected_version: number
+          _key: string
+          _min: number
+          _reason: string
+        }
+        Returns: string
+      }
       record_diary_correction_policy_draft: {
         Args: {
           _expected_version: number
@@ -40863,6 +41129,18 @@ export type Database = {
           _replaced_by?: string
         }
         Returns: undefined
+      }
+      submit_dev_need: {
+        Args: {
+          _audience: string
+          _evidence: Json
+          _justification: string
+          _key: string
+          _origin: string
+          _school: string
+          _topic: string
+        }
+        Returns: string
       }
       teacher_diary_closed: {
         Args: { _assignment: string; _period: string }
