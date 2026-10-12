@@ -45,13 +45,13 @@ export interface ExternalVersionRow { id: string; training_id: string; version: 
 export interface ExternalHistoryItem extends ExternalVersionRow { state: string }
 
 /** Só a última versão de cada formação da própria pessoa; carga validada fica separada da carga interna concluída. */
-export function externalHistory(ownTrainingIds: ReadonlySet<string>, versions: readonly ExternalVersionRow[], reviews: readonly (Pick<ExtReview, "seq" | "stage" | "outcome"> & { version_id: string })[]) {
+export function externalHistory(ownTrainingIds: ReadonlySet<string>, versions: readonly ExternalVersionRow[], reviews: readonly { version_id: string; seq: number; stage: string; outcome: string }[]) {
   const latest = new Map<string, ExternalVersionRow>();
   for (const v of versions) {
     if (!ownTrainingIds.has(v.training_id)) continue;
     const c = latest.get(v.training_id); if (!c || v.version > c.version) latest.set(v.training_id, v);
   }
-  const items: ExternalHistoryItem[] = [...latest.values()].map((v) => ({ ...v, state: versionState(reviews.filter((r) => r.version_id === v.id) as ExtReview[]) }));
+  const items: ExternalHistoryItem[] = [...latest.values()].map((v) => ({ ...v, state: versionState(reviews.filter((r) => r.version_id === v.id) as unknown as ExtReview[]) }));
   const validatedMinutes = items.filter((i) => i.state === "validado").reduce((s, i) => s + i.hours_minutes, 0);
   return { items, validatedMinutes };
 }

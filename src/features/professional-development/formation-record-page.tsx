@@ -96,7 +96,7 @@ function ExternalSection({ personId }: { personId: string }) {
       const v = ids.length ? await readPages<{ id: string; training_id: string; version: number; title: string; provider: string; hours_minutes: number; period_start: string; period_end: string }>((f, to) => supabase.from("dev_external_training_versions")
         .select("id, training_id, version, title, provider, hours_minutes, period_start, period_end").in("training_id", ids).order("id").range(f, to), 20000) : { data: [], error: null, truncated: false };
       const vids = (v.data ?? []).map((x) => x.id);
-      const r = vids.length ? await readPages<{ version_id: string; seq: number; stage: "conferencia" | "analise" | "decisao"; outcome: "conforme" | "divergente" | "favoravel" | "desfavoravel" | "devolvido" | "validado" | "indeferido" }>((f, to) => supabase.from("dev_external_training_reviews")
+      const r = vids.length ? await readPages<{ version_id: string; seq: number; stage: string; outcome: string }>((f, to) => supabase.from("dev_external_training_reviews")
         .select("version_id, seq, stage, outcome").in("version_id", vids).order("version_id").order("seq").range(f, to), 20000) : { data: [], error: null, truncated: false };
       if (!live) return;
       if (t.error || v.error || r.error) { setS({ err: "Formações externas indisponíveis para a sua conta." }); return; }
