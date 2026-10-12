@@ -76,6 +76,7 @@ function IngressPortal() {
                       <dt className="text-muted-foreground">Modalidades</dt><dd className="text-foreground">{c.modality_ids.map(readableId).join(", ")}</dd>
                       <dt className="text-muted-foreground">Escolas</dt><dd className="text-foreground">{c.schools.map((s) => s.name ?? "Escola sem nome registrado").join("; ")}</dd>
                     </dl>
+                    {w === "aberta" && <Link to="/publico/inscricao/$campanhaId" params={{ campanhaId: c.campaign_id }} className="mt-3 mr-4 inline-flex min-h-11 items-center rounded-md bg-primary px-4 font-medium text-primary-foreground hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">Fazer inscrição</Link>}
                     {c.edital_verification_code
                       ? <Link to="/verificar/ato/$codigo" params={{ codigo: c.edital_verification_code }} className="mt-3 inline-flex min-h-11 items-center font-medium text-primary underline-offset-4 hover:underline">Conferir edital</Link>
                       : <p className="mt-3 text-sm text-muted-foreground">Edital não disponível para consulta online.</p>}
@@ -134,7 +135,7 @@ function ProtocolLookup() {
       <h2 id="h-protocolo" className="text-lg font-semibold text-foreground">Consultar protocolo</h2>
       <form onSubmit={submit} className="mt-3 grid gap-3 rounded-md border border-border bg-card p-4" noValidate>
         <div className="grid gap-1">
-          <Label htmlFor={nId}>Número do protocolo</Label>
+          <Label htmlFor={nId}>Número do protocolo ou da inscrição</Label>
           <Input id={nId} value={number} onChange={(e) => setNumber(e.target.value)} placeholder="PROT-2027-123" autoComplete="off" inputMode="text" aria-describedby={hId} required />
         </div>
         <div className="grid gap-1">

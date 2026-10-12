@@ -195,6 +195,7 @@ import { Route as MediadorAcompanhamentoStudentIdRouteImport } from './routes/me
 import { Route as ProfissionaisIdIndexRouteImport } from './routes/profissionais.$id.index'
 import { Route as ProfissionaisIdAtuacoesRouteImport } from './routes/profissionais.$id.atuacoes'
 import { Route as ProfissionaisEditarIdRouteImport } from './routes/profissionais.editar.$id'
+import { Route as PublicoInscricaoCampanhaIdRouteImport } from './routes/publico.inscricao.$campanhaId'
 import { Route as RegrasAvaliativasRegraIdIndexRouteImport } from './routes/regras-avaliativas.$regraId.index'
 import { Route as RegrasAvaliativasRegraIdCompararRouteImport } from './routes/regras-avaliativas.$regraId.comparar'
 import { Route as RegrasAvaliativasRegraIdEditarRouteImport } from './routes/regras-avaliativas.$regraId.editar'
@@ -1223,6 +1224,12 @@ const ProfissionaisEditarIdRoute = ProfissionaisEditarIdRouteImport.update({
   path: '/editar/$id',
   getParentRoute: () => ProfissionaisRoute,
 } as any)
+const PublicoInscricaoCampanhaIdRoute =
+  PublicoInscricaoCampanhaIdRouteImport.update({
+    id: '/publico/inscricao/$campanhaId',
+    path: '/publico/inscricao/$campanhaId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const RegrasAvaliativasRegraIdIndexRoute =
   RegrasAvaliativasRegraIdIndexRouteImport.update({
     id: '/$regraId/',
@@ -1858,6 +1865,7 @@ export interface FileRoutesByFullPath {
   '/mediador/acompanhamento/$studentId': typeof MediadorAcompanhamentoStudentIdRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesRouteWithChildren
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
+  '/publico/inscricao/$campanhaId': typeof PublicoInscricaoCampanhaIdRoute
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
@@ -2101,6 +2109,7 @@ export interface FileRoutesByTo {
   '/matrizes-curriculares/rascunho/$id': typeof MatrizesCurricularesRascunhoIdRoute
   '/mediador/acompanhamento/$studentId': typeof MediadorAcompanhamentoStudentIdRoute
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
+  '/publico/inscricao/$campanhaId': typeof PublicoInscricaoCampanhaIdRoute
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
@@ -2353,6 +2362,7 @@ export interface FileRoutesById {
   '/mediador_/acompanhamento/$studentId': typeof MediadorAcompanhamentoStudentIdRoute
   '/profissionais/$id/atuacoes': typeof ProfissionaisIdAtuacoesRouteWithChildren
   '/profissionais/editar/$id': typeof ProfissionaisEditarIdRoute
+  '/publico/inscricao/$campanhaId': typeof PublicoInscricaoCampanhaIdRoute
   '/regras-avaliativas/$regraId/comparar': typeof RegrasAvaliativasRegraIdCompararRoute
   '/regras-avaliativas/$regraId/editar': typeof RegrasAvaliativasRegraIdEditarRoute
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
@@ -2618,6 +2628,7 @@ export interface FileRouteTypes {
     | '/mediador/acompanhamento/$studentId'
     | '/profissionais/$id/atuacoes'
     | '/profissionais/editar/$id'
+    | '/publico/inscricao/$campanhaId'
     | '/regras-avaliativas/$regraId/comparar'
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
@@ -2861,6 +2872,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares/rascunho/$id'
     | '/mediador/acompanhamento/$studentId'
     | '/profissionais/editar/$id'
+    | '/publico/inscricao/$campanhaId'
     | '/regras-avaliativas/$regraId/comparar'
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
@@ -3112,6 +3124,7 @@ export interface FileRouteTypes {
     | '/mediador_/acompanhamento/$studentId'
     | '/profissionais/$id/atuacoes'
     | '/profissionais/editar/$id'
+    | '/publico/inscricao/$campanhaId'
     | '/regras-avaliativas/$regraId/comparar'
     | '/regras-avaliativas/$regraId/editar'
     | '/turmas/editar/$id'
@@ -3324,6 +3337,7 @@ export interface RootRouteChildren {
   InclusaoNeiIndicadoresRoute: typeof InclusaoNeiIndicadoresRoute
   InclusaoNeiProtocolosRoute: typeof InclusaoNeiProtocolosRoute
   MediadorAcompanhamentoStudentIdRoute: typeof MediadorAcompanhamentoStudentIdRoute
+  PublicoInscricaoCampanhaIdRoute: typeof PublicoInscricaoCampanhaIdRoute
   VerificarAtoCodigoRoute: typeof VerificarAtoCodigoRoute
   VerificarCarteirinhaCodigoRoute: typeof VerificarCarteirinhaCodigoRoute
   VerificarCertificadoCodigoRoute: typeof VerificarCertificadoCodigoRoute
@@ -4636,6 +4650,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/profissionais/editar/$id'
       preLoaderRoute: typeof ProfissionaisEditarIdRouteImport
       parentRoute: typeof ProfissionaisRoute
+    }
+    '/publico/inscricao/$campanhaId': {
+      id: '/publico/inscricao/$campanhaId'
+      path: '/publico/inscricao/$campanhaId'
+      fullPath: '/publico/inscricao/$campanhaId'
+      preLoaderRoute: typeof PublicoInscricaoCampanhaIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/regras-avaliativas/$regraId/': {
       id: '/regras-avaliativas/$regraId/'
@@ -5971,6 +5992,7 @@ const rootRouteChildren: RootRouteChildren = {
   InclusaoNeiIndicadoresRoute: InclusaoNeiIndicadoresRoute,
   InclusaoNeiProtocolosRoute: InclusaoNeiProtocolosRoute,
   MediadorAcompanhamentoStudentIdRoute: MediadorAcompanhamentoStudentIdRoute,
+  PublicoInscricaoCampanhaIdRoute: PublicoInscricaoCampanhaIdRoute,
   VerificarAtoCodigoRoute: VerificarAtoCodigoRoute,
   VerificarCarteirinhaCodigoRoute: VerificarCarteirinhaCodigoRoute,
   VerificarCertificadoCodigoRoute: VerificarCertificadoCodigoRoute,

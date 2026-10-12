@@ -14026,6 +14026,86 @@ export type Database = {
           },
         ]
       }
+      enr_applications: {
+        Row: {
+          application_code: string
+          campaign_id: string
+          campaign_version: number
+          check_hash: string
+          declared_kinship: string | null
+          documents_acknowledged: boolean
+          id: string
+          idempotency_key: string
+          modality_id: string
+          requester_cpf_hmac: string
+          requester_email: string | null
+          requester_kind: string
+          requester_name: string
+          requester_phone: string | null
+          school_preferences: string[]
+          stage_id: string
+          student_birth_date: string
+          student_cpf_hmac: string | null
+          student_name: string
+          submitted_at: string
+          truth_declaration: boolean
+        }
+        Insert: {
+          application_code: string
+          campaign_id: string
+          campaign_version: number
+          check_hash: string
+          declared_kinship?: string | null
+          documents_acknowledged: boolean
+          id?: string
+          idempotency_key: string
+          modality_id: string
+          requester_cpf_hmac: string
+          requester_email?: string | null
+          requester_kind: string
+          requester_name: string
+          requester_phone?: string | null
+          school_preferences: string[]
+          stage_id: string
+          student_birth_date: string
+          student_cpf_hmac?: string | null
+          student_name: string
+          submitted_at?: string
+          truth_declaration: boolean
+        }
+        Update: {
+          application_code?: string
+          campaign_id?: string
+          campaign_version?: number
+          check_hash?: string
+          declared_kinship?: string | null
+          documents_acknowledged?: boolean
+          id?: string
+          idempotency_key?: string
+          modality_id?: string
+          requester_cpf_hmac?: string
+          requester_email?: string | null
+          requester_kind?: string
+          requester_name?: string
+          requester_phone?: string | null
+          school_preferences?: string[]
+          stage_id?: string
+          student_birth_date?: string
+          student_cpf_hmac?: string | null
+          student_name?: string
+          submitted_at?: string
+          truth_declaration?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_applications_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_campaign_events: {
         Row: {
           action: string
@@ -36589,6 +36669,13 @@ export type Database = {
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
       enr_norm_name: { Args: { _t: string }; Returns: string }
+      enr_public_application_status: {
+        Args: { _check: string; _code: string }
+        Returns: {
+          status: string
+          submitted_on: string
+        }[]
+      }
       enr_public_campaigns: {
         Args: never
         Returns: {
@@ -36619,6 +36706,31 @@ export type Database = {
         Returns: {
           strength: string
           student_id: string
+        }[]
+      }
+      enr_submit_application: {
+        Args: {
+          _campaign: string
+          _documents_ack: boolean
+          _email: string
+          _key: string
+          _kinship: string
+          _modality: string
+          _phone: string
+          _requester_cpf: string
+          _requester_kind: string
+          _requester_name: string
+          _schools: string[]
+          _stage: string
+          _student_birth: string
+          _student_cpf: string
+          _student_name: string
+          _truth: boolean
+        }
+        Returns: {
+          application_code: string
+          check_code: string
+          result: string
         }[]
       }
       enroll_dev_class: {
@@ -39259,6 +39371,7 @@ export type Database = {
             }
             Returns: string
           }
+      only_digits_or_null: { Args: { _t: string }; Returns: string }
       open_admin_case: {
         Args: {
           _classification_code: string
