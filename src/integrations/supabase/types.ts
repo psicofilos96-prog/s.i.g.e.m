@@ -1019,6 +1019,158 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_act_reviews: {
+        Row: {
+          act_version_id: string
+          created_at: string
+          id: string
+          justification: string | null
+          reviewer_person: string
+          verdict: string
+        }
+        Insert: {
+          act_version_id: string
+          created_at?: string
+          id?: string
+          justification?: string | null
+          reviewer_person: string
+          verdict: string
+        }
+        Update: {
+          act_version_id?: string
+          created_at?: string
+          id?: string
+          justification?: string | null
+          reviewer_person?: string
+          verdict?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_act_reviews_act_version_id_fkey"
+            columns: ["act_version_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_act_signatures: {
+        Row: {
+          act_version_id: string
+          evidence: Json
+          id: string
+          qualified_evidence_ref: string | null
+          signature_level: string
+          signed_at: string
+          signed_content_sha256: string
+          signer_person: string
+          verification_code: string
+        }
+        Insert: {
+          act_version_id: string
+          evidence: Json
+          id?: string
+          qualified_evidence_ref?: string | null
+          signature_level?: string
+          signed_at?: string
+          signed_content_sha256: string
+          signer_person: string
+          verification_code: string
+        }
+        Update: {
+          act_version_id?: string
+          evidence?: Json
+          id?: string
+          qualified_evidence_ref?: string | null
+          signature_level?: string
+          signed_at?: string
+          signed_content_sha256?: string
+          signer_person?: string
+          verification_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_act_signatures_act_version_id_fkey"
+            columns: ["act_version_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_access_grants: {
+        Row: {
+          case_id: string
+          created_at: string
+          granted_by_person: string
+          grantee_person: string
+          id: string
+          purpose: string
+          revoked_at: string | null
+          scope: string
+          valid_until: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          granted_by_person: string
+          grantee_person: string
+          id?: string
+          purpose: string
+          revoked_at?: string | null
+          scope: string
+          valid_until: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          granted_by_person?: string
+          grantee_person?: string
+          id?: string
+          purpose?: string
+          revoked_at?: string | null
+          scope?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_access_grants_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_access_revocations: {
+        Row: {
+          grant_id: string
+          reason: string
+          revoked_at: string
+          revoked_by_person: string
+        }
+        Insert: {
+          grant_id: string
+          reason: string
+          revoked_at?: string
+          revoked_by_person: string
+        }
+        Update: {
+          grant_id?: string
+          reason?: string
+          revoked_at?: string
+          revoked_by_person?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_access_revocations_grant_id_fkey"
+            columns: ["grant_id"]
+            isOneToOne: true
+            referencedRelation: "admin_case_access_grants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_case_act_references: {
         Row: {
           ref_id: string
@@ -1126,6 +1278,163 @@ export type Database = {
             columns: ["case_id"]
             isOneToOne: false
             referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_archival_events: {
+        Row: {
+          author_person: string
+          case_id: string
+          classification_code: string | null
+          created_at: string
+          decision_ref: string | null
+          event_type: string
+          id: string
+          retention_rule_ref: string | null
+        }
+        Insert: {
+          author_person: string
+          case_id: string
+          classification_code?: string | null
+          created_at?: string
+          decision_ref?: string | null
+          event_type: string
+          id?: string
+          retention_rule_ref?: string | null
+        }
+        Update: {
+          author_person?: string
+          case_id?: string
+          classification_code?: string | null
+          created_at?: string
+          decision_ref?: string | null
+          event_type?: string
+          id?: string
+          retention_rule_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_archival_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_deadline_rules: {
+        Row: {
+          classification_code: string
+          created_at: string
+          created_by_person: string
+          day_kind: string
+          days: number
+          decision_ref: string | null
+          id: string
+          rule_key: string
+          status: string
+          version: number
+        }
+        Insert: {
+          classification_code: string
+          created_at?: string
+          created_by_person: string
+          day_kind: string
+          days: number
+          decision_ref?: string | null
+          id?: string
+          rule_key: string
+          status: string
+          version: number
+        }
+        Update: {
+          classification_code?: string
+          created_at?: string
+          created_by_person?: string
+          day_kind?: string
+          days?: number
+          decision_ref?: string | null
+          id?: string
+          rule_key?: string
+          status?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      admin_case_digitization_conferences: {
+        Row: {
+          conferred_at: string
+          conferred_by_person: string
+          digitization_id: string
+          note: string | null
+          result: string
+        }
+        Insert: {
+          conferred_at?: string
+          conferred_by_person: string
+          digitization_id: string
+          note?: string | null
+          result: string
+        }
+        Update: {
+          conferred_at?: string
+          conferred_by_person?: string
+          digitization_id?: string
+          note?: string | null
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_digitization_conferences_digitization_id_fkey"
+            columns: ["digitization_id"]
+            isOneToOne: true
+            referencedRelation: "admin_case_digitizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_digitizations: {
+        Row: {
+          case_event_id: string
+          device_ref: string | null
+          digitized_at: string
+          digitized_by_person: string
+          id: string
+          original_custody: string
+          original_description: string
+        }
+        Insert: {
+          case_event_id: string
+          device_ref?: string | null
+          digitized_at?: string
+          digitized_by_person: string
+          id?: string
+          original_custody: string
+          original_description: string
+        }
+        Update: {
+          case_event_id?: string
+          device_ref?: string | null
+          digitized_at?: string
+          digitized_by_person?: string
+          id?: string
+          original_custody?: string
+          original_description?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_digitizations_case_event_id_fkey"
+            columns: ["case_event_id"]
+            isOneToOne: true
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_case_digitizations_case_event_id_fkey"
+            columns: ["case_event_id"]
+            isOneToOne: true
+            referencedRelation: "admin_case_events_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -24729,6 +25038,10 @@ export type Database = {
       }
       admin_act_capability: { Args: { _kind: string }; Returns: string }
       admin_case_current_unit: { Args: { _case_id: string }; Returns: string }
+      admin_case_granted: {
+        Args: { _case_id: string; _scope: string }
+        Returns: boolean
+      }
       admin_case_readable: { Args: { _case_id: string }; Returns: boolean }
       aee_services_at: {
         Args: { _known_at: string; _school: string; _student: string }
@@ -26247,6 +26560,10 @@ export type Database = {
         Args: { _class: string; _on: string; _student: string }
         Returns: boolean
       }
+      confer_admin_digitization: {
+        Args: { _digitization_id: string; _note: string; _result: string }
+        Returns: undefined
+      }
       constitute_cycle_enrollment: {
         Args: {
           _academic_year: string
@@ -27541,6 +27858,16 @@ export type Database = {
           subtitle: string
           title: string
         }[]
+      }
+      grant_admin_case_access: {
+        Args: {
+          _case_id: string
+          _grantee: string
+          _purpose: string
+          _scope: string
+          _valid_until: string
+        }
+        Returns: string
       }
       guardian_authorization_chain: {
         Args: { _school: string; _student: string }
@@ -30181,6 +30508,16 @@ export type Database = {
           version: number
         }[]
       }
+      record_admin_case_archival: {
+        Args: {
+          _case_id: string
+          _classification_code: string
+          _decision_ref: string
+          _event_type: string
+          _retention_rule_ref: string
+        }
+        Returns: undefined
+      }
       record_admin_case_event: {
         Args: {
           _case_id: string
@@ -30192,6 +30529,15 @@ export type Database = {
           _to_unit_id: string
         }
         Returns: number
+      }
+      record_admin_digitization: {
+        Args: {
+          _case_event_id: string
+          _device_ref: string
+          _original_custody: string
+          _original_description: string
+        }
+        Returns: string
       }
       record_aee_service: {
         Args: {
@@ -32761,6 +33107,18 @@ export type Database = {
         }
         Returns: string
       }
+      register_admin_deadline_rule: {
+        Args: {
+          _classification_code: string
+          _day_kind: string
+          _days: number
+          _decision_ref: string
+          _expected_version: number
+          _rule_key: string
+          _status: string
+        }
+        Returns: number
+      }
       register_assessment_norm_version: {
         Args: {
           _academic_year_id: string
@@ -33035,6 +33393,14 @@ export type Database = {
         Args: { _expected_conference: string; _map: string; _reason: string }
         Returns: string
       }
+      review_admin_act_version: {
+        Args: {
+          _act_version_id: string
+          _justification: string
+          _verdict: string
+        }
+        Returns: undefined
+      }
       review_meal_content_staging: {
         Args: {
           _action: string
@@ -33043,6 +33409,10 @@ export type Database = {
           _valid_from: string
         }
         Returns: number
+      }
+      revoke_admin_case_access: {
+        Args: { _grant_id: string; _reason: string }
+        Returns: undefined
       }
       revoke_curricular_reference_relation: {
         Args: { _effective_on: string; _reason: string; _relation: string }
@@ -33400,6 +33770,17 @@ export type Database = {
           _scope_key: string
         }
         Returns: boolean
+      }
+      search_admin_cases: {
+        Args: { _classification: string; _term: string; _year: number }
+        Returns: {
+          case_id: string
+          case_number: string
+          classification_code: string
+          opened_at: string
+          subject: string
+          unit_id: string
+        }[]
       }
       sec_actor: {
         Args: never
@@ -33792,6 +34173,13 @@ export type Database = {
         Returns: boolean
       }
       sigem_search_norm: { Args: { _t: string }; Returns: string }
+      sign_admin_act_version: {
+        Args: { _act_version_id: string; _user_agent: string }
+        Returns: {
+          signed_content_sha256: string
+          verification_code: string
+        }[]
+      }
       sipe_colleagues: {
         Args: never
         Returns: {
@@ -34433,6 +34821,18 @@ export type Database = {
           code: string
           name: string
           parent_code: string
+        }[]
+      }
+      verify_admin_act_signature: {
+        Args: { _code: string }
+        Returns: {
+          act_kind: string
+          case_number: string
+          signature_level: string
+          signed_at: string
+          signed_content_sha256: string
+          status: string
+          version: number
         }[]
       }
       verify_report_emission: { Args: { _code: string }; Returns: Json }
