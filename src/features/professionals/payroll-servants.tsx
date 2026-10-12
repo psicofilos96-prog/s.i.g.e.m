@@ -33,7 +33,7 @@ export function PayrollServants({ uid }: { uid: string }) {
   return (
     <section aria-labelledby="payroll-servants" className="space-y-3">
       <h2 id="payroll-servants" className="font-semibold">Vínculos da folha — agosto/2026</h2>
-      <p className="text-xs text-muted-foreground">Cada matrícula é um vínculo funcional. Mesmo nome e mesma data de nascimento formam um servidor; homônimos com nascimento diferente ficam separados. Ligação ao cadastro de pessoas (inclusive Educacenso) só aparece quando comprovada por identificador. Dados de remuneração não são exibidos.</p>
+      <p className="text-xs text-muted-foreground">Cada matrícula é um vínculo funcional. Mesmo nome e mesma data de nascimento agrupam os vínculos num servidor só para visualização — esse agrupamento não confirma identidade com o cadastro de pessoas nem com o Educacenso; homônimos com nascimento diferente ficam separados. Ligação ao cadastro de pessoas (inclusive Educacenso) só aparece quando comprovada por identificador. Dados de remuneração não são exibidos.</p>
       {q.data?.truncated && <StatePanel tone="warning" title="Lista parcial" description="A leitura atingiu o limite; os totais abaixo não são completos." />}
       <dl className="grid gap-2 sm:grid-cols-4 text-sm">
         <div className="rounded-md border p-2"><dt className="text-xs text-muted-foreground">Vínculos (matrículas)</dt><dd className="tabular-nums text-lg">{s.vinculos}</dd></div>
