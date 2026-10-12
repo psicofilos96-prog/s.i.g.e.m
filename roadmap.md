@@ -679,3 +679,9 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] L42 CI + tela da folha — EXECUTADO localmente (inventário de capacidades regenerado; prova autenticada com fixture técnica 10/10); CI do SHA seguinte falhou só no índice de docs (corrigido no L44)
 - [ ] L43 logins em massa + catálogo de áreas — EXECUTADO (2.037 logins por matrícula + 168 setoriais; 20 áreas catalogadas); 12 áreas BLOQUEADAS por falta de perfil na política homologada
 - [ ] L44 higiene de contas — EXECUTADO (0512: troca obrigatória da senha inicial nas 2.205 contas em massa; portão global na área de trabalho; modelo de consolidação só por ligação comprovada; tipos propostos separados da política vigente; índice técnico regenerado). Pendente: CI verde confirmado no GitHub; homologação dos 10 perfis propostos; ligações matrícula↔pessoa
+
+## L45
+- [x] Áreas de trabalho (/areas, /areas/$areaId) para as 10 áreas + Família (equipe) + execução técnica (só leitura), com acesso por pathAllowed.
+- [x] Política em rascunho (draft-capability-policy.ts) separada da v8, com análise de segregação; nunca ativa.
+- [ ] Estrutura canônica de servidor funcional + crosswalk de candidatos no banco (Entrega 3).
+- [ ] E2E autenticado com fixtures técnicas nas novas áreas; CI verde confirmado no GitHub.
