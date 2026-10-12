@@ -34194,6 +34194,144 @@ export type Database = {
           },
         ]
       }
+      tech_backup_plan_approvals: {
+        Row: {
+          created_at: string
+          person_id: string
+          plan_version_id: string
+        }
+        Insert: {
+          created_at?: string
+          person_id: string
+          plan_version_id: string
+        }
+        Update: {
+          created_at?: string
+          person_id?: string
+          plan_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_backup_plan_approvals_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: true
+            referencedRelation: "tech_backup_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_backup_plan_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          every_hours: number
+          id: string
+          idempotency_key: string
+          person_id: string
+          restore_test_every_days: number | null
+          retention_days: number | null
+          scope: string
+          service_key: string
+          source_kind: string
+          source_ref: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          every_hours: number
+          id?: string
+          idempotency_key: string
+          person_id: string
+          restore_test_every_days?: number | null
+          retention_days?: number | null
+          scope: string
+          service_key: string
+          source_kind: string
+          source_ref: string
+          version: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          every_hours?: number
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          restore_test_every_days?: number | null
+          retention_days?: number | null
+          scope?: string
+          service_key?: string
+          source_kind?: string
+          source_ref?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      tech_backup_runs: {
+        Row: {
+          checksum: string | null
+          created_at: string
+          ended_at: string
+          evidence_ref: string
+          id: string
+          idempotency_key: string
+          outcome: string
+          person_id: string
+          plan_version_id: string
+          started_at: string
+        }
+        Insert: {
+          checksum?: string | null
+          created_at?: string
+          ended_at: string
+          evidence_ref: string
+          id?: string
+          idempotency_key: string
+          outcome: string
+          person_id: string
+          plan_version_id: string
+          started_at: string
+        }
+        Update: {
+          checksum?: string | null
+          created_at?: string
+          ended_at?: string
+          evidence_ref?: string
+          id?: string
+          idempotency_key?: string
+          outcome?: string
+          person_id?: string
+          plan_version_id?: string
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_backup_runs_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_backup_runs_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_backup_runs_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: false
+            referencedRelation: "tech_backup_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_change_documents: {
         Row: {
           case_event_ref: string
@@ -34894,6 +35032,67 @@ export type Database = {
           window_days?: number
         }
         Relationships: []
+      }
+      tech_restore_tests: {
+        Row: {
+          created_at: string
+          evidence_ref: string
+          id: string
+          idempotency_key: string
+          note: string
+          outcome: string
+          person_id: string
+          restored_checksum: string | null
+          run_id: string
+          tested_at: string
+        }
+        Insert: {
+          created_at?: string
+          evidence_ref: string
+          id?: string
+          idempotency_key: string
+          note: string
+          outcome: string
+          person_id: string
+          restored_checksum?: string | null
+          run_id: string
+          tested_at: string
+        }
+        Update: {
+          created_at?: string
+          evidence_ref?: string
+          id?: string
+          idempotency_key?: string
+          note?: string
+          outcome?: string
+          person_id?: string
+          restored_checksum?: string | null
+          run_id?: string
+          tested_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_restore_tests_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_restore_tests_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_restore_tests_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "tech_backup_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tech_security_counters: {
         Row: {
@@ -37056,6 +37255,7 @@ export type Database = {
         }
         Returns: string
       }
+      approve_tech_backup_plan: { Args: { _plan: string }; Returns: undefined }
       approve_tech_digital_service: {
         Args: { _decision: string; _version: string }
         Returns: undefined
@@ -46714,6 +46914,32 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_backup_plan: {
+        Args: {
+          _every: number
+          _expected: number
+          _key: string
+          _ret: number
+          _scope: string
+          _service: string
+          _src: string
+          _src_kind: string
+          _test_days: number
+        }
+        Returns: number
+      }
+      record_tech_backup_run: {
+        Args: {
+          _checksum: string
+          _end: string
+          _evidence: string
+          _key: string
+          _outcome: string
+          _plan: string
+          _start: string
+        }
+        Returns: string
+      }
       record_tech_change_event: {
         Args: {
           _act: string
@@ -46801,6 +47027,18 @@ export type Database = {
           _window: number
         }
         Returns: number
+      }
+      record_tech_restore_test: {
+        Args: {
+          _at: string
+          _checksum: string
+          _evidence: string
+          _key: string
+          _note: string
+          _outcome: string
+          _run: string
+        }
+        Returns: string
       }
       record_tech_security_event: {
         Args: {
@@ -49021,6 +49259,7 @@ export type Database = {
         }
         Returns: number
       }
+      tech_backup_doc_ok: { Args: { _d: string }; Returns: boolean }
       tech_can_manage: { Args: { _school: string }; Returns: boolean }
       tech_can_read: { Args: { _school: string }; Returns: boolean }
       tech_classify_ticket: {
