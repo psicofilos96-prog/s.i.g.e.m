@@ -34949,6 +34949,119 @@ export type Database = {
           },
         ]
       }
+      tech_pedagogical_evaluations: {
+        Row: {
+          created_at: string
+          curricular_item_ids: string[]
+          id: string
+          idempotency_key: string
+          person_id: string
+          rationale: string
+          rubric_version_id: string
+          scores: Json
+          service_version_id: string
+          verdict: string
+        }
+        Insert: {
+          created_at?: string
+          curricular_item_ids?: string[]
+          id?: string
+          idempotency_key: string
+          person_id: string
+          rationale: string
+          rubric_version_id: string
+          scores: Json
+          service_version_id: string
+          verdict: string
+        }
+        Update: {
+          created_at?: string
+          curricular_item_ids?: string[]
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          rationale?: string
+          rubric_version_id?: string
+          scores?: Json
+          service_version_id?: string
+          verdict?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_pedagogical_evaluations_rubric_version_id_fkey"
+            columns: ["rubric_version_id"]
+            isOneToOne: false
+            referencedRelation: "tech_pedagogical_rubric_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_pedagogical_evaluations_service_version_id_fkey"
+            columns: ["service_version_id"]
+            isOneToOne: false
+            referencedRelation: "tech_digital_service_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_pedagogical_rubric_approvals: {
+        Row: {
+          created_at: string
+          person_id: string
+          rubric_version_id: string
+        }
+        Insert: {
+          created_at?: string
+          person_id: string
+          rubric_version_id: string
+        }
+        Update: {
+          created_at?: string
+          person_id?: string
+          rubric_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_pedagogical_rubric_approvals_rubric_version_id_fkey"
+            columns: ["rubric_version_id"]
+            isOneToOne: true
+            referencedRelation: "tech_pedagogical_rubric_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_pedagogical_rubric_versions: {
+        Row: {
+          created_at: string
+          criteria: Json
+          id: string
+          idempotency_key: string
+          person_id: string
+          scale_max: number
+          source_ref: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          criteria: Json
+          id?: string
+          idempotency_key: string
+          person_id: string
+          scale_max: number
+          source_ref: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          criteria?: Json
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          scale_max?: number
+          source_ref?: string
+          version?: number
+        }
+        Relationships: []
+      }
       tech_problem_events: {
         Row: {
           action: string
@@ -37377,6 +37490,10 @@ export type Database = {
       }
       approve_tech_equipment_category_mark: {
         Args: { _decision: string; _mark: string }
+        Returns: undefined
+      }
+      approve_tech_pedagogical_rubric: {
+        Args: { _rubric: string }
         Returns: undefined
       }
       approve_tech_recurrence_rule: {
@@ -47131,6 +47248,27 @@ export type Database = {
           _target: string
         }
         Returns: string
+      }
+      record_tech_pedagogical_evaluation: {
+        Args: {
+          _items: string[]
+          _key: string
+          _rationale: string
+          _scores: Json
+          _service: string
+          _verdict: string
+        }
+        Returns: string
+      }
+      record_tech_pedagogical_rubric: {
+        Args: {
+          _criteria: Json
+          _expected: number
+          _key: string
+          _scale: number
+          _source: string
+        }
+        Returns: number
       }
       record_tech_problem_event: {
         Args: {
