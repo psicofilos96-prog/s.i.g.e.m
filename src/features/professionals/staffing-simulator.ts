@@ -75,6 +75,7 @@ export function applyChanges(base: SimBase, changes: readonly SimChange[]): { st
         const k = s.assignments.findIndex((a) => a.id === c.assignmentId);
         if (k < 0 || !link(c.toLinkId)) return p("atribuição ou vínculo inexistente");
         s.assignments[k] = { ...s.assignments[k]!, linkId: c.toLinkId };
+        return;
       }
     }
   });
