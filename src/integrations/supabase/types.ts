@@ -11818,6 +11818,76 @@ export type Database = {
           },
         ]
       }
+      dev_role_track_target_withdrawals: {
+        Row: {
+          author_person: string
+          created_at: string
+          reason: string
+          target_id: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          reason: string
+          target_id: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          reason?: string
+          target_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_role_track_target_withdrawals_target_id_fkey"
+            columns: ["target_id"]
+            isOneToOne: true
+            referencedRelation: "dev_role_track_targets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_role_track_targets: {
+        Row: {
+          audience_group: string
+          author_person: string
+          created_at: string
+          engagement_kind_id: string
+          id: string
+          idempotency_key: string
+          rationale: string
+          track_version_id: string
+        }
+        Insert: {
+          audience_group: string
+          author_person: string
+          created_at?: string
+          engagement_kind_id: string
+          id?: string
+          idempotency_key: string
+          rationale: string
+          track_version_id: string
+        }
+        Update: {
+          audience_group?: string
+          author_person?: string
+          created_at?: string
+          engagement_kind_id?: string
+          id?: string
+          idempotency_key?: string
+          rationale?: string
+          track_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_role_track_targets_track_version_id_fkey"
+            columns: ["track_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_track_approvals"
+            referencedColumns: ["track_version_id"]
+          },
+        ]
+      }
       dev_rubric_approvals: {
         Row: {
           approver_person: string
@@ -35499,6 +35569,7 @@ export type Database = {
         Returns: boolean
       }
       dev_class_occupied: { Args: { _class: string }; Returns: number }
+      dev_clinical_text: { Args: { _t: string }; Returns: boolean }
       dev_completion_compute: { Args: { _enrollment: string }; Returns: Json }
       dev_current_threshold: {
         Args: never
@@ -35531,6 +35602,16 @@ export type Database = {
         Returns: boolean
       }
       dev_my_formation_record: { Args: never; Returns: Json }
+      dev_my_role_tracks: {
+        Args: never
+        Returns: {
+          audience_group: string
+          engagement_id: string
+          engagement_kind_id: string
+          target_id: string
+          track_version_id: string
+        }[]
+      }
       dev_person_formation_history: {
         Args: { _person: string }
         Returns: {
@@ -44519,6 +44600,16 @@ export type Database = {
         }
         Returns: string
       }
+      target_dev_role_track: {
+        Args: {
+          _group: string
+          _key: string
+          _kind: string
+          _rationale: string
+          _track_version: string
+        }
+        Returns: string
+      }
       teacher_diary_closed: {
         Args: { _assignment: string; _period: string }
         Returns: boolean
@@ -44870,6 +44961,10 @@ export type Database = {
       verify_studio_document: { Args: { _code: string }; Returns: Json }
       withdraw_dev_material: {
         Args: { _material: string; _reason: string }
+        Returns: undefined
+      }
+      withdraw_dev_role_track: {
+        Args: { _reason: string; _target: string }
         Returns: undefined
       }
       workflow_can_read: {
