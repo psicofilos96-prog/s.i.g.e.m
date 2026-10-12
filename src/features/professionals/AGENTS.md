@@ -38,3 +38,6 @@
 
 ## L21 Tela de Gestão de Pessoas (`/gestao-de-pessoas`, `people-hub-*`)
 - A tela lê só com a sessão (sem sessão = `SignInRequired`, nenhuma leitura antes do portão) as mesmas fontes do DP e do Quadro docente; indicadores e alertas vêm de `dashboard()` puro, que recusa origem de demonstração e devolve null para fonte não lida; atribuições ficam sem lista até haver registro institucional, porque número de protótipo ou proposta exibidos pareceriam oficiais.
+
+## L22 Acesso e auditoria (`people-access.ts`, migration 0383)
+- A tela só restringe a RLS: decisão por capacidade × escopo × vigência (própria pessoa lê o próprio registro, operador técnico nunca), afastamento sem `consultar-afastamentos` sai sem documento/observação, exportação exige capacidade própria e omite sensíveis, retificação exige motivo e nunca o próprio registro, cálculo é auditado por metodologia+hash sem dado pessoal; 0383 corrigiu a policy de vínculos que comparava a posting consigo mesma, porque filtro na tela não autoriza nem protege.

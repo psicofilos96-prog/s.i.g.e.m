@@ -2682,6 +2682,13 @@
       "when": 1791780446858,
       "tag": "0382_family_l03_keep_link_type_on_change",
       "breakpoints": true
+    },
+    {
+      "idx": 383,
+      "version": "7",
+      "when": 1791783670031,
+      "tag": "0383_fix_functional_links_read_policy",
+      "breakpoints": true
     }
   ]
 }

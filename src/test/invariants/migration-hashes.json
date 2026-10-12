@@ -430,5 +430,6 @@
  "drizzle/migrations/0379_ibge_dtb_territorial_catalog.sql": "db97206575e14535f5c71bf7afba45beea9cba80ebfd2f858955a15f80b59188",
  "drizzle/migrations/0380_ibge_dtb_revoke_technical_load.sql": "63ed69e2ac217637034745b9251546caa736e24767a9b46fe9930ae4089190b9",
  "drizzle/migrations/0381_family_l02_guardian_link_qualification.sql": "9b13c19b4617bc19e617862830e8cdf47d25e63fb2de40167785a929bd042c50",
- "drizzle/migrations/0382_family_l03_keep_link_type_on_change.sql": "8c9653cafa03390fb07b1300b8eb0de38d2976c1973a7bf39846a9bf0184fc7e"
+ "drizzle/migrations/0382_family_l03_keep_link_type_on_change.sql": "8c9653cafa03390fb07b1300b8eb0de38d2976c1973a7bf39846a9bf0184fc7e",
+ "drizzle/migrations/0383_fix_functional_links_read_policy.sql": "d2191ad4376d1776df5adc3842ecb9a22e28497e0716683a658ee80606bd78ae"
 }
