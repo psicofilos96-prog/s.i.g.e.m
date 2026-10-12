@@ -365,3 +365,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [Auditoria de cobertura das especificações](auditoria-cobertura-especificacoes-2026-10-12.md) — Registro de lote
 - [Matriz evidência/pendência por setor — Lote 17](matriz-evidencia-setores-lote17.md) — Registro de lote
 - [lotes-32-36-servidores-infra-testes-parametros-2026-10.md](lotes-32-36-servidores-infra-testes-parametros-2026-10.md) — Registro de lote
+- `docs/lote-37-saneamento-evidencias-2026-10.md` — Registro de lote: saneamento L32–36 (evidências reexecutadas).

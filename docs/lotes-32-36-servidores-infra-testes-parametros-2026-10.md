@@ -26,7 +26,7 @@
 |---|---|
 | Recibos oficiais do Censo 2026 | 55 (só contagens de turmas/alunos; não trazem infraestrutura) |
 | Observações de infraestrutura | 2.970 em staging; 54 versões de atributo |
-| Confronto infraestrutura × Censo | **Não possível**: nenhuma fonte oficial de infraestrutura do Censo 2026 no projeto |
+| Confronto infraestrutura × Censo | **Corrigido no L37:** fonte oficial INEP 2026 de infraestrutura já importada (2.970 obs.); sem fonte concorrente para comparar |
 | Jornadas | 0 jornadas, 0 grades. Nenhuma fonte de jornada recebida; nada inferido nem convertido em grade docente |
 Divergências corrigíveis encontradas: 0. Matriz por escola × campo depende da fonte oficial ausente.
 
