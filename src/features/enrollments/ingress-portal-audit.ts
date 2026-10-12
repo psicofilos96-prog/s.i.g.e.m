@@ -100,9 +100,9 @@ export const INGRESS_CRITERIA: readonly IngressRow[] = [
   K(15, "Documentos em caminho privado", "parcial", [`${E}/pre-registration.ts`], "Bucket/política não criados."),
   K(16, "Ausência nunca vira zero", "existente", [`${E}/occupancy-panel.ts`]),
   K(17, "Matrícula/enturmação só pelos writers B3", "existente", [B3]),
-  K(18, "RLS e sem DML direta", "existente", ["drizzle/migrations/0384_net24_revoke_student_dml.sql"]),
+  K(18, "RLS e sem DML direta", "existente", ["drizzle/migrations/0384_net24_revoke_students_direct_dml.sql"]),
   K(19, "Consulta pública sem dado pessoal", "lacuna", [], "Rota pública não existe."),
-  K(20, "Exportação auditada", "parcial", [`${E}/enrollment-reports.ts`]),
+  K(20, "Exportação auditada", "parcial", [`${E}/enrollment-reports.ts`], "Telas ainda não exportam pela trilha de emissões."),
   K(21, "Simulação nunca altera oferta oficial", "existente", [`${E}/network-simulator.ts`]),
   K(22, "Evidência SQL/TS/E2E", "parcial", [`${E}/ingress-portal-audit.test.ts`], "E2E autenticado não executado."),
 ];
