@@ -2906,6 +2906,13 @@
       "when": 1791796640165,
       "tag": "0414_ops09_assets",
       "breakpoints": true
+    },
+    {
+      "idx": 415,
+      "version": "7",
+      "when": 1791796706541,
+      "tag": "0415_ops09_category_network_capability",
+      "breakpoints": true
     }
   ]
 }
