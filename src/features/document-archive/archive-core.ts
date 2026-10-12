@@ -106,3 +106,37 @@ export const REASON: Readonly<Record<string, string>> = {
   "extensao-nao-pode-mudar": "A extensão do arquivo não pode ser alterada.",
 };
 export const reasonText = (msg: string): string => REASON[msg] ?? "Não foi possível concluir a ação.";
+
+// ACV.2 — herança de acesso, política de cota/retenção.
+export interface AccessRow { acl_id: string; node_id: string; inherited: boolean; person_id: string | null; principal_id: string | null; display_name: string | null; role: string; granted_at: string }
+/** Separa acessos diretos dos herdados; o mais alto por pessoa vence na herança (como acv_node_rank). */
+export function groupAccess(rows: readonly AccessRow[]) {
+  const direct = rows.filter((r) => !r.inherited);
+  const best = new Map<string, AccessRow>();
+  for (const r of rows.filter((x) => x.inherited)) {
+    const k = r.person_id ?? r.principal_id ?? r.acl_id;
+    const cur = best.get(k);
+    if (!cur || roleRank(r.role) > roleRank(cur.role)) best.set(k, r);
+  }
+  return { direct, inherited: [...best.values()] };
+}
+export function bytesFromMb(mb: string): number | null {
+  const t = mb.trim();
+  return t ? Math.round(Number(t) * 1048576) : null;
+}
+export function policyDraftProblems(p: { quotaMb: string; retention: string; source: string; reason: string }): string[] {
+  const e: string[] = [];
+  if (p.quotaMb.trim() && !/^\d+$/.test(p.quotaMb.trim()) || p.quotaMb.trim() === "0") e.push("Cota: número inteiro de MB maior que zero.");
+  if (p.retention.trim() && !/^[1-9]\d*$/.test(p.retention.trim())) e.push("Retenção: número inteiro de dias.");
+  if (p.source.trim().length < 5) e.push("Informe a fonte da decisão.");
+  if (p.reason.trim().length < 10) e.push("Justificativa com ao menos 10 caracteres.");
+  return e;
+}
+Object.assign(REASON as Record<string, string>, {
+  "versao-desatualizada": "Outra proposta foi registrada antes. Recarregue e tente de novo.",
+  "versao-superada": "Existe proposta mais nova para este espaço.",
+  "aprovador-igual-autor": "Quem propôs não pode aprovar a própria proposta.",
+  "destinatario-invalido": "Conta de setor inválida ou revogada.",
+  "ja-revogado": "Este acesso já tinha sido retirado.",
+  "reserva-expirada": "O envio expirou. Envie o arquivo de novo.",
+});

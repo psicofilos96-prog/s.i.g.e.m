@@ -8,6 +8,7 @@ import { useSessionAuthority } from "@/features/authority/session-authority";
 import { STATION_LABEL } from "@/features/authority/station-navigation";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { supabase } from "@/integrations/supabase/client";
+import { NetworkArchivePanel, ShareDialog, SpaceAdminPanel } from "./archive-admin";
 import { breadcrumbs, can, checkFile, listChildren, previewKind, reasonText, sha256Hex, type ArchiveNode, type SortKey } from "./archive-core";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any; storage: typeof supabase.storage };
@@ -51,6 +52,7 @@ function ArchiveWorkspace({ isSector }: { isSector: boolean }) {
   const [preview, setPreview] = useState<{ name: string; kind: string; url?: string; text?: string } | null>(null);
   const [dragging, setDragging] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const [sharing, setSharing] = useState<ArchiveNode | null>(null);
 
   const loadSpaces = useCallback(async () => {
     try {
@@ -170,6 +172,9 @@ function ArchiveWorkspace({ isSector }: { isSector: boolean }) {
   return (
     <div className="mx-auto max-w-6xl space-y-5 p-4 sm:p-6">
       <PageHeader title="Acervo Documental" description="Pastas e arquivos do setor. Arquivos aqui não são documentos oficiais assinados; o acesso é verificado pelo servidor a cada ação." />
+      {spaceId && rank >= 7 && <SpaceAdminPanel spaceId={spaceId} />}
+      {!isSector && <NetworkArchivePanel />}
+      {spaceId && <ShareDialog node={sharing} spaceId={spaceId} onClose={() => setSharing(null)} />}
       {error && <div role="alert" className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">{error}</div>}
       {notice && <div role="status" className="rounded-md border border-border bg-muted p-3 text-sm">{notice}</div>}
       {spaces.length === 0 ? (
@@ -241,6 +246,7 @@ function ArchiveWorkspace({ isSector }: { isSector: boolean }) {
                         {n.kind === "arquivo" && <button className="rounded border border-border px-2 py-1" onClick={() => openPreview(n)}>Ver</button>}
                         {n.kind === "arquivo" && <button className="rounded border border-border px-2 py-1" onClick={() => download(n)}>Baixar</button>}
                         <button className="rounded border border-border px-2 py-1" aria-pressed={favs.has(n.id)} onClick={() => toggleFav(n)}>{favs.has(n.id) ? "★" : "☆"}</button>
+                        {can(rank, "compartilhar") && <button className="rounded border border-border px-2 py-1" onClick={() => setSharing(n)}>Compartilhar</button>}
                         {can(rank, "organizar") && <button className="rounded border border-border px-2 py-1" onClick={async () => { const v = await ask("Novo nome", n.name); if (v && v !== n.name) void act("acv_rename", { _node: n.id, _name: v }, "Renomeado."); }}>Renomear</button>}
                         {can(rank, "organizar") && <button className="rounded border border-border px-2 py-1" onClick={async () => { const t = await pickTarget(n); if (t !== undefined) void act("acv_move", { _node: n.id, _space: spaceId, _parent: t }, "Movido."); }}>Mover</button>}
                         <button className="rounded border border-border px-2 py-1" onClick={async () => { const t = await pickTarget(n); if (t === undefined) return; const name = await ask("Nome da cópia", `Cópia de ${n.name}`); if (name) void act("acv_copy", { _node: n.id, _space: spaceId, _parent: t, _name: name }, "Copiado."); }}>Copiar</button>
