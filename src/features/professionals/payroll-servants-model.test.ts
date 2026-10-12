@@ -25,4 +25,9 @@ describe("L41 folha agrupada por servidor", () => {
     expect(filterPayrollServants(s, "3-3", false).map((x) => x.key)).toEqual(["b"]);
     expect(filterPayrollServants(s, "", true).map((x) => x.key)).toEqual(["a"]);
   });
+  it("L42: agrupar por nome+nascimento não cria ligação com pessoa/Educacenso", () => {
+    const s = groupPayrollServants([r("1-1", "k", "ANA", "1980-01-01"), r("2-2", "k", "ANA", "1980-01-01")]);
+    expect(s[0]!.linkedPersonIds).toEqual([]);
+    expect(payrollSummary(s).ligadosAPessoa).toBe(0);
+  });
 });

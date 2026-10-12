@@ -1111,6 +1111,14 @@
   ]
  },
  {
+  "id": "manter-registro-funcional",
+  "module": "Demais módulos",
+  "firstMigration": "0508_l38_payroll_functional_registrations.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
   "id": "manter-regra-de-competencia-do-mapa",
   "module": "Demais módulos",
   "firstMigration": "0119_t_map_2027_rule_writers_session.sql",

@@ -37,7 +37,9 @@ export function PeopleHubPage() {
   if (a.status === "loading") return <SkeletonState label="Verificando sua sessão" />;
   if (schools.isError) return <StatePanel tone="danger" title="Permissões não puderam ser lidas" description={functionalMessage((schools.error as Error).message)} />;
   if (schools.isLoading) return <SkeletonState label="Carregando escolas do seu alcance" />;
-  if (!schools.data?.length) return <EmptyState title="Sem escola no seu alcance" description="Sua conta não tem a permissão de consultar registro funcional em nenhuma escola." />;
+  // L42: a folha é de rede e se protege pela própria RLS; não depende de haver escola no alcance.
+  const payroll = uid && <details className="rounded-md border p-3"><summary className="min-h-11 cursor-pointer font-medium">Folha de agosto/2026 — vínculos por servidor (rede)</summary><div className="mt-3"><PayrollServants uid={uid} /></div></details>;
+  if (!schools.data?.length) return <div className="space-y-6"><EmptyState title="Sem escola no seu alcance" description="Sua conta não tem a permissão de consultar registro funcional em nenhuma escola." />{payroll}</div>;
 
   const names = people.data?.names ?? new Map<string, string>();
   const dash = dashboard("institucional", picture, classes.data ?? null);
@@ -51,7 +53,7 @@ export function PeopleHubPage() {
           </select></label>
         <p className="text-xs text-muted-foreground">Data de referência: {on}</p>
       </div>
-      {uid && <details className="rounded-md border p-3"><summary className="min-h-11 cursor-pointer font-medium">Folha de agosto/2026 — vínculos por servidor (rede)</summary><div className="mt-3"><PayrollServants uid={uid} /></div></details>}
+      {payroll}
       {!school ? <EmptyState title="Escolha uma escola" description="Os números são calculados na hora a partir dos registros oficiais." /> : <>
         <div role="tablist" aria-label="Seções da Gestão de Pessoas" className="flex gap-1 overflow-x-auto border-b">
           {TABS.map(([id, label]) => (
