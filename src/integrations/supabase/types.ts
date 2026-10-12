@@ -14026,6 +14026,50 @@ export type Database = {
           },
         ]
       }
+      enr_application_analyses: {
+        Row: {
+          application_id: string
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string
+          seq: number
+          subject: string
+        }
+        Insert: {
+          application_id: string
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          note: string
+          seq: number
+          subject: string
+        }
+        Update: {
+          application_id?: string
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string
+          seq?: number
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_application_analyses_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_application_documents: {
         Row: {
           application_id: string
@@ -36889,8 +36933,46 @@ export type Database = {
         Args: { _act_ref: string; _ended_on: string; _engagement: string }
         Returns: undefined
       }
+      enr_admin_application_history: {
+        Args: { _app: string }
+        Returns: {
+          at: string
+          detail: string
+          kind: string
+        }[]
+      }
+      enr_admin_applications: {
+        Args: {
+          _campaign: string
+          _limit: number
+          _offset: number
+          _school: string
+        }
+        Returns: {
+          application_code: string
+          campaign_id: string
+          declared_kinship: string
+          docs_pending: number
+          docs_total: number
+          id: string
+          modality_id: string
+          open_pendencies: number
+          protocol_number: string
+          requester_email: string
+          requester_kind: string
+          requester_name: string
+          requester_phone: string
+          school_preferences: string[]
+          stage_id: string
+          student_birth_date: string
+          student_name: string
+          submitted_at: string
+          total_count: number
+        }[]
+      }
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
+      enr_can_see_application: { Args: { _app: string }; Returns: boolean }
       enr_document_slot_open: { Args: { _name: string }; Returns: boolean }
       enr_norm_name: { Args: { _t: string }; Returns: string }
       enr_preference_policy_current: {
@@ -41480,6 +41562,17 @@ export type Database = {
           _scope_level: string
           _valid_from: string
           _valid_until: string
+        }
+        Returns: string
+      }
+      record_enr_application_analysis: {
+        Args: {
+          _app: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _subject: string
         }
         Returns: string
       }
