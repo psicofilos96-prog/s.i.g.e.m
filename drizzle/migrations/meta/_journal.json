@@ -3452,6 +3452,13 @@
       "when": 1791816344126,
       "tag": "0492_tech19_knowledge_selfservice",
       "breakpoints": true
+    },
+    {
+      "idx": 493,
+      "version": "7",
+      "when": 1791816498445,
+      "tag": "0493_tech20_pedagogical_resources",
+      "breakpoints": true
     }
   ]
 }
