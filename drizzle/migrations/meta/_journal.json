@@ -2766,6 +2766,13 @@
       "when": 1791791352064,
       "tag": "0394_perm03_preventive_rules",
       "breakpoints": true
+    },
+    {
+      "idx": 395,
+      "version": "7",
+      "when": 1791791730197,
+      "tag": "0395_perm05_alert_center",
+      "breakpoints": true
     }
   ]
 }
