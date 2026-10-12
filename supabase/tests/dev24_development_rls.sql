@@ -1,5 +1,6 @@
 -- DEV L24 — prova de fechamento sobre TODAS as tabelas dev_: RLS ligada, anon sem leitura, sem DML direta de authenticated,
 -- trigger append-only, writers fora do alcance de anon e nenhuma coluna de progressão/promoção/remuneração.
+-- Exceção declarada: verificação pública de certificado (código opaco, sem dado pessoal) é executável por anon.
 DO $$
 DECLARE bad text[] := '{}'; r record;
 BEGIN
@@ -16,7 +17,7 @@ BEGIN
   END LOOP;
   FOR r IN SELECT p.oid, p.proname FROM pg_proc p JOIN pg_namespace s ON s.oid = p.pronamespace
            WHERE s.nspname = 'public' AND p.prosecdef AND (p.proname LIKE '%\_dev\_%' OR p.proname LIKE 'dev\_%') LOOP
-    IF has_function_privilege('anon', r.oid, 'EXECUTE') THEN bad := bad || ('anon executa: ' || r.proname); END IF;
+    IF has_function_privilege('anon', r.oid, 'EXECUTE') AND r.proname NOT IN ('verify_dev_certificate','verify_dev_certification') THEN bad := bad || ('anon executa: ' || r.proname); END IF;
   END LOOP;
   IF cardinality(bad) > 0 THEN RAISE EXCEPTION 'DEV L24 falhou: %', array_to_string(bad, '; '); END IF;
   RAISE NOTICE 'DEV L24 ok';
