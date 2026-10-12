@@ -90,6 +90,7 @@ import { Route as RegrasAvaliativasRouteImport } from './routes/regras-avaliativ
 import { Route as RegrasDeSituacaoRouteImport } from './routes/regras-de-situacao'
 import { Route as RegrasInstitucionaisRouteImport } from './routes/regras-institucionais'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as RelatoriosDeTecnologiaRouteImport } from './routes/relatorios-de-tecnologia'
 import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anomalias'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
 import { Route as SigemDesenvolvimentoRouteImport } from './routes/sigem-desenvolvimento'
@@ -678,6 +679,11 @@ const RegrasInstitucionaisRoute = RegrasInstitucionaisRouteImport.update({
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosDeTecnologiaRoute = RelatoriosDeTecnologiaRouteImport.update({
+  id: '/relatorios-de-tecnologia',
+  path: '/relatorios-de-tecnologia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RevisaoDeAnomaliasRoute = RevisaoDeAnomaliasRouteImport.update({
@@ -1777,6 +1783,7 @@ export interface FileRoutesByFullPath {
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/regras-institucionais': typeof RegrasInstitucionaisRoute
   '/relatorios': typeof RelatoriosRoute
+  '/relatorios-de-tecnologia': typeof RelatoriosDeTecnologiaRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
   '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
@@ -2034,6 +2041,7 @@ export interface FileRoutesByTo {
   '/referencias-curriculares': typeof ReferenciasCurricularesRoute
   '/regras-institucionais': typeof RegrasInstitucionaisRoute
   '/relatorios': typeof RelatoriosRoute
+  '/relatorios-de-tecnologia': typeof RelatoriosDeTecnologiaRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
   '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
@@ -2278,6 +2286,7 @@ export interface FileRoutesById {
   '/regras-de-situacao': typeof RegrasDeSituacaoRouteWithChildren
   '/regras-institucionais': typeof RegrasInstitucionaisRoute
   '/relatorios': typeof RelatoriosRoute
+  '/relatorios-de-tecnologia': typeof RelatoriosDeTecnologiaRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
   '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
@@ -2546,6 +2555,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao'
     | '/regras-institucionais'
     | '/relatorios'
+    | '/relatorios-de-tecnologia'
     | '/revisao-de-anomalias'
     | '/secretaria'
     | '/sigem-desenvolvimento'
@@ -2803,6 +2813,7 @@ export interface FileRouteTypes {
     | '/referencias-curriculares'
     | '/regras-institucionais'
     | '/relatorios'
+    | '/relatorios-de-tecnologia'
     | '/revisao-de-anomalias'
     | '/secretaria'
     | '/sigem-desenvolvimento'
@@ -3046,6 +3057,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao'
     | '/regras-institucionais'
     | '/relatorios'
+    | '/relatorios-de-tecnologia'
     | '/revisao-de-anomalias'
     | '/secretaria'
     | '/sigem-desenvolvimento'
@@ -3313,6 +3325,7 @@ export interface RootRouteChildren {
   RegrasDeSituacaoRoute: typeof RegrasDeSituacaoRouteWithChildren
   RegrasInstitucionaisRoute: typeof RegrasInstitucionaisRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  RelatoriosDeTecnologiaRoute: typeof RelatoriosDeTecnologiaRoute
   RevisaoDeAnomaliasRoute: typeof RevisaoDeAnomaliasRoute
   SecretariaRoute: typeof SecretariaRoute
   SigemDesenvolvimentoRoute: typeof SigemDesenvolvimentoRoute
@@ -3940,6 +3953,13 @@ declare module '@tanstack/react-router' {
       path: '/relatorios'
       fullPath: '/relatorios'
       preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios-de-tecnologia': {
+      id: '/relatorios-de-tecnologia'
+      path: '/relatorios-de-tecnologia'
+      fullPath: '/relatorios-de-tecnologia'
+      preLoaderRoute: typeof RelatoriosDeTecnologiaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/revisao-de-anomalias': {
@@ -5982,6 +6002,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegrasDeSituacaoRoute: RegrasDeSituacaoRouteWithChildren,
   RegrasInstitucionaisRoute: RegrasInstitucionaisRoute,
   RelatoriosRoute: RelatoriosRoute,
+  RelatoriosDeTecnologiaRoute: RelatoriosDeTecnologiaRoute,
   RevisaoDeAnomaliasRoute: RevisaoDeAnomaliasRoute,
   SecretariaRoute: SecretariaRoute,
   SigemDesenvolvimentoRoute: SigemDesenvolvimentoRoute,
