@@ -65,6 +65,7 @@ import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatisti
 import { Route as MapaMensal2026RouteImport } from './routes/mapa-mensal-2026'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
+import { Route as MediadorRouteImport } from './routes/mediador'
 import { Route as MeusDiariosRouteImport } from './routes/meus-diarios'
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as PaineisRouteImport } from './routes/paineis'
@@ -537,6 +538,11 @@ const MatriculasRoute = MatriculasRouteImport.update({
 const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
   id: '/matrizes-curriculares',
   path: '/matrizes-curriculares',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediadorRoute = MediadorRouteImport.update({
+  id: '/mediador',
+  path: '/mediador',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MeusDiariosRoute = MeusDiariosRouteImport.update({
@@ -1652,6 +1658,7 @@ export interface FileRoutesByFullPath {
   '/mapa-mensal-2026': typeof MapaMensal2026Route
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
@@ -1896,6 +1903,7 @@ export interface FileRoutesByTo {
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/mapa-mensal-2026': typeof MapaMensal2026Route
   '/matriculas': typeof MatriculasRouteWithChildren
+  '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
@@ -2121,6 +2129,7 @@ export interface FileRoutesById {
   '/mapa-mensal-2026': typeof MapaMensal2026Route
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
@@ -2373,6 +2382,7 @@ export interface FileRouteTypes {
     | '/mapa-mensal-2026'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/mediador'
     | '/meus-diarios'
     | '/orientacao'
     | '/paineis'
@@ -2617,6 +2627,7 @@ export interface FileRouteTypes {
     | '/mapa-estatistico-rede'
     | '/mapa-mensal-2026'
     | '/matriculas'
+    | '/mediador'
     | '/meus-diarios'
     | '/orientacao'
     | '/paineis'
@@ -2841,6 +2852,7 @@ export interface FileRouteTypes {
     | '/mapa-mensal-2026'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/mediador'
     | '/meus-diarios'
     | '/orientacao'
     | '/paineis'
@@ -3092,6 +3104,7 @@ export interface RootRouteChildren {
   MapaMensal2026Route: typeof MapaMensal2026Route
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
+  MediadorRoute: typeof MediadorRoute
   MeusDiariosRoute: typeof MeusDiariosRoute
   OrientacaoRoute: typeof OrientacaoRoute
   PaineisRoute: typeof PaineisRoute
@@ -3553,6 +3566,13 @@ declare module '@tanstack/react-router' {
       path: '/matrizes-curriculares'
       fullPath: '/matrizes-curriculares'
       preLoaderRoute: typeof MatrizesCurricularesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mediador': {
+      id: '/mediador'
+      path: '/mediador'
+      fullPath: '/mediador'
+      preLoaderRoute: typeof MediadorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/meus-diarios': {
@@ -5633,6 +5653,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapaMensal2026Route: MapaMensal2026Route,
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
+  MediadorRoute: MediadorRoute,
   MeusDiariosRoute: MeusDiariosRoute,
   OrientacaoRoute: OrientacaoRoute,
   PaineisRoute: PaineisRoute,
