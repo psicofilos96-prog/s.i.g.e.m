@@ -191,11 +191,12 @@
   ],
   "missingDirs": [],
   "routes": [
-   "src/routes/sigem-permanencia.tsx"
+   "src/routes/sigem-permanencia.tsx",
+   "src/routes/sigem-permanencia_.operacao.tsx"
   ],
-  "modules": 25,
+  "modules": 26,
   "withTest": 25,
-  "withScreen": 3,
+  "withScreen": 4,
   "withoutScreen": [
    "src/features/permanence/alert-center.ts",
    "src/features/permanence/attendance-monitoring.ts",
@@ -220,7 +221,9 @@
    "src/features/permanence/segment-profiles.ts",
    "src/features/permanence/visits.ts"
   ],
-  "withoutTest": []
+  "withoutTest": [
+   "src/features/permanence/permanence-operations.gen.ts"
+  ]
  },
  {
   "sector": "Centro de Operações",
@@ -232,11 +235,12 @@
   "missingDirs": [],
   "routes": [
    "src/routes/centro-de-operacoes.tsx",
+   "src/routes/centro-de-operacoes_.operacao.tsx",
    "src/routes/transporte-escolar.tsx"
   ],
-  "modules": 28,
+  "modules": 29,
   "withTest": 26,
-  "withScreen": 3,
+  "withScreen": 4,
   "withoutScreen": [
    "src/features/operations-center/asset-disposals.ts",
    "src/features/operations-center/asset-inventories.ts",
@@ -266,7 +270,8 @@
   ],
   "withoutTest": [
    "src/features/operations-center/operations-hub-model.ts",
-   "src/features/operations-center/operations-reports.ts"
+   "src/features/operations-center/operations-reports.ts",
+   "src/features/operations-center/ops-operations.gen.ts"
   ]
  },
  {

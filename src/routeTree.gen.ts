@@ -115,6 +115,7 @@ import { Route as AtuacoesPedagogicasIndexRouteImport } from './routes/atuacoes-
 import { Route as AtuacoesPedagogicasNovaRouteImport } from './routes/atuacoes-pedagogicas.nova'
 import { Route as AvaliacoesDoProfessorCartaoRespostaRouteImport } from './routes/avaliacoes-do-professor_.cartao-resposta'
 import { Route as CalendarioEscolarIndexRouteImport } from './routes/calendario-escolar.index'
+import { Route as CentroDeOperacoesOperacaoRouteImport } from './routes/centro-de-operacoes_.operacao'
 import { Route as DiarioIndexRouteImport } from './routes/diario.index'
 import { Route as DiarioAulasRouteImport } from './routes/diario.aulas'
 import { Route as DiarioChamadasRouteImport } from './routes/diario.chamadas'
@@ -166,6 +167,7 @@ import { Route as SecretariaServicosRouteImport } from './routes/secretaria_.ser
 import { Route as SecretariaTabelasSemedRouteImport } from './routes/secretaria_.tabelas-semed'
 import { Route as SecretariaVagasRouteImport } from './routes/secretaria_.vagas'
 import { Route as SigemDesenvolvimentoHistoricoRouteImport } from './routes/sigem-desenvolvimento_.historico'
+import { Route as SigemPermanenciaOperacaoRouteImport } from './routes/sigem-permanencia_.operacao'
 import { Route as TecnologiaCadastrosRouteImport } from './routes/tecnologia.cadastros'
 import { Route as TecnologiaDecisoesRouteImport } from './routes/tecnologia.decisoes'
 import { Route as TecnologiaOperacaoRouteImport } from './routes/tecnologia.operacao'
@@ -817,6 +819,12 @@ const CalendarioEscolarIndexRoute = CalendarioEscolarIndexRouteImport.update({
   path: '/calendario-escolar/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CentroDeOperacoesOperacaoRoute =
+  CentroDeOperacoesOperacaoRouteImport.update({
+    id: '/centro-de-operacoes_/operacao',
+    path: '/centro-de-operacoes/operacao',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DiarioIndexRoute = DiarioIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -1078,6 +1086,12 @@ const SigemDesenvolvimentoHistoricoRoute =
   SigemDesenvolvimentoHistoricoRouteImport.update({
     id: '/sigem-desenvolvimento_/historico',
     path: '/sigem-desenvolvimento/historico',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const SigemPermanenciaOperacaoRoute =
+  SigemPermanenciaOperacaoRouteImport.update({
+    id: '/sigem-permanencia_/operacao',
+    path: '/sigem-permanencia/operacao',
     getParentRoute: () => rootRouteImport,
   } as any)
 const TecnologiaCadastrosRoute = TecnologiaCadastrosRouteImport.update({
@@ -1848,6 +1862,7 @@ export interface FileRoutesByFullPath {
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  '/centro-de-operacoes/operacao': typeof CentroDeOperacoesOperacaoRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
@@ -1891,6 +1906,7 @@ export interface FileRoutesByFullPath {
   '/secretaria/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
   '/sigem-desenvolvimento/historico': typeof SigemDesenvolvimentoHistoricoRoute
+  '/sigem-permanencia/operacao': typeof SigemPermanenciaOperacaoRoute
   '/tecnologia/cadastros': typeof TecnologiaCadastrosRoute
   '/tecnologia/decisoes': typeof TecnologiaDecisoesRoute
   '/tecnologia/operacao': typeof TecnologiaOperacaoRoute
@@ -2111,6 +2127,7 @@ export interface FileRoutesByTo {
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  '/centro-de-operacoes/operacao': typeof CentroDeOperacoesOperacaoRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
@@ -2150,6 +2167,7 @@ export interface FileRoutesByTo {
   '/secretaria/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
   '/sigem-desenvolvimento/historico': typeof SigemDesenvolvimentoHistoricoRoute
+  '/sigem-permanencia/operacao': typeof SigemPermanenciaOperacaoRoute
   '/tecnologia/cadastros': typeof TecnologiaCadastrosRoute
   '/tecnologia/decisoes': typeof TecnologiaDecisoesRoute
   '/tecnologia/operacao': typeof TecnologiaOperacaoRoute
@@ -2365,6 +2383,7 @@ export interface FileRoutesById {
   '/alunos/novo': typeof AlunosNovoRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor_/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  '/centro-de-operacoes_/operacao': typeof CentroDeOperacoesOperacaoRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
   '/diario/documentos': typeof DiarioDocumentosRoute
@@ -2408,6 +2427,7 @@ export interface FileRoutesById {
   '/secretaria_/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria_/vagas': typeof SecretariaVagasRoute
   '/sigem-desenvolvimento_/historico': typeof SigemDesenvolvimentoHistoricoRoute
+  '/sigem-permanencia_/operacao': typeof SigemPermanenciaOperacaoRoute
   '/tecnologia/cadastros': typeof TecnologiaCadastrosRoute
   '/tecnologia/decisoes': typeof TecnologiaDecisoesRoute
   '/tecnologia/operacao': typeof TecnologiaOperacaoRoute
@@ -2641,6 +2661,7 @@ export interface FileRouteTypes {
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor/cartao-resposta'
+    | '/centro-de-operacoes/operacao'
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
@@ -2684,6 +2705,7 @@ export interface FileRouteTypes {
     | '/secretaria/tabelas-semed'
     | '/secretaria/vagas'
     | '/sigem-desenvolvimento/historico'
+    | '/sigem-permanencia/operacao'
     | '/tecnologia/cadastros'
     | '/tecnologia/decisoes'
     | '/tecnologia/operacao'
@@ -2904,6 +2926,7 @@ export interface FileRouteTypes {
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor/cartao-resposta'
+    | '/centro-de-operacoes/operacao'
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
@@ -2943,6 +2966,7 @@ export interface FileRouteTypes {
     | '/secretaria/tabelas-semed'
     | '/secretaria/vagas'
     | '/sigem-desenvolvimento/historico'
+    | '/sigem-permanencia/operacao'
     | '/tecnologia/cadastros'
     | '/tecnologia/decisoes'
     | '/tecnologia/operacao'
@@ -3157,6 +3181,7 @@ export interface FileRouteTypes {
     | '/alunos/novo'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor_/cartao-resposta'
+    | '/centro-de-operacoes_/operacao'
     | '/diario/aulas'
     | '/diario/chamadas'
     | '/diario/documentos'
@@ -3200,6 +3225,7 @@ export interface FileRouteTypes {
     | '/secretaria_/tabelas-semed'
     | '/secretaria_/vagas'
     | '/sigem-desenvolvimento_/historico'
+    | '/sigem-permanencia_/operacao'
     | '/tecnologia/cadastros'
     | '/tecnologia/decisoes'
     | '/tecnologia/operacao'
@@ -3429,6 +3455,7 @@ export interface RootRouteChildren {
   AlimentacaoEscolarCozinhaRoute: typeof AlimentacaoEscolarCozinhaRoute
   AlimentacaoEscolarSaudeDeclaradaRoute: typeof AlimentacaoEscolarSaudeDeclaradaRoute
   AvaliacoesDoProfessorCartaoRespostaRoute: typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  CentroDeOperacoesOperacaoRoute: typeof CentroDeOperacoesOperacaoRoute
   DiarioFolhaFinalRoute: typeof DiarioFolhaFinalRoute
   DiarioLivroRoute: typeof DiarioLivroRoute
   DiarioRegrasFolhaFinalRoute: typeof DiarioRegrasFolhaFinalRoute
@@ -3453,6 +3480,7 @@ export interface RootRouteChildren {
   SecretariaTabelasSemedRoute: typeof SecretariaTabelasSemedRoute
   SecretariaVagasRoute: typeof SecretariaVagasRoute
   SigemDesenvolvimentoHistoricoRoute: typeof SigemDesenvolvimentoHistoricoRoute
+  SigemPermanenciaOperacaoRoute: typeof SigemPermanenciaOperacaoRoute
   TecnologiaCadastrosRoute: typeof TecnologiaCadastrosRoute
   TecnologiaDecisoesRoute: typeof TecnologiaDecisoesRoute
   TecnologiaOperacaoRoute: typeof TecnologiaOperacaoRoute
@@ -4222,6 +4250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalendarioEscolarIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/centro-de-operacoes_/operacao': {
+      id: '/centro-de-operacoes_/operacao'
+      path: '/centro-de-operacoes/operacao'
+      fullPath: '/centro-de-operacoes/operacao'
+      preLoaderRoute: typeof CentroDeOperacoesOperacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/diario/': {
       id: '/diario/'
       path: '/'
@@ -4577,6 +4612,13 @@ declare module '@tanstack/react-router' {
       path: '/sigem-desenvolvimento/historico'
       fullPath: '/sigem-desenvolvimento/historico'
       preLoaderRoute: typeof SigemDesenvolvimentoHistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sigem-permanencia_/operacao': {
+      id: '/sigem-permanencia_/operacao'
+      path: '/sigem-permanencia/operacao'
+      fullPath: '/sigem-permanencia/operacao'
+      preLoaderRoute: typeof SigemPermanenciaOperacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tecnologia/cadastros': {
@@ -6163,6 +6205,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlimentacaoEscolarSaudeDeclaradaRoute: AlimentacaoEscolarSaudeDeclaradaRoute,
   AvaliacoesDoProfessorCartaoRespostaRoute:
     AvaliacoesDoProfessorCartaoRespostaRoute,
+  CentroDeOperacoesOperacaoRoute: CentroDeOperacoesOperacaoRoute,
   DiarioFolhaFinalRoute: DiarioFolhaFinalRoute,
   DiarioLivroRoute: DiarioLivroRoute,
   DiarioRegrasFolhaFinalRoute: DiarioRegrasFolhaFinalRoute,
@@ -6187,6 +6230,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecretariaTabelasSemedRoute: SecretariaTabelasSemedRoute,
   SecretariaVagasRoute: SecretariaVagasRoute,
   SigemDesenvolvimentoHistoricoRoute: SigemDesenvolvimentoHistoricoRoute,
+  SigemPermanenciaOperacaoRoute: SigemPermanenciaOperacaoRoute,
   TecnologiaCadastrosRoute: TecnologiaCadastrosRoute,
   TecnologiaDecisoesRoute: TecnologiaDecisoesRoute,
   TecnologiaOperacaoRoute: TecnologiaOperacaoRoute,
