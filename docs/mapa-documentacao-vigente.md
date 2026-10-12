@@ -367,3 +367,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - [lotes-32-36-servidores-infra-testes-parametros-2026-10.md](lotes-32-36-servidores-infra-testes-parametros-2026-10.md) — Registro de lote
 - `docs/lote-37-saneamento-evidencias-2026-10.md` — Registro de lote: saneamento L32–36 (evidências reexecutadas).
 - `docs/lote-38-vinculos-folha-agosto-2026.md` — Registro de lote: vínculos funcionais da folha agosto/2026.
+- `docs/lote-43-areas-perfis-acesso-2026-10.md` — Registro de lote: catálogo de áreas, perfis e acesso mínimo.
