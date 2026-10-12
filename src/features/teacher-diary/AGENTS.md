@@ -5,3 +5,4 @@
 
 - LOTE 04 (`diary/lesson-occurrence.ts`): situação da aula (Prevista/Realizada/Não realizada/Reposta/Substituída/Inconsistente) é projeção de grade + versão vigente + atos de ocorrência com autoria e motivo; nunca persistida, porque estado copiado divergiria da cadeia de versões.
 - LOTE 05 (`diary/attendance-temporal.ts`): chamada = alocação vigente na data (fim inclusivo); envio tudo-ou-nada com chave de idempotência e base esperada; sem marca = "Não registrada", nunca presença; rascunho só ids e marcas, porque presença presumida ou nome em armazenamento local violariam fato e LGPD.
+- LOTE 06 (`teacher-agenda.ts`): agenda só compõe grade publicada × atribuição vigente × efeito declarado do calendário oficial × eventos de módulos donos; dia indeterminado/não letivo/suspenso não confirma aula e reposição só por dia declarado, porque calendário paralelo seria segunda verdade.
