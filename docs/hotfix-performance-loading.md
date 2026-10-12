@@ -110,3 +110,25 @@ Benchmark: `scripts/perf-loading-bench-3.mjs` (`PERF_EQUIV=1` para a equivalênc
 - (Resolvidas em PERF.LOADING.3: infraestrutura/painel agregados no servidor; permissões completas.)
 - Secretaria não vê a lista administrativa de Profissionais — decisão mantida; fluxos reais usam busca exata.
 - Smoke em navegador autenticado não roda sem aprovação de sessão; a prova é na camada autenticada.
+
+## PERF.LOADING.1 — prova de fechamento do portão de sessão (Lote corretivo 05, 2026-10-12)
+
+Script reproduzível: `scripts/perf-loading-gate-bench.py <rotas.txt> <saida.json>` (Playwright headless, sem
+sessão, nenhuma gravação; conta leituras ao banco `/rest/v1` e `/_serverFn`, respostas 401/403 e "Carregando"
+após o tempo-limite). Rotas = 202 caminhos estáticos do `routeTree.gen.ts`.
+
+| Medição (sem sessão, servidor de desenvolvimento) | Portão desligado (A/B temporário) | Portão ligado |
+|---|---|---|
+| 8 rotas: leituras de domínio | 33 | **0** |
+| 8 rotas: respostas 401 | 33 (tarefas 16, anomalias 4, infraestrutura 3, demais 2) | **0** |
+| 8 rotas: "Carregando" preso | 1 (`/estacao-administrativa`) | **0** |
+| 202 rotas: rotas com 401 | 8 | **0** |
+| 202 rotas: "Carregando" preso (concorrência 2, 15 s) | — | **0** |
+
+Leituras restantes sem sessão: só `/publico` e `/publico/matriculas` (páginas públicas por desenho, 0 recusas).
+Tempo até assentar no servidor de desenvolvimento (mediana ~4–9 s) é dominado por compilação sob demanda do
+Vite e não representa produção; a primeira rodada com concorrência 8 marcou 25 rotas como presas, todas
+reabertas sem trava em concorrência 2 — falso positivo de carga do servidor local, registrado aqui.
+Cancelamento de leituras obsoletas: `src/lib/server-page.ts` (troca de filtro/página aborta a anterior) e
+infraestrutura (troca de data cancela). Não verificado nesta rodada: navegador autenticado (sem aprovação de
+sessão), tempo em produção publicada.
