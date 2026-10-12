@@ -18,6 +18,8 @@ const ACCEPTED_ANON_FUNCTIONS = new Set([
   "verify_admin_act_signature", // 0392: código opaco, resposta mínima, conteúdo nunca exposto
   "verify_dev_certification", // DEV L02: código opaco, sem dado pessoal
   "verify_dev_certificate", // DEV L16: código opaco, sem dado pessoal
+  "enr_public_campaigns", // Matrículas L04: só campanhas publicadas, sem dado pessoal
+  "enr_public_protocol_status", // Matrículas L04: número + código, resposta uniforme, só situação
 ]);
 
 describe("NTEST.4 superfície anon", () => {

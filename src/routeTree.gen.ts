@@ -146,6 +146,7 @@ import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
 import { Route as ProfissionaisNovoRouteImport } from './routes/profissionais.novo'
 import { Route as PublicoIndexRouteImport } from './routes/publico.index'
 import { Route as PublicoSlugRouteImport } from './routes/publico.$slug'
+import { Route as PublicoMatriculasRouteImport } from './routes/publico.matriculas'
 import { Route as RegrasAvaliativasIndexRouteImport } from './routes/regras-avaliativas.index'
 import { Route as RegrasDeSituacaoIndexRouteImport } from './routes/regras-de-situacao.index'
 import { Route as RegrasDeSituacaoRegraIdRouteImport } from './routes/regras-de-situacao.$regraId'
@@ -962,6 +963,11 @@ const PublicoIndexRoute = PublicoIndexRouteImport.update({
 const PublicoSlugRoute = PublicoSlugRouteImport.update({
   id: '/publico/$slug',
   path: '/publico/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicoMatriculasRoute = PublicoMatriculasRouteImport.update({
+  id: '/publico/matriculas',
+  path: '/publico/matriculas',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegrasAvaliativasIndexRoute = RegrasAvaliativasIndexRouteImport.update({
@@ -1799,6 +1805,7 @@ export interface FileRoutesByFullPath {
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
+  '/publico/matriculas': typeof PublicoMatriculasRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/relatorios/paineis': typeof RelatoriosPaineisRoute
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
@@ -2046,6 +2053,7 @@ export interface FileRoutesByTo {
   '/orientacao/central': typeof OrientacaoCentralRoute
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
+  '/publico/matriculas': typeof PublicoMatriculasRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/relatorios/paineis': typeof RelatoriosPaineisRoute
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
@@ -2292,6 +2300,7 @@ export interface FileRoutesById {
   '/profissionais/$id': typeof ProfissionaisIdRouteWithChildren
   '/profissionais/novo': typeof ProfissionaisNovoRoute
   '/publico/$slug': typeof PublicoSlugRoute
+  '/publico/matriculas': typeof PublicoMatriculasRoute
   '/regras-de-situacao/$regraId': typeof RegrasDeSituacaoRegraIdRoute
   '/relatorios_/paineis': typeof RelatoriosPaineisRoute
   '/relatorios_/personalizado': typeof RelatoriosPersonalizadoRoute
@@ -2556,6 +2565,7 @@ export interface FileRouteTypes {
     | '/profissionais/$id'
     | '/profissionais/novo'
     | '/publico/$slug'
+    | '/publico/matriculas'
     | '/regras-de-situacao/$regraId'
     | '/relatorios/paineis'
     | '/relatorios/personalizado'
@@ -2803,6 +2813,7 @@ export interface FileRouteTypes {
     | '/orientacao/central'
     | '/profissionais/novo'
     | '/publico/$slug'
+    | '/publico/matriculas'
     | '/regras-de-situacao/$regraId'
     | '/relatorios/paineis'
     | '/relatorios/personalizado'
@@ -3048,6 +3059,7 @@ export interface FileRouteTypes {
     | '/profissionais/$id'
     | '/profissionais/novo'
     | '/publico/$slug'
+    | '/publico/matriculas'
     | '/regras-de-situacao/$regraId'
     | '/relatorios_/paineis'
     | '/relatorios_/personalizado'
@@ -3290,6 +3302,7 @@ export interface RootRouteChildren {
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
   OrientacaoCentralRoute: typeof OrientacaoCentralRoute
   PublicoSlugRoute: typeof PublicoSlugRoute
+  PublicoMatriculasRoute: typeof PublicoMatriculasRoute
   RelatoriosPaineisRoute: typeof RelatoriosPaineisRoute
   RelatoriosPersonalizadoRoute: typeof RelatoriosPersonalizadoRoute
   RelatoriosSetoresRoute: typeof RelatoriosSetoresRoute
@@ -4279,6 +4292,13 @@ declare module '@tanstack/react-router' {
       path: '/publico/$slug'
       fullPath: '/publico/$slug'
       preLoaderRoute: typeof PublicoSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/publico/matriculas': {
+      id: '/publico/matriculas'
+      path: '/publico/matriculas'
+      fullPath: '/publico/matriculas'
+      preLoaderRoute: typeof PublicoMatriculasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/regras-avaliativas/': {
@@ -5928,6 +5948,7 @@ const rootRouteChildren: RootRouteChildren = {
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
   OrientacaoCentralRoute: OrientacaoCentralRoute,
   PublicoSlugRoute: PublicoSlugRoute,
+  PublicoMatriculasRoute: PublicoMatriculasRoute,
   RelatoriosPaineisRoute: RelatoriosPaineisRoute,
   RelatoriosPersonalizadoRoute: RelatoriosPersonalizadoRoute,
   RelatoriosSetoresRoute: RelatoriosSetoresRoute,
