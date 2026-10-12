@@ -10,6 +10,7 @@ import {
 } from "./admin-panel";
 import { PROTOCOL_IS_NOT_VACANCY } from "./application-protocol";
 import { NON_BLOCKING_NOTICE } from "./application-documents";
+import { SignalsSection } from "./signals-section";
 
 export function AdminPanelPage() {
   const { loading, user } = useSessionUser();
@@ -99,6 +100,7 @@ function Detail({ app }: { app: AdminApplication }) {
         <div><dt className="text-muted-foreground">Documentos</dt><dd>{app.docs_total} tipo(s), {app.docs_pending} a conferir</dd></div>
       </dl>
       <p className="text-xs text-muted-foreground">Parentesco é só declarado; não cria vínculo de responsável.</p>
+      <SignalsSection appId={app.id} />
       <section aria-label="Histórico">
         <h3 className="text-sm font-medium text-foreground">Histórico</h3>
         {h.isPending && <p role="status" className="text-sm text-muted-foreground">Carregando…</p>}
