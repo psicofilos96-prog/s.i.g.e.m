@@ -9821,6 +9821,103 @@ export type Database = {
           },
         ]
       }
+      dev_competencies: {
+        Row: {
+          author_person: string
+          code: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          author_person: string
+          code: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          author_person?: string
+          code?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      dev_competency_approvals: {
+        Row: {
+          approver_person: string
+          competency_version_id: string
+          created_at: string
+          reason: string
+        }
+        Insert: {
+          approver_person: string
+          competency_version_id: string
+          created_at?: string
+          reason: string
+        }
+        Update: {
+          approver_person?: string
+          competency_version_id?: string
+          created_at?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_competency_approvals_competency_version_id_fkey"
+            columns: ["competency_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_competency_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_competency_versions: {
+        Row: {
+          author_person: string
+          competency_id: string
+          created_at: string
+          description: string
+          id: string
+          idempotency_key: string
+          indicators: string[]
+          reason: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          competency_id: string
+          created_at?: string
+          description: string
+          id?: string
+          idempotency_key: string
+          indicators: string[]
+          reason?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          competency_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          idempotency_key?: string
+          indicators?: string[]
+          reason?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_competency_versions_competency_id_fkey"
+            columns: ["competency_id"]
+            isOneToOne: false
+            referencedRelation: "dev_competencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_completion_assessments: {
         Row: {
           computed_by: string
@@ -10070,6 +10167,48 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: true
             referencedRelation: "dev_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_course_competency_links: {
+        Row: {
+          author_person: string
+          competency_version_id: string
+          course_version_id: string
+          created_at: string
+          id: string
+          relation: string
+        }
+        Insert: {
+          author_person: string
+          competency_version_id: string
+          course_version_id: string
+          created_at?: string
+          id?: string
+          relation?: string
+        }
+        Update: {
+          author_person?: string
+          competency_version_id?: string
+          course_version_id?: string
+          created_at?: string
+          id?: string
+          relation?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_course_competency_links_competency_version_id_fkey"
+            columns: ["competency_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_competency_approvals"
+            referencedColumns: ["competency_version_id"]
+          },
+          {
+            foreignKeyName: "dev_course_competency_links_course_version_id_fkey"
+            columns: ["course_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_course_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -10478,6 +10617,266 @@ export type Database = {
             foreignKeyName: "dev_history_access_log_subject_person_fkey"
             columns: ["subject_person"]
             isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_idp_activity_events: {
+        Row: {
+          activity_key: string
+          author_person: string
+          created_at: string
+          id: string
+          idp_version_id: string
+          note: string | null
+          seq: number
+          status: string
+        }
+        Insert: {
+          activity_key: string
+          author_person: string
+          created_at?: string
+          id?: string
+          idp_version_id: string
+          note?: string | null
+          seq: number
+          status: string
+        }
+        Update: {
+          activity_key?: string
+          author_person?: string
+          created_at?: string
+          id?: string
+          idp_version_id?: string
+          note?: string | null
+          seq?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_idp_activity_events_idp_version_id_fkey"
+            columns: ["idp_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_idp_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_idp_recommendation_responses: {
+        Row: {
+          created_at: string
+          note: string | null
+          recommendation_id: string
+          response: string
+        }
+        Insert: {
+          created_at?: string
+          note?: string | null
+          recommendation_id: string
+          response: string
+        }
+        Update: {
+          created_at?: string
+          note?: string | null
+          recommendation_id?: string
+          response?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_idp_recommendation_responses_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: true
+            referencedRelation: "dev_idp_recommendations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_idp_recommendations: {
+        Row: {
+          author_person: string
+          competency_version_id: string | null
+          course_id: string | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          justification: string
+          person_id: string
+        }
+        Insert: {
+          author_person: string
+          competency_version_id?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          justification: string
+          person_id: string
+        }
+        Update: {
+          author_person?: string
+          competency_version_id?: string | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_idp_recommendations_competency_version_id_fkey"
+            columns: ["competency_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_competency_approvals"
+            referencedColumns: ["competency_version_id"]
+          },
+          {
+            foreignKeyName: "dev_idp_recommendations_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "dev_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_idp_recommendations_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_idp_share_revocations: {
+        Row: {
+          created_at: string
+          share_id: string
+        }
+        Insert: {
+          created_at?: string
+          share_id: string
+        }
+        Update: {
+          created_at?: string
+          share_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_idp_share_revocations_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: true
+            referencedRelation: "dev_idp_shares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_idp_shares: {
+        Row: {
+          created_at: string
+          grantee_person: string
+          id: string
+          idp_id: string
+          purpose: string
+          valid_until: string
+        }
+        Insert: {
+          created_at?: string
+          grantee_person: string
+          id?: string
+          idp_id: string
+          purpose: string
+          valid_until: string
+        }
+        Update: {
+          created_at?: string
+          grantee_person?: string
+          id?: string
+          idp_id?: string
+          purpose?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_idp_shares_grantee_person_fkey"
+            columns: ["grantee_person"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_idp_shares_idp_id_fkey"
+            columns: ["idp_id"]
+            isOneToOne: false
+            referencedRelation: "dev_idps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_idp_versions: {
+        Row: {
+          activities: Json
+          author_person: string
+          created_at: string
+          goals: Json
+          id: string
+          idempotency_key: string
+          idp_id: string
+          reason: string | null
+          version: number
+        }
+        Insert: {
+          activities: Json
+          author_person: string
+          created_at?: string
+          goals: Json
+          id?: string
+          idempotency_key: string
+          idp_id: string
+          reason?: string | null
+          version: number
+        }
+        Update: {
+          activities?: Json
+          author_person?: string
+          created_at?: string
+          goals?: Json
+          id?: string
+          idempotency_key?: string
+          idp_id?: string
+          reason?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_idp_versions_idp_id_fkey"
+            columns: ["idp_id"]
+            isOneToOne: false
+            referencedRelation: "dev_idps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_idps: {
+        Row: {
+          created_at: string
+          id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_idps_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: true
             referencedRelation: "institutional_persons"
             referencedColumns: ["id"]
           },
@@ -32836,6 +33235,10 @@ export type Database = {
         }
         Returns: string
       }
+      approve_dev_competency: {
+        Args: { _reason: string; _version: string }
+        Returns: undefined
+      }
       approve_dev_completion_criteria: {
         Args: { _reason: string; _version: string }
         Returns: undefined
@@ -34820,6 +35223,7 @@ export type Database = {
         Args: { _person: string; _purpose: string }
         Returns: Json
       }
+      dev_idp_readable: { Args: { _idp: string }; Returns: boolean }
       dev_is_active_trainer: { Args: { _class: string }; Returns: boolean }
       dev_is_confirmed_participant: {
         Args: { _class: string }
@@ -36597,6 +37001,10 @@ export type Database = {
       link_admin_case_origin: {
         Args: { _case_id: string; _origin_module: string; _origin_ref: string }
         Returns: undefined
+      }
+      link_dev_course_competency: {
+        Args: { _competency_version: string; _course_version: string }
+        Returns: string
       }
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
@@ -38543,6 +38951,16 @@ export type Database = {
       readable_class_ids: { Args: never; Returns: string[] }
       readable_enrollments_count: { Args: never; Returns: number }
       readable_students_count: { Args: never; Returns: number }
+      recommend_dev_formation: {
+        Args: {
+          _competency_version: string
+          _course: string
+          _justification: string
+          _key: string
+          _person: string
+        }
+        Returns: string
+      }
       record_academic_year_operational_state: {
         Args: {
           _academic_year_id: string
@@ -39482,6 +39900,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_dev_competency_version: {
+        Args: {
+          _code: string
+          _description: string
+          _expected_version: number
+          _indicators: string[]
+          _key: string
+          _reason: string
+          _title: string
+        }
+        Returns: string
+      }
       record_dev_completion_criteria: {
         Args: {
           _class: string
@@ -39529,6 +39959,26 @@ export type Database = {
           _seats: number
           _starts: string
           _trainer_engagements: string[]
+        }
+        Returns: string
+      }
+      record_dev_idp_activity: {
+        Args: {
+          _activity: string
+          _expected_seq: number
+          _idp_version: string
+          _note: string
+          _status: string
+        }
+        Returns: number
+      }
+      record_dev_idp_version: {
+        Args: {
+          _activities: Json
+          _expected_version: number
+          _goals: Json
+          _key: string
+          _reason: string
         }
         Returns: string
       }
@@ -42433,6 +42883,10 @@ export type Database = {
           version_id: string
         }[]
       }
+      respond_dev_recommendation: {
+        Args: { _note: string; _recommendation: string; _response: string }
+        Returns: undefined
+      }
       return_statistical_map: {
         Args: { _expected_conference: string; _map: string; _reason: string }
         Returns: string
@@ -42487,6 +42941,7 @@ export type Database = {
         Args: { _issuance: string; _reason: string }
         Returns: undefined
       }
+      revoke_dev_idp_share: { Args: { _share: string }; Returns: undefined }
       revoke_dev_track_mandate: {
         Args: {
           _act: string
@@ -43265,6 +43720,10 @@ export type Database = {
           _justification: string
         }
         Returns: number
+      }
+      share_dev_idp: {
+        Args: { _grantee: string; _purpose: string; _valid_until: string }
+        Returns: string
       }
       share_teaching_plan: {
         Args: { _plan: string; _recipient: string; _revoke: boolean }

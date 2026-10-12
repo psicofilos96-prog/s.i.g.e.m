@@ -3151,6 +3151,13 @@
       "when": 1791804314015,
       "tag": "0449_dev18_hide_certificate_ref",
       "breakpoints": true
+    },
+    {
+      "idx": 450,
+      "version": "7",
+      "when": 1791804478980,
+      "tag": "0450_dev19_competencies_idp",
+      "breakpoints": true
     }
   ]
 }
