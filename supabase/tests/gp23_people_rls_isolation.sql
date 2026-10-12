@@ -1,5 +1,6 @@
 -- Gestão de Pessoas L23 — RLS sintético: pessoa com dois vínculos em duas escolas, transferência temporal.
 -- Termina em RAISE: nada persiste (rollback). Prova 0383: leitor da escola A vê só vínculo/lotação da A.
+-- Executado em 2026-10-12 (L23, após 0383): gp23-ok A:1/1 B:2/2 sem-cap:0 escrita-direta:negada; rollback sem resíduos.
 DO $t$
 DECLARE
   ua uuid := gen_random_uuid(); ub uuid := gen_random_uuid(); un uuid := gen_random_uuid();
