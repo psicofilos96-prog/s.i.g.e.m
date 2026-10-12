@@ -21,7 +21,9 @@ describe("emissão de documento escolar", () => {
     expect(signatureBlock(null, "p", "Secretário(a)").kind).toBe("manual");
     expect(signatureBlock({ principalId: "x", displayName: "X", role: "Sec", evidence: "icp-brasil" }, "p", "Sec").kind).toBe("manual");
     expect(signatureBlock({ principalId: "p", displayName: "P", role: "Sec", evidence: "eletronica-simples" }, "p", "Sec")).toEqual({ kind: "eletronica", name: "P", role: "Sec", label: "Assinatura eletrônica simples" });
-    expect(authenticityQr(decideEmission(base({ composable: false })), "abc", "https://x")).toBeNull();
-    expect(authenticityQr(decideEmission(base()), "abc", "https://x")).toContain("abc");
+    const code = "0123456789ABCDEF0123";
+    expect(authenticityQr(decideEmission(base({ composable: false })), code, "https://x")).toBeNull();
+    expect(authenticityQr(decideEmission(base()), code, "https://x")).toContain(code);
+    expect(() => authenticityQr(decideEmission(base()), "abc", "https://x")).toThrow(/inválido/);
   });
 });

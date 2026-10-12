@@ -1,4 +1,5 @@
 /** SIGEM Desenvolvimento L03 — painel, catálogo, turmas e agenda. Lê só após a sessão, pela RLS; não grava. */
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useMemo, useState } from "react";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -63,7 +64,7 @@ function Hub() {
   const data = useHubData();
   const [tab, setTab] = useState<Tab>("painel");
   const [f, setF] = useState<HubFilter>(EMPTY_FILTER);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = operationalToday();
   const view = useMemo(() => (data?.input ? buildHub(data.input, f, today) : null), [data, f, today]);
   const sel = "min-h-11 rounded-md border bg-background px-2 text-sm";
 

@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -44,7 +45,7 @@ function Panel({ userId }: { userId: string }) {
           <input className="h-10 rounded-md border border-input bg-background px-2" value={school} onChange={(e) => setSchool(e.target.value)} />
         </label>
       </form>
-      {q.isPending && <p role="status" className="text-sm text-muted-foreground">Carregando inscrições…</p>}
+      {q.isPending && <LoadingState label="Carregando inscrições…" />}
       {q.isError && <p role="alert" className="text-sm text-destructive">{(q.error as Error).message} <Button variant="link" onClick={() => q.refetch()}>Tentar novamente</Button></p>}
       {q.isSuccess && info.total === 0 && <NoteBox>Nenhuma inscrição no seu alcance com estes filtros.</NoteBox>}
       {q.isSuccess && info.total > 0 && (
@@ -104,7 +105,7 @@ function Detail({ app }: { app: AdminApplication }) {
       <SignalsSection appId={app.id} />
       <section aria-label="Histórico">
         <h3 className="text-sm font-medium text-foreground">Histórico</h3>
-        {h.isPending && <p role="status" className="text-sm text-muted-foreground">Carregando…</p>}
+        {h.isPending && <LoadingState />}
         {h.isError && <p role="alert" className="text-sm text-destructive">{(h.error as Error).message}</p>}
         <ol className="grid gap-1 text-sm">{(h.data ?? []).map((x, i) => <li key={i}><span className="text-muted-foreground">{new Date(x.at).toLocaleString("pt-BR")}</span> · {x.detail}</li>)}</ol>
       </section>

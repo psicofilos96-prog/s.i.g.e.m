@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -84,7 +85,7 @@ export function AaDailyPanel({ onGo }: { onGo: (tab: string) => void }) {
           <label key={k} className="block space-y-1 text-sm"><span>{l}</span>
             <textarea className={field} rows={k === "objective" ? 2 : 1} value={draft[k]} onChange={(e) => save({ ...draft, [k]: e.target.value })} /></label>))}
         <label className="block space-y-1 text-sm"><span>Prazo</span>
-          <input type="date" className={field} value={draft.due} onChange={(e) => save({ ...draft, due: e.target.value })} /></label>
+          <DateInput className={field} value={draft.due} onChange={(e) => save({ ...draft, due: e.target.value })} /></label>
         {tried && issues.length > 0 && <ul role="alert" className="list-disc pl-5 text-sm text-destructive">{issues.map((i) => <li key={i}>{i}</li>)}</ul>}
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => { setTried(true); if (!issues.length) onGo("intervencoes"); }}>Conferir e ir para registro</Button>

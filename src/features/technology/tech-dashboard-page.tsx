@@ -1,4 +1,5 @@
 /** Tecnologia L03 — painel operacional. Nada é lido antes da sessão; leitura pela RLS do usuário; não grava. */
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -31,7 +32,7 @@ async function load(): Promise<DashboardInput> {
   for (const r of [pevs, cevs]) if (r.error) throw r.error;
   const by = (rows: any[], k: string, id: string) => rows.filter((r) => r[k] === id);
   return {
-    today: new Date().toISOString().slice(0, 10),
+    today: operationalToday(),
     truncated: ids.length >= LIMIT || (probs.data?.length ?? 0) >= LIMIT || (chs.data?.length ?? 0) >= LIMIT,
     tickets: (req.data ?? []).map((r: any) => ({ id: r.id, schoolId: r.school_id, createdAt: r.created_at,
       events: by(evs.data, "request_id", r.id).map((e: any) => ({ seq: e.seq, kind: e.kind, actorPerson: e.actor_person, at: e.created_at })),

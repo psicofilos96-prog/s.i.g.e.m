@@ -26,4 +26,10 @@ describe("L16 certificados", () => {
     const verify = sql.slice(sql.indexOf("FUNCTION public.verify_dev_certificate"));
     expect(verify.slice(0, verify.indexOf("$$;"))).not.toMatch(/person_id|cpf|full_name/);
   });
+  it("revogação: só por função, append-only e sem escrita direta", () => {
+    const sql = readFileSync("drizzle/migrations/0445_dev16_certificates.sql", "utf8");
+    expect(sql).toMatch(/FUNCTION public\.revoke_dev_certificate\(_issuance uuid, _reason text\)/);
+    expect(sql).toMatch(/devcrev_immutable BEFORE UPDATE OR DELETE ON public\.dev_certificate_revocations/);
+    expect(sql).toMatch(/REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON [^;]*dev_certificate_revocations FROM authenticated, anon/);
+  });
 });

@@ -1,3 +1,4 @@
+import { UPLOAD_MIME } from "@/lib/file-formats";
 // ACV.1 — Acervo Documental por setor: regras puras espelhando o banco (migration 0497).
 // O banco é a garantia (RLS + funções acv_*); aqui só validação antecipada, árvore e apresentação.
 
@@ -12,17 +13,7 @@ export function nameOk(name: string): boolean {
     && name !== "." && name !== ".." && !name.endsWith(".");
 }
 
-export const ALLOWED: Readonly<Record<string, string>> = {
-  pdf: "application/pdf",
-  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-  odt: "application/vnd.oasis.opendocument.text",
-  ods: "application/vnd.oasis.opendocument.spreadsheet",
-  odp: "application/vnd.oasis.opendocument.presentation",
-  txt: "text/plain", csv: "text/csv",
-  png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", gif: "image/gif",
-};
+export const ALLOWED: Readonly<Record<string, string>> = UPLOAD_MIME;
 export const MAX_BYTES = 52_428_800;
 
 export const extOf = (name: string): string => /\.([A-Za-z0-9]{1,8})$/.exec(name)?.[1]?.toLowerCase() ?? "";
@@ -66,7 +57,7 @@ export type Preview = "pdf" | "imagem" | "texto" | "nenhuma";
 export function previewKind(mime: string): Preview {
   if (mime === "application/pdf") return "pdf";
   if (["image/png", "image/jpeg", "image/webp", "image/gif"].includes(mime)) return "imagem";
-  if (mime === "text/plain" || mime === "text/csv") return "texto";
+  if (mime === "text/plain" || mime === ALLOWED["csv"]) return "texto";
   return "nenhuma";
 }
 

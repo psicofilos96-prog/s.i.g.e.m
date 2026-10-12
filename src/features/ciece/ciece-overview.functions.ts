@@ -3,6 +3,7 @@
  * Só contagens e o cadastro das escolas (sem pessoa); nada é gravado. Leitura negada ou
  * falha vira "sem-permissao"/"nao-lido", nunca zero (observatory.panorama).
  */
+import { operationalToday } from "@/lib/academic-date";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { panorama, mapPoint, type Reading, type PanoramaKey } from "./observatory";
@@ -12,7 +13,7 @@ export const getCieceOverview = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = context.supabase;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = operationalToday();
     const count = async (table: "institutional_schools" | "school_enrollments" | "institutional_classes" | "professional_functional_links", source: string, filter?: (q: any) => any): Promise<Reading> => {
       let q = db.from(table).select("id", { count: "exact", head: true });
       if (filter) q = filter(q);

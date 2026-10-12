@@ -8,8 +8,9 @@ export interface AcceptanceRow { n: number; modules: string[]; tests: string[]; 
 
 const M = (f: string) => `src/features/school-mediator/${f}.ts`;
 const T = (f: string) => `src/features/school-mediator/${f}.test.ts`;
-const row = (n: number, files: string[], status: TechStatus, blocker: string | null = null): AcceptanceRow =>
-  ({ n, modules: files.map(M), tests: files.map(T), status, blocker });
+/** `suites` = suítes só de teste (sem módulo próprio), ex.: mediator-functional. */
+const row = (n: number, files: string[], status: TechStatus, blocker: string | null = null, suites: string[] = []): AcceptanceRow =>
+  ({ n, modules: files.map(M), tests: [...files, ...suites].map(T), status, blocker });
 
 const NO_WRITER = "Sem gravação oficial do mediador no banco.";
 const NO_DATA = "0 designações e 0 concessões NEI no banco: sem teste com sessão real.";
@@ -39,11 +40,11 @@ export const ACCEPTANCE_MATRIX: readonly AcceptanceRow[] = [
   row(22, ["mediator-history-integration"], "nucleo-testado", "Nenhum destinatário detém as capacidades exigidas."),
   row(23, ["mediator-designations", "mediator-architecture"], "nucleo-testado"),
   row(24, ["mediator-access-policy"], "bloqueado", "Capacidades por função dependem de configuração homologada."),
-  row(25, ["mediator-access-policy", "mediator-functional"], "nucleo-testado"),
+  row(25, ["mediator-access-policy"], "nucleo-testado", null, ["mediator-functional"]),
   row(26, ["mediator-central", "mediator-automation"], "tela+nucleo"),
   row(27, ["mediator-automation"], "nucleo-testado", "Envio por notificações não ligado."),
   row(28, ["mediator-acceptance"], "nucleo-testado"),
-  row(29, ["mediator-acceptance", "mediator-functional"], "nucleo-testado", NO_DATA),
+  row(29, ["mediator-acceptance"], "nucleo-testado", NO_DATA, ["mediator-functional"]),
   row(30, ["mediator-acceptance"], "nucleo-testado", "Resultado institucional depende de avaliação humana competente."),
 ];
 

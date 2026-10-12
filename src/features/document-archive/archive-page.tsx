@@ -1,6 +1,7 @@
 /** ACV.1 — Acervo Documental. Nada é lido antes da sessão; toda leitura pela RLS; toda escrita por acv_*. */
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent } from "react";
 import { PageHeader } from "@/components/sigem/patterns";
+import { askText, confirmAction } from "@/components/sigem/confirm-action";
 import { SignInRequired } from "@/components/sigem/sign-in-required";
 import { AbsenceState, ErrorState, LoadingState } from "@/components/sigem/states";
 import { useSessionAuthority } from "@/features/authority/session-authority";
@@ -151,11 +152,11 @@ function ArchiveWorkspace({ isSector }: { isSector: boolean }) {
     const r = favs.has(n.id) ? await db.from("acv_favorites").delete().eq("node_id", n.id) : await db.from("acv_favorites").insert({ node_id: n.id });
     if (r.error) setError(errMsg(r.error)); else await refresh();
   };
-  const ask = (msg: string, def = "") => { const v = window.prompt(msg, def); return v === null ? null : v.trim(); };
-  const pickTarget = (n: ArchiveNode): string | null | undefined => {
+  const ask = async (msg: string, def = "") => { const v = await askText(msg, def); return v === null ? null : v.trim(); };
+  const pickTarget = async (n: ArchiveNode): Promise<string | null | undefined> => {
     const opts = folders.filter((f) => f.id !== n.id);
     const txt = ["0 — Raiz do acervo", ...opts.map((f, i) => `${i + 1} — ${breadcrumbs(nodes, f.id).map((x) => x.name).join(" / ")}`)].join("\n");
-    const v = ask(`Destino (número):\n${txt}`, "0");
+    const v = await ask(`Destino (número):\n${txt}`, "0");
     if (v === null) return undefined;
     const i = Number(v);
     return i === 0 ? null : opts[i - 1]?.id;
@@ -201,7 +202,7 @@ function ArchiveWorkspace({ isSector }: { isSector: boolean }) {
             <select aria-label="Tipo" value={kind} onChange={(e) => setKind(e.target.value as any)} className="rounded-md border border-input bg-background px-2 py-2 text-sm"><option value="">Tudo</option><option value="pasta">Pastas</option><option value="arquivo">Arquivos</option></select>
             <select aria-label="Ordenar" value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className="rounded-md border border-input bg-background px-2 py-2 text-sm"><option value="nome">Nome</option><option value="data">Data</option><option value="tamanho">Tamanho</option></select>
             <button onClick={() => setAsc(!asc)} className="rounded-md border border-border px-3 py-2 text-sm" aria-label="Inverter ordem">{asc ? "↑" : "↓"}</button>
-            {view === "pastas" && can(rank, "organizar") && <button onClick={() => { const name = ask("Nome da nova pasta"); if (name) void act("acv_create_folder", { _space: spaceId, _parent: folder, _name: name }, "Pasta criada."); }} className="rounded-md border border-border px-3 py-2 text-sm">Nova pasta</button>}
+            {view === "pastas" && can(rank, "organizar") && <button onClick={async () => { const name = await ask("Nome da nova pasta"); if (name) void act("acv_create_folder", { _space: spaceId, _parent: folder, _name: name }, "Pasta criada."); }} className="rounded-md border border-border px-3 py-2 text-sm">Nova pasta</button>}
             {view === "pastas" && can(rank, "enviar") && <>
               <button onClick={() => fileInput.current?.click()} className="rounded-md bg-primary px-3 py-2 text-sm text-primary-foreground">Enviar arquivos</button>
               <input ref={fileInput} type="file" multiple hidden onChange={(e) => e.target.files && void uploadFiles(e.target.files)} />
@@ -240,10 +241,10 @@ function ArchiveWorkspace({ isSector }: { isSector: boolean }) {
                         {n.kind === "arquivo" && <button className="rounded border border-border px-2 py-1" onClick={() => openPreview(n)}>Ver</button>}
                         {n.kind === "arquivo" && <button className="rounded border border-border px-2 py-1" onClick={() => download(n)}>Baixar</button>}
                         <button className="rounded border border-border px-2 py-1" aria-pressed={favs.has(n.id)} onClick={() => toggleFav(n)}>{favs.has(n.id) ? "★" : "☆"}</button>
-                        {can(rank, "organizar") && <button className="rounded border border-border px-2 py-1" onClick={() => { const v = ask("Novo nome", n.name); if (v && v !== n.name) void act("acv_rename", { _node: n.id, _name: v }, "Renomeado."); }}>Renomear</button>}
-                        {can(rank, "organizar") && <button className="rounded border border-border px-2 py-1" onClick={() => { const t = pickTarget(n); if (t !== undefined) void act("acv_move", { _node: n.id, _space: spaceId, _parent: t }, "Movido."); }}>Mover</button>}
-                        <button className="rounded border border-border px-2 py-1" onClick={() => { const t = pickTarget(n); if (t === undefined) return; const name = ask("Nome da cópia", `Cópia de ${n.name}`); if (name) void act("acv_copy", { _node: n.id, _space: spaceId, _parent: t, _name: name }, "Copiado."); }}>Copiar</button>
-                        {can(rank, "excluir") && <button className="rounded border border-destructive/50 px-2 py-1 text-destructive" onClick={() => { if (window.confirm(`Enviar "${n.name}" para a lixeira? Ele pode ser restaurado.`)) void act("acv_trash", { _node: n.id }, "Enviado para a lixeira."); }}>Lixeira</button>}
+                        {can(rank, "organizar") && <button className="rounded border border-border px-2 py-1" onClick={async () => { const v = await ask("Novo nome", n.name); if (v && v !== n.name) void act("acv_rename", { _node: n.id, _name: v }, "Renomeado."); }}>Renomear</button>}
+                        {can(rank, "organizar") && <button className="rounded border border-border px-2 py-1" onClick={async () => { const t = await pickTarget(n); if (t !== undefined) void act("acv_move", { _node: n.id, _space: spaceId, _parent: t }, "Movido."); }}>Mover</button>}
+                        <button className="rounded border border-border px-2 py-1" onClick={async () => { const t = await pickTarget(n); if (t === undefined) return; const name = await ask("Nome da cópia", `Cópia de ${n.name}`); if (name) void act("acv_copy", { _node: n.id, _space: spaceId, _parent: t, _name: name }, "Copiado."); }}>Copiar</button>
+                        {can(rank, "excluir") && <button className="rounded border border-destructive/50 px-2 py-1 text-destructive" onClick={async () => { if (await confirmAction({ title: `Enviar "${n.name}" para a lixeira?`, consequence: "O item sai da pasta e pode ser restaurado pela Lixeira.", actionLabel: "Enviar para a lixeira", destructive: true })) void act("acv_trash", { _node: n.id }, "Enviado para a lixeira."); }}>Lixeira</button>}
                       </>)}
                     </div>
                   </li>
