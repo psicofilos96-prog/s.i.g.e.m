@@ -2885,6 +2885,20 @@
       "when": 1791796167923,
       "tag": "0411_ops07_hide_certificate_doc",
       "breakpoints": true
+    },
+    {
+      "idx": 412,
+      "version": "7",
+      "when": 1791796393726,
+      "tag": "0412_ops08_works_restrictions",
+      "breakpoints": true
+    },
+    {
+      "idx": 413,
+      "version": "7",
+      "when": 1791796468595,
+      "tag": "0413_ops08_hide_doc_refs",
+      "breakpoints": true
     }
   ]
 }
