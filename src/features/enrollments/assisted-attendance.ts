@@ -54,7 +54,7 @@ export type StageFlow =
 export function ageYears(birth: string, at: string): number {
   const [by, bm, bd] = birth.split("-").map(Number);
   const [ay, am, ad] = at.split("-").map(Number);
-  return ay - by - (am < bm || (am === bm && ad < bd) ? 1 : 0);
+  return ay! - by! - (am! < bm! || (am === bm && ad! < bd!) ? 1 : 0);
 }
 
 export function resolveStageFlow(i: StageFlowInput): StageFlow {
