@@ -26,6 +26,7 @@ export type CampaignCompetence = Partial<Record<CampaignAction | "redigir", stri
 /** Tipos que, por decisão homologada, exigem critério de prioridade (ex.: espera). Vem de configuração. */
 export interface CampaignPolicy { kindsRequiringCriteria: readonly string[]; kindsRequiringEdital: readonly string[] }
 
+const lastOf = (ev: readonly CampaignEvent[], a: CampaignAction) => [...ev].reverse().find((e) => e.action === a);
 type R<T> = { ok: true; value: T } | { ok: false; reason: string; issues?: string[] };
 const human = (a: CActor) => a.isHuman && !!a.personId && !a.isTechnicalExecutor;
 const gate = (a: CActor, cap: string | undefined, what: string): string | null =>
@@ -84,14 +85,14 @@ export function actOnCampaign(campaignId: string, versions: readonly CampaignVer
     const authors = versions.filter((x) => x.campaignId === campaignId).map((x) => x.authorPersonId);
     if (authors.includes(actor.personId!)) return { ok: false, reason: "Quem redigiu não autoriza." };
   }
-  if (action === "publicar" && events.findLast((e) => e.action === "autorizar")?.onVersion !== v.version) return { ok: false, reason: "Versão publicada difere da autorizada." };
+  if (action === "publicar" && lastOf(events, "autorizar")?.onVersion !== v.version) return { ok: false, reason: "Versão publicada difere da autorizada." };
   return { ok: true, value: { campaignId, seq: last + 1, action, to: FLOW[action].to, onVersion: v.version, personId: actor.personId!, reason: input.reason.trim(), actRef: input.actRef?.trim() || null, at: input.at } };
 }
 
 /** Campanha aceita pedido só publicada, no período, para escola e tipo declarados. Devolve a versão publicada. */
 export function campaignAccepts(versions: readonly CampaignVersion[], events: readonly CampaignEvent[], kind: string, schoolId: string, on: string): { ok: boolean; version: number | null; reason?: string } {
   if (campaignState(events) !== "publicada") return { ok: false, version: null, reason: "Campanha não publicada." };
-  const pubV = events.findLast((e) => e.action === "publicar")!.onVersion;
+  const pubV = lastOf(events, "publicar")!.onVersion;
   const c = versions.find((v) => v.version === pubV)!.content;
   if (c.kind !== kind) return { ok: false, version: pubV, reason: "Tipo diferente." };
   if (!c.schoolIds.includes(schoolId)) return { ok: false, version: pubV, reason: "Escola fora da campanha." };
@@ -101,6 +102,6 @@ export function campaignAccepts(versions: readonly CampaignVersion[], events: re
 
 /** Documentos exigidos vêm só da versão publicada; pendência não bloqueia direito, só é listada. */
 export function missingDocuments(versions: readonly CampaignVersion[], events: readonly CampaignEvent[], delivered: readonly string[]): string[] | null {
-  const pub = events.findLast((e) => e.action === "publicar"); if (!pub) return null;
+  const pub = lastOf(events, "publicar"); if (!pub) return null;
   return versions.find((v) => v.version === pub.onVersion)!.content.documentIds.filter((d) => !delivered.includes(d));
 }

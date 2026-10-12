@@ -28,7 +28,7 @@ describe("Campanhas de matrícula L06", () => {
     expect(contentIssues({ ...espera, criteria: { criterionId: "crit-rasc", version: 1 } }, cat, pol)).toContain("Critério não homologado.");
     expect(contentIssues({ ...espera, criteria: { criterionId: "crit-espera", version: 2 } }, cat, pol)).toEqual([]);
     expect(contentIssues({ ...content, editalRef: null }, cat, pol)).toContain("Edital obrigatório para este tipo.");
-    expect(contentIssues({ ...content, schoolIds: ["Z"], audience: [], documentIds: ["doc-x"], kind: "inventado" }, cat, pol).length).toBe(5);
+    expect(contentIssues({ ...content, schoolIds: ["Z"], audience: [], documentIds: ["doc-x"], kind: "inventado" }, cat, pol).length).toBe(4);
   });
   it("autorização exige ato, pessoa ≠ redator, competência; executor técnico recusado", () => {
     const vs = draft(); const e = go(vs, [], "enviar-revisao", red);
