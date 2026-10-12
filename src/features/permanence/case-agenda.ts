@@ -14,7 +14,7 @@ export interface AgendaSource {
 export interface AgendaItem extends AgendaSource { state: "sem-prazo" | "a-vencer" | "vencido"; orphan: boolean; attachmentAccess: "nenhum" | "via-documentos" }
 
 export function buildAgenda(src: readonly AgendaSource[], today: string, activeEngagements: ReadonlySet<string>): AgendaItem[] {
-  return src.filter((s) => !s.done).map((s) => ({
+  return src.filter((s) => !s.done).map((s): AgendaItem => ({
     ...s,
     state: s.due === null ? "sem-prazo" : s.due < today ? "vencido" : "a-vencer",
     orphan: !s.responsibleEngagement || !activeEngagements.has(s.responsibleEngagement),

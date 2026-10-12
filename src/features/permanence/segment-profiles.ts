@@ -29,7 +29,7 @@ export function resolveProfile(all: readonly SegmentProfile[], c: StudentContext
   if (!cand.length) return { kind: "indeterminado", reason: "sem-perfil" };
   const top = Math.max(...cand.map(specificity));
   const best = cand.filter((p) => specificity(p) === top);
-  return best.length === 1 ? { kind: "ok", profile: best[0] } : { kind: "indeterminado", reason: "perfis-concorrentes" };
+  return best.length === 1 ? { kind: "ok", profile: best[0]! } : { kind: "indeterminado", reason: "perfis-concorrentes" };
 }
 
 /** Destinatário de contato: EJA adulta = o próprio estudante; menor nunca sem responsável. */
