@@ -30,7 +30,7 @@ describe("movimentações", () => {
     const ret = ev(6, "retificacao", { version: 2, reason: "data do ato errada", payloadHash: "h2" });
     expect(checkMovement(ret, flow, caps)).toBeNull();
     expect(movementStage([...flow, ret])).toBe("analise");
-    expect(checkMovement(ev(6, "retificacao", { reason: "x" }), flow.slice(0, 3), caps)).toBe("retificacao-sem-aplicacao");
+    expect(checkMovement(ev(4, "retificacao", { reason: "x" }), flow.slice(0, 3), caps)).toBe("retificacao-sem-aplicacao");
   });
   it("indeferimento exige motivo e encerra", () => {
     const ind = ev(2, "indeferimento", { reason: "sem vaga" });
