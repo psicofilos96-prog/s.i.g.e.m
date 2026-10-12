@@ -8,12 +8,12 @@ const ef = p({ id: "ef", stage: "fundamental" });
 
 describe("L17 perfis por segmento", () => {
   it("sem perfil aprovado não aplica regra de outro segmento", () => {
-    expect(resolveProfile([ef], { stage: "educacao-infantil", modality: null })).toEqual({ kind: "indeterminado", reason: "sem-perfil" });
-    expect(resolveProfile([p({ ...ei, approvedBy: "a" })], { stage: "educacao-infantil", modality: null }).kind).toBe("indeterminado");
-    expect(resolveProfile([ef], { stage: null, modality: null })).toEqual({ kind: "indeterminado", reason: "contexto-ausente" });
+    expect(resolveProfile([ef], { stage: "educacao-infantil", modality: null, adult: null })).toEqual({ kind: "indeterminado", reason: "sem-perfil" });
+    expect(resolveProfile([p({ ...ei, approvedBy: "a" })], { stage: "educacao-infantil", modality: null, adult: null }).kind).toBe("indeterminado");
+    expect(resolveProfile([ef], { stage: null, modality: null, adult: null })).toEqual({ kind: "indeterminado", reason: "contexto-ausente" });
   });
   it("EI pode não usar frequência e permite sinalização sem matrícula", () => {
-    const r = resolveProfile([ei, ef], { stage: "educacao-infantil", modality: null });
+    const r = resolveProfile([ei, ef], { stage: "educacao-infantil", modality: null, adult: null });
     expect(attendanceSignalAllowed(r, null)).toEqual({ allowed: false, reason: "perfil-nao-usa-frequencia" });
     expect(outOfSchoolSignalAllowed(r)).toBe(true);
   });

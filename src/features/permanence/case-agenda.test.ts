@@ -10,17 +10,17 @@ describe("L19 agenda do caso", () => {
     expect(a.map((i) => [i.sourceRef, i.state])).toEqual([["v", "vencido"], ["p", "a-vencer"], ["x", "sem-prazo"]]);
   });
   it("responsável não vigente vira órfão e não é notificado", () => {
-    const [i] = buildAgenda([s({ due: "2026-10-01", responsibleEngagement: "old" })], "2026-10-12", act);
+    const i = buildAgenda([s({ due: "2026-10-01", responsibleEngagement: "old" })], "2026-10-12", act)[0]!;
     expect(i.orphan).toBe(true); expect(notificationEvent(i, "2026-10-12")).toBeNull();
   });
   it("notificação idempotente e sem conteúdo do caso", () => {
-    const [i] = buildAgenda([s({ due: "2026-10-01" })], "2026-10-12", act);
+    const i = buildAgenda([s({ due: "2026-10-01" })], "2026-10-12", act)[0]!;
     const e = notificationEvent(i, "2026-10-12")!;
     expect(e.idempotency_key).toBe(notificationEvent(i, "2026-10-12")!.idempotency_key);
     expect(Object.keys(e.payload)).toEqual(["case_id", "kind", "source_ref"]);
   });
   it("anexo restrito só pelo leitor de Documentos com finalidade; agenda não escreve", () => {
-    const [i] = buildAgenda([s({ sensitiveAttachment: true })], "2026-10-12", act);
+    const i = buildAgenda([s({ sensitiveAttachment: true })], "2026-10-12", act)[0]!;
     expect(attachmentRequest(i, "x")).toEqual({ error: "sem-finalidade" });
     expect(attachmentRequest(i, "Conferir comprovante de encaminhamento")!).toMatchObject({ rpc: "read_sensitive_case_document" });
     expect(AGENDA_WRITES).toEqual([]);

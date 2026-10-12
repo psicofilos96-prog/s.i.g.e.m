@@ -21,9 +21,9 @@ describe("L18 mapa territorial", () => {
     const f = [...many("A", 8), ...many("A", 8), ...many("B", 2), ...many("C", 20)];
     const r = buildMap(f, places, "escola", pol);
     const v = Object.fromEntries(r.cells.map((c) => [c.unit, c.value]));
-    expect(v.B).toBe("suprimido");
-    expect(v.A).toBe("suprimido"); // menor visível suprimida para B não ser deduzida
-    expect(v.C).toBe(20);
+    expect(v["B"]).toBe("suprimido");
+    expect(v["A"]).toBe("suprimido"); // menor visível suprimida para B não ser deduzida
+    expect(v["C"]).toBe(20);
   });
   it("pontos só da escola com coordenada de fonte; região sem pontos e sem região fica fora", () => {
     const f = [...many("A", 6), ...many("C", 6)];

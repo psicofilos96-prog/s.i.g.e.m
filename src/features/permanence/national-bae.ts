@@ -47,7 +47,7 @@ export function reconciliationIssues(status: BaeStatus, r: BaeReconciliation, to
 export function divergences(sigemCases: readonly { caseId: string; closed: boolean }[], recs: readonly BaeReconciliation[], closedLabels: ReadonlySet<string>) {
   const last = new Map<string, BaeReconciliation>();
   for (const r of recs) if ((last.get(r.caseId)?.observedOn ?? "") <= r.observedOn) last.set(r.caseId, r);
-  return sigemCases.flatMap((c) => {
+  return sigemCases.flatMap((c): { caseId: string; kind: "nao-conciliado" | "situacao-divergente" }[] => {
     const r = last.get(c.caseId);
     if (!r) return [{ caseId: c.caseId, kind: "nao-conciliado" as const }];
     const extClosed = closedLabels.has(r.observedStatus);

@@ -33,7 +33,7 @@ export function buildMap(facts: readonly Fact[], places: readonly SchoolPlace[],
     const k = `${u}|${f.layer}`;
     (sets.get(k) ?? sets.set(k, new Set()).get(k)!).add(f.studentRef);
   }
-  const raw = [...sets.entries()].map(([k, s]) => { const [unit, layer] = k.split("|"); return { unit, layer: layer as Layer, n: s.size }; });
+  const raw = [...sets.entries()].map(([k, s]) => { const parts = k.split("|"); const unit = parts[0] ?? ""; const layer = parts[1]; return { unit, layer: layer as Layer, n: s.size }; });
   const cells: Cell[] = raw.map((c) => ({ unit: c.unit, layer: c.layer, value: c.n < policy.minCellSize ? "suprimido" : c.n }));
   // Supressão complementar: numa camada, uma única célula suprimida poderia ser deduzida
   // de um total publicado; suprime-se a menor célula visível restante.
