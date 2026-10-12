@@ -18180,6 +18180,137 @@ export type Database = {
           },
         ]
       }
+      ops_preventive_links: {
+        Row: {
+          author_person: string
+          created_at: string
+          maintenance_order_id: string
+          plan_version_id: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          maintenance_order_id: string
+          plan_version_id: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          maintenance_order_id?: string
+          plan_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_preventive_links_maintenance_order_id_fkey"
+            columns: ["maintenance_order_id"]
+            isOneToOne: true
+            referencedRelation: "ops_maintenance_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_preventive_links_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_preventive_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_preventive_plan_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          decision_ref: string
+          plan_version_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          decision_ref: string
+          plan_version_id: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          decision_ref?: string
+          plan_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_preventive_plan_approvals_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_preventive_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_preventive_plan_versions: {
+        Row: {
+          active: boolean
+          activity: string
+          author_person: string
+          basis_kind: string
+          basis_ref: string
+          created_at: string
+          id: string
+          periodicity_days: number
+          plan_key: string
+          reason: string | null
+          school_id: string
+          space_id: string | null
+          starts_on: string
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          activity: string
+          author_person: string
+          basis_kind: string
+          basis_ref: string
+          created_at?: string
+          id?: string
+          periodicity_days: number
+          plan_key: string
+          reason?: string | null
+          school_id: string
+          space_id?: string | null
+          starts_on: string
+          version: number
+        }
+        Update: {
+          active?: boolean
+          activity?: string
+          author_person?: string
+          basis_kind?: string
+          basis_ref?: string
+          created_at?: string
+          id?: string
+          periodicity_days?: number
+          plan_key?: string
+          reason?: string | null
+          school_id?: string
+          space_id?: string | null
+          starts_on?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_preventive_plan_versions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_preventive_plan_versions_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_request_events: {
         Row: {
           actor_person: string
@@ -18304,6 +18435,80 @@ export type Database = {
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_safety_certificate_refs: {
+        Row: {
+          author_person: string
+          created_at: string
+          doc_ref: string
+          id: string
+          idempotency_key: string
+          issued_on: string
+          issuer: string
+          kind: string
+          number_on_document: string | null
+          school_id: string
+          space_id: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          doc_ref: string
+          id?: string
+          idempotency_key: string
+          issued_on: string
+          issuer: string
+          kind: string
+          number_on_document?: string | null
+          school_id: string
+          space_id?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          doc_ref?: string
+          id?: string
+          idempotency_key?: string
+          issued_on?: string
+          issuer?: string
+          kind?: string
+          number_on_document?: string | null
+          school_id?: string
+          space_id?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_safety_certificate_refs_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_safety_certificate_refs_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_safety_certificate_refs_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_safety_certificate_refs_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
             referencedColumns: ["id"]
           },
         ]
@@ -18441,6 +18646,60 @@ export type Database = {
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_space_availability_events: {
+        Row: {
+          author_person: string
+          created_at: string
+          effective_from: string
+          id: string
+          idempotency_key: string
+          maintenance_order_id: string | null
+          reason: string
+          seq: number
+          space_id: string
+          status: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          effective_from: string
+          id?: string
+          idempotency_key: string
+          maintenance_order_id?: string | null
+          reason: string
+          seq: number
+          space_id: string
+          status: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          effective_from?: string
+          id?: string
+          idempotency_key?: string
+          maintenance_order_id?: string | null
+          reason?: string
+          seq?: number
+          space_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_space_availability_events_maintenance_order_id_fkey"
+            columns: ["maintenance_order_id"]
+            isOneToOne: false
+            referencedRelation: "ops_maintenance_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_space_availability_events_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
             referencedColumns: ["id"]
           },
         ]
@@ -27018,6 +27277,10 @@ export type Database = {
         Args: { _cv: string; _decision_ref: string }
         Returns: undefined
       }
+      approve_ops_preventive_plan: {
+        Args: { _decision_ref: string; _pv: string }
+        Returns: undefined
+      }
       approve_ops_space_type_version: {
         Args: { _decision_ref: string; _type_version: string }
         Returns: undefined
@@ -30547,6 +30810,10 @@ export type Database = {
           _revoke_link: string
         }
         Returns: string
+      }
+      link_ops_preventive_order: {
+        Args: { _mo: string; _pv: string }
+        Returns: undefined
       }
       locate_guardian_person_exact: {
         Args: { _kind: string; _school: string; _value: string }
@@ -34299,6 +34566,18 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_space_availability: {
+        Args: {
+          _expected_seq: number
+          _from: string
+          _key: string
+          _mo: string
+          _reason: string
+          _space: string
+          _status: string
+        }
+        Returns: number
+      }
       record_ops_space_version: {
         Args: {
           _accessibility: string[]
@@ -35314,6 +35593,36 @@ export type Database = {
           _key: string
           _reason: string
           _urgencies: string[]
+        }
+        Returns: string
+      }
+      register_ops_preventive_plan: {
+        Args: {
+          _active: boolean
+          _activity: string
+          _basis_kind: string
+          _basis_ref: string
+          _days: number
+          _expected_version: number
+          _key: string
+          _reason: string
+          _school: string
+          _space: string
+          _starts: string
+        }
+        Returns: string
+      }
+      register_ops_safety_certificate: {
+        Args: {
+          _doc: string
+          _issued: string
+          _issuer: string
+          _key: string
+          _kind: string
+          _number: string
+          _school: string
+          _space: string
+          _valid_until: string
         }
         Returns: string
       }
