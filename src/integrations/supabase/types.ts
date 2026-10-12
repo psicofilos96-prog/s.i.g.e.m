@@ -17941,6 +17941,135 @@ export type Database = {
           },
         ]
       }
+      ops_asset_transfer_events: {
+        Row: {
+          actor_person: string
+          created_at: string
+          doc_ref: string | null
+          effective_on: string
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string | null
+          seq: number
+          transfer_id: string
+        }
+        Insert: {
+          actor_person: string
+          created_at?: string
+          doc_ref?: string | null
+          effective_on: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          note?: string | null
+          seq: number
+          transfer_id: string
+        }
+        Update: {
+          actor_person?: string
+          created_at?: string
+          doc_ref?: string | null
+          effective_on?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string | null
+          seq?: number
+          transfer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_transfer_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_transfer_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_transfer_events_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "ops_asset_transfers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_asset_transfers: {
+        Row: {
+          asset_id: string
+          base_asset_seq: number
+          created_at: string
+          from_school: string
+          id: string
+          idempotency_key: string
+          reason: string
+          requester_person: string
+          to_school: string
+          to_space: string | null
+        }
+        Insert: {
+          asset_id: string
+          base_asset_seq: number
+          created_at?: string
+          from_school: string
+          id?: string
+          idempotency_key: string
+          reason: string
+          requester_person: string
+          to_school: string
+          to_space?: string | null
+        }
+        Update: {
+          asset_id?: string
+          base_asset_seq?: number
+          created_at?: string
+          from_school?: string
+          id?: string
+          idempotency_key?: string
+          reason?: string
+          requester_person?: string
+          to_school?: string
+          to_space?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_transfers_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_transfers_from_school_fkey"
+            columns: ["from_school"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_transfers_to_school_fkey"
+            columns: ["to_school"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_transfers_to_space_fkey"
+            columns: ["to_space"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_assets: {
         Row: {
           author_person: string
@@ -32762,8 +32891,10 @@ export type Database = {
       }
       operational_task_assignee: { Args: { _task: string }; Returns: string }
       ops_asset_category_usable: { Args: { _cv: string }; Returns: boolean }
+      ops_asset_open_transfer: { Args: { _a: string }; Returns: string }
       ops_asset_readable: { Args: { _a: string }; Returns: boolean }
       ops_asset_school: { Args: { _a: string }; Returns: string }
+      ops_asset_transfer_state: { Args: { _t: string }; Returns: string }
       ops_can_read: {
         Args: { _school: string; _sector: string }
         Returns: boolean
@@ -34977,6 +35108,18 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_asset_transfer_event: {
+        Args: {
+          _doc: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _on: string
+          _t: string
+        }
+        Returns: number
+      }
       record_ops_inspection: {
         Args: {
           _answers: Json
@@ -36347,6 +36490,17 @@ export type Database = {
       }
       report_custom_catalog: { Args: never; Returns: Json }
       report_custom_query: { Args: { _spec: Json }; Returns: Json }
+      request_ops_asset_transfer: {
+        Args: {
+          _a: string
+          _expected_seq: number
+          _key: string
+          _reason: string
+          _to_school: string
+          _to_space: string
+        }
+        Returns: string
+      }
       require_catalog: {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: undefined
