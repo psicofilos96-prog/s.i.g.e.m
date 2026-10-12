@@ -49,8 +49,8 @@ describe("OP L04 — panorama", () => {
   });
   it("central vê só agregado com supressão", () => {
     const c = centralPanorama(src, ["sA", "sB"], { period, date: "2026-05-10" });
-    expect(c[0]!.values.students).toBe("suprimido");
-    expect(c[0]!.values.attendanceCalls).toBe("não disponível");
+    expect(c[0]!.values["students"]).toBe("suprimido");
+    expect(c[0]!.values["attendanceCalls"]).toBe("não disponível");
     expect(JSON.stringify(c)).not.toMatch(/e[0-9]/);
   });
   it("histórico da turma ordenado e com fontes não lidas declaradas", () => {
