@@ -19,8 +19,7 @@ export type ReqEvent = { seq: number; key: string; to: ReqState; by: string; at:
 export type Request = { protocol: string; requester: string; subject: string; events: ReqEvent[] };
 
 export function openRequest(issued: Parameters<typeof nextNumber>[0], year: number, unit: string, requester: string, subject: string): Request {
-  const n = nextNumber(issued, "requerimento", year, unit);
-  return { protocol: typeof n === "object" && n && "label" in n ? String((n as { label: unknown }).label) : `requerimento-${unit}-${year}-${JSON.stringify(n)}`, requester, subject, events: [] };
+  return { protocol: nextNumber(issued, "requerimento", year, unit).label, requester, subject, events: [] };
 }
 export const stateOf = (r: Request): ReqState => r.events.at(-1)?.to ?? "recebida";
 
