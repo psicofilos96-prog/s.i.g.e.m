@@ -17941,6 +17941,183 @@ export type Database = {
           },
         ]
       }
+      ops_asset_inventories: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          opened_by: string
+          purpose: string
+          reference_date: string
+          school_id: string
+          space_ids: string[]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          opened_by: string
+          purpose: string
+          reference_date: string
+          school_id: string
+          space_ids?: string[]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          opened_by?: string
+          purpose?: string
+          reference_date?: string
+          school_id?: string
+          space_ids?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_inventories_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_asset_inventory_events: {
+        Row: {
+          action_kind: string | null
+          actor_person: string
+          asset_id: string | null
+          created_at: string
+          engagement_id: string | null
+          evidence_ref: string | null
+          found_description: string | null
+          found_space: string | null
+          id: string
+          idempotency_key: string
+          inventory_id: string
+          kind: string
+          note: string | null
+          observed_condition: string | null
+          result: string | null
+          seq: number
+        }
+        Insert: {
+          action_kind?: string | null
+          actor_person: string
+          asset_id?: string | null
+          created_at?: string
+          engagement_id?: string | null
+          evidence_ref?: string | null
+          found_description?: string | null
+          found_space?: string | null
+          id?: string
+          idempotency_key: string
+          inventory_id: string
+          kind: string
+          note?: string | null
+          observed_condition?: string | null
+          result?: string | null
+          seq: number
+        }
+        Update: {
+          action_kind?: string | null
+          actor_person?: string
+          asset_id?: string | null
+          created_at?: string
+          engagement_id?: string | null
+          evidence_ref?: string | null
+          found_description?: string | null
+          found_space?: string | null
+          id?: string
+          idempotency_key?: string
+          inventory_id?: string
+          kind?: string
+          note?: string | null
+          observed_condition?: string | null
+          result?: string | null
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_inventory_events_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_inventory_events_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_inventory_events_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_inventory_events_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_inventory_events_found_space_fkey"
+            columns: ["found_space"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_inventory_events_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "ops_asset_inventories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_asset_inventory_expected: {
+        Row: {
+          asset_id: string
+          asset_seq_at_snapshot: number
+          expected_space: string | null
+          inventory_id: string
+        }
+        Insert: {
+          asset_id: string
+          asset_seq_at_snapshot: number
+          expected_space?: string | null
+          inventory_id: string
+        }
+        Update: {
+          asset_id?: string
+          asset_seq_at_snapshot?: number
+          expected_space?: string | null
+          inventory_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_inventory_expected_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_inventory_expected_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "ops_asset_inventories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_asset_transfer_events: {
         Row: {
           actor_person: string
@@ -32835,6 +33012,16 @@ export type Database = {
         Returns: string
       }
       open_notification: { Args: { _delivery: string }; Returns: Json }
+      open_ops_asset_inventory: {
+        Args: {
+          _key: string
+          _purpose: string
+          _ref: string
+          _school: string
+          _spaces: string[]
+        }
+        Returns: string
+      }
       open_ops_maintenance_order: {
         Args: {
           _catalog: string
@@ -35105,6 +35292,24 @@ export type Database = {
           _source: string
           _space: string
           _tag: string
+        }
+        Returns: number
+      }
+      record_ops_asset_inventory_event: {
+        Args: {
+          _action: string
+          _asset: string
+          _condition: string
+          _engagement: string
+          _evidence: string
+          _expected_seq: number
+          _found_desc: string
+          _found_space: string
+          _inv: string
+          _key: string
+          _kind: string
+          _note: string
+          _result: string
         }
         Returns: number
       }

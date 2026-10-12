@@ -2927,6 +2927,13 @@
       "when": 1791796982300,
       "tag": "0417_ops10_revoke_helpers",
       "breakpoints": true
+    },
+    {
+      "idx": 418,
+      "version": "7",
+      "when": 1791797118183,
+      "tag": "0418_ops11_asset_inventories",
+      "breakpoints": true
     }
   ]
 }
