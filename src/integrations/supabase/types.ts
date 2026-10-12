@@ -14818,6 +14818,153 @@ export type Database = {
           },
         ]
       }
+      enr_seat_events: {
+        Row: {
+          application_id: string
+          created_at: string
+          expires_at: string | null
+          hold_id: string
+          id: string
+          idempotency_key: string
+          kind: string
+          person_id: string
+          pool_id: string
+          proposal_id: string | null
+          reason: string | null
+          seq: number
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          expires_at?: string | null
+          hold_id: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          person_id: string
+          pool_id: string
+          proposal_id?: string | null
+          reason?: string | null
+          seq: number
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          expires_at?: string | null
+          hold_id?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          person_id?: string
+          pool_id?: string
+          proposal_id?: string | null
+          reason?: string | null
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_seat_events_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_seat_events_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "enr_seat_pools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_seat_events_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "enr_distribution_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_seat_pool_versions: {
+        Row: {
+          act_ref: string
+          authorized: number
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          pool_id: string
+          reason: string
+          version: number
+        }
+        Insert: {
+          act_ref: string
+          authorized: number
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          pool_id: string
+          reason: string
+          version: number
+        }
+        Update: {
+          act_ref?: string
+          authorized?: number
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          pool_id?: string
+          reason?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_seat_pool_versions_act_ref_fkey"
+            columns: ["act_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_seat_pool_versions_pool_id_fkey"
+            columns: ["pool_id"]
+            isOneToOne: false
+            referencedRelation: "enr_seat_pools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_seat_pools: {
+        Row: {
+          campaign_id: string
+          cell_key: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          campaign_id: string
+          cell_key: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          campaign_id?: string
+          cell_key?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_seat_pools_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_signal_resolutions: {
         Row: {
           application_id: string
@@ -37399,6 +37546,24 @@ export type Database = {
         }[]
       }
       enr_rules_valid: { Args: { _r: Json }; Returns: boolean }
+      enr_seat_close: {
+        Args: { _hold: string; _key: string; _kind: string; _reason: string }
+        Returns: number
+      }
+      enr_seat_occupancy: {
+        Args: { _at: string; _pool: string }
+        Returns: number
+      }
+      enr_seat_reserve: {
+        Args: {
+          _application: string
+          _key: string
+          _minutes: number
+          _pool: string
+          _proposal: string
+        }
+        Returns: string
+      }
       enr_student_candidates: {
         Args: { _prelim: string }
         Returns: {
@@ -42015,6 +42180,18 @@ export type Database = {
           _protocol: string
         }
         Returns: string
+      }
+      record_enr_seat_capacity: {
+        Args: {
+          _act: string
+          _authorized: number
+          _campaign: string
+          _cell: string
+          _expected_version: number
+          _key: string
+          _reason: string
+        }
+        Returns: number
       }
       record_enr_signal_resolution: {
         Args: {
