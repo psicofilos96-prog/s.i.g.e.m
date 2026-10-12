@@ -27777,6 +27777,30 @@ export type Database = {
         }
         Relationships: []
       }
+      payroll_import_switch_events: {
+        Row: {
+          decided_by: string
+          enabled: boolean
+          id: string
+          reason: string
+          recorded_at: string
+        }
+        Insert: {
+          decided_by: string
+          enabled: boolean
+          id?: string
+          reason: string
+          recorded_at?: string
+        }
+        Update: {
+          decided_by?: string
+          enabled?: boolean
+          id?: string
+          reason?: string
+          recorded_at?: string
+        }
+        Relationships: []
+      }
       payroll_registration_person_links: {
         Row: {
           action: string
@@ -38223,6 +38247,7 @@ export type Database = {
       payroll_staff_registration_matches: {
         Row: {
           payroll_registration_id: string | null
+          registration_format: string | null
           registration_found: boolean | null
           registration_norm: string | null
           source_kind: string | null
@@ -42212,6 +42237,7 @@ export type Database = {
         Args: { _school: string }
         Returns: Record<string, unknown>
       }
+      functional_registration_format: { Args: { _r: string }; Returns: string }
       general_admin_session: {
         Args: never
         Returns: {
@@ -44812,6 +44838,23 @@ export type Database = {
       own_engagement_network_now: { Args: never; Returns: boolean }
       own_engagement_schools_now: { Args: never; Returns: string[] }
       password_change_required: { Args: never; Returns: boolean }
+      payroll_import_enabled: { Args: never; Returns: boolean }
+      payroll_registrations_overview: {
+        Args: { _reference_period: string }
+        Returns: {
+          admission_year: number
+          cargo_code: string
+          cargo_label: string
+          monthly_hours: number
+          reference_period: string
+          registration_norm: string
+          weekly_workload_text: string
+        }[]
+      }
+      payroll_rows_fingerprint: {
+        Args: { _period: string; _rows: Json; _sheet: string }
+        Returns: string
+      }
       perf_grant: {
         Args: { _capability: string; _school: string }
         Returns: string
@@ -51339,6 +51382,10 @@ export type Database = {
       technical_import_educacenso_2026_students_enrollments: {
         Args: { _operation_kind: string; _payload: Json; _source_hash: string }
         Returns: string
+      }
+      technical_import_payroll_functional_registrations: {
+        Args: { _payload: Json; _source_hash: string }
+        Returns: Json
       }
       temporal_field_unknown: {
         Args: { _field: string; _id: string; _table: string }

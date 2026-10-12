@@ -673,3 +673,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] L36 parâmetros — AGUARDANDO DECISÃO HUMANA (consolidação feita, nenhum valor definido)
 - [x] L37 saneamento: índice, matriz, testes reexecutados, mapa de infraestrutura
 - [ ] L38 vínculos da folha — PARCIAL (2.037 vínculos registrados; ligação a pessoa aguarda decisão humana)
+- [ ] L39 hardening da folha — TÉCNICO EXECUTADO (0509/0510, 12/12 + 7/7); positivo de vínculo/revogação BLOQUEADO por falta de titular humano

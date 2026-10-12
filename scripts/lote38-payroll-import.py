@@ -1,51 +1,36 @@
-"""L38 — carga técnica idempotente da folha de matrículas (vínculos funcionais).
-Uso: SIGEM_L38_IMPORT=1 python3 scripts/lote38-payroll-import.py <arquivo.xlsx>
-Só grava em payroll_functional_registrations (append-only). Nunca cria pessoa, vínculo de pessoa, lotação ou permissão.
-Nunca imprime nome, data ou matrícula: só contagens.
+"""L38/L39 — PREPARADOR do payload da folha. NÃO grava no banco e não usa credencial.
+Desde L39 a única via de escrita é public.technical_import_payroll_functional_registrations(hash, payload),
+sem EXECUTE para anon/authenticated/service_role, protegida por switch no banco (payroll_import_switch_events)
+e pelo ledger technical_execution_operations. A chamada é feita pela camada técnica privilegiada, nunca por PostgREST.
+Uso: python3 scripts/lote38-payroll-import.py <arquivo.xlsx> <saida-privada.json>
+Saída: payload em arquivo fora do repositório (ex.: /tmp). No terminal só contagens — nunca nome, data ou matrícula.
 """
-import hashlib, json, os, re, sys, urllib.request
+import hashlib, json, os, sys
 from datetime import datetime
 import pandas as pd
 
-CANONICAL = "crfqhyqkujhhlbiyhdbc"
-url, key = os.environ.get("SUPABASE_URL", ""), os.environ.get("SUPABASE_SERVICE_ROLE_KEY", "")
-if os.environ.get("SIGEM_L38_IMPORT") != "1": sys.exit("recusado: SIGEM_L38_IMPORT≠1")
-if f"{CANONICAL}.supabase.co" not in url or not key: sys.exit("recusado: destino não canônico ou sem credencial técnica")
-path = sys.argv[1]
-raw = open(path, "rb").read()
-sha = hashlib.sha256(raw).hexdigest()
-df = pd.read_excel(path, sheet_name="AGOSTO", dtype=str)
-need = ["Matricula", "Nome", "Admissao", "Horas mensais", "Carga horária", "CodCargo", "Cargo", "Nascimento"]
-if list(df.columns[: len(need)]) != need: sys.exit("recusado: leiaute diferente do esperado")
+LAYOUT = ["Matricula", "Nome", "Admissao", "Horas mensais", "Carga horária", "CodCargo", "Cargo", "Nascimento"]
+if len(sys.argv) != 3: sys.exit("uso: <arquivo.xlsx> <saida.json>")
+src, out = sys.argv[1], os.path.abspath(sys.argv[2])
+if out.startswith(os.path.abspath(".")): sys.exit("recusado: payload com dado pessoal não pode ficar dentro do repositório")
+raw = open(src, "rb").read(); sha = hashlib.sha256(raw).hexdigest()
+df = pd.read_excel(src, sheet_name="AGOSTO", dtype=str)
+if list(df.columns[: len(LAYOUT)]) != LAYOUT: sys.exit("recusado: leiaute diferente do esperado")
 
 def d(v):
     try: return datetime.strptime(str(v).strip(), "%d/%m/%Y").date().isoformat()
     except Exception: return None
-def i(v):
-    try: return int(str(v).strip())
-    except Exception: return None
+def s(v): return str(v).strip() if pd.notna(v) and str(v).strip() else None
 
-rows, rejected = [], []
+rows = []
 for n, r in enumerate(df.itertuples(index=False), start=2):  # linha 1 = cabeçalho
-    reg = str(r[0] or "").strip(); norm = re.sub(r"\D", "", reg); name = str(r[1] or "").strip()
-    if not norm or not name: rejected.append((n, "sem-matricula-ou-nome")); continue
-    rows.append({"source_file": os.path.basename(path), "source_sha256": sha, "sheet": "AGOSTO", "row_no": n,
-                 "reference_period": "2026-08", "registration_raw": reg, "registration_norm": norm, "full_name": name,
-                 "birth_date": d(r[7]), "admission_date": d(r[2]), "monthly_hours": i(r[3]),
-                 "weekly_workload_text": (str(r[4]).strip() if pd.notna(r[4]) else None),
-                 "cargo_code": (str(r[5]).strip() if pd.notna(r[5]) else None), "cargo_label": (str(r[6]).strip() if pd.notna(r[6]) else None)})
-dups = len(rows) - len({x["registration_norm"] for x in rows})
-if dups: sys.exit(f"recusado: {dups} matrícula(s) repetida(s) após normalização")
-
-inserted = 0
-for k in range(0, len(rows), 500):
-    req = urllib.request.Request(f"{url}/rest/v1/payroll_functional_registrations?on_conflict=source_sha256,sheet,row_no",
-        data=json.dumps(rows[k:k + 500]).encode(), method="POST",
-        headers={"apikey": key, "Authorization": f"Bearer {key}", "Content-Type": "application/json",
-                 "Prefer": "resolution=ignore-duplicates,return=representation"})
-    with urllib.request.urlopen(req) as resp: inserted += len(json.loads(resp.read()))
-print(json.dumps({"sha256": sha, "linhas": len(df), "validas": len(rows), "rejeitadas": len(rejected),
-                  "motivos": sorted({m for _, m in rejected}), "gravadas_agora": inserted,
-                  "ja_existentes": len(rows) - inserted,
-                  "sem_nascimento": sum(1 for x in rows if not x["birth_date"]),
-                  "sem_admissao": sum(1 for x in rows if not x["admission_date"])}))
+    h = s(r[3])
+    rows.append({"row_no": n, "registration_raw": s(r[0]) or "", "full_name": s(r[1]) or "",
+                 "birth_date": d(r[7]), "admission_date": d(r[2]),
+                 "monthly_hours": int(h) if h and h.isdigit() else None,
+                 "weekly_workload_text": s(r[4]), "cargo_code": s(r[5]), "cargo_label": s(r[6])})
+payload = {"manifest": {"source_hash": sha, "source_ref": os.path.basename(src), "sheet": "AGOSTO",
+                        "reference_period": "2026-08", "row_count": len(rows), "layout": LAYOUT}, "rows": rows}
+with open(out, "w", encoding="utf-8") as f: json.dump(payload, f, ensure_ascii=False)
+os.chmod(out, 0o600)
+print(json.dumps({"sha256": sha, "linhas": len(rows), "payload": "gravado em arquivo privado (0600)"}))

@@ -3564,6 +3564,20 @@
       "when": 1791842079088,
       "tag": "0508_l38_payroll_functional_registrations",
       "breakpoints": true
+    },
+    {
+      "idx": 509,
+      "version": "7",
+      "when": 1791842817415,
+      "tag": "0509_l39_payroll_import_hardening",
+      "breakpoints": true
+    },
+    {
+      "idx": 510,
+      "version": "7",
+      "when": 1791842882399,
+      "tag": "0510_l39_switch_revoke_sandbox",
+      "breakpoints": true
     }
   ]
 }
