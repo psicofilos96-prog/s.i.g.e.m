@@ -10315,6 +10315,38 @@ export type Database = {
           },
         ]
       }
+      dev_history_access_log: {
+        Row: {
+          created_at: string
+          id: string
+          purpose: string
+          reader_person: string
+          subject_person: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          purpose: string
+          reader_person: string
+          subject_person: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          purpose?: string
+          reader_person?: string
+          subject_person?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_history_access_log_subject_person_fkey"
+            columns: ["subject_person"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_learning_results: {
         Row: {
           created_at: string
@@ -34646,11 +34678,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      dev_formation_record: {
+        Args: { _person: string; _purpose: string }
+        Returns: Json
+      }
       dev_is_active_trainer: { Args: { _class: string }; Returns: boolean }
       dev_is_confirmed_participant: {
         Args: { _class: string }
         Returns: boolean
       }
+      dev_my_formation_record: { Args: never; Returns: Json }
       dev_person_formation_history: {
         Args: { _person: string }
         Returns: {
