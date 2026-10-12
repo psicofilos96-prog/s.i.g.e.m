@@ -47,14 +47,14 @@ export function buildPreparation(c: AccessCtx, cfg: CollegialBodyConfiguration |
   const roster = (s.classRoster as { value: { studentId: string; studentName: string }[] }).value;
   const limitations: string[] = [];
   for (const [k, v] of Object.entries(s)) if (v.status !== "lido") limitations.push(`${k}: ${v.reason}`);
-  const prov = (kind: string, id: string, version?: number) => ({ kind, id, version });
+  const prov = (kind: string, id: string, version?: number) => (version === undefined ? { kind, id } : { kind, id, version });
   const dossiers = roster.map((st) => {
     const facts: DossierFactEntry[] = [];
     const sources: { kind: string; id: string; version?: number }[] = [];
     if (s.attendance.status === "lido") {
       const a = s.attendance.value.find((x) => x.studentId === st.studentId);
       facts.push({ factId: "frequencia", scopeKey: st.studentId, label: "Frequência", value: a?.rate ?? null, unit: "%",
-        unavailableReason: a?.rate == null ? "Sem chamada que componha o denominador." : undefined, provenance: { source: a?.sourceId ?? "frequencia" } as never });
+        ...(a?.rate == null ? { unavailableReason: "Sem chamada que componha o denominador." } : {}), provenance: { source: a?.sourceId ?? "frequencia" } as never });
       if (a) sources.push(prov("frequencia", a.sourceId, a.version));
     } else facts.push({ factId: "frequencia", scopeKey: st.studentId, label: "Frequência", value: null, unavailableReason: s.attendance.reason, provenance: { source: "frequencia" } as never });
     if (s.results.status === "lido") for (const r of s.results.value.filter((x) => x.studentId === st.studentId)) {
@@ -74,8 +74,8 @@ export function proposeAgenda(c: AccessCtx, cfg: CollegialBodyConfiguration | nu
   const r = [councilProvided(cfg, c.schoolId, c.classId), (() => { const a = access(c, "registrar"); return a.ok ? null : a.reason; })()].filter(Boolean) as string[];
   if (items.some((i) => /(aprova|reprova|reten[çc]|promo[çc]|homolog)/i.test(i.title))) r.push("Pauta proposta pela OP não antecipa deliberação nem situação acadêmica.");
   if (r.length) return { ok: false, reasons: r };
-  return { ok: true, agenda: items.map((i, n) => ({ id: i.id, order: n + 1, title: i.title, subject: { kind: i.studentId ? "estudante" : "turma", studentId: i.studentId },
-    origin: { kind: "pauta-institucional", note: "Proposta da Orientação Pedagógica" }, dossier: i.dossier })) };
+  return { ok: true, agenda: items.map((i, n) => ({ id: i.id, order: n + 1, title: i.title, subject: i.studentId ? { kind: "estudante", studentId: i.studentId } : { kind: "turma" },
+    origin: { kind: "pauta-institucional", note: "Proposta da Orientação Pedagógica" as string }, ...(i.dossier ? { dossier: i.dossier } : {}) })) };
 }
 
 /** Análise pedagógica = manifestação na ata em elaboração; nunca deliberação, voto ou outcome. */
