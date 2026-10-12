@@ -14383,6 +14383,168 @@ export type Database = {
         }
         Relationships: []
       }
+      enr_classification_criteria: {
+        Row: {
+          author_person: string
+          campaign_id: string
+          campaign_version: number
+          created_at: string
+          edital_act_version_id: string
+          id: string
+          idempotency_key: string
+          justification: string
+          rules: Json
+          tiebreaks: Json
+          version: number
+        }
+        Insert: {
+          author_person: string
+          campaign_id: string
+          campaign_version: number
+          created_at?: string
+          edital_act_version_id: string
+          id?: string
+          idempotency_key: string
+          justification: string
+          rules: Json
+          tiebreaks: Json
+          version: number
+        }
+        Update: {
+          author_person?: string
+          campaign_id?: string
+          campaign_version?: number
+          created_at?: string
+          edital_act_version_id?: string
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          rules?: Json
+          tiebreaks?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_classification_criteria_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_classification_criteria_edital_act_version_id_fkey"
+            columns: ["edital_act_version_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_classification_criteria_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          criteria_id: string
+          id: string
+          reason: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          criteria_id: string
+          id?: string
+          reason: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          criteria_id?: string
+          id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_classification_criteria_approvals_criteria_id_fkey"
+            columns: ["criteria_id"]
+            isOneToOne: true
+            referencedRelation: "enr_classification_criteria"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_classification_runs: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          criteria_id: string
+          engine_version: string
+          id: string
+          idempotency_key: string
+          input_hash: string
+          input_snapshot: Json
+          mode: string
+          reprocess_matches: boolean | null
+          reprocess_of: string | null
+          result: Json
+          result_hash: string
+          run_by_person: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          criteria_id: string
+          engine_version: string
+          id?: string
+          idempotency_key: string
+          input_hash: string
+          input_snapshot: Json
+          mode: string
+          reprocess_matches?: boolean | null
+          reprocess_of?: string | null
+          result: Json
+          result_hash: string
+          run_by_person: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          criteria_id?: string
+          engine_version?: string
+          id?: string
+          idempotency_key?: string
+          input_hash?: string
+          input_snapshot?: Json
+          mode?: string
+          reprocess_matches?: boolean | null
+          reprocess_of?: string | null
+          result?: Json
+          result_hash?: string
+          run_by_person?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_classification_runs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_classification_runs_criteria_id_fkey"
+            columns: ["criteria_id"]
+            isOneToOne: false
+            referencedRelation: "enr_classification_criteria"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_classification_runs_reprocess_of_fkey"
+            columns: ["reprocess_of"]
+            isOneToOne: false
+            referencedRelation: "enr_classification_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_document_reviews: {
         Row: {
           created_at: string
@@ -34420,6 +34582,10 @@ export type Database = {
         Args: { _reason: string; _version: string }
         Returns: undefined
       }
+      approve_enr_classification_criteria: {
+        Args: { _criteria: string; _reason: string }
+        Returns: string
+      }
       approve_enr_preference_policy: {
         Args: { _policy: string; _reason: string }
         Returns: string
@@ -37031,6 +37197,7 @@ export type Database = {
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
       enr_can_see_application: { Args: { _app: string }; Returns: boolean }
+      enr_classifier: { Args: never; Returns: boolean }
       enr_document_slot_open: { Args: { _name: string }; Returns: boolean }
       enr_norm_name: { Args: { _t: string }; Returns: string }
       enr_preference_policy_current: {
@@ -37133,6 +37300,7 @@ export type Database = {
           status: string
         }[]
       }
+      enr_rules_valid: { Args: { _r: Json }; Returns: boolean }
       enr_student_candidates: {
         Args: { _prelim: string }
         Returns: {
@@ -41675,6 +41843,35 @@ export type Database = {
             }
             Returns: number
           }
+      record_enr_classification_criteria: {
+        Args: {
+          _campaign: string
+          _campaign_version: number
+          _expected_version: number
+          _justification: string
+          _key: string
+          _rules: Json
+          _tiebreaks: Json
+        }
+        Returns: string
+      }
+      record_enr_classification_run: {
+        Args: {
+          _criteria: string
+          _engine: string
+          _key: string
+          _mode: string
+          _reprocess_of: string
+          _result_text: string
+          _snapshot_text: string
+        }
+        Returns: {
+          input_hash: string
+          reprocess_matches: boolean
+          result_hash: string
+          run_id: string
+        }[]
+      }
       record_enr_document_review: {
         Args: {
           _doc: string
