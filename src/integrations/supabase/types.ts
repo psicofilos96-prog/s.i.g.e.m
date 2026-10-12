@@ -14076,6 +14076,39 @@ export type Database = {
           },
         ]
       }
+      enr_application_protocols: {
+        Row: {
+          application_id: string
+          created_at: string
+          registration_id: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          registration_id: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          registration_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_application_protocols_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: true
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_application_protocols_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: true
+            referencedRelation: "protocol_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_applications: {
         Row: {
           application_code: string
@@ -36883,12 +36916,30 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      enr_protocol_application: {
+        Args: { _application: string }
+        Returns: {
+          protocol_number: string
+          reused: boolean
+        }[]
+      }
       enr_public_application_documents: {
         Args: { _check: string; _code: string }
         Returns: {
           doc_type: string
           situation: string
           version: number
+        }[]
+      }
+      enr_public_application_receipt: {
+        Args: { _check: string; _code: string }
+        Returns: {
+          campaign_kind: string
+          campaign_year: number
+          protocol_number: string
+          situation: string
+          status: string
+          submitted_on: string
         }[]
       }
       enr_public_application_status: {
