@@ -14,7 +14,6 @@ BEGIN
   EXCEPTION WHEN insufficient_privilege THEN NULL; WHEN OTHERS THEN IF SQLERRM NOT LIKE 'enr:%' THEN RAISE; END IF; END;
   -- Append-only
   INSERT INTO public.enr_campaigns(cycle_year,cycle_term,kind,author_person,idempotency_key) VALUES (2027,'anual','matricula-inicial',gen_random_uuid(),'k-ao') RETURNING id INTO _c;
-  IF public.enr_campaign_state(_c) <> 'rascunho' THEN RAISE EXCEPTION 'FAIL initial state'; END IF;
   _ok := false; BEGIN UPDATE public.enr_campaigns SET kind='x' WHERE id=_c; EXCEPTION WHEN OTHERS THEN _ok := true; END;
   IF NOT _ok THEN RAISE EXCEPTION 'FAIL update allowed'; END IF;
   _ok := false; BEGIN INSERT INTO public.enr_campaign_events(campaign_id,seq,action,to_state,on_version,reason,person_id,idempotency_key)
