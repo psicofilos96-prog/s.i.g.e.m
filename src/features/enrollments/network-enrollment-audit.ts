@@ -39,7 +39,7 @@ export const NET_SECTIONS: readonly NetAuditRow[] = [
   r(3, "Princípios: fonte única", "existente", "", Object.values(CANONICAL_ENTITIES), [`${ST}/institutional-roster.ts`, `${ST}/institutional-chain.test.ts`]),
   r(4, "Conceitos fundamentais", "existente", "", ["school_enrollments", "cycle_participations", "class_enrollment_episodes"], [`${M}/0001_b3_cycle_enrollment_participation_allocation.sql`]),
   r(5, "Perfis e competências", "parcial", "Capacidades da Secretaria escolar existem; perfis de rede (central de matrículas) sem política homologada.", [], [`${SS}/secretariat-competences.test.ts`]),
-  r(6, "Organização da rede (escolas)", "existente", "", ["institutional_schools"], [`${R}/escolas.tsx`]),
+  r(6, "Organização da rede (escolas)", "existente", "", ["institutional_schools"], [`${R}/administracao.tsx`]),
   r(7, "Território e zoneamento", "parcial", "Catálogo territorial existe; zoneamento escola×território sem regra homologada.", ["territorial_districts"], ["src/features/territory/territory-catalog.test.ts"]),
   r(8, "Infraestrutura e capacidade física", "parcial", "Infraestrutura registrada; ligação sala→capacidade de turma não derivada.", [], ["src/features/schools/school-infrastructure.test.ts"]),
   r(9, "Oferta educacional por escola", "existente", "", ["class_offering_versions"], ["src/features/offer-organization/offer-model.test.ts"]),
