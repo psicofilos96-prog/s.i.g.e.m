@@ -145,7 +145,7 @@ function ProtocolLookup() {
         <Button type="submit" disabled={busy} className="min-h-11 sm:w-fit">{busy ? "Consultando…" : "Consultar"}</Button>
       </form>
       <div role="status" aria-live="polite" className="mt-3">
-        {err && <p className="rounded-md border border-border bg-muted p-3 text-sm text-foreground">{err}</p>}
+        {err && <p role="alert" className="rounded-md border border-border bg-muted p-3 text-sm text-foreground">{err}</p>}
         {res && (
           <div className="rounded-md border border-border bg-muted p-3 text-sm text-foreground">
             <p className="font-medium">{PROTOCOL_STATUS_LABEL[res.status]}</p>

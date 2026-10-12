@@ -27,7 +27,7 @@ export function validCpf(raw: string): boolean {
   return dv(9) === Number(d[9]) && dv(10) === Number(d[10]);
 }
 export function ageOn(birth: string, on: string): number {
-  const [by, bm, bd] = birth.split("-").map(Number); const [y, m, d] = on.split("-").map(Number);
+  const [by = 0, bm = 0, bd = 0] = birth.split("-").map(Number); const [y = 0, m = 0, d = 0] = on.split("-").map(Number);
   return y - by - (m < bm || (m === bm && d < bd) ? 1 : 0);
 }
 export function normalizeContact(channel: "email" | "telefone", v: string): string | null {
@@ -36,7 +36,7 @@ export function normalizeContact(channel: "email" | "telefone", v: string): stri
   return n.length === 10 || n.length === 11 ? n : null;
 }
 export function maskContact(channel: "email" | "telefone", n: string): string {
-  if (channel === "email") { const [u, dom] = n.split("@"); return `${u.slice(0, 1)}***@${dom}`; }
+  if (channel === "email") { const [u = "", dom = ""] = n.split("@"); return `${u.slice(0, 1)}***@${dom}`; }
   return `(${n.slice(0, 2)}) ****-${n.slice(-4)}`;
 }
 const KINSHIP_RE = /^[a-zà-ú ]{3,40}$/i;
