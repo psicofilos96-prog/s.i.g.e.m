@@ -9133,6 +9133,94 @@ export type Database = {
           },
         ]
       }
+      dev_class_meeting_versions: {
+        Row: {
+          author_person: string
+          created_at: string
+          ends_at: string
+          id: string
+          idempotency_key: string
+          location: string
+          meeting_id: string
+          meeting_on: string
+          reason: string | null
+          starts_at: string
+          status: string
+          trainer_engagements: string[]
+          version: number
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          ends_at: string
+          id?: string
+          idempotency_key: string
+          location: string
+          meeting_id: string
+          meeting_on: string
+          reason?: string | null
+          starts_at: string
+          status: string
+          trainer_engagements: string[]
+          version: number
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          ends_at?: string
+          id?: string
+          idempotency_key?: string
+          location?: string
+          meeting_id?: string
+          meeting_on?: string
+          reason?: string | null
+          starts_at?: string
+          status?: string
+          trainer_engagements?: string[]
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_meeting_versions_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "dev_class_meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_class_meetings: {
+        Row: {
+          author_person: string
+          class_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+        }
+        Insert: {
+          author_person: string
+          class_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+        }
+        Update: {
+          author_person?: string
+          class_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_meetings_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_class_status_events: {
         Row: {
           author_person: string
@@ -9479,6 +9567,32 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_meeting_notices: {
+        Row: {
+          created_at: string
+          event_kind: string
+          meeting_version_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_kind: string
+          meeting_version_id: string
+        }
+        Update: {
+          created_at?: string
+          event_kind?: string
+          meeting_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_meeting_notices_meeting_version_id_fkey"
+            columns: ["meeting_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_class_meeting_versions"
             referencedColumns: ["id"]
           },
         ]
@@ -37835,6 +37949,22 @@ export type Database = {
           _seats: number
           _starts: string
           _trainer_engagements: string[]
+        }
+        Returns: string
+      }
+      record_dev_meeting_version: {
+        Args: {
+          _class: string
+          _ends: string
+          _expected_version: number
+          _key: string
+          _location: string
+          _meeting: string
+          _on: string
+          _reason: string
+          _starts: string
+          _status: string
+          _trainers: string[]
         }
         Returns: string
       }
