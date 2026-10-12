@@ -20578,6 +20578,146 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_vehicle_events: {
+        Row: {
+          accessible_seats: number | null
+          actor_person: string
+          available: boolean | null
+          created_at: string
+          doc_key: string | null
+          doc_ref: string | null
+          id: string
+          idempotency_key: string
+          inspection_result: string | null
+          kind: string
+          note: string | null
+          on_date: string
+          seats: number | null
+          seq: number
+          service_order_id: string | null
+          valid_until: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          accessible_seats?: number | null
+          actor_person: string
+          available?: boolean | null
+          created_at?: string
+          doc_key?: string | null
+          doc_ref?: string | null
+          id?: string
+          idempotency_key: string
+          inspection_result?: string | null
+          kind: string
+          note?: string | null
+          on_date: string
+          seats?: number | null
+          seq: number
+          service_order_id?: string | null
+          valid_until?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          accessible_seats?: number | null
+          actor_person?: string
+          available?: boolean | null
+          created_at?: string
+          doc_key?: string | null
+          doc_ref?: string | null
+          id?: string
+          idempotency_key?: string
+          inspection_result?: string | null
+          kind?: string
+          note?: string | null
+          on_date?: string
+          seats?: number | null
+          seq?: number
+          service_order_id?: string | null
+          valid_until?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_vehicle_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_vehicle_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_vehicle_events_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "ops_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_vehicles: {
+        Row: {
+          asset_id: string | null
+          contract_doc_ref: string | null
+          contractor_label: string | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          ownership: string
+          plate: string
+          registered_by: string
+        }
+        Insert: {
+          asset_id?: string | null
+          contract_doc_ref?: string | null
+          contractor_label?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          ownership: string
+          plate: string
+          registered_by: string
+        }
+        Update: {
+          asset_id?: string | null
+          contract_doc_ref?: string | null
+          contractor_label?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          ownership?: string
+          plate?: string
+          registered_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_vehicles_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: true
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_vehicles_contract_doc_ref_fkey"
+            columns: ["contract_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_vehicles_contract_doc_ref_fkey"
+            columns: ["contract_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_warehouses: {
         Row: {
           author_person: string
@@ -34283,6 +34423,7 @@ export type Database = {
       }
       ops_checklist_usable: { Args: { _cv: string }; Returns: boolean }
       ops_disposal_state: { Args: { _d: string }; Returns: string }
+      ops_doc_is_attachment: { Args: { _ref: string }; Returns: boolean }
       ops_episode_active_on: {
         Args: { _ep: string; _on: string; _school: string; _student: string }
         Returns: boolean
@@ -36751,6 +36892,25 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_vehicle_event: {
+        Args: {
+          _accessible: number
+          _available: boolean
+          _doc: string
+          _doc_key: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _on: string
+          _result: string
+          _seats: number
+          _service_order: string
+          _valid_until: string
+          _vehicle: string
+        }
+        Returns: number
+      }
       record_ops_work_event: {
         Args: {
           _doc: string
@@ -37854,6 +38014,17 @@ export type Database = {
           _expected_version: number
           _key: string
           _reason: string
+        }
+        Returns: string
+      }
+      register_ops_vehicle: {
+        Args: {
+          _asset: string
+          _contract_doc: string
+          _contractor: string
+          _key: string
+          _ownership: string
+          _plate: string
         }
         Returns: string
       }
