@@ -93,3 +93,8 @@ Módulos: C = 1 (sincronização), P = 5, N/X = 1 (PERF.LOADING.1). Nenhuma homo
 - Entregue: turno/oferta por escola (só da política aprovada; `enr_submit_application_v2`, migration 0498, escolhas append-only), página pública `/publico/acompanhar-inscricao` (comprovante, situação, lista de espera, próximos passos, envio de documentos com SHA-256 no bucket privado, confirmação de interesse na vaga), resposta única "indisponível" para código inexistente ou errado.
 - Verificado: testes focais (82 arquivos, 430 testes), tipos, consulta com código inexistente no navegador.
 - Não verificado: fluxo com pedido real (não há campanha publicada com política de preferência aprovada); nomes oficiais de turno/oferta (sem catálogo homologado, exibe o identificador legível).
+
+### Atualização — Lote corretivo 08 (UI operacional de Tecnologia)
+- Entregue: `/tecnologia/operacao` com 13 abas (chamados e fila, SLA, sessões e manutenção, problemas e mudanças, inventário e empréstimos, conectividade, serviços digitais, acessos, incidentes de segurança, backup, conhecimento, recursos pedagógicos e inovação, contratos e licenças), 50 ações pelos writers 0403/0477–0495, sem migration nova; console compartilhado com Matrículas.
+- Verificado: argumentos de cada ação = writer do banco (teste), sem colunas ocultas, página fechada sem login (0 leituras), tipos.
+- Não verificado: gravação com conta logada; capabilities de Tecnologia sem titular (P1-02).
