@@ -20209,6 +20209,201 @@ export type Database = {
           },
         ]
       }
+      ops_transport_decisions: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          criteria_answers: Json | null
+          decider_person: string
+          enrollment_episode_id: string | null
+          id: string
+          idempotency_key: string
+          justification: string
+          kind: string
+          request_id: string
+          rule_version_id: string | null
+          seq: number
+          shift_value_id: string | null
+          stop_logical_id: string | null
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          criteria_answers?: Json | null
+          decider_person: string
+          enrollment_episode_id?: string | null
+          id?: string
+          idempotency_key: string
+          justification: string
+          kind: string
+          request_id: string
+          rule_version_id?: string | null
+          seq: number
+          shift_value_id?: string | null
+          stop_logical_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          criteria_answers?: Json | null
+          decider_person?: string
+          enrollment_episode_id?: string | null
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          kind?: string
+          request_id?: string
+          rule_version_id?: string | null
+          seq?: number
+          shift_value_id?: string | null
+          stop_logical_id?: string | null
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_transport_decisions_enrollment_episode_id_fkey"
+            columns: ["enrollment_episode_id"]
+            isOneToOne: false
+            referencedRelation: "class_enrollment_episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_transport_decisions_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_transport_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_transport_decisions_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_transport_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_transport_requests: {
+        Row: {
+          created_at: string
+          enrollment_episode_id: string
+          id: string
+          idempotency_key: string
+          justification: string
+          requested_from: string
+          requester_person: string
+          school_id: string
+          stop_logical_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          enrollment_episode_id: string
+          id?: string
+          idempotency_key: string
+          justification: string
+          requested_from: string
+          requester_person: string
+          school_id: string
+          stop_logical_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          enrollment_episode_id?: string
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          requested_from?: string
+          requester_person?: string
+          school_id?: string
+          stop_logical_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_transport_requests_enrollment_episode_id_fkey"
+            columns: ["enrollment_episode_id"]
+            isOneToOne: false
+            referencedRelation: "class_enrollment_episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_transport_requests_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_transport_rule_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          decision_ref: string
+          rule_version_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          decision_ref: string
+          rule_version_id: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          decision_ref?: string
+          rule_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_transport_rule_approvals_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_transport_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_transport_rule_versions: {
+        Row: {
+          author_person: string
+          basis_ref: string
+          created_at: string
+          criteria: Json
+          id: string
+          reason: string | null
+          rule_key: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          basis_ref: string
+          created_at?: string
+          criteria: Json
+          id?: string
+          reason?: string | null
+          rule_key: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          basis_ref?: string
+          created_at?: string
+          criteria?: Json
+          id?: string
+          reason?: string | null
+          rule_key?: string
+          version?: number
+        }
+        Relationships: []
+      }
       ops_warehouses: {
         Row: {
           author_person: string
@@ -28790,6 +28985,10 @@ export type Database = {
         Args: { _decision_ref: string; _v: string }
         Returns: undefined
       }
+      approve_ops_transport_rule: {
+        Args: { _decision_ref: string; _rv: string }
+        Returns: undefined
+      }
       approve_permanence_barrier_type: {
         Args: { _decision: string; _type: string }
         Returns: string
@@ -30559,6 +30758,22 @@ export type Database = {
           _on: string
         }
         Returns: string
+      }
+      decide_ops_transport: {
+        Args: {
+          _answers: Json
+          _episode: string
+          _expected_seq: number
+          _from: string
+          _justification: string
+          _key: string
+          _kind: string
+          _req: string
+          _rule: string
+          _stop: string
+          _until: string
+        }
+        Returns: number
       }
       declare_cycle_participation: {
         Args: {
@@ -33879,6 +34094,10 @@ export type Database = {
       }
       ops_checklist_usable: { Args: { _cv: string }; Returns: boolean }
       ops_disposal_state: { Args: { _d: string }; Returns: string }
+      ops_episode_active_on: {
+        Args: { _ep: string; _on: string; _school: string; _student: string }
+        Returns: boolean
+      }
       ops_maintenance_next_ok: {
         Args: { _last: string; _last_result: string; _stage: string }
         Returns: boolean
@@ -33892,6 +34111,10 @@ export type Database = {
       ops_service_state: { Args: { _so: string }; Returns: string }
       ops_space_parent_level: { Args: { _level: string }; Returns: string }
       ops_space_type_usable: { Args: { _tv: string }; Returns: boolean }
+      ops_stop_active_on: {
+        Args: { _on: string; _school: string; _stop: string }
+        Returns: boolean
+      }
       ops_supply_balance: {
         Args: { _item: string; _lot: string; _wh: string }
         Returns: number
@@ -33914,6 +34137,14 @@ export type Database = {
           _wh: string
         }
         Returns: string
+      }
+      ops_transport_reevaluation_queue: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          decision_seq: number
+          reasons: string[]
+          request_id: string
+        }[]
       }
       ops_work_state: { Args: { _w: string }; Returns: string }
       own_engagement_network_now: { Args: never; Returns: boolean }
@@ -37412,6 +37643,16 @@ export type Database = {
         }
         Returns: string
       }
+      register_ops_transport_rule: {
+        Args: {
+          _basis: string
+          _criteria: Json
+          _expected_version: number
+          _key: string
+          _reason: string
+        }
+        Returns: string
+      }
       register_ops_warehouse: {
         Args: { _key: string; _name: string; _school: string; _space: string }
         Returns: string
@@ -37618,6 +37859,18 @@ export type Database = {
           _qty: number
           _reason: string
           _wh: string
+        }
+        Returns: string
+      }
+      request_ops_transport: {
+        Args: {
+          _episode: string
+          _from: string
+          _justification: string
+          _key: string
+          _school: string
+          _stop: string
+          _student: string
         }
         Returns: string
       }
