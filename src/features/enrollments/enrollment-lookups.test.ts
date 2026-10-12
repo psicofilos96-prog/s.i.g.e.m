@@ -7,10 +7,10 @@ describe("Lote 21 — busca por nome e retorno do writer", () => {
     expect(assertSafeLookups(ENROLLMENT_LOOKUPS)).toEqual([]);
   });
   it("termo com menos de 3 letras não busca (sem listagem nominal)", () => {
-    expect(lookupFilter(ENROLLMENT_LOOKUPS._application!, "ab")).toBeNull();
+    expect(lookupFilter(ENROLLMENT_LOOKUPS["_application"]!, "ab")).toBeNull();
   });
   it("busca por nome do estudante ou código e escapa curingas", () => {
-    expect(lookupFilter(ENROLLMENT_LOOKUPS._application!, "Ana%,(x")).toBe("application_code.ilike.*Ana x*,student_name.ilike.*Ana x*");
+    expect(lookupFilter(ENROLLMENT_LOOKUPS["_application"]!, "Ana%,(x")).toBe("application_code.ilike.*Ana x*,student_name.ilike.*Ana x*");
   });
   it("mostra o número de protocolo devolvido pelo banco", () => {
     expect(summarizeReturn({ protocol_number: "PROT-2026-000012", id: "u" })).toBe("protocol_number: PROT-2026-000012 · id: u");

@@ -100,7 +100,7 @@ function LookupPicker({ id, spec, value, onPick }: { id: string; spec: LookupSpe
   );
 }
 
-function ActionForm({ action, tables, ns, lookups }: { action: OperationAction; tables: readonly string[]; ns: string; lookups?: Readonly<Record<string, LookupSpec>> }) {
+function ActionForm({ action, tables, ns, lookups }: { action: OperationAction; tables: readonly string[]; ns: string; lookups?: Readonly<Record<string, LookupSpec>> | undefined }) {
   const qc = useQueryClient();
   const newKey = () => `${ns}:${crypto.randomUUID()}`;
   const [values, setValues] = useState<Record<string, string>>({});
@@ -171,7 +171,7 @@ function ActionForm({ action, tables, ns, lookups }: { action: OperationAction; 
   );
 }
 
-export interface OperationsConsoleProps { ns: string; eyebrow: string; title: string; description: string; stages: readonly OperationStage[]; lookups?: Readonly<Record<string, LookupSpec>> }
+export interface OperationsConsoleProps { ns: string; eyebrow: string; title: string; description: string; stages: readonly OperationStage[]; lookups?: Readonly<Record<string, LookupSpec>> | undefined }
 
 /** Console operacional declarativo: lê sob RLS de quem consulta e grava só pelos writers do banco. */
 export function OperationsConsole({ ns, eyebrow, title, description, stages, lookups }: OperationsConsoleProps) {
