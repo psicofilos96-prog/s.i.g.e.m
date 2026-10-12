@@ -20646,6 +20646,112 @@ export type Database = {
           },
         ]
       }
+      ops_transport_contracts: {
+        Row: {
+          contract_doc_ref: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          official_contract_ref: string
+          provider_label: string
+          registered_by: string
+          valid_from: string
+          valid_until: string
+        }
+        Insert: {
+          contract_doc_ref: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          official_contract_ref: string
+          provider_label: string
+          registered_by: string
+          valid_from: string
+          valid_until: string
+        }
+        Update: {
+          contract_doc_ref?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          official_contract_ref?: string
+          provider_label?: string
+          registered_by?: string
+          valid_from?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_transport_contracts_contract_doc_ref_fkey"
+            columns: ["contract_doc_ref"]
+            isOneToOne: true
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_transport_contracts_contract_doc_ref_fkey"
+            columns: ["contract_doc_ref"]
+            isOneToOne: true
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_transport_costs: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          idempotency_key: string
+          measurement_id: string
+          official_system_ref: string
+          receipt_doc_ref: string
+          recorded_by: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          measurement_id: string
+          official_system_ref: string
+          receipt_doc_ref: string
+          recorded_by: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          measurement_id?: string
+          official_system_ref?: string
+          receipt_doc_ref?: string
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_transport_costs_measurement_id_fkey"
+            columns: ["measurement_id"]
+            isOneToOne: false
+            referencedRelation: "ops_transport_measurements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_transport_costs_receipt_doc_ref_fkey"
+            columns: ["receipt_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_transport_costs_receipt_doc_ref_fkey"
+            columns: ["receipt_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_transport_decisions: {
         Row: {
           class_id: string | null
@@ -20721,6 +20827,102 @@ export type Database = {
             columns: ["rule_version_id"]
             isOneToOne: false
             referencedRelation: "ops_transport_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_transport_measurement_conferences: {
+        Row: {
+          conferred_by: string
+          created_at: string
+          measurement_id: string
+          note: string
+          result: string
+        }
+        Insert: {
+          conferred_by: string
+          created_at?: string
+          measurement_id: string
+          note: string
+          result: string
+        }
+        Update: {
+          conferred_by?: string
+          created_at?: string
+          measurement_id?: string
+          note?: string
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_transport_measurement_conferences_measurement_id_fkey"
+            columns: ["measurement_id"]
+            isOneToOne: true
+            referencedRelation: "ops_transport_measurements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_transport_measurements: {
+        Row: {
+          contract_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          km_realized: number
+          measured_by: string
+          measurement_doc_ref: string
+          period_end: string
+          period_start: string
+          trips_not_realized: number
+          trips_realized: number
+        }
+        Insert: {
+          contract_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          km_realized: number
+          measured_by: string
+          measurement_doc_ref: string
+          period_end: string
+          period_start: string
+          trips_not_realized: number
+          trips_realized: number
+        }
+        Update: {
+          contract_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          km_realized?: number
+          measured_by?: string
+          measurement_doc_ref?: string
+          period_end?: string
+          period_start?: string
+          trips_not_realized?: number
+          trips_realized?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_transport_measurements_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "ops_transport_contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_transport_measurements_measurement_doc_ref_fkey"
+            columns: ["measurement_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_transport_measurements_measurement_doc_ref_fkey"
+            columns: ["measurement_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -21136,6 +21338,48 @@ export type Database = {
           },
           {
             foreignKeyName: "ops_vehicle_events_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "ops_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_vehicle_use_validations: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          trip_id: string
+          validated_by: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          trip_id: string
+          validated_by: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          trip_id?: string
+          validated_by?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_vehicle_use_validations_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: true
+            referencedRelation: "ops_trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_vehicle_use_validations_vehicle_id_fkey"
             columns: ["vehicle_id"]
             isOneToOne: false
             referencedRelation: "ops_vehicles"
@@ -31137,6 +31381,10 @@ export type Database = {
         Args: { _digitization_id: string; _note: string; _result: string }
         Returns: undefined
       }
+      confer_ops_transport_measurement: {
+        Args: { _m: string; _note: string; _result: string }
+        Returns: undefined
+      }
       constitute_cycle_enrollment: {
         Args: {
           _academic_year: string
@@ -34976,6 +35224,10 @@ export type Database = {
         }[]
       }
       ops_trip_readable: { Args: { _trip: string }; Returns: boolean }
+      ops_vehicle_available_on: {
+        Args: { _on: string; _v: string }
+        Returns: boolean
+      }
       ops_work_state: { Args: { _w: string }; Returns: string }
       own_engagement_network_now: { Args: never; Returns: boolean }
       own_engagement_schools_now: { Args: never; Returns: string[] }
@@ -37420,6 +37672,26 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_transport_cost: {
+        Args: {
+          _cents: number
+          _key: string
+          _m: string
+          _official_ref: string
+          _receipt: string
+        }
+        Returns: string
+      }
+      record_ops_transport_measurement: {
+        Args: {
+          _contract: string
+          _doc: string
+          _end: string
+          _key: string
+          _start: string
+        }
+        Returns: string
+      }
       record_ops_trip_execution: {
         Args: {
           _end: string
@@ -38568,6 +38840,17 @@ export type Database = {
           _item: string
           _min: number
           _wh: string
+        }
+        Returns: string
+      }
+      register_ops_transport_contract: {
+        Args: {
+          _doc: string
+          _from: string
+          _key: string
+          _official_ref: string
+          _provider: string
+          _until: string
         }
         Returns: string
       }
@@ -40329,6 +40612,10 @@ export type Database = {
           _reason: string
           _to: string
         }
+        Returns: string
+      }
+      validate_ops_vehicle_use: {
+        Args: { _reason: string; _trip: string; _vehicle: string }
         Returns: string
       }
       verify_admin_act_signature: {
