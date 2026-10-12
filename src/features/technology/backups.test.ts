@@ -28,6 +28,6 @@ describe("L18 backup e restauração", () => {
     const sql = readFileSync(`drizzle/migrations/${f}`, "utf8");
     for (const s of ["autoaprovacao", "plano-nao-aprovado", "executor-nao-testa", "evidencia-nao-juntada", "servico-fora-do-catalogo"]) expect(sql).toContain(s);
     expect(sql).toMatch(/outcome <> 'sucesso' OR checksum IS NOT NULL/);
-    expect(sql.match(/FROM PUBLIC, anon/g)!.length).toBe(4);
+    expect(sql.match(/FROM PUBLIC, anon/g)!.length).toBe(5);
   });
 });
