@@ -40,7 +40,7 @@ export function rankedPreferences(p: PreferencePolicy, prefs: Preference[]): Arr
 
 export function move<T>(list: T[], from: number, to: number): T[] {
   if (from < 0 || from >= list.length || to < 0 || to >= list.length) return list;
-  const c = [...list]; const [x] = c.splice(from, 1) as [T]; c.splice(to, 0, x); return c;
+  const c = [...list]; const x = c.splice(from, 1)[0] as T; c.splice(to, 0, x); return c;
 }
 
 export const PROBLEM_TEXT: Record<PreferenceProblem, string> = {
