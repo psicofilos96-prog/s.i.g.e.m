@@ -3375,6 +3375,13 @@
       "when": 1791814222076,
       "tag": "0481_tech07_support_queue",
       "breakpoints": true
+    },
+    {
+      "idx": 482,
+      "version": "7",
+      "when": 1791814396060,
+      "tag": "0482_tech08_service_sessions",
+      "breakpoints": true
     }
   ]
 }
