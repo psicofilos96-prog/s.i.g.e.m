@@ -10882,6 +10882,180 @@ export type Database = {
           },
         ]
       }
+      dev_impact_indicator_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          indicator_version_id: string
+          reason: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          indicator_version_id: string
+          reason: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          indicator_version_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_impact_indicator_approvals_indicator_version_id_fkey"
+            columns: ["indicator_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_impact_indicator_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_impact_indicator_versions: {
+        Row: {
+          author_person: string
+          code: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          program_id: string
+          reason: string | null
+          source_description: string
+          title: string
+          unit: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          code: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          program_id: string
+          reason?: string | null
+          source_description: string
+          title: string
+          unit: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          code?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          program_id?: string
+          reason?: string | null
+          source_description?: string
+          title?: string
+          unit?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_impact_indicator_versions_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "dev_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_impact_observations: {
+        Row: {
+          author_person: string
+          created_at: string
+          group_size: number
+          id: string
+          idempotency_key: string
+          indicator_version_id: string
+          moment: string
+          observed_on: string
+          scope_school_id: string | null
+          source_ref: string
+          value: number
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          group_size: number
+          id?: string
+          idempotency_key: string
+          indicator_version_id: string
+          moment: string
+          observed_on: string
+          scope_school_id?: string | null
+          source_ref: string
+          value: number
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          group_size?: number
+          id?: string
+          idempotency_key?: string
+          indicator_version_id?: string
+          moment?: string
+          observed_on?: string
+          scope_school_id?: string | null
+          source_ref?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_impact_observations_indicator_version_id_fkey"
+            columns: ["indicator_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_impact_indicator_approvals"
+            referencedColumns: ["indicator_version_id"]
+          },
+          {
+            foreignKeyName: "dev_impact_observations_scope_school_id_fkey"
+            columns: ["scope_school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_impact_readings: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          indicator_version_id: string
+          interpretation: string
+          limitations: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          indicator_version_id: string
+          interpretation: string
+          limitations: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          indicator_version_id?: string
+          interpretation?: string
+          limitations?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_impact_readings_indicator_version_id_fkey"
+            columns: ["indicator_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_impact_indicator_approvals"
+            referencedColumns: ["indicator_version_id"]
+          },
+        ]
+      }
       dev_learning_results: {
         Row: {
           created_at: string
@@ -11754,6 +11928,121 @@ export type Database = {
             columns: ["submission_id"]
             isOneToOne: false
             referencedRelation: "dev_activity_submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_survey_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          reason: string
+          survey_version_id: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          reason: string
+          survey_version_id: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          reason?: string
+          survey_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_survey_approvals_survey_version_id_fkey"
+            columns: ["survey_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_survey_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_survey_responses: {
+        Row: {
+          answers: Json
+          created_at: string
+          enrollment_id: string
+          id: string
+          survey_version_id: string
+        }
+        Insert: {
+          answers: Json
+          created_at?: string
+          enrollment_id: string
+          id?: string
+          survey_version_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          enrollment_id?: string
+          id?: string
+          survey_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_survey_responses_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_survey_responses_survey_version_id_fkey"
+            columns: ["survey_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_survey_approvals"
+            referencedColumns: ["survey_version_id"]
+          },
+        ]
+      }
+      dev_survey_versions: {
+        Row: {
+          author_person: string
+          course_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          moment: string
+          questions: Json
+          reason: string | null
+          reassess_after_days: number | null
+          version: number
+        }
+        Insert: {
+          author_person: string
+          course_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          moment: string
+          questions: Json
+          reason?: string | null
+          reassess_after_days?: number | null
+          version: number
+        }
+        Update: {
+          author_person?: string
+          course_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          moment?: string
+          questions?: Json
+          reason?: string | null
+          reassess_after_days?: number | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_survey_versions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "dev_courses"
             referencedColumns: ["id"]
           },
         ]
@@ -33118,6 +33407,10 @@ export type Database = {
         Args: { _answers: Json; _key: string; _questionnaire: string }
         Returns: string
       }
+      answer_dev_survey: {
+        Args: { _answers: Json; _enrollment: string; _survey: string }
+        Returns: undefined
+      }
       applicable_class_designation_policy: {
         Args: { _on: string }
         Returns: {
@@ -33243,7 +33536,15 @@ export type Database = {
         Args: { _reason: string; _version: string }
         Returns: undefined
       }
+      approve_dev_impact_indicator: {
+        Args: { _reason: string; _version: string }
+        Returns: undefined
+      }
       approve_dev_rubric: {
+        Args: { _reason: string; _version: string }
+        Returns: undefined
+      }
+      approve_dev_survey: {
         Args: { _reason: string; _version: string }
         Returns: undefined
       }
@@ -35246,6 +35547,7 @@ export type Database = {
       }
       dev_plan_published: { Args: { _version: string }; Returns: boolean }
       dev_rubric_valid: { Args: { _c: Json }; Returns: boolean }
+      dev_survey_aggregate: { Args: { _survey: string }; Returns: Json }
       dev_track_approved: { Args: { _v: string }; Returns: boolean }
       dev_version_usable: {
         Args: { _subject: string; _version: string }
@@ -39982,6 +40284,41 @@ export type Database = {
         }
         Returns: string
       }
+      record_dev_impact_indicator: {
+        Args: {
+          _code: string
+          _expected_version: number
+          _key: string
+          _program: string
+          _reason: string
+          _source: string
+          _title: string
+          _unit: string
+        }
+        Returns: string
+      }
+      record_dev_impact_observation: {
+        Args: {
+          _group: number
+          _indicator: string
+          _key: string
+          _moment: string
+          _observed_on: string
+          _school: string
+          _source: string
+          _value: number
+        }
+        Returns: string
+      }
+      record_dev_impact_reading: {
+        Args: {
+          _indicator: string
+          _interpretation: string
+          _key: string
+          _limitations: string
+        }
+        Returns: string
+      }
       record_dev_learning_result: {
         Args: {
           _enrollment: string
@@ -40094,6 +40431,18 @@ export type Database = {
           _logical: string
           _reason: string
           _title: string
+        }
+        Returns: string
+      }
+      record_dev_survey_version: {
+        Args: {
+          _course: string
+          _expected_version: number
+          _key: string
+          _moment: string
+          _questions: Json
+          _reason: string
+          _reassess: number
         }
         Returns: string
       }
