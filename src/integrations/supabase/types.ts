@@ -1298,6 +1298,85 @@ export type Database = {
           },
         ]
       }
+      acv_policy_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          decision: string
+          policy_id: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          decision: string
+          policy_id: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          decision?: string
+          policy_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_policy_approvals_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: true
+            referencedRelation: "acv_policy_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      acv_policy_versions: {
+        Row: {
+          author_person: string | null
+          author_principal: string | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          quota_bytes: number | null
+          reason: string
+          source: string
+          space_id: string
+          trash_retention_days: number | null
+          version: number
+        }
+        Insert: {
+          author_person?: string | null
+          author_principal?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          quota_bytes?: number | null
+          reason: string
+          source: string
+          space_id: string
+          trash_retention_days?: number | null
+          version: number
+        }
+        Update: {
+          author_person?: string | null
+          author_principal?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          quota_bytes?: number | null
+          reason?: string
+          source?: string
+          space_id?: string
+          trash_retention_days?: number | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_policy_versions_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "acv_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       acv_space_members: {
         Row: {
           granted_at: string
@@ -38058,6 +38137,10 @@ export type Database = {
         }
         Returns: string
       }
+      acv_approve_policy: {
+        Args: { _decision: string; _policy: string }
+        Returns: string
+      }
       acv_begin_upload: {
         Args: {
           _key: string
@@ -38093,7 +38176,21 @@ export type Database = {
         Args: { _key: string; _name: string; _parent: string; _space: string }
         Returns: string
       }
+      acv_eligible_people: {
+        Args: { _query: string; _space: string }
+        Returns: {
+          display_name: string
+          person_id: string
+        }[]
+      }
       acv_ensure_space: { Args: never; Returns: string }
+      acv_expire_uploads: {
+        Args: { _space: string }
+        Returns: {
+          storage_path: string
+          upload_id: string
+        }[]
+      }
       acv_ext_of: { Args: { _name: string }; Returns: string }
       acv_has_share_in_space: { Args: { _space: string }; Returns: boolean }
       acv_link_case: {
@@ -38117,13 +38214,43 @@ export type Database = {
         Returns: string
       }
       acv_name_ok: { Args: { _name: string }; Returns: boolean }
+      acv_node_access: {
+        Args: { _node: string }
+        Returns: {
+          acl_id: string
+          display_name: string
+          granted_at: string
+          inherited: boolean
+          node_id: string
+          person_id: string
+          principal_id: string
+          role: string
+        }[]
+      }
       acv_node_rank: { Args: { _node: string }; Returns: number }
       acv_node_trashed: { Args: { _node: string }; Returns: boolean }
       acv_node_visible: { Args: { _node: string }; Returns: boolean }
       acv_object_readable: { Args: { _name: string }; Returns: boolean }
+      acv_orphan_removable: { Args: { _name: string }; Returns: boolean }
       acv_person_eligible: {
         Args: { _person: string; _school: string }
         Returns: boolean
+      }
+      acv_provision_space: {
+        Args: { _key: string; _principal: string }
+        Returns: string
+      }
+      acv_record_policy: {
+        Args: {
+          _expected: number
+          _key: string
+          _quota: number
+          _reason: string
+          _retention: number
+          _source: string
+          _space: string
+        }
+        Returns: string
       }
       acv_rename: {
         Args: { _key: string; _name: string; _node: string }
@@ -38154,6 +38281,17 @@ export type Database = {
           _role: string
         }
         Returns: string
+      }
+      acv_space_member_list: {
+        Args: { _space: string }
+        Returns: {
+          display_name: string
+          granted_at: string
+          member_id: string
+          person_id: string
+          principal_id: string
+          role: string
+        }[]
       }
       acv_space_rank: { Args: { _space: string }; Returns: number }
       acv_space_usage: { Args: { _space: string }; Returns: number }

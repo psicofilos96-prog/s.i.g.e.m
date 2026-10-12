@@ -98,3 +98,8 @@ Módulos: C = 1 (sincronização), P = 5, N/X = 1 (PERF.LOADING.1). Nenhuma homo
 - Entregue: `/tecnologia/operacao` com 13 abas (chamados e fila, SLA, sessões e manutenção, problemas e mudanças, inventário e empréstimos, conectividade, serviços digitais, acessos, incidentes de segurança, backup, conhecimento, recursos pedagógicos e inovação, contratos e licenças), 50 ações pelos writers 0403/0477–0495, sem migration nova; console compartilhado com Matrículas.
 - Verificado: argumentos de cada ação = writer do banco (teste), sem colunas ocultas, página fechada sem login (0 leituras), tipos.
 - Não verificado: gravação com conta logada; capabilities de Tecnologia sem titular (P1-02).
+
+### Atualização — Lote corretivo 09 (Acervo: membros, compartilhar, política, limpeza)
+- Entregue (0499, `archive-admin.tsx`): painel de membros e diálogo Compartilhar com acessos diretos × herdados; busca de pessoas elegíveis; política de cota/retenção versionada com aprovação por outra pessoa (cota direta desativada); limpeza idempotente de envios não confirmados em 24 h; provisionamento de espaço pela rede.
+- Verificado: 8 testes novos (regras e SQL), 35 arquivos/193 testes focais, tipos.
+- Não verificado: envio/download/prévia reais com login (sem conta para sessão de teste); capabilities `aprovar-politica-do-acervo` e `provisionar-acervo-documental` sem titular (P1-02).
