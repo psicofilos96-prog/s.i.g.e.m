@@ -40,7 +40,7 @@ export function canMove(item: ItemPolicy, ms: readonly Movement[], d: { itemKey:
   }
   const exp = d.lot ? ms.find((m) => m.lot === d.lot && m.expiresOn)?.expiresOn ?? null : null;
   if (d.kind === "saida" && exp && exp < d.on) return { ok: false as const, reason: "Lote vencido só sai por descarte." };
-  if (balance(ms, d.itemKey, { lot: d.lot ?? undefined }) - d.quantity < 0) return { ok: false as const, reason: "Saldo insuficiente." };
+  if (balance(ms, d.itemKey, d.lot ? { lot: d.lot } : {}) - d.quantity < 0) return { ok: false as const, reason: "Saldo insuficiente." };
   return { ok: true as const };
 }
 export const SUPPLY_WRITERS = ["register_ops_supply_item", "approve_ops_supply_item", "register_ops_warehouse", "record_ops_supply_movement"] as const;
