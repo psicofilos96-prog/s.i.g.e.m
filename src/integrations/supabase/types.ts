@@ -34477,6 +34477,50 @@ export type Database = {
           },
         ]
       }
+      tech_ticket_reviews: {
+        Row: {
+          conclusion_seq: number | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string
+          person_id: string
+          request_id: string
+          seq: number
+        }
+        Insert: {
+          conclusion_seq?: number | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          note: string
+          person_id: string
+          request_id: string
+          seq: number
+        }
+        Update: {
+          conclusion_seq?: number | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string
+          person_id?: string
+          request_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_ticket_reviews_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       technical_automation_settings: {
         Row: {
           decided_by: string
@@ -45570,6 +45614,16 @@ export type Database = {
           _label: string
           _reason: string
           _requires_attachment: boolean
+        }
+        Returns: number
+      }
+      record_tech_ticket_review: {
+        Args: {
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _request: string
         }
         Returns: number
       }

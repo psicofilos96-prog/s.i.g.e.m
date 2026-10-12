@@ -3354,6 +3354,13 @@
       "when": 1791813563311,
       "tag": "0478_tech04_ticket_center",
       "breakpoints": true
+    },
+    {
+      "idx": 479,
+      "version": "7",
+      "when": 1791813714829,
+      "tag": "0479_tech05_ticket_flow",
+      "breakpoints": true
     }
   ]
 }
