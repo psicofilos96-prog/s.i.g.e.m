@@ -59,7 +59,7 @@ export function diagnose(p: { items: ItemMap[]; answers: Answer[]; participation
     if (!p.bandRule || !p.bandRule.homologated) lim.push("faixa pedagógica não exibida: sem regra homologada e versionada");
     else if (rate !== null) { const b = p.bandRule.bands.find(b => rate * 100 >= b.min && rate * 100 <= b.max); if (b) band = { label: b.label, ruleRef: p.bandRule.ruleRef, version: p.bandRule.version }; }
     const sup = suppressSmallGroups([{ key: skillId, n: students }], p.minN);
-    const suppressed = sup.rows[0].suppressed;
+    const suppressed = sup.rows[0]?.suppressed ?? false;
     if (sup.policy === "sem-politica") lim.push("sem política de divulgação: supressão de grupo pequeno não aplicada");
     out.push({ skillId, nItems: usable.length, nStudents: students, nResponses: valid.length, nCorrect: suppressed ? 0 : nCorrect, rate: suppressed ? null : rate, distribution: suppressed ? {} : dist, recurrentErrors: suppressed ? [] : recurrent, band: suppressed ? null : band, limitations: suppressed ? [...lim, "grupo abaixo do limiar: valores retidos"] : lim, criteria: ["acerto bruto = corretas / (respondidas + em branco) de participantes", "não lida e anulada fora do denominador", `erro recorrente ≥ ${RECURRENT_SHARE * 100}% das respostas do item`, DISTRACTOR_NOTE], suppressed });
   }

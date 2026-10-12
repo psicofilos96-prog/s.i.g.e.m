@@ -12,7 +12,7 @@ const answers = [a("s1", "i1", "A", true), a("s2", "i1", "C", false), a("s3", "i
 
 describe("A&A L09 diagnóstico por habilidade", () => {
   it("denominador, distribuição, erro recorrente e critérios explícitos", () => {
-    const [h1, h2] = diagnose({ items, answers, participation: part, bandRule: null, minN: null });
+    const [h1, h2] = diagnose({ items, answers, participation: part, bandRule: null, minN: null }) as [ReturnType<typeof diagnose>[number], ReturnType<typeof diagnose>[number]];
     expect(h1).toMatchObject({ nItems: 2, nStudents: 3, nResponses: 5, nCorrect: 2 });
     expect(h1.rate).toBeCloseTo(0.4);
     expect(h1.distribution).toEqual({ A: 1, C: 2, B: 1, "em-branco": 1 });
@@ -23,14 +23,14 @@ describe("A&A L09 diagnóstico por habilidade", () => {
   });
   it("faixa só com regra homologada e versionada", () => {
     const rule = { ruleRef: "r", version: 2, homologated: true, bands: [{ label: "crítico", min: 0, max: 50 }, { label: "adequado", min: 50.01, max: 100 }] };
-    expect(diagnose({ items, answers, participation: part, bandRule: { ...rule, homologated: false }, minN: null })[0].band).toBeNull();
+    expect(diagnose({ items, answers, participation: part, bandRule: { ...rule, homologated: false }, minN: null })[0]!.band).toBeNull();
     const d = diagnose({ items, answers, participation: part, bandRule: rule, minN: null });
-    expect(d[0].band).toEqual({ label: "crítico", ruleRef: "r", version: 2 });
+    expect(d[0]!.band).toEqual({ label: "crítico", ruleRef: "r", version: 2 });
     expect(priorities(d, new Set(["crítico"])).rows?.map(r => r.skillId)).toEqual(["H1"]);
     expect(priorities(diagnose({ items, answers, participation: part, bandRule: null, minN: null }), new Set(["crítico"])).state).toBe("sem-regra");
   });
   it("grupo pequeno é retido com política", () => {
-    const [h1] = diagnose({ items, answers, participation: part, bandRule: null, minN: 5 });
+    const h1 = diagnose({ items, answers, participation: part, bandRule: null, minN: 5 })[0]!;
     expect(h1.suppressed).toBe(true);
     expect(h1.rate).toBeNull();
     expect(h1.distribution).toEqual({});
