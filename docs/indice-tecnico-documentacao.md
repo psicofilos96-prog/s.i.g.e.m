@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 324. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 325. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -198,7 +198,7 @@ Documentos: 324. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** — (sem referência vigente; ver registros de lote)
 
-**Registros de lote (decisões e provas da etapa):** `aa-matriz-aceite-lote-20.md`, `aceite-integrado-aa-lote18.md`, `admin-busca-notificacoes-auditoria-nadm2.md`, `alimentacao-matriz-aceite-lote-15.md`, `auditoria-central-auditoria-naud3.md`, `auditoria-central-naud2.md`, `auditoria-docente-n1025.md`, `auditoria-exportacoes-nexp.md`, `auditoria-final-nfinal10.md`, `auditoria-impressao-nprint4.md`, `auditoria-infraestrutura-revisao.md`, `auditoria-mapa-nmap5.md`, `auditoria-op-direcao-n725.md`, `auditoria-supervisao-nsup3.md`, `auditoria-temporal-ntemp1.md`, `auditoria-transporte-ntransp3.md`, `docente-matriz-auditoria-lote-01.md`, `matriz-aceite-direcao-escolar-2026-10-11.md`, `matriz-aceite-final-2026-10-11.md`, `supervisao-matriz-aceite-lote-12.md`, `tipagem-auditoria-ntype1.md`
+**Registros de lote (decisões e provas da etapa):** `aa-matriz-aceite-lote-20.md`, `aceite-integrado-aa-lote18.md`, `admin-busca-notificacoes-auditoria-nadm2.md`, `alimentacao-matriz-aceite-lote-15.md`, `auditoria-central-auditoria-naud3.md`, `auditoria-central-naud2.md`, `auditoria-docente-n1025.md`, `auditoria-exportacoes-nexp.md`, `auditoria-final-nfinal10.md`, `auditoria-impressao-nprint4.md`, `auditoria-infraestrutura-revisao.md`, `auditoria-mapa-nmap5.md`, `auditoria-op-direcao-n725.md`, `auditoria-supervisao-nsup3.md`, `auditoria-temporal-ntemp1.md`, `auditoria-transporte-ntransp3.md`, `docente-matriz-aceite-lote-20.md`, `docente-matriz-auditoria-lote-01.md`, `matriz-aceite-direcao-escolar-2026-10-11.md`, `matriz-aceite-final-2026-10-11.md`, `supervisao-matriz-aceite-lote-12.md`, `tipagem-auditoria-ntype1.md`
 
 **Pendências declaradas:**
 - `admin-busca-notificacoes-auditoria-nadm2.md`: ASSIGNMENT_PENDING, INTERACTIVE_BROWSER_VALIDATION_PENDING
