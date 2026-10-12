@@ -350,6 +350,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `nimport-standard-1.md` — Registro de lote: carga 2026 adotada no pipeline padrão, sem duplicação.
 - [Proposta de capacidades do Diário (LOTE 12)](proposta-capacidades-diario-lote12.md) — Referência vigente (proposta não concedida)
 - `aceite-integrado-aa-lote18.md` — Registro de lote: aceite autenticado de Acompanhamento e Avaliação (57 verificações, lacunas declaradas).
+- `sigem-relatorio-pendencias-lote22.md` — Registro de lote: relatório de pendências do fechamento (lotes 01–21), uma linha por pendência.
 - `docs/relatorio-lacunas-raiz-identidade-2026-10-11.md` — Registro de lote: lacunas-raiz de identidade e vínculos medidas no banco.
 - [Alimentação — matriz de aceite Lote 15](alimentacao-matriz-aceite-lote-15.md) — Registro de lote
 | `ciece-matriz-aceite-lote-20.md` | CIECE — matriz de aceite técnico (Lote 20) | Registro de lote | — | — |

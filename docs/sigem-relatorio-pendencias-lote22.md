@@ -47,7 +47,7 @@ Classes: **C** concluído com evidência · **P** parcial · **B** bloqueado · 
 
 ## 3. Totais
 
-C 3 · P 12 · B 4 · V 4 · X 2 — total 25. P0: 3 C + 1 P. Nenhum item marcado concluído por ordem recebida.
+C 3 · P 11 · B 4 · V 4 · X 2 — total 24. P0: 3 C + 1 P. Nenhum item marcado concluído por ordem recebida.
 
 ## 4. Ordem por dependência
 
