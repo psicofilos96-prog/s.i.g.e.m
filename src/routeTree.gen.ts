@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AcervoDocumentalRouteImport } from './routes/acervo-documental'
 import { Route as AcompanhamentoAvaliacaoRouteImport } from './routes/acompanhamento-avaliacao'
 import { Route as AcompanhamentoDiariosRouteImport } from './routes/acompanhamento-diarios'
 import { Route as AcompanhamentoPlanejamentoRouteImport } from './routes/acompanhamento-planejamento'
@@ -278,6 +279,11 @@ import { Route as ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRouteIm
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcervoDocumentalRoute = AcervoDocumentalRouteImport.update({
+  id: '/acervo-documental',
+  path: '/acervo-documental',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcompanhamentoAvaliacaoRoute = AcompanhamentoAvaliacaoRouteImport.update({
@@ -1703,6 +1709,7 @@ const ProfissionaisIdVinculosVinculoIdLotacoesLotacaoIdEditarRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acervo-documental': typeof AcervoDocumentalRoute
   '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
@@ -1970,6 +1977,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acervo-documental': typeof AcervoDocumentalRoute
   '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
@@ -2206,6 +2214,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/acervo-documental': typeof AcervoDocumentalRoute
   '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
@@ -2475,6 +2484,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/acervo-documental'
     | '/acompanhamento-avaliacao'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
@@ -2742,6 +2752,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/acervo-documental'
     | '/acompanhamento-avaliacao'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
@@ -2977,6 +2988,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/acervo-documental'
     | '/acompanhamento-avaliacao'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
@@ -3245,6 +3257,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcervoDocumentalRoute: typeof AcervoDocumentalRoute
   AcompanhamentoAvaliacaoRoute: typeof AcompanhamentoAvaliacaoRoute
   AcompanhamentoDiariosRoute: typeof AcompanhamentoDiariosRoute
   AcompanhamentoPlanejamentoRoute: typeof AcompanhamentoPlanejamentoRoute
@@ -3393,6 +3406,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acervo-documental': {
+      id: '/acervo-documental'
+      path: '/acervo-documental'
+      fullPath: '/acervo-documental'
+      preLoaderRoute: typeof AcervoDocumentalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/acompanhamento-avaliacao': {
@@ -5922,6 +5942,7 @@ const VinculosLetivosRouteWithChildren = VinculosLetivosRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcervoDocumentalRoute: AcervoDocumentalRoute,
   AcompanhamentoAvaliacaoRoute: AcompanhamentoAvaliacaoRoute,
   AcompanhamentoDiariosRoute: AcompanhamentoDiariosRoute,
   AcompanhamentoPlanejamentoRoute: AcompanhamentoPlanejamentoRoute,

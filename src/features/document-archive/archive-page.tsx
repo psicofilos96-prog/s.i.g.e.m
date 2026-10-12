@@ -264,7 +264,7 @@ function ArchiveWorkspace({ isSector }: { isSector: boolean }) {
             </div>
             <div className="min-h-0 flex-1 overflow-auto">
               {preview.kind === "imagem" && <img src={preview.url} alt={preview.name} className="mx-auto max-h-full" />}
-              {preview.kind === "pdf" && <iframe title={preview.name} src={preview.url} sandbox="" className="h-full w-full" />}
+              {preview.kind === "pdf" && <iframe title={preview.name} src={preview.url} className="h-full w-full" />}
               {preview.kind === "texto" && <pre className="whitespace-pre-wrap p-3 text-sm">{preview.text}</pre>}
             </div>
           </div>
