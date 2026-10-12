@@ -672,3 +672,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] L35 validação dos perfis — PARCIAL (só negativos; positivos bloqueados por titulares/dados)
 - [ ] L36 parâmetros — AGUARDANDO DECISÃO HUMANA (consolidação feita, nenhum valor definido)
 - [x] L37 saneamento: índice, matriz, testes reexecutados, mapa de infraestrutura
+- [ ] L38 analisar planilhas de pessoal/infra enviadas (15 arquivos) para chave matrícula↔pessoa
