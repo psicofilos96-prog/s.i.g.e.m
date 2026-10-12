@@ -2773,6 +2773,13 @@
       "when": 1791791730197,
       "tag": "0395_perm05_alert_center",
       "breakpoints": true
+    },
+    {
+      "idx": 396,
+      "version": "7",
+      "when": 1791791909037,
+      "tag": "0396_perm06_cases_out_of_school",
+      "breakpoints": true
     }
   ]
 }
