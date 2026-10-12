@@ -8984,6 +8984,60 @@ export type Database = {
           },
         ]
       }
+      dev_activity_submissions: {
+        Row: {
+          activity_id: string
+          author_person: string
+          body: string | null
+          created_at: string
+          enrollment_id: string
+          id: string
+          idempotency_key: string
+          sha256: string | null
+          storage_path: string | null
+          version: number
+        }
+        Insert: {
+          activity_id: string
+          author_person: string
+          body?: string | null
+          created_at?: string
+          enrollment_id: string
+          id?: string
+          idempotency_key: string
+          sha256?: string | null
+          storage_path?: string | null
+          version: number
+        }
+        Update: {
+          activity_id?: string
+          author_person?: string
+          body?: string | null
+          created_at?: string
+          enrollment_id?: string
+          id?: string
+          idempotency_key?: string
+          sha256?: string | null
+          storage_path?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_activity_submissions_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "dev_class_activities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_activity_submissions_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_aggregate_threshold_approvals: {
         Row: {
           approver_person: string
@@ -9245,6 +9299,79 @@ export type Database = {
             foreignKeyName: "dev_class_details_class_id_fkey"
             columns: ["class_id"]
             isOneToOne: true
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_class_material_withdrawals: {
+        Row: {
+          created_at: string
+          material_id: string
+          reason: string
+          withdrawn_by: string
+        }
+        Insert: {
+          created_at?: string
+          material_id: string
+          reason: string
+          withdrawn_by: string
+        }
+        Update: {
+          created_at?: string
+          material_id?: string
+          reason?: string
+          withdrawn_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_material_withdrawals_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: true
+            referencedRelation: "dev_class_materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_class_materials: {
+        Row: {
+          author_person: string
+          class_id: string
+          created_at: string
+          external_url: string | null
+          id: string
+          idempotency_key: string
+          sha256: string | null
+          storage_path: string | null
+          title: string
+        }
+        Insert: {
+          author_person: string
+          class_id: string
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          idempotency_key: string
+          sha256?: string | null
+          storage_path?: string | null
+          title: string
+        }
+        Update: {
+          author_person?: string
+          class_id?: string
+          created_at?: string
+          external_url?: string | null
+          id?: string
+          idempotency_key?: string
+          sha256?: string | null
+          storage_path?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_materials_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
             referencedRelation: "dev_classes"
             referencedColumns: ["id"]
           },
@@ -10335,6 +10462,133 @@ export type Database = {
             columns: ["plan_version_id"]
             isOneToOne: false
             referencedRelation: "dev_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_questionnaire_responses: {
+        Row: {
+          answers: Json
+          created_at: string
+          enrollment_id: string
+          id: string
+          idempotency_key: string
+          questionnaire_id: string
+        }
+        Insert: {
+          answers: Json
+          created_at?: string
+          enrollment_id: string
+          id?: string
+          idempotency_key: string
+          questionnaire_id: string
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          enrollment_id?: string
+          id?: string
+          idempotency_key?: string
+          questionnaire_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_questionnaire_responses_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_questionnaire_responses_questionnaire_id_fkey"
+            columns: ["questionnaire_id"]
+            isOneToOne: false
+            referencedRelation: "dev_questionnaires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_questionnaires: {
+        Row: {
+          author_person: string
+          class_id: string
+          closes_on: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          opens_on: string
+          purpose: string
+          questions: Json
+          title: string
+        }
+        Insert: {
+          author_person: string
+          class_id: string
+          closes_on: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          opens_on: string
+          purpose: string
+          questions: Json
+          title: string
+        }
+        Update: {
+          author_person?: string
+          class_id?: string
+          closes_on?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          opens_on?: string
+          purpose?: string
+          questions?: Json
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_questionnaires_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_submission_feedback: {
+        Row: {
+          author_person: string
+          comment: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          outcome: string
+          submission_id: string
+        }
+        Insert: {
+          author_person: string
+          comment: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          outcome: string
+          submission_id: string
+        }
+        Update: {
+          author_person?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          outcome?: string
+          submission_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_submission_feedback_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "dev_activity_submissions"
             referencedColumns: ["id"]
           },
         ]
@@ -31695,6 +31949,10 @@ export type Database = {
         }[]
       }
       am_designated_installer: { Args: never; Returns: boolean }
+      answer_dev_questionnaire: {
+        Args: { _answers: Json; _key: string; _questionnaire: string }
+        Returns: string
+      }
       applicable_class_designation_policy: {
         Args: { _on: string }
         Returns: {
@@ -33764,6 +34022,10 @@ export type Database = {
         }
       }
       dev_is_active_trainer: { Args: { _class: string }; Returns: boolean }
+      dev_is_confirmed_participant: {
+        Args: { _class: string }
+        Returns: boolean
+      }
       dev_person_formation_history: {
         Args: { _person: string }
         Returns: {
@@ -37407,6 +37669,17 @@ export type Database = {
           version: number
         }[]
       }
+      publish_dev_material: {
+        Args: {
+          _class: string
+          _key: string
+          _path: string
+          _sha: string
+          _title: string
+          _url: string
+        }
+        Returns: string
+      }
       r5_capabilities: { Args: never; Returns: string[] }
       r5_network_grant: { Args: { _capability: string }; Returns: string }
       r5_record_homologation: {
@@ -38409,6 +38682,15 @@ export type Database = {
         }
         Returns: string
       }
+      record_dev_feedback: {
+        Args: {
+          _comment: string
+          _key: string
+          _outcome: string
+          _submission: string
+        }
+        Returns: string
+      }
       record_dev_formative_class: {
         Args: {
           _audience: string
@@ -38498,6 +38780,18 @@ export type Database = {
       }
       record_dev_program: {
         Args: { _key: string; _plan_version: string; _title: string }
+        Returns: string
+      }
+      record_dev_questionnaire: {
+        Args: {
+          _class: string
+          _closes: string
+          _key: string
+          _opens: string
+          _purpose: string
+          _questions: Json
+          _title: string
+        }
         Returns: string
       }
       record_dev_threshold_version: {
@@ -42507,6 +42801,17 @@ export type Database = {
         }
         Returns: undefined
       }
+      submit_dev_activity: {
+        Args: {
+          _activity: string
+          _body: string
+          _expected_version: number
+          _key: string
+          _path: string
+          _sha: string
+        }
+        Returns: string
+      }
       submit_dev_need: {
         Args: {
           _audience: string
@@ -42850,6 +43155,10 @@ export type Database = {
         }[]
       }
       verify_studio_document: { Args: { _code: string }; Returns: Json }
+      withdraw_dev_material: {
+        Args: { _material: string; _reason: string }
+        Returns: undefined
+      }
       workflow_can_read: {
         Args: { _definition: string; _opened_by: string; _school: string }
         Returns: boolean
