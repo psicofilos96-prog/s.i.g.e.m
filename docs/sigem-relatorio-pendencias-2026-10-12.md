@@ -52,8 +52,8 @@ Classes: **C** implementado e comprovado · **P** parcial · **N** não iniciado
 
 | ID | Descrição | Responsável | Critério |
 |---|---|---|---|
-| P2-01 | Especificação formal de Tecnologia (49 seções/18 critérios) não está no projeto | proprietário | documento anexado e matriz preenchida |
-| P2-02 | Regras sem decisão: SLA, recorrência, categorias de equipamento, vida útil, limiar do mapa, mínimo de conhecimento, rubrica pedagógica, periodicidade de revisão de acesso, notificação de incidente | proprietário | versão aprovada por pessoa ≠ autor em cada registro |
+| P2-01 | Especificação formal de Tecnologia (49 seções/18 critérios) não está no projeto  — Lote 13: busca repetida (docs, src, uploads, histórico); documento segue ausente | proprietário | documento anexado e matriz preenchida |
+| P2-02 | Regras sem decisão: SLA, recorrência, categorias de equipamento, vida útil, limiar do mapa, mínimo de conhecimento, rubrica pedagógica, periodicidade de revisão de acesso, notificação de incidente  — Lote 13: as 7 decisões de Tecnologia são registráveis em `/tecnologia/decisoes` (sem aprovação; capabilities sem titular) | proprietário | versão aprovada por pessoa ≠ autor em cada registro |
 | P2-03 | Matrículas: alocação, agrupamento EI, idades, aviso oficial, limiar de supressão | proprietário | regra homologada |
 | P2-04 | Acervo: retenção legal, quotas por setor, scanner de malware | proprietário + técnico | configuração aprovada; scanner ou risco aceito por escrito |
 | P2-05 | Dados reais ausentes: contratos/licenças, links de conectividade, coordenadas, planos de backup, serviços do catálogo | setores | registros reais cadastrados |
