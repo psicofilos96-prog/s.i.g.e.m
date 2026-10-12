@@ -15,7 +15,7 @@ export type MethodEntry = { key: string; version: number; theme: Theme; title: s
 export function methodLibrary(themeOf: (key: string) => Theme | null, external: MethodEntry[]) {
   const internal: MethodEntry[] = indicatorCatalog().flatMap((c) => {
     const t = themeOf(c.code); if (!t) return [];
-    return [{ key: c.code, version: c.version, theme: t, title: c.title, formula: c.formula, source: c.source, provenance: { kind: "sigem" as const }, limitations: c.limitations }];
+    return [{ key: c.code, version: c.version, theme: t, title: c.name, formula: String((c as { formula?: unknown }).formula ?? c.definition), source: c.source.join(","), provenance: { kind: "sigem" as const }, limitations: c.limitations }];
   });
   const refused: { key: string; reason: string }[] = [];
   const ext = external.filter((e) => {
