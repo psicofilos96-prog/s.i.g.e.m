@@ -14,7 +14,7 @@ describe("Tecnologia L04 — central de chamados", () => {
   it("formulário declarado é validado", () => {
     expect(fieldsProblem(F)).toBeNull();
     expect(fieldsProblem([...F, F[0]])).toBe("campo-duplicado:equipamento");
-    expect(fieldsProblem([{ key: "x1", label: "X", type: "escolha", required: true, options: ["a"] }])).toBe("opcoes-insuficientes:x1");
+    expect(fieldsProblem([{ key: "x1", label: "Xis", type: "escolha", required: true, options: ["a"] }])).toBe("opcoes-insuficientes:x1");
   });
   it("respostas: obrigatório, desconhecido e valor fora das opções são recusados", () => {
     expect(answersProblem(F, { equipamento: "projetor" })).toBeNull();
