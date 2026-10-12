@@ -14,6 +14,7 @@ import { openSchedulePrint } from "@/features/schedules/schedule-print";
 import { GESTAO_ESCOLAR } from "@/features/reports/report-registry";
 import { STATE_LABEL, buildPanel, dossierPrintHtml, managementRows, type Block, type BlockState, type Pending } from "./management-panel";
 import { readManagementInputs } from "./management-source";
+import { CensusDeclaredStaff } from "@/features/professionals/census-declared-staff";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();
@@ -91,6 +92,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
         {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência derivável das fontes que você alcança. Isso não afirma que a escola está em ordem.</p>
           : <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text}</Link> <span className="text-xs text-muted-foreground">({p.source})</span></li>)}</ul>}
       </section>
+      <CensusDeclaredStaff school={school} />
       <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação operacional (CSV)</Button>
         <Button variant="outline" onClick={exportPdf}>Gerar Dossiê da Direção (PDF)</Button></div>
     </div>
