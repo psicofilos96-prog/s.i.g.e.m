@@ -1,3 +1,4 @@
+// Setup só do ambiente jsdom; o comum fica em setup-common.ts.
 import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vitest";
 import { cleanup } from "@testing-library/react";
@@ -40,17 +41,3 @@ if (!Element.prototype.hasPointerCapture) {
   Element.prototype.setPointerCapture = () => {};
   Element.prototype.releasePointerCapture = () => {};
 }
-
-// B4.10.0c.1 — o modo inicial do Diário é "pendente" (falha fechada no app). Testes de unidade
-// sem fronteira de sessão exercitam o laboratório; por isso o estabelecem EXPLICITAMENTE aqui.
-// Testes de fronteira (diary-session*) trocam o modo pelo controlador real.
-import { setDiaryPersistenceMode } from "@/features/diary/diary-persistence-mode";
-import { beforeEach } from "vitest";
-setDiaryPersistenceMode("laboratorio"); // antes dos imports do arquivo de teste (constantes de módulo)
-beforeEach(() => {
-  setDiaryPersistenceMode("laboratorio");
-});
-
-// NFILTER.1: estado de lista vive na sessão; cada teste começa sem estado herdado.
-import { beforeEach as __nfilterBeforeEach } from "vitest";
-__nfilterBeforeEach(() => { try { sessionStorage.clear(); } catch { /* sem DOM */ } });
