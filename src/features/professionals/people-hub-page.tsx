@@ -13,8 +13,9 @@ import { loadStaffingInputs } from "@/features/staffing/staffing-source";
 import { functionalMessage, functionalPicture, functionalTimeline, VALIDITY_LABEL, type PersonPicture } from "./functional-life";
 import { coverageGrid, dashboard, filterRoster, type RosterFilter } from "./people-hub-model";
 import { loadPeopleSources, peopleSchools } from "./people-hub-source";
+import { CensusDeclaredStaff } from "./census-declared-staff";
 
-const TABS = [["painel", "Painel"], ["quadro", "Quadro de pessoal"], ["lotacao", "Mapa de lotação"], ["cobertura", "Cobertura"], ["atribuicoes", "Atribuições"], ["necessidades", "Necessidades"]] as const;
+const TABS = [["painel", "Painel"], ["quadro", "Quadro de pessoal"], ["lotacao", "Mapa de lotação"], ["cobertura", "Cobertura"], ["atribuicoes", "Atribuições"], ["necessidades", "Necessidades"], ["educacenso", "Educacenso 2026"]] as const;
 type Tab = (typeof TABS)[number][0];
 const COVER_LABEL = { integral: "Integral", parcial: "Parcial", ausente: "Ausente", indeterminada: "Indeterminada" } as const;
 const COVER_TONE = { integral: "border-primary/40", parcial: "border-accent", ausente: "border-destructive", indeterminada: "border-dashed border-muted-foreground" } as const;
@@ -62,6 +63,7 @@ export function PeopleHubPage() {
             : tab === "lotacao" ? (picture ? <PlacementMap people={picture} names={names} /> : <SkeletonState label="Carregando lotações" />)
             : tab === "cobertura" ? <Coverage loading={classes.isLoading} data={classes.data} />
             : tab === "atribuicoes" ? <Assignments />
+            : tab === "educacenso" ? <CensusDeclaredStaff school={school} />
             : <Needs loading={classes.isLoading} data={classes.data} />}
         </div>
       </>}
