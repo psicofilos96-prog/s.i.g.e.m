@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { OPS_EXECUTOR_WRITES, capabilityFor, linksOn, opsEventKey, projectRequest, validateEvent, type OpsEvent } from "./shared-requests";
 
 const ev = (seq: number, kind: OpsEvent["kind"], x: Partial<OpsEvent> = {}): OpsEvent => ({ seq, kind, actorPerson: "p1", at: "2026-10-12", ...x });
-const SQL = readFileSync("drizzle/migrations/0403_ops02_shared_requests.sql", "utf8");
+const SQL = readFileSync("drizzle/migrations/0403_ops02_shared_requests.sql", "utf8") + readFileSync("drizzle/migrations/0404_ops02_hide_attachment_ref.sql", "utf8");
 
 describe("Centro de Operações L02 — núcleo de solicitações", () => {
   it("estado e responsável são projeção dos eventos", () => {
@@ -37,7 +37,7 @@ describe("Centro de Operações L02 — núcleo de solicitações", () => {
     expect(SQL).not.toMatch(/GRANT (INSERT|UPDATE|DELETE)[^;]*TO authenticated/);
     expect(SQL).toMatch(/'atender-' \|\| _r\.sector/);
     expect(SQL).toMatch(/ops:conflict/);
-    expect(SQL).toMatch(/REVOKE SELECT \(case_event_ref\)/);
+    expect(SQL).toMatch(/GRANT SELECT \(id, request_id/);
     expect(SQL).toMatch(/idempotency_key text NOT NULL UNIQUE/);
     expect(SQL).toMatch(/current_person_id\(\)/);
     expect(capabilityFor("atender", "patrimonio")).toBe("atender-patrimonio");

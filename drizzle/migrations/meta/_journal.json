@@ -2829,6 +2829,13 @@
       "when": 1791794928841,
       "tag": "0403_ops02_shared_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 404,
+      "version": "7",
+      "when": 1791795038258,
+      "tag": "0404_ops02_hide_attachment_ref",
+      "breakpoints": true
     }
   ]
 }
