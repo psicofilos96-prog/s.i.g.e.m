@@ -442,5 +442,6 @@
  "drizzle/migrations/0391_doc10_case_acts.sql": "9cd6c0940b79098b60e26d0c5b20b15985697e036fd4c9921220918d553fff2f",
  "drizzle/migrations/0392_doc11_18_review_signature_archive.sql": "dd2f1d8bea7988a15c39b70b436b97d706f7f7dfcc6b85c914c9b124f5deb76a",
  "drizzle/migrations/0393_doc19_sensitive_grant_and_origin_links.sql": "8002ab33a778c36568c8d7915f45da25ad8f8e857412f84c324caef3f0579a19",
- "drizzle/migrations/0394_perm03_preventive_rules.sql": "fecadfd2bff60780a6f7baa82a18ec567abe7f13d713f317a344ac032162376f"
+ "drizzle/migrations/0394_perm03_preventive_rules.sql": "fecadfd2bff60780a6f7baa82a18ec567abe7f13d713f317a344ac032162376f",
+ "drizzle/migrations/0395_perm05_alert_center.sql": "988604b4e13f672cfc74aae80cd5f77580665025c1f4621cf02ce3db58adf451"
 }
