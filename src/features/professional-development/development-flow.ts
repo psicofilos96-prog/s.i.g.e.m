@@ -56,7 +56,7 @@ export function externalHistory(ownTrainingIds: ReadonlySet<string>, versions: r
   return { items, validatedMinutes };
 }
 
-const CAUSAL_CLAIM = /\b(caus(ou|aram|a)|gra[cç]as [àa]|devido [àa] forma[cç][aã]o|em raz[aã]o da forma[cç][aã]o|resultado direto|comprova(m)? (o )?impacto)\b/i;
+const CAUSAL_CLAIM = /(caus(ou|aram|a)|gra[cç]as [àa]|devido [àa] forma[cç][aã]o|em raz[aã]o da forma[cç][aã]o|resultado direto|comprova(m)? (o )?impacto)/i;
 
 /** Impacto do programa: comparação descritiva com leitura humana; afirmação causal na interpretação é recusada. */
 export function programImpact(obs: Observation[], schoolId: string | null, reading: { interpretation: string; limitations: string } | null) {
