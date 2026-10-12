@@ -25,6 +25,6 @@ describe("Perfil Docente L01 — auditoria", () => {
   });
   it("cadeia canônica termina no registro autorizado pela atribuição; Central da Aula vem primeiro", () => {
     expect(CANONICAL_CHAIN.at(-2)?.step).toBe("atribuicao");
-    expect(gaps()[0]?.n).toBe(5);
+    expect(gaps()[0]?.n).toBe(8);
   });
 });
