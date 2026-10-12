@@ -3389,6 +3389,20 @@
       "when": 1791814557319,
       "tag": "0483_tech09_recurrence_rule",
       "breakpoints": true
+    },
+    {
+      "idx": 484,
+      "version": "7",
+      "when": 1791814758073,
+      "tag": "0484_tech10_change_documents",
+      "breakpoints": true
+    },
+    {
+      "idx": 485,
+      "version": "7",
+      "when": 1791814825644,
+      "tag": "0485_tech10_fix_juntada_check",
+      "breakpoints": true
     }
   ]
 }
