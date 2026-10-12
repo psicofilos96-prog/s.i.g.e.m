@@ -20,7 +20,7 @@ export function validateGedVersion(v: GedVersion, ledger: readonly GedVersion[])
   if (!v.authorPersonId || v.authorIsTechnical) errs.push("autoria exige pessoa natural; executor técnico não grava");
   if (v.version !== last + 1) errs.push(`versão esperada ${last + 1}`);
   if (!/^[a-f0-9]{64}$/.test(v.contentHash)) errs.push("hash SHA-256 do conteúdo ausente");
-  if (hist.length && hist[0].kind !== v.kind) errs.push("tipo do documento não muda");
+  if (hist.length && hist[0]?.kind !== v.kind) errs.push("tipo do documento não muda");
   if (!hist.length && v.event !== "publicacao") errs.push("primeira versão deve ser publicação");
   if (hist.some((x) => x.event === "revogacao")) errs.push("documento revogado não recebe nova versão");
   if (v.event !== "publicacao" && !v.justification?.trim()) errs.push("retificação/revogação exige justificativa");
@@ -48,5 +48,6 @@ export function gedCurrent(docId: string, ledger: readonly GedVersion[], day: st
   const hist = ledger.filter((x) => x.docId === docId && x.recordedAt <= knownAt).sort((a, b) => a.version - b.version);
   if (!hist.length || hist.some((x) => x.event === "revogacao")) return null;
   const last = hist[hist.length - 1];
+  if (!last) return null;
   return last.validFrom && last.validFrom <= day ? last : null;
 }
