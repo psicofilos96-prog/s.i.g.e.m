@@ -14089,6 +14089,63 @@ export type Database = {
         }
         Relationships: []
       }
+      enr_appeal_events: {
+        Row: {
+          act_ref: string | null
+          action: string
+          appeal_id: string
+          application_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          person_id: string
+          reason: string
+          seq: number
+        }
+        Insert: {
+          act_ref?: string | null
+          action: string
+          appeal_id: string
+          application_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          person_id: string
+          reason: string
+          seq: number
+        }
+        Update: {
+          act_ref?: string | null
+          action?: string
+          appeal_id?: string
+          application_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          person_id?: string
+          reason?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_appeal_events_act_ref_fkey"
+            columns: ["act_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_appeal_events_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_application_analyses: {
         Row: {
           application_id: string
@@ -38106,6 +38163,20 @@ export type Database = {
       enr_classifier: { Args: never; Returns: boolean }
       enr_distribution_conflicts: { Args: { _run: string }; Returns: Json }
       enr_document_slot_open: { Args: { _name: string }; Returns: boolean }
+      enr_ingress_dashboard: {
+        Args: { _campaign: string }
+        Returns: {
+          authorized: number
+          cell_key: string
+          confirmed: number
+          enrollments: number
+          read_at: string
+          requests: number
+          reservations_active: number
+          school_key: string
+          students: number
+        }[]
+      }
       enr_link_formalized_enrollment: {
         Args: { _enrollment: string; _hold: string }
         Returns: undefined
@@ -42815,6 +42886,19 @@ export type Database = {
           seat_seq: number
           validation_receipt: string
         }[]
+      }
+      record_enr_appeal_event: {
+        Args: {
+          _act: string
+          _action: string
+          _appeal: string
+          _application: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _reason: string
+        }
+        Returns: number
       }
       record_enr_application_analysis: {
         Args: {
