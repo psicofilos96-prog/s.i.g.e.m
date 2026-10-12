@@ -14,6 +14,7 @@ export const SESSION_READ_ROUTES = [
   "/tecnologia/cadastros",
   "/tecnologia/decisoes",
   "/sigem-permanencia/operacao",
+  "/sigem-desenvolvimento/operacao",
   "/centro-de-operacoes/operacao",
   "/revisao-de-anomalias",
   "/tarefas",

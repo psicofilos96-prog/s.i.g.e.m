@@ -552,5 +552,6 @@
  "drizzle/migrations/0501_enr14_official_parameters.sql": "fb6a21d4dddc4cdef63b8d6eb205e31a48fb9511b2fc7770a892310776fe3022",
  "drizzle/migrations/0502_tech15_registry_network_guard.sql": "b1d788c60d2472f562e406b98d9574fcc666f088bc4c3bbc0a7a6d9acf795caa",
  "drizzle/migrations/0503_tech15_ipv6_compressed.sql": "1d709437334b4471e3390c67b5789d1b240668fe8a453b9f751af0c17a054147",
- "drizzle/migrations/0504_l18_ops_no_truncate_search_path.sql": "dddbadcb8019f6bcf25f152dd8d83293548faa00462f1fa82cf31be30b5250ef"
+ "drizzle/migrations/0504_l18_ops_no_truncate_search_path.sql": "dddbadcb8019f6bcf25f152dd8d83293548faa00462f1fa82cf31be30b5250ef",
+ "drizzle/migrations/0505_dev19_participation_pct_derived_only.sql": "3d7706c475d5dc93a302ad8267faeabfa16009645d997f4f468e691108ad775f"
 }

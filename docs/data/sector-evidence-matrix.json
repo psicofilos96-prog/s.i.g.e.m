@@ -283,11 +283,12 @@
   "routes": [
    "src/routes/sigem-desenvolvimento.tsx",
    "src/routes/sigem-desenvolvimento_.historico.tsx",
+   "src/routes/sigem-desenvolvimento_.operacao.tsx",
    "src/routes/verificar.certificado.$codigo.tsx"
   ],
-  "modules": 24,
+  "modules": 25,
   "withTest": 23,
-  "withScreen": 5,
+  "withScreen": 6,
   "withoutScreen": [
    "src/features/professional-development/annual-plan.ts",
    "src/features/professional-development/competencies-idp.ts",
@@ -310,7 +311,8 @@
    "src/features/professional-development/tracks.ts"
   ],
   "withoutTest": [
-   "src/features/professional-development/development-hub-model.ts"
+   "src/features/professional-development/development-hub-model.ts",
+   "src/features/professional-development/development-operations.gen.ts"
   ]
  },
  {

@@ -21,6 +21,11 @@ export function validationProblems(x: { validator: string; author: string; holde
   return [x.author, x.holder, x.completionConfirmer].includes(x.validator) ? ["Validador deve ser pessoa distinta do autor, titular e confirmador"] : [];
 }
 
+/** Lote 19: o PDF só é oferecido como certificado de certificado emitido (emissão exige validação humana autorizada) e vigente. */
+export function certificatePdfOffered(status: CertificateStatus): boolean {
+  return status === "valido";
+}
+
 export function formatHours(minutes: number | null): string {
   if (minutes == null) return "—";
   const h = Math.floor(minutes / 60), m = minutes % 60;

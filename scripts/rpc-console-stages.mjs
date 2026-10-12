@@ -62,7 +62,53 @@ const OPERATIONS = [
     ["record_ops_transport_measurement", "Registrar medição"], ["record_ops_transport_cost", "Registrar custo"]]],
 ];
 
+const DEVELOPMENT = [
+  ["catalogo", "Catálogo e trilhas", "Curso com código imutável e versões; trilha e versões só valem aprovadas por pessoa diferente do autor.", [
+    ["record_dev_catalog_course_version", "Registrar versão de curso do catálogo"], ["decide_dev_version", "Decidir versão (aprovar/devolver)"],
+    ["record_dev_track_version", "Registrar versão de trilha"], ["decide_dev_track_version", "Decidir versão de trilha"]]],
+  ["inscricoes", "Inscrições", "Pedido não ocupa vaga; análise por outra pessoa; colocação só sob trava da turma, pelo critério de espera aprovado.", [
+    ["request_dev_enrollment", "Pedir inscrição"], ["review_dev_enrollment", "Analisar inscrição"], ["place_dev_enrollment", "Colocar na turma ou na espera"],
+    ["record_dev_waitlist_criteria", "Registrar critério de espera"], ["approve_dev_waitlist_criteria", "Aprovar critério de espera"], ["adopt_dev_class_waitlist_criteria", "Adotar critério na turma"],
+    ["record_dev_participation", "Registrar desistência ou cancelamento"]]],
+  ["turmas", "Turmas e encontros", "Turma é oferta de uma versão de curso; estado e encontros são versões com motivo.", [
+    ["record_dev_formative_class", "Abrir turma formativa"], ["record_dev_class_status", "Registrar estado da turma"], ["record_dev_meeting_version", "Registrar versão de encontro"]]],
+  ["formadores", "Formadores", "Designação temporal sem sobreposição; formador externo nunca recebe permissão.", [
+    ["designate_dev_trainer", "Designar formador"], ["end_dev_trainer_designation", "Encerrar designação"]]],
+  ["frequencia", "Frequência e atividades", "Presença só com evidência por encontro ou entrega; percentual nunca é digitado: sai da apuração.", [
+    ["record_dev_attendance", "Registrar frequência por encontro/atividade"], ["record_dev_class_activity", "Registrar atividade"],
+    ["publish_dev_material", "Publicar material"], ["withdraw_dev_material", "Retirar material"], ["submit_dev_activity", "Entregar atividade"], ["record_dev_feedback", "Registrar devolutiva"]]],
+  ["avaliacoes", "Avaliações (rubricas)", "Resultado = nível e justificativa em cada critério da rubrica aprovada; nenhuma nota calculada.", [
+    ["record_dev_rubric_version", "Registrar versão de rubrica"], ["approve_dev_rubric", "Aprovar rubrica"], ["record_dev_learning_result", "Registrar resultado"],
+    ["request_dev_result_review", "Pedir revisão"], ["decide_dev_result_review", "Decidir revisão"]]],
+  ["conclusao", "Conclusão", "Critério aprovado → apuração no banco pelas evidências e rubrica → confirmação por pessoa diferente do participante.", [
+    ["record_dev_completion_criteria", "Registrar critério de conclusão"], ["approve_dev_completion_criteria", "Aprovar critério"],
+    ["assess_dev_completion", "Apurar conclusão pelas evidências"], ["confirm_dev_completion", "Confirmar conclusão"]]],
+  ["certificados", "Certificados", "Versão → validação humana por pessoa autorizada (≠ autor, titular e confirmador) → emissão com código. PDF só é oferecido depois da emissão.", [
+    ["record_dev_certificate_version", "Registrar versão do certificado"], ["validate_dev_certificate", "Validar ou recusar versão"],
+    ["issue_dev_certificate", "Emitir certificado validado"], ["revoke_dev_certificate", "Revogar certificado"]]],
+  ["externa", "Formação externa", "Comprovante juntado no SIGEM Documentos; análise por outra pessoa.", [
+    ["submit_dev_external_training", "Enviar formação externa"], ["review_dev_external_training", "Analisar formação externa"],
+    ["record_dev_partner_version", "Registrar versão de parceiro"], ["approve_dev_partner", "Aprovar parceiro"]]],
+  ["pdi", "Competências e PDI", "Competência só vale aprovada; PDI é da própria pessoa e o compartilhamento pode ser revogado.", [
+    ["record_dev_competency_version", "Registrar versão de competência"], ["approve_dev_competency", "Aprovar competência"],
+    ["record_dev_idp_version", "Registrar versão do PDI"], ["record_dev_idp_activity", "Registrar atividade do PDI"], ["revoke_dev_idp_share", "Revogar compartilhamento do PDI"]]],
+  ["questionarios", "Questionários", "Questionário sem gabarito/nota e resposta única; pesquisa só aprovada; satisfação nunca entra na conclusão.", [
+    ["record_dev_questionnaire", "Registrar questionário"], ["answer_dev_questionnaire", "Responder questionário"],
+    ["record_dev_survey_version", "Registrar versão de pesquisa"], ["approve_dev_survey", "Aprovar pesquisa"], ["answer_dev_survey", "Responder pesquisa"]]],
+  ["indicadores", "Indicadores", "Indicador e limiar só aprovados por outra pessoa; agregado só com grupo mínimo.", [
+    ["record_dev_impact_indicator", "Registrar indicador"], ["approve_dev_impact_indicator", "Aprovar indicador"], ["record_dev_impact_reading", "Registrar leitura"],
+    ["record_dev_impact_observation", "Registrar observação"], ["record_dev_threshold_version", "Registrar limiar"], ["approve_dev_threshold", "Aprovar limiar"]]],
+];
+// Frequência é derivada: o argumento de percentual é sempre nulo e nunca aparece como campo.
+const DERIVED = { record_dev_participation: { _pct: null } };
+function withDerived(st) {
+  for (const s of st) for (const a of s.actions) { const d = DERIVED[a.rpc]; if (!d) continue;
+    a.fields = a.fields.filter((f) => !(f.arg in d)); a.fixed = { ...(a.fixed ?? {}), ...d }; }
+  return st;
+}
+
 const out = (name, data) => `// GERADO por scripts/rpc-console-stages.mjs a partir das assinaturas reais dos writers. Não edite à mão.\nimport type { OperationStage } from "@/features/enrollments/enrollment-operations";\n\nexport const ${name}: readonly OperationStage[] = ${JSON.stringify(data, null, 1)};\n`;
 writeFileSync("src/features/permanence/permanence-operations.gen.ts", out("PERMANENCE_STAGES", stages(PERMANENCE)));
 writeFileSync("src/features/operations-center/ops-operations.gen.ts", out("OPS_STAGES", stages(OPERATIONS)));
+writeFileSync("src/features/professional-development/development-operations.gen.ts", out("DEVELOPMENT_STAGES", withDerived(stages(DEVELOPMENT))));
 console.log("ok");
