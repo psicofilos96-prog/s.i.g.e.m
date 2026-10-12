@@ -45,7 +45,7 @@ export function nextStep(events: WfEvent[], processId: string): Step | null {
   return STEPS.find((s) => !done.has(s)) ?? null;
 }
 
-export function advance(def: WorkflowDef, events: WfEvent[], processId: string, a: { step: Step; expectedSeq: number; text: string; at: string; payload?: Record<string, string> },
+export function advance(def: WorkflowDef, events: WfEvent[], processId: string, a: { step: Step; expectedSeq: number; text: string; at: string; payload?: Record<string, string> | undefined },
   actor: { personId: string | null; technical: boolean; capabilities: string[]; isRequester: boolean }) {
   if (actor.technical || !actor.personId) return { ok: false as const, reasons: ["Ato exige pessoa natural."] };
   const r: string[] = [];
