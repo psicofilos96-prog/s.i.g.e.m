@@ -3410,6 +3410,13 @@
       "when": 1791814979867,
       "tag": "0486_tech11_equipment_inventory",
       "breakpoints": true
+    },
+    {
+      "idx": 487,
+      "version": "7",
+      "when": 1791815368882,
+      "tag": "0487_tech13_connectivity",
+      "breakpoints": true
     }
   ]
 }
