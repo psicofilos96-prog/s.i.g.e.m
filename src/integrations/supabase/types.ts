@@ -34280,6 +34280,121 @@ export type Database = {
         }
         Relationships: []
       }
+      tech_equipment_category_mark_approvals: {
+        Row: {
+          created_at: string
+          decision: string
+          mark_id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          mark_id: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          mark_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_equipment_category_mark_approvals_mark_id_fkey"
+            columns: ["mark_id"]
+            isOneToOne: true
+            referencedRelation: "tech_equipment_category_marks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_equipment_category_marks: {
+        Row: {
+          action: string
+          category_key: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          reason: string
+          seq: number
+        }
+        Insert: {
+          action: string
+          category_key: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          reason: string
+          seq: number
+        }
+        Update: {
+          action?: string
+          category_key?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          reason?: string
+          seq?: number
+        }
+        Relationships: []
+      }
+      tech_equipment_sheets: {
+        Row: {
+          asset_id: string
+          created_at: string
+          equipment_type: string
+          id: string
+          idempotency_key: string
+          manufacturer: string | null
+          model: string | null
+          person_id: string
+          reason: string | null
+          serial_number: string | null
+          specs: Json
+          version: number
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          equipment_type: string
+          id?: string
+          idempotency_key: string
+          manufacturer?: string | null
+          model?: string | null
+          person_id: string
+          reason?: string | null
+          serial_number?: string | null
+          specs?: Json
+          version: number
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          equipment_type?: string
+          id?: string
+          idempotency_key?: string
+          manufacturer?: string | null
+          model?: string | null
+          person_id?: string
+          reason?: string | null
+          serial_number?: string | null
+          specs?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_equipment_sheets_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_problem_events: {
         Row: {
           action: string
@@ -36479,6 +36594,10 @@ export type Database = {
           _role: string
         }
         Returns: string
+      }
+      approve_tech_equipment_category_mark: {
+        Args: { _decision: string; _mark: string }
+        Returns: undefined
       }
       approve_tech_recurrence_rule: {
         Args: { _decision: string; _version: string }
@@ -40681,6 +40800,15 @@ export type Database = {
       mark_case_document_sensitive: {
         Args: { _case_event_id: string; _reason: string }
         Returns: undefined
+      }
+      mark_tech_equipment_category: {
+        Args: {
+          _action: string
+          _category: string
+          _key: string
+          _reason: string
+        }
+        Returns: number
       }
       meal_audit_trail_at: {
         Args: { _from: string; _school: string; _to: string }
@@ -46101,6 +46229,20 @@ export type Database = {
           _expected_seq: number
           _key: string
           _note: string
+        }
+        Returns: number
+      }
+      record_tech_equipment_sheet: {
+        Args: {
+          _asset: string
+          _expected_version: number
+          _key: string
+          _manufacturer: string
+          _model: string
+          _reason: string
+          _serial: string
+          _specs: Json
+          _type: string
         }
         Returns: number
       }
