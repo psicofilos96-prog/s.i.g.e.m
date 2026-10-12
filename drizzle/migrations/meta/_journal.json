@@ -2955,6 +2955,13 @@
       "when": 1791797763952,
       "tag": "0421_ops14_supply_transactions",
       "breakpoints": true
+    },
+    {
+      "idx": 422,
+      "version": "7",
+      "when": 1791798010020,
+      "tag": "0422_ops15_supply_requisitions",
+      "breakpoints": true
     }
   ]
 }

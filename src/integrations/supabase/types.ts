@@ -19845,6 +19845,76 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_supply_min_level_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          decision_ref: string
+          min_level_version_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          decision_ref: string
+          min_level_version_id: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          decision_ref?: string
+          min_level_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_min_level_approvals_min_level_version_id_fkey"
+            columns: ["min_level_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_supply_min_level_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_supply_min_level_versions: {
+        Row: {
+          author_person: string
+          basis: string
+          created_at: string
+          id: string
+          item_key: string
+          min_quantity: number
+          version: number
+          warehouse_id: string
+        }
+        Insert: {
+          author_person: string
+          basis: string
+          created_at?: string
+          id?: string
+          item_key: string
+          min_quantity: number
+          version: number
+          warehouse_id: string
+        }
+        Update: {
+          author_person?: string
+          basis?: string
+          created_at?: string
+          id?: string
+          item_key?: string
+          min_quantity?: number
+          version?: number
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_min_level_versions_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "ops_warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_supply_movements: {
         Row: {
           actor_person: string
@@ -19945,6 +20015,194 @@ export type Database = {
           {
             foreignKeyName: "ops_supply_movements_warehouse_id_fkey"
             columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "ops_warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_supply_requisition_events: {
+        Row: {
+          actor_person: string
+          created_at: string
+          doc_ref: string | null
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string | null
+          requisition_id: string
+          seq: number
+        }
+        Insert: {
+          actor_person: string
+          created_at?: string
+          doc_ref?: string | null
+          id?: string
+          idempotency_key: string
+          kind: string
+          note?: string | null
+          requisition_id: string
+          seq: number
+        }
+        Update: {
+          actor_person?: string
+          created_at?: string
+          doc_ref?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string | null
+          requisition_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_requisition_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_requisition_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_requisition_events_requisition_id_fkey"
+            columns: ["requisition_id"]
+            isOneToOne: false
+            referencedRelation: "ops_supply_requisitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_supply_requisition_line_acts: {
+        Row: {
+          event_id: string
+          line_id: string
+          lot: string
+          movement_id: string | null
+          quantity: number
+        }
+        Insert: {
+          event_id: string
+          line_id: string
+          lot?: string
+          movement_id?: string | null
+          quantity: number
+        }
+        Update: {
+          event_id?: string
+          line_id?: string
+          lot?: string
+          movement_id?: string | null
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_requisition_line_acts_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "ops_supply_requisition_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_requisition_line_acts_line_id_fkey"
+            columns: ["line_id"]
+            isOneToOne: false
+            referencedRelation: "ops_supply_requisition_lines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_requisition_line_acts_movement_id_fkey"
+            columns: ["movement_id"]
+            isOneToOne: false
+            referencedRelation: "ops_supply_movements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_supply_requisition_lines: {
+        Row: {
+          id: string
+          item_key: string
+          requested: number
+          requisition_id: string
+        }
+        Insert: {
+          id?: string
+          item_key: string
+          requested: number
+          requisition_id: string
+        }
+        Update: {
+          id?: string
+          item_key?: string
+          requested?: number
+          requisition_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_requisition_lines_requisition_id_fkey"
+            columns: ["requisition_id"]
+            isOneToOne: false
+            referencedRelation: "ops_supply_requisitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_supply_requisitions: {
+        Row: {
+          created_at: string
+          destination_warehouse: string | null
+          id: string
+          idempotency_key: string
+          justification: string
+          requester_person: string
+          requesting_school: string
+          supplier_warehouse: string
+        }
+        Insert: {
+          created_at?: string
+          destination_warehouse?: string | null
+          id?: string
+          idempotency_key: string
+          justification: string
+          requester_person: string
+          requesting_school: string
+          supplier_warehouse: string
+        }
+        Update: {
+          created_at?: string
+          destination_warehouse?: string | null
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          requester_person?: string
+          requesting_school?: string
+          supplier_warehouse?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_requisitions_destination_warehouse_fkey"
+            columns: ["destination_warehouse"]
+            isOneToOne: false
+            referencedRelation: "ops_warehouses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_requisitions_requesting_school_fkey"
+            columns: ["requesting_school"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_requisitions_supplier_warehouse_fkey"
+            columns: ["supplier_warehouse"]
             isOneToOne: false
             referencedRelation: "ops_warehouses"
             referencedColumns: ["id"]
@@ -28528,6 +28786,10 @@ export type Database = {
         Args: { _decision_ref: string; _iv: string }
         Returns: undefined
       }
+      approve_ops_supply_min_level: {
+        Args: { _decision_ref: string; _v: string }
+        Returns: undefined
+      }
       approve_permanence_barrier_type: {
         Args: { _decision: string; _type: string }
         Returns: string
@@ -33560,6 +33822,17 @@ export type Database = {
         }
         Returns: string
       }
+      open_ops_supply_requisition: {
+        Args: {
+          _dest: string
+          _justification: string
+          _key: string
+          _lines: Json
+          _school: string
+          _supplier: string
+        }
+        Returns: string
+      }
       open_ops_work: {
         Args: {
           _key: string
@@ -33610,6 +33883,8 @@ export type Database = {
         Args: { _last: string; _last_result: string; _stage: string }
         Returns: boolean
       }
+      ops_requisition_readable: { Args: { _r: string }; Returns: boolean }
+      ops_requisition_state: { Args: { _r: string }; Returns: string }
       ops_service_next_ok: {
         Args: { _kind: string; _state: string }
         Returns: boolean
@@ -36029,6 +36304,18 @@ export type Database = {
         }
         Returns: string
       }
+      record_ops_supply_requisition_event: {
+        Args: {
+          _doc: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _lines: Json
+          _note: string
+          _r: string
+        }
+        Returns: number
+      }
       record_ops_work_event: {
         Args: {
           _doc: string
@@ -37112,6 +37399,16 @@ export type Database = {
           _lot: boolean
           _reason: string
           _unit: string
+        }
+        Returns: string
+      }
+      register_ops_supply_min_level: {
+        Args: {
+          _basis: string
+          _expected_version: number
+          _item: string
+          _min: number
+          _wh: string
         }
         Returns: string
       }
