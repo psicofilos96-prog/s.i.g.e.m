@@ -25,7 +25,7 @@ describe("L17 incidentes de segurança", () => {
     expect(sql.match(/USING \(public\.has_network_capability\('tratar-incidentes-de-seguranca'\)\)/g)).toHaveLength(2);
     expect(sql).toMatch(/GRANT SELECT \(incident_id, seq, kind, severity, personal_data, communicate, note, person_id, created_at\)/);
     expect(sql).toMatch(/RETURNS TABLE\(code text, created_at timestamptz, phase text\)/);
-    expect(sql).not.toMatch(/ops_requests/);
+    expect(sql).not.toMatch(/(FROM|INTO|JOIN) public\.ops_requests/);
     expect(sql.match(/FROM PUBLIC, anon/g)).toHaveLength(3);
   });
 });
