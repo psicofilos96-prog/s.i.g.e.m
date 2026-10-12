@@ -10011,6 +10011,38 @@ export type Database = {
           },
         ]
       }
+      guardian_link_qualifications: {
+        Row: {
+          authorization_id: string
+          link_type: string
+          recorded_at: string
+          recorded_by: string
+          restrictions: string[]
+        }
+        Insert: {
+          authorization_id: string
+          link_type: string
+          recorded_at?: string
+          recorded_by: string
+          restrictions?: string[]
+        }
+        Update: {
+          authorization_id?: string
+          link_type?: string
+          recorded_at?: string
+          recorded_by?: string
+          restrictions?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guardian_link_qualifications_authorization_id_fkey"
+            columns: ["authorization_id"]
+            isOneToOne: true
+            referencedRelation: "guardian_authorizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       identity_link_review_decisions: {
         Row: {
           decided_at: string
@@ -26801,6 +26833,16 @@ export type Database = {
           version: number
         }[]
       }
+      guardian_link_qualifications_at: {
+        Args: { _school: string; _student: string }
+        Returns: {
+          authorization_id: string
+          link_type: string
+          recorded_at: string
+          recorded_by: string
+          restrictions: string[]
+        }[]
+      }
       has_capability: {
         Args: { _capability: string; _class: string; _period?: string }
         Returns: boolean
@@ -30332,6 +30374,25 @@ export type Database = {
           _reason: string
           _relation_scheme: string
           _relation_value: string
+          _school: string
+          _sections: string[]
+          _source_ref: string
+          _student: string
+          _valid_from: string
+          _valid_until: string
+        }
+        Returns: string
+      }
+      record_guardian_authorization_v4: {
+        Args: {
+          _base_id: string
+          _guardian_person: string
+          _kind: string
+          _link_type: string
+          _reason: string
+          _relation_scheme: string
+          _relation_value: string
+          _restrictions: string[]
           _school: string
           _sections: string[]
           _source_ref: string

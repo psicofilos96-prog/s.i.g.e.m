@@ -2668,6 +2668,13 @@
       "when": 1791755004271,
       "tag": "0380_ibge_dtb_revoke_technical_load",
       "breakpoints": true
+    },
+    {
+      "idx": 381,
+      "version": "7",
+      "when": 1791780029901,
+      "tag": "0381_family_l02_guardian_link_qualification",
+      "breakpoints": true
     }
   ]
 }
