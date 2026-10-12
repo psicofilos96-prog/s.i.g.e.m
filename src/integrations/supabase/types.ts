@@ -9176,6 +9176,198 @@ export type Database = {
           },
         ]
       }
+      dev_certificate_issuances: {
+        Row: {
+          created_at: string
+          enrollment_id: string
+          id: string
+          issuer_person: string
+          supersedes: string | null
+          verification_code: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id: string
+          id?: string
+          issuer_person: string
+          supersedes?: string | null
+          verification_code?: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string
+          id?: string
+          issuer_person?: string
+          supersedes?: string | null
+          verification_code?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_certificate_issuances_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_certificate_issuances_supersedes_fkey"
+            columns: ["supersedes"]
+            isOneToOne: true
+            referencedRelation: "dev_certificate_issuances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_certificate_issuances_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_certificate_validations"
+            referencedColumns: ["version_id"]
+          },
+        ]
+      }
+      dev_certificate_revocations: {
+        Row: {
+          created_at: string
+          issuance_id: string
+          reason: string
+          revoker_person: string
+        }
+        Insert: {
+          created_at?: string
+          issuance_id: string
+          reason: string
+          revoker_person: string
+        }
+        Update: {
+          created_at?: string
+          issuance_id?: string
+          reason?: string
+          revoker_person?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_certificate_revocations_issuance_id_fkey"
+            columns: ["issuance_id"]
+            isOneToOne: true
+            referencedRelation: "dev_certificate_issuances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_certificate_validations: {
+        Row: {
+          created_at: string
+          decision: string
+          reason: string
+          validator_person: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          reason: string
+          validator_person: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          reason?: string
+          validator_person?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_certificate_validations_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_certificate_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_certificate_versions: {
+        Row: {
+          author_person: string
+          completion_assessment_id: string
+          content_sha256: string
+          course_title: string
+          created_at: string
+          enrollment_id: string
+          hours_minutes: number
+          id: string
+          idempotency_key: string
+          institution: string
+          pdf_document_version: string
+          pdf_sha256: string
+          period_end: string
+          period_start: string
+          reason: string | null
+          version: number
+        }
+        Insert: {
+          author_person: string
+          completion_assessment_id: string
+          content_sha256: string
+          course_title: string
+          created_at?: string
+          enrollment_id: string
+          hours_minutes: number
+          id?: string
+          idempotency_key: string
+          institution: string
+          pdf_document_version: string
+          pdf_sha256: string
+          period_end: string
+          period_start: string
+          reason?: string | null
+          version: number
+        }
+        Update: {
+          author_person?: string
+          completion_assessment_id?: string
+          content_sha256?: string
+          course_title?: string
+          created_at?: string
+          enrollment_id?: string
+          hours_minutes?: number
+          id?: string
+          idempotency_key?: string
+          institution?: string
+          pdf_document_version?: string
+          pdf_sha256?: string
+          period_end?: string
+          period_start?: string
+          reason?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_certificate_versions_completion_assessment_id_fkey"
+            columns: ["completion_assessment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_completion_confirmations"
+            referencedColumns: ["assessment_id"]
+          },
+          {
+            foreignKeyName: "dev_certificate_versions_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_certificate_versions_pdf_document_version_fkey"
+            columns: ["pdf_document_version"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_certifications: {
         Row: {
           conclusion_event_id: string
@@ -34430,6 +34622,10 @@ export type Database = {
       designation_year_valid_on: { Args: { _year: string }; Returns: string }
       designation_year_writable: { Args: { _year: string }; Returns: undefined }
       dev_can_manage: { Args: never; Returns: boolean }
+      dev_cert_enrollment_readable: {
+        Args: { _enrollment: string }
+        Returns: boolean
+      }
       dev_class_occupied: { Args: { _class: string }; Returns: number }
       dev_completion_compute: { Args: { _enrollment: string }; Returns: Json }
       dev_current_threshold: {
@@ -36153,6 +36349,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      issue_dev_certificate: { Args: { _version: string }; Returns: string }
       issue_dev_certification: {
         Args: { _document_version: string; _enrollment: string; _key: string }
         Returns: string
@@ -39063,6 +39260,17 @@ export type Database = {
           _reason: string
           _syllabus: string
           _title: string
+        }
+        Returns: string
+      }
+      record_dev_certificate_version: {
+        Args: {
+          _enrollment: string
+          _expected_version: number
+          _institution: string
+          _key: string
+          _pdf: string
+          _reason: string
         }
         Returns: string
       }
@@ -42090,6 +42298,10 @@ export type Database = {
         Args: { _effective_on: string; _reason: string; _relation: string }
         Returns: string
       }
+      revoke_dev_certificate: {
+        Args: { _issuance: string; _reason: string }
+        Returns: undefined
+      }
       revoke_dev_track_mandate: {
         Args: {
           _act: string
@@ -43578,6 +43790,10 @@ export type Database = {
         }
         Returns: string
       }
+      validate_dev_certificate: {
+        Args: { _decision: string; _reason: string; _version: string }
+        Returns: undefined
+      }
       validate_ops_vehicle_use: {
         Args: { _reason: string; _trip: string; _vehicle: string }
         Returns: string
@@ -43590,6 +43806,20 @@ export type Database = {
           signature_level: string
           signed_at: string
           signed_content_sha256: string
+          status: string
+          version: number
+        }[]
+      }
+      verify_dev_certificate: {
+        Args: { _code: string }
+        Returns: {
+          course_title: string
+          hours_minutes: number
+          institution: string
+          issued_on: string
+          pdf_sha256: string
+          period_end: string
+          period_start: string
           status: string
           version: number
         }[]
