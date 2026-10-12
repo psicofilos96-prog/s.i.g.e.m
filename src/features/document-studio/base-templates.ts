@@ -8,7 +8,7 @@ import { DEFAULT_PAGE, type PageSetup, type StudioBlock } from "./studio-engine"
 export const DRAFT_LABEL = "Rascunho institucional — não homologado";
 export type BaseTemplate = { id: string; sector: string; title: string; source: string | null; blocks: StudioBlock[]; page: PageSetup };
 
-const header: StudioBlock = { type: "header", logoAsset: null, lines: ["Prefeitura Municipal de Itaperuna", "Secretaria Municipal de Educação", "{{escola.nome}}"] };
+const header: StudioBlock = { type: "header", logoAsset: "asset:brasao@1", lines: ["Prefeitura Municipal de Itaperuna", "Secretaria Municipal de Educação", "{{escola.nome}}"] };
 const tail: StudioBlock[] = [
   { type: "date-place", place: "Itaperuna" },
   { type: "signature", label: "Secretário(a) escolar" },
@@ -55,6 +55,21 @@ export const BASE_TEMPLATES: readonly BaseTemplate[] = [
     blocks: [header, { type: "title", text: "TERMO DE CIÊNCIA DE FALTAS" },
       { type: "rich", runs: [{ text: "Declaro ciência das faltas de {{aluno.nome}}, turma {{turma.rotulo}}, conforme apuração de frequência homologada." }] },
       { type: "date-place", place: "Itaperuna" }, { type: "signature", label: "Responsável" }, { type: "signature", label: "Direção" }] },
+  { id: "memorando", sector: "direcao", title: "Memorando", source: null, page: page(""),
+    blocks: [header, { type: "document-number" }, { type: "title", text: "MEMORANDO" },
+      { type: "field", label: "De", fact: "escola.nome" }, { type: "rich", runs: [{ text: "Para: " }] }, { type: "rich", runs: [{ text: "Assunto: " }] }, { type: "line" },
+      { type: "rich", style: { align: "justify" }, runs: [{ text: "Texto do memorando." }] }, { type: "date-place", place: "Itaperuna" }, { type: "signature", label: "Direção" }, { type: "qr", label: "Verifique a autenticidade pelo código" }] },
+  { id: "parecer", sector: "direcao", title: "Parecer", source: null, page: page(""),
+    blocks: [header, { type: "document-number" }, { type: "title", text: "PARECER" }, { type: "rich", runs: [{ text: "Interessado: " }] }, { type: "rich", runs: [{ text: "Assunto: " }] },
+      { type: "box", title: "Relatório", children: [{ type: "rich", runs: [{ text: "Relato dos fatos." }] }] },
+      { type: "box", title: "Análise", children: [{ type: "rich", runs: [{ text: "Fundamentação." }] }] },
+      { type: "box", title: "Conclusão", children: [{ type: "rich", runs: [{ text: "Manifestação conclusiva." }] }] },
+      { type: "date-place", place: "Itaperuna" }, { type: "signature", label: "Parecerista", role: "Cargo/função" }, { type: "qr", label: "Verifique a autenticidade pelo código" }] },
+  { id: "requerimento", sector: "secretaria", title: "Requerimento", source: null, page: page(""),
+    blocks: [header, { type: "document-number" }, { type: "title", text: "REQUERIMENTO" },
+      { type: "rich", style: { align: "justify" }, runs: [{ text: "Ilmo(a). Sr(a). Diretor(a) da {{escola.nome}}," }] },
+      { type: "rich", style: { align: "justify" }, runs: [{ text: "O(a) requerente abaixo identificado(a) vem requerer: " }] },
+      { type: "rich", runs: [{ text: "Nestes termos, pede deferimento." }] }, { type: "date-place", place: "Itaperuna" }, { type: "signature", label: "Requerente" }] },
   { id: "oficio", sector: "direcao", title: "Ofício", source: "Ofícios 11–22/2026 (estrutura)", page: page(""),
     blocks: [header, { type: "document-number" }, { type: "date-place", place: "Itaperuna" },
       { type: "rich", runs: [{ text: "Da: {{escola.nome}}", bold: true }] }, { type: "rich", runs: [{ text: "Assunto: " , bold: true }, { text: "(preencher)" }] },
