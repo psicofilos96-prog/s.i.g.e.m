@@ -16,13 +16,13 @@ const PAGE = 50;
 
 function ReadTable({ read, ns }: { read: OperationRead; ns: string }) {
   const q = useQuery({
-    queryKey: [ns, read.table],
+    queryKey: [ns, read.table, read.eq ?? null],
     staleTime: 30_000,
     retry: 1,
     queryFn: async ({ signal }) => {
-      const r = await supabase
-        .from(read.table as never)
-        .select(read.columns.join(","))
+      let sel = supabase.from(read.table as never).select(read.columns.join(",")) as any;
+      for (const [k, v] of Object.entries(read.eq ?? {})) sel = sel.eq(k, v);
+      const r = await sel
         .order(read.order, { ascending: false })
         .range(0, PAGE - 1)
         .abortSignal(signal);
@@ -75,7 +75,7 @@ function ActionForm({ action, tables, ns }: { action: OperationAction; tables: r
     setBusy(true);
     setMsg(null);
     try {
-      await callRpc(action.rpc, args);
+      await callRpc(action.rpc, { ...args, ...(action.fixed ?? {}) });
       setMsg({ ok: true, text: "Gravado pelo writer do banco." });
       setValues({});
       setKey(newKey());

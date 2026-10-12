@@ -21,12 +21,16 @@ export interface OperationAction {
   fields: readonly ActionField[];
   /** Argumento de idempotência gerado pela tela (estável até a gravação aceita). */
   keyArg?: string;
+  /** Argumentos fixos declarados pela especificação (não editáveis na tela). */
+  fixed?: Readonly<Record<string, string | number | boolean>>;
 }
 export interface OperationRead {
   label: string;
   table: string;
   columns: readonly string[];
   order: string;
+  /** Filtro de igualdade declarado (a RLS continua decidindo o que volta). */
+  eq?: Readonly<Record<string, string>>;
 }
 export interface OperationStage {
   id: string;
