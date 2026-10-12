@@ -44,7 +44,7 @@ export type Decision = { ok: true; event: OfferEvent } | { ok: false; reason: st
 
 export function applyOfferAction(
   base: OfferIdentity, events: readonly OfferEvent[], action: OfferAction, actor: Actor,
-  input: { reason: string; actRef?: string | null; at: string; expectedSeq: number; identity?: OfferIdentity },
+  input: { reason: string; actRef?: string | null | undefined; at: string; expectedSeq: number; identity?: OfferIdentity },
   config: OfferCompetenceConfig,
 ): Decision {
   if (!actor.isHuman || !actor.personId) return { ok: false, reason: "Ato exige pessoa natural; executor técnico não decide oferta." };
