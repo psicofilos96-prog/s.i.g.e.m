@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 340. Sem classe: 0. Com referência quebrada: 2.
+Documentos: 341. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -221,7 +221,7 @@ Documentos: 340. Sem classe: 0. Com referência quebrada: 2.
 
 **Vigente:** `api-de-integracao.md`, `busca-ativa-alunos-servidores.md`, `comunicacao-notificacoes.md`, `database-constraints-indexes-batch-readers.md`, `database-contracts-audit.md`, `design-system-sigem.md`, `governanca-execucao-tecnica-desenvolvimento.md`, `governanca-infraestrutura-escolar.md`, `guias-por-perfil-ba.md`, `mapa-documentacao-vigente.md`, `mapa-estatistico-2027.md`, `matriz-completude-produto-sigem.md`, `matriz-rastreabilidade.md`, `modulos-apoio-produto.md`, `necessidade-professor-calculo-canonico.md`, `op-direcao-produto.md`, `orientacao-direcao-gestao.md`, `performance-escala-sigem.md`, `storage-arquivos-privados.md`, `supervisao-escolar-produto.md`, `varredura-demonstracao-contexto-real.md`
 
-**Registros de lote (decisões e provas da etapa):** `acabamento-visual-ndesignqa.md`, `alimentacao-alim00-matriz-2026-10-10.md`, `alimentacao-escolar-produto-final.md`, `busca-e-avisos-nsearch2.md`, `campanha-zero-erros.md`, `confronto-alimentacao-lote-e-2026-10-10.md`, `datas-fuso-ndate1.md`, `direcao-escolar-produto-final.md`, `document-studio-docs-pro-3.md`, `e2e-autenticado-lote12.md`, `homologacao-real-por-perfil.md`, `homologacao-tecnica-lotes-24-31-2026-10.md`, `hotfix-performance-loading.md`, `integracao-transversal-final.md`, `isolamento-demonstracao-ndemo2.md`, `isolamento-setorial-nsector4.md`, `listas-paginacao-npag1.md`, `login-nlogin2.md`, `lotes-32-36-servidores-infra-testes-parametros-2026-10.md`, `mapa-estatistico-final.md`, `matriz-setores-sigem-2026-10-10.md`, `mediador-escolar-produto-final.md`, `nprint-final-2.md`, `orientacao-pedagogica-produto-final.md`, `prontidao-2027-nprep1.md`, `r1-recuperacao-2026-10-10.md`, `recuperacao-erros-nobs4.md`, `regressao-visual-nvis1.md`, `revisao-busca-notificacoes.md`, `revisao-final-pos-fila-2026-10-09.md`, `seguranca-web-nwebsec1.md`, `teclado-foco-nkey1.md`, `tempos-suite-nperf-test1.md`, `trajetoria-estudante-nstudent1.md`, `unidades-escolares-nschool1.md`, `validacao-fronteiras-nvalid1.md`
+**Registros de lote (decisões e provas da etapa):** `acabamento-visual-ndesignqa.md`, `alimentacao-alim00-matriz-2026-10-10.md`, `alimentacao-escolar-produto-final.md`, `busca-e-avisos-nsearch2.md`, `campanha-zero-erros.md`, `confronto-alimentacao-lote-e-2026-10-10.md`, `datas-fuso-ndate1.md`, `direcao-escolar-produto-final.md`, `document-studio-docs-pro-3.md`, `e2e-autenticado-lote12.md`, `homologacao-real-por-perfil.md`, `homologacao-tecnica-lotes-24-31-2026-10.md`, `hotfix-performance-loading.md`, `integracao-transversal-final.md`, `isolamento-demonstracao-ndemo2.md`, `isolamento-setorial-nsector4.md`, `listas-paginacao-npag1.md`, `login-nlogin2.md`, `lote-38-vinculos-folha-agosto-2026.md`, `lotes-32-36-servidores-infra-testes-parametros-2026-10.md`, `mapa-estatistico-final.md`, `matriz-setores-sigem-2026-10-10.md`, `mediador-escolar-produto-final.md`, `nprint-final-2.md`, `orientacao-pedagogica-produto-final.md`, `prontidao-2027-nprep1.md`, `r1-recuperacao-2026-10-10.md`, `recuperacao-erros-nobs4.md`, `regressao-visual-nvis1.md`, `revisao-busca-notificacoes.md`, `revisao-final-pos-fila-2026-10-09.md`, `seguranca-web-nwebsec1.md`, `teclado-foco-nkey1.md`, `tempos-suite-nperf-test1.md`, `trajetoria-estudante-nstudent1.md`, `unidades-escolares-nschool1.md`, `validacao-fronteiras-nvalid1.md`
 
 **Pendências declaradas:**
 - `acabamento-visual-ndesignqa.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
@@ -251,5 +251,4 @@ Documentos: 340. Sem classe: 0. Com referência quebrada: 2.
 
 ## Referências quebradas
 
-- `mapa-documentacao-vigente.md`: `docs/lote-38-vinculos-folha-agosto-2026.md`
-- `matriz-unica-pendencias-sigem-2026-10.md`: `docs/lote-38-vinculos-folha-agosto-2026.md`
+Nenhuma.
