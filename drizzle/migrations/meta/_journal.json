@@ -2920,6 +2920,13 @@
       "when": 1791796870405,
       "tag": "0416_ops10_asset_transfers",
       "breakpoints": true
+    },
+    {
+      "idx": 417,
+      "version": "7",
+      "when": 1791796982300,
+      "tag": "0417_ops10_revoke_helpers",
+      "breakpoints": true
     }
   ]
 }
