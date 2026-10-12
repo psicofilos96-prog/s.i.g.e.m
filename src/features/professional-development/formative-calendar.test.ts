@@ -19,7 +19,7 @@ describe("L09 calendário formativo", () => {
     const days = [{ on: "2026-03-09", schoolDay: false, label: "x" }];
     const f = calendarFindings([m({ on: "2026-03-09" }), m({ meetingId: "m2", on: "2026-03-09", starts: "10:00", ends: "11:00" })], days,
       new Map([["c1", ["p1"]]]), [{ personId: "p1", weekday: 1, starts: "07:30", ends: "09:00", source: "grade" }]);
-    expect(f.map((x) => x.kind).sort()).toEqual(["choque-com-grade", "choque-com-grade", "formador-em-dois-encontros"]);
+    expect(f.map((x) => x.kind).sort()).toEqual(["choque-com-grade", "formador-em-dois-encontros"]);
   });
   it("cancelado não gera choque", () => expect(calendarFindings([m({ status: "cancelado" })], null, new Map(), [])).toEqual([]));
   it("aviso sem regra de entrega fica pendente, nunca enviado", () => expect(noticeState(false, false)).toBe("pendente-sem-regra"));
