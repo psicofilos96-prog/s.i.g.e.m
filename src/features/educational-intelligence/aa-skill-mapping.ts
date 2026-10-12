@@ -66,7 +66,7 @@ export const usableAsEquivalence = (m: Mapping) => m.kind === "direta" && m.vali
 
 /** Proposta para o writer canônico; o núcleo só valida o pedido, nunca grava. */
 export type MappingProposal = { itemId: string; otherItemId: string | null; targetSource: string; kind: MappingKind; justification: string; sourceLocator: string; validFrom: string; authorPersonId: string | null };
-export type ProposalCheck = { ok: true; writer: "record_curricular_reference_relation" | "record_curricular_reference_no_correspondence" } | { ok: false; reasons: string[] };
+export type ProposalCheck = { ok: true; writer: "record_curricular_reference_relation_v2" | "record_curricular_reference_no_correspondence" } | { ok: false; reasons: string[] };
 
 export function checkProposal(p: MappingProposal): ProposalCheck {
   const reasons: string[] = [];
@@ -77,7 +77,7 @@ export function checkProposal(p: MappingProposal): ProposalCheck {
   if (p.kind === "nao-estabelecida" && p.otherItemId) reasons.push("não estabelecida não aponta item");
   if (p.kind !== "nao-estabelecida" && !p.otherItemId) reasons.push("tipo exige item de destino");
   if (reasons.length) return { ok: false, reasons };
-  return { ok: true, writer: p.kind === "nao-estabelecida" ? "record_curricular_reference_no_correspondence" : "record_curricular_reference_relation" };
+  return { ok: true, writer: p.kind === "nao-estabelecida" ? "record_curricular_reference_no_correspondence" : "record_curricular_reference_relation_v2" };
 }
 
 /** Avaliação histórica lê o mapeamento conhecido na data da aplicação, nunca o atual. */

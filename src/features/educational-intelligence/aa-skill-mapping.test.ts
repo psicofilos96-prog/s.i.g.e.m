@@ -18,7 +18,7 @@ describe("A&A Lote 03 mapeamento habilidade ↔ referência", () => {
   });
   it("proposta exige autoria, justificativa, fonte e vigência; escolhe o writer canônico", () => {
     const base = { itemId: "x", otherItemId: "y", targetSource: "saeb", kind: "parcial" as const, justification: "j", sourceLocator: "p.1", validFrom: "2026-02-01", authorPersonId: "p" };
-    expect(checkProposal(base)).toEqual({ ok: true, writer: "record_curricular_reference_relation" });
+    expect(checkProposal(base)).toEqual({ ok: true, writer: "record_curricular_reference_relation_v2" });
     expect(checkProposal({ ...base, authorPersonId: null, justification: " " }).ok).toBe(false);
     expect(checkProposal({ ...base, kind: "nao-estabelecida" }).ok).toBe(false);
     expect(checkProposal({ ...base, kind: "nao-estabelecida", otherItemId: null })).toMatchObject({ writer: "record_curricular_reference_no_correspondence" });
