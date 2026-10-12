@@ -18252,6 +18252,102 @@ export type Database = {
           },
         ]
       }
+      permanence_barrier_types: {
+        Row: {
+          approved_by: string | null
+          author_person: string
+          created_at: string
+          decision_ref: string | null
+          id: string
+          label: string
+          requires_confirmation: boolean
+          sensitivity: string
+          type_key: string
+          version: number
+        }
+        Insert: {
+          approved_by?: string | null
+          author_person: string
+          created_at?: string
+          decision_ref?: string | null
+          id?: string
+          label: string
+          requires_confirmation?: boolean
+          sensitivity: string
+          type_key: string
+          version: number
+        }
+        Update: {
+          approved_by?: string | null
+          author_person?: string
+          created_at?: string
+          decision_ref?: string | null
+          id?: string
+          label?: string
+          requires_confirmation?: boolean
+          sensitivity?: string
+          type_key?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      permanence_case_barriers: {
+        Row: {
+          author_person: string
+          barrier_ref: string
+          case_id: string
+          created_at: string
+          idempotency_key: string
+          justification: string | null
+          seq: number
+          source_kind: string
+          source_ref: string | null
+          status: string
+          type_id: string
+        }
+        Insert: {
+          author_person: string
+          barrier_ref?: string
+          case_id: string
+          created_at?: string
+          idempotency_key: string
+          justification?: string | null
+          seq: number
+          source_kind: string
+          source_ref?: string | null
+          status: string
+          type_id: string
+        }
+        Update: {
+          author_person?: string
+          barrier_ref?: string
+          case_id?: string
+          created_at?: string
+          idempotency_key?: string
+          justification?: string | null
+          seq?: number
+          source_kind?: string
+          source_ref?: string | null
+          status?: string
+          type_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_case_barriers_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permanence_case_barriers_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "permanence_barrier_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permanence_case_numbers: {
         Row: {
           assigned_at: string
@@ -25643,6 +25739,10 @@ export type Database = {
         }
         Returns: string
       }
+      approve_permanence_barrier_type: {
+        Args: { _decision: string; _type: string }
+        Returns: string
+      }
       approve_permanence_rule_version: {
         Args: {
           _decision_ref: string
@@ -31321,6 +31421,20 @@ export type Database = {
         }
         Returns: Json
       }
+      record_case_barrier: {
+        Args: {
+          _barrier_ref: string
+          _case: string
+          _expected_seq: number
+          _justification: string
+          _key: string
+          _source: string
+          _source_ref: string
+          _status: string
+          _type: string
+        }
+        Returns: string
+      }
       record_class_allocation:
         | {
             Args: {
@@ -33707,6 +33821,16 @@ export type Database = {
           _rule_version: string
           _school: string
           _student: string
+        }
+        Returns: string
+      }
+      register_permanence_barrier_type: {
+        Args: {
+          _expected_version: number
+          _key: string
+          _label: string
+          _requires_confirmation: boolean
+          _sensitivity: string
         }
         Returns: string
       }
