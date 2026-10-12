@@ -15152,6 +15152,147 @@ export type Database = {
           },
         ]
       }
+      enr_waitlist_calls: {
+        Row: {
+          application_id: string
+          created_at: string
+          hold_id: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          version: number
+          waitlist_id: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          hold_id: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          version: number
+          waitlist_id: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          hold_id?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          version?: number
+          waitlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_waitlist_calls_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_waitlist_calls_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: false
+            referencedRelation: "enr_waitlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_waitlist_versions: {
+        Row: {
+          act_ref: string | null
+          basis: string
+          created_at: string
+          entries: string[]
+          id: string
+          idempotency_key: string
+          person_id: string
+          reason: string
+          version: number
+          waitlist_id: string
+        }
+        Insert: {
+          act_ref?: string | null
+          basis: string
+          created_at?: string
+          entries: string[]
+          id?: string
+          idempotency_key: string
+          person_id: string
+          reason: string
+          version: number
+          waitlist_id: string
+        }
+        Update: {
+          act_ref?: string | null
+          basis?: string
+          created_at?: string
+          entries?: string[]
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          reason?: string
+          version?: number
+          waitlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_waitlist_versions_act_ref_fkey"
+            columns: ["act_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_waitlist_versions_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: false
+            referencedRelation: "enr_waitlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_waitlists: {
+        Row: {
+          campaign_id: string
+          cell_key: string
+          created_at: string
+          id: string
+          proposal_id: string
+        }
+        Insert: {
+          campaign_id: string
+          cell_key: string
+          created_at?: string
+          id?: string
+          proposal_id: string
+        }
+        Update: {
+          campaign_id?: string
+          cell_key?: string
+          created_at?: string
+          id?: string
+          proposal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_waitlists_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_waitlists_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "enr_distribution_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollment_wizard_draft_events: {
         Row: {
           author_actor_kind: string
@@ -37524,6 +37665,13 @@ export type Database = {
           strength: string
         }[]
       }
+      enr_call_from_waitlist: {
+        Args: { _expected_version: number; _key: string; _w: string }
+        Returns: {
+          called_application: string
+          called_hold: string
+        }[]
+      }
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
       enr_can_see_application: { Args: { _app: string }; Returns: boolean }
@@ -37531,6 +37679,10 @@ export type Database = {
       enr_distribution_conflicts: { Args: { _run: string }; Returns: Json }
       enr_document_slot_open: { Args: { _name: string }; Returns: boolean }
       enr_norm_name: { Args: { _t: string }; Returns: string }
+      enr_open_waitlist: {
+        Args: { _cell: string; _key: string; _proposal: string }
+        Returns: string
+      }
       enr_preference_policy_current: {
         Args: { _c: string }
         Returns: {
@@ -37631,6 +37783,27 @@ export type Database = {
           object_path: string
           status: string
         }[]
+      }
+      enr_public_waitlist_position: {
+        Args: { _check: string; _code: string }
+        Returns: {
+          list_cell: string
+          queue_position: number
+          queue_total: number
+          status: string
+          was_called: boolean
+        }[]
+      }
+      enr_reclassify_waitlist: {
+        Args: {
+          _act: string
+          _entries: string[]
+          _expected_version: number
+          _key: string
+          _reason: string
+          _w: string
+        }
+        Returns: number
       }
       enr_rules_valid: { Args: { _r: Json }; Returns: boolean }
       enr_seat_close: {
