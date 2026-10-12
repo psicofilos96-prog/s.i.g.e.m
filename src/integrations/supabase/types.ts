@@ -8792,6 +8792,127 @@ export type Database = {
         }
         Relationships: []
       }
+      document_number_allocations: {
+        Row: {
+          allocated_at: string
+          allocated_by_person: string
+          document_type_key: string
+          formatted: string
+          id: string
+          idempotency_key: string
+          rule_id: string
+          seq: number
+          subject_ref: string
+          unit_id: string
+          year: number
+        }
+        Insert: {
+          allocated_at?: string
+          allocated_by_person: string
+          document_type_key: string
+          formatted: string
+          id?: string
+          idempotency_key: string
+          rule_id: string
+          seq: number
+          subject_ref: string
+          unit_id: string
+          year: number
+        }
+        Update: {
+          allocated_at?: string
+          allocated_by_person?: string
+          document_type_key?: string
+          formatted?: string
+          id?: string
+          idempotency_key?: string
+          rule_id?: string
+          seq?: number
+          subject_ref?: string
+          unit_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_number_allocations_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "document_numbering_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_number_cancellations: {
+        Row: {
+          allocation_id: string
+          cancelled_at: string
+          cancelled_by_person: string
+          justification: string
+        }
+        Insert: {
+          allocation_id: string
+          cancelled_at?: string
+          cancelled_by_person: string
+          justification: string
+        }
+        Update: {
+          allocation_id?: string
+          cancelled_at?: string
+          cancelled_by_person?: string
+          justification?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_number_cancellations_allocation_id_fkey"
+            columns: ["allocation_id"]
+            isOneToOne: true
+            referencedRelation: "document_number_allocations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_numbering_rules: {
+        Row: {
+          approved_by_person: string | null
+          created_at: string
+          created_by_person: string
+          decision_ref: string | null
+          document_type_key: string
+          id: string
+          pattern: string
+          rule_key: string
+          seq_padding: number
+          status: string
+          version: number
+        }
+        Insert: {
+          approved_by_person?: string | null
+          created_at?: string
+          created_by_person: string
+          decision_ref?: string | null
+          document_type_key: string
+          id?: string
+          pattern: string
+          rule_key: string
+          seq_padding?: number
+          status: string
+          version: number
+        }
+        Update: {
+          approved_by_person?: string | null
+          created_at?: string
+          created_by_person?: string
+          decision_ref?: string | null
+          document_type_key?: string
+          id?: string
+          pattern?: string
+          rule_key?: string
+          seq_padding?: number
+          status?: string
+          version?: number
+        }
+        Relationships: []
+      }
       educacenso_aux_codes: {
         Row: {
           attrs: Json
@@ -24086,6 +24207,21 @@ export type Database = {
         Args: { _capability: string; _school: string }
         Returns: string
       }
+      allocate_document_number: {
+        Args: {
+          _document_type_key: string
+          _idempotency_key: string
+          _subject_ref: string
+          _unit_id: string
+          _year: number
+        }
+        Returns: {
+          allocation_id: string
+          formatted: string
+          reused: boolean
+          seq: number
+        }[]
+      }
       allocation_curricular_positions_at: {
         Args: {
           _class: string
@@ -24843,6 +24979,10 @@ export type Database = {
       can_read_teaching_plan_version: {
         Args: { _author: string; _school: string; _status: string }
         Returns: boolean
+      }
+      cancel_document_number: {
+        Args: { _allocation_id: string; _justification: string }
+        Returns: undefined
       }
       cancel_notification_event: {
         Args: { _event: string; _reason: string }
