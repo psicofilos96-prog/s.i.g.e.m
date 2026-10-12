@@ -62,3 +62,19 @@ export function buildTimeline(items: TimelineItem[]): { items: TimelineItem[]; u
   dated.sort((a, b) => a.at.localeCompare(b.at) || a.source.localeCompare(b.source) || (a.seq ?? 0) - (b.seq ?? 0));
   return { items: dated, undated: items.length - dated.length };
 }
+
+/** Ficha do chamado como relatório do motor comum (exportação auditada). */
+export const TECH_TIMELINE_REPORT = {
+  id: "tecnologia.ficha-chamado", version: 1, title: "Ficha do chamado — linha do tempo",
+  description: "Projeção ordenada dos ledgers canônicos do chamado, lida com a sessão de quem exporta.",
+  source: "ops_request_events + tech_ticket_records + tech_service_sessions",
+  params: [{ id: "codigo", label: "Código do chamado", type: "text", required: true, maxLength: 40 }],
+  columns: [
+    { id: "data", label: "Data", kind: "date" },
+    { id: "fonte", label: "Fonte", kind: "text" },
+    { id: "registro", label: "Registro", kind: "text" },
+  ],
+  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000, dependency: null,
+} as const;
+
+export const timelineRows = (items: readonly TimelineItem[]) => items.map((i) => ({ data: i.at, fonte: i.source, registro: i.label }));

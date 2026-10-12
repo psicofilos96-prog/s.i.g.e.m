@@ -6,7 +6,9 @@ import { SignInRequired } from "@/components/sigem/sign-in-required";
 import { AbsenceState, ErrorState, LoadingState } from "@/components/sigem/states";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { supabase } from "@/integrations/supabase/client";
-import { buildTimeline, reportStatus, TECH_REPORTS, type TimelineItem } from "./tech-reports";
+import { buildTimeline, reportStatus, TECH_REPORTS, TECH_TIMELINE_REPORT, timelineRows, type TimelineItem } from "./tech-reports";
+import { runReport, downloadBlob, type ReportDefinition } from "@/features/reports/report-engine";
+import { auditedExport } from "@/features/reports/audited-export";
 
 const db = supabase as unknown as { from: (t: string) => any };
 const SATISFIED = new Set<string>(); // nenhuma decisão institucional registrada ainda
@@ -35,6 +37,19 @@ export function TechReportsPage() {
   const [state, setState] = useState<{ k: "idle" } | { k: "loading" } | { k: "error"; m: string } | { k: "none" } | { k: "ok"; t: { items: TimelineItem[]; undated: number } }>({ k: "idle" });
   if (auth.status === "signed-out") return <SignInRequired title="Relatórios de Tecnologia" what="os relatórios de tecnologia" />;
   if (auth.status === "loading") return auth.error ? <ErrorState description={auth.error} /> : <LoadingState />;
+
+  const [exp, setExp] = useState<string | null>(null);
+  const exportTimeline = async (format: "csv" | "xlsx" | "pdf") => {
+    if (state.k !== "ok") return;
+    setExp("Registrando emissão…");
+    try {
+      const def = TECH_TIMELINE_REPORT as unknown as ReportDefinition;
+      const result = runReport(def, { params: { codigo: code.trim() } }, timelineRows(state.t.items));
+      const out = await auditedExport({ sector: "tecnologia", definitionId: def.id, definitionVersion: def.version, title: def.title, source: def.source, result, format, meta: [`Chamado: ${code.trim()}`, `Registros sem data fora: ${state.t.undated}`], branding: { headerLines: ["SIGEM — Tecnologia"], title: def.title }, idempotencyKey: `tech-ficha-${crypto.randomUUID()}` }, window.location.origin);
+      downloadBlob(out.name, out.blob);
+      setExp(`Emissão registrada. Código de verificação ${out.code}.`);
+    } catch (e) { setExp(e instanceof Error && e.message === "export:sensitive-column" ? "Exportação recusada: coluna sensível." : "Não foi possível registrar a emissão; nada foi baixado."); }
+  };
 
   const search = async () => {
     if (code.trim().length < 3) return;
@@ -67,6 +82,14 @@ export function TechReportsPage() {
             ))}
             {state.t.undated > 0 && <li className="text-sm text-muted-foreground">{state.t.undated} registro(s) sem data fora da linha do tempo.</li>}
           </ol>
+        )}
+        {state.k === "ok" && (
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            {(["csv", "xlsx", "pdf"] as const).map((f) => (
+              <button key={f} type="button" onClick={() => void exportTimeline(f)} className="rounded-md border border-border px-3 py-1.5 hover:bg-accent">Exportar {f.toUpperCase()}</button>
+            ))}
+            {exp && <p role="status" className="text-muted-foreground">{exp}</p>}
+          </div>
         )}
       </section>
 

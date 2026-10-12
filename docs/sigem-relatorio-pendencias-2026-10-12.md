@@ -46,7 +46,7 @@ Classes: **C** implementado e comprovado · **P** parcial · **N** não iniciado
 | P1-03 | Telas operacionais ausentes para a maioria dos lotes de Tecnologia e Matrículas | só `/painel-de-tecnologia`, `/relatorios-de-tecnologia`, `/acervo-documental` | domínio inacessível ao usuário | técnico | priorizar telas de chamados, fila e inscrição | fluxo completo usado por conta real |
 | P1-04 | E2E autenticado pela interface inexistente nos módulos novos | apenas SQL ao vivo e smoke signed-out | fluxo do usuário não comprovado | técnico | scripts Playwright via `harness-gate.mjs` com contas de setor | E2E verde para 2 setores + servidor sem vínculo |
 | P1-05 | Acervo: sem UI de compartilhamento e sem limpeza de reservas expiradas | `archive-page.tsx`; `acv_spaces`=0 | ACL só por banco; objetos órfãos acumulam | técnico | botão Membros/Compartilhar; rotina manual de limpeza | compartilhar pela tela e órfãos removidos |
-| P1-06 | Exportações auditadas de Matrículas/Tecnologia fora do motor de relatórios | `report-catalog.test.ts` falha; relatórios só catálogo | risco LGPD e números sem fonte | técnico | ligar catálogos ao motor comum | exportação só pelo motor, com trilha |
+| P1-06 | Exportações de Matrículas/Tecnologia — RESOLVIDA TECNICAMENTE (Lote 10): `audited-export.ts` registra emissão antes do download; ficha do chamado exporta CSV/XLSX/PDF; guarda em `audited-export.test.ts`. Restam: relatórios t01–t22 e os 22 de Matrículas sem leitor de linhas ligado à tela; sem teste logado | técnico | ligar leitores por relatório | exportação só pelo motor, com trilha |
 
 ### P2 — decisões institucionais e fontes
 
