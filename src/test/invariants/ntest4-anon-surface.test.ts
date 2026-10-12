@@ -20,6 +20,7 @@ const ACCEPTED_ANON_FUNCTIONS = new Set([
   "verify_dev_certificate", // DEV L16: código opaco, sem dado pessoal
   "enr_public_campaigns", // Matrículas L04: só campanhas publicadas, sem dado pessoal
   "enr_submit_application", // Matrículas L07: envio público fail-closed, CPF só HMAC, sem leitura
+  "enr_submit_application_v2", // Matrículas L07.2: mesmo writer v1 + turno/oferta só da política aprovada
   "enr_public_application_status", // Matrículas L07: código + conferência, resposta uniforme
   "enr_public_preference_policy", // Matrículas L08: só limites da política aprovada de campanha publicada
   "enr_public_request_document_slot", // Matrículas L09: vaga de envio só com código + conferência

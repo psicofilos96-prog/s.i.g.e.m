@@ -88,3 +88,8 @@ Módulos: C = 1 (sincronização), P = 5, N/X = 1 (PERF.LOADING.1). Nenhuma homo
 5. P1-03 telas → P1-06 exportações → P1-05 acervo.
 6. P1-04 E2E autenticado; P2-05 dados reais.
 7. P3.
+
+### Atualização — Lote corretivo 07 (Família × Matrículas)
+- Entregue: turno/oferta por escola (só da política aprovada; `enr_submit_application_v2`, migration 0498, escolhas append-only), página pública `/publico/acompanhar-inscricao` (comprovante, situação, lista de espera, próximos passos, envio de documentos com SHA-256 no bucket privado, confirmação de interesse na vaga), resposta única "indisponível" para código inexistente ou errado.
+- Verificado: testes focais (82 arquivos, 430 testes), tipos, consulta com código inexistente no navegador.
+- Não verificado: fluxo com pedido real (não há campanha publicada com política de preferência aprovada); nomes oficiais de turno/oferta (sem catálogo homologado, exibe o identificador legível).

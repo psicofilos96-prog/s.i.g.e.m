@@ -14619,6 +14619,44 @@ export type Database = {
           },
         ]
       }
+      enr_application_choices: {
+        Row: {
+          application_id: string
+          offer_id: string | null
+          policy_version: number
+          rank: number
+          recorded_at: string
+          school_key: string
+          shift_id: string | null
+        }
+        Insert: {
+          application_id: string
+          offer_id?: string | null
+          policy_version: number
+          rank: number
+          recorded_at?: string
+          school_key: string
+          shift_id?: string | null
+        }
+        Update: {
+          application_id?: string
+          offer_id?: string | null
+          policy_version?: number
+          rank?: number
+          recorded_at?: string
+          school_key?: string
+          shift_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_application_choices_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_application_documents: {
         Row: {
           application_id: string
@@ -41357,6 +41395,31 @@ export type Database = {
           _requester_kind: string
           _requester_name: string
           _schools: string[]
+          _stage: string
+          _student_birth: string
+          _student_cpf: string
+          _student_name: string
+          _truth: boolean
+        }
+        Returns: {
+          application_code: string
+          check_code: string
+          result: string
+        }[]
+      }
+      enr_submit_application_v2: {
+        Args: {
+          _campaign: string
+          _choices: Json
+          _documents_ack: boolean
+          _email: string
+          _key: string
+          _kinship: string
+          _modality: string
+          _phone: string
+          _requester_cpf: string
+          _requester_kind: string
+          _requester_name: string
           _stage: string
           _student_birth: string
           _student_cpf: string
