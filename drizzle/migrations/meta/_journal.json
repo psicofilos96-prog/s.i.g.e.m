@@ -3312,6 +3312,13 @@
       "when": 1791811502688,
       "tag": "0472_enr19_confirmation_validation",
       "breakpoints": true
+    },
+    {
+      "idx": 473,
+      "version": "7",
+      "when": 1791811790487,
+      "tag": "0473_enr20_allocation_transfer",
+      "breakpoints": true
     }
   ]
 }

@@ -14059,6 +14059,36 @@ export type Database = {
         }
         Relationships: []
       }
+      enr_allocation_links: {
+        Row: {
+          class_id: string
+          created_at: string
+          episode_id: string
+          hold_id: string
+          idempotency_key: string
+          person_id: string
+          valid_from: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          episode_id: string
+          hold_id: string
+          idempotency_key: string
+          person_id: string
+          valid_from: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          episode_id?: string
+          hold_id?: string
+          idempotency_key?: string
+          person_id?: string
+          valid_from?: string
+        }
+        Relationships: []
+      }
       enr_application_analyses: {
         Row: {
           application_id: string
@@ -15312,6 +15342,63 @@ export type Database = {
             columns: ["student_id"]
             isOneToOne: false
             referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_transfer_events: {
+        Row: {
+          act_ref: string | null
+          action: string
+          created_at: string
+          exit_ref: string | null
+          hold_id: string
+          id: string
+          idempotency_key: string
+          origin_enrollment_id: string
+          person_id: string
+          reason: string
+          seq: number
+        }
+        Insert: {
+          act_ref?: string | null
+          action: string
+          created_at?: string
+          exit_ref?: string | null
+          hold_id: string
+          id?: string
+          idempotency_key: string
+          origin_enrollment_id: string
+          person_id: string
+          reason: string
+          seq: number
+        }
+        Update: {
+          act_ref?: string | null
+          action?: string
+          created_at?: string
+          exit_ref?: string | null
+          hold_id?: string
+          id?: string
+          idempotency_key?: string
+          origin_enrollment_id?: string
+          person_id?: string
+          reason?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_transfer_events_act_ref_fkey"
+            columns: ["act_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_transfer_events_origin_enrollment_id_fkey"
+            columns: ["origin_enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
             referencedColumns: ["id"]
           },
         ]
@@ -37822,6 +37909,16 @@ export type Database = {
           total_count: number
         }[]
       }
+      enr_allocate_formalized: {
+        Args: {
+          _class: string
+          _hold: string
+          _key: string
+          _reason: string
+          _valid_from: string
+        }
+        Returns: string
+      }
       enr_application_signals: {
         Args: { _app: string }
         Returns: {
@@ -42714,6 +42811,21 @@ export type Database = {
           _prelim: string
           _reason: string
           _student: string
+        }
+        Returns: number
+      }
+      record_enr_transfer_event: {
+        Args: {
+          _act: string
+          _action: string
+          _effective_on: string
+          _expected_seq: number
+          _hold: string
+          _key: string
+          _movement_type: string
+          _origin: string
+          _reason: string
+          _type_version: number
         }
         Returns: number
       }

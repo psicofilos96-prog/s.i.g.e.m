@@ -520,5 +520,6 @@
  "drizzle/migrations/0469_enr16_temporal_reservations.sql": "c411302aa81f4fd52fe475d87b7da360372314e49f4be00e268f88472ecaeecc",
  "drizzle/migrations/0470_enr17_waitlists.sql": "1e349c67c0c84b40556a4247f8ded84c4c47ef3b6b5250a90d5966c1d8c8101f",
  "drizzle/migrations/0471_enr18_individual_results.sql": "ee7003708cab4a3679826dd1ccb07e4c3df72e80e8ef9eab41e54c9ed71bca8f",
- "drizzle/migrations/0472_enr19_confirmation_validation.sql": "0f0c7e59a0bc088e148bbae597af7c14487aac423634f681300268387dc2cc5c"
+ "drizzle/migrations/0472_enr19_confirmation_validation.sql": "0f0c7e59a0bc088e148bbae597af7c14487aac423634f681300268387dc2cc5c",
+ "drizzle/migrations/0473_enr20_allocation_transfer.sql": "0d531ec0ccebc4ec9d75847521cdca01977c348a05b28d75c2f41942e53523f2"
 }
