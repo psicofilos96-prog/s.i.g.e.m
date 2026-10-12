@@ -24535,6 +24535,7 @@ export type Database = {
         }[]
       }
       admin_case_current_unit: { Args: { _case_id: string }; Returns: string }
+      admin_case_readable: { Args: { _case_id: string }; Returns: boolean }
       aee_services_at: {
         Args: { _known_at: string; _school: string; _student: string }
         Returns: {
