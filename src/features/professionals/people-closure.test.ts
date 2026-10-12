@@ -11,8 +11,8 @@ describe("GP L24 — matriz de fechamento", () => {
     expect(closureProblems((p) => existsSync(p))).toEqual([]);
   });
   it("resultado institucional e homologação permanecem bloqueados", () => {
-    expect(CLOSURE_SECTIONS[36].status).toBe("bloqueado");
-    expect(CLOSURE_CRITERIA[17].status).toBe("bloqueado");
+    expect(CLOSURE_SECTIONS[36]?.status).toBe("bloqueado");
+    expect(CLOSURE_CRITERIA[17]?.status).toBe("bloqueado");
     expect(JSON.stringify([...CLOSURE_SECTIONS, ...CLOSURE_CRITERIA])).not.toMatch(/"status":"homologad/);
   });
   it("resumo soma o total", () => {
