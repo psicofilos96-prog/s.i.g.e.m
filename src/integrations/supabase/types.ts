@@ -14086,6 +14086,7 @@ export type Database = {
           period_to: string
           rules_act_version_id: string | null
           school_ids: string[]
+          school_keys: string[]
           stage_ids: string[]
           version: number
         }
@@ -14100,7 +14101,8 @@ export type Database = {
           period_from: string
           period_to: string
           rules_act_version_id?: string | null
-          school_ids: string[]
+          school_ids?: string[]
+          school_keys?: string[]
           stage_ids: string[]
           version: number
         }
@@ -14116,6 +14118,7 @@ export type Database = {
           period_to?: string
           rules_act_version_id?: string | null
           school_ids?: string[]
+          school_keys?: string[]
           stage_ids?: string[]
           version?: number
         }
@@ -40954,21 +40957,37 @@ export type Database = {
         }
         Returns: number
       }
-      record_enr_campaign_version: {
-        Args: {
-          _c: string
-          _edital: string
-          _expected_version: number
-          _from: string
-          _modalities: string[]
-          _reason: string
-          _rules: string
-          _schools: string[]
-          _stages: string[]
-          _to: string
-        }
-        Returns: number
-      }
+      record_enr_campaign_version:
+        | {
+            Args: {
+              _c: string
+              _edital: string
+              _expected_version: number
+              _from: string
+              _modalities: string[]
+              _reason: string
+              _rules: string
+              _schools: string[]
+              _stages: string[]
+              _to: string
+            }
+            Returns: number
+          }
+        | {
+            Args: {
+              _c: string
+              _edital: string
+              _expected_version: number
+              _from: string
+              _modalities: string[]
+              _reason: string
+              _rules: string
+              _schools: string[]
+              _stages: string[]
+              _to: string
+            }
+            Returns: number
+          }
       record_family_communication_receipt: {
         Args: { _kind: string; _student: string; _version: string }
         Returns: undefined

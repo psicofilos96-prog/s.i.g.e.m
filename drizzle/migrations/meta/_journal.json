@@ -3193,6 +3193,13 @@
       "when": 1791806328120,
       "tag": "0455_enr03_campaigns_persisted",
       "breakpoints": true
+    },
+    {
+      "idx": 456,
+      "version": "7",
+      "when": 1791806544532,
+      "tag": "0456_enr03_campaign_school_keys",
+      "breakpoints": true
     }
   ]
 }
