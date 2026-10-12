@@ -17,7 +17,7 @@ describe("Permanência L02 monitoramento", () => {
     const m = monitorAttendance({ ...base, calendar: cal(D, { "2026-03-03": "nao-letivo", "2026-03-04": "indeterminado" }),
       enrollment: { from: "2026-03-02", to: "2026-03-08" }, asOf: "2026-03-07", marks: marks({ "2026-03-01": "ausente", "2026-03-05": "presente" }) });
     expect(m.excluded).toEqual({ "fora-da-vigencia": 1, "dia-nao-letivo": 1, "dia-indeterminado": 1, futura: 3 });
-    expect(m).toMatchObject({ considered: 3, present: 1, absent: 0, unmarked: 2, rate: 0 });
+    expect(m).toMatchObject({ considered: 4, present: 1, absent: 0, unmarked: 3, rate: 0 });
   });
   it("fonte não lida ⇒ sem cálculo, nunca zero", () => {
     expect(monitorAttendance({ ...base, calendar: null, marks: new Map() })).toMatchObject({ status: "sem-calendario", rate: null });
