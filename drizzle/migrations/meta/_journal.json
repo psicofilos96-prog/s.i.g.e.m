@@ -3473,6 +3473,13 @@
       "when": 1791816921039,
       "tag": "0495_tech22_licenses_annual_plan",
       "breakpoints": true
+    },
+    {
+      "idx": 496,
+      "version": "7",
+      "when": 1791817299915,
+      "tag": "0496_tech24_revoke_anon_validators",
+      "breakpoints": true
     }
   ]
 }
