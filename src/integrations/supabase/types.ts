@@ -18676,6 +18676,146 @@ export type Database = {
           },
         ]
       }
+      permanence_referral_destinations: {
+        Row: {
+          agreement_ref: string | null
+          allowed_fields: string[]
+          approved_by: string | null
+          author_person: string
+          created_at: string
+          decision_ref: string | null
+          dest_key: string
+          id: string
+          label: string
+          legal_basis: string
+          version: number
+        }
+        Insert: {
+          agreement_ref?: string | null
+          allowed_fields: string[]
+          approved_by?: string | null
+          author_person: string
+          created_at?: string
+          decision_ref?: string | null
+          dest_key: string
+          id?: string
+          label: string
+          legal_basis: string
+          version: number
+        }
+        Update: {
+          agreement_ref?: string | null
+          allowed_fields?: string[]
+          approved_by?: string | null
+          author_person?: string
+          created_at?: string
+          decision_ref?: string | null
+          dest_key?: string
+          id?: string
+          label?: string
+          legal_basis?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      permanence_referral_events: {
+        Row: {
+          author_person: string
+          created_at: string
+          evidence_ref: string | null
+          evidence_sha256: string | null
+          idempotency_key: string
+          kind: string
+          note: string | null
+          referral_id: string
+          seq: number
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          evidence_ref?: string | null
+          evidence_sha256?: string | null
+          idempotency_key: string
+          kind: string
+          note?: string | null
+          referral_id: string
+          seq: number
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          evidence_ref?: string | null
+          evidence_sha256?: string | null
+          idempotency_key?: string
+          kind?: string
+          note?: string | null
+          referral_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_referral_events_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "permanence_referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanence_referrals: {
+        Row: {
+          author_person: string
+          case_id: string
+          created_at: string
+          destination_id: string
+          id: string
+          idempotency_key: string
+          legal_basis: string
+          protocol_ref: string | null
+          purpose: string
+          shared_fields: string[]
+        }
+        Insert: {
+          author_person: string
+          case_id: string
+          created_at?: string
+          destination_id: string
+          id?: string
+          idempotency_key: string
+          legal_basis: string
+          protocol_ref?: string | null
+          purpose: string
+          shared_fields: string[]
+        }
+        Update: {
+          author_person?: string
+          case_id?: string
+          created_at?: string
+          destination_id?: string
+          id?: string
+          idempotency_key?: string
+          legal_basis?: string
+          protocol_ref?: string | null
+          purpose?: string
+          shared_fields?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_referrals_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permanence_referrals_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "permanence_referral_destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permanence_rule_approvals: {
         Row: {
           approved_at: string
@@ -25975,6 +26115,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      approve_referral_destination: {
+        Args: { _decision: string; _dest: string }
+        Returns: string
+      }
       approve_teacher_diary: {
         Args: {
           _assignment: string
@@ -27350,6 +27494,17 @@ export type Database = {
           _source_kind: string
           _source_ref: string
           _title: string
+        }
+        Returns: string
+      }
+      create_permanence_referral: {
+        Args: {
+          _case: string
+          _destination: string
+          _fields: string[]
+          _key: string
+          _protocol_ref: string
+          _purpose: string
         }
         Returns: string
       }
@@ -33243,6 +33398,18 @@ export type Database = {
         }
         Returns: number
       }
+      record_permanence_referral_event: {
+        Args: {
+          _evidence_ref: string
+          _evidence_sha: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _referral: string
+        }
+        Returns: number
+      }
       record_permanence_visit: {
         Args: {
           _case: string
@@ -34163,6 +34330,17 @@ export type Database = {
           registration_id: string
           reused: boolean
         }[]
+      }
+      register_referral_destination: {
+        Args: {
+          _agreement: string
+          _basis: string
+          _expected_version: number
+          _fields: string[]
+          _key: string
+          _label: string
+        }
+        Returns: string
       }
       register_school_enrollment: {
         Args: {
