@@ -9104,6 +9104,109 @@ export type Database = {
           },
         ]
       }
+      dev_class_details: {
+        Row: {
+          audience: string
+          class_id: string
+          created_at: string
+          location: string
+        }
+        Insert: {
+          audience: string
+          class_id: string
+          created_at?: string
+          location: string
+        }
+        Update: {
+          audience?: string
+          class_id?: string
+          created_at?: string
+          location?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_details_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: true
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_class_status_events: {
+        Row: {
+          author_person: string
+          class_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          reason: string | null
+          seq: number
+          status: string
+        }
+        Insert: {
+          author_person: string
+          class_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          reason?: string | null
+          seq: number
+          status: string
+        }
+        Update: {
+          author_person?: string
+          class_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          reason?: string | null
+          seq?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_status_events_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_class_trainers: {
+        Row: {
+          class_id: string
+          engagement_id: string
+          person_id: string
+        }
+        Insert: {
+          class_id: string
+          engagement_id: string
+          person_id: string
+        }
+        Update: {
+          class_id?: string
+          engagement_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_trainers_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_class_trainers_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_classes: {
         Row: {
           author_person: string
@@ -37697,6 +37800,16 @@ export type Database = {
         }
         Returns: string
       }
+      record_dev_class_status: {
+        Args: {
+          _class: string
+          _expected_seq: number
+          _key: string
+          _reason: string
+          _status: string
+        }
+        Returns: string
+      }
       record_dev_course_version: {
         Args: {
           _course: string
@@ -37707,6 +37820,21 @@ export type Database = {
           _program: string
           _reason: string
           _title: string
+        }
+        Returns: string
+      }
+      record_dev_formative_class: {
+        Args: {
+          _audience: string
+          _course_version: string
+          _ends: string
+          _key: string
+          _label: string
+          _location: string
+          _school: string
+          _seats: number
+          _starts: string
+          _trainer_engagements: string[]
         }
         Returns: string
       }

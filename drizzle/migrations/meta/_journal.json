@@ -3053,6 +3053,13 @@
       "when": 1791801673921,
       "tag": "0435_dev07_course_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 436,
+      "version": "7",
+      "when": 1791801840510,
+      "tag": "0436_dev08_formative_classes",
+      "breakpoints": true
     }
   ]
 }
