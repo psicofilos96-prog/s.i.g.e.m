@@ -3403,6 +3403,13 @@
       "when": 1791814825644,
       "tag": "0485_tech10_fix_juntada_check",
       "breakpoints": true
+    },
+    {
+      "idx": 486,
+      "version": "7",
+      "when": 1791814979867,
+      "tag": "0486_tech11_equipment_inventory",
+      "breakpoints": true
     }
   ]
 }
