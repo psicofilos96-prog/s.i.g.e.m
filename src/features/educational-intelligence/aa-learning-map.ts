@@ -16,7 +16,8 @@ const KEY: Record<Exclude<MapLevel, "rede">, (r: MapRow) => string | null> = {
 
 export function canOpen(level: MapLevel, f: MapFilter, a: Access): { ok: true } | { ok: false; reason: string } {
   if (level === "rede" && !a.network) return { ok: false, reason: "visão de rede exige alcance de rede" };
-  if (level !== "rede" && !a.network && !(f.escola && a.schools.has(f.escola)) && level !== "escola") return { ok: false, reason: "escola fora do alcance" };
+  if (level !== "rede" && !a.network && f.escola && !a.schools.has(f.escola)) return { ok: false, reason: "escola fora do alcance" };
+  if (level !== "rede" && level !== "escola" && !a.network && !f.escola) return { ok: false, reason: "escola fora do alcance" };
   if (level === "estudante" && (!a.nominal.capability || !a.nominal.purpose?.trim())) return { ok: false, reason: "nível nominal exige capability e finalidade declarada" };
   return { ok: true };
 }
