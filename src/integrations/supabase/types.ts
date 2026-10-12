@@ -18154,6 +18154,86 @@ export type Database = {
           },
         ]
       }
+      permanence_rule_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          decision_ref: string
+          rule_version_id: string
+          verdict: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          decision_ref: string
+          rule_version_id: string
+          verdict: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          decision_ref?: string
+          rule_version_id?: string
+          verdict?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_rule_approvals_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: true
+            referencedRelation: "permanence_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanence_rule_versions: {
+        Row: {
+          author_person: string
+          change_reason: string | null
+          combine: string
+          conditions: Json
+          created_at: string
+          id: string
+          rule_key: string
+          scope: Json
+          source_ref: string
+          title: string
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          author_person: string
+          change_reason?: string | null
+          combine: string
+          conditions: Json
+          created_at?: string
+          id?: string
+          rule_key: string
+          scope?: Json
+          source_ref: string
+          title: string
+          valid_from: string
+          valid_to?: string | null
+          version: number
+        }
+        Update: {
+          author_person?: string
+          change_reason?: string | null
+          combine?: string
+          conditions?: Json
+          created_at?: string
+          id?: string
+          rule_key?: string
+          scope?: Json
+          source_ref?: string
+          title?: string
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       professional_census_declarations: {
         Row: {
           class_code: string
@@ -25287,6 +25367,14 @@ export type Database = {
         }
         Returns: string
       }
+      approve_permanence_rule_version: {
+        Args: {
+          _decision_ref: string
+          _rule_version_id: string
+          _verdict: string
+        }
+        Returns: undefined
+      }
       approve_teacher_diary: {
         Args: {
           _assignment: string
@@ -30326,6 +30414,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      permanence_conditions_valid: { Args: { _c: Json }; Returns: boolean }
       person_schedule_at: {
         Args: { _known_at: string; _on: string; _person_id: string }
         Returns: {
@@ -33295,6 +33384,21 @@ export type Database = {
           _year: string
         }
         Returns: string
+      }
+      register_permanence_rule_version: {
+        Args: {
+          _change_reason: string
+          _combine: string
+          _conditions: Json
+          _expected_version: number
+          _rule_key: string
+          _scope: Json
+          _source_ref: string
+          _title: string
+          _valid_from: string
+          _valid_to: string
+        }
+        Returns: number
       }
       register_person: {
         Args: { _display_name: string; _identifier: string }
