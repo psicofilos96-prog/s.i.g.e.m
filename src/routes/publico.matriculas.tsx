@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { institution } from "@/config/institution";
+import { ResultLookup } from "@/features/enrollments/result-lookup";
 
 const TITLE = `Matrículas — ${institution.departmentName}`;
 const DESC = "Campanhas de matrícula abertas, prazos, editais, perguntas frequentes e consulta de protocolo.";
@@ -89,6 +90,7 @@ function IngressPortal() {
       </section>
 
       <ProtocolLookup />
+      <ResultLookup />
 
       <section id="perguntas" aria-labelledby="h-perguntas" className="mt-10 scroll-mt-4">
         <h2 id="h-perguntas" className="text-lg font-semibold text-foreground">Perguntas frequentes</h2>
