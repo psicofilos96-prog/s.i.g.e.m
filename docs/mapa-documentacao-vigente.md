@@ -337,6 +337,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | docs/direcao-escolar-produto-final.md | Registro de lote |
 | docs/orientacao-pedagogica-produto-final.md | Registro de lote |
 | docs/mediador-escolar-produto-final.md | Registro de lote |
+| docs/mediador-aceite-tecnico-l20.md | Registro de lote |
 | docs/portal-familia-produto-final.md | Registro de lote |
 | docs/ciece-produto-final.md | Registro de lote |
 | docs/integracao-transversal-final.md | Registro de lote |
