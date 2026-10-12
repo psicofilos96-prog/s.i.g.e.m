@@ -14176,6 +14176,104 @@ export type Database = {
         }
         Relationships: []
       }
+      enr_preliminary_students: {
+        Row: {
+          author_person: string
+          birth_date: string
+          civil_name: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          official_identifier: string | null
+          protocol_registration_id: string
+        }
+        Insert: {
+          author_person: string
+          birth_date: string
+          civil_name: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          official_identifier?: string | null
+          protocol_registration_id: string
+        }
+        Update: {
+          author_person?: string
+          birth_date?: string
+          civil_name?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          official_identifier?: string | null
+          protocol_registration_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_preliminary_students_protocol_registration_id_fkey"
+            columns: ["protocol_registration_id"]
+            isOneToOne: false
+            referencedRelation: "protocol_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_student_reconciliations: {
+        Row: {
+          created_at: string
+          decider_person: string
+          decision: string
+          evidence_ref: string | null
+          id: string
+          idempotency_key: string
+          match_strength: string
+          preliminary_id: string
+          reason: string
+          seq: number
+          student_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          decider_person: string
+          decision: string
+          evidence_ref?: string | null
+          id?: string
+          idempotency_key: string
+          match_strength: string
+          preliminary_id: string
+          reason: string
+          seq: number
+          student_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          decider_person?: string
+          decision?: string
+          evidence_ref?: string | null
+          id?: string
+          idempotency_key?: string
+          match_strength?: string
+          preliminary_id?: string
+          reason?: string
+          seq?: number
+          student_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_student_reconciliations_preliminary_id_fkey"
+            columns: ["preliminary_id"]
+            isOneToOne: false
+            referencedRelation: "enr_preliminary_students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_student_reconciliations_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enrollment_wizard_draft_events: {
         Row: {
           author_actor_kind: string
@@ -36490,6 +36588,7 @@ export type Database = {
       }
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
+      enr_norm_name: { Args: { _t: string }; Returns: string }
       enr_public_campaigns: {
         Args: never
         Returns: {
@@ -36513,6 +36612,13 @@ export type Database = {
           last_update_on: string
           registered_on: string
           status: string
+        }[]
+      }
+      enr_student_candidates: {
+        Args: { _prelim: string }
+        Returns: {
+          strength: string
+          student_id: string
         }[]
       }
       enroll_dev_class: {
@@ -41013,6 +41119,28 @@ export type Database = {
             }
             Returns: number
           }
+      record_enr_preliminary_student: {
+        Args: {
+          _birth: string
+          _key: string
+          _name: string
+          _official: string
+          _protocol: string
+        }
+        Returns: string
+      }
+      record_enr_student_reconciliation: {
+        Args: {
+          _decision: string
+          _evidence: string
+          _expected_seq: number
+          _key: string
+          _prelim: string
+          _reason: string
+          _student: string
+        }
+        Returns: number
+      }
       record_family_communication_receipt: {
         Args: { _kind: string; _student: string; _version: string }
         Returns: undefined
