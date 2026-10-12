@@ -18165,6 +18165,98 @@ export type Database = {
           },
         ]
       }
+      protocol_registration_events: {
+        Row: {
+          author_person: string
+          created_at: string
+          event_type: string
+          id: string
+          note: string | null
+          registration_id: string
+          seq: number
+          to_unit_id: string | null
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          event_type: string
+          id?: string
+          note?: string | null
+          registration_id: string
+          seq: number
+          to_unit_id?: string | null
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          note?: string | null
+          registration_id?: string
+          seq?: number
+          to_unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "protocol_registration_events_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "protocol_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      protocol_registrations: {
+        Row: {
+          channel: string
+          classification_code: string
+          id: string
+          idempotency_key: string
+          interested_external_ref: string | null
+          interested_person_id: string | null
+          origin_unit_id: string
+          protocol_number: string
+          receipt_hash: string
+          registered_at: string
+          registered_by_person: string
+          seq: number
+          subject: string
+          year: number
+        }
+        Insert: {
+          channel: string
+          classification_code: string
+          id?: string
+          idempotency_key: string
+          interested_external_ref?: string | null
+          interested_person_id?: string | null
+          origin_unit_id: string
+          protocol_number: string
+          receipt_hash: string
+          registered_at?: string
+          registered_by_person: string
+          seq: number
+          subject: string
+          year: number
+        }
+        Update: {
+          channel?: string
+          classification_code?: string
+          id?: string
+          idempotency_key?: string
+          interested_external_ref?: string | null
+          interested_person_id?: string | null
+          origin_unit_id?: string
+          protocol_number?: string
+          receipt_hash?: string
+          registered_at?: string
+          registered_by_person?: string
+          seq?: number
+          subject?: string
+          year?: number
+        }
+        Relationships: []
+      }
       public_publication_versions: {
         Row: {
           body: string
@@ -31496,6 +31588,16 @@ export type Database = {
         }
         Returns: string
       }
+      record_protocol_event: {
+        Args: {
+          _event_type: string
+          _expected_seq: number
+          _note: string
+          _registration_id: string
+          _to_unit_id: string
+        }
+        Returns: number
+      }
       record_public_publication: {
         Args: {
           _body: string
@@ -32231,6 +32333,23 @@ export type Database = {
       register_person: {
         Args: { _display_name: string; _identifier: string }
         Returns: string
+      }
+      register_protocol: {
+        Args: {
+          _channel: string
+          _classification_code: string
+          _idempotency_key: string
+          _interested_external_ref: string
+          _interested_person_id: string
+          _origin_unit_id: string
+          _subject: string
+        }
+        Returns: {
+          protocol_number: string
+          receipt_hash: string
+          registration_id: string
+          reused: boolean
+        }[]
       }
       register_school_enrollment: {
         Args: {
