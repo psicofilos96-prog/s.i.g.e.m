@@ -51112,6 +51112,7 @@ export type Database = {
         Args: { _a: Json; _d: Json; _i: Json; _m: Json; _u: Json }
         Returns: boolean
       }
+      tech_text_exposes_network: { Args: { _t: string }; Returns: boolean }
       technical_automation_enabled: { Args: never; Returns: boolean }
       technical_correct_educacenso_2026_temporal: {
         Args: { _operation_kind: string; _payload: Json; _source_hash: string }
