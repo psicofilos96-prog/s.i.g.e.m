@@ -99,7 +99,7 @@ export function movementHistory(linkLogicalId: string, placements: readonly Plac
     const prev = ps[i - 1];
     const prevEnded = prev && prev.validUntil !== null && prev.validUntil < p.validFrom;
     out.push({ date: p.validFrom, linkLogicalId, from: prev && prevEnded ? prev.schoolId : null, to: p.schoolId, actRef: p.actRef, reason: p.reason });
-    if (p.validUntil && !ps.slice(i + 1).some((n) => n.validFrom <= p.validUntil!))
+    if (p.validUntil && i === ps.length - 1)
       out.push({ date: p.validUntil, linkLogicalId, from: p.schoolId, to: null, actRef: p.actRef, reason: "fim da lotação" });
   });
   return out;
