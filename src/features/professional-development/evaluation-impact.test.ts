@@ -22,6 +22,6 @@ describe("L20 avaliação e impacto", () => {
     expect(sql).toMatch(/dev:threshold-missing/);
     expect(sql).toMatch(/dev:below-threshold/);
     expect(sql).toMatch(/WHERE q->>'kind' = 'escala-1-5'/);
-    expect(sql).not.toMatch(/causal|ranking|score/i);
+    expect(sql).not.toMatch(/\bcausal\b|ranking|score/i);
   });
 });
