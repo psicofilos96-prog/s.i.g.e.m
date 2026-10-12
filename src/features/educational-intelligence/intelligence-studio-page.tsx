@@ -18,6 +18,7 @@ import { ExternalResultsPanel } from "./external-results-panel";
 import { InfantFollowupPanel } from "./infant-followup-panel";
 import { CalcRulesPanel } from "./calc-rules-panel";
 import { ResultImportPanel } from "./result-import-panel";
+import { AaDailyPanel } from "./aa-daily-panel";
 
 type Rpc = (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
@@ -46,6 +47,7 @@ const count = (r: Read<unknown>) => (r.state === "ok" ? String(r.rows.length) : 
 
 export function IntelligenceStudioPage() {
   const [knownAt] = useState(() => new Date().toISOString());
+  const [tab, setTab] = useState("hoje");
   const programs = useRead<Program>("assessment_programs_at", { _known_at: knownAt }, knownAt);
   const editions = useRead<Edition>("assessment_editions_at", { _program: null, _known_at: knownAt }, knownAt);
   const dashboards = useRead<Dash>("intelligence_dashboards_visible", {}, knownAt);
