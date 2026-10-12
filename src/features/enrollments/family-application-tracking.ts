@@ -8,7 +8,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { fetchReceipt, type Receipt } from "./application-protocol";
 import { consultResult, validResultInput, type IndividualResult } from "./individual-result";
-import { currentSituation, DOC_TYPES, type DocSituation, type DocType } from "./application-documents";
+import { DOC_TYPES, SITUATION_TEXT, type DocSituation, type DocType } from "./application-documents";
 
 export interface DocRow { docType: DocType; situation: DocSituation }
 export interface Waitlist { listCell: string | null; position: number; total: number; wasCalled: boolean }
@@ -30,7 +30,7 @@ export function parseDocuments(rows: unknown): DocRow[] {
   for (const r of rows as { doc_type?: unknown; version?: unknown; situation?: unknown }[]) {
     if (typeof r?.doc_type !== "string" || !(r.doc_type in DOC_TYPES) || typeof r.version !== "number") continue;
     const s = typeof r.situation === "string" ? r.situation : "";
-    const sit = currentSituation(s && s !== "em-conferencia" ? [{ seq: 1, outcome: s }] : [], true);
+    const sit: DocSituation = s in SITUATION_TEXT && s !== "nao-enviado" ? (s as DocSituation) : "em-conferencia";
     const prev = latest.get(r.doc_type as DocType);
     if (!prev || r.version > prev.v) latest.set(r.doc_type as DocType, { v: r.version, s: sit });
   }
