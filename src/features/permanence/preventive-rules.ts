@@ -114,7 +114,7 @@ export function evaluatePreventive(
     return { kind: "hipotese", hypothesis: {
       kind: "hipotese-para-verificacao", ruleKey: rule.ruleKey, version: rule.version, sourceRef: rule.sourceRef, decisionRef: approval.decisionRef,
       conditions: results, idempotencyKey: `perm-rule|${rule.ruleKey}|v${rule.version}|${subjectRef}|${on}`,
-      statement: assertNoLabel(`Hipótese para verificação pela escola segundo "${rule.title}" (v${rule.version}). Não é diagnóstico nem classificação.`),
+      statement: assertNoLabel(`Hipótese para verificação pela escola segundo "${rule.title}" (v${rule.version}). Não constitui conclusão nem classificação do estudante.`),
     } };
   });
 }
