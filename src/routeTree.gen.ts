@@ -139,6 +139,7 @@ import { Route as LaboratorioFolhaFinalRouteImport } from './routes/laboratorio.
 import { Route as LaboratorioRecuperacaoRouteImport } from './routes/laboratorio.recuperacao'
 import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
 import { Route as MatriculasInscricoesRouteImport } from './routes/matriculas_.inscricoes'
+import { Route as MatriculasOperacaoRouteImport } from './routes/matriculas_.operacao'
 import { Route as MatrizesCurricularesIndexRouteImport } from './routes/matrizes-curriculares.index'
 import { Route as MatrizesCurricularesIdRouteImport } from './routes/matrizes-curriculares.$id'
 import { Route as MatrizesCurricularesCorrespondenciaRouteImport } from './routes/matrizes-curriculares.correspondencia'
@@ -929,6 +930,11 @@ const MatriculasNovaRoute = MatriculasNovaRouteImport.update({
 const MatriculasInscricoesRoute = MatriculasInscricoesRouteImport.update({
   id: '/matriculas_/inscricoes',
   path: '/matriculas/inscricoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MatriculasOperacaoRoute = MatriculasOperacaoRouteImport.update({
+  id: '/matriculas_/operacao',
+  path: '/matriculas/operacao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MatrizesCurricularesIndexRoute =
@@ -1832,6 +1838,7 @@ export interface FileRoutesByFullPath {
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matriculas/inscricoes': typeof MatriculasInscricoesRoute
+  '/matriculas/operacao': typeof MatriculasOperacaoRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
   '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
@@ -2086,6 +2093,7 @@ export interface FileRoutesByTo {
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matriculas/inscricoes': typeof MatriculasInscricoesRoute
+  '/matriculas/operacao': typeof MatriculasOperacaoRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
   '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
@@ -2337,6 +2345,7 @@ export interface FileRoutesById {
   '/laboratorio/recuperacao': typeof LaboratorioRecuperacaoRoute
   '/matriculas/nova': typeof MatriculasNovaRoute
   '/matriculas_/inscricoes': typeof MatriculasInscricoesRoute
+  '/matriculas_/operacao': typeof MatriculasOperacaoRoute
   '/matrizes-curriculares/$id': typeof MatrizesCurricularesIdRoute
   '/matrizes-curriculares/correspondencia': typeof MatrizesCurricularesCorrespondenciaRoute
   '/matrizes-curriculares/importacao': typeof MatrizesCurricularesImportacaoRoute
@@ -2607,6 +2616,7 @@ export interface FileRouteTypes {
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matriculas/inscricoes'
+    | '/matriculas/operacao'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/correspondencia'
     | '/matrizes-curriculares/importacao'
@@ -2861,6 +2871,7 @@ export interface FileRouteTypes {
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matriculas/inscricoes'
+    | '/matriculas/operacao'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/correspondencia'
     | '/matrizes-curriculares/importacao'
@@ -3111,6 +3122,7 @@ export interface FileRouteTypes {
     | '/laboratorio/recuperacao'
     | '/matriculas/nova'
     | '/matriculas_/inscricoes'
+    | '/matriculas_/operacao'
     | '/matrizes-curriculares/$id'
     | '/matrizes-curriculares/correspondencia'
     | '/matrizes-curriculares/importacao'
@@ -3365,6 +3377,7 @@ export interface RootRouteChildren {
   LaboratorioFolhaFinalRoute: typeof LaboratorioFolhaFinalRoute
   LaboratorioRecuperacaoRoute: typeof LaboratorioRecuperacaoRoute
   MatriculasInscricoesRoute: typeof MatriculasInscricoesRoute
+  MatriculasOperacaoRoute: typeof MatriculasOperacaoRoute
   OrientacaoCentralRoute: typeof OrientacaoCentralRoute
   PublicoSlugRoute: typeof PublicoSlugRoute
   PublicoMatriculasRoute: typeof PublicoMatriculasRoute
@@ -4309,6 +4322,13 @@ declare module '@tanstack/react-router' {
       path: '/matriculas/inscricoes'
       fullPath: '/matriculas/inscricoes'
       preLoaderRoute: typeof MatriculasInscricoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/matriculas_/operacao': {
+      id: '/matriculas_/operacao'
+      path: '/matriculas/operacao'
+      fullPath: '/matriculas/operacao'
+      preLoaderRoute: typeof MatriculasOperacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/matrizes-curriculares/': {
@@ -6051,6 +6071,7 @@ const rootRouteChildren: RootRouteChildren = {
   LaboratorioFolhaFinalRoute: LaboratorioFolhaFinalRoute,
   LaboratorioRecuperacaoRoute: LaboratorioRecuperacaoRoute,
   MatriculasInscricoesRoute: MatriculasInscricoesRoute,
+  MatriculasOperacaoRoute: MatriculasOperacaoRoute,
   OrientacaoCentralRoute: OrientacaoCentralRoute,
   PublicoSlugRoute: PublicoSlugRoute,
   PublicoMatriculasRoute: PublicoMatriculasRoute,

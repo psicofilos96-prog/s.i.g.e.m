@@ -1,0 +1,145 @@
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { callRpc } from "@/lib/rpc-call";
+import { userErrorText } from "@/lib/observability/governed-errors";
+import { PageHeader } from "@/components/sigem/patterns";
+import { LoadingState, ErrorState } from "@/components/sigem/states";
+import { DateInput } from "@/components/sigem/date-input";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { formatDateTime } from "@/lib/academic-date";
+import { OPERATION_STAGES, buildArgs, type OperationAction, type OperationRead } from "./enrollment-operations";
+
+const newKey = () => `op-matr:${crypto.randomUUID()}`;
+const PAGE = 50;
+
+function ReadTable({ read }: { read: OperationRead }) {
+  const q = useQuery({
+    queryKey: ["enr-ops", read.table],
+    staleTime: 30_000,
+    retry: 1,
+    queryFn: async ({ signal }) => {
+      const r = await supabase
+        .from(read.table as never)
+        .select(read.columns.join(","))
+        .order(read.order, { ascending: false })
+        .range(0, PAGE - 1)
+        .abortSignal(signal);
+      if (r.error) throw new Error(r.error.message);
+      return (r.data ?? []) as unknown as Record<string, unknown>[];
+    },
+  });
+  return (
+    <section className="space-y-2">
+      <h3 className="text-sm font-semibold text-foreground">{read.label}</h3>
+      {q.isPending ? <LoadingState label={`Lendo ${read.label.toLowerCase()}…`} /> : q.isError ? (
+        <ErrorState description={userErrorText(q.error, { operation: `ler-${read.table}` })} onRetry={() => void q.refetch()} traced />
+      ) : q.data.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">Nenhum registro visível para sua conta. Ausência de registro não é zero oficial.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <table className="w-full text-left text-xs">
+            <caption className="sr-only">{read.label}</caption>
+            <thead className="bg-muted text-muted-foreground"><tr>{read.columns.map((c) => <th key={c} scope="col" className="px-2 py-1.5 font-medium">{c}</th>)}</tr></thead>
+            <tbody>
+              {q.data.map((row, i) => (
+                <tr key={i} className="border-t border-border">
+                  {read.columns.map((c) => {
+                    const v = row[c];
+                    const text = v === null || v === undefined ? "—" : c.endsWith("_at") ? formatDateTime(String(v)) : String(v);
+                    return <td key={c} className="px-2 py-1.5 font-mono text-foreground">{text}</td>;
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {q.data.length === PAGE ? <p className="p-2 text-xs text-muted-foreground">Mostrando os {PAGE} mais recentes.</p> : null}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ActionForm({ action, tables }: { action: OperationAction; tables: readonly string[] }) {
+  const qc = useQueryClient();
+  const [values, setValues] = useState<Record<string, string>>({});
+  const [key, setKey] = useState(newKey);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const { args, problems } = buildArgs(action, values, key);
+    if (problems.length) return setMsg({ ok: false, text: problems.join(" ") });
+    setBusy(true);
+    setMsg(null);
+    try {
+      await callRpc(action.rpc, args);
+      setMsg({ ok: true, text: "Gravado pelo writer do banco." });
+      setValues({});
+      setKey(newKey());
+      await Promise.all(tables.map((t) => qc.invalidateQueries({ queryKey: ["enr-ops", t] })));
+    } catch (err) {
+      // Mesma chave na nova tentativa: o writer não duplica (idempotência).
+      setMsg({ ok: false, text: userErrorText(err, { operation: action.rpc }) });
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <form onSubmit={submit} className="space-y-3 rounded-xl border border-border bg-card p-4" aria-label={action.label}>
+      <h3 className="text-sm font-semibold text-foreground">{action.label}</h3>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {action.fields.map((f) => {
+          const id = `${action.rpc}-${f.arg}`;
+          const set = (v: string) => setValues((p) => ({ ...p, [f.arg]: v }));
+          const cls = "mt-1 block w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm";
+          return (
+            <label key={f.arg} htmlFor={id} className="text-xs text-muted-foreground">
+              {f.label}{f.optional ? " (opcional)" : ""}
+              {f.kind === "select" ? (
+                <select id={id} className={cls} value={values[f.arg] ?? ""} onChange={(e) => set(e.target.value)}>
+                  <option value="">Escolha…</option>
+                  {f.options?.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+              ) : f.kind === "date" ? (
+                <DateInput id={id} className={cls} value={values[f.arg] ?? ""} onChange={(e) => set(e.target.value)} />
+              ) : f.kind === "json" || f.arg === "_reason" || f.arg === "_justification" || f.arg === "_note" ? (
+                <textarea id={id} rows={2} className={cls} value={values[f.arg] ?? ""} onChange={(e) => set(e.target.value)} />
+              ) : (
+                <input id={id} className={cls} inputMode={f.kind === "int" ? "numeric" : undefined} value={values[f.arg] ?? ""} onChange={(e) => set(e.target.value)} />
+              )}
+              {f.hint ? <span className="mt-0.5 block">{f.hint}</span> : null}
+            </label>
+          );
+        })}
+      </div>
+      <div className="flex items-center gap-3">
+        <Button type="submit" size="sm" disabled={busy}>{busy ? "Gravando…" : action.label}</Button>
+        {msg ? <p role={msg.ok ? "status" : "alert"} className={msg.ok ? "text-xs text-foreground" : "text-xs text-destructive"}>{msg.text}</p> : null}
+      </div>
+    </form>
+  );
+}
+
+export function EnrollmentOperationsPage() {
+  return (
+    <div className="space-y-6">
+      <PageHeader eyebrow="Matrículas" title="Central operacional de matrículas" description="Campanhas, conferência, protocolo, classificação, distribuição, reservas, listas, confirmação, recursos, enturmação e transferências. Toda gravação passa pelo writer do banco, que confere sua permissão, a sequência e a autoria." />
+      <Tabs defaultValue={OPERATION_STAGES[0]!.id}>
+        <TabsList className="flex h-auto flex-wrap justify-start gap-1">
+          {OPERATION_STAGES.map((s) => <TabsTrigger key={s.id} value={s.id}>{s.title}</TabsTrigger>)}
+        </TabsList>
+        {OPERATION_STAGES.map((s) => (
+          <TabsContent key={s.id} value={s.id} className="mt-4 space-y-5">
+            <p className="text-sm text-muted-foreground">{s.summary}</p>
+            {s.reads.map((r) => <ReadTable key={r.table} read={r} />)}
+            <div className="grid gap-4 lg:grid-cols-2">
+              {s.actions.map((a) => <ActionForm key={a.id} action={a} tables={s.reads.map((r) => r.table)} />)}
+            </div>
+          </TabsContent>
+        ))}
+      </Tabs>
+    </div>
+  );
+}
