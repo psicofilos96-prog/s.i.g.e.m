@@ -15399,6 +15399,85 @@ export type Database = {
           },
         ]
       }
+      enr_support_needs: {
+        Row: {
+          application_id: string
+          created_at: string
+          declared_by_person_id: string
+          id: string
+          idempotency_key: string
+          need_kind: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          declared_by_person_id: string
+          id?: string
+          idempotency_key: string
+          need_kind: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          declared_by_person_id?: string
+          id?: string
+          idempotency_key?: string
+          need_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_support_needs_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_support_referrals: {
+        Row: {
+          application_code: string
+          created_at: string
+          destination: string
+          id: string
+          idempotency_key: string
+          need_id: string
+          need_kind: string
+          referred_by_person_id: string
+          school_key: string
+        }
+        Insert: {
+          application_code: string
+          created_at?: string
+          destination: string
+          id?: string
+          idempotency_key: string
+          need_id: string
+          need_kind: string
+          referred_by_person_id: string
+          school_key: string
+        }
+        Update: {
+          application_code?: string
+          created_at?: string
+          destination?: string
+          id?: string
+          idempotency_key?: string
+          need_id?: string
+          need_kind?: string
+          referred_by_person_id?: string
+          school_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_support_referrals_need_id_fkey"
+            columns: ["need_id"]
+            isOneToOne: false
+            referencedRelation: "enr_support_needs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_transfer_events: {
         Row: {
           act_ref: string | null
@@ -38176,6 +38255,14 @@ export type Database = {
         }
         Returns: number
       }
+      enr_record_support_need: {
+        Args: { _application: string; _key: string; _kind: string }
+        Returns: string
+      }
+      enr_refer_support_need: {
+        Args: { _dest: string; _key: string; _need: string }
+        Returns: string
+      }
       enr_rules_valid: { Args: { _r: Json }; Returns: boolean }
       enr_seat_close: {
         Args: { _hold: string; _key: string; _kind: string; _reason: string }
@@ -38249,6 +38336,19 @@ export type Database = {
           application_code: string
           check_code: string
           result: string
+        }[]
+      }
+      enr_support_destination_allowed: {
+        Args: { _dest: string; _kind: string }
+        Returns: boolean
+      }
+      enr_support_referrals_for: {
+        Args: { _dest: string }
+        Returns: {
+          application_code: string
+          created_at: string
+          need_kind: string
+          school_key: string
         }[]
       }
       enroll_dev_class: {
