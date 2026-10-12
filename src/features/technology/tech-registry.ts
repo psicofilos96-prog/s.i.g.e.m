@@ -1,7 +1,7 @@
 /**
  * Lote corretivo 15 — cadastros técnicos reais (contratos/licenças, conectividade, serviços, backups, ativos).
  * Reúne as etapas já existentes dos writers 0486/0487/0488/0491/0495 (fonte e comprovação exigidas no banco)
- * e espelha a recusa de informação de rede/credencial em texto livre (0502). Nada é semeado.
+ * e espelha a recusa de informação de rede/credencial em texto livre (0502/0503). Nada é semeado.
  */
 import type { OperationStage } from "@/features/enrollments/enrollment-operations";
 import { TECH_STAGES } from "./tech-operations";
@@ -27,12 +27,13 @@ const PATTERNS: readonly RegExp[] = [
   /(^|[^0-9.])(25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])(\.(25[0-5]|2[0-4][0-9]|1?[0-9]?[0-9])){3}([^0-9.]|$)/,
   /(^|[^0-9a-f:])([0-9a-f]{2}[:-]){5}[0-9a-f]{2}([^0-9a-f:]|$)/i,
   /(^|[^0-9a-f:])([0-9a-f]{1,4}:){3,7}[0-9a-f]{1,4}([^0-9a-f:]|$)/i,
+  /(^|[^0-9a-z:])[0-9a-f]{0,4}(:[0-9a-f]{1,4})*::([0-9a-f]{1,4}(:[0-9a-f]{1,4})*)?([^0-9a-z:]|$)/i,
   /\b(senha|password|passwd|pwd|token|api[-_ ]?key|secret|segredo|ssid|wpa2?|psk|vlan)\b\s*[:=]/i,
   /:\/\/[^/\s]*(localhost|\.local|\.lan|\.intranet|\.internal)([:/\s]|$)/i,
   /:\/\/[^/\s@]*:[^/\s@]*@/,
 ];
 
-/** Espelho de `tech_text_exposes_network` (0502), para avisar antes do envio. */
+/** Espelho de `tech_text_exposes_network` (0502/0503), para avisar antes do envio. */
 export function exposesNetworkInfo(text: string | null | undefined): boolean {
   return !!text && PATTERNS.some((p) => p.test(text));
 }
