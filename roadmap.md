@@ -664,3 +664,10 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] L29 NEI/AEE e portal da Família
 - [x] L30 relatórios oficiais e indicadores
 - [x] L31 homologação técnica integral
+
+## Lotes corretivos 32–36 (2026-10-12)
+- [ ] L32 importação oficial de servidores e vínculos
+- [ ] L33 infraestrutura, jornadas e reconciliação escolar
+- [ ] L34 identidades técnicas e testes autenticados
+- [ ] L35 validação operacional dos perfis
+- [ ] L36 parâmetros institucionais e encerramento operacional
