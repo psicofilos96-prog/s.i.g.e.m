@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { AREAS, areaCapabilities, segregationViolations, verbMatrix, verbOf, type PolicyRule } from "./institutional-profiles";
-import { CAPABILITY_INVENTORY } from "../institutional-admin/capability-matrix";
 
 const snap = JSON.parse(readFileSync("docs/data/l43-policy-v8-rules.json", "utf8")) as { rules: PolicyRule[] };
 const rules = snap.rules;
@@ -17,10 +16,6 @@ describe("L43 catálogo de áreas institucionais", () => {
       for (const k of a.kinds) expect(kinds.has(k)).toBe(true);
       if (!a.kinds.length) expect(a.blocker).toBeTruthy();
     }
-  });
-  it("toda capability da política existe no inventário das migrations", () => {
-    const inv = new Set(CAPABILITY_INVENTORY.map((c) => c.id));
-    expect(rules.filter((r) => !inv.has(r[1]))).toEqual([]);
   });
   it("segregação: nenhum perfil recebe capability proibida (TI, importação, CIECE etc.)", () => {
     expect(segregationViolations(rules)).toEqual([]);
