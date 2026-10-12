@@ -14560,6 +14560,53 @@ export type Database = {
           },
         ]
       }
+      enr_signal_resolutions: {
+        Row: {
+          application_id: string
+          created_at: string
+          decider_person: string
+          decision: string
+          id: string
+          idempotency_key: string
+          reason: string
+          related_key: string
+          seq: number
+          signal_kind: string
+        }
+        Insert: {
+          application_id: string
+          created_at?: string
+          decider_person: string
+          decision: string
+          id?: string
+          idempotency_key: string
+          reason: string
+          related_key: string
+          seq: number
+          signal_kind: string
+        }
+        Update: {
+          application_id?: string
+          created_at?: string
+          decider_person?: string
+          decision?: string
+          id?: string
+          idempotency_key?: string
+          reason?: string
+          related_key?: string
+          seq?: number
+          signal_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_signal_resolutions_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "enr_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_student_reconciliations: {
         Row: {
           created_at: string
@@ -36970,6 +37017,17 @@ export type Database = {
           total_count: number
         }[]
       }
+      enr_application_signals: {
+        Args: { _app: string }
+        Returns: {
+          decided_at: string
+          decision: string
+          evidence: string
+          related_key: string
+          signal_kind: string
+          strength: string
+        }[]
+      }
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
       enr_can_see_application: { Args: { _app: string }; Returns: boolean }
@@ -41649,6 +41707,18 @@ export type Database = {
           _name: string
           _official: string
           _protocol: string
+        }
+        Returns: string
+      }
+      record_enr_signal_resolution: {
+        Args: {
+          _app: string
+          _decision: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _reason: string
+          _related: string
         }
         Returns: string
       }
