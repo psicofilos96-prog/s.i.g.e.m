@@ -159,7 +159,7 @@ function Wizard({ campaign }: { campaign: C }) {
                 </label>
               );
             })}
-            {errors.schools && <p id="err-schools" aria-live="polite" className="text-sm text-destructive">{errors.schools}</p>}
+            {errors.schools && <p id="err-schools" role="status" className="text-sm text-destructive">{errors.schools}</p>}
           </fieldset>
         )}
 
@@ -207,7 +207,7 @@ function Field({ id, label, hint, error, children }: { id: string; label: string
       <Label htmlFor={fid}>{label}</Label>
       {{ ...child, props: { ...child.props, id: fid, "aria-invalid": error ? true : undefined, "aria-describedby": desc, className: "min-h-11" } }}
       {hint && <p id={`${fid}-h`} className="text-sm text-muted-foreground">{hint}</p>}
-      {error && <p id={`${fid}-e`} aria-live="polite" className="text-sm text-destructive">{error}</p>}
+      {error && <p id={`${fid}-e`} role="status" className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
@@ -220,7 +220,7 @@ function Choice({ name, legend, options, value, onChange, error }: { name: strin
           <input type="radio" name={name} className="size-5" checked={value === o} onChange={() => onChange(o)} />{readableId(o)}
         </label>
       ))}
-      {error && <p aria-live="polite" className="text-sm text-destructive">{error}</p>}
+      {error && <p role="status" className="text-sm text-destructive">{error}</p>}
     </fieldset>
   );
 }
@@ -230,7 +230,7 @@ function Check({ id, checked, onChange, error, children }: { id: string; checked
       <label htmlFor={id} className="flex min-h-11 items-center gap-2 text-sm text-foreground">
         <input id={id} type="checkbox" className="size-5" checked={checked} onChange={(e) => onChange(e.target.checked)} aria-invalid={error ? true : undefined} />{children}
       </label>
-      {error && <p aria-live="polite" className="text-sm text-destructive">{error}</p>}
+      {error && <p role="status" className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
