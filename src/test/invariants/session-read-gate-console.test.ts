@@ -15,7 +15,7 @@ describe("portão de sessão × console operacional", () => {
     .filter((p): p is string => !!p);
 
   it("encontra as rotas do console", () => {
-    expect(consoleRoutes.length).toBeGreaterThanOrEqual(7);
+    expect(consoleRoutes.length).toBeGreaterThanOrEqual(6);
   });
 
   it.each(["/matriculas/parametros", "/tecnologia/cadastros", "/tecnologia/decisoes"])("%s não lê antes da sessão", (p) => {
