@@ -50,7 +50,8 @@ try {
     ok("numeração: sequência contígua", seqs.every((s, i) => i === 0 || s === seqs[i - 1] + 1));
     const again = await Promise.all(Array.from({ length: N }, () => sec.c.rpc("allocate_document_number",
       { _document_type_key: typeKey, _unit_id: sec.school, _year: year, _subject_ref: `${op}-s0`, _idempotency_key: `${op}-n0` })));
-    ok("numeração: mesma chave em paralelo devolve o mesmo número", again.every((r) => !r.error && r.data?.[0]?.reused && r.data[0].seq === okRows.find((x) => x.formatted)?.seq || !r.error));
+    const first = par[0].data?.[0];
+    ok("numeração: mesma chave em paralelo devolve o mesmo número", !!first && again.every((r) => !r.error && r.data?.[0]?.seq === first.seq));
   }
 
   // 2. Reservas: N chamadas simultâneas sobre o mesmo quadro.
