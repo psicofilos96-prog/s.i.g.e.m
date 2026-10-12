@@ -17779,6 +17779,134 @@ export type Database = {
           },
         ]
       }
+      ops_request_events: {
+        Row: {
+          actor_person: string
+          case_event_ref: string | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string | null
+          object_kind: string | null
+          object_ref: string | null
+          protocol_ref: string | null
+          request_id: string
+          responsible_engagement: string | null
+          seq: number
+          valid_from: string | null
+        }
+        Insert: {
+          actor_person: string
+          case_event_ref?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          note?: string | null
+          object_kind?: string | null
+          object_ref?: string | null
+          protocol_ref?: string | null
+          request_id: string
+          responsible_engagement?: string | null
+          seq: number
+          valid_from?: string | null
+        }
+        Update: {
+          actor_person?: string
+          case_event_ref?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string | null
+          object_kind?: string | null
+          object_ref?: string | null
+          protocol_ref?: string | null
+          request_id?: string
+          responsible_engagement?: string | null
+          seq?: number
+          valid_from?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_request_events_case_event_ref_fkey"
+            columns: ["case_event_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_request_events_case_event_ref_fkey"
+            columns: ["case_event_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_request_events_protocol_ref_fkey"
+            columns: ["protocol_ref"]
+            isOneToOne: false
+            referencedRelation: "protocol_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_request_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_request_events_responsible_engagement_fkey"
+            columns: ["responsible_engagement"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_requests: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          requester_person: string
+          school_id: string
+          sector: string
+          subject: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          requester_person: string
+          school_id: string
+          sector: string
+          subject: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          requester_person?: string
+          school_id?: string
+          sector?: string
+          subject?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_requests_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_disclosure_versions: {
         Row: {
           author_engagement: string
@@ -31120,6 +31248,16 @@ export type Database = {
         Returns: string
       }
       open_notification: { Args: { _delivery: string }; Returns: Json }
+      open_ops_request: {
+        Args: {
+          _key: string
+          _kind: string
+          _school: string
+          _sector: string
+          _subject: string
+        }
+        Returns: string
+      }
       open_statistical_map: {
         Args: { _month: number; _school: string; _year: number }
         Returns: string
@@ -31143,6 +31281,10 @@ export type Database = {
         Returns: boolean
       }
       operational_task_assignee: { Args: { _task: string }; Returns: string }
+      ops_can_read: {
+        Args: { _school: string; _sector: string }
+        Returns: boolean
+      }
       own_engagement_network_now: { Args: never; Returns: boolean }
       own_engagement_schools_now: { Args: never; Returns: string[] }
       password_change_required: { Args: never; Returns: boolean }
@@ -33318,6 +33460,22 @@ export type Database = {
           _kind: string
           _status: string
           _task: string
+        }
+        Returns: number
+      }
+      record_ops_request_event: {
+        Args: {
+          _case_event: string
+          _engagement: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _object_kind: string
+          _object_ref: string
+          _protocol: string
+          _request: string
+          _valid_from: string
         }
         Returns: number
       }
