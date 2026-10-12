@@ -9525,6 +9525,170 @@ export type Database = {
           },
         ]
       }
+      dev_plan_contents: {
+        Row: {
+          academic_year_id: string
+          calendar_version_id: string | null
+          created_at: string
+          diagnosis_summary: string
+          plan_version_id: string
+          resources: string | null
+        }
+        Insert: {
+          academic_year_id: string
+          calendar_version_id?: string | null
+          created_at?: string
+          diagnosis_summary: string
+          plan_version_id: string
+          resources?: string | null
+        }
+        Update: {
+          academic_year_id?: string
+          calendar_version_id?: string | null
+          created_at?: string
+          diagnosis_summary?: string
+          plan_version_id?: string
+          resources?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_plan_contents_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_plan_contents_calendar_version_id_fkey"
+            columns: ["calendar_version_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_plan_contents_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_plan_events: {
+        Row: {
+          act_document_ref: string | null
+          actor_person: string
+          created_at: string
+          goal_item_id: string | null
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string | null
+          observed_value: number | null
+          plan_version_id: string
+          seq: number
+        }
+        Insert: {
+          act_document_ref?: string | null
+          actor_person: string
+          created_at?: string
+          goal_item_id?: string | null
+          id?: string
+          idempotency_key: string
+          kind: string
+          note?: string | null
+          observed_value?: number | null
+          plan_version_id: string
+          seq: number
+        }
+        Update: {
+          act_document_ref?: string | null
+          actor_person?: string
+          created_at?: string
+          goal_item_id?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string | null
+          observed_value?: number | null
+          plan_version_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_plan_events_act_document_ref_fkey"
+            columns: ["act_document_ref"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_plan_events_goal_item_id_fkey"
+            columns: ["goal_item_id"]
+            isOneToOne: false
+            referencedRelation: "dev_plan_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_plan_events_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_plan_contents"
+            referencedColumns: ["plan_version_id"]
+          },
+        ]
+      }
+      dev_plan_items: {
+        Row: {
+          due_on: string | null
+          id: string
+          kind: string
+          ord: number
+          plan_version_id: string
+          responsible_engagement: string | null
+          target_unit: string | null
+          target_value: number | null
+          text: string
+        }
+        Insert: {
+          due_on?: string | null
+          id?: string
+          kind: string
+          ord: number
+          plan_version_id: string
+          responsible_engagement?: string | null
+          target_unit?: string | null
+          target_value?: number | null
+          text: string
+        }
+        Update: {
+          due_on?: string | null
+          id?: string
+          kind?: string
+          ord?: number
+          plan_version_id?: string
+          responsible_engagement?: string | null
+          target_unit?: string | null
+          target_value?: number | null
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_plan_items_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_plan_contents"
+            referencedColumns: ["plan_version_id"]
+          },
+          {
+            foreignKeyName: "dev_plan_items_responsible_engagement_fkey"
+            columns: ["responsible_engagement"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_plan_versions: {
         Row: {
           author_person: string
@@ -32593,6 +32757,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      dev_plan_published: { Args: { _version: string }; Returns: boolean }
       dev_version_usable: {
         Args: { _subject: string; _version: string }
         Returns: boolean
@@ -37162,6 +37327,30 @@ export type Database = {
           _kind: string
           _note: string
           _pct: number
+        }
+        Returns: number
+      }
+      record_dev_plan_content: {
+        Args: {
+          _calendar: string
+          _diagnosis: string
+          _items: Json
+          _resources: string
+          _version: string
+          _year: string
+        }
+        Returns: string
+      }
+      record_dev_plan_event: {
+        Args: {
+          _act: string
+          _expected_seq: number
+          _goal: string
+          _key: string
+          _kind: string
+          _note: string
+          _observed: number
+          _version: string
         }
         Returns: number
       }
