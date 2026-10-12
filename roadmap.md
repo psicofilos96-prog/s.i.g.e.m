@@ -652,3 +652,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Busca Ativa, Matrícula Digital, Documentos, Transporte/Infra/Patrimônio, Família, Mediador, OP, Docente, NEI, Lotação, Rede/Vagas — conferir seção a seção
 - [ ] Persistência (tabelas + writers) dos núcleos A&A L03–L06
 - [x] A&A Lote 07 respostas e correção (núcleo; sem tabela)
+- [x] A&A Lote 08 importação QR/OMR e digital (núcleo; sem tabela de tokens)
