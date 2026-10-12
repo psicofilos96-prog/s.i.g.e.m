@@ -3445,6 +3445,13 @@
       "when": 1791816125000,
       "tag": "0491_tech18_backup_records",
       "breakpoints": true
+    },
+    {
+      "idx": 492,
+      "version": "7",
+      "when": 1791816344126,
+      "tag": "0492_tech19_knowledge_selfservice",
+      "breakpoints": true
     }
   ]
 }

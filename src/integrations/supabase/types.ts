@@ -34879,6 +34879,76 @@ export type Database = {
           },
         ]
       }
+      tech_kb_link_validations: {
+        Row: {
+          created_at: string
+          link_id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          link_id: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          link_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_kb_link_validations_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: true
+            referencedRelation: "tech_kb_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_kb_links: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          kb_document_id: string
+          person_id: string
+          target_key: string
+          target_kind: string
+          validated_by: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kb_document_id: string
+          person_id: string
+          target_key: string
+          target_kind: string
+          validated_by?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kb_document_id?: string
+          person_id?: string
+          target_key?: string
+          target_kind?: string
+          validated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_kb_links_kb_document_id_fkey"
+            columns: ["kb_document_id"]
+            isOneToOne: false
+            referencedRelation: "kb_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_problem_events: {
         Row: {
           action: string
@@ -35208,6 +35278,51 @@ export type Database = {
           summary?: string
         }
         Relationships: []
+      }
+      tech_selfservice_feedback: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          kb_document_id: string
+          outcome: string
+          person_id: string
+          request_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kb_document_id: string
+          outcome: string
+          person_id: string
+          request_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kb_document_id?: string
+          outcome?: string
+          person_id?: string
+          request_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_selfservice_feedback_kb_document_id_fkey"
+            columns: ["kb_document_id"]
+            isOneToOne: false
+            referencedRelation: "kb_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_selfservice_feedback_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tech_service_sessions: {
         Row: {
@@ -47007,6 +47122,16 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_kb_link: {
+        Args: {
+          _action: string
+          _doc: string
+          _key: string
+          _kind: string
+          _target: string
+        }
+        Returns: string
+      }
       record_tech_problem_event: {
         Args: {
           _action: string
@@ -47053,6 +47178,10 @@ export type Database = {
           _severity: string
         }
         Returns: number
+      }
+      record_tech_selfservice_feedback: {
+        Args: { _doc: string; _key: string; _outcome: string; _request: string }
+        Returns: string
       }
       record_tech_service_session: {
         Args: {
@@ -49332,6 +49461,15 @@ export type Database = {
         }
         Returns: number
       }
+      tech_selfservice_summary: {
+        Args: never
+        Returns: {
+          kb_document_id: string
+          not_resolved: number
+          resolved: number
+          tickets_after: number
+        }[]
+      }
       tech_sla_policy_valid: {
         Args: { _a: Json; _d: Json; _i: Json; _m: Json; _u: Json }
         Returns: boolean
@@ -49439,6 +49577,7 @@ export type Database = {
         Args: { _reason: string; _trip: string; _vehicle: string }
         Returns: string
       }
+      validate_tech_kb_link: { Args: { _link: string }; Returns: undefined }
       verify_admin_act_signature: {
         Args: { _code: string }
         Returns: {
