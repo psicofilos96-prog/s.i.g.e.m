@@ -144,7 +144,7 @@ function ProtocolLookup() {
           <Label htmlFor={cId}>Código de conferência</Label>
           <Input id={cId} value={code} onChange={(e) => setCode(e.target.value)} placeholder="12 caracteres" autoComplete="off" aria-describedby={hId} required />
         </div>
-        <p id={hId} className="text-sm text-muted-foreground">Os dois aparecem no comprovante do pedido. A consulta mostra só a situação, sem dados pessoais.</p>
+        <p id={hId} className="text-sm text-muted-foreground">Os dois aparecem no comprovante do pedido. A consulta mostra só a situação, sem dados pessoais. Para enviar documentos, ver próximos passos ou confirmar vaga, use <Link to="/publico/acompanhar-inscricao" className="font-medium text-primary hover:underline">Acompanhar pedido</Link>.</p>
         <Button type="submit" disabled={busy} className="min-h-11 sm:w-fit">{busy ? "Consultando…" : "Consultar"}</Button>
       </form>
       <div role="status" aria-live="polite" className="mt-3">
