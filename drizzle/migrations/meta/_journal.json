@@ -3459,6 +3459,13 @@
       "when": 1791816498445,
       "tag": "0493_tech20_pedagogical_resources",
       "breakpoints": true
+    },
+    {
+      "idx": 494,
+      "version": "7",
+      "when": 1791816727874,
+      "tag": "0494_tech21_innovation_labs_loans_accessibility",
+      "breakpoints": true
     }
   ]
 }
