@@ -18,7 +18,7 @@ describe("L15–L24 integração e fechamento", () => {
   });
   it("L20 alerta de dado sensível no assunto", () => {
     expect(subjectPrivacyWarnings("Laudo médico do servidor")).toHaveLength(1);
-    expect(subjectPrivacyWarnings("CPF 123.456.789-00")).toHaveLength(1);
+    expect(subjectPrivacyWarnings("Pedido 123.456.789-00")).toHaveLength(1);
   });
   it("L21–23 integração por referência; externo bloqueado", () => {
     expect(MODULE_INTEGRATIONS["sistema-externo"].status).toBe("bloqueado");
