@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { familyView, positionHistory, recordQueueVersion, type QueueVersion } from "./waiting-list";
 
 const key = { processId: "pr", offerId: "of", regionId: "rg" };
-const actor = { personId: "p-rev", isHuman: true, capabilities: ["ordenar-fila"] };
+import type { QueueActor } from "./waiting-list";
+const actor: QueueActor = { personId: "p-rev", isHuman: true, capabilities: ["ordenar-fila"] };
 const pol = { reclassifyCapability: "ordenar-fila" };
 const prop = (hash: string, order: string[]) => ({ hash, approvedBy: "p-rev", actRef: "ato-1", order });
 const rec = (vs: QueueVersion[], exp: number, p: ReturnType<typeof prop> | null, reason = "", a = actor) =>
