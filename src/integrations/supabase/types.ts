@@ -34895,6 +34895,121 @@ export type Database = {
         }
         Relationships: []
       }
+      tech_security_counters: {
+        Row: {
+          last: number
+          year: number
+        }
+        Insert: {
+          last: number
+          year: number
+        }
+        Update: {
+          last?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      tech_security_incident_events: {
+        Row: {
+          communicate: boolean | null
+          created_at: string
+          document_ref: string | null
+          idempotency_key: string
+          incident_id: string
+          kind: string
+          note: string
+          person_id: string
+          personal_data: boolean | null
+          seq: number
+          severity: string | null
+        }
+        Insert: {
+          communicate?: boolean | null
+          created_at?: string
+          document_ref?: string | null
+          idempotency_key: string
+          incident_id: string
+          kind: string
+          note: string
+          person_id: string
+          personal_data?: boolean | null
+          seq: number
+          severity?: string | null
+        }
+        Update: {
+          communicate?: boolean | null
+          created_at?: string
+          document_ref?: string | null
+          idempotency_key?: string
+          incident_id?: string
+          kind?: string
+          note?: string
+          person_id?: string
+          personal_data?: boolean | null
+          seq?: number
+          severity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_security_incident_events_document_ref_fkey"
+            columns: ["document_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_security_incident_events_document_ref_fkey"
+            columns: ["document_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_security_incident_events_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "tech_security_incidents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_security_incidents: {
+        Row: {
+          category: string
+          code: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          personal_data: boolean | null
+          reporter_person: string
+          school_id: string | null
+          summary: string
+        }
+        Insert: {
+          category: string
+          code: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          personal_data?: boolean | null
+          reporter_person: string
+          school_id?: string | null
+          summary: string
+        }
+        Update: {
+          category?: string
+          code?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          personal_data?: boolean | null
+          reporter_person?: string
+          school_id?: string | null
+          summary?: string
+        }
+        Relationships: []
+      }
       tech_service_sessions: {
         Row: {
           created_at: string
@@ -42063,6 +42178,14 @@ export type Database = {
           version_id: string
         }[]
       }
+      my_tech_security_reports: {
+        Args: never
+        Returns: {
+          code: string
+          created_at: string
+          phase: string
+        }[]
+      }
       my_unread_notification_count: { Args: never; Returns: number }
       nei_access_log: {
         Args: { _limit?: number }
@@ -46679,6 +46802,20 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_security_event: {
+        Args: {
+          _communicate: boolean
+          _doc: string
+          _expected: number
+          _inc: string
+          _key: string
+          _kind: string
+          _note: string
+          _pd: boolean
+          _severity: string
+        }
+        Returns: number
+      }
       record_tech_service_session: {
         Args: {
           _ended: string
@@ -47294,6 +47431,15 @@ export type Database = {
       }
       report_custom_catalog: { Args: never; Returns: Json }
       report_custom_query: { Args: { _spec: Json }; Returns: Json }
+      report_tech_security_incident: {
+        Args: {
+          _category: string
+          _key: string
+          _school: string
+          _summary: string
+        }
+        Returns: string
+      }
       request_dev_enrollment: {
         Args: {
           _class: string
