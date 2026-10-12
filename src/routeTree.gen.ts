@@ -195,6 +195,7 @@ import { Route as RegrasAvaliativasRegraIdEditarRouteImport } from './routes/reg
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as TurmasOfertaIdRouteImport } from './routes/turmas.oferta.$id'
 import { Route as UnidadesEditarIdRouteImport } from './routes/unidades.editar.$id'
+import { Route as VerificarAtoCodigoRouteImport } from './routes/verificar.ato.$codigo'
 import { Route as VerificarCarteirinhaCodigoRouteImport } from './routes/verificar.carteirinha.$codigo'
 import { Route as VerificarDocumentoCodigoRouteImport } from './routes/verificar.documento.$codigo'
 import { Route as VerificarRelatorioCodigoRouteImport } from './routes/verificar.relatorio.$codigo'
@@ -1217,6 +1218,11 @@ const UnidadesEditarIdRoute = UnidadesEditarIdRouteImport.update({
   path: '/editar/$id',
   getParentRoute: () => UnidadesRoute,
 } as any)
+const VerificarAtoCodigoRoute = VerificarAtoCodigoRouteImport.update({
+  id: '/verificar/ato/$codigo',
+  path: '/verificar/ato/$codigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerificarCarteirinhaCodigoRoute =
   VerificarCarteirinhaCodigoRouteImport.update({
     id: '/verificar/carteirinha/$codigo',
@@ -1807,6 +1813,7 @@ export interface FileRoutesByFullPath {
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
+  '/verificar/ato/$codigo': typeof VerificarAtoCodigoRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
@@ -2042,6 +2049,7 @@ export interface FileRoutesByTo {
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
+  '/verificar/ato/$codigo': typeof VerificarAtoCodigoRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
@@ -2286,6 +2294,7 @@ export interface FileRoutesById {
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
+  '/verificar/ato/$codigo': typeof VerificarAtoCodigoRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
@@ -2543,6 +2552,7 @@ export interface FileRouteTypes {
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
     | '/unidades/editar/$id'
+    | '/verificar/ato/$codigo'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/verificar/relatorio/$codigo'
@@ -2778,6 +2788,7 @@ export interface FileRouteTypes {
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
     | '/unidades/editar/$id'
+    | '/verificar/ato/$codigo'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/verificar/relatorio/$codigo'
@@ -3021,6 +3032,7 @@ export interface FileRouteTypes {
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
     | '/unidades/editar/$id'
+    | '/verificar/ato/$codigo'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/verificar/relatorio/$codigo'
@@ -3220,6 +3232,7 @@ export interface RootRouteChildren {
   InclusaoNeiIndicadoresRoute: typeof InclusaoNeiIndicadoresRoute
   InclusaoNeiProtocolosRoute: typeof InclusaoNeiProtocolosRoute
   MediadorAcompanhamentoStudentIdRoute: typeof MediadorAcompanhamentoStudentIdRoute
+  VerificarAtoCodigoRoute: typeof VerificarAtoCodigoRoute
   VerificarCarteirinhaCodigoRoute: typeof VerificarCarteirinhaCodigoRoute
   VerificarDocumentoCodigoRoute: typeof VerificarDocumentoCodigoRoute
   VerificarRelatorioCodigoRoute: typeof VerificarRelatorioCodigoRoute
@@ -4531,6 +4544,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UnidadesEditarIdRouteImport
       parentRoute: typeof UnidadesRoute
     }
+    '/verificar/ato/$codigo': {
+      id: '/verificar/ato/$codigo'
+      path: '/verificar/ato/$codigo'
+      fullPath: '/verificar/ato/$codigo'
+      preLoaderRoute: typeof VerificarAtoCodigoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verificar/carteirinha/$codigo': {
       id: '/verificar/carteirinha/$codigo'
       path: '/verificar/carteirinha/$codigo'
@@ -5803,6 +5823,7 @@ const rootRouteChildren: RootRouteChildren = {
   InclusaoNeiIndicadoresRoute: InclusaoNeiIndicadoresRoute,
   InclusaoNeiProtocolosRoute: InclusaoNeiProtocolosRoute,
   MediadorAcompanhamentoStudentIdRoute: MediadorAcompanhamentoStudentIdRoute,
+  VerificarAtoCodigoRoute: VerificarAtoCodigoRoute,
   VerificarCarteirinhaCodigoRoute: VerificarCarteirinhaCodigoRoute,
   VerificarDocumentoCodigoRoute: VerificarDocumentoCodigoRoute,
   VerificarRelatorioCodigoRoute: VerificarRelatorioCodigoRoute,
