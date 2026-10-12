@@ -18816,6 +18816,56 @@ export type Database = {
           },
         ]
       }
+      permanence_returns: {
+        Row: {
+          author_person: string
+          case_id: string
+          class_id: string
+          created_at: string
+          enrollment_id: string
+          episode_id: string
+          id: string
+          idempotency_key: string
+          returned_on: string
+          welcome_by: string | null
+          welcome_note: string | null
+        }
+        Insert: {
+          author_person: string
+          case_id: string
+          class_id: string
+          created_at?: string
+          enrollment_id: string
+          episode_id: string
+          id?: string
+          idempotency_key: string
+          returned_on: string
+          welcome_by?: string | null
+          welcome_note?: string | null
+        }
+        Update: {
+          author_person?: string
+          case_id?: string
+          class_id?: string
+          created_at?: string
+          enrollment_id?: string
+          episode_id?: string
+          id?: string
+          idempotency_key?: string
+          returned_on?: string
+          welcome_by?: string | null
+          welcome_note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_returns_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permanence_rule_approvals: {
         Row: {
           approved_at: string
@@ -33409,6 +33459,16 @@ export type Database = {
           _referral: string
         }
         Returns: number
+      }
+      record_permanence_return: {
+        Args: {
+          _case: string
+          _episode: string
+          _key: string
+          _returned_on: string
+          _welcome_note: string
+        }
+        Returns: string
       }
       record_permanence_visit: {
         Args: {
