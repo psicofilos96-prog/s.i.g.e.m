@@ -18775,6 +18775,92 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_space_use_restrictions: {
+        Row: {
+          action: string
+          author_person: string
+          basis_doc_ref: string | null
+          capacity_limit: number | null
+          created_at: string
+          effective_from: string
+          effective_to: string | null
+          id: string
+          idempotency_key: string
+          reason: string
+          restriction_key: string
+          seq: number
+          severity: string | null
+          shift_ids: string[]
+          space_id: string
+          work_id: string | null
+        }
+        Insert: {
+          action: string
+          author_person: string
+          basis_doc_ref?: string | null
+          capacity_limit?: number | null
+          created_at?: string
+          effective_from: string
+          effective_to?: string | null
+          id?: string
+          idempotency_key: string
+          reason: string
+          restriction_key: string
+          seq: number
+          severity?: string | null
+          shift_ids?: string[]
+          space_id: string
+          work_id?: string | null
+        }
+        Update: {
+          action?: string
+          author_person?: string
+          basis_doc_ref?: string | null
+          capacity_limit?: number | null
+          created_at?: string
+          effective_from?: string
+          effective_to?: string | null
+          id?: string
+          idempotency_key?: string
+          reason?: string
+          restriction_key?: string
+          seq?: number
+          severity?: string | null
+          shift_ids?: string[]
+          space_id?: string
+          work_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_space_use_restrictions_basis_doc_ref_fkey"
+            columns: ["basis_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_space_use_restrictions_basis_doc_ref_fkey"
+            columns: ["basis_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_space_use_restrictions_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_space_use_restrictions_work_id_fkey"
+            columns: ["work_id"]
+            isOneToOne: false
+            referencedRelation: "ops_works"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_space_versions: {
         Row: {
           accessibility: string[]
@@ -18888,6 +18974,140 @@ export type Database = {
           },
           {
             foreignKeyName: "ops_spaces_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_work_events: {
+        Row: {
+          actor_person: string
+          created_at: string
+          doc_ref: string | null
+          engagement_id: string | null
+          id: string
+          idempotency_key: string
+          kind: string
+          milestone_key: string | null
+          milestone_label: string | null
+          note: string | null
+          on_date: string | null
+          professional_registry: string | null
+          seq: number
+          work_id: string
+        }
+        Insert: {
+          actor_person: string
+          created_at?: string
+          doc_ref?: string | null
+          engagement_id?: string | null
+          id?: string
+          idempotency_key: string
+          kind: string
+          milestone_key?: string | null
+          milestone_label?: string | null
+          note?: string | null
+          on_date?: string | null
+          professional_registry?: string | null
+          seq: number
+          work_id: string
+        }
+        Update: {
+          actor_person?: string
+          created_at?: string
+          doc_ref?: string | null
+          engagement_id?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          milestone_key?: string | null
+          milestone_label?: string | null
+          note?: string | null
+          on_date?: string | null
+          professional_registry?: string | null
+          seq?: number
+          work_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_work_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_work_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_work_events_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_work_events_work_id_fkey"
+            columns: ["work_id"]
+            isOneToOne: false
+            referencedRelation: "ops_works"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_works: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          request_id: string | null
+          school_id: string
+          scope: string
+          space_ids: string[]
+          title: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          request_id?: string | null
+          school_id: string
+          scope: string
+          space_ids?: string[]
+          title: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          request_id?: string | null
+          school_id?: string
+          scope?: string
+          space_ids?: string[]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_works_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_works_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "institutional_schools"
@@ -32280,6 +32500,18 @@ export type Database = {
         }
         Returns: string
       }
+      open_ops_work: {
+        Args: {
+          _key: string
+          _kind: string
+          _request: string
+          _school: string
+          _scope: string
+          _spaces: string[]
+          _title: string
+        }
+        Returns: string
+      }
       open_statistical_map: {
         Args: { _month: number; _school: string; _year: number }
         Returns: string
@@ -32319,6 +32551,7 @@ export type Database = {
       ops_service_state: { Args: { _so: string }; Returns: string }
       ops_space_parent_level: { Args: { _level: string }; Returns: string }
       ops_space_type_usable: { Args: { _tv: string }; Returns: boolean }
+      ops_work_state: { Args: { _w: string }; Returns: string }
       own_engagement_network_now: { Args: never; Returns: boolean }
       own_engagement_schools_now: { Args: never; Returns: string[] }
       password_change_required: { Args: never; Returns: boolean }
@@ -34578,6 +34811,24 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_space_use_restriction: {
+        Args: {
+          _action: string
+          _doc: string
+          _expected_seq: number
+          _from: string
+          _key: string
+          _limit: number
+          _reason: string
+          _rkey: string
+          _severity: string
+          _shifts: string[]
+          _space: string
+          _to: string
+          _work: string
+        }
+        Returns: number
+      }
       record_ops_space_version: {
         Args: {
           _accessibility: string[]
@@ -34594,6 +34845,22 @@ export type Database = {
           _status: string
           _type_version: string
           _valid_from: string
+        }
+        Returns: number
+      }
+      record_ops_work_event: {
+        Args: {
+          _doc: string
+          _engagement: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _mkey: string
+          _mlabel: string
+          _note: string
+          _on: string
+          _registry: string
+          _w: string
         }
         Returns: number
       }
