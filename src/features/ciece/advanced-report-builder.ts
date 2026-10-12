@@ -91,7 +91,7 @@ export function render(spec: BuilderSpec, caps: ReadonlySet<string>, sourceRows:
   { result: ReportResult; chart: ReturnType<typeof resolveChart>; excluded: number; meta: string[] } {
   const errs = validateSpec(spec, caps); if (errs.length) throw new Error(`builder:${errs.join(",")}`);
   const src = authorizedSources(caps).find((e) => e.def.id === spec.sourceId)!;
-  const base = runReport(src.def, { params, filters: spec.filters, columns: spec.fields.length ? spec.fields : undefined, sort: spec.sort }, sourceRows, now);
+  const base = runReport(src.def, { params, filters: spec.filters, ...(spec.fields.length ? { columns: spec.fields } : {}), sort: spec.sort }, sourceRows, now);
   const asRecords = base.rows.map((r) => Object.fromEntries(base.columns.map((c, i) => [c.id, r[i] ?? null])));
   // filtros/colunas aplicados pelo motor; para agregar precisamos das colunas de grupo/medida mesmo fora de "fields"
   const full = spec.groupBy.length || spec.measures.length ? runReport(src.def, { params, filters: spec.filters }, sourceRows, now) : base;
