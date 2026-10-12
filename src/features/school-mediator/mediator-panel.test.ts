@@ -39,7 +39,7 @@ describe("Mediador L03 — painel e agenda", () => {
     expect(a.items.map((i) => i.kind)).toEqual(["aula", "reuniao", "orientacao"]);
     expect(a.items.some((i) => i.classId === "9Z")).toBe(false);
     const f = dayAgenda({ date: "2026-03-10", students: st, blocks, dayEffect: "nao-letivo", events: [] });
-    expect(f.items).toEqual([]); expect(f.notices[0]).toMatch(/não-letivo/);
+    expect(f.items).toEqual([]); expect(f.notices[0]).toMatch(/não letivo/);
     expect(dayAgenda({ date: "2026-03-10", students: st, blocks, dayEffect: null, events: [] }).notices[0]).toMatch(/não lido/);
   });
   it("designação encerrada sai da agenda; semana começa na segunda", () => {

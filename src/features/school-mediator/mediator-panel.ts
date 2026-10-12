@@ -62,7 +62,7 @@ export function dayAgenda(p: { date: string; students: MediatedStudent[]; blocks
   const classIds = new Set(live.map((s) => s.class_id).filter((c): c is string => !!c));
   if (live.some((s) => !s.class_id)) notices.push("Há estudante acompanhado sem turma registrada na designação: horário não exibido.");
   if (p.dayEffect === null) notices.push("Calendário oficial não lido: aulas do dia não confirmadas.");
-  else if (p.dayEffect !== "letivo") notices.push(p.dayEffect === "indeterminado" ? "Dia sem efeito declarado no calendário oficial." : `Dia ${p.dayEffect} no calendário oficial: sem aulas.`);
+  else if (p.dayEffect !== "letivo") notices.push(p.dayEffect === "indeterminado" ? "Dia sem efeito declarado no calendário oficial." : `Dia ${p.dayEffect === "nao-letivo" ? "não letivo" : "suspenso"} no calendário oficial: sem aulas.`);
   if (p.blocks === null) notices.push("Grade da turma não lida.");
   if (p.dayEffect === "letivo" && p.blocks) {
     const wd = weekday(p.date);
