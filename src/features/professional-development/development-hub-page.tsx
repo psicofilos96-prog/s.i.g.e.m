@@ -23,7 +23,7 @@ function useHubData() {
         supabase.from("dev_classes").select("id, course_version_id, school_id, label, seats, starts_on, ends_on").order("starts_on", { ascending: false }).limit(LIMIT),
         supabase.from("dev_enrollments").select("id, class_id, person_id, functional_link_id").limit(LIMIT),
         supabase.from("dev_participation_events").select("enrollment_id, seq, kind, attendance_pct").limit(LIMIT),
-        supabase.from("dev_certifications").select("enrollment_id, created_at").limit(LIMIT),
+        supabase.from("dev_certificate_issuances").select("enrollment_id, created_at").limit(LIMIT),
         supabase.from("professional_functional_links").select("id, position_id").limit(LIMIT),
       ]);
       if (!live) return;

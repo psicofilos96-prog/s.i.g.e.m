@@ -157,6 +157,7 @@ import { Route as SecretariaModelosDeTextoRouteImport } from './routes/secretari
 import { Route as SecretariaServicosRouteImport } from './routes/secretaria_.servicos'
 import { Route as SecretariaTabelasSemedRouteImport } from './routes/secretaria_.tabelas-semed'
 import { Route as SecretariaVagasRouteImport } from './routes/secretaria_.vagas'
+import { Route as SigemDesenvolvimentoHistoricoRouteImport } from './routes/sigem-desenvolvimento_.historico'
 import { Route as TransferenciasNovaRouteImport } from './routes/transferencias.nova'
 import { Route as TurmasIndexRouteImport } from './routes/turmas.index'
 import { Route as TurmasIdRouteImport } from './routes/turmas.$id'
@@ -1020,6 +1021,12 @@ const SecretariaVagasRoute = SecretariaVagasRouteImport.update({
   path: '/secretaria/vagas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SigemDesenvolvimentoHistoricoRoute =
+  SigemDesenvolvimentoHistoricoRouteImport.update({
+    id: '/sigem-desenvolvimento_/historico',
+    path: '/sigem-desenvolvimento/historico',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const TransferenciasNovaRoute = TransferenciasNovaRouteImport.update({
   id: '/nova',
   path: '/nova',
@@ -1801,6 +1808,7 @@ export interface FileRoutesByFullPath {
   '/secretaria/servicos': typeof SecretariaServicosRoute
   '/secretaria/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
+  '/sigem-desenvolvimento/historico': typeof SigemDesenvolvimentoHistoricoRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
@@ -2047,6 +2055,7 @@ export interface FileRoutesByTo {
   '/secretaria/servicos': typeof SecretariaServicosRoute
   '/secretaria/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
+  '/sigem-desenvolvimento/historico': typeof SigemDesenvolvimentoHistoricoRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
@@ -2292,6 +2301,7 @@ export interface FileRoutesById {
   '/secretaria_/servicos': typeof SecretariaServicosRoute
   '/secretaria_/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria_/vagas': typeof SecretariaVagasRoute
+  '/sigem-desenvolvimento_/historico': typeof SigemDesenvolvimentoHistoricoRoute
   '/transferencias/nova': typeof TransferenciasNovaRoute
   '/turmas/$id': typeof TurmasIdRoute
   '/turmas/designacao-previa': typeof TurmasDesignacaoPreviaRoute
@@ -2555,6 +2565,7 @@ export interface FileRouteTypes {
     | '/secretaria/servicos'
     | '/secretaria/tabelas-semed'
     | '/secretaria/vagas'
+    | '/sigem-desenvolvimento/historico'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/designacao-previa'
@@ -2801,6 +2812,7 @@ export interface FileRouteTypes {
     | '/secretaria/servicos'
     | '/secretaria/tabelas-semed'
     | '/secretaria/vagas'
+    | '/sigem-desenvolvimento/historico'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/designacao-previa'
@@ -3045,6 +3057,7 @@ export interface FileRouteTypes {
     | '/secretaria_/servicos'
     | '/secretaria_/tabelas-semed'
     | '/secretaria_/vagas'
+    | '/sigem-desenvolvimento_/historico'
     | '/transferencias/nova'
     | '/turmas/$id'
     | '/turmas/designacao-previa'
@@ -3285,6 +3298,7 @@ export interface RootRouteChildren {
   SecretariaServicosRoute: typeof SecretariaServicosRoute
   SecretariaTabelasSemedRoute: typeof SecretariaTabelasSemedRoute
   SecretariaVagasRoute: typeof SecretariaVagasRoute
+  SigemDesenvolvimentoHistoricoRoute: typeof SigemDesenvolvimentoHistoricoRoute
   VerificarCodigoRoute: typeof VerificarCodigoRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
   PublicoIndexRoute: typeof PublicoIndexRoute
@@ -4342,6 +4356,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria/vagas'
       fullPath: '/secretaria/vagas'
       preLoaderRoute: typeof SecretariaVagasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sigem-desenvolvimento_/historico': {
+      id: '/sigem-desenvolvimento_/historico'
+      path: '/sigem-desenvolvimento/historico'
+      fullPath: '/sigem-desenvolvimento/historico'
+      preLoaderRoute: typeof SigemDesenvolvimentoHistoricoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/transferencias/nova': {
@@ -5915,6 +5936,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecretariaServicosRoute: SecretariaServicosRoute,
   SecretariaTabelasSemedRoute: SecretariaTabelasSemedRoute,
   SecretariaVagasRoute: SecretariaVagasRoute,
+  SigemDesenvolvimentoHistoricoRoute: SigemDesenvolvimentoHistoricoRoute,
   VerificarCodigoRoute: VerificarCodigoRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
   PublicoIndexRoute: PublicoIndexRoute,
