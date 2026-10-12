@@ -9629,6 +9629,192 @@ export type Database = {
           },
         ]
       }
+      dev_completion_assessments: {
+        Row: {
+          computed_by: string
+          created_at: string
+          criteria_version_id: string
+          enrollment_id: string
+          id: string
+          input_sha256: string
+          inputs: Json
+          verdict: string
+        }
+        Insert: {
+          computed_by: string
+          created_at?: string
+          criteria_version_id: string
+          enrollment_id: string
+          id?: string
+          input_sha256: string
+          inputs: Json
+          verdict: string
+        }
+        Update: {
+          computed_by?: string
+          created_at?: string
+          criteria_version_id?: string
+          enrollment_id?: string
+          id?: string
+          input_sha256?: string
+          inputs?: Json
+          verdict?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_completion_assessments_criteria_version_id_fkey"
+            columns: ["criteria_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_completion_criteria_approvals"
+            referencedColumns: ["criteria_version_id"]
+          },
+          {
+            foreignKeyName: "dev_completion_assessments_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_completion_confirmations: {
+        Row: {
+          assessment_id: string
+          confirmer_person: string
+          created_at: string
+          decision: string
+          enrollment_id: string
+          participation_event_id: string
+          reason: string
+        }
+        Insert: {
+          assessment_id: string
+          confirmer_person: string
+          created_at?: string
+          decision: string
+          enrollment_id: string
+          participation_event_id: string
+          reason: string
+        }
+        Update: {
+          assessment_id?: string
+          confirmer_person?: string
+          created_at?: string
+          decision?: string
+          enrollment_id?: string
+          participation_event_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_completion_confirmations_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: true
+            referencedRelation: "dev_completion_assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_completion_confirmations_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: true
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_completion_confirmations_participation_event_id_fkey"
+            columns: ["participation_event_id"]
+            isOneToOne: false
+            referencedRelation: "dev_participation_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_completion_criteria_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          criteria_version_id: string
+          reason: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          criteria_version_id: string
+          reason: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          criteria_version_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_completion_criteria_approvals_criteria_version_id_fkey"
+            columns: ["criteria_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_completion_criteria_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_completion_criteria_versions: {
+        Row: {
+          accepted_outcomes: string[]
+          author_person: string
+          class_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          min_activities_delivered: number | null
+          min_attendance_pct: number
+          reason: string | null
+          rubric_version_id: string | null
+          version: number
+        }
+        Insert: {
+          accepted_outcomes?: string[]
+          author_person: string
+          class_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          min_activities_delivered?: number | null
+          min_attendance_pct: number
+          reason?: string | null
+          rubric_version_id?: string | null
+          version: number
+        }
+        Update: {
+          accepted_outcomes?: string[]
+          author_person?: string
+          class_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          min_activities_delivered?: number | null
+          min_attendance_pct?: number
+          reason?: string | null
+          rubric_version_id?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_completion_criteria_versions_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_completion_criteria_versions_rubric_version_id_fkey"
+            columns: ["rubric_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_rubric_approvals"
+            referencedColumns: ["rubric_version_id"]
+          },
+        ]
+      }
       dev_course_catalog_contents: {
         Row: {
           assessment: string
@@ -32290,6 +32476,10 @@ export type Database = {
         }
         Returns: string
       }
+      approve_dev_completion_criteria: {
+        Args: { _reason: string; _version: string }
+        Returns: undefined
+      }
       approve_dev_rubric: {
         Args: { _reason: string; _version: string }
         Returns: undefined
@@ -32367,6 +32557,7 @@ export type Database = {
         }
         Returns: string
       }
+      assess_dev_completion: { Args: { _enrollment: string }; Returns: string }
       assess_ops_stop_safety: {
         Args: {
           _findings: string
@@ -33689,6 +33880,10 @@ export type Database = {
         Args: { _m: string; _note: string; _result: string }
         Returns: undefined
       }
+      confirm_dev_completion: {
+        Args: { _assessment: string; _decision: string; _reason: string }
+        Returns: string
+      }
       consolidate_dev_need: {
         Args: {
           _key: string
@@ -34236,6 +34431,7 @@ export type Database = {
       designation_year_writable: { Args: { _year: string }; Returns: undefined }
       dev_can_manage: { Args: never; Returns: boolean }
       dev_class_occupied: { Args: { _class: string }; Returns: number }
+      dev_completion_compute: { Args: { _enrollment: string }; Returns: Json }
       dev_current_threshold: {
         Args: never
         Returns: {
@@ -38900,6 +39096,19 @@ export type Database = {
           _key: string
           _reason: string
           _status: string
+        }
+        Returns: string
+      }
+      record_dev_completion_criteria: {
+        Args: {
+          _class: string
+          _expected_version: number
+          _key: string
+          _min_acts: number
+          _min_pct: number
+          _outcomes: string[]
+          _reason: string
+          _rubric: string
         }
         Returns: string
       }
