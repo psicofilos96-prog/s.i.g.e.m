@@ -26,3 +26,6 @@
 
 ## L17 Simulador de pessoal (`staffing-simulator.ts`)
 - Cenários (abrir/fechar turma, matriz, jornada, afastamento, substituição, redistribuição) operam só sobre cópia da base com impressão digital, retornam `simulacao: true` e `writes: []` e comparam demanda/cobertura/conflitos/sobrecarga antes×depois; base mudada ⇒ desatualizado, porque hipótese nunca pode alterar lotação ou atribuição oficial.
+
+## L18 Relatórios de pessoal (`people-reports.ts`)
+- Os 22 relatórios são `ReportDefinition` sobre o `report-engine` (CSV/XLSX/PDF), reusando os três da Frente X.1; data de referência e knownAt obrigatórios, natureza "projeção dinâmica", matrícula funcional sensível, cenário simulado recusado e fonte não persistida declarada em `dependency`, porque exportador ou fonte próprios dariam número sem ACL ou sem origem.
