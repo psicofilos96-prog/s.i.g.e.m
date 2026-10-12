@@ -1,3 +1,4 @@
+import { NO_PROMISE_NOTICE } from "@/features/enrollments/preference-policy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
@@ -159,6 +160,7 @@ function Wizard({ campaign }: { campaign: C }) {
                 </label>
               );
             })}
+            <p className="text-sm text-muted-foreground">{NO_PROMISE_NOTICE}</p>
             {errors.schools && <p id="err-schools" role="status" className="text-sm text-destructive">{errors.schools}</p>}
           </fieldset>
         )}
