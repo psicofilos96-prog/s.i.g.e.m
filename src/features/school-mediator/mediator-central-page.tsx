@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { callRpc } from "@/lib/rpc-call";
@@ -7,7 +8,7 @@ import { recoverDraft } from "@/features/teacher-diary/teacher-ux-robustness";
 import type { MediatedStudent } from "./mediator-panel";
 import { currentGuidance, submitAvailability, validateSupport, DRAFT_KEY, QUICK_TABS, type InclusionRecordRow, type SupportKind } from "./mediator-central";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => operationalToday();
 type Load = { kind: "loading" } | { kind: "error" } | { kind: "denied" } | { kind: "ok"; student: MediatedStudent; rows: InclusionRecordRow[] | null };
 
 export function MediatorCentralPage({ studentId }: { studentId: string }) {

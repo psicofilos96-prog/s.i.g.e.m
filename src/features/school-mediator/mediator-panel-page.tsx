@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { callRpc } from "@/lib/rpc-call";
@@ -5,7 +6,7 @@ import { PageHeader } from "@/components/sigem/patterns";
 import { AbsenceState, ErrorState, LoadingState } from "@/components/sigem/states";
 import { buildPanel, type MediatedStudent } from "./mediator-panel";
 
-function today() { return new Date().toISOString().slice(0, 10); }
+function today() { return operationalToday(); }
 
 /** Meu Painel do Mediador: lê só `inclusion_my_mediated_students` com a sessão. Demais fontes ainda não ligadas = não disponível. */
 export function MediatorPanelPage() {

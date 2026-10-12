@@ -73,7 +73,7 @@ export const devClosureMatrix = () => ({
 
 export const DEV_PENDING = [
   "Atribuir capacidades (gestão, aprovação, exportação, parceiros, trilhas por função) por decisão competente.",
-  "E2E autenticado com contas sintéticas via harness-gate e concorrência real de vagas.",
+  "E2E autenticado com contas sintéticas pela porta fail-closed de scripts e concorrência real de vagas.",
   "Telas operacionais de preparo/validação/emissão, submissão externa, PDI e parceiros.",
   "Limiar de agregação aprovado para resultados e avaliação de reação.",
 ] as const;

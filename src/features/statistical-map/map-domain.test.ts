@@ -124,7 +124,10 @@ describe("14.10 garantias no banco e no código (inspeção)", () => {
   });
   it("campo legado de modalidade removido e nunca lido", () => {
     expect(sql).toMatch(/DROP COLUMN modality_id/);
-    expect(readFileSync("src/integrations/supabase/types.ts", "utf8")).not.toMatch(/modality_id/);
+    const types = readFileSync("src/integrations/supabase/types.ts", "utf8");
+    const cls = types.slice(types.indexOf("      institutional_classes: {"), types.indexOf("Relationships", types.indexOf("      institutional_classes: {")));
+    expect(cls.length).toBeGreaterThan(50);
+    expect(cls).not.toMatch(/modality_id/); // coluna legada da turma (enr_* tem modalidade própria da inscrição)
     expect(code).not.toMatch(/modality_id|modality_label/);
   });
   it("sem fallback para demonstração e sem campo de digitação de totais ou lacunas", () => {

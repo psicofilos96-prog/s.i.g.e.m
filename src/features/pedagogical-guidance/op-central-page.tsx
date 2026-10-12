@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
@@ -6,6 +7,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { operationalToday } from "@/lib/academic-date";
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { schoolsInScope } from "@/features/school-followup/followup-source";
 import { buildCentral, counterText } from "./op-central";
 import { INTEGRATION_CONTRACTS, SECTORS, INTERVENTION_STAGES, guardPurpose, isolateSchool, screenState } from "./op-integration";
@@ -26,7 +28,7 @@ export function OpCentralPage() {
   const [date, setDate] = useState(operationalToday());
   useEffect(() => {
     let alive = true;
-    schoolsInScope().then((s) => alive && setScope(s), (e: Error) => alive && setErr(e.message)).finally(() => alive && setLoading(false));
+    schoolsInScope().then((s) => alive && setScope(s), (e: unknown) => alive && setErr(userErrorText(e))).finally(() => alive && setLoading(false));
     return () => { alive = false; };
   }, []);
   const state = screenState({ loading, error: err, denied: false, rows: scope });
@@ -49,7 +51,7 @@ export function OpCentralPage() {
                 </select>
               </label>)}
             <label className="flex flex-col">Dia consultado
-              <input type="date" className="mt-1 rounded border bg-background p-2" value={date} onChange={(e) => setDate(e.target.value)} />
+              <DateInput className="mt-1 rounded border bg-background p-2" value={date} onChange={(e) => setDate(e.target.value)} />
             </label>
           </div>
           {iso && !iso.ok ? <AbsenceState kind="nenhum-resultado" title="Escolha a escola" description={iso.reason} /> : iso && iso.ok && <SchoolCentral schoolId={iso.schoolId} date={date} />}

@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { NO_PROMISE_NOTICE } from "@/features/enrollments/preference-policy";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -137,7 +138,7 @@ function Wizard({ campaign }: { campaign: C }) {
           {d.requesterKind === "responsavel"
             ? <Field id="studentName" label="Nome completo do estudante" error={errors.studentName}><Input value={d.studentName} onChange={(e) => set("studentName", e.target.value)} autoComplete="off" /></Field>
             : <p className="text-sm text-muted-foreground">Estudante: {d.requesterName || "—"}</p>}
-          <Field id="studentBirth" label="Data de nascimento" error={errors.studentBirth}><Input type="date" value={d.studentBirth} max={t} onChange={(e) => set("studentBirth", e.target.value)} /></Field>
+          <Field id="studentBirth" label="Data de nascimento" error={errors.studentBirth}><DateInput value={d.studentBirth} max={t} onChange={(e) => set("studentBirth", e.target.value)} /></Field>
           <Field id="studentCpf" label="CPF do estudante (se tiver)" error={errors.studentCpf}><Input value={d.studentCpf} onChange={(e) => set("studentCpf", e.target.value)} inputMode="numeric" autoComplete="off" /></Field>
         </>}
 
