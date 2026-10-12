@@ -1,0 +1,3 @@
+REVOKE SELECT ON public.ops_vehicles, public.ops_vehicle_events FROM authenticated, anon;
+GRANT SELECT (id, plate, ownership, asset_id, contractor_label, registered_by, idempotency_key, created_at) ON public.ops_vehicles TO authenticated;
+GRANT SELECT (id, vehicle_id, seq, kind, seats, accessible_seats, doc_key, valid_until, inspection_result, on_date, service_order_id, available, note, actor_person, idempotency_key, created_at) ON public.ops_vehicle_events TO authenticated;
