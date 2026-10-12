@@ -9158,6 +9158,103 @@ export type Database = {
           },
         ]
       }
+      dev_course_catalog_contents: {
+        Row: {
+          assessment: string
+          completion_criteria: string
+          contents: string[]
+          course_version_id: string
+          created_at: string
+          modality: string
+          syllabus: string
+        }
+        Insert: {
+          assessment: string
+          completion_criteria: string
+          contents: string[]
+          course_version_id: string
+          created_at?: string
+          modality: string
+          syllabus: string
+        }
+        Update: {
+          assessment?: string
+          completion_criteria?: string
+          contents?: string[]
+          course_version_id?: string
+          created_at?: string
+          modality?: string
+          syllabus?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_course_catalog_contents_course_version_id_fkey"
+            columns: ["course_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_course_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_course_codes: {
+        Row: {
+          author_person: string
+          code: string
+          course_id: string
+          created_at: string
+        }
+        Insert: {
+          author_person: string
+          code: string
+          course_id: string
+          created_at?: string
+        }
+        Update: {
+          author_person?: string
+          code?: string
+          course_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_course_codes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: true
+            referencedRelation: "dev_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_course_prerequisites: {
+        Row: {
+          course_version_id: string
+          prerequisite_course_id: string
+        }
+        Insert: {
+          course_version_id: string
+          prerequisite_course_id: string
+        }
+        Update: {
+          course_version_id?: string
+          prerequisite_course_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_course_prerequisites_course_version_id_fkey"
+            columns: ["course_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_course_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_course_prerequisites_prerequisite_course_id_fkey"
+            columns: ["prerequisite_course_id"]
+            isOneToOne: false
+            referencedRelation: "dev_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_course_versions: {
         Row: {
           author_person: string
@@ -37565,6 +37662,26 @@ export type Database = {
           _rule_version: number
           _school: string
           _state: string
+        }
+        Returns: string
+      }
+      record_dev_catalog_course_version: {
+        Args: {
+          _assessment: string
+          _code: string
+          _completion: string
+          _contents: string[]
+          _course: string
+          _expected_version: number
+          _key: string
+          _min_pct: number
+          _minutes: number
+          _modality: string
+          _prerequisites: string[]
+          _program: string
+          _reason: string
+          _syllabus: string
+          _title: string
         }
         Returns: string
       }
