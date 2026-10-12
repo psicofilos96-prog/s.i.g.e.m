@@ -15,7 +15,7 @@ export function unitPanel(p: { unitId: string; rows: StudentResult[]; bandRule: 
   const suppressed = sup.rows[0]?.suppressed ?? false;
   let distribution: Record<string, number> | null = null;
   if (!p.bandRule?.homologated) notes.push("distribuição por faixa exige regra homologada");
-  else if (!suppressed) { distribution = {}; for (const r of part) { if (r.rate === null) continue; const band = p.bandRule.bands.find(x => r.rate! * 100 >= x.min && r.rate! * 100 <= x.max); const k = band?.label ?? "fora das faixas"; distribution[k] = (distribution[k] ?? 0) + 1; } }
+  else if (!suppressed) { const bands = p.bandRule.bands; distribution = {}; for (const r of part) { if (r.rate === null) continue; const band: { label: string } | undefined = bands.find(x => r.rate! * 100 >= x.min && r.rate! * 100 <= x.max); const k = band?.label ?? "fora das faixas"; distribution[k] = (distribution[k] ?? 0) + 1; } }
   const skills = new Map<string, number[]>();
   for (const r of part) for (const [s, v] of Object.entries(r.skillRates)) if (v !== null) skills.set(s, [...(skills.get(s) ?? []), v]);
   const skillAvg = [...skills].map(([s, v]) => ({ skill: s, n: v.length, rate: v.reduce((a, b) => a + b, 0) / v.length })).sort((a, b) => a.rate - b.rate);
