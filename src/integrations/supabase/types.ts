@@ -18308,6 +18308,143 @@ export type Database = {
           },
         ]
       }
+      ops_service_order_events: {
+        Row: {
+          actor_person: string
+          amount: number | null
+          created_at: string
+          currency: string | null
+          doc_ref: string | null
+          engagement_id: string | null
+          id: string
+          idempotency_key: string
+          kind: string
+          material_label: string | null
+          material_origin: string | null
+          note: string | null
+          occurred_on: string | null
+          origin_ref: string | null
+          quantity: number | null
+          seq: number
+          service_order_id: string
+          unit: string | null
+        }
+        Insert: {
+          actor_person: string
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          doc_ref?: string | null
+          engagement_id?: string | null
+          id?: string
+          idempotency_key: string
+          kind: string
+          material_label?: string | null
+          material_origin?: string | null
+          note?: string | null
+          occurred_on?: string | null
+          origin_ref?: string | null
+          quantity?: number | null
+          seq: number
+          service_order_id: string
+          unit?: string | null
+        }
+        Update: {
+          actor_person?: string
+          amount?: number | null
+          created_at?: string
+          currency?: string | null
+          doc_ref?: string | null
+          engagement_id?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          material_label?: string | null
+          material_origin?: string | null
+          note?: string | null
+          occurred_on?: string | null
+          origin_ref?: string | null
+          quantity?: number | null
+          seq?: number
+          service_order_id?: string
+          unit?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_service_order_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_service_order_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_service_order_events_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_service_order_events_service_order_id_fkey"
+            columns: ["service_order_id"]
+            isOneToOne: false
+            referencedRelation: "ops_service_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_service_orders: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          maintenance_order_id: string
+          school_id: string
+          scope: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          maintenance_order_id: string
+          school_id: string
+          scope: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          maintenance_order_id?: string
+          school_id?: string
+          scope?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_service_orders_maintenance_order_id_fkey"
+            columns: ["maintenance_order_id"]
+            isOneToOne: false
+            referencedRelation: "ops_maintenance_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_service_orders_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_space_type_approvals: {
         Row: {
           approved_at: string
@@ -30330,6 +30467,10 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      issue_ops_service_order: {
+        Args: { _key: string; _mo: string; _scope: string }
+        Returns: string
+      }
       kb_can_read_version: { Args: { _version: string }; Returns: boolean }
       kb_search: {
         Args: { _limit?: number; _q: string }
@@ -31904,6 +32045,11 @@ export type Database = {
         Args: { _last: string; _last_result: string; _stage: string }
         Returns: boolean
       }
+      ops_service_next_ok: {
+        Args: { _kind: string; _state: string }
+        Returns: boolean
+      }
+      ops_service_state: { Args: { _so: string }; Returns: string }
       ops_space_parent_level: { Args: { _level: string }; Returns: string }
       ops_space_type_usable: { Args: { _tv: string }; Returns: boolean }
       own_engagement_network_now: { Args: never; Returns: boolean }
@@ -34131,6 +34277,25 @@ export type Database = {
           _protocol: string
           _request: string
           _valid_from: string
+        }
+        Returns: number
+      }
+      record_ops_service_event: {
+        Args: {
+          _amount: number
+          _doc: string
+          _engagement: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _label: string
+          _note: string
+          _on: string
+          _origin: string
+          _origin_ref: string
+          _qty: number
+          _so: string
+          _unit: string
         }
         Returns: number
       }
