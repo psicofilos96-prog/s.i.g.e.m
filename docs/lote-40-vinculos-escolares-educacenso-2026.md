@@ -23,3 +23,10 @@ A planilha enviada (SHA-256 `0e7ff594…f8df`) é a mesma fonte já carregada pe
 ## Bloqueado
 - Sem titular de atuação vigente com sessão real, a tela não foi exercida autenticada.
 - CI e SHA do GitHub não verificados daqui.
+
+## Lote 41 — Folha × Gestão de Pessoas
+- View `payroll_servant_registrations` (0511, INVOKER): uma linha por matrícula com chave de servidor = nome (espaços/caixa) + nascimento; sem nascimento a matrícula fica sozinha. Resultado: 2.037 vínculos, 1.952 servidores, 85 com 2 matrículas, 0 homônimos com nascimento diferente, 0 ligações comprovadas a pessoas.
+- Folha × Educacenso: a folha não tem INEP-pessoa nem CPF; nenhuma ligação foi criada. As 1.057 pessoas/2.403 atuações do Educacenso seguem intactas.
+- Tela: Gestão de Pessoas → "Folha de agosto/2026 — vínculos por servidor", com matrícula, cargo, admissão e jornada por vínculo; sem remuneração.
+- Testes: `payroll-servants-model.test.ts` 4/4 (inclui dupla matrícula e homônimos).
+- Bloqueado: tela autenticada não exercida (sem titular de `consultar-registro-funcional`); CI/SHA do commit não verificados.

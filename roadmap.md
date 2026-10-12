@@ -675,3 +675,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] L38 vínculos da folha — PARCIAL (2.037 vínculos registrados; ligação a pessoa aguarda decisão humana)
 - [ ] L39 hardening da folha — TÉCNICO EXECUTADO (0509/0510, 12/12 + 7/7); positivo de vínculo/revogação BLOQUEADO por falta de titular humano
 - [ ] L40 vínculos escolares Educacenso 2026 — DADOS JÁ PERSISTIDOS (op. técnica 2026, 2.403 atuações/1.057 pessoas/55 escolas/698 turmas, 0 sem turma); L40 expôs em Gestão de Pessoas e Gestão Escolar; ligação a matrícula funcional segue separada
+- [ ] L41 folha × Gestão de Pessoas — EXECUTADO (view 0511; 2.037 vínculos / 1.952 servidores / 85 com 2 matrículas; 0 ligações comprovadas a pessoas); tela autenticada BLOQUEADA sem titular de consultar-registro-funcional
