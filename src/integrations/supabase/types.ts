@@ -1019,6 +1019,106 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_case_events: {
+        Row: {
+          author_person: string
+          case_id: string
+          content_sha256: string | null
+          created_at: string
+          document_order: number | null
+          document_ref: string | null
+          event_type: string
+          id: string
+          seq: number
+          text_body: string | null
+          to_unit_id: string | null
+        }
+        Insert: {
+          author_person: string
+          case_id: string
+          content_sha256?: string | null
+          created_at?: string
+          document_order?: number | null
+          document_ref?: string | null
+          event_type: string
+          id?: string
+          seq: number
+          text_body?: string | null
+          to_unit_id?: string | null
+        }
+        Update: {
+          author_person?: string
+          case_id?: string
+          content_sha256?: string | null
+          created_at?: string
+          document_order?: number | null
+          document_ref?: string | null
+          event_type?: string
+          id?: string
+          seq?: number
+          text_body?: string | null
+          to_unit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_files: {
+        Row: {
+          case_number: string
+          classification_code: string
+          id: string
+          idempotency_key: string
+          opened_at: string
+          opened_by_person: string
+          protocol_registration_id: string | null
+          seq: number
+          subject: string
+          unit_id: string
+          year: number
+        }
+        Insert: {
+          case_number: string
+          classification_code: string
+          id?: string
+          idempotency_key: string
+          opened_at?: string
+          opened_by_person: string
+          protocol_registration_id?: string | null
+          seq: number
+          subject: string
+          unit_id: string
+          year: number
+        }
+        Update: {
+          case_number?: string
+          classification_code?: string
+          id?: string
+          idempotency_key?: string
+          opened_at?: string
+          opened_by_person?: string
+          protocol_registration_id?: string | null
+          seq?: number
+          subject?: string
+          unit_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_files_protocol_registration_id_fkey"
+            columns: ["protocol_registration_id"]
+            isOneToOne: false
+            referencedRelation: "protocol_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aee_service_slots: {
         Row: {
           ends_at: string
@@ -25104,6 +25204,7 @@ export type Database = {
         Returns: string
       }
       capability_unbound: { Args: { _capability: string }; Returns: boolean }
+      case_can_act: { Args: { _cap: string; _unit: string }; Returns: boolean }
       census_advance_stage: {
         Args: {
           _cycle: string
@@ -29299,6 +29400,20 @@ export type Database = {
             }
             Returns: string
           }
+      open_admin_case: {
+        Args: {
+          _classification_code: string
+          _idempotency_key: string
+          _protocol_registration_id: string
+          _subject: string
+          _unit_id: string
+        }
+        Returns: {
+          case_id: string
+          case_number: string
+          reused: boolean
+        }[]
+      }
       open_map_correction_id: { Args: { _map: string }; Returns: string }
       open_nei_action: {
         Args: {
@@ -29642,6 +29757,18 @@ export type Database = {
           _state: string
         }
         Returns: string
+      }
+      record_admin_case_event: {
+        Args: {
+          _case_id: string
+          _content_sha256: string
+          _document_ref: string
+          _event_type: string
+          _expected_seq: number
+          _text_body: string
+          _to_unit_id: string
+        }
+        Returns: number
       }
       record_aee_service: {
         Args: {
