@@ -2710,6 +2710,13 @@
       "when": 1791789093175,
       "tag": "0386_doc06_single_protocol",
       "breakpoints": true
+    },
+    {
+      "idx": 387,
+      "version": "7",
+      "when": 1791789354202,
+      "tag": "0387_doc07_administrative_cases",
+      "breakpoints": true
     }
   ]
 }
