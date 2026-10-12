@@ -14827,10 +14827,12 @@ export type Database = {
           id: string
           idempotency_key: string
           kind: string
+          origin: string | null
           person_id: string
           pool_id: string
           proposal_id: string | null
           reason: string | null
+          rule_id: string | null
           seq: number
         }
         Insert: {
@@ -14841,10 +14843,12 @@ export type Database = {
           id?: string
           idempotency_key: string
           kind: string
+          origin?: string | null
           person_id: string
           pool_id: string
           proposal_id?: string | null
           reason?: string | null
+          rule_id?: string | null
           seq: number
         }
         Update: {
@@ -14855,10 +14859,12 @@ export type Database = {
           id?: string
           idempotency_key?: string
           kind?: string
+          origin?: string | null
           person_id?: string
           pool_id?: string
           proposal_id?: string | null
           reason?: string | null
+          rule_id?: string | null
           seq?: number
         }
         Relationships: [
@@ -14881,6 +14887,83 @@ export type Database = {
             columns: ["proposal_id"]
             isOneToOne: false
             referencedRelation: "enr_distribution_proposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_seat_events_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "enr_seat_hold_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_seat_hold_rule_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          reason: string
+          rule_id: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          reason: string
+          rule_id: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          reason?: string
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_seat_hold_rule_approvals_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: true
+            referencedRelation: "enr_seat_hold_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_seat_hold_rules: {
+        Row: {
+          author_person: string
+          campaign_id: string
+          created_at: string
+          hold_minutes: number
+          id: string
+          idempotency_key: string
+          justification: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          campaign_id: string
+          created_at?: string
+          hold_minutes: number
+          id?: string
+          idempotency_key: string
+          justification: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          campaign_id?: string
+          created_at?: string
+          hold_minutes?: number
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_seat_hold_rules_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
             referencedColumns: ["id"]
           },
         ]
@@ -34833,6 +34916,10 @@ export type Database = {
         Args: { _policy: string; _reason: string }
         Returns: string
       }
+      approve_enr_seat_hold_rule: {
+        Args: { _reason: string; _rule: string }
+        Returns: undefined
+      }
       approve_ops_asset_category: {
         Args: { _cv: string; _decision_ref: string }
         Returns: undefined
@@ -37550,6 +37637,20 @@ export type Database = {
         Args: { _hold: string; _key: string; _kind: string; _reason: string }
         Returns: number
       }
+      enr_seat_holds: {
+        Args: { _pool: string }
+        Returns: {
+          application_id: string
+          close_reason: string
+          closed_at: string
+          expires_at: string
+          history: Json
+          hold_id: string
+          origin: string
+          reserved_at: string
+          state: string
+        }[]
+      }
       enr_seat_occupancy: {
         Args: { _at: string; _pool: string }
         Returns: number
@@ -37559,6 +37660,16 @@ export type Database = {
           _application: string
           _key: string
           _minutes: number
+          _pool: string
+          _proposal: string
+        }
+        Returns: string
+      }
+      enr_seat_reserve_v2: {
+        Args: {
+          _application: string
+          _key: string
+          _origin: string
           _pool: string
           _proposal: string
         }
@@ -42190,6 +42301,15 @@ export type Database = {
           _expected_version: number
           _key: string
           _reason: string
+        }
+        Returns: number
+      }
+      record_enr_seat_hold_rule: {
+        Args: {
+          _campaign: string
+          _justification: string
+          _key: string
+          _minutes: number
         }
         Returns: number
       }
