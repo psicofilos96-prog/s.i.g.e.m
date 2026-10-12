@@ -6,10 +6,10 @@
  * Lote/validade só quando o item exige; saída de lote vencido recusada (vencido sai por descarte).
  * Saldo = projeção de movimentos válidos (estorno anula o original, nunca apaga) e nunca negativo.
  */
-export type MovementKind = "entrada" | "saida" | "ajuste-entrada" | "ajuste-saida" | "descarte" | "estorno";
+export type MovementKind = "entrada" | "saida" | "ajuste-entrada" | "ajuste-saida" | "descarte" | "estorno" | "transferencia-saida" | "transferencia-entrada";
 export interface Movement { id: string; itemKey: string; kind: MovementKind; quantity: number; lot: string | null; expiresOn: string | null; occurredOn: string; reversesId: string | null }
 
-const sign = (k: MovementKind) => (k === "entrada" || k === "ajuste-entrada" ? 1 : -1);
+const sign = (k: MovementKind) => (k === "entrada" || k === "ajuste-entrada" || k === "transferencia-entrada" ? 1 : -1);
 export function validMovements(ms: readonly Movement[]): Movement[] {
   const reversed = new Set(ms.filter((m) => m.kind === "estorno" && m.reversesId).map((m) => m.reversesId!));
   return ms.filter((m) => m.kind !== "estorno" && !reversed.has(m.id));

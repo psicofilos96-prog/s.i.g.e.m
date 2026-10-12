@@ -2948,6 +2948,13 @@
       "when": 1791797555573,
       "tag": "0420_ops13_supply_stock",
       "breakpoints": true
+    },
+    {
+      "idx": 421,
+      "version": "7",
+      "when": 1791797763952,
+      "tag": "0421_ops14_supply_transactions",
+      "breakpoints": true
     }
   ]
 }
