@@ -3179,6 +3179,13 @@
       "when": 1791805296888,
       "tag": "0453_dev22_partners_integration",
       "breakpoints": true
+    },
+    {
+      "idx": 454,
+      "version": "7",
+      "when": 1791805632825,
+      "tag": "0454_dev24_append_only_role_tracks_partners",
+      "breakpoints": true
     }
   ]
 }
