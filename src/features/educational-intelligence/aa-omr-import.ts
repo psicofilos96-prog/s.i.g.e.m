@@ -22,7 +22,7 @@ export function issueCards(a: { instrumentVersionId: string; booklet: string; ap
   });
 }
 const PII = /\d{11}|@|[A-ZÁ-Ú][a-zá-ú]+\s+[A-ZÁ-Ú][a-zá-ú]+/;
-export const qrHasPii = (raw: string) => PII.test(raw);
+export const qrHasPii = (raw: string) => PII.test(raw.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi, ""));
 
 /** Validação prévia da imagem: falha fechada, nunca "lê o que der". */
 export function validateImage(img: Gray, l: CardLayout, minContrast = 0.5): string[] {

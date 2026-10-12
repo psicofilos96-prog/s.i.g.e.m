@@ -11,6 +11,7 @@ const issues = new Map(cards.map((c) => [c.token, c]));
 const ctx = { issues, imported: [] as ImportedCard[], eligible: new Set(["s1", "s2"]), participation: new Map([["s1", "participou"], ["s2", "ausente"]]) };
 const sha = (c: string) => c.repeat(64);
 const img = synthImage(L, 4, { 1: { B: 1 }, 2: { A: 0.3 }, 3: { C: 1, D: 1 } });
+for (const m of L.markers) for (let y = m.y * 4; y < (m.y + m.s) * 4; y++) for (let x = m.x * 4; x < (m.x + m.s) * 4; x++) (img.data as Uint8ClampedArray)[y * img.width + x] = 0;
 
 describe("A&A Lote 08 importação QR/OMR e digital", () => {
   it("cartões: token opaco único por estudante, QR sem PII", () => {
