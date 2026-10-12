@@ -17779,6 +17779,215 @@ export type Database = {
           },
         ]
       }
+      ops_asset_category_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          category_version_id: string
+          decision_ref: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          category_version_id: string
+          decision_ref: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          category_version_id?: string
+          decision_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_category_approvals_category_version_id_fkey"
+            columns: ["category_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_asset_category_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_asset_category_versions: {
+        Row: {
+          allowed_conditions: string[]
+          author_person: string
+          category_key: string
+          created_at: string
+          id: string
+          label: string
+          reason: string | null
+          version: number
+        }
+        Insert: {
+          allowed_conditions?: string[]
+          author_person: string
+          category_key: string
+          created_at?: string
+          id?: string
+          label: string
+          reason?: string | null
+          version: number
+        }
+        Update: {
+          allowed_conditions?: string[]
+          author_person?: string
+          category_key?: string
+          created_at?: string
+          id?: string
+          label?: string
+          reason?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      ops_asset_events: {
+        Row: {
+          actor_person: string
+          asset_id: string
+          condition: string | null
+          created_at: string
+          doc_ref: string | null
+          effective_on: string
+          engagement_id: string | null
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string | null
+          official_source: string | null
+          official_tag: string | null
+          school_id: string | null
+          seq: number
+          space_id: string | null
+        }
+        Insert: {
+          actor_person: string
+          asset_id: string
+          condition?: string | null
+          created_at?: string
+          doc_ref?: string | null
+          effective_on: string
+          engagement_id?: string | null
+          id?: string
+          idempotency_key: string
+          kind: string
+          note?: string | null
+          official_source?: string | null
+          official_tag?: string | null
+          school_id?: string | null
+          seq: number
+          space_id?: string | null
+        }
+        Update: {
+          actor_person?: string
+          asset_id?: string
+          condition?: string | null
+          created_at?: string
+          doc_ref?: string | null
+          effective_on?: string
+          engagement_id?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string | null
+          official_source?: string | null
+          official_tag?: string | null
+          school_id?: string | null
+          seq?: number
+          space_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_events_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_events_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_events_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_events_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_assets: {
+        Row: {
+          author_person: string
+          category_version_id: string
+          created_at: string
+          description: string
+          id: string
+          idempotency_key: string
+          incorporated_on: string
+          internal_code: string
+          origin: string
+          origin_ref: string
+        }
+        Insert: {
+          author_person: string
+          category_version_id: string
+          created_at?: string
+          description: string
+          id?: string
+          idempotency_key: string
+          incorporated_on: string
+          internal_code: string
+          origin: string
+          origin_ref: string
+        }
+        Update: {
+          author_person?: string
+          category_version_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          idempotency_key?: string
+          incorporated_on?: string
+          internal_code?: string
+          origin?: string
+          origin_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_assets_category_version_id_fkey"
+            columns: ["category_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_asset_category_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_checklist_approvals: {
         Row: {
           approved_at: string
@@ -27489,6 +27698,10 @@ export type Database = {
         }
         Returns: string
       }
+      approve_ops_asset_category: {
+        Args: { _cv: string; _decision_ref: string }
+        Returns: undefined
+      }
       approve_ops_checklist_version: {
         Args: { _cv: string; _decision_ref: string }
         Returns: undefined
@@ -30584,6 +30797,19 @@ export type Database = {
           term_logical_id: string
         }[]
       }
+      incorporate_ops_asset: {
+        Args: {
+          _cv: string
+          _description: string
+          _incorporated: string
+          _key: string
+          _origin: string
+          _origin_ref: string
+          _school: string
+          _space: string
+        }
+        Returns: string
+      }
       infrastructure_coverage_at: {
         Args: { _on: string }
         Returns: {
@@ -32535,6 +32761,9 @@ export type Database = {
         Returns: boolean
       }
       operational_task_assignee: { Args: { _task: string }; Returns: string }
+      ops_asset_category_usable: { Args: { _cv: string }; Returns: boolean }
+      ops_asset_readable: { Args: { _a: string }; Returns: boolean }
+      ops_asset_school: { Args: { _a: string }; Returns: string }
       ops_can_read: {
         Args: { _school: string; _sector: string }
         Returns: boolean
@@ -34730,6 +34959,24 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_asset_event: {
+        Args: {
+          _a: string
+          _condition: string
+          _doc: string
+          _engagement: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _on: string
+          _school: string
+          _source: string
+          _space: string
+          _tag: string
+        }
+        Returns: number
+      }
       record_ops_inspection: {
         Args: {
           _answers: Json
@@ -35840,6 +36087,16 @@ export type Database = {
       }
       register_operational_task_priority: {
         Args: { _id: string; _label: string; _ordinal: number }
+        Returns: string
+      }
+      register_ops_asset_category: {
+        Args: {
+          _conditions: string[]
+          _expected_version: number
+          _key: string
+          _label: string
+          _reason: string
+        }
         Returns: string
       }
       register_ops_checklist_version: {
