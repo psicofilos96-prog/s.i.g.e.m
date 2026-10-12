@@ -63,7 +63,7 @@ try {
 
   // 3. Fluxo de matrícula: writers recusam sem campanha publicada; sem vínculo e anon idem; nada de escrita direta.
   const sub = (c) => c.rpc("enr_submit_application_v2", { _campaign: randomUUID(), _requester_kind: "responsavel", _requester_name: "Teste BO", _requester_cpf: null, _email: null, _phone: null, _kinship: "mae", _student_name: "Estudante BO", _student_birth: "2020-01-01", _student_cpf: null, _stage: "x", _modality: "x", _choices: [], _documents_ack: true, _truth: true, _key: `lote12-${randomUUID()}` });
-  for (const [n, c] of [["anon", anon], ["secretaria", sec.c], ["sem vínculo", semVinculo.c]]) { const r = await sub(c); ok(`matrícula: inscrição em campanha inexistente recusada (${n})`, !!r.error, msg(r)); }
+  for (const [n, c] of [["anon", anon], ["secretaria", sec.c], ["sem vínculo", semVinculo.c]]) { const r = await sub(c); const row = r.data?.[0]; ok(`matrícula: inscrição em campanha inexistente recusada (${n})`, !!r.error || (row && row.result !== "registrada" && !row.application_code), r.error ? msg(r) : row?.result); }
   const dml = await sec.c.from("class_enrollment_episodes").insert({ school_id: sec.school });
   ok("matrícula: INSERT direto recusado", !!dml.error, msg(dml));
 
@@ -72,7 +72,7 @@ try {
   const f2 = await anon.rpc("enr_public_application_status", { _code: "OUTRO-" + randomBytes(4).toString("hex"), _check: "999999" });
   ok("família: protocolo inexistente → resposta uniforme", JSON.stringify(f1.data ?? f1.error?.message) === JSON.stringify(f2.data ?? f2.error?.message));
   const slot = await anon.rpc("enr_public_request_document_slot", { _code: "INEXISTENTE", _check: "0", _doc_type: "x", _mime: "application/pdf", _size: 10, _sha256: "0".repeat(64), _key: randomUUID() });
-  ok("família: vaga de upload sem pedido válido recusada", !!slot.error || !slot.data || slot.data?.ok === false, msg(slot));
+  const sr = slot.data?.[0]; ok("família: vaga de upload sem pedido válido recusada", !!slot.error || (sr && sr.status === "indisponivel" && !sr.object_path), slot.error ? msg(slot) : sr?.status);
 
   // 5. Upload: storage privado recusa objeto fora do caminho reservado.
   const bytes = new Blob(["lote12"], { type: "application/pdf" });
