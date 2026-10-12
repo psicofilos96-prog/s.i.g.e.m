@@ -9937,6 +9937,76 @@ export type Database = {
           },
         ]
       }
+      dev_learning_results: {
+        Row: {
+          created_at: string
+          enrollment_id: string
+          evaluator_person: string
+          evidence_refs: string[]
+          id: string
+          idempotency_key: string
+          justification: string
+          outcome: string
+          ratings: Json
+          reason: string | null
+          review_request_id: string | null
+          rubric_version_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id: string
+          evaluator_person: string
+          evidence_refs?: string[]
+          id?: string
+          idempotency_key: string
+          justification: string
+          outcome: string
+          ratings: Json
+          reason?: string | null
+          review_request_id?: string | null
+          rubric_version_id: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string
+          evaluator_person?: string
+          evidence_refs?: string[]
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          outcome?: string
+          ratings?: Json
+          reason?: string | null
+          review_request_id?: string | null
+          rubric_version_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_learning_results_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_learning_results_rubric_version_id_fkey"
+            columns: ["rubric_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_rubric_approvals"
+            referencedColumns: ["rubric_version_id"]
+          },
+          {
+            foreignKeyName: "dev_lr_review_fk"
+            columns: ["review_request_id"]
+            isOneToOne: false
+            referencedRelation: "dev_result_review_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_meeting_notices: {
         Row: {
           created_at: string
@@ -10551,6 +10621,156 @@ export type Database = {
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_result_review_decisions: {
+        Row: {
+          created_at: string
+          decision: string
+          new_result_id: string | null
+          reason: string
+          request_id: string
+          reviewer_person: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          new_result_id?: string | null
+          reason: string
+          request_id: string
+          reviewer_person: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          new_result_id?: string | null
+          reason?: string
+          request_id?: string
+          reviewer_person?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_result_review_decisions_new_result_id_fkey"
+            columns: ["new_result_id"]
+            isOneToOne: false
+            referencedRelation: "dev_learning_results"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_result_review_decisions_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "dev_result_review_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_result_review_requests: {
+        Row: {
+          created_at: string
+          grounds: string
+          id: string
+          requester_person: string
+          result_id: string
+        }
+        Insert: {
+          created_at?: string
+          grounds: string
+          id?: string
+          requester_person: string
+          result_id: string
+        }
+        Update: {
+          created_at?: string
+          grounds?: string
+          id?: string
+          requester_person?: string
+          result_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_result_review_requests_result_id_fkey"
+            columns: ["result_id"]
+            isOneToOne: true
+            referencedRelation: "dev_learning_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_rubric_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          reason: string
+          rubric_version_id: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          reason: string
+          rubric_version_id: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          reason?: string
+          rubric_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_rubric_approvals_rubric_version_id_fkey"
+            columns: ["rubric_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_rubric_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_rubric_versions: {
+        Row: {
+          author_person: string
+          course_id: string
+          created_at: string
+          criteria: Json
+          id: string
+          idempotency_key: string
+          logical_id: string
+          reason: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          course_id: string
+          created_at?: string
+          criteria: Json
+          id?: string
+          idempotency_key: string
+          logical_id: string
+          reason?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          course_id?: string
+          created_at?: string
+          criteria?: Json
+          id?: string
+          idempotency_key?: string
+          logical_id?: string
+          reason?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_rubric_versions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "dev_courses"
             referencedColumns: ["id"]
           },
         ]
@@ -32070,6 +32290,10 @@ export type Database = {
         }
         Returns: string
       }
+      approve_dev_rubric: {
+        Args: { _reason: string; _version: string }
+        Returns: undefined
+      }
       approve_dev_threshold: {
         Args: { _key: string; _reason: string; _version: string }
         Returns: string
@@ -33899,6 +34123,15 @@ export type Database = {
         }
       }
       data_quality_can_review: { Args: { _school: string }; Returns: boolean }
+      decide_dev_result_review: {
+        Args: {
+          _decision: string
+          _new_result: string
+          _reason: string
+          _request: string
+        }
+        Returns: undefined
+      }
       decide_dev_track_version: {
         Args: {
           _decision: string
@@ -34041,6 +34274,7 @@ export type Database = {
         }[]
       }
       dev_plan_published: { Args: { _version: string }; Returns: boolean }
+      dev_rubric_valid: { Args: { _c: Json }; Returns: boolean }
       dev_track_approved: { Args: { _v: string }; Returns: boolean }
       dev_version_usable: {
         Args: { _subject: string; _version: string }
@@ -38706,6 +38940,21 @@ export type Database = {
         }
         Returns: string
       }
+      record_dev_learning_result: {
+        Args: {
+          _enrollment: string
+          _evidence: string[]
+          _expected_version: number
+          _justification: string
+          _key: string
+          _outcome: string
+          _ratings: Json
+          _reason: string
+          _review_request: string
+          _rubric: string
+        }
+        Returns: string
+      }
       record_dev_meeting_version: {
         Args: {
           _class: string
@@ -38790,6 +39039,18 @@ export type Database = {
           _opens: string
           _purpose: string
           _questions: Json
+          _title: string
+        }
+        Returns: string
+      }
+      record_dev_rubric_version: {
+        Args: {
+          _course: string
+          _criteria: Json
+          _expected_version: number
+          _key: string
+          _logical: string
+          _reason: string
           _title: string
         }
         Returns: string
@@ -41503,6 +41764,10 @@ export type Database = {
           _person: string
           _school: string
         }
+        Returns: string
+      }
+      request_dev_result_review: {
+        Args: { _grounds: string; _result: string }
         Returns: string
       }
       request_ops_asset_transfer: {
