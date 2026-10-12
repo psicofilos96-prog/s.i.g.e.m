@@ -8,6 +8,7 @@ export const SESSION_READ_ROUTES = [
   "/estacao-administrativa",
   "/infraestrutura",
   "/integracoes",
+  "/matriculas/operacao",
   "/revisao-de-anomalias",
   "/tarefas",
   "/transporte-escolar",
