@@ -1,0 +1,3 @@
+## Centro Integrado de Operações e Recursos Escolares (`src/features/operations-center/`)
+- L01 (`operations-audit.ts`): 60 seções (20 transporte, 20 infraestrutura, 20 patrimônio/almoxarifado) + 20 critérios apontam só para fontes canônicas existentes (escolas, atuações, infraestrutura versionada, fatos de transporte, estoque do NAE, tarefas, Documentos, notificações); teste recusa tabela duplicada e exige que toda fonte nasça em migration, porque cadastro paralelo criaria segunda verdade.
+- Sistemas municipais (contratos, contabilidade, patrimônio contábil, frota) nunca são presumidos: `MUNICIPAL_SYSTEMS.found` fica vazio até haver sistema, contrato e decisão, e custo só vem de fonte contábil real.
