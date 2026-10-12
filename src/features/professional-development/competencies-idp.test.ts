@@ -16,7 +16,7 @@ describe("L19 competências e PDI", () => {
     const base = { owner: "o", today: "2026-10-12", shares: [{ grantee: "m", validUntil: "2026-12-31", revoked: false }] };
     expect(canRead({ ...base, viewer: "m" })).toBe(true);
     expect(canRead({ ...base, viewer: "chefe" })).toBe(false);
-    expect(canRead({ ...base, viewer: "m", shares: [{ ...base.shares[0], revoked: true }] })).toBe(false);
+    expect(canRead({ ...base, viewer: "m", shares: [{ grantee: "m", validUntil: "2026-12-31", revoked: true }] })).toBe(false);
   });
   it("migration 0450: sem domínio comprovado, sem acesso por cargo, recomendação não obriga", () => {
     const sql = readFileSync("drizzle/migrations/0450_dev19_competencies_idp.sql", "utf8");
