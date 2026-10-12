@@ -1019,6 +1019,117 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_case_act_references: {
+        Row: {
+          ref_id: string
+          ref_kind: string
+          version_id: string
+        }
+        Insert: {
+          ref_id: string
+          ref_kind: string
+          version_id: string
+        }
+        Update: {
+          ref_id?: string
+          ref_kind?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_act_references_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_act_versions: {
+        Row: {
+          act_id: string
+          author_person: string
+          body: string
+          change_reason: string | null
+          competence_capability: string
+          content_sha256: string
+          created_at: string
+          id: string
+          outcome: string | null
+          version: number
+        }
+        Insert: {
+          act_id: string
+          author_person: string
+          body: string
+          change_reason?: string | null
+          competence_capability: string
+          content_sha256: string
+          created_at?: string
+          id?: string
+          outcome?: string | null
+          version: number
+        }
+        Update: {
+          act_id?: string
+          author_person?: string
+          body?: string
+          change_reason?: string | null
+          competence_capability?: string
+          content_sha256?: string
+          created_at?: string
+          id?: string
+          outcome?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_act_versions_act_id_fkey"
+            columns: ["act_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_acts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_acts: {
+        Row: {
+          act_kind: string
+          case_id: string
+          created_at: string
+          created_by_person: string
+          id: string
+          idempotency_key: string
+          unit_id: string
+        }
+        Insert: {
+          act_kind: string
+          case_id: string
+          created_at?: string
+          created_by_person: string
+          id?: string
+          idempotency_key: string
+          unit_id: string
+        }
+        Update: {
+          act_kind?: string
+          case_id?: string
+          created_at?: string
+          created_by_person?: string
+          id?: string
+          idempotency_key?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_acts_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_case_dispatch_events: {
         Row: {
           author_person: string
@@ -24616,6 +24727,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_act_capability: { Args: { _kind: string }; Returns: string }
       admin_case_current_unit: { Args: { _case_id: string }; Returns: string }
       admin_case_readable: { Args: { _case_id: string }; Returns: boolean }
       aee_services_at: {
@@ -30051,6 +30163,23 @@ export type Database = {
           _state: string
         }
         Returns: string
+      }
+      record_admin_case_act: {
+        Args: {
+          _act_id: string
+          _act_kind: string
+          _body: string
+          _case_id: string
+          _change_reason: string
+          _expected_version: number
+          _idempotency_key: string
+          _outcome: string
+          _references: Json
+        }
+        Returns: {
+          act_id: string
+          version: number
+        }[]
       }
       record_admin_case_event: {
         Args: {
