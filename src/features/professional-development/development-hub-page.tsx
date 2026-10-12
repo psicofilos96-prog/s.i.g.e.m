@@ -5,10 +5,11 @@ import { PageHeader } from "@/components/sigem/patterns";
 import { SignInRequired } from "@/components/sigem/sign-in-required";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { supabase } from "@/integrations/supabase/client";
+import { DEV_REPORTS } from "./development-reports";
 import { EMPTY_FILTER, FUNCTION_FILTER_UNAVAILABLE, buildHub, type HubFilter, type HubInput } from "./development-hub-model";
 
 const LIMIT = 1000;
-const TABS = [["painel", "Painel"], ["catalogo", "Catálogo"], ["turmas", "Turmas"], ["agenda", "Agenda"]] as const;
+const TABS = [["painel", "Painel"], ["catalogo", "Catálogo"], ["turmas", "Turmas"], ["agenda", "Agenda"], ["relatorios", "Relatórios"]] as const;
 type Tab = (typeof TABS)[number][0];
 
 function useHubData() {
@@ -111,6 +112,15 @@ function Hub() {
           {tab === "agenda" && (view.agenda.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma data futura registrada.</p> : (
             <ul className="divide-y rounded-md border">{view.agenda.map((a) => (
               <li key={`${a.classId}-${a.kind}`} className="flex justify-between p-3 text-sm"><span>{a.label} — {a.kind === "inicio" ? "início" : "término"}</span><time dateTime={a.date}>{a.date}</time></li>))}</ul>))}
+          {tab === "relatorios" && (
+            <ul className="grid gap-3 sm:grid-cols-2">{DEV_REPORTS.map((r) => (
+              <li key={r.id} className="rounded-md border p-3 text-sm">
+                <p className="font-medium">{r.title}</p>
+                <p className="text-xs text-muted-foreground">{r.methodology}</p>
+                <p className="mt-1 text-xs">Fonte: {r.source}</p>
+                <p className="text-xs">Para: {r.perspectives.map((x) => x === "coordenacao" ? "coordenação" : x).join(", ")} · data de referência obrigatória</p>
+                {r.dependency && <p className="text-xs text-destructive">Bloqueado: falta {r.dependency}.</p>}
+              </li>))}</ul>)}
         </>
       )}
     </div>
