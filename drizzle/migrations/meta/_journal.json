@@ -3144,6 +3144,13 @@
       "when": 1791804204689,
       "tag": "0448_dev18_external_trainings",
       "breakpoints": true
+    },
+    {
+      "idx": 449,
+      "version": "7",
+      "when": 1791804314015,
+      "tag": "0449_dev18_hide_certificate_ref",
+      "breakpoints": true
     }
   ]
 }
