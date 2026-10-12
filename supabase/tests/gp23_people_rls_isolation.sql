@@ -17,11 +17,13 @@ BEGIN
     (gen_random_uuid(), 1, v1, sa, '2026-01-01', '2026-05-31'),
     (gen_random_uuid(), 1, v1, sb, '2026-06-01', NULL),
     (gen_random_uuid(), 1, v2, sb, '2026-01-01', NULL);
-  ALTER FUNCTION public.has_school_capability(text, text) RENAME TO hsc_gp23_original;
-  EXECUTE format($s$CREATE FUNCTION public.has_school_capability(_capability text, _school text) RETURNS boolean
+  -- políticas guardam a identidade de has_school_capability; ela resolve school_capability_grant por nome ⇒ stub sintético aqui
+  ALTER FUNCTION public.school_capability_grant(text, text) RENAME TO scg_gp23_original;
+  EXECUTE format($s$CREATE FUNCTION public.school_capability_grant(_capability text, _school text)
+    RETURNS TABLE(engagement_id uuid, policy_id uuid, policy_version integer)
     LANGUAGE sql STABLE SET search_path TO '' AS $b$
-      SELECT _capability = 'consultar-registro-funcional' AND ((auth.uid() = %L::uuid AND _school = %L) OR (auth.uid() = %L::uuid AND _school = %L)) $b$$s$, ua, sa, ub, sb);
-  GRANT EXECUTE ON FUNCTION public.has_school_capability(text, text) TO authenticated;
+      SELECT gen_random_uuid(), gen_random_uuid(), 1
+       WHERE _capability = 'consultar-registro-funcional' AND ((auth.uid() = %L::uuid AND _school = %L) OR (auth.uid() = %L::uuid AND _school = %L)) $b$$s$, ua, sa, ub, sb);
   SET LOCAL ROLE authenticated;
   PERFORM set_config('request.jwt.claims', json_build_object('sub', ua, 'role', 'authenticated')::text, true);
   SELECT count(*) INTO n_links FROM public.professional_functional_links WHERE person_id = pp;
