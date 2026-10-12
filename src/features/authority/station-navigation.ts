@@ -21,7 +21,7 @@ export type SectorPrincipal = {
 };
 
 /** Rotas comuns de leitura pessoal/ajuda, sem dado institucional de outra estação. */
-const COMMON = ["/", "/ajuda", "/avisos", "/tarefas", "/calendario-escolar"] as const;
+const COMMON = ["/", "/ajuda", "/avisos", "/tarefas", "/calendario-escolar", "/acervo-documental"] as const;
 
 export const STATION_LABEL: Record<SectorStation, string> = {
   ciece: "CIECE — Informação e Estatística",

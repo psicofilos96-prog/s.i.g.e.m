@@ -544,5 +544,6 @@
  "drizzle/migrations/0493_tech20_pedagogical_resources.sql": "117f6c3155c1b91ba44837be95d4a76cc780ef754c88c6c362585c706c703d87",
  "drizzle/migrations/0494_tech21_innovation_labs_loans_accessibility.sql": "86ec29c0444572c1f64d4a8ec6422ee39a2ec4f7c26ce25cda6985d9aa4cad15",
  "drizzle/migrations/0495_tech22_licenses_annual_plan.sql": "1c2f9f1408488197c7c08cbbf3ec6e99936834f4427496a2076360b3675d32ff",
- "drizzle/migrations/0496_tech24_revoke_anon_validators.sql": "291dec1035bcd627771f5f25d08ebbc9df92cea6e7cc62d450481f4e01e9bc1b"
+ "drizzle/migrations/0496_tech24_revoke_anon_validators.sql": "291dec1035bcd627771f5f25d08ebbc9df92cea6e7cc62d450481f4e01e9bc1b",
+ "drizzle/migrations/0497_acv01_acervo_documental.sql": "2d6b97e8471466cfbd4de05d954baedda50050887ff6bf0c7b96859190e3f991"
 }
