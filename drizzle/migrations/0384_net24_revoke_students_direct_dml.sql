@@ -1,0 +1,2 @@
+-- Organização da Rede L24: estudante só nasce por writer SECURITY DEFINER; sem policy de escrita a RLS já negava, mas o GRANT direto é removido (defesa em profundidade).
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON public.institutional_students FROM authenticated, anon;

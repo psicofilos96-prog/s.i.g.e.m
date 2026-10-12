@@ -2689,6 +2689,13 @@
       "when": 1791783670031,
       "tag": "0383_fix_functional_links_read_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 384,
+      "version": "7",
+      "when": 1791787865464,
+      "tag": "0384_net24_revoke_students_direct_dml",
+      "breakpoints": true
     }
   ]
 }
