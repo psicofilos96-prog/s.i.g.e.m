@@ -32,7 +32,7 @@ export function proposeGroup(p: { id: string; skill: string; criterion: { max: n
   if (!p.criterion) return { refused: "grupo exige critério declarado e referência de regra" };
   if (!(p.reviewDays > 0 && p.reviewDays <= 120)) return { refused: "revisão periódica obrigatória (1–120 dias)" };
   if (STIGMA.test(p.name)) return { refused: "nome do grupo estigmatizante: use nome neutro pela habilidade" };
-  const members = p.rows.filter(r => r.participated && r.skillRates[p.skill] != null && r.skillRates[p.skill]! <= p.criterion!.max).map(r => r.studentId).sort();
+  const members = p.rows.filter(r => r.eligible && r.participated && r.skillRates[p.skill] != null && r.skillRates[p.skill]! <= p.criterion!.max).map(r => r.studentId).sort();
   const d = new Date(p.today); d.setUTCDate(d.getUTCDate() + p.reviewDays);
   return { id: p.id, skill: p.skill, criterion: `${p.skill} ≤ ${Math.round(p.criterion.max * 100)}% (${p.criterion.ruleRef})`, createdAt: p.today, reviewBy: d.toISOString().slice(0, 10), members, name: p.name };
 }
