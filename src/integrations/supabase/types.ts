@@ -18659,6 +18659,80 @@ export type Database = {
         }
         Relationships: []
       }
+      permanence_visits: {
+        Row: {
+          author_person: string
+          case_id: string
+          companion_person: string | null
+          created_at: string
+          idempotency_key: string
+          justification: string | null
+          kind: string
+          objective: string
+          occurred_on: string | null
+          professional_person: string
+          providences: string | null
+          return_needed: boolean | null
+          return_on: string | null
+          safety_checked: boolean
+          safety_note: string | null
+          scheduled_on: string
+          seq: number
+          status: string
+          visit_ref: string
+        }
+        Insert: {
+          author_person: string
+          case_id: string
+          companion_person?: string | null
+          created_at?: string
+          idempotency_key: string
+          justification?: string | null
+          kind: string
+          objective: string
+          occurred_on?: string | null
+          professional_person: string
+          providences?: string | null
+          return_needed?: boolean | null
+          return_on?: string | null
+          safety_checked?: boolean
+          safety_note?: string | null
+          scheduled_on: string
+          seq: number
+          status: string
+          visit_ref: string
+        }
+        Update: {
+          author_person?: string
+          case_id?: string
+          companion_person?: string | null
+          created_at?: string
+          idempotency_key?: string
+          justification?: string | null
+          kind?: string
+          objective?: string
+          occurred_on?: string | null
+          professional_person?: string
+          providences?: string | null
+          return_needed?: boolean | null
+          return_on?: string | null
+          safety_checked?: boolean
+          safety_note?: string | null
+          scheduled_on?: string
+          seq?: number
+          status?: string
+          visit_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_visits_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professional_census_declarations: {
         Row: {
           class_code: string
@@ -33043,6 +33117,28 @@ export type Database = {
           _next: string
           _providence: string
           _result: string
+        }
+        Returns: string
+      }
+      record_permanence_visit: {
+        Args: {
+          _case: string
+          _companion: string
+          _expected_seq: number
+          _justification: string
+          _key: string
+          _kind: string
+          _objective: string
+          _occurred_on: string
+          _professional: string
+          _providences: string
+          _return_needed: boolean
+          _return_on: string
+          _safety_checked: boolean
+          _safety_note: string
+          _scheduled_on: string
+          _status: string
+          _visit_ref: string
         }
         Returns: string
       }
