@@ -52,7 +52,7 @@ function CaseDossier({ c, onBack }: { c: CaseRow; onBack: () => void }) {
         <ol className="space-y-2 border-l pl-4">{(ev.rows ?? []).length === 0 ? <li className="text-sm text-muted-foreground">Nenhum registro.</li> :
           ev.rows!.map((e) => <li key={e.id} className="text-sm"><span className="text-xs text-muted-foreground">{e.at.slice(0, 10)}</span> — {e.label}</li>)}</ol>
       )}
-      {ev?.rows && ev.partial && <p className="text-xs text-muted-foreground">Parte do histórico (retornos) não está disponível para a sua conta.</p>}
+      {(ev?.rows as { partial?: boolean } | undefined)?.partial && <p className="text-xs text-muted-foreground">Parte do histórico (retornos) não está disponível para a sua conta.</p>}
     </section>
   );
 }
@@ -63,7 +63,7 @@ export function PermanenceHubPage() {
   const [open, setOpen] = useState<CaseRow | null>(null);
   if (a.status === "signed-out") return <SignInRequired title="SIGEM Permanência" what="os casos de acompanhamento da sua escola" />;
   if (a.status === "loading") return <SkeletonState label="Verificando sua sessão" />;
-  return <Hub caps={new Set(a.status === "signed-in" ? a.capabilities.map((c) => c.capability) : [])} tab={tab} setTab={setTab} open={open} setOpen={setOpen} />;
+  return <Hub caps={new Set(a.status === "signed-in" ? a.capabilities.map((c) => c.capabilityId) : [])} tab={tab} setTab={setTab} open={open} setOpen={setOpen} />;
 }
 
 function Hub({ caps, tab, setTab, open, setOpen }: { caps: ReadonlySet<string>; tab: Tab; setTab: (t: Tab) => void; open: CaseRow | null; setOpen: (c: CaseRow | null) => void }) {
