@@ -14,6 +14,7 @@ import { functionalMessage, functionalPicture, functionalTimeline, VALIDITY_LABE
 import { coverageGrid, dashboard, filterRoster, type RosterFilter } from "./people-hub-model";
 import { loadPeopleSources, peopleSchools } from "./people-hub-source";
 import { CensusDeclaredStaff } from "./census-declared-staff";
+import { PayrollServants } from "./payroll-servants";
 
 const TABS = [["painel", "Painel"], ["quadro", "Quadro de pessoal"], ["lotacao", "Mapa de lotação"], ["cobertura", "Cobertura"], ["atribuicoes", "Atribuições"], ["necessidades", "Necessidades"], ["educacenso", "Educacenso 2026"]] as const;
 type Tab = (typeof TABS)[number][0];
@@ -50,6 +51,7 @@ export function PeopleHubPage() {
           </select></label>
         <p className="text-xs text-muted-foreground">Data de referência: {on}</p>
       </div>
+      {uid && <details className="rounded-md border p-3"><summary className="min-h-11 cursor-pointer font-medium">Folha de agosto/2026 — vínculos por servidor (rede)</summary><div className="mt-3"><PayrollServants uid={uid} /></div></details>}
       {!school ? <EmptyState title="Escolha uma escola" description="Os números são calculados na hora a partir dos registros oficiais." /> : <>
         <div role="tablist" aria-label="Seções da Gestão de Pessoas" className="flex gap-1 overflow-x-auto border-b">
           {TABS.map(([id, label]) => (
