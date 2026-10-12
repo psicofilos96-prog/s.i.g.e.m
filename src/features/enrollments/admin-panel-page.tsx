@@ -45,7 +45,7 @@ function Panel({ userId }: { userId: string }) {
         </label>
       </form>
       {q.isPending && <p role="status" className="text-sm text-muted-foreground">Carregando inscrições…</p>}
-      {q.isError && <p role="alert" className="text-sm text-destructive">{(q.error as Error).message} <Button variant="link" onClick={() => q.refetch()}>Tentar de novo</Button></p>}
+      {q.isError && <p role="alert" className="text-sm text-destructive">{(q.error as Error).message} <Button variant="link" onClick={() => q.refetch()}>Tentar novamente</Button></p>}
       {q.isSuccess && info.total === 0 && <NoteBox>Nenhuma inscrição no seu alcance com estes filtros.</NoteBox>}
       {q.isSuccess && info.total > 0 && (
         <>

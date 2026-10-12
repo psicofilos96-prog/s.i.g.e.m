@@ -222,7 +222,7 @@ function ArchiveWorkspace({ isSector }: { isSector: boolean }) {
             className={`rounded-lg border ${dragging ? "border-primary bg-accent" : "border-border"} bg-card`}
           >
             {rows.length === 0 ? (
-              <div className="p-6"><AbsenceState kind={query ? "nenhum-resultado" : "nenhum-registro"} compact description={view === "pastas" && can(rank, "enviar") ? "Arraste arquivos para cá ou use Enviar arquivos." : undefined} /></div>
+              <div className="p-6"><AbsenceState kind={query ? "nenhum-resultado" : "nenhum-registro"} compact {...(view === "pastas" && can(rank, "enviar") ? { description: "Arraste arquivos para cá ou use Enviar arquivos." } : {})} /></div>
             ) : (
               <ul className="divide-y divide-border">
                 {rows.map((n) => (
