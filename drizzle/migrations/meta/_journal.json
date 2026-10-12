@@ -3382,6 +3382,13 @@
       "when": 1791814396060,
       "tag": "0482_tech08_service_sessions",
       "breakpoints": true
+    },
+    {
+      "idx": 483,
+      "version": "7",
+      "when": 1791814557319,
+      "tag": "0483_tech09_recurrence_rule",
+      "breakpoints": true
     }
   ]
 }
