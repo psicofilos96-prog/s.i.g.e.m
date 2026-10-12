@@ -517,5 +517,6 @@
  "drizzle/migrations/0466_enr14_distribution_proposals.sql": "102a9c88cd410e23562715fe50f15f1d50b83f1c7077a5427ceb75d27a6bd4fc",
  "drizzle/migrations/0467_enr15_seat_concurrency.sql": "d6f53838b793399c11d569fb507d5225ff350cfb7e89727fed5823d8317d8c45",
  "drizzle/migrations/0468_enr15_seat_concurrency_apply.sql": "e6f66459909cc53a3881f5d4b039b1ed70ba33ba036d0639de949aa7b72943d0",
- "drizzle/migrations/0469_enr16_temporal_reservations.sql": "c411302aa81f4fd52fe475d87b7da360372314e49f4be00e268f88472ecaeecc"
+ "drizzle/migrations/0469_enr16_temporal_reservations.sql": "c411302aa81f4fd52fe475d87b7da360372314e49f4be00e268f88472ecaeecc",
+ "drizzle/migrations/0470_enr17_waitlists.sql": "1e349c67c0c84b40556a4247f8ded84c4c47ef3b6b5250a90d5966c1d8c8101f"
 }
