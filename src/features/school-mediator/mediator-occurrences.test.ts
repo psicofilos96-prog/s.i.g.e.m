@@ -5,7 +5,7 @@ const des = { logicalId: "D1", personId: "m1", schoolId: "sA", studentId: "e1", 
 const ctx = { personId: "m1", technical: false, today: "2026-03-10", designation: des };
 const occ: Occurrence = { id: "O1", schoolId: "sA", studentId: "e1", designationId: "D1", type: "falta-recurso", date: "2026-03-10", place: "Sala 5",
   fact: "Prancha de comunicação não estava na sala às 8h", actions: "Usei cartões impressos", recipients: [{ kind: "nei", schoolId: null }], urgent: false, authorPersonId: "m1" };
-const med = { personId: "m1", technical: false, recipientOf: [] as const };
+const med = { personId: "m1", technical: false, recipientOf: [] as ("nei")[] };
 const nei = { personId: "n1", technical: false, recipientOf: ["nei" as const] };
 const step = (ev: OccEvent[], a: Parameters<typeof act>[2], who: Parameters<typeof act>[3]) => {
   const r = act(ev, occ, { ...a, expectedSeq: Math.max(0, ...ev.map((e) => e.seq)) }, who); if (!r.ok) throw new Error(r.reasons.join()); return [...ev, r.event];
