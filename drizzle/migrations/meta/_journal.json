@@ -2843,6 +2843,20 @@
       "when": 1791795158628,
       "tag": "0405_ops03_infrastructure_spaces",
       "breakpoints": true
+    },
+    {
+      "idx": 406,
+      "version": "7",
+      "when": 1791795387472,
+      "tag": "0406_ops04_inspections",
+      "breakpoints": true
+    },
+    {
+      "idx": 407,
+      "version": "7",
+      "when": 1791795510766,
+      "tag": "0407_ops04_hide_evidence_refs",
+      "breakpoints": true
     }
   ]
 }
