@@ -286,9 +286,9 @@
    "src/routes/sigem-desenvolvimento_.operacao.tsx",
    "src/routes/verificar.certificado.$codigo.tsx"
   ],
-  "modules": 25,
-  "withTest": 23,
-  "withScreen": 6,
+  "modules": 26,
+  "withTest": 24,
+  "withScreen": 7,
   "withoutScreen": [
    "src/features/professional-development/annual-plan.ts",
    "src/features/professional-development/competencies-idp.ts",
