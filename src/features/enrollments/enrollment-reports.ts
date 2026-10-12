@@ -95,3 +95,9 @@ export function exportEnrollmentReport(def: EnrollmentReportDefinition, result: 
   const meta = reportMeta(def, result);
   return format === "csv" ? toCsv(result, branding, meta) : toPrintableHtml(result, branding, meta);
 }
+
+/** Download auditado: único caminho de arquivo de Matrículas (emissão registrada antes do download). */
+export async function auditedEnrollmentExport(def: EnrollmentReportDefinition, result: ReportResult, branding: Branding, format: "csv" | "xlsx" | "pdf", key: string, origin: string) {
+  const { auditedExport } = await import("@/features/reports/audited-export");
+  return auditedExport({ sector: "matriculas", definitionId: def.id, definitionVersion: def.version, title: def.title, source: def.source, result, format, meta: reportMeta(def, result).slice(1), branding, idempotencyKey: key }, origin);
+}
