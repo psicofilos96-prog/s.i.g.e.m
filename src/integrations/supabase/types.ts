@@ -9295,6 +9295,42 @@ export type Database = {
           },
         ]
       }
+      dev_class_waitlist_criteria: {
+        Row: {
+          author_person: string
+          class_id: string
+          created_at: string
+          criteria_version_id: string
+        }
+        Insert: {
+          author_person: string
+          class_id: string
+          created_at?: string
+          criteria_version_id: string
+        }
+        Update: {
+          author_person?: string
+          class_id?: string
+          created_at?: string
+          criteria_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_class_waitlist_criteria_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: true
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_class_waitlist_criteria_criteria_version_id_fkey"
+            columns: ["criteria_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_waitlist_criteria_approvals"
+            referencedColumns: ["criteria_version_id"]
+          },
+        ]
+      }
       dev_classes: {
         Row: {
           author_person: string
@@ -9515,6 +9551,92 @@ export type Database = {
             columns: ["program_id"]
             isOneToOne: false
             referencedRelation: "dev_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_enrollment_requests: {
+        Row: {
+          created_at: string
+          enrollment_id: string
+          link_valid_from: string
+          link_valid_until: string | null
+          mode: string
+          requesting_school_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id: string
+          link_valid_from: string
+          link_valid_until?: string | null
+          mode: string
+          requesting_school_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string
+          link_valid_from?: string
+          link_valid_until?: string | null
+          mode?: string
+          requesting_school_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_enrollment_requests_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: true
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_enrollment_requests_requesting_school_id_fkey"
+            columns: ["requesting_school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_enrollment_reviews: {
+        Row: {
+          created_at: string
+          decision: string
+          enrollment_id: string
+          id: string
+          idempotency_key: string
+          priority: number | null
+          reason: string
+          reviewer_person: string
+          seq: number
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          enrollment_id: string
+          id?: string
+          idempotency_key: string
+          priority?: number | null
+          reason: string
+          reviewer_person: string
+          seq: number
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          enrollment_id?: string
+          id?: string
+          idempotency_key?: string
+          priority?: number | null
+          reason?: string
+          reviewer_person?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_enrollment_reviews_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
             referencedColumns: ["id"]
           },
         ]
@@ -10391,6 +10513,68 @@ export type Database = {
           reason?: string
           subject?: string
           version_id?: string
+        }
+        Relationships: []
+      }
+      dev_waitlist_criteria_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          criteria_version_id: string
+          reason: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          criteria_version_id: string
+          reason: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          criteria_version_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_waitlist_criteria_approvals_criteria_version_id_fkey"
+            columns: ["criteria_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_waitlist_criteria_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_waitlist_criteria_versions: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          keys: string[]
+          legal_basis: string
+          logical_id: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          keys: string[]
+          legal_basis: string
+          logical_id: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          keys?: string[]
+          legal_basis?: string
+          logical_id?: string
+          version?: number
         }
         Relationships: []
       }
@@ -31199,6 +31383,10 @@ export type Database = {
         Returns: boolean
       }
       admin_case_readable: { Args: { _case_id: string }; Returns: boolean }
+      adopt_dev_class_waitlist_criteria: {
+        Args: { _class: string; _version: string }
+        Returns: undefined
+      }
       aee_services_at: {
         Args: { _known_at: string; _school: string; _student: string }
         Returns: {
@@ -31411,6 +31599,10 @@ export type Database = {
       approve_dev_threshold: {
         Args: { _key: string; _reason: string; _version: string }
         Returns: string
+      }
+      approve_dev_waitlist_criteria: {
+        Args: { _reason: string; _version: string }
+        Returns: undefined
       }
       approve_ops_asset_category: {
         Args: { _cv: string; _decision_ref: string }
@@ -33323,6 +33515,7 @@ export type Database = {
       designation_year_valid_on: { Args: { _year: string }; Returns: string }
       designation_year_writable: { Args: { _year: string }; Returns: undefined }
       dev_can_manage: { Args: never; Returns: boolean }
+      dev_class_occupied: { Args: { _class: string }; Returns: number }
       dev_current_threshold: {
         Args: never
         Returns: {
@@ -36856,6 +37049,10 @@ export type Database = {
           weekday: number
         }[]
       }
+      place_dev_enrollment: {
+        Args: { _enrollment: string; _key: string }
+        Returns: string
+      }
       plan_ops_trip: {
         Args: {
           _date: string
@@ -38050,6 +38247,16 @@ export type Database = {
           _steps: Json
           _title: string
           _track: string
+        }
+        Returns: string
+      }
+      record_dev_waitlist_criteria: {
+        Args: {
+          _basis: string
+          _expected_version: number
+          _key: string
+          _keys: string[]
+          _logical: string
         }
         Returns: string
       }
@@ -40718,6 +40925,17 @@ export type Database = {
       }
       report_custom_catalog: { Args: never; Returns: Json }
       report_custom_query: { Args: { _spec: Json }; Returns: Json }
+      request_dev_enrollment: {
+        Args: {
+          _class: string
+          _key: string
+          _link: string
+          _mode: string
+          _person: string
+          _school: string
+        }
+        Returns: string
+      }
       request_ops_asset_transfer: {
         Args: {
           _a: string
@@ -40800,6 +41018,17 @@ export type Database = {
           _verdict: string
         }
         Returns: undefined
+      }
+      review_dev_enrollment: {
+        Args: {
+          _decision: string
+          _enrollment: string
+          _expected_seq: number
+          _key: string
+          _priority: number
+          _reason: string
+        }
+        Returns: number
       }
       review_meal_content_staging: {
         Args: {
