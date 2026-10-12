@@ -18543,6 +18543,269 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_crew_credentials: {
+        Row: {
+          created_at: string
+          cred_key: string
+          designation_id: string
+          doc_ref: string
+          id: string
+          idempotency_key: string
+          recorded_by: string
+          valid_until: string
+        }
+        Insert: {
+          created_at?: string
+          cred_key: string
+          designation_id: string
+          doc_ref: string
+          id?: string
+          idempotency_key: string
+          recorded_by: string
+          valid_until: string
+        }
+        Update: {
+          created_at?: string
+          cred_key?: string
+          designation_id?: string
+          doc_ref?: string
+          id?: string
+          idempotency_key?: string
+          recorded_by?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_crew_credentials_designation_id_fkey"
+            columns: ["designation_id"]
+            isOneToOne: false
+            referencedRelation: "ops_crew_designations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_credentials_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_credentials_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_crew_designation_revocations: {
+        Row: {
+          act_doc_ref: string
+          created_at: string
+          designation_id: string
+          effective_on: string
+          reason: string
+          revoked_by: string
+        }
+        Insert: {
+          act_doc_ref: string
+          created_at?: string
+          designation_id: string
+          effective_on: string
+          reason: string
+          revoked_by: string
+        }
+        Update: {
+          act_doc_ref?: string
+          created_at?: string
+          designation_id?: string
+          effective_on?: string
+          reason?: string
+          revoked_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_crew_designation_revocations_act_doc_ref_fkey"
+            columns: ["act_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_designation_revocations_act_doc_ref_fkey"
+            columns: ["act_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_designation_revocations_designation_id_fkey"
+            columns: ["designation_id"]
+            isOneToOne: true
+            referencedRelation: "ops_crew_designations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_crew_designations: {
+        Row: {
+          act_doc_ref: string
+          created_at: string
+          designated_by: string
+          engagement_id: string
+          id: string
+          idempotency_key: string
+          role: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          act_doc_ref: string
+          created_at?: string
+          designated_by: string
+          engagement_id: string
+          id?: string
+          idempotency_key: string
+          role: string
+          valid_from: string
+          valid_until?: string | null
+        }
+        Update: {
+          act_doc_ref?: string
+          created_at?: string
+          designated_by?: string
+          engagement_id?: string
+          id?: string
+          idempotency_key?: string
+          role?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_crew_designations_act_doc_ref_fkey"
+            columns: ["act_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_designations_act_doc_ref_fkey"
+            columns: ["act_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_designations_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_crew_requirement_versions: {
+        Row: {
+          approved_at: string | null
+          approver_person: string | null
+          author_person: string
+          basis_ref: string
+          created_at: string
+          id: string
+          required_keys: string[]
+          role: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approver_person?: string | null
+          author_person: string
+          basis_ref: string
+          created_at?: string
+          id?: string
+          required_keys: string[]
+          role: string
+          version: number
+        }
+        Update: {
+          approved_at?: string | null
+          approver_person?: string | null
+          author_person?: string
+          basis_ref?: string
+          created_at?: string
+          id?: string
+          required_keys?: string[]
+          role?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      ops_crew_shifts: {
+        Row: {
+          created_at: string
+          designation_id: string
+          id: string
+          idempotency_key: string
+          on_date: string
+          requirement_version_id: string
+          route_version_id: string
+          scheduled_by: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          designation_id: string
+          id?: string
+          idempotency_key: string
+          on_date: string
+          requirement_version_id: string
+          route_version_id: string
+          scheduled_by: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          designation_id?: string
+          id?: string
+          idempotency_key?: string
+          on_date?: string
+          requirement_version_id?: string
+          route_version_id?: string
+          scheduled_by?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_crew_shifts_designation_id_fkey"
+            columns: ["designation_id"]
+            isOneToOne: false
+            referencedRelation: "ops_crew_designations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_shifts_requirement_version_id_fkey"
+            columns: ["requirement_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_crew_requirement_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_shifts_route_version_id_fkey"
+            columns: ["route_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_route_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_crew_shifts_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "ops_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_inspection_records: {
         Row: {
           answers: Json
@@ -29279,6 +29542,10 @@ export type Database = {
         Args: { _cv: string; _decision_ref: string }
         Returns: undefined
       }
+      approve_ops_crew_requirement: {
+        Args: { _rv: string }
+        Returns: undefined
+      }
       approve_ops_maintenance_catalog: {
         Args: { _cv: string; _decision_ref: string }
         Returns: undefined
@@ -31116,6 +31383,17 @@ export type Database = {
           _nature_version: number
           _valid_from: string
           _valid_until: string
+        }
+        Returns: string
+      }
+      designate_ops_crew: {
+        Args: {
+          _act_doc: string
+          _engagement: string
+          _from: string
+          _key: string
+          _role: string
+          _until: string
         }
         Returns: string
       }
@@ -36730,6 +37008,16 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_crew_credential: {
+        Args: {
+          _cred: string
+          _d: string
+          _doc: string
+          _key: string
+          _until: string
+        }
+        Returns: string
+      }
       record_ops_inspection: {
         Args: {
           _answers: Json
@@ -37926,6 +38214,15 @@ export type Database = {
         }
         Returns: string
       }
+      register_ops_crew_requirement: {
+        Args: {
+          _basis: string
+          _expected_version: number
+          _keys: string[]
+          _role: string
+        }
+        Returns: string
+      }
       register_ops_maintenance_catalog: {
         Args: {
           _categories: string[]
@@ -38316,6 +38613,10 @@ export type Database = {
         Args: { _grant: string; _reason: string }
         Returns: undefined
       }
+      revoke_ops_crew_designation: {
+        Args: { _act_doc: string; _d: string; _on: string; _reason: string }
+        Returns: undefined
+      }
       roster_readable_classes: { Args: never; Returns: string[] }
       s_active_enrollment: {
         Args: { _student: string; _year: string }
@@ -38354,6 +38655,16 @@ export type Database = {
           _purpose: string
           _school: string
           _student: string
+        }
+        Returns: string
+      }
+      schedule_ops_crew: {
+        Args: {
+          _d: string
+          _key: string
+          _on: string
+          _route_version: string
+          _vehicle: string
         }
         Returns: string
       }
