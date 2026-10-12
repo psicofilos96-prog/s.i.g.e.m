@@ -3347,6 +3347,13 @@
       "when": 1791813130125,
       "tag": "0477_tech02_itsm_core",
       "breakpoints": true
+    },
+    {
+      "idx": 478,
+      "version": "7",
+      "when": 1791813563311,
+      "tag": "0478_tech04_ticket_center",
+      "breakpoints": true
     }
   ]
 }
