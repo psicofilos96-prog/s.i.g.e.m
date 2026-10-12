@@ -644,7 +644,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] A&A Lote 7 — importação confiável (aba Importação, 0370; 12 lotes Simula SAEB em revisão)
 - [x] A&A Lote 8 — relatórios no gerador universal (4 modelos prontos, 10 catalogados com motivo)
 - [x] A&A Lote 06 aplicação e participação (núcleo; sem tabela)
-- [ ] Auditar as 20 especificações enviadas (NEI, Direção, Secretaria, Supervisão, Alimentação, CIECE, A&A, Docente, Mediador, OP, DP/Lotação, Família, Rede/Vagas, Documentos, Busca Ativa, Transporte/Infra/Patrimônio, Formação, Matrícula Digital, Tecnologia) contra o código e executar lacunas
+- [x] Auditar as 20 especificações enviadas (NEI, Direção, Secretaria, Supervisão, Alimentação, CIECE, A&A, Docente, Mediador, OP, DP/Lotação, Família, Rede/Vagas, Documentos, Busca Ativa, Transporte/Infra/Patrimônio, Formação, Matrícula Digital, Tecnologia) contra o código e executar lacunas
 ## Auditoria das especificações (2026-10-12)
 - [ ] A&A §13–§36 (correção, diagnóstico, individual/turma/escola, reavaliação, indicadores, séries, agenda, documentos, perfis, interface) — Lotes 07+
 - [ ] Tecnologia Educacional e Suporte de TI — módulo inexistente
