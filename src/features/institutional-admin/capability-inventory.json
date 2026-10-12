@@ -1,0 +1,2109 @@
+[
+ {
+  "id": "aprovar-catalogo-de-manutencao",
+  "module": "Centro de Operações",
+  "firstMigration": "0408_ops05_maintenance_orders.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-regras-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0423_ops16_transport_eligibility.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-requisitos-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0427_ops19_transport_crew.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-rotas-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0424_ops17_transport_routes.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "autorizar-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0423_ops16_transport_eligibility.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "avaliar-pontos-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0424_ops17_transport_routes.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "conferir-medicoes-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0429_ops21_fleet_contracts_costs.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-catalogo-de-manutencao",
+  "module": "Centro de Operações",
+  "firstMigration": "0408_ops05_maintenance_orders.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-regras-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0423_ops16_transport_eligibility.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-requisitos-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0427_ops19_transport_crew.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-transporte-escolar",
+  "module": "Centro de Operações",
+  "firstMigration": "0237_n11_2_3_school_transport.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "designar-equipe-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0427_ops19_transport_crew.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "escalar-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0427_ops19_transport_crew.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-tarefas-operacionais",
+  "module": "Centro de Operações",
+  "firstMigration": "0095_operational_tasks.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-transporte-escolar",
+  "module": "Centro de Operações",
+  "firstMigration": "0237_n11_2_3_school_transport.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "medir-contratos-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0429_ops21_fleet_contracts_costs.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "planejar-rotas-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0424_ops17_transport_routes.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-custos-de-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0429_ops21_fleet_contracts_costs.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "solicitar-manutencao",
+  "module": "Centro de Operações",
+  "firstMigration": "0408_ops05_maintenance_orders.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "solicitar-transporte",
+  "module": "Centro de Operações",
+  "firstMigration": "0423_ops16_transport_eligibility.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "triar-manutencao",
+  "module": "Centro de Operações",
+  "firstMigration": "0410_ops07_preventive_availability.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "abrir-inventarios-patrimoniais",
+  "module": "Demais módulos",
+  "firstMigration": "0418_ops11_asset_inventories.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "acompanhar-",
+  "module": "Demais módulos",
+  "firstMigration": "0403_ops02_shared_requests.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "acompanhar-avaliacao-externa",
+  "module": "Demais módulos",
+  "firstMigration": "0373_aa_external_results.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-avaliacao-local",
+  "module": "Demais módulos",
+  "firstMigration": "0372_aa_local_assessments.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-calendario-avaliacao",
+  "module": "Demais módulos",
+  "firstMigration": "0367_aa_operational_calendar.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-educacao-inclusiva-rede",
+  "module": "Demais módulos",
+  "firstMigration": "0167_ah_inclusive_education_aee_mediation.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-educacao-infantil",
+  "module": "Demais módulos",
+  "firstMigration": "0375_aa_infant_followup.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-intervencao-pedagogica",
+  "module": "Demais módulos",
+  "firstMigration": "0369_aa_pedagogical_interventions.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-ocupacao-de-ingresso",
+  "module": "Demais módulos",
+  "firstMigration": "0476_enr23_dashboard_appeals.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-saber-ler",
+  "module": "Demais módulos",
+  "firstMigration": "0371_aa_saber_ler_cycle.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "administrar-integracoes",
+  "module": "Demais módulos",
+  "firstMigration": "0091_integration_api_webhooks.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "analisar-recursos-de-ingresso",
+  "module": "Demais módulos",
+  "firstMigration": "0476_enr23_dashboard_appeals.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "analisar-transferencias-de-ingresso",
+  "module": "Demais módulos",
+  "firstMigration": "0473_enr20_allocation_transfer.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-avaliacao-de-recursos-pedagogicos",
+  "module": "Demais módulos",
+  "firstMigration": "0493_tech20_pedagogical_resources.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-categorias-patrimoniais",
+  "module": "Demais módulos",
+  "firstMigration": "0414_ops09_assets.sql",
+  "scopes": [
+   "indefinido",
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-checklists-de-vistoria",
+  "module": "Demais módulos",
+  "firstMigration": "0406_ops04_inspections.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-competencias-formativas",
+  "module": "Demais módulos",
+  "firstMigration": "0450_dev19_competencies_idp.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-diario-pela-direcao",
+  "module": "Demais módulos",
+  "firstMigration": "0256_bq5_institutional_academic_rules.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "aprovar-diario-pela-orientacao",
+  "module": "Demais módulos",
+  "firstMigration": "0256_bq5_institutional_academic_rules.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "aprovar-laboratorios",
+  "module": "Demais módulos",
+  "firstMigration": "0494_tech21_innovation_labs_loans_accessibility.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-materiais-de-consumo",
+  "module": "Demais módulos",
+  "firstMigration": "0420_ops13_supply_stock.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-parceiros-formativos",
+  "module": "Demais módulos",
+  "firstMigration": "0453_dev22_partners_integration.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-planos-preventivos",
+  "module": "Demais módulos",
+  "firstMigration": "0410_ops07_preventive_availability.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "aprovar-projetos-de-inovacao",
+  "module": "Demais módulos",
+  "firstMigration": "0494_tech21_innovation_labs_loans_accessibility.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-tipos-de-espaco",
+  "module": "Demais módulos",
+  "firstMigration": "0405_ops03_infrastructure_spaces.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "atender-",
+  "module": "Demais módulos",
+  "firstMigration": "0403_ops02_shared_requests.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "atender-requisicoes",
+  "module": "Demais módulos",
+  "firstMigration": "0422_ops15_supply_requisitions.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "auditar-historico-formativo",
+  "module": "Demais módulos",
+  "firstMigration": "0446_dev17_formation_record.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "autorizar-ajustes-de-almoxarifado",
+  "module": "Demais módulos",
+  "firstMigration": "0421_ops14_supply_transactions.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "autorizar-baixa-de-bens",
+  "module": "Demais módulos",
+  "firstMigration": "0419_ops12_asset_disposals.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "autorizar-requisicoes",
+  "module": "Demais módulos",
+  "firstMigration": "0422_ops15_supply_requisitions.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "autorizar-transferencia-de-bens",
+  "module": "Demais módulos",
+  "firstMigration": "0416_ops10_asset_transfers.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "autorizar-transferencias-de-ingresso",
+  "module": "Demais módulos",
+  "firstMigration": "0473_enr20_allocation_transfer.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "avaliar-recursos-pedagogicos",
+  "module": "Demais módulos",
+  "firstMigration": "0493_tech20_pedagogical_resources.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "baixar-bens",
+  "module": "Demais módulos",
+  "firstMigration": "0414_ops09_assets.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "cadastrar-estudante-na-escola",
+  "module": "Demais módulos",
+  "firstMigration": "0115_0115_s1_close_policy_v6_school_writers.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "cadastrar-estudante-na-rede",
+  "module": "Demais módulos",
+  "firstMigration": "0113_0113_s2_s4_year_transition_exact_lookup.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "conferir-acessibilidade-digital",
+  "module": "Demais módulos",
+  "firstMigration": "0494_tech21_innovation_labs_loans_accessibility.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "conferir-censo-escolar",
+  "module": "Demais módulos",
+  "firstMigration": "0166_ag_census_governed_preparation.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "conferir-mapa-estatistico",
+  "module": "Demais módulos",
+  "firstMigration": "0119_t_map_2027_rule_writers_session.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "configurar-avaliacao-de-recursos-pedagogicos",
+  "module": "Demais módulos",
+  "firstMigration": "0493_tech20_pedagogical_resources.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-categorias-patrimoniais",
+  "module": "Demais módulos",
+  "firstMigration": "0414_ops09_assets.sql",
+  "scopes": [
+   "indefinido",
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-checklists-de-vistoria",
+  "module": "Demais módulos",
+  "firstMigration": "0406_ops04_inspections.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-materiais-de-consumo",
+  "module": "Demais módulos",
+  "firstMigration": "0420_ops13_supply_stock.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-planos-preventivos",
+  "module": "Demais módulos",
+  "firstMigration": "0410_ops07_preventive_availability.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "configurar-tipos-de-espaco",
+  "module": "Demais módulos",
+  "firstMigration": "0405_ops03_infrastructure_spaces.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "construir-calendario-da-rede",
+  "module": "Demais módulos",
+  "firstMigration": "0032_b4_6_6_calendar_authorized_readers_writers.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "construir-norma-composicao-calendario-da-rede",
+  "module": "Demais módulos",
+  "firstMigration": "0032_b4_6_6_calendar_authorized_readers_writers.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-banco-de-itens",
+  "module": "Demais módulos",
+  "firstMigration": "0079_teacher_assessment_authoring.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-censo-escolar",
+  "module": "Demais módulos",
+  "firstMigration": "0166_ag_census_governed_preparation.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-ciece",
+  "module": "Demais módulos",
+  "firstMigration": "0340_nei6_indicators.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-dado-sensivel-do-estudante",
+  "module": "Demais módulos",
+  "firstMigration": "0368_student_registration_observations.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-estudantes-da-turma",
+  "module": "Demais módulos",
+  "firstMigration": "0219_n5_3_1_class_wizard_composition.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-frequencia",
+  "module": "Demais módulos",
+  "firstMigration": "0256_bq5_institutional_academic_rules.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-historico-formativo",
+  "module": "Demais módulos",
+  "firstMigration": "0446_dev17_formation_record.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-identidade-cadastral-do-estudante",
+  "module": "Demais módulos",
+  "firstMigration": "0196_0196_students_network_policy_initplan.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-instrumento-docente",
+  "module": "Demais módulos",
+  "firstMigration": "0079_teacher_assessment_authoring.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-mapa-estatistico",
+  "module": "Demais módulos",
+  "firstMigration": "0211_n4_3_map_return_adjustments_next_competence_mediators.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-organizacao-da-oferta",
+  "module": "Demais módulos",
+  "firstMigration": "0129_v_offer_organization.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-pendencias-do-censo",
+  "module": "Demais módulos",
+  "firstMigration": "0166_ag_census_governed_preparation.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-planejamento-docente",
+  "module": "Demais módulos",
+  "firstMigration": "0078_teaching_planning.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-quadro-profissional-da-escola",
+  "module": "Demais módulos",
+  "firstMigration": "0115_0115_s1_close_policy_v6_school_writers.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "consultar-quadro-profissional-da-rede",
+  "module": "Demais módulos",
+  "firstMigration": "0113_0113_s2_s4_year_transition_exact_lookup.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-registro-funcional",
+  "module": "Demais módulos",
+  "firstMigration": "0276_int8_staff_administrative_records.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-supervisao-da-propria-escola",
+  "module": "Demais módulos",
+  "firstMigration": "0287_r1_infrastructure_scoped_read.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "corrigir-mapa-estatistico",
+  "module": "Demais módulos",
+  "firstMigration": "0119_t_map_2027_rule_writers_session.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "decidir-recursos-de-ingresso",
+  "module": "Demais módulos",
+  "firstMigration": "0476_enr23_dashboard_appeals.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "designar-laboratorios",
+  "module": "Demais módulos",
+  "firstMigration": "0494_tech21_innovation_labs_loans_accessibility.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "emitir-carteirinha-estudantil",
+  "module": "Demais módulos",
+  "firstMigration": "0321_ncard1_student_card_end_to_end.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "emitir-ordens-de-servico",
+  "module": "Demais módulos",
+  "firstMigration": "0409_ops06_service_orders.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "emprestar-equipamentos",
+  "module": "Demais módulos",
+  "firstMigration": "0494_tech21_innovation_labs_loans_accessibility.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "encerrar-inventarios-patrimoniais",
+  "module": "Demais módulos",
+  "firstMigration": "0418_ops11_asset_inventories.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "gerir-base-de-conhecimento",
+  "module": "Demais módulos",
+  "firstMigration": "0094_institutional_knowledge_base.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-frota-escolar",
+  "module": "Demais módulos",
+  "firstMigration": "0425_ops18_transport_vehicles.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-licencas",
+  "module": "Demais módulos",
+  "firstMigration": "0495_tech22_licenses_annual_plan.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-lista-de-espera",
+  "module": "Demais módulos",
+  "firstMigration": "0470_enr17_waitlists.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-obras-escolares",
+  "module": "Demais módulos",
+  "firstMigration": "0412_ops08_works_restrictions.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "homologar-avaliacao-externa",
+  "module": "Demais módulos",
+  "firstMigration": "0373_aa_external_results.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "homologar-avaliacao-local",
+  "module": "Demais módulos",
+  "firstMigration": "0372_aa_local_assessments.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "homologar-definicoes-de-workflow",
+  "module": "Demais módulos",
+  "firstMigration": "0090_workflow_engine.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "homologar-instrumento-avaliacao-local",
+  "module": "Demais módulos",
+  "firstMigration": "0372_aa_local_assessments.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "homologar-instrumento-saber-ler",
+  "module": "Demais módulos",
+  "firstMigration": "0371_aa_saber_ler_cycle.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "homologar-norma-composicao-calendario-da-rede",
+  "module": "Demais módulos",
+  "firstMigration": "0032_b4_6_6_calendar_authorized_readers_writers.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "homologar-politica-de-capacidades",
+  "module": "Demais módulos",
+  "firstMigration": "0052_b1_2_general_administrator.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "homologar-regras-avaliacao",
+  "module": "Demais módulos",
+  "firstMigration": "0376_aa_calc_rules_catalog.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "homologar-saber-ler",
+  "module": "Demais módulos",
+  "firstMigration": "0371_aa_saber_ler_cycle.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "importar-resultados-avaliacao",
+  "module": "Demais módulos",
+  "firstMigration": "0370_aa_result_import_staging.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "incorporar-bens",
+  "module": "Demais módulos",
+  "firstMigration": "0414_ops09_assets.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "lancar-avaliacao-local",
+  "module": "Demais módulos",
+  "firstMigration": "0372_aa_local_assessments.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "lancar-saber-ler",
+  "module": "Demais módulos",
+  "firstMigration": "0371_aa_saber_ler_cycle.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "ler-barreiras-do-caso",
+  "module": "Demais módulos",
+  "firstMigration": "0397_perm09_barrier_catalog.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "ler-barreiras-reforcadas",
+  "module": "Demais módulos",
+  "firstMigration": "0397_perm09_barrier_catalog.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "ler-barreiras-restritas",
+  "module": "Demais módulos",
+  "firstMigration": "0397_perm09_barrier_catalog.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "ler-contatos-do-caso",
+  "module": "Demais módulos",
+  "firstMigration": "0398_perm10_contact_attempts.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "ler-encaminhamentos-do-caso",
+  "module": "Demais módulos",
+  "firstMigration": "0401_perm13_referrals.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "ler-sinalizacoes-fora-da-escola",
+  "module": "Demais módulos",
+  "firstMigration": "0396_perm06_cases_out_of_school.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "ler-visitas-do-caso",
+  "module": "Demais módulos",
+  "firstMigration": "0399_perm11_visits.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-almoxarifado",
+  "module": "Demais módulos",
+  "firstMigration": "0420_ops13_supply_stock.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-atribuicao-docente",
+  "module": "Demais módulos",
+  "firstMigration": "0129_v_offer_organization.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-autorizacao-de-responsavel",
+  "module": "Demais módulos",
+  "firstMigration": "0161_ac2_guardian_staff_readers.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-bens",
+  "module": "Demais módulos",
+  "firstMigration": "0414_ops09_assets.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-cadastro-de-turmas",
+  "module": "Demais módulos",
+  "firstMigration": "0001_b3_cycle_enrollment_participation_allocation.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-cadastro-unidade-escolar",
+  "module": "Demais módulos",
+  "firstMigration": "0287_r1_infrastructure_scoped_read.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-calendario-avaliacao",
+  "module": "Demais módulos",
+  "firstMigration": "0367_aa_operational_calendar.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-catalogos-institucionais",
+  "module": "Demais módulos",
+  "firstMigration": "0000_b2_6_class_offering_shift_catalog.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-competencias-formativas",
+  "module": "Demais módulos",
+  "firstMigration": "0450_dev19_competencies_idp.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-contas-institucionais",
+  "module": "Demais módulos",
+  "firstMigration": "0080_admin_center_policy_governance.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-definicoes-de-workflow",
+  "module": "Demais módulos",
+  "firstMigration": "0090_workflow_engine.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-espacos-escolares",
+  "module": "Demais módulos",
+  "firstMigration": "0405_ops03_infrastructure_spaces.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-grade-da-turma",
+  "module": "Demais módulos",
+  "firstMigration": "0129_v_offer_organization.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-instrumento-avaliacao-local",
+  "module": "Demais módulos",
+  "firstMigration": "0372_aa_local_assessments.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-instrumento-saber-ler",
+  "module": "Demais módulos",
+  "firstMigration": "0371_aa_saber_ler_cycle.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-organizacao-da-oferta-da-turma",
+  "module": "Demais módulos",
+  "firstMigration": "0000_b2_6_class_offering_shift_catalog.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-parceiros-formativos",
+  "module": "Demais módulos",
+  "firstMigration": "0453_dev22_partners_integration.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-pessoas-institucionais",
+  "module": "Demais módulos",
+  "firstMigration": "0086_persons_policy_initplan.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-quadro-permanente-op",
+  "module": "Demais módulos",
+  "firstMigration": "0292_sia_corrections_op_board.sql",
+  "scopes": [
+   "indefinido",
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-regra-de-competencia-do-mapa",
+  "module": "Demais módulos",
+  "firstMigration": "0119_t_map_2027_rule_writers_session.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-regras-avaliacao",
+  "module": "Demais módulos",
+  "firstMigration": "0376_aa_calc_rules_catalog.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-regras-de-resultado",
+  "module": "Demais módulos",
+  "firstMigration": "0289_final_sheet_rules_and_acts.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-turno-da-turma",
+  "module": "Demais módulos",
+  "firstMigration": "0000_b2_6_class_offering_shift_catalog.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "movimentar-almoxarifado",
+  "module": "Demais módulos",
+  "firstMigration": "0420_ops13_supply_stock.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "oficializar-mapa-estatistico",
+  "module": "Demais módulos",
+  "firstMigration": "0119_t_map_2027_rule_writers_session.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "planejar-visitas-do-caso",
+  "module": "Demais módulos",
+  "firstMigration": "0399_perm11_visits.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "preparar-ano-letivo",
+  "module": "Demais módulos",
+  "firstMigration": "0111_0111_s1_academic_year_operational_state.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "preparar-censo-escolar",
+  "module": "Demais módulos",
+  "firstMigration": "0166_ag_census_governed_preparation.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "preparar-mapa-estatistico",
+  "module": "Demais módulos",
+  "firstMigration": "0119_t_map_2027_rule_writers_session.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "programar-vistorias",
+  "module": "Demais módulos",
+  "firstMigration": "0406_ops04_inspections.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "propor-baixa-de-bens",
+  "module": "Demais módulos",
+  "firstMigration": "0419_ops12_asset_disposals.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "propor-projetos-de-inovacao",
+  "module": "Demais módulos",
+  "firstMigration": "0494_tech21_innovation_labs_loans_accessibility.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "publicar-conteudo-publico",
+  "module": "Demais módulos",
+  "firstMigration": "0087_public_portal_publications.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "realizar-",
+  "module": "Demais módulos",
+  "firstMigration": "0399_perm11_visits.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "realizar-vistorias",
+  "module": "Demais módulos",
+  "firstMigration": "0406_ops04_inspections.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "receber-bens",
+  "module": "Demais módulos",
+  "firstMigration": "0416_ops10_asset_transfers.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "receber-obras-escolares",
+  "module": "Demais módulos",
+  "firstMigration": "0412_ops08_works_restrictions.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "reclassificar-lista-de-espera",
+  "module": "Demais módulos",
+  "firstMigration": "0470_enr17_waitlists.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-acompanhamento-ei",
+  "module": "Demais módulos",
+  "firstMigration": "0375_aa_infant_followup.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-apoio-de-ingresso",
+  "module": "Demais módulos",
+  "firstMigration": "0475_enr22_inclusion_support.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-avaliacao-externa",
+  "module": "Demais módulos",
+  "firstMigration": "0373_aa_external_results.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-barreiras-do-caso",
+  "module": "Demais módulos",
+  "firstMigration": "0397_perm09_barrier_catalog.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-contatos-do-caso",
+  "module": "Demais módulos",
+  "firstMigration": "0398_perm10_contact_attempts.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-intervencao-pedagogica",
+  "module": "Demais módulos",
+  "firstMigration": "0369_aa_pedagogical_interventions.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-movimentacao-escolar",
+  "module": "Demais módulos",
+  "firstMigration": "0003_b3_1_chain_hardening_apply.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-necessidade-formativa-avaliacao",
+  "module": "Demais módulos",
+  "firstMigration": "0432_dev04_needs_diagnosis.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-necessidade-formativa-orientacao",
+  "module": "Demais módulos",
+  "firstMigration": "0432_dev04_needs_diagnosis.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-necessidade-formativa-supervisao",
+  "module": "Demais módulos",
+  "firstMigration": "0432_dev04_needs_diagnosis.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-politica-de-capacidades",
+  "module": "Demais módulos",
+  "firstMigration": "0080_admin_center_policy_governance.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-retorno-escolar",
+  "module": "Demais módulos",
+  "firstMigration": "0402_perm14_school_return.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-tombamento-oficial",
+  "module": "Demais módulos",
+  "firstMigration": "0414_ops09_assets.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "requisitar-materiais",
+  "module": "Demais módulos",
+  "firstMigration": "0422_ops15_supply_requisitions.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "restringir-uso-de-espacos",
+  "module": "Demais módulos",
+  "firstMigration": "0412_ops08_works_restrictions.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "revisar-qualidade-dos-dados",
+  "module": "Demais módulos",
+  "firstMigration": "0089_data_quality_review_ledger.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "sinalizar-fora-da-escola",
+  "module": "Demais módulos",
+  "firstMigration": "0396_perm06_cases_out_of_school.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "solicitar-",
+  "module": "Demais módulos",
+  "firstMigration": "0403_ops02_shared_requests.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "solicitar-transferencia-de-bens",
+  "module": "Demais módulos",
+  "firstMigration": "0416_ops10_asset_transfers.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "validar-uso-de-veiculo",
+  "module": "Demais módulos",
+  "firstMigration": "0429_ops21_fleet_contracts_costs.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "vistoriar-veiculos-escolares",
+  "module": "Demais módulos",
+  "firstMigration": "0425_ops18_transport_vehicles.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0431_dev02_core_formation_chain.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "analisar-formacoes-externas",
+  "module": "Desenvolvimento",
+  "firstMigration": "0448_dev18_external_trainings.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "analisar-plano-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0433_dev05_annual_plan_workflow.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-criterios-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0438_dev10_enrollment_flow.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0431_dev02_core_formation_chain.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-plano-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0433_dev05_annual_plan_workflow.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "certificar-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0431_dev02_core_formation_chain.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "confirmar-conclusao-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0444_dev15_completion_engine.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "definir-criterios-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0438_dev10_enrollment_flow.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "determinar-obrigatoriedade-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0434_dev06_programs_tracks.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-turmas-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0431_dev02_core_formation_chain.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "indicar-para-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0438_dev10_enrollment_flow.sql",
+  "scopes": [
+   "escola",
+   "indefinido"
+  ]
+ },
+ {
+  "id": "manter-trilhas-por-funcao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0452_dev21_role_tracks.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "planejar-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0431_dev02_core_formation_chain.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "publicar-plano-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0433_dev05_annual_plan_workflow.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "recomendar-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0450_dev19_competencies_idp.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-certificados-de-seguranca",
+  "module": "Desenvolvimento",
+  "firstMigration": "0410_ops07_preventive_availability.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "revisar-resultados-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0443_dev14_learning_results.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "solicitar-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0432_dev04_needs_diagnosis.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "validar-certificados-de-formacao",
+  "module": "Desenvolvimento",
+  "firstMigration": "0445_dev16_certificates.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "administrar-docserv",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0361_0361_docserv_identity.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-politica-do-acervo",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0499_acv02_members_policy_cleanup.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-prazos-documentais",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0392_doc11_18_review_signature_archive.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-documento-escolar",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0164_af_secretariat_school_life_documents.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "emitir-documento-escolar",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0164_af_secretariat_school_life_documents.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "gerir-documentos-funcionais",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0361_0361_docserv_identity.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "instruir-processos",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0387_doc07_administrative_cases.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "numerar-documentos",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0385_doc05_institutional_numbering.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "protocolar-solicitacoes",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0386_doc06_single_protocol.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "provisionar-acervo-documental",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0499_acv02_members_policy_cleanup.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "validar-documentos-funcionais",
+  "module": "Documentos e Acervo",
+  "firstMigration": "0362_0362_docserv_documents.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-folha-final",
+  "module": "Gestão de Pessoas",
+  "firstMigration": "0289_final_sheet_rules_and_acts.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "localizar-servidor-por-identificador",
+  "module": "Gestão de Pessoas",
+  "firstMigration": "0113_0113_s2_s4_year_transition_exact_lookup.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-atuacoes-institucionais",
+  "module": "Gestão de Pessoas",
+  "firstMigration": "0086_persons_policy_initplan.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-lotacao-da-escola",
+  "module": "Gestão de Pessoas",
+  "firstMigration": "0113_0113_s2_s4_year_transition_exact_lookup.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-folha-final",
+  "module": "Gestão de Pessoas",
+  "firstMigration": "0289_final_sheet_rules_and_acts.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "atender-inscricao-presencial",
+  "module": "Matrículas",
+  "firstMigration": "0474_enr21_assisted_attendance.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "autorizar-campanhas-de-matricula",
+  "module": "Matrículas",
+  "firstMigration": "0455_enr03_campaigns_persisted.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "classificar-inscricoes-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0465_enr13_classification_engine.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "conferir-documentos-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0461_enr09_application_documents.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "confirmar-vagas-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0469_enr16_temporal_reservations.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "consultar-matricula-e-movimentacao",
+  "module": "Matrículas",
+  "firstMigration": "0001_b3_cycle_enrollment_participation_allocation.sql",
+  "scopes": [
+   "escola",
+   "indefinido",
+   "rede"
+  ]
+ },
+ {
+  "id": "localizar-estudante-para-matricula",
+  "module": "Matrículas",
+  "firstMigration": "0113_0113_s2_s4_year_transition_exact_lookup.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-campanhas-de-matricula",
+  "module": "Matrículas",
+  "firstMigration": "0455_enr03_campaigns_persisted.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "manter-matricula-e-enturmacao",
+  "module": "Matrículas",
+  "firstMigration": "0001_b3_cycle_enrollment_participation_allocation.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "manter-quadro-de-vagas-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0468_enr15_seat_concurrency_apply.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "publicar-campanhas-de-matricula",
+  "module": "Matrículas",
+  "firstMigration": "0455_enr03_campaigns_persisted.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "reconciliar-estudante-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0458_enr06_preliminary_student_reconciliation.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-identificacao-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0458_enr06_preliminary_student_reconciliation.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "reservar-vagas-de-ingresso",
+  "module": "Matrículas",
+  "firstMigration": "0468_enr15_seat_concurrency_apply.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "validar-distribuicao-de-vagas",
+  "module": "Matrículas",
+  "firstMigration": "0466_enr14_distribution_proposals.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "abrir-casos-de-busca-ativa",
+  "module": "Permanência",
+  "firstMigration": "0395_perm05_alert_center.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "acompanhar-infrequencia",
+  "module": "Permanência",
+  "firstMigration": "0374_aa_infrequency_outreach.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "acompanhar-permanencia",
+  "module": "Permanência",
+  "firstMigration": "0395_perm05_alert_center.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "aprovar-regras-de-permanencia",
+  "module": "Permanência",
+  "firstMigration": "0394_perm03_preventive_rules.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-regras-de-permanencia",
+  "module": "Permanência",
+  "firstMigration": "0394_perm03_preventive_rules.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "elaborar-planos-de-permanencia",
+  "module": "Permanência",
+  "firstMigration": "0400_perm12_individual_plans.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "encaminhar-casos-de-permanencia",
+  "module": "Permanência",
+  "firstMigration": "0401_perm13_referrals.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-alertas-de-permanencia",
+  "module": "Permanência",
+  "firstMigration": "0395_perm05_alert_center.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-busca-ativa",
+  "module": "Permanência",
+  "firstMigration": "0374_aa_infrequency_outreach.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "analisar-acessos-digitais",
+  "module": "Tecnologia",
+  "firstMigration": "0489_tech16_access_requests.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-acessos-digitais",
+  "module": "Tecnologia",
+  "firstMigration": "0489_tech16_access_requests.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-catalogo-digital",
+  "module": "Tecnologia",
+  "firstMigration": "0488_tech15_digital_services_catalog.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-categorias-de-chamado",
+  "module": "Tecnologia",
+  "firstMigration": "0478_tech04_ticket_center.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-mudancas-de-tecnologia",
+  "module": "Tecnologia",
+  "firstMigration": "0477_tech02_itsm_core.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-plano-de-tecnologia",
+  "module": "Tecnologia",
+  "firstMigration": "0495_tech22_licenses_annual_plan.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-planos-de-backup",
+  "module": "Tecnologia",
+  "firstMigration": "0491_tech18_backup_records.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "aprovar-prazos-de-tecnologia",
+  "module": "Tecnologia",
+  "firstMigration": "0480_tech06_sla_policy.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "atender-tecnologia",
+  "module": "Tecnologia",
+  "firstMigration": "0477_tech02_itsm_core.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "configurar-catalogo-digital",
+  "module": "Tecnologia",
+  "firstMigration": "0488_tech15_digital_services_catalog.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-categorias-de-chamado",
+  "module": "Tecnologia",
+  "firstMigration": "0478_tech04_ticket_center.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-prazos-de-tecnologia",
+  "module": "Tecnologia",
+  "firstMigration": "0480_tech06_sla_policy.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "curar-conhecimento-tecnico",
+  "module": "Tecnologia",
+  "firstMigration": "0492_tech19_knowledge_selfservice.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-backups",
+  "module": "Tecnologia",
+  "firstMigration": "0491_tech18_backup_records.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-filas-de-tecnologia",
+  "module": "Tecnologia",
+  "firstMigration": "0481_tech07_support_queue.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "gerir-tecnologia-da-rede",
+  "module": "Tecnologia",
+  "firstMigration": "0477_tech02_itsm_core.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "planejar-tecnologia-da-rede",
+  "module": "Tecnologia",
+  "firstMigration": "0495_tech22_licenses_annual_plan.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "registrar-conectividade",
+  "module": "Tecnologia",
+  "firstMigration": "0487_tech13_connectivity.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "solicitar-acessos-digitais",
+  "module": "Tecnologia",
+  "firstMigration": "0489_tech16_access_requests.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ },
+ {
+  "id": "testar-restauracoes",
+  "module": "Tecnologia",
+  "firstMigration": "0491_tech18_backup_records.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "tratar-incidentes-de-seguranca",
+  "module": "Tecnologia",
+  "firstMigration": "0490_tech17_security_incidents.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "validar-conhecimento-tecnico",
+  "module": "Tecnologia",
+  "firstMigration": "0492_tech19_knowledge_selfservice.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "verificar-medicoes-de-conectividade",
+  "module": "Tecnologia",
+  "firstMigration": "0487_tech13_connectivity.sql",
+  "scopes": [
+   "escola",
+   "rede"
+  ]
+ }
+]
