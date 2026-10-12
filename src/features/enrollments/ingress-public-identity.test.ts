@@ -41,7 +41,7 @@ describe("Matrículas L05 — identificação e recuperação", () => {
     if (!r.ok) return;
     expect(r.value.kinship).toEqual({ declared: "mãe", status: "declarado" });
     expect(r.value.createsGuardianLink).toBe(false);
-    expect(JSON.stringify(r.value)).not.toContain("52998224725");
+    expect(r.value.cpfHmac).toBe("h(52998224725)"); expect(Object.keys(r.value)).not.toContain("cpf");
     expect(r.value.contacts[0]).toMatchObject({ hmac: "h(maria@ex.com)", masked: "m***@ex.com", verified: false });
   });
   it("estudante adulto exige idade configurada; sem configuração recusa", () => {
