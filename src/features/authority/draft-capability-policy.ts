@@ -24,7 +24,7 @@ export const DRAFT_RULES: readonly DraftRule[] = [
   ...r("nei-aee", "caso", ["consultar-casos-de-inclusao", "registrar-atendimento-especializado", "manter-plano-de-atendimento"]),
   ...r("alimentacao", "escola", ["consultar-alimentacao-escolar", "registrar-refeicoes-servidas", "manter-estoque-de-alimentos", "exportar-relatorios-de-alimentacao"]),
   ...r("avaliacao", "rede", ["consultar-desempenho-avaliativo", "preparar-edicao-de-avaliacao", "exportar-mapas-de-desempenho"]),
-  ...r("organizacao-da-rede", "rede", ["consultar-oferta-de-vagas", "manter-oferta-de-vagas", "aprovar-oferta-de-vagas"]),
+  ...r("organizacao-da-rede", "rede", ["consultar-oferta-de-vagas", "manter-oferta-de-vagas", "exportar-oferta-de-vagas"]),
   ...r("documental", "rede", ["consultar-protocolos", "registrar-protocolo", "manter-tramitacao-documental"]),
   ...r("busca-ativa", "escola", ["consultar-casos-de-permanencia", "registrar-contato-de-busca-ativa", "encerrar-caso-de-busca-ativa"]),
   ...r("operacoes", "rede", ["consultar-transporte-e-patrimonio", "registrar-ordem-de-servico", "manter-patrimonio-escolar"]),
