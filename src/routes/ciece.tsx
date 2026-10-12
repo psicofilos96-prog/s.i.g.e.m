@@ -8,6 +8,9 @@ import { CieceWorkspace } from "@/features/ciece/surface/ciece-workspace";
 import type { CieceCatalog, CieceSource } from "@/features/ciece/surface/ciece-surface-types";
 import { useSessionUser } from "@/features/authority/session-authority";
 import { StatePanel } from "@/components/sigem/patterns";
+import { CieceCentral } from "@/features/ciece/surface/ciece-central";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
 
 export const Route = createFileRoute("/ciece")({
   head: () => ({
@@ -25,6 +28,7 @@ export const Route = createFileRoute("/ciece")({
 
 function CiecePage() {
   const session = useSessionUser();
+  const authority = useSessionAuthority();
   const describe = useServerFn(describeCieceSurface);
   const ask = useServerFn(queryCieceIndicator);
   const catalog = useQuery({ queryKey: ["ciece-catalog", session.user?.id], enabled: !!session.user, queryFn: () => describe() });
@@ -43,5 +47,10 @@ function CiecePage() {
   if (catalog.isError) return <div className="p-4"><h1 className="sr-only">CIECE — Informação e Estatística</h1><StatePanel tone="danger" title="Catálogo indisponível" description="Não foi possível consultar o CIECE agora. Tente novamente." /></div>;
 
   const source: CieceSource = { kind: "institucional", query: (input) => ask({ data: input }) };
-  return <CieceWorkspace source={source} catalog={catalog.data as CieceCatalog} initialReference={{}} tasks={<CieceTaskList />} />;
+  return (
+    <div className="space-y-6">
+      <div className="mx-auto max-w-6xl px-4 pt-4"><CieceCentral pathAllowed={(p) => pathAllowed(authority as never, p)} /></div>
+      <CieceWorkspace source={source} catalog={catalog.data as CieceCatalog} initialReference={{}} tasks={<CieceTaskList />} />
+    </div>
+  );
 }
