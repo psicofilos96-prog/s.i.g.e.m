@@ -8984,6 +8984,452 @@ export type Database = {
           },
         ]
       }
+      dev_certifications: {
+        Row: {
+          conclusion_event_id: string
+          created_at: string
+          document_version_ref: string
+          enrollment_id: string
+          id: string
+          idempotency_key: string
+          issuer_person: string
+          verification_code: string
+        }
+        Insert: {
+          conclusion_event_id: string
+          created_at?: string
+          document_version_ref: string
+          enrollment_id: string
+          id?: string
+          idempotency_key: string
+          issuer_person: string
+          verification_code?: string
+        }
+        Update: {
+          conclusion_event_id?: string
+          created_at?: string
+          document_version_ref?: string
+          enrollment_id?: string
+          id?: string
+          idempotency_key?: string
+          issuer_person?: string
+          verification_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_certifications_conclusion_event_id_fkey"
+            columns: ["conclusion_event_id"]
+            isOneToOne: false
+            referencedRelation: "dev_participation_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_certifications_document_version_ref_fkey"
+            columns: ["document_version_ref"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_certifications_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: true
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_classes: {
+        Row: {
+          author_person: string
+          course_version_id: string
+          created_at: string
+          ends_on: string
+          id: string
+          idempotency_key: string
+          label: string
+          school_id: string | null
+          seats: number | null
+          starts_on: string
+        }
+        Insert: {
+          author_person: string
+          course_version_id: string
+          created_at?: string
+          ends_on: string
+          id?: string
+          idempotency_key: string
+          label: string
+          school_id?: string | null
+          seats?: number | null
+          starts_on: string
+        }
+        Update: {
+          author_person?: string
+          course_version_id?: string
+          created_at?: string
+          ends_on?: string
+          id?: string
+          idempotency_key?: string
+          label?: string
+          school_id?: string | null
+          seats?: number | null
+          starts_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_classes_course_version_id_fkey"
+            columns: ["course_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_course_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_classes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_course_versions: {
+        Row: {
+          author_person: string
+          course_id: string
+          created_at: string
+          hours_minutes: number | null
+          id: string
+          idempotency_key: string
+          min_attendance_pct: number | null
+          reason: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          course_id: string
+          created_at?: string
+          hours_minutes?: number | null
+          id?: string
+          idempotency_key: string
+          min_attendance_pct?: number | null
+          reason?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          course_id?: string
+          created_at?: string
+          hours_minutes?: number | null
+          id?: string
+          idempotency_key?: string
+          min_attendance_pct?: number | null
+          reason?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_course_versions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "dev_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_courses: {
+        Row: {
+          created_at: string
+          id: string
+          program_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          program_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_courses_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "dev_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_enrollments: {
+        Row: {
+          author_person: string
+          class_id: string
+          created_at: string
+          functional_link_id: string | null
+          id: string
+          idempotency_key: string
+          person_id: string
+        }
+        Insert: {
+          author_person: string
+          class_id: string
+          created_at?: string
+          functional_link_id?: string | null
+          id?: string
+          idempotency_key: string
+          person_id: string
+        }
+        Update: {
+          author_person?: string
+          class_id?: string
+          created_at?: string
+          functional_link_id?: string | null
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_enrollments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_enrollments_functional_link_id_fkey"
+            columns: ["functional_link_id"]
+            isOneToOne: false
+            referencedRelation: "professional_functional_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_enrollments_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_needs: {
+        Row: {
+          author_person: string
+          created_at: string
+          evidence: string
+          id: string
+          idempotency_key: string
+          school_id: string | null
+          title: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          evidence: string
+          id?: string
+          idempotency_key: string
+          school_id?: string | null
+          title: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          evidence?: string
+          id?: string
+          idempotency_key?: string
+          school_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_needs_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_participation_events: {
+        Row: {
+          actor_person: string
+          attendance_pct: number | null
+          created_at: string
+          enrollment_id: string
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string | null
+          seq: number
+        }
+        Insert: {
+          actor_person: string
+          attendance_pct?: number | null
+          created_at?: string
+          enrollment_id: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          note?: string | null
+          seq: number
+        }
+        Update: {
+          actor_person?: string
+          attendance_pct?: number | null
+          created_at?: string
+          enrollment_id?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string | null
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_participation_events_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "dev_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_plan_versions: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          need_ids: string[]
+          plan_id: string
+          reason: string | null
+          title: string
+          version: number
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          need_ids?: string[]
+          plan_id: string
+          reason?: string | null
+          title: string
+          version: number
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          need_ids?: string[]
+          plan_id?: string
+          reason?: string | null
+          title?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_plan_versions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "dev_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_plans: {
+        Row: {
+          created_at: string
+          cycle_label: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_label: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          cycle_label?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      dev_programs: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          plan_version_id: string
+          title: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          plan_version_id: string
+          title: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          plan_version_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_programs_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_version_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          decision: string
+          id: string
+          idempotency_key: string
+          reason: string
+          subject: string
+          version_id: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          decision: string
+          id?: string
+          idempotency_key: string
+          reason: string
+          subject: string
+          version_id: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          decision?: string
+          id?: string
+          idempotency_key?: string
+          reason?: string
+          subject?: string
+          version_id?: string
+        }
+        Relationships: []
+      }
       diary_correction_policies: {
         Row: {
           admissible_changes: string[] | null
@@ -31809,6 +32255,16 @@ export type Database = {
         }
       }
       data_quality_can_review: { Args: { _school: string }; Returns: boolean }
+      decide_dev_version: {
+        Args: {
+          _decision: string
+          _key: string
+          _reason: string
+          _subject: string
+          _version: string
+        }
+        Returns: string
+      }
       decide_identity_link: {
         Args: { _decision: string; _reason: string; _review: string }
         Returns: string
@@ -31879,6 +32335,11 @@ export type Database = {
       }
       designation_year_valid_on: { Args: { _year: string }; Returns: string }
       designation_year_writable: { Args: { _year: string }; Returns: undefined }
+      dev_can_manage: { Args: never; Returns: boolean }
+      dev_version_usable: {
+        Args: { _subject: string; _version: string }
+        Returns: boolean
+      }
       diary_holder_scope: {
         Args: { _assignment: string; _on: string; _substitution: string }
         Returns: Record<string, unknown>
@@ -32418,6 +32879,10 @@ export type Database = {
       end_engagement: {
         Args: { _act_ref: string; _ended_on: string; _engagement: string }
         Returns: undefined
+      }
+      enroll_dev_class: {
+        Args: { _class: string; _key: string; _link: string; _person: string }
+        Returns: string
       }
       enroll_student_in_school_year: {
         Args: {
@@ -33547,6 +34012,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      issue_dev_certification: {
+        Args: { _document_version: string; _enrollment: string; _key: string }
+        Returns: string
       }
       issue_ops_service_order: {
         Args: { _key: string; _mo: string; _scope: string }
@@ -36392,6 +36861,67 @@ export type Database = {
           _school: string
           _state: string
         }
+        Returns: string
+      }
+      record_dev_class: {
+        Args: {
+          _course_version: string
+          _ends: string
+          _key: string
+          _label: string
+          _school: string
+          _seats: number
+          _starts: string
+        }
+        Returns: string
+      }
+      record_dev_course_version: {
+        Args: {
+          _course: string
+          _expected_version: number
+          _key: string
+          _min_pct: number
+          _minutes: number
+          _program: string
+          _reason: string
+          _title: string
+        }
+        Returns: string
+      }
+      record_dev_need: {
+        Args: {
+          _evidence: string
+          _key: string
+          _school: string
+          _title: string
+        }
+        Returns: string
+      }
+      record_dev_participation: {
+        Args: {
+          _enrollment: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _pct: number
+        }
+        Returns: number
+      }
+      record_dev_plan_version: {
+        Args: {
+          _cycle: string
+          _expected_version: number
+          _key: string
+          _needs: string[]
+          _plan: string
+          _reason: string
+          _title: string
+        }
+        Returns: string
+      }
+      record_dev_program: {
+        Args: { _key: string; _plan_version: string; _title: string }
         Returns: string
       }
       record_diary_correction_policy_draft: {
@@ -40628,6 +41158,15 @@ export type Database = {
           signed_content_sha256: string
           status: string
           version: number
+        }[]
+      }
+      verify_dev_certification: {
+        Args: { _code: string }
+        Returns: {
+          course_title: string
+          hours_minutes: number
+          issued_on: string
+          status: string
         }[]
       }
       verify_report_emission: { Args: { _code: string }; Returns: Json }

@@ -478,5 +478,6 @@
  "drizzle/migrations/0427_ops19_transport_crew.sql": "2ca7e9681233da8da8450510bacf2c89cc57ffbd9a1e91e0380e001951b5bc55",
  "drizzle/migrations/0428_ops20_transport_trips.sql": "61c9c04eb3cd9fc8912513738d506cc7679cc512006be47d1def929d87ac8c18",
  "drizzle/migrations/0429_ops21_fleet_contracts_costs.sql": "19bbe4e9579da93cc6001d30da66947cb0d49c170a14d02762ae1ad012b77584",
- "drizzle/migrations/0430_ops24_revoke_anon_helpers.sql": "070fa75eed72dc3c342c7a46ca33494a516224edcf749deb8f9b646cc904764f"
+ "drizzle/migrations/0430_ops24_revoke_anon_helpers.sql": "070fa75eed72dc3c342c7a46ca33494a516224edcf749deb8f9b646cc904764f",
+ "drizzle/migrations/0431_dev02_core_formation_chain.sql": "dff9b7ec2a9cbab434f9f166dafd5c2ad8e1f6de65cf7ca9b62521a14a72bda1"
 }
