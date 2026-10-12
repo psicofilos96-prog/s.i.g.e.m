@@ -34314,6 +34314,140 @@ export type Database = {
           },
         ]
       }
+      tech_sla_policy_approvals: {
+        Row: {
+          created_at: string
+          decision: string
+          person_id: string
+          policy_version_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          person_id: string
+          policy_version_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          person_id?: string
+          policy_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_sla_policy_approvals_policy_version_id_fkey"
+            columns: ["policy_version_id"]
+            isOneToOne: true
+            referencedRelation: "tech_sla_policy_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_sla_policy_versions: {
+        Row: {
+          alert_percents: Json
+          created_at: string
+          deadlines: Json
+          id: string
+          idempotency_key: string
+          impacts: Json
+          matrix: Json
+          pause_on_wait: boolean
+          person_id: string
+          reason: string | null
+          source: string
+          urgencies: Json
+          version: number
+        }
+        Insert: {
+          alert_percents: Json
+          created_at?: string
+          deadlines: Json
+          id?: string
+          idempotency_key: string
+          impacts: Json
+          matrix: Json
+          pause_on_wait: boolean
+          person_id: string
+          reason?: string | null
+          source: string
+          urgencies: Json
+          version: number
+        }
+        Update: {
+          alert_percents?: Json
+          created_at?: string
+          deadlines?: Json
+          id?: string
+          idempotency_key?: string
+          impacts?: Json
+          matrix?: Json
+          pause_on_wait?: boolean
+          person_id?: string
+          reason?: string | null
+          source?: string
+          urgencies?: Json
+          version?: number
+        }
+        Relationships: []
+      }
+      tech_ticket_assessments: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          impact: string
+          person_id: string
+          policy_version_id: string
+          priority: string
+          reason: string | null
+          request_id: string
+          seq: number
+          urgency: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          impact: string
+          person_id: string
+          policy_version_id: string
+          priority: string
+          reason?: string | null
+          request_id: string
+          seq: number
+          urgency: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          impact?: string
+          person_id?: string
+          policy_version_id?: string
+          priority?: string
+          reason?: string | null
+          request_id?: string
+          seq?: number
+          urgency?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_ticket_assessments_policy_version_id_fkey"
+            columns: ["policy_version_id"]
+            isOneToOne: false
+            referencedRelation: "tech_sla_policy_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_ticket_assessments_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_ticket_category_approvals: {
         Row: {
           category_version_id: string
@@ -35988,6 +36122,10 @@ export type Database = {
           _role: string
         }
         Returns: string
+      }
+      approve_tech_sla_policy: {
+        Args: { _decision: string; _version: string }
+        Returns: undefined
       }
       approve_tech_ticket_category: {
         Args: { _decision: string; _version: string }
@@ -45606,6 +45744,20 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_sla_policy: {
+        Args: {
+          _alerts: Json
+          _deadlines: Json
+          _impacts: Json
+          _key: string
+          _matrix: Json
+          _pause_on_wait: boolean
+          _reason: string
+          _source: string
+          _urgencies: Json
+        }
+        Returns: number
+      }
       record_tech_ticket_category: {
         Args: {
           _fields: Json
@@ -47746,6 +47898,17 @@ export type Database = {
         }[]
       }
       tech_answers_problem: { Args: { _a: Json; _f: Json }; Returns: string }
+      tech_assess_ticket: {
+        Args: {
+          _expected_seq: number
+          _impact: string
+          _key: string
+          _reason: string
+          _request: string
+          _urgency: string
+        }
+        Returns: number
+      }
       tech_can_manage: { Args: { _school: string }; Returns: boolean }
       tech_can_read: { Args: { _school: string }; Returns: boolean }
       tech_classify_ticket: {
@@ -47798,6 +47961,10 @@ export type Database = {
           _request: string
         }
         Returns: number
+      }
+      tech_sla_policy_valid: {
+        Args: { _a: Json; _d: Json; _i: Json; _m: Json; _u: Json }
+        Returns: boolean
       }
       technical_automation_enabled: { Args: never; Returns: boolean }
       technical_correct_educacenso_2026_temporal: {
