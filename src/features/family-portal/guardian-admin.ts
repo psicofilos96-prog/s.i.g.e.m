@@ -4,6 +4,7 @@
  * Nunca há conta exposta, parentesco inferido ou ato automático.
  */
 import { FAMILY_SECTIONS, type FamilySection } from "./family-portal";
+import { validateLink, type LinkType, type Restriction } from "./guardian-link";
 
 export type ChainRow = Readonly<{
   id: string; logical_id: string; version: number; event_kind: "constituicao" | "substituicao" | "revogacao";
@@ -31,7 +32,8 @@ export function projectAuthorizations(rows: readonly ChainRow[], on: string): Au
   }).sort((a, b) => (a.state === b.state ? (a.head.guardian_name ?? "").localeCompare(b.head.guardian_name ?? "") : a.state === "vigente" ? -1 : 1));
 }
 
-export type GrantDraft = { sections: FamilySection[]; validFrom: string; validUntil: string; reason: string };
+export type GrantDraft = { sections: FamilySection[]; validFrom: string; validUntil: string; reason: string;
+  linkType?: LinkType; restrictions?: Restriction[]; sourceRef?: string };
 
 export function validateDraft(d: GrantDraft, kind: "constituicao" | "substituicao" | "revogacao"): string[] {
   const e: string[] = [];
@@ -40,6 +42,9 @@ export function validateDraft(d: GrantDraft, kind: "constituicao" | "substituica
   if (d.sections.some((s) => !FAMILY_SECTIONS.includes(s))) e.push("Seção desconhecida.");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(d.validFrom)) e.push("Informe o início da vigência.");
   if (d.validUntil && d.validUntil < d.validFrom) e.push("O fim da vigência não pode ser anterior ao início.");
+  if (d.linkType) for (const m of validateLink({ kind, linkType: d.linkType, sections: d.sections, restrictions: d.restrictions ?? [],
+    validFrom: d.validFrom, validUntil: d.validUntil || null, sourceRef: d.sourceRef ?? "", reason: d.reason, basis: "pessoa-validada" }))
+    if (!e.includes(m) && !m.startsWith("A data final")) e.push(m);
   return e;
 }
 
