@@ -428,5 +428,6 @@
  "drizzle/migrations/0377_bo_fixture_aa_acceptance.sql": "c349cc52eed665de7f12eb3fb2aa841667e37b462609c97dca2faae06560edca",
  "drizzle/migrations/0378_bo_fixture_aa_cleanup_marker.sql": "3dd4a888455349b82aa171326797b60bf4afcdebfd6d943172e7bf33997120c3",
  "drizzle/migrations/0379_ibge_dtb_territorial_catalog.sql": "db97206575e14535f5c71bf7afba45beea9cba80ebfd2f858955a15f80b59188",
- "drizzle/migrations/0380_ibge_dtb_revoke_technical_load.sql": "63ed69e2ac217637034745b9251546caa736e24767a9b46fe9930ae4089190b9"
+ "drizzle/migrations/0380_ibge_dtb_revoke_technical_load.sql": "63ed69e2ac217637034745b9251546caa736e24767a9b46fe9930ae4089190b9",
+ "drizzle/migrations/0381_family_l02_guardian_link_qualification.sql": "9b13c19b4617bc19e617862830e8cdf47d25e63fb2de40167785a929bd042c50"
 }
