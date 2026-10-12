@@ -6,11 +6,13 @@ import { useSessionUser } from "@/features/authority/session-authority";
 import { formatDateTime } from "@/lib/academic-date";
 import { ACERVO } from "./acervo";
 import { BASE_TEMPLATES, DRAFT_LABEL, SECTOR_DOCUMENTS } from "./base-templates";
-import { STATE_LABEL, TOKEN_CATALOG, renderStudio, unresolvableTokens, validateTemplate, type Facts, type PageSetup, type StudioBlock, type TemplateState } from "./studio-engine";
+import { FONTS, STATE_LABEL, TOKEN_CATALOG, renderStudio, unresolvableTokens, validateTemplate, type Facts, type PageSetup, type StudioBlock, type TemplateState } from "./studio-engine";
 import {
   diffVersions, emissionStatus, emit, factKeys, library, loadEmissions, loadStudio, reproduce, saveVersion, studioMessage, studioPermissions, transition, versionStates, voidEmission,
   type EmissionEvent, type StudioEmission, type StudioEvent, type StudioVersion,
 } from "./studio-cloud";
+import { EditorError, estimatePages, insertField, insertTable, insertToken, setFooter, setHeaderLines, setStyle } from "./editor-model";
+import { clearLocalDraft, readLocalDraft, saveLocalDraft } from "./editor-draft";
 
 const SAMPLE_NOTE = "Prévia sem dados: campos aparecem como \"sem registro\". A emissão congela os dados informados junto com a versão homologada.";
 const TABS = ["Biblioteca", "Editor", "Histórico", "Emitir", "Emitidos", "Acervo"] as const;
@@ -70,6 +72,23 @@ export function DocumentStudioPage() {
   const editText = (i: number, text: string) => setBlocks((b) => b.map((x, k) => k !== i ? x : x.type === "title" ? { ...x, text } : x.type === "rich" ? { ...x, runs: [{ text }] } : x));
   const openVersion = (v: StudioVersion) => { setDraft({ templateId: v.template_id, sector: v.sector, title: v.title, blocks: structuredClone(v.blocks), page: structuredClone(v.page), expected: lib.find((l) => l.templateId === v.template_id)?.latest.version_no ?? v.version_no, baseTemplateId: v.base_template_id, persisted: true }); setTab("Editor"); };
 
+  const [recovery, setRecovery] = useState<string | null>(null);
+  const [sel, setSel] = useState(0);
+  const tryEdit = (f: () => void) => { try { f(); setMsg(null); } catch (e) { setMsg({ kind: "erro", text: e instanceof EditorError ? e.message : "Alteração recusada." }); } };
+  useEffect(() => {
+    if (!user) return;
+    const r = readLocalDraft(user.id, draft.templateId, draft.persisted ? draft.expected : 0);
+    setRecovery(r.status === "recuperavel" || r.status === "desatualizado" ? r.status : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, draft.templateId]);
+  useEffect(() => {
+    if (!user || recovery) return;
+    const t = setTimeout(() => saveLocalDraft({ schema: "sigem.studio-draft.v1", accountId: user.id, templateId: draft.templateId, baseVersion: draft.persisted ? draft.expected : 0, savedAt: new Date().toISOString(), title: draft.title, blocks: draft.blocks, page: draft.page }), 800);
+    return () => clearTimeout(t);
+  }, [user, draft, recovery]);
+  const pages = estimatePages(draft.blocks, draft.page).pages;
+  const header = draft.blocks.find((b) => b.type === "header");
+
   const homologatedList = lib.filter((l) => l.current);
   const emitV = versions.find((v) => v.id === emitVersion) ?? null;
 
@@ -117,7 +136,24 @@ export function DocumentStudioPage() {
             <p className="text-xs text-muted-foreground">{draft.persisted ? `Modelo gravado · última versão ${draft.expected} · ${latestState ? STATE_LABEL[latestState] : ""}` : "Não gravado (modelo-base em memória)"}</p>
             <label className="block text-sm">Título<input className={inp} value={draft.title} maxLength={160} onChange={(e) => setDraft({ ...draft, title: e.target.value })} /></label>
             <label className="text-sm">Orientação{" "}<select className="rounded-md border border-border bg-background p-1" value={draft.page.orientation} onChange={(e) => setDraft({ ...draft, page: { ...draft.page, orientation: e.target.value as PageSetup["orientation"] } })}><option value="retrato">Retrato</option><option value="paisagem">Paisagem</option></select></label>
-            <ol className="space-y-2">{draft.blocks.map((b, i) => <li key={i} className="rounded-md border border-border p-2 text-sm">
+            {recovery && user && <div role="status" className="space-y-2 rounded-md border border-border p-2 text-sm">
+              <p>{recovery === "recuperavel" ? "Há um rascunho não salvo deste modelo nesta aba." : "Há um rascunho não salvo, mas o modelo recebeu nova versão depois dele. Recuperar exige salvar como nova versão sobre a atual."}</p>
+              <div className="flex gap-2"><Button size="sm" onClick={() => { const r = readLocalDraft(user.id, draft.templateId, draft.persisted ? draft.expected : 0); if (r.draft) setDraft((d) => ({ ...d, title: r.draft!.title, blocks: r.draft!.blocks, page: r.draft!.page })); setRecovery(null); }}>Recuperar</Button>
+                <Button size="sm" variant="ghost" onClick={() => { clearLocalDraft(user.id, draft.templateId); setRecovery(null); }}>Descartar</Button></div></div>}
+            <p className="text-xs text-muted-foreground">Estimativa: {pages} página(s) A4 sem dados. A quebra final depende dos dados e do navegador.</p>
+            <fieldset className="space-y-2 rounded-md border border-border p-2 text-sm"><legend className="px-1 font-medium">Cabeçalho e rodapé</legend>
+              <label className="block">Linhas do cabeçalho (uma por linha)<textarea className={inp} value={header?.type === "header" ? header.lines.join("\n") : ""} onChange={(e) => tryEdit(() => setBlocks((b) => setHeaderLines(b, e.target.value.split("\n"))))} /></label>
+              <label className="block">Rodapé<input className={inp} maxLength={200} value={draft.page.footerText ?? ""} onChange={(e) => tryEdit(() => setDraft((d) => ({ ...d, page: setFooter(d.page, e.target.value, d.page.pageNumbers) })))} /></label>
+              <label className="flex items-center gap-2"><input type="checkbox" checked={draft.page.pageNumbers} onChange={(e) => setDraft((d) => ({ ...d, page: setFooter(d.page, d.page.footerText, e.target.checked) }))} /> Numerar páginas</label>
+            </fieldset>
+            <fieldset className="grid gap-2 rounded-md border border-border p-2 text-sm sm:grid-cols-2"><legend className="px-1 font-medium">Bloco selecionado ({sel + 1})</legend>
+              <label>Fonte<select className={inp} onChange={(e) => tryEdit(() => setBlocks((b) => setStyle(b, sel, { font: e.target.value as (typeof FONTS)[number] })))} defaultValue=""><option value="" disabled>Escolha</option>{FONTS.map((f) => <option key={f}>{f}</option>)}</select></label>
+              <label>Tamanho (pt)<input type="number" min={6} max={40} className={inp} onChange={(e) => tryEdit(() => setBlocks((b) => setStyle(b, sel, { size: Number(e.target.value) })))} /></label>
+              <label>Alinhamento<select className={inp} defaultValue="" onChange={(e) => tryEdit(() => setBlocks((b) => setStyle(b, sel, { align: e.target.value as "left" })))}><option value="" disabled>Escolha</option><option value="left">Esquerda</option><option value="center">Centro</option><option value="right">Direita</option><option value="justify">Justificado</option></select></label>
+              <label className="flex items-center gap-2"><input type="checkbox" onChange={(e) => tryEdit(() => setBlocks((b) => setStyle(b, sel, { weight: e.target.checked ? "bold" : "normal" })))} /> Negrito</label>
+              <label className="sm:col-span-2">Inserir campo no texto<select className={inp} defaultValue="" onChange={(e) => { const v = e.target.value; e.target.value = ""; if (v) tryEdit(() => setBlocks((b) => insertToken(b, sel, v))); }}><option value="">Escolha um campo</option>{TOKEN_CATALOG.map((t) => <option key={t.key} value={t.key}>{t.label}</option>)}</select></label>
+            </fieldset>
+            <ol className="space-y-2">{draft.blocks.map((b, i) => <li key={i} onClick={() => setSel(i)} aria-current={sel === i} className={`rounded-md border p-2 text-sm ${sel === i ? "border-primary" : "border-border"}`}>
               <div className="flex items-center justify-between gap-2"><span className="font-medium">{b.type}</span><span className="flex gap-1">
                 <button type="button" className="rounded border border-border px-2" onClick={() => move(i, -1)} aria-label={`Subir bloco ${i + 1}`}>↑</button>
                 <button type="button" className="rounded border border-border px-2" onClick={() => move(i, 1)} aria-label={`Descer bloco ${i + 1}`}>↓</button>
@@ -128,6 +164,8 @@ export function DocumentStudioPage() {
             <div className="flex flex-wrap gap-2 text-sm">
               {([["Parágrafo", { type: "rich", runs: [{ text: "Novo texto" }] }], ["Linha", { type: "line" }], ["Assinatura", { type: "signature", label: "Assinatura" }], ["Quebra de página", { type: "page-break" }], ["Número do documento", { type: "document-number" }], ["QR de verificação", { type: "qr", label: "Verificação" }]] as const)
                 .map(([l, blk]) => <button key={l} type="button" className="rounded-md border border-border px-2 py-1" onClick={() => setBlocks((b) => [...b, structuredClone(blk) as StudioBlock])}>+ {l}</button>)}
+              <button type="button" className="rounded-md border border-border px-2 py-1" onClick={() => tryEdit(() => setBlocks((b) => insertField(b, sel + 1, "Escola", "escola.nome")))}>+ Campo</button>
+              <button type="button" className="rounded-md border border-border px-2 py-1" onClick={() => tryEdit(() => setBlocks((b) => insertTable(b, sel + 1, "historico.anos", [{ label: "Ano", fact: "ano" }, { label: "Escola", fact: "escola" }])))}>+ Tabela</button>
             </div>
             {issues.length > 0 && <div role="alert" className="text-sm text-destructive">Problemas: {issues.map((x) => `${x.path} ${x.code}`).join("; ")}</div>}
             {unresolvableTokens(draft.blocks).length > 0 && <p className="text-sm">Campos sem leitura automática: {unresolvableTokens(draft.blocks).join(", ")} — na emissão serão informados por quem emite.</p>}
