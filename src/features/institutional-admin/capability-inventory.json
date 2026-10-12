@@ -1724,6 +1724,14 @@
   ]
  },
  {
+  "id": "aprovar-parametros-de-matricula",
+  "module": "Matrículas",
+  "firstMigration": "0501_enr14_official_parameters.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
   "id": "atender-inscricao-presencial",
   "module": "Matrículas",
   "firstMigration": "0474_enr21_assisted_attendance.sql",
@@ -1751,6 +1759,14 @@
   "id": "conferir-documentos-de-ingresso",
   "module": "Matrículas",
   "firstMigration": "0461_enr09_application_documents.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-parametros-de-matricula",
+  "module": "Matrículas",
+  "firstMigration": "0501_enr14_official_parameters.sql",
   "scopes": [
    "rede"
   ]

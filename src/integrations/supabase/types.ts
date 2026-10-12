@@ -14999,6 +14999,35 @@ export type Database = {
           },
         ]
       }
+      enr_campaign_parameter_requirements: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          parameter_key: string
+          person_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          parameter_key: string
+          person_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          parameter_key?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_campaign_parameter_requirements_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_campaign_versions: {
         Row: {
           author_person: string
@@ -15468,6 +15497,74 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      enr_parameter_approvals: {
+        Row: {
+          created_at: string
+          decision: string
+          parameter_version_id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          parameter_version_id: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          parameter_version_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_parameter_approvals_parameter_version_id_fkey"
+            columns: ["parameter_version_id"]
+            isOneToOne: true
+            referencedRelation: "enr_parameter_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_parameter_versions: {
+        Row: {
+          act_version_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          parameter_key: string
+          person_id: string
+          reason: string | null
+          valid_from: string
+          value: Json
+          version: number
+        }
+        Insert: {
+          act_version_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          parameter_key: string
+          person_id: string
+          reason?: string | null
+          valid_from: string
+          value: Json
+          version: number
+        }
+        Update: {
+          act_version_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          parameter_key?: string
+          person_id?: string
+          reason?: string | null
+          valid_from?: string
+          value?: Json
+          version?: number
+        }
+        Relationships: []
       }
       enr_preference_policies: {
         Row: {
@@ -38647,6 +38744,10 @@ export type Database = {
         Args: { _criteria: string; _reason: string }
         Returns: string
       }
+      approve_enr_parameter: {
+        Args: { _decision: string; _version: string }
+        Returns: undefined
+      }
       approve_enr_preference_policy: {
         Args: { _policy: string; _reason: string }
         Returns: string
@@ -40610,6 +40711,10 @@ export type Database = {
         }
         Returns: string
       }
+      declare_enr_campaign_parameter: {
+        Args: { _c: string; _parameter: string }
+        Returns: undefined
+      }
       declare_tech_service_accessibility: {
         Args: {
           _features: string[]
@@ -41369,6 +41474,10 @@ export type Database = {
         }[]
       }
       enr_campaign_manager: { Args: never; Returns: boolean }
+      enr_campaign_parameter_blockers: {
+        Args: { _c: string }
+        Returns: string[]
+      }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
       enr_can_see_application: { Args: { _app: string }; Returns: boolean }
       enr_classifier: { Args: never; Returns: boolean }
@@ -41396,6 +41505,14 @@ export type Database = {
       enr_open_waitlist: {
         Args: { _cell: string; _key: string; _proposal: string }
         Returns: string
+      }
+      enr_parameter_in_force: {
+        Args: { _k: string; _on: string }
+        Returns: string
+      }
+      enr_parameter_value_ok: {
+        Args: { _k: string; _v: Json }
+        Returns: boolean
       }
       enr_preference_policy_current: {
         Args: { _c: string }
@@ -46287,6 +46404,18 @@ export type Database = {
           _reason: string
         }
         Returns: string
+      }
+      record_enr_parameter: {
+        Args: {
+          _act: string
+          _expected: number
+          _key: string
+          _parameter: string
+          _reason: string
+          _valid_from: string
+          _value: Json
+        }
+        Returns: number
       }
       record_enr_preference_policy: {
         Args: {
