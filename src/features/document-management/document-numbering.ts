@@ -39,7 +39,7 @@ export const NUMBERING_REFUSALS: Record<string, string> = {
 
 export function explainNumberingError(message: string): string {
   const key = Object.keys(NUMBERING_REFUSALS).find((k) => message.includes(k));
-  return key ? NUMBERING_REFUSALS[key] : "Falha ao numerar; nenhum número foi emitido.";
+  return (key && NUMBERING_REFUSALS[key]) || "Falha ao numerar; nenhum número foi emitido.";
 }
 
 export async function allocateDocumentNumber(input: {
@@ -51,5 +51,6 @@ export async function allocateDocumentNumber(input: {
   });
   if (error) return { ok: false as const, reason: explainNumberingError(error.message) };
   const row = Array.isArray(data) ? data[0] : data;
+  if (!row) return { ok: false as const, reason: "Falha ao numerar; nenhum número foi emitido." };
   return { ok: true as const, number: row.formatted as string, seq: row.seq as number, reused: row.reused as boolean };
 }
