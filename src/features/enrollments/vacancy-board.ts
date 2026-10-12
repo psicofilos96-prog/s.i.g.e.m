@@ -38,7 +38,8 @@ export function recordVacancyEvent(
   if (!input.reason.trim()) return { ok: false, reason: "Motivo obrigatório." };
   if (kind !== "planejar" && !input.actRef?.trim()) return { ok: false, reason: "Exige ato." };
   if (input.validTo && input.validTo < input.validFrom) return { ok: false, reason: "Vigência inválida." };
-  if (input.validFrom < cell.periodFrom || (cell.periodTo && (input.validTo ?? "9999") > cell.periodTo)) return { ok: false, reason: "Vigência fora do período da oferta." };
+  const validTo = input.validTo ?? cell.periodTo;
+  if (input.validFrom < cell.periodFrom || (cell.periodTo && (validTo ?? "9999") > cell.periodTo)) return { ok: false, reason: "Vigência fora do período da oferta." };
   if (kind !== "revogar") {
     if (input.quantity === null || !Number.isInteger(input.quantity) || input.quantity < 0) return { ok: false, reason: "Quantidade inválida." };
     if (kind !== "planejar") {
@@ -47,7 +48,7 @@ export function recordVacancyEvent(
     }
   }
   if (kind === "autorizar" && mine.some((e) => e.kind === "planejar" && e.personId === actor.personId)) return { ok: false, reason: "Quem planejou não autoriza." };
-  return { ok: true, event: { cellKey: key, seq: (last?.seq ?? 0) + 1, kind, quantity: kind === "revogar" ? null : input.quantity, actRef: input.actRef?.trim() || null, personId: actor.personId, reason: input.reason.trim(), at: input.at, validFrom: input.validFrom, validTo: input.validTo } };
+  return { ok: true, event: { cellKey: key, seq: (last?.seq ?? 0) + 1, kind, quantity: kind === "revogar" ? null : input.quantity, actRef: input.actRef?.trim() || null, personId: actor.personId, reason: input.reason.trim(), at: input.at, validFrom: input.validFrom, validTo } };
 }
 
 /** Autorizadas vigentes na data de referência, conhecidas até `knownAt`. Planejada não conta. */
