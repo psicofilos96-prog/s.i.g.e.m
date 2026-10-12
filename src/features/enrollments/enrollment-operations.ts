@@ -5,7 +5,7 @@
  * nenhuma tabela nova: o banco revalida capacidade, escopo, sequência e autor em toda ação.
  */
 
-export type FieldKind = "text" | "uuid" | "int" | "date" | "select" | "list" | "json" | "uuid-list";
+export type FieldKind = "text" | "uuid" | "int" | "number" | "bool" | "datetime" | "date" | "select" | "list" | "json" | "uuid-list";
 export interface ActionField {
   arg: string;
   label: string;
@@ -223,6 +223,9 @@ export function buildArgs(action: OperationAction, values: Record<string, string
         else args[f.arg] = Number(raw);
         break;
       }
+      case "number": if (!/^\d+([.,]\d+)?$/.test(raw)) problems.push(`${f.label}: use um número.`); else args[f.arg] = Number(raw.replace(",", ".")); break;
+      case "bool": if (raw !== "sim" && raw !== "não") problems.push(`${f.label}: escolha sim ou não.`); else args[f.arg] = raw === "sim"; break;
+      case "datetime": if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(raw)) problems.push(`${f.label}: data e hora inválidas.`); else args[f.arg] = new Date(raw).toISOString(); break;
       case "uuid": if (!UUID.test(raw)) problems.push(`${f.label}: identificador inválido.`); else args[f.arg] = raw; break;
       case "date": if (!/^\d{4}-\d{2}-\d{2}$/.test(raw)) problems.push(`${f.label}: data inválida.`); else args[f.arg] = raw; break;
       case "select": if (!f.options?.includes(raw)) problems.push(`${f.label}: opção inválida.`); else args[f.arg] = raw; break;

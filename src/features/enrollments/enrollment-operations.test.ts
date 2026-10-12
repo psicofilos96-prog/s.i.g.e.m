@@ -30,7 +30,7 @@ describe("Lote corretivo 06 — central operacional de matrículas", () => {
   });
 
   it("toda ação usa writer do banco; tela não grava tabela direto", () => {
-    const page = readFileSync("src/features/enrollments/enrollment-operations-page.tsx", "utf8");
+    const page = readFileSync("src/components/sigem/operations-console.tsx", "utf8");
     expect(page).not.toMatch(/\.(insert|update|upsert|delete)\(/);
   });
 
