@@ -3557,6 +3557,13 @@
       "when": 1791838704922,
       "tag": "0507_l24_revoke_direct_dml_persons_engagements",
       "breakpoints": true
+    },
+    {
+      "idx": 508,
+      "version": "7",
+      "when": 1791842079088,
+      "tag": "0508_l38_payroll_functional_registrations",
+      "breakpoints": true
     }
   ]
 }

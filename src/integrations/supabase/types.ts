@@ -27714,6 +27714,123 @@ export type Database = {
           },
         ]
       }
+      payroll_functional_registrations: {
+        Row: {
+          admission_date: string | null
+          birth_date: string | null
+          cargo_code: string | null
+          cargo_label: string | null
+          full_name: string
+          id: string
+          imported_at: string
+          imported_by: string
+          monthly_hours: number | null
+          qpmec_number: string | null
+          reference_period: string
+          registration_norm: string
+          registration_raw: string
+          row_no: number
+          sheet: string
+          source_file: string
+          source_sha256: string
+          weekly_workload_text: string | null
+        }
+        Insert: {
+          admission_date?: string | null
+          birth_date?: string | null
+          cargo_code?: string | null
+          cargo_label?: string | null
+          full_name: string
+          id?: string
+          imported_at?: string
+          imported_by?: string
+          monthly_hours?: number | null
+          qpmec_number?: string | null
+          reference_period: string
+          registration_norm: string
+          registration_raw: string
+          row_no: number
+          sheet: string
+          source_file: string
+          source_sha256: string
+          weekly_workload_text?: string | null
+        }
+        Update: {
+          admission_date?: string | null
+          birth_date?: string | null
+          cargo_code?: string | null
+          cargo_label?: string | null
+          full_name?: string
+          id?: string
+          imported_at?: string
+          imported_by?: string
+          monthly_hours?: number | null
+          qpmec_number?: string | null
+          reference_period?: string
+          registration_norm?: string
+          registration_raw?: string
+          row_no?: number
+          sheet?: string
+          source_file?: string
+          source_sha256?: string
+          weekly_workload_text?: string | null
+        }
+        Relationships: []
+      }
+      payroll_registration_person_links: {
+        Row: {
+          action: string
+          decided_by_person_id: string
+          decided_by_user_id: string
+          evidence: string
+          id: string
+          idempotency_key: string
+          person_id: string | null
+          recorded_at: string
+          registration_norm: string
+          seq: number
+        }
+        Insert: {
+          action: string
+          decided_by_person_id: string
+          decided_by_user_id: string
+          evidence: string
+          id?: string
+          idempotency_key: string
+          person_id?: string | null
+          recorded_at?: string
+          registration_norm: string
+          seq: number
+        }
+        Update: {
+          action?: string
+          decided_by_person_id?: string
+          decided_by_user_id?: string
+          evidence?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string | null
+          recorded_at?: string
+          registration_norm?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_registration_person_links_decided_by_person_id_fkey"
+            columns: ["decided_by_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_registration_person_links_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_disclosure_versions: {
         Row: {
           author_engagement: string
@@ -31564,6 +31681,13 @@ export type Database = {
             foreignKeyName: "semed_t10_formation_versions_staff_record_id_fkey"
             columns: ["staff_record_id"]
             isOneToOne: false
+            referencedRelation: "payroll_staff_registration_matches"
+            referencedColumns: ["staff_record_id"]
+          },
+          {
+            foreignKeyName: "semed_t10_formation_versions_staff_record_id_fkey"
+            columns: ["staff_record_id"]
+            isOneToOne: false
             referencedRelation: "staff_administrative_records"
             referencedColumns: ["id"]
           },
@@ -32591,6 +32715,13 @@ export type Database = {
             foreignKeyName: "staff_reconciliation_candidates_staff_record_id_fkey"
             columns: ["staff_record_id"]
             isOneToOne: false
+            referencedRelation: "payroll_staff_registration_matches"
+            referencedColumns: ["staff_record_id"]
+          },
+          {
+            foreignKeyName: "staff_reconciliation_candidates_staff_record_id_fkey"
+            columns: ["staff_record_id"]
+            isOneToOne: false
             referencedRelation: "staff_administrative_records"
             referencedColumns: ["id"]
           },
@@ -32631,6 +32762,13 @@ export type Database = {
           supersedes_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "staff_reconciliation_decisions_staff_record_id_fkey"
+            columns: ["staff_record_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_staff_registration_matches"
+            referencedColumns: ["staff_record_id"]
+          },
           {
             foreignKeyName: "staff_reconciliation_decisions_staff_record_id_fkey"
             columns: ["staff_record_id"]
@@ -38081,6 +38219,16 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payroll_staff_registration_matches: {
+        Row: {
+          payroll_registration_id: string | null
+          registration_found: boolean | null
+          registration_norm: string | null
+          source_kind: string | null
+          staff_record_id: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {
@@ -44360,6 +44508,10 @@ export type Database = {
         }
         Returns: Json
       }
+      normalize_functional_registration: {
+        Args: { _r: string }
+        Returns: string
+      }
       notif_capability_holders: {
         Args: { _capability: string; _on: string; _school: string }
         Returns: string[]
@@ -47831,6 +47983,17 @@ export type Database = {
         Returns: number
       }
       record_own_password_change: { Args: never; Returns: undefined }
+      record_payroll_person_link: {
+        Args: {
+          _action: string
+          _evidence: string
+          _expected_seq: number
+          _idempotency_key: string
+          _person_id: string
+          _registration_norm: string
+        }
+        Returns: Json
+      }
       record_performance_disclosure: {
         Args: {
           _base_id: string

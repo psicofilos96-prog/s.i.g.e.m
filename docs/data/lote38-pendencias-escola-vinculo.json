@@ -1,0 +1,322 @@
+[
+ {
+  "school_id": "inep-33001464",
+  "linhas": 12,
+  "nome_1_matricula": 8,
+  "nome_2mais": 1,
+  "nome_fora_da_folha": 3,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001510",
+  "linhas": 58,
+  "nome_1_matricula": 47,
+  "nome_2mais": 8,
+  "nome_fora_da_folha": 3,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001537",
+  "linhas": 5,
+  "nome_1_matricula": 4,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 1,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001626",
+  "linhas": 35,
+  "nome_1_matricula": 30,
+  "nome_2mais": 2,
+  "nome_fora_da_folha": 3,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001634",
+  "linhas": 70,
+  "nome_1_matricula": 54,
+  "nome_2mais": 6,
+  "nome_fora_da_folha": 10,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001642",
+  "linhas": 59,
+  "nome_1_matricula": 51,
+  "nome_2mais": 2,
+  "nome_fora_da_folha": 6,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001723",
+  "linhas": 5,
+  "nome_1_matricula": 5,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 0,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001731",
+  "linhas": 104,
+  "nome_1_matricula": 83,
+  "nome_2mais": 4,
+  "nome_fora_da_folha": 17,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001863",
+  "linhas": 8,
+  "nome_1_matricula": 7,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 1,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001928",
+  "linhas": 28,
+  "nome_1_matricula": 23,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 5,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001936",
+  "linhas": 84,
+  "nome_1_matricula": 68,
+  "nome_2mais": 4,
+  "nome_fora_da_folha": 12,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001987",
+  "linhas": 96,
+  "nome_1_matricula": 79,
+  "nome_2mais": 2,
+  "nome_fora_da_folha": 15,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33001995",
+  "linhas": 89,
+  "nome_1_matricula": 71,
+  "nome_2mais": 3,
+  "nome_fora_da_folha": 15,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002010",
+  "linhas": 8,
+  "nome_1_matricula": 7,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 1,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002029",
+  "linhas": 19,
+  "nome_1_matricula": 15,
+  "nome_2mais": 1,
+  "nome_fora_da_folha": 3,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002045",
+  "linhas": 39,
+  "nome_1_matricula": 31,
+  "nome_2mais": 4,
+  "nome_fora_da_folha": 4,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002053",
+  "linhas": 132,
+  "nome_1_matricula": 107,
+  "nome_2mais": 12,
+  "nome_fora_da_folha": 13,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002061",
+  "linhas": 21,
+  "nome_1_matricula": 16,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 5,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002070",
+  "linhas": 42,
+  "nome_1_matricula": 32,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 10,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002118",
+  "linhas": 71,
+  "nome_1_matricula": 57,
+  "nome_2mais": 5,
+  "nome_fora_da_folha": 9,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002169",
+  "linhas": 47,
+  "nome_1_matricula": 39,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 8,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002185",
+  "linhas": 91,
+  "nome_1_matricula": 68,
+  "nome_2mais": 6,
+  "nome_fora_da_folha": 17,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002290",
+  "linhas": 54,
+  "nome_1_matricula": 36,
+  "nome_2mais": 6,
+  "nome_fora_da_folha": 12,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002444",
+  "linhas": 35,
+  "nome_1_matricula": 26,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 9,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002460",
+  "linhas": 26,
+  "nome_1_matricula": 19,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 7,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002517",
+  "linhas": 9,
+  "nome_1_matricula": 8,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 1,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002533",
+  "linhas": 4,
+  "nome_1_matricula": 4,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 0,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002568",
+  "linhas": 30,
+  "nome_1_matricula": 25,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 5,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002584",
+  "linhas": 8,
+  "nome_1_matricula": 7,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 1,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002649",
+  "linhas": 10,
+  "nome_1_matricula": 6,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 4,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002754",
+  "linhas": 11,
+  "nome_1_matricula": 7,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 4,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002916",
+  "linhas": 7,
+  "nome_1_matricula": 4,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 3,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33002967",
+  "linhas": 49,
+  "nome_1_matricula": 40,
+  "nome_2mais": 2,
+  "nome_fora_da_folha": 7,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33094756",
+  "linhas": 112,
+  "nome_1_matricula": 86,
+  "nome_2mais": 6,
+  "nome_fora_da_folha": 20,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33096589",
+  "linhas": 111,
+  "nome_1_matricula": 92,
+  "nome_2mais": 2,
+  "nome_fora_da_folha": 17,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33097461",
+  "linhas": 18,
+  "nome_1_matricula": 9,
+  "nome_2mais": 4,
+  "nome_fora_da_folha": 5,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33099871",
+  "linhas": 72,
+  "nome_1_matricula": 54,
+  "nome_2mais": 4,
+  "nome_fora_da_folha": 14,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33159505",
+  "linhas": 46,
+  "nome_1_matricula": 44,
+  "nome_2mais": 1,
+  "nome_fora_da_folha": 1,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33185689",
+  "linhas": 28,
+  "nome_1_matricula": 24,
+  "nome_2mais": 0,
+  "nome_fora_da_folha": 4,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ },
+ {
+  "school_id": "inep-33205299",
+  "linhas": 44,
+  "nome_1_matricula": 32,
+  "nome_2mais": 4,
+  "nome_fora_da_folha": 8,
+  "situacao": "candidatos por nome normalizado; exige revisão humana (planilha da escola não tem matrícula)"
+ }
+]

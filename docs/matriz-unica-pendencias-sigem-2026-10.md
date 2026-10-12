@@ -1,6 +1,6 @@
 # Matriz única de pendências do SIGEM 2.0 (Lote 23, atualizada no Lote 37, 2026-10-12)
 
-Situação atual: Registro de lote. Substitui `docs/sigem-relatorio-pendencias-lote22.md` como foto vigente. SHA analisado `5a95d945` (L37); evidências L37 em `docs/lote-37-saneamento-evidencias-2026-10.md`. "Executado L37" = rodado nesta rodada; demais evidências são referência a rodadas antigas. Nenhuma aprovação humana registrada.
+Situação atual: Registro de lote. Substitui `docs/sigem-relatorio-pendencias-lote22.md` como foto vigente. SHA analisado `5a95d945` (L37/L38); evidências L37 e `docs/lote-38-vinculos-folha-agosto-2026.md`; evidências L37 em `docs/lote-37-saneamento-evidencias-2026-10.md`. "Executado L37" = rodado nesta rodada; demais evidências são referência a rodadas antigas. Nenhuma aprovação humana registrada.
 
 Situações: CONCLUÍDO E VALIDADO · IMPLEMENTADO SEM VALIDAÇÃO · PARCIAL · BLOQUEADO · NÃO INICIADO.
 
@@ -31,15 +31,15 @@ Situações: CONCLUÍDO E VALIDADO · IMPLEMENTADO SEM VALIDAÇÃO · PARCIAL ·
 | P3-02 | IMPLEMENTADO SEM VALIDAÇÃO | View `admin_case_events_safe` com privilégio do criador | `drizzle/migrations/0389*` | n/a | `doc24_documents_rls.sql` | confirmação de intenção | linter L18 | confirmar redação intencional |
 | P3-03 | PARCIAL | 183 tabelas com RLS sem política | migrations | n/a | linter | acesso só por função (fechado por padrão) | linter L18 | revisar caso a caso |
 | P1-12 | CONCLUÍDO E VALIDADO | Reconciliação banco × migrations e Censo (L24–L25) | `docs/homologacao-tecnica-lotes-24-31-2026-10.md` | n/a | consultas L24/L25 | nenhum | 55 escolas, 0 divergências com recibos | manter |
-| P1-13 | BLOQUEADO | Importação de servidores e lotações (L32) | `staff_administrative_records` | n/a | consultas L37 | sem chave matrícula↔pessoa (1/10.822 pessoas com identificador; 0/551 vínculos com matrícula) | 0 importados; 815 candidatos só por nome | DP enviar arquivo mínimo (spec L37) |
+| P1-13 | PARCIAL | Vínculos funcionais da folha (L38) | `payroll_functional_registrations` | n/a | `scripts/lote38-payroll-checks.py` 13/13 | ligação a pessoa exige decisão humana e titular de `manter-registro-funcional` | 2.037 vínculos registrados, 0 rejeitados; 213/219 SEMED casam; 0 pessoas ligadas | atribuir titular e revisar ligações; DP conferir 6 matrículas |
 | P1-14 | CONCLUÍDO E VALIDADO | Infraestrutura oficial INEP 2026 (L33) | `docs/data/lote37-infraestrutura-por-escola.json` | n/a | Executado L37 | nenhum (sem fonte concorrente para comparar) | 2.970 observações, 55 escolas × 54 atributos, 0 vazias | manter |
 | P2-07 | BLOQUEADO | Jornadas escolares (L33) | `class_journeys` | n/a | consulta L37 | nenhuma fonte de jornada | 0 jornadas, 0 declarações de horário | enviar fonte oficial |
 | P2-08 | BLOQUEADO | Concorrência de numeração/reservas | `scripts/lote16-concurrency-e2e.mjs` | n/a | Executado L37: 2 PASS/0 FAIL/2 BLOQ. | P2-03 | resíduo 0 | ver P2-03 |
 
 ## Totais
 
-CONCLUÍDO E VALIDADO 6 · PARCIAL 10 · BLOQUEADO (decisão humana) 4 · BLOQUEADO 7 · IMPLEMENTADO SEM VALIDAÇÃO 2 · NÃO INICIADO 0 — total 29.
+CONCLUÍDO E VALIDADO 6 · PARCIAL 11 · BLOQUEADO (decisão humana) 4 · BLOQUEADO 6 · IMPLEMENTADO SEM VALIDAÇÃO 2 · NÃO INICIADO 0 — total 29.
 
 ## Sequência recomendada
 
-1. P1-13 arquivo do DP com matrícula↔CPF → 2. P1-02 atribuição de titulares (decisão institucional) → 3. P2-01/P2-02/P2-03/P2-05 (valores, atos, regras) → 4. L25–L30 caminhos positivos por setor → 5. P1-10/P1-01 navegador logado → 6. P1-07, P1-09, P3-01 → 7. P1-08, P2-04, P3-02, P3-03 → 8. L31 homologação técnica.
+1. P1-13 titular de `manter-registro-funcional` + revisão das ligações vínculo→pessoa → 2. P1-02 atribuição de titulares (decisão institucional) → 3. P2-01/P2-02/P2-03/P2-05 (valores, atos, regras) → 4. L25–L30 caminhos positivos por setor → 5. P1-10/P1-01 navegador logado → 6. P1-07, P1-09, P3-01 → 7. P1-08, P2-04, P3-02, P3-03 → 8. L31 homologação técnica.
