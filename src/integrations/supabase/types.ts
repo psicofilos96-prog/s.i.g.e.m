@@ -36490,6 +36490,31 @@ export type Database = {
       }
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
+      enr_public_campaigns: {
+        Args: never
+        Returns: {
+          campaign_id: string
+          cycle_term: string
+          cycle_year: number
+          edital_verification_code: string
+          kind: string
+          modality_ids: string[]
+          period_from: string
+          period_to: string
+          published_version: number
+          schools: Json
+          stage_ids: string[]
+          state: string
+        }[]
+      }
+      enr_public_protocol_status: {
+        Args: { _code: string; _number: string }
+        Returns: {
+          last_update_on: string
+          registered_on: string
+          status: string
+        }[]
+      }
       enroll_dev_class: {
         Args: { _class: string; _key: string; _link: string; _person: string }
         Returns: string
