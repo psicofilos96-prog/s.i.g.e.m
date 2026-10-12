@@ -1959,6 +1959,14 @@
   ]
  },
  {
+  "id": "aprovar-parametros-de-tecnologia",
+  "module": "Tecnologia",
+  "firstMigration": "0500_tech13_institutional_parameters.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
   "id": "aprovar-plano-de-tecnologia",
   "module": "Tecnologia",
   "firstMigration": "0495_tech22_licenses_annual_plan.sql",
@@ -2002,6 +2010,14 @@
   "id": "configurar-categorias-de-chamado",
   "module": "Tecnologia",
   "firstMigration": "0478_tech04_ticket_center.sql",
+  "scopes": [
+   "rede"
+  ]
+ },
+ {
+  "id": "configurar-parametros-de-tecnologia",
+  "module": "Tecnologia",
+  "firstMigration": "0500_tech13_institutional_parameters.sql",
   "scopes": [
    "rede"
   ]

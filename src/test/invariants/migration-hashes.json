@@ -547,5 +547,6 @@
  "drizzle/migrations/0496_tech24_revoke_anon_validators.sql": "291dec1035bcd627771f5f25d08ebbc9df92cea6e7cc62d450481f4e01e9bc1b",
  "drizzle/migrations/0497_acv01_acervo_documental.sql": "2d6b97e8471466cfbd4de05d954baedda50050887ff6bf0c7b96859190e3f991",
  "drizzle/migrations/0498_enr_family_choice_details.sql": "d9f1e36793c87a595daa4b42ad14d2e40736c3a0edc00db5de6bd12ed821b913",
- "drizzle/migrations/0499_acv02_members_policy_cleanup.sql": "2a8b555d3159be3d613db3ebc82470bb13dce3509585fd82621fbded7157ad00"
+ "drizzle/migrations/0499_acv02_members_policy_cleanup.sql": "2a8b555d3159be3d613db3ebc82470bb13dce3509585fd82621fbded7157ad00",
+ "drizzle/migrations/0500_tech13_institutional_parameters.sql": "36c9b5fe0484f1c1566a46cacf057a8656189bdd7842d3998c9d940e5be79152"
 }
