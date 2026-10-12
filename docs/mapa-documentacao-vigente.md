@@ -359,3 +359,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 | `gestao-de-pessoas-fechamento-lote-24.md` | Gestão de Pessoas — fechamento (Lote 24) | Registro de lote | — | — |
 | `rede-matriculas-vagas-auditoria-lote-01.md` | Rede, Matrículas e Vagas — auditoria (Lote 01) | Registro de lote | — | — |
 - [Auditoria de cobertura das especificações](auditoria-cobertura-especificacoes-2026-10-12.md) — Registro de lote
+- [Matriz evidência/pendência por setor — Lote 17](matriz-evidencia-setores-lote17.md) — Registro de lote
