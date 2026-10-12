@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 334. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 335. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -109,7 +109,7 @@ Documentos: 334. Sem classe: 0. Com referência quebrada: 0.
 
 **Vigente:** `alimentacao-mapa-de-compras-layout.md`, `ciece-inventario-fontes-censo.md`, `ciece-mapa-censo-gpe-produto.md`, `ciece-mapa-projecao-rede.md`, `ciece-operacional.md`
 
-**Registros de lote (decisões e provas da etapa):** `auditoria-ciece-n443.md`, `ciece-matriz-aceite-lote-20.md`, `ciece-nciece-final-2.md`, `ciece-produto-final.md`, `gerador-relatorios-nrel2.md`, `gerador-universal-relatorios.md`, `n2026-import-4-censo-snapshot-oficial.md`, `n2026-reconciliacao-censo.md`, `relatorio-lacunas-raiz-identidade-2026-10-11.md`, `relatorios-modelos-nrel3.md`, `sigem-relatorio-pendencias-2026-10-12.md`, `sigem-relatorio-pendencias-lote18.md`
+**Registros de lote (decisões e provas da etapa):** `auditoria-ciece-n443.md`, `ciece-matriz-aceite-lote-20.md`, `ciece-nciece-final-2.md`, `ciece-produto-final.md`, `gerador-relatorios-nrel2.md`, `gerador-universal-relatorios.md`, `n2026-import-4-censo-snapshot-oficial.md`, `n2026-reconciliacao-censo.md`, `relatorio-lacunas-raiz-identidade-2026-10-11.md`, `relatorios-modelos-nrel3.md`, `sigem-relatorio-pendencias-2026-10-12.md`, `sigem-relatorio-pendencias-lote18.md`, `sigem-relatorio-pendencias-lote22.md`
 
 **Pendências declaradas:**
 - `auditoria-ciece-n443.md`: DEPENDE_DADO, HOMOLOGACAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
