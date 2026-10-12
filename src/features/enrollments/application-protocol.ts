@@ -12,7 +12,7 @@ export type Receipt =
 export const SITUATION_LABEL = { "aguardando-protocolo": "Recebido — número de protocolo ainda não emitido", protocolado: "Protocolado" } as const;
 
 export function parseReceipt(row: unknown): Receipt {
-  const r = row as Record<string, unknown> | null;
+  const r = row as { status?: unknown; submitted_on?: unknown; campaign_kind?: unknown; campaign_year?: unknown; protocol_number?: unknown; situation?: unknown } | null;
   if (!r || r.status !== "ok" || typeof r.submitted_on !== "string" || typeof r.campaign_kind !== "string" || typeof r.campaign_year !== "number") return { status: "indisponivel" };
   const num = typeof r.protocol_number === "string" && /^PROT-\d{4}-\d{6}$/.test(r.protocol_number) ? r.protocol_number : null;
   const situation = num ? "protocolado" : "aguardando-protocolo";
