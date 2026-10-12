@@ -167,6 +167,7 @@ import { Route as SecretariaServicosRouteImport } from './routes/secretaria_.ser
 import { Route as SecretariaTabelasSemedRouteImport } from './routes/secretaria_.tabelas-semed'
 import { Route as SecretariaVagasRouteImport } from './routes/secretaria_.vagas'
 import { Route as SigemDesenvolvimentoHistoricoRouteImport } from './routes/sigem-desenvolvimento_.historico'
+import { Route as SigemDesenvolvimentoOperacaoRouteImport } from './routes/sigem-desenvolvimento_.operacao'
 import { Route as SigemPermanenciaOperacaoRouteImport } from './routes/sigem-permanencia_.operacao'
 import { Route as TecnologiaCadastrosRouteImport } from './routes/tecnologia.cadastros'
 import { Route as TecnologiaDecisoesRouteImport } from './routes/tecnologia.decisoes'
@@ -1088,6 +1089,12 @@ const SigemDesenvolvimentoHistoricoRoute =
     path: '/sigem-desenvolvimento/historico',
     getParentRoute: () => rootRouteImport,
   } as any)
+const SigemDesenvolvimentoOperacaoRoute =
+  SigemDesenvolvimentoOperacaoRouteImport.update({
+    id: '/sigem-desenvolvimento_/operacao',
+    path: '/sigem-desenvolvimento/operacao',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SigemPermanenciaOperacaoRoute =
   SigemPermanenciaOperacaoRouteImport.update({
     id: '/sigem-permanencia_/operacao',
@@ -1906,6 +1913,7 @@ export interface FileRoutesByFullPath {
   '/secretaria/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
   '/sigem-desenvolvimento/historico': typeof SigemDesenvolvimentoHistoricoRoute
+  '/sigem-desenvolvimento/operacao': typeof SigemDesenvolvimentoOperacaoRoute
   '/sigem-permanencia/operacao': typeof SigemPermanenciaOperacaoRoute
   '/tecnologia/cadastros': typeof TecnologiaCadastrosRoute
   '/tecnologia/decisoes': typeof TecnologiaDecisoesRoute
@@ -2167,6 +2175,7 @@ export interface FileRoutesByTo {
   '/secretaria/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria/vagas': typeof SecretariaVagasRoute
   '/sigem-desenvolvimento/historico': typeof SigemDesenvolvimentoHistoricoRoute
+  '/sigem-desenvolvimento/operacao': typeof SigemDesenvolvimentoOperacaoRoute
   '/sigem-permanencia/operacao': typeof SigemPermanenciaOperacaoRoute
   '/tecnologia/cadastros': typeof TecnologiaCadastrosRoute
   '/tecnologia/decisoes': typeof TecnologiaDecisoesRoute
@@ -2427,6 +2436,7 @@ export interface FileRoutesById {
   '/secretaria_/tabelas-semed': typeof SecretariaTabelasSemedRoute
   '/secretaria_/vagas': typeof SecretariaVagasRoute
   '/sigem-desenvolvimento_/historico': typeof SigemDesenvolvimentoHistoricoRoute
+  '/sigem-desenvolvimento_/operacao': typeof SigemDesenvolvimentoOperacaoRoute
   '/sigem-permanencia_/operacao': typeof SigemPermanenciaOperacaoRoute
   '/tecnologia/cadastros': typeof TecnologiaCadastrosRoute
   '/tecnologia/decisoes': typeof TecnologiaDecisoesRoute
@@ -2705,6 +2715,7 @@ export interface FileRouteTypes {
     | '/secretaria/tabelas-semed'
     | '/secretaria/vagas'
     | '/sigem-desenvolvimento/historico'
+    | '/sigem-desenvolvimento/operacao'
     | '/sigem-permanencia/operacao'
     | '/tecnologia/cadastros'
     | '/tecnologia/decisoes'
@@ -2966,6 +2977,7 @@ export interface FileRouteTypes {
     | '/secretaria/tabelas-semed'
     | '/secretaria/vagas'
     | '/sigem-desenvolvimento/historico'
+    | '/sigem-desenvolvimento/operacao'
     | '/sigem-permanencia/operacao'
     | '/tecnologia/cadastros'
     | '/tecnologia/decisoes'
@@ -3225,6 +3237,7 @@ export interface FileRouteTypes {
     | '/secretaria_/tabelas-semed'
     | '/secretaria_/vagas'
     | '/sigem-desenvolvimento_/historico'
+    | '/sigem-desenvolvimento_/operacao'
     | '/sigem-permanencia_/operacao'
     | '/tecnologia/cadastros'
     | '/tecnologia/decisoes'
@@ -3480,6 +3493,7 @@ export interface RootRouteChildren {
   SecretariaTabelasSemedRoute: typeof SecretariaTabelasSemedRoute
   SecretariaVagasRoute: typeof SecretariaVagasRoute
   SigemDesenvolvimentoHistoricoRoute: typeof SigemDesenvolvimentoHistoricoRoute
+  SigemDesenvolvimentoOperacaoRoute: typeof SigemDesenvolvimentoOperacaoRoute
   SigemPermanenciaOperacaoRoute: typeof SigemPermanenciaOperacaoRoute
   TecnologiaCadastrosRoute: typeof TecnologiaCadastrosRoute
   TecnologiaDecisoesRoute: typeof TecnologiaDecisoesRoute
@@ -4612,6 +4626,13 @@ declare module '@tanstack/react-router' {
       path: '/sigem-desenvolvimento/historico'
       fullPath: '/sigem-desenvolvimento/historico'
       preLoaderRoute: typeof SigemDesenvolvimentoHistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sigem-desenvolvimento_/operacao': {
+      id: '/sigem-desenvolvimento_/operacao'
+      path: '/sigem-desenvolvimento/operacao'
+      fullPath: '/sigem-desenvolvimento/operacao'
+      preLoaderRoute: typeof SigemDesenvolvimentoOperacaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sigem-permanencia_/operacao': {
@@ -6230,6 +6251,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecretariaTabelasSemedRoute: SecretariaTabelasSemedRoute,
   SecretariaVagasRoute: SecretariaVagasRoute,
   SigemDesenvolvimentoHistoricoRoute: SigemDesenvolvimentoHistoricoRoute,
+  SigemDesenvolvimentoOperacaoRoute: SigemDesenvolvimentoOperacaoRoute,
   SigemPermanenciaOperacaoRoute: SigemPermanenciaOperacaoRoute,
   TecnologiaCadastrosRoute: TecnologiaCadastrosRoute,
   TecnologiaDecisoesRoute: TecnologiaDecisoesRoute,

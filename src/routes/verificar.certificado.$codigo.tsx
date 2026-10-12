@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { PublicLayout } from "@/features/public-portal/public-layout";
-import { formatHours, verifyCertificate, type CertificateVerification } from "@/features/professional-development/certificates";
+import { certificatePdfOffered, formatHours, verifyCertificate, type CertificateVerification } from "@/features/professional-development/certificates";
 import { brand } from "@/config/branding";
 
 export const Route = createFileRoute("/verificar/certificado/$codigo")({
@@ -41,7 +41,7 @@ function VerifyCertificatePage() {
             <p>Curso: {r.course_title} · versão {r.version}</p>
             <p>Carga horária: {formatHours(r.hours_minutes)} · Período: {r.period_start} a {r.period_end}</p>
             <p>Instituição: {r.institution} · Emitido em {r.issued_on}</p>
-            <p className="break-all text-xs text-muted-foreground">Impressão digital do PDF: {r.pdf_sha256}</p>
+            <p className="break-all text-xs text-muted-foreground">{certificatePdfOffered(r.status) ? "Impressão digital do PDF válido" : "Impressão digital do PDF (não vale como certificado)"}: {r.pdf_sha256}</p>
             <p className="text-xs text-muted-foreground">Dados pessoais do titular nunca aparecem aqui.</p>
           </>}
         </div>

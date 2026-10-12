@@ -22,7 +22,7 @@ export interface OperationAction {
   /** Argumento de idempotência gerado pela tela (estável até a gravação aceita). */
   keyArg?: string;
   /** Argumentos fixos declarados pela especificação (não editáveis na tela). */
-  fixed?: Readonly<Record<string, string | number | boolean>>;
+  fixed?: Readonly<Record<string, string | number | boolean | null>>;
 }
 export interface OperationRead {
   label: string;
