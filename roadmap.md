@@ -666,8 +666,8 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] L31 homologação técnica integral
 
 ## Lotes corretivos 32–36 (2026-10-12)
-- [ ] L32 importação oficial de servidores e vínculos
-- [ ] L33 infraestrutura, jornadas e reconciliação escolar
-- [ ] L34 identidades técnicas e testes autenticados
-- [ ] L35 validação operacional dos perfis
-- [ ] L36 parâmetros institucionais e encerramento operacional
+- [x] L32 importação oficial de servidores e vínculos
+- [x] L33 infraestrutura, jornadas e reconciliação escolar
+- [x] L34 identidades técnicas e testes autenticados
+- [x] L35 validação operacional dos perfis
+- [x] L36 parâmetros institucionais e encerramento operacional
