@@ -22,6 +22,10 @@ export async function locateStudentForGuardian(school: string, kind: "cpf" | "in
   return r[0] ?? { outcome: "nao-encontrado", student_id: null, display_name: null };
 }
 export const recordAuthorization = (a: { base: string | null; kind: "constituicao" | "substituicao" | "revogacao"; student: string | null; person: string | null; school: string | null;
-  sections: string[] | null; validFrom: string | null; validUntil: string | null; reason: string | null }) =>
-  call<string>("record_guardian_authorization_v3", { _base_id: a.base, _kind: a.kind, _student: a.student, _guardian_person: a.person, _school: a.school,
-    _relation_scheme: null, _relation_value: null, _sections: a.sections, _valid_from: a.validFrom, _valid_until: a.validUntil || null, _reason: a.reason, _source_ref: null });
+  sections: string[] | null; validFrom: string | null; validUntil: string | null; reason: string | null;
+  linkType?: string | null; restrictions?: string[] | null; sourceRef?: string | null }) =>
+  call<string>("record_guardian_authorization_v4", { _base_id: a.base, _kind: a.kind, _student: a.student, _guardian_person: a.person, _school: a.school,
+    _relation_scheme: null, _relation_value: null, _sections: a.sections, _valid_from: a.validFrom, _valid_until: a.validUntil || null, _reason: a.reason,
+    _source_ref: a.sourceRef || null, _link_type: a.linkType ?? null, _restrictions: a.restrictions ?? [] });
+export type QualificationRow = { authorization_id: string; link_type: "legal" | "cadastrado" | "autorizado"; restrictions: string[]; recorded_by: string; recorded_at: string };
+export const readQualifications = (school: string, student: string) => call<QualificationRow[]>("guardian_link_qualifications_at", { _school: school, _student: student });
