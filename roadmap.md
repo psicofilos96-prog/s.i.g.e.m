@@ -656,11 +656,11 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 
 ## Lotes corretivos 23–31 (2026-10-12)
 - [x] L23 auditoria histórica integral + matriz única de pendências
-- [ ] L24 reconciliação banco × migrations
-- [ ] L25 reconciliação Censo 2026 (55 escolas)
-- [ ] L26 matrículas, vagas e vida escolar
-- [ ] L27 gestão de pessoas, lotação e atribuição
-- [ ] L28 perfis Docente e Mediador
-- [ ] L29 NEI/AEE e portal da Família
-- [ ] L30 relatórios oficiais e indicadores
-- [ ] L31 homologação técnica integral
+- [x] L24 reconciliação banco × migrations
+- [x] L25 reconciliação Censo 2026 (55 escolas)
+- [x] L26 matrículas, vagas e vida escolar
+- [x] L27 gestão de pessoas, lotação e atribuição
+- [x] L28 perfis Docente e Mediador
+- [x] L29 NEI/AEE e portal da Família
+- [x] L30 relatórios oficiais e indicadores
+- [x] L31 homologação técnica integral
