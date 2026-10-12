@@ -666,8 +666,9 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] L31 homologação técnica integral
 
 ## Lotes corretivos 32–36 (2026-10-12)
-- [x] L32 importação oficial de servidores e vínculos
-- [x] L33 infraestrutura, jornadas e reconciliação escolar
-- [x] L34 identidades técnicas e testes autenticados
-- [x] L35 validação operacional dos perfis
-- [x] L36 parâmetros institucionais e encerramento operacional
+- [ ] L32 importação de servidores — BLOQUEADO (fonte DP sem matrícula↔pessoa; 0 importados; spec do arquivo em docs/lote-37)
+- [x] L33 infraestrutura — dado oficial INEP já importado (2.970/55 escolas), mapeado no L37; jornadas BLOQUEADO (sem fonte)
+- [x] L34 identidades técnicas — harnesses reexecutados no L37, resíduo 0; navegador logado BLOQUEADO (sem sessão)
+- [ ] L35 validação dos perfis — PARCIAL (só negativos; positivos bloqueados por titulares/dados)
+- [ ] L36 parâmetros — AGUARDANDO DECISÃO HUMANA (consolidação feita, nenhum valor definido)
+- [x] L37 saneamento: índice, matriz, testes reexecutados, mapa de infraestrutura
