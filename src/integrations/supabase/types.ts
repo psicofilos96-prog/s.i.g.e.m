@@ -35875,6 +35875,77 @@ export type Database = {
           },
         ]
       }
+      tech_parameter_approvals: {
+        Row: {
+          created_at: string
+          decision: string
+          parameter_version_id: string
+          person_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          parameter_version_id: string
+          person_id: string
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          parameter_version_id?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_parameter_approvals_parameter_version_id_fkey"
+            columns: ["parameter_version_id"]
+            isOneToOne: true
+            referencedRelation: "tech_parameter_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_parameter_versions: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          parameter_key: string
+          person_id: string
+          reason: string | null
+          scope_note: string | null
+          source: string
+          unit: string
+          value_int: number
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          parameter_key: string
+          person_id: string
+          reason?: string | null
+          scope_note?: string | null
+          source: string
+          unit: string
+          value_int: number
+          version: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          parameter_key?: string
+          person_id?: string
+          reason?: string | null
+          scope_note?: string | null
+          source?: string
+          unit?: string
+          value_int?: number
+          version?: number
+        }
+        Relationships: []
+      }
       tech_pedagogical_evaluations: {
         Row: {
           created_at: string
@@ -38667,6 +38738,10 @@ export type Database = {
         Returns: undefined
       }
       approve_tech_lab_designation: { Args: { _d: string }; Returns: undefined }
+      approve_tech_parameter: {
+        Args: { _decision: string; _version: string }
+        Returns: undefined
+      }
       approve_tech_pedagogical_rubric: {
         Args: { _rubric: string }
         Returns: undefined
@@ -48525,6 +48600,18 @@ export type Database = {
           _seats: number
           _service: string
           _until: string
+        }
+        Returns: number
+      }
+      record_tech_parameter: {
+        Args: {
+          _expected: number
+          _key: string
+          _parameter: string
+          _reason: string
+          _scope_note: string
+          _source: string
+          _value: number
         }
         Returns: number
       }

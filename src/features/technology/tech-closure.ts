@@ -54,8 +54,13 @@ export const NOT_PERFORMED = [
   "atribuição de capabilities",
 ] as const;
 
-export interface SpecMatrix { sections: number; criteria: number; mapped: false; reason: string }
-export const SPEC_MATRIX: SpecMatrix = { sections: SPEC_STATUS.sectionsExpected, criteria: SPEC_STATUS.criteriaExpected, mapped: false, reason: SPEC_STATUS.note };
+export interface SpecMatrix { sections: number; criteria: number; mapped: false; reason: string; searched: readonly string[] }
+export const SPEC_MATRIX: SpecMatrix = { sections: SPEC_STATUS.sectionsExpected, criteria: SPEC_STATUS.criteriaExpected, mapped: false, reason: SPEC_STATUS.note,
+  // Lote corretivo 13: procurado em docs/, src/, arquivos enviados (só dossiê de Alimentação) e histórico do chat (só citações ao documento).
+  searched: ["docs/", "src/", "arquivos enviados ao projeto", "histórico de mensagens"] };
+
+/** Decisões institucionais registráveis em `/tecnologia/decisoes` (tech-decisions.ts); nenhuma aprovada. */
+export const PENDING_DECISIONS = 7;
 
 export function closureProblems(exists: (p: string) => boolean, migrationExists: (prefix: string) => boolean): string[] {
   const out: string[] = [];

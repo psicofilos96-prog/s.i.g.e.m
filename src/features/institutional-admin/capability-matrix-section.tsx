@@ -33,7 +33,7 @@ export function CapabilityMatrixSection({ rules, policyVersion, engagements, end
       </div>
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">
-          <thead className="bg-muted/40 text-left"><tr><th className="p-2">Capacidade</th><th className="p-2">Módulo</th><th className="p-2">Escopo exigido</th><th className="p-2">Tipos de atuação na política</th><th className="p-2">Situação</th></tr></thead>
+          <thead className="bg-muted/40 text-left"><tr><th scope="col" className="p-2">Capacidade</th><th scope="col" className="p-2">Módulo</th><th scope="col" className="p-2">Escopo exigido</th><th scope="col" className="p-2">Tipos de atuação na política</th><th scope="col" className="p-2">Situação</th></tr></thead>
           <tbody>
             {shown.map((r) => (
               <tr key={r.id} className="border-t border-border align-top">
