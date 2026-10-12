@@ -1,0 +1,612 @@
+[
+ {
+  "sector": "Gestão de Pessoas",
+  "dirs": [
+   "src/features/professionals",
+   "src/features/staffing"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/conciliacao-pessoal.tsx",
+   "src/routes/departamento-pessoal.tsx",
+   "src/routes/gestao-de-pessoas.tsx",
+   "src/routes/pessoal-2026.tsx",
+   "src/routes/profissionais.$id.index.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.editar.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.editar.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.encerrar.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.funcoes.$atribuicaoId.index.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.funcoes.index.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.funcoes.nova.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.index.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId.editar.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.lotacoes.$lotacaoId.index.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.lotacoes.index.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.lotacoes.movimentar.tsx",
+   "src/routes/profissionais.$id.vinculos.$vinculoId.lotacoes.nova.tsx",
+   "src/routes/profissionais.$id.vinculos.novo.tsx",
+   "src/routes/profissionais.editar.$id.tsx",
+   "src/routes/profissionais.novo.tsx",
+   "src/routes/quadro-docente.tsx"
+  ],
+  "modules": 42,
+  "withTest": 33,
+  "withScreen": 16,
+  "withoutScreen": [
+   "src/features/professionals/administrative-acts.ts",
+   "src/features/professionals/assignment-board-model.ts",
+   "src/features/professionals/assignment-integration.ts",
+   "src/features/professionals/availability.ts",
+   "src/features/professionals/class-assignment-flow.ts",
+   "src/features/professionals/continuing-education.ts",
+   "src/features/professionals/coverage-map.ts",
+   "src/features/professionals/educacenso-professional-matching.ts",
+   "src/features/professionals/engagement-proposals.ts",
+   "src/features/professionals/functional-links.ts",
+   "src/features/professionals/functional-record.ts",
+   "src/features/professionals/leave-substitution.ts",
+   "src/features/professionals/movement-requests.ts",
+   "src/features/professionals/non-teaching-sizing.ts",
+   "src/features/professionals/offer-plan.ts",
+   "src/features/professionals/people-access.ts",
+   "src/features/professionals/people-audit.ts",
+   "src/features/professionals/people-closure.ts",
+   "src/features/professionals/people-reports.ts",
+   "src/features/professionals/placement-exercise.ts",
+   "src/features/professionals/role-catalog.ts",
+   "src/features/professionals/role-designations.ts",
+   "src/features/professionals/schedule-integrity.ts",
+   "src/features/professionals/staffing-simulator.ts",
+   "src/features/professionals/teacher-need-engine.ts",
+   "src/features/professionals/workload.ts"
+  ],
+  "withoutTest": [
+   "src/features/professionals/assignment-board-model.ts",
+   "src/features/professionals/assignment-draft.ts",
+   "src/features/professionals/functional-link-draft.ts",
+   "src/features/professionals/people-hub-source.ts",
+   "src/features/professionals/posting-draft.ts",
+   "src/features/professionals/professional-identity-draft.ts",
+   "src/features/professionals/professional-journey.ts",
+   "src/features/professionals/professionals-data.ts",
+   "src/features/staffing/staffing-source.ts"
+  ]
+ },
+ {
+  "sector": "Organização da Rede",
+  "dirs": [
+   "src/features/enrollments",
+   "src/features/offer-organization",
+   "src/features/units"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/matriculas.nova.tsx",
+   "src/routes/matriculas_.inscricoes.tsx",
+   "src/routes/matriculas_.operacao.tsx",
+   "src/routes/matriculas_.parametros.tsx",
+   "src/routes/organizacao-da-rede.tsx",
+   "src/routes/publico.acompanhar-inscricao.tsx",
+   "src/routes/publico.inscricao.$campanhaId.tsx",
+   "src/routes/publico.matriculas.tsx",
+   "src/routes/turmas.oferta.$id.tsx",
+   "src/routes/unidades.$id.tsx",
+   "src/routes/unidades.editar.$id.tsx",
+   "src/routes/unidades.index.tsx",
+   "src/routes/unidades.nova.tsx"
+  ],
+  "modules": 59,
+  "withTest": 52,
+  "withScreen": 22,
+  "withoutScreen": [
+   "src/features/enrollments/accessibility-planning.ts",
+   "src/features/enrollments/application-signals.ts",
+   "src/features/enrollments/assisted-attendance.ts",
+   "src/features/enrollments/campaign-cloud.ts",
+   "src/features/enrollments/capacity-model.ts",
+   "src/features/enrollments/class-planning.ts",
+   "src/features/enrollments/classification-run.ts",
+   "src/features/enrollments/distribution-engine.ts",
+   "src/features/enrollments/distribution-proposal.ts",
+   "src/features/enrollments/early-childhood.ts",
+   "src/features/enrollments/enrollment-campaigns.ts",
+   "src/features/enrollments/enrollment-ged.ts",
+   "src/features/enrollments/enrollment-reports.ts",
+   "src/features/enrollments/family-enrollment-portal.ts",
+   "src/features/enrollments/fundamental-eja.ts",
+   "src/features/enrollments/inclusion-support.ts",
+   "src/features/enrollments/ingress-boundaries.ts",
+   "src/features/enrollments/ingress-closure.ts",
+   "src/features/enrollments/ingress-dashboard.ts",
+   "src/features/enrollments/ingress-identity.ts",
+   "src/features/enrollments/ingress-portal-audit.ts",
+   "src/features/enrollments/network-enrollment-audit.ts",
+   "src/features/enrollments/network-simulator.ts",
+   "src/features/enrollments/official-confirmation.ts",
+   "src/features/enrollments/pre-registration.ts",
+   "src/features/enrollments/reservation-ledger.ts",
+   "src/features/enrollments/reservation-states.ts",
+   "src/features/enrollments/school-offer-lifecycle.ts",
+   "src/features/enrollments/seat-concurrency.ts",
+   "src/features/enrollments/staffing-bridge.ts",
+   "src/features/enrollments/student-reconciliation.ts",
+   "src/features/enrollments/temporal-allocation.ts",
+   "src/features/enrollments/transfer-flow.ts",
+   "src/features/enrollments/vacancy-board.ts",
+   "src/features/enrollments/vacancy-requests.ts",
+   "src/features/enrollments/waiting-list.ts",
+   "src/features/units/infrastructure-groups.ts"
+  ],
+  "withoutTest": [
+   "src/features/enrollments/enrollment-draft.ts",
+   "src/features/enrollments/enrollment-presentation.ts",
+   "src/features/enrollments/ingress-identity.ts",
+   "src/features/enrollments/ingress-public.ts",
+   "src/features/offer-organization/offer-source.ts",
+   "src/features/units/school-registry-source.ts",
+   "src/features/units/units-data.ts"
+  ]
+ },
+ {
+  "sector": "SIGEM Documentos",
+  "dirs": [
+   "src/features/document-management",
+   "src/features/document-studio",
+   "src/features/document-archive"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/acervo-documental.tsx",
+   "src/routes/central-de-documentos.tsx",
+   "src/routes/sigem-documentos.tsx",
+   "src/routes/verificar.ato.$codigo.tsx",
+   "src/routes/verificar.documento.$codigo.tsx"
+  ],
+  "modules": 21,
+  "withTest": 15,
+  "withScreen": 13,
+  "withoutScreen": [
+   "src/features/document-management/admin-case.ts",
+   "src/features/document-management/case-acts.ts",
+   "src/features/document-management/case-dispatch.ts",
+   "src/features/document-management/document-core.ts",
+   "src/features/document-management/document-numbering.ts",
+   "src/features/document-management/documents-audit.ts",
+   "src/features/document-management/protocol-registry.ts",
+   "src/features/document-studio/ged-core.ts"
+  ],
+  "withoutTest": [
+   "src/features/document-management/documents-closure.ts",
+   "src/features/document-management/documents-reports.ts",
+   "src/features/document-studio/acervo.ts",
+   "src/features/document-studio/base-templates.ts",
+   "src/features/document-studio/editor-draft.ts",
+   "src/features/document-studio/studio-logos.ts"
+  ]
+ },
+ {
+  "sector": "Permanência",
+  "dirs": [
+   "src/features/permanence"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/sigem-permanencia.tsx",
+   "src/routes/sigem-permanencia_.operacao.tsx"
+  ],
+  "modules": 26,
+  "withTest": 25,
+  "withScreen": 4,
+  "withoutScreen": [
+   "src/features/permanence/alert-center.ts",
+   "src/features/permanence/attendance-monitoring.ts",
+   "src/features/permanence/barrier-catalog.ts",
+   "src/features/permanence/case-agenda.ts",
+   "src/features/permanence/case-dossier.ts",
+   "src/features/permanence/family-contacts.ts",
+   "src/features/permanence/follow-up-flow.ts",
+   "src/features/permanence/guidance-bridge.ts",
+   "src/features/permanence/individual-plan.ts",
+   "src/features/permanence/legal-notifications.ts",
+   "src/features/permanence/national-bae.ts",
+   "src/features/permanence/permanence-audit.ts",
+   "src/features/permanence/permanence-cases.ts",
+   "src/features/permanence/permanence-closure.ts",
+   "src/features/permanence/permanence-executor.ts",
+   "src/features/permanence/post-return.ts",
+   "src/features/permanence/preventive-rules.ts",
+   "src/features/permanence/referrals.ts",
+   "src/features/permanence/school-return.ts",
+   "src/features/permanence/sector-integrations.ts",
+   "src/features/permanence/segment-profiles.ts",
+   "src/features/permanence/visits.ts"
+  ],
+  "withoutTest": [
+   "src/features/permanence/permanence-operations.gen.ts"
+  ]
+ },
+ {
+  "sector": "Centro de Operações",
+  "dirs": [
+   "src/features/operations-center",
+   "src/features/school-transport",
+   "src/features/school-assets"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/centro-de-operacoes.tsx",
+   "src/routes/centro-de-operacoes_.operacao.tsx",
+   "src/routes/transporte-escolar.tsx"
+  ],
+  "modules": 29,
+  "withTest": 26,
+  "withScreen": 4,
+  "withoutScreen": [
+   "src/features/operations-center/asset-disposals.ts",
+   "src/features/operations-center/asset-inventories.ts",
+   "src/features/operations-center/asset-transfers.ts",
+   "src/features/operations-center/fleet-contracts.ts",
+   "src/features/operations-center/infrastructure-spaces.ts",
+   "src/features/operations-center/inspections.ts",
+   "src/features/operations-center/maintenance-orders.ts",
+   "src/features/operations-center/operations-audit.ts",
+   "src/features/operations-center/operations-closure.ts",
+   "src/features/operations-center/operations-integrations.ts",
+   "src/features/operations-center/permanent-assets.ts",
+   "src/features/operations-center/preventive-maintenance.ts",
+   "src/features/operations-center/service-orders.ts",
+   "src/features/operations-center/shared-requests.ts",
+   "src/features/operations-center/supply-requisitions.ts",
+   "src/features/operations-center/supply-stock.ts",
+   "src/features/operations-center/supply-transactions.ts",
+   "src/features/operations-center/transport-crew.ts",
+   "src/features/operations-center/transport-eligibility.ts",
+   "src/features/operations-center/transport-routes.ts",
+   "src/features/operations-center/transport-trips.ts",
+   "src/features/operations-center/transport-vehicles.ts",
+   "src/features/operations-center/works-restrictions.ts",
+   "src/features/school-assets/asset-core.ts",
+   "src/features/school-transport/transport-fleet.ts"
+  ],
+  "withoutTest": [
+   "src/features/operations-center/operations-hub-model.ts",
+   "src/features/operations-center/operations-reports.ts",
+   "src/features/operations-center/ops-operations.gen.ts"
+  ]
+ },
+ {
+  "sector": "Desenvolvimento",
+  "dirs": [
+   "src/features/professional-development"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/sigem-desenvolvimento.tsx",
+   "src/routes/sigem-desenvolvimento_.historico.tsx",
+   "src/routes/verificar.certificado.$codigo.tsx"
+  ],
+  "modules": 24,
+  "withTest": 23,
+  "withScreen": 5,
+  "withoutScreen": [
+   "src/features/professional-development/annual-plan.ts",
+   "src/features/professional-development/competencies-idp.ts",
+   "src/features/professional-development/completion-engine.ts",
+   "src/features/professional-development/course-catalog.ts",
+   "src/features/professional-development/development-audit.ts",
+   "src/features/professional-development/development-closure.ts",
+   "src/features/professional-development/development-integrations.ts",
+   "src/features/professional-development/enrollment-flow.ts",
+   "src/features/professional-development/evaluation-impact.ts",
+   "src/features/professional-development/formation-attendance.ts",
+   "src/features/professional-development/formation-chain.ts",
+   "src/features/professional-development/formative-calendar.ts",
+   "src/features/professional-development/formative-classes.ts",
+   "src/features/professional-development/learning-environment.ts",
+   "src/features/professional-development/learning-results.ts",
+   "src/features/professional-development/needs-diagnosis.ts",
+   "src/features/professional-development/participants-trainers.ts",
+   "src/features/professional-development/role-tracks.ts",
+   "src/features/professional-development/tracks.ts"
+  ],
+  "withoutTest": [
+   "src/features/professional-development/development-hub-model.ts"
+  ]
+ },
+ {
+  "sector": "Docente",
+  "dirs": [
+   "src/features/diary",
+   "src/features/teacher-diary",
+   "src/features/teaching-planning",
+   "src/features/teacher-assessment"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/acompanhamento-diarios.tsx",
+   "src/routes/acompanhamento-planejamento.tsx",
+   "src/routes/avaliacoes-do-professor.tsx",
+   "src/routes/avaliacoes-do-professor_.cartao-resposta.tsx",
+   "src/routes/diario.aulas.tsx",
+   "src/routes/diario.chamada.$registroId.tsx",
+   "src/routes/diario.chamadas.tsx",
+   "src/routes/diario.documentos.tsx",
+   "src/routes/diario.frequencia.tsx",
+   "src/routes/diario.index.tsx",
+   "src/routes/diario.registrar.tsx",
+   "src/routes/diario.registros.$registroId.tsx",
+   "src/routes/diario.tsx",
+   "src/routes/diario.turmas.$turmaId.alunos.$alunoId.index.tsx",
+   "src/routes/diario.turmas.$turmaId.alunos.index.tsx",
+   "src/routes/diario.turmas.$turmaId.frequencia.fechamento.tsx",
+   "src/routes/diario.turmas.$turmaId.index.tsx",
+   "src/routes/diario.turmas.index.tsx",
+   "src/routes/diario_.folha-final.tsx",
+   "src/routes/diario_.livro.tsx",
+   "src/routes/diario_.regras-folha-final.tsx",
+   "src/routes/laboratorio.folha-final.tsx",
+   "src/routes/laboratorio.recuperacao.tsx",
+   "src/routes/meus-diarios.tsx",
+   "src/routes/planejamento.tsx",
+   "src/routes/quadro-permanente-op.tsx"
+  ],
+  "modules": 70,
+  "withTest": 35,
+  "withScreen": 38,
+  "withoutScreen": [
+   "src/features/diary/attendance-correction.ts",
+   "src/features/diary/attendance-temporal.ts",
+   "src/features/diary/bulletin.ts",
+   "src/features/diary/descriptive-report-cloud.ts",
+   "src/features/diary/diary-journey.ts",
+   "src/features/diary/diary-prints-cloud.ts",
+   "src/features/diary/diary-prints.ts",
+   "src/features/diary/infant-descriptive-report.ts",
+   "src/features/diary/infant-draft-cloud.ts",
+   "src/features/diary/lesson-central.ts",
+   "src/features/diary/lesson-correction.ts",
+   "src/features/diary/lesson-draft-cloud.ts",
+   "src/features/diary/lesson-occurrence.ts",
+   "src/features/diary/lesson-versions.ts",
+   "src/features/diary/network-model-rules.ts",
+   "src/features/diary/stage-engine.ts",
+   "src/features/diary/teacher-agenda.ts",
+   "src/features/teacher-diary/activities-materials.ts",
+   "src/features/teacher-diary/inclusion-teacher-view.ts",
+   "src/features/teacher-diary/infant-portfolio.ts",
+   "src/features/teacher-diary/learning-record.ts",
+   "src/features/teacher-diary/segment-profile.ts",
+   "src/features/teacher-diary/teacher-agenda.ts",
+   "src/features/teacher-diary/teacher-architecture.ts",
+   "src/features/teacher-diary/teacher-context.ts",
+   "src/features/teacher-diary/teacher-grades.ts",
+   "src/features/teacher-diary/teacher-history-closing.ts",
+   "src/features/teacher-diary/teacher-reports.ts",
+   "src/features/teacher-diary/teacher-requests.ts",
+   "src/features/teacher-diary/teacher-security.ts",
+   "src/features/teacher-diary/teaching-support.ts",
+   "src/features/teaching-planning/plan-editor-model.ts"
+  ],
+  "withoutTest": [
+   "src/features/diary/attendance-closing-fixtures.ts",
+   "src/features/diary/attendance-closing-store.ts",
+   "src/features/diary/attendance-closing-types.ts",
+   "src/features/diary/attendance-cycle-consolidation.ts",
+   "src/features/diary/attendance-formula-fixtures.ts",
+   "src/features/diary/attendance-scope-dimensions.ts",
+   "src/features/diary/attendance.ts",
+   "src/features/diary/bulletin.ts",
+   "src/features/diary/descriptive-report-cloud.ts",
+   "src/features/diary/diary-calendar.ts",
+   "src/features/diary/diary-cloud.ts",
+   "src/features/diary/diary-data.ts",
+   "src/features/diary/diary-journey-hooks.ts",
+   "src/features/diary/diary-journey.ts",
+   "src/features/diary/diary-persistence-mode.ts",
+   "src/features/diary/diary-prints-cloud.ts",
+   "src/features/diary/diary-prints.ts",
+   "src/features/diary/diary-session-state.ts",
+   "src/features/diary/family-books/book-cloud.ts",
+   "src/features/diary/family-books/families.ts",
+   "src/features/diary/infant-draft-cloud.ts",
+   "src/features/diary/infant-experiences.ts",
+   "src/features/diary/institutional-teaching.ts",
+   "src/features/diary/lesson-correction-config.ts",
+   "src/features/diary/lesson-draft-cloud.ts",
+   "src/features/diary/lesson-records.ts",
+   "src/features/diary/lesson-versions.ts",
+   "src/features/diary/stage-engine.ts",
+   "src/features/teacher-assessment/authoring-model.ts",
+   "src/features/teacher-assessment/authoring-source.ts",
+   "src/features/teacher-assessment/variant-key.ts",
+   "src/features/teacher-diary/teaching-support.ts",
+   "src/features/teaching-planning/planning-model.ts",
+   "src/features/teaching-planning/planning-source.ts",
+   "src/features/teaching-planning/sipe-defaults.ts"
+  ]
+ },
+ {
+  "sector": "Mediador",
+  "dirs": [
+   "src/features/school-mediator"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/mediador.tsx",
+   "src/routes/mediador_.acompanhamento.$studentId.tsx"
+  ],
+  "modules": 19,
+  "withTest": 19,
+  "withScreen": 2,
+  "withoutScreen": [
+   "src/features/school-mediator/mediator-acceptance.ts",
+   "src/features/school-mediator/mediator-access-policy.ts",
+   "src/features/school-mediator/mediator-architecture.ts",
+   "src/features/school-mediator/mediator-automation.ts",
+   "src/features/school-mediator/mediator-communication.ts",
+   "src/features/school-mediator/mediator-daily-record.ts",
+   "src/features/school-mediator/mediator-designations.ts",
+   "src/features/school-mediator/mediator-guidance-flow.ts",
+   "src/features/school-mediator/mediator-history-integration.ts",
+   "src/features/school-mediator/mediator-occurrences.ts",
+   "src/features/school-mediator/mediator-participation.ts",
+   "src/features/school-mediator/mediator-reports.ts",
+   "src/features/school-mediator/mediator-requests.ts",
+   "src/features/school-mediator/mediator-student-file.ts",
+   "src/features/school-mediator/mediator-support-categories.ts",
+   "src/features/school-mediator/mediator-support-plan.ts",
+   "src/features/school-mediator/mediator-timeline.ts"
+  ],
+  "withoutTest": []
+ },
+ {
+  "sector": "NEI",
+  "dirs": [
+   "src/features/inclusion"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/inclusao.tsx",
+   "src/routes/inclusao_.nei.tsx",
+   "src/routes/inclusao_.nei_.aee.tsx",
+   "src/routes/inclusao_.nei_.agenda.tsx",
+   "src/routes/inclusao_.nei_.apoio.tsx",
+   "src/routes/inclusao_.nei_.ficha.tsx",
+   "src/routes/inclusao_.nei_.indicadores.tsx",
+   "src/routes/inclusao_.nei_.protocolos.tsx"
+  ],
+  "modules": 12,
+  "withTest": 9,
+  "withScreen": 9,
+  "withoutScreen": [
+   "src/features/inclusion/aee-model.ts",
+   "src/features/inclusion/nei-operational.ts",
+   "src/features/inclusion/term-review-queue.ts"
+  ],
+  "withoutTest": [
+   "src/features/inclusion/aee-model.ts",
+   "src/features/inclusion/inclusion-attachments.functions.ts",
+   "src/features/inclusion/inclusion-model.ts"
+  ]
+ },
+ {
+  "sector": "Secretaria",
+  "dirs": [
+   "src/features/school-secretariat",
+   "src/features/transfers"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/matriculas.nova.tsx",
+   "src/routes/secretaria.tsx",
+   "src/routes/secretaria_.livro-matricula.tsx",
+   "src/routes/secretaria_.servicos.tsx",
+   "src/routes/secretaria_.tabelas-semed.tsx",
+   "src/routes/secretaria_.vagas.tsx",
+   "src/routes/transferencias.nova.tsx"
+  ],
+  "modules": 37,
+  "withTest": 31,
+  "withScreen": 15,
+  "withoutScreen": [
+   "src/features/school-secretariat/academic-panel.ts",
+   "src/features/school-secretariat/admin-agenda.ts",
+   "src/features/school-secretariat/admin-operations.ts",
+   "src/features/school-secretariat/class-allocation-flow.ts",
+   "src/features/school-secretariat/document-checklist.ts",
+   "src/features/school-secretariat/document-pendencies.ts",
+   "src/features/school-secretariat/document-readiness.ts",
+   "src/features/school-secretariat/enrollment-flow.ts",
+   "src/features/school-secretariat/family-requests.ts",
+   "src/features/school-secretariat/legacy-templates.ts",
+   "src/features/school-secretariat/movement-flow.ts",
+   "src/features/school-secretariat/registry-books.ts",
+   "src/features/school-secretariat/school-documents.ts",
+   "src/features/school-secretariat/school-life-record.ts",
+   "src/features/school-secretariat/secretariat-competences.ts",
+   "src/features/school-secretariat/secretariat-l8-l12.ts",
+   "src/features/school-secretariat/semed-tables/reconciliation-model.ts",
+   "src/features/school-secretariat/semed-tables/t04-distortion.ts",
+   "src/features/school-secretariat/semed-tables/t06-movement.ts",
+   "src/features/school-secretariat/service-desk.ts",
+   "src/features/school-secretariat/vacancy-center.ts",
+   "src/features/school-secretariat/year-closing-wizard.ts"
+  ],
+  "withoutTest": [
+   "src/features/school-secretariat/enrollment-wizard-source.ts",
+   "src/features/school-secretariat/secretariat-source.ts",
+   "src/features/school-secretariat/semed-tables/semed-export.ts",
+   "src/features/school-secretariat/vacancies-book-source.ts",
+   "src/features/transfers/transfer-draft.ts",
+   "src/features/transfers/transfer-presentation.ts"
+  ]
+ },
+ {
+  "sector": "Direção",
+  "dirs": [
+   "src/features/school-leadership",
+   "src/features/institutional-decisions"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/direcao.tsx"
+  ],
+  "modules": 6,
+  "withTest": 2,
+  "withScreen": 4,
+  "withoutScreen": [
+   "src/features/institutional-decisions/decision-types.ts",
+   "src/features/school-leadership/leadership-access.ts"
+  ],
+  "withoutTest": [
+   "src/features/institutional-decisions/decision-engine.ts",
+   "src/features/institutional-decisions/decision-fixtures.ts",
+   "src/features/institutional-decisions/decision-types.ts",
+   "src/features/school-leadership/leadership-workspace.ts"
+  ]
+ },
+ {
+  "sector": "Família",
+  "dirs": [
+   "src/features/family-portal",
+   "src/features/communication"
+  ],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/alimentacao-escolar_.saude-declarada.tsx",
+   "src/routes/autorizacoes-familia.tsx",
+   "src/routes/carteirinhas.tsx",
+   "src/routes/comunicacao-escolar.tsx",
+   "src/routes/familia.tsx",
+   "src/routes/verificar.carteirinha.$codigo.tsx"
+  ],
+  "modules": 22,
+  "withTest": 9,
+  "withScreen": 14,
+  "withoutScreen": [
+   "src/features/communication/family-messaging.ts",
+   "src/features/family-portal/card-verification.ts",
+   "src/features/family-portal/family-academics.ts",
+   "src/features/family-portal/family-access.ts",
+   "src/features/family-portal/family-audit.ts",
+   "src/features/family-portal/family-schemas.ts",
+   "src/features/family-portal/family-services.ts",
+   "src/features/family-portal/photo-crop.ts"
+  ],
+  "withoutTest": [
+   "src/features/communication/communication-model.ts",
+   "src/features/family-portal/card-issuance-source.ts",
+   "src/features/family-portal/card-layout.ts",
+   "src/features/family-portal/family-academics.ts",
+   "src/features/family-portal/family-access.ts",
+   "src/features/family-portal/family-health-source.ts",
+   "src/features/family-portal/family-health.ts",
+   "src/features/family-portal/family-schemas.ts",
+   "src/features/family-portal/family-services.ts",
+   "src/features/family-portal/family-source.ts",
+   "src/features/family-portal/guardian-admin-source.ts",
+   "src/features/family-portal/photo-crop.ts",
+   "src/features/family-portal/student-lookup.ts"
+  ]
+ }
+]
