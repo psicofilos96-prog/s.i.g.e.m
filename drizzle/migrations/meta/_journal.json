@@ -2731,6 +2731,13 @@
       "when": 1791789683786,
       "tag": "0389_doc08_safe_view_access",
       "breakpoints": true
+    },
+    {
+      "idx": 390,
+      "version": "7",
+      "when": 1791789890688,
+      "tag": "0390_doc09_unit_inbox",
+      "breakpoints": true
     }
   ]
 }

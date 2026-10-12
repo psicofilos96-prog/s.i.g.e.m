@@ -1055,6 +1055,13 @@ export type Database = {
             referencedRelation: "admin_case_dispatches"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "admin_case_dispatch_events_dispatch_id_fkey"
+            columns: ["dispatch_id"]
+            isOneToOne: false
+            referencedRelation: "admin_unit_inbox"
+            referencedColumns: ["dispatch_id"]
+          },
         ]
       }
       admin_case_dispatches: {
@@ -1204,6 +1211,54 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "protocol_registrations"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_case_inbox_acts: {
+        Row: {
+          act_type: string
+          author_person: string
+          created_at: string
+          dispatch_id: string
+          id: string
+          idempotency_key: string
+          task_id: string | null
+          text_body: string | null
+        }
+        Insert: {
+          act_type: string
+          author_person: string
+          created_at?: string
+          dispatch_id: string
+          id?: string
+          idempotency_key: string
+          task_id?: string | null
+          text_body?: string | null
+        }
+        Update: {
+          act_type?: string
+          author_person?: string
+          created_at?: string
+          dispatch_id?: string
+          id?: string
+          idempotency_key?: string
+          task_id?: string | null
+          text_body?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_inbox_acts_dispatch_id_fkey"
+            columns: ["dispatch_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_dispatches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_case_inbox_acts_dispatch_id_fkey"
+            columns: ["dispatch_id"]
+            isOneToOne: false
+            referencedRelation: "admin_unit_inbox"
+            referencedColumns: ["dispatch_id"]
           },
         ]
       }
@@ -24310,6 +24365,33 @@ export type Database = {
           },
         ]
       }
+      admin_unit_inbox: {
+        Row: {
+          case_id: string | null
+          case_number: string | null
+          dispatch_id: string | null
+          dispatch_seq: number | null
+          due_basis: string | null
+          due_on: string | null
+          from_unit_id: string | null
+          my_ciencia: boolean | null
+          responsible_engagement_id: string | null
+          sent_at: string | null
+          sent_by_person: string | null
+          settled_as: string | null
+          subject: string | null
+          to_unit_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_case_dispatches_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       aa_calendar_record_status: {
@@ -30991,6 +31073,16 @@ export type Database = {
           _row_id: string
         }
         Returns: Json
+      }
+      record_inbox_act: {
+        Args: {
+          _act_type: string
+          _dispatch_id: string
+          _idempotency_key: string
+          _task_id: string
+          _text_body: string
+        }
+        Returns: string
       }
       record_inclusion_clinical: {
         Args: {
