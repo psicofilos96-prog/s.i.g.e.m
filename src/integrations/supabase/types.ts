@@ -11394,6 +11394,158 @@ export type Database = {
           },
         ]
       }
+      dev_partner_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          partner_version_id: string
+          reason: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          partner_version_id: string
+          reason: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          partner_version_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_partner_approvals_partner_version_id_fkey"
+            columns: ["partner_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_partner_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_partner_course_links: {
+        Row: {
+          author_person: string
+          course_version_id: string
+          created_at: string
+          id: string
+          partner_version_id: string
+          role: string
+        }
+        Insert: {
+          author_person: string
+          course_version_id: string
+          created_at?: string
+          id?: string
+          partner_version_id: string
+          role: string
+        }
+        Update: {
+          author_person?: string
+          course_version_id?: string
+          created_at?: string
+          id?: string
+          partner_version_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_partner_course_links_course_version_id_fkey"
+            columns: ["course_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_course_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_partner_course_links_partner_version_id_fkey"
+            columns: ["partner_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_partner_approvals"
+            referencedColumns: ["partner_version_id"]
+          },
+        ]
+      }
+      dev_partner_versions: {
+        Row: {
+          agreement_document_ref: string | null
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          legal_name: string
+          nature: string
+          partner_id: string
+          reason: string | null
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          agreement_document_ref?: string | null
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          legal_name: string
+          nature: string
+          partner_id: string
+          reason?: string | null
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          agreement_document_ref?: string | null
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          legal_name?: string
+          nature?: string
+          partner_id?: string
+          reason?: string | null
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_partner_versions_agreement_document_ref_fkey"
+            columns: ["agreement_document_ref"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_partner_versions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "dev_partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_partners: {
+        Row: {
+          author_person: string
+          code: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          author_person: string
+          code: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          author_person?: string
+          code?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       dev_plan_contents: {
         Row: {
           academic_year_id: string
@@ -33610,6 +33762,10 @@ export type Database = {
         Args: { _reason: string; _version: string }
         Returns: undefined
       }
+      approve_dev_partner: {
+        Args: { _reason: string; _version: string }
+        Returns: undefined
+      }
       approve_dev_rubric: {
         Args: { _reason: string; _version: string }
         Returns: undefined
@@ -37389,6 +37545,14 @@ export type Database = {
         Args: { _competency_version: string; _course_version: string }
         Returns: string
       }
+      link_dev_partner_course: {
+        Args: {
+          _course_version: string
+          _partner_version: string
+          _role: string
+        }
+        Returns: string
+      }
       link_institutional_account: {
         Args: { _actor: string; _login: string; _person: string; _user: string }
         Returns: undefined
@@ -40450,6 +40614,20 @@ export type Database = {
           _pct: number
         }
         Returns: number
+      }
+      record_dev_partner_version: {
+        Args: {
+          _agreement: string
+          _code: string
+          _expected_version: number
+          _from: string
+          _key: string
+          _name: string
+          _nature: string
+          _reason: string
+          _until: string
+        }
+        Returns: string
       }
       record_dev_plan_content: {
         Args: {

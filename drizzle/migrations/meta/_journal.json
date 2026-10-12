@@ -3172,6 +3172,13 @@
       "when": 1791805058087,
       "tag": "0452_dev21_role_tracks",
       "breakpoints": true
+    },
+    {
+      "idx": 453,
+      "version": "7",
+      "when": 1791805296888,
+      "tag": "0453_dev22_partners_integration",
+      "breakpoints": true
     }
   ]
 }
