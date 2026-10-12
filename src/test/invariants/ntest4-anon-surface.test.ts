@@ -15,6 +15,7 @@ const ACCEPTED_ANON_FUNCTIONS = new Set([
   "verify_student_card_v2",
   "verify_studio_document",
   "verify_report_emission",
+  "verify_admin_act_signature", // 0392: código opaco, resposta mínima, conteúdo nunca exposto
 ]);
 
 describe("NTEST.4 superfície anon", () => {
