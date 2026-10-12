@@ -90,6 +90,7 @@ import { Route as RegrasInstitucionaisRouteImport } from './routes/regras-instit
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anomalias'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
+import { Route as SigemDocumentosRouteImport } from './routes/sigem-documentos'
 import { Route as SimuladorRouteImport } from './routes/simulador'
 import { Route as SugestoesDeHorarioRouteImport } from './routes/sugestoes-de-horario'
 import { Route as SupervisaoEscolarRouteImport } from './routes/supervisao-escolar'
@@ -195,6 +196,7 @@ import { Route as RegrasAvaliativasRegraIdEditarRouteImport } from './routes/reg
 import { Route as TurmasEditarIdRouteImport } from './routes/turmas.editar.$id'
 import { Route as TurmasOfertaIdRouteImport } from './routes/turmas.oferta.$id'
 import { Route as UnidadesEditarIdRouteImport } from './routes/unidades.editar.$id'
+import { Route as VerificarAtoCodigoRouteImport } from './routes/verificar.ato.$codigo'
 import { Route as VerificarCarteirinhaCodigoRouteImport } from './routes/verificar.carteirinha.$codigo'
 import { Route as VerificarDocumentoCodigoRouteImport } from './routes/verificar.documento.$codigo'
 import { Route as VerificarRelatorioCodigoRouteImport } from './routes/verificar.relatorio.$codigo'
@@ -667,6 +669,11 @@ const RevisaoDeAnomaliasRoute = RevisaoDeAnomaliasRouteImport.update({
 const SecretariaRoute = SecretariaRouteImport.update({
   id: '/secretaria',
   path: '/secretaria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigemDocumentosRoute = SigemDocumentosRouteImport.update({
+  id: '/sigem-documentos',
+  path: '/sigem-documentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SimuladorRoute = SimuladorRouteImport.update({
@@ -1217,6 +1224,11 @@ const UnidadesEditarIdRoute = UnidadesEditarIdRouteImport.update({
   path: '/editar/$id',
   getParentRoute: () => UnidadesRoute,
 } as any)
+const VerificarAtoCodigoRoute = VerificarAtoCodigoRouteImport.update({
+  id: '/verificar/ato/$codigo',
+  path: '/verificar/ato/$codigo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerificarCarteirinhaCodigoRoute =
   VerificarCarteirinhaCodigoRouteImport.update({
     id: '/verificar/carteirinha/$codigo',
@@ -1708,6 +1720,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-documentos': typeof SigemDocumentosRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
@@ -1807,6 +1820,7 @@ export interface FileRoutesByFullPath {
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
+  '/verificar/ato/$codigo': typeof VerificarAtoCodigoRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
@@ -1954,6 +1968,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-documentos': typeof SigemDocumentosRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
@@ -2042,6 +2057,7 @@ export interface FileRoutesByTo {
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
+  '/verificar/ato/$codigo': typeof VerificarAtoCodigoRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
@@ -2187,6 +2203,7 @@ export interface FileRoutesById {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-documentos': typeof SigemDocumentosRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
@@ -2286,6 +2303,7 @@ export interface FileRoutesById {
   '/turmas/editar/$id': typeof TurmasEditarIdRoute
   '/turmas/oferta/$id': typeof TurmasOfertaIdRoute
   '/unidades/editar/$id': typeof UnidadesEditarIdRoute
+  '/verificar/ato/$codigo': typeof VerificarAtoCodigoRoute
   '/verificar/carteirinha/$codigo': typeof VerificarCarteirinhaCodigoRoute
   '/verificar/documento/$codigo': typeof VerificarDocumentoCodigoRoute
   '/verificar/relatorio/$codigo': typeof VerificarRelatorioCodigoRoute
@@ -2444,6 +2462,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-documentos'
     | '/simulador'
     | '/sugestoes-de-horario'
     | '/supervisao-escolar'
@@ -2543,6 +2562,7 @@ export interface FileRouteTypes {
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
     | '/unidades/editar/$id'
+    | '/verificar/ato/$codigo'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/verificar/relatorio/$codigo'
@@ -2690,6 +2710,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-documentos'
     | '/simulador'
     | '/sugestoes-de-horario'
     | '/supervisao-escolar'
@@ -2778,6 +2799,7 @@ export interface FileRouteTypes {
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
     | '/unidades/editar/$id'
+    | '/verificar/ato/$codigo'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/verificar/relatorio/$codigo'
@@ -2922,6 +2944,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-documentos'
     | '/simulador'
     | '/sugestoes-de-horario'
     | '/supervisao-escolar'
@@ -3021,6 +3044,7 @@ export interface FileRouteTypes {
     | '/turmas/editar/$id'
     | '/turmas/oferta/$id'
     | '/unidades/editar/$id'
+    | '/verificar/ato/$codigo'
     | '/verificar/carteirinha/$codigo'
     | '/verificar/documento/$codigo'
     | '/verificar/relatorio/$codigo'
@@ -3178,6 +3202,7 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   RevisaoDeAnomaliasRoute: typeof RevisaoDeAnomaliasRoute
   SecretariaRoute: typeof SecretariaRoute
+  SigemDocumentosRoute: typeof SigemDocumentosRoute
   SimuladorRoute: typeof SimuladorRoute
   SugestoesDeHorarioRoute: typeof SugestoesDeHorarioRoute
   SupervisaoEscolarRoute: typeof SupervisaoEscolarRoute
@@ -3220,6 +3245,7 @@ export interface RootRouteChildren {
   InclusaoNeiIndicadoresRoute: typeof InclusaoNeiIndicadoresRoute
   InclusaoNeiProtocolosRoute: typeof InclusaoNeiProtocolosRoute
   MediadorAcompanhamentoStudentIdRoute: typeof MediadorAcompanhamentoStudentIdRoute
+  VerificarAtoCodigoRoute: typeof VerificarAtoCodigoRoute
   VerificarCarteirinhaCodigoRoute: typeof VerificarCarteirinhaCodigoRoute
   VerificarDocumentoCodigoRoute: typeof VerificarDocumentoCodigoRoute
   VerificarRelatorioCodigoRoute: typeof VerificarRelatorioCodigoRoute
@@ -3794,6 +3820,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria'
       fullPath: '/secretaria'
       preLoaderRoute: typeof SecretariaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sigem-documentos': {
+      id: '/sigem-documentos'
+      path: '/sigem-documentos'
+      fullPath: '/sigem-documentos'
+      preLoaderRoute: typeof SigemDocumentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/simulador': {
@@ -4530,6 +4563,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/unidades/editar/$id'
       preLoaderRoute: typeof UnidadesEditarIdRouteImport
       parentRoute: typeof UnidadesRoute
+    }
+    '/verificar/ato/$codigo': {
+      id: '/verificar/ato/$codigo'
+      path: '/verificar/ato/$codigo'
+      fullPath: '/verificar/ato/$codigo'
+      preLoaderRoute: typeof VerificarAtoCodigoRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/verificar/carteirinha/$codigo': {
       id: '/verificar/carteirinha/$codigo'
@@ -5759,6 +5799,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   RevisaoDeAnomaliasRoute: RevisaoDeAnomaliasRoute,
   SecretariaRoute: SecretariaRoute,
+  SigemDocumentosRoute: SigemDocumentosRoute,
   SimuladorRoute: SimuladorRoute,
   SugestoesDeHorarioRoute: SugestoesDeHorarioRoute,
   SupervisaoEscolarRoute: SupervisaoEscolarRoute,
@@ -5803,6 +5844,7 @@ const rootRouteChildren: RootRouteChildren = {
   InclusaoNeiIndicadoresRoute: InclusaoNeiIndicadoresRoute,
   InclusaoNeiProtocolosRoute: InclusaoNeiProtocolosRoute,
   MediadorAcompanhamentoStudentIdRoute: MediadorAcompanhamentoStudentIdRoute,
+  VerificarAtoCodigoRoute: VerificarAtoCodigoRoute,
   VerificarCarteirinhaCodigoRoute: VerificarCarteirinhaCodigoRoute,
   VerificarDocumentoCodigoRoute: VerificarDocumentoCodigoRoute,
   VerificarRelatorioCodigoRoute: VerificarRelatorioCodigoRoute,
