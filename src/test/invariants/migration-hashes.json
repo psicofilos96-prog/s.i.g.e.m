@@ -437,5 +437,6 @@
  "drizzle/migrations/0386_doc06_single_protocol.sql": "8af77f6f4fb6acad3daac33ac6d92d957ef827e400d632068987c513f9d157a0",
  "drizzle/migrations/0387_doc07_administrative_cases.sql": "02c3752501aa6b3dd47488a5d12a94fb4be2ca2d64070bcc3e1b115e9082f4f4",
  "drizzle/migrations/0388_doc08_case_dispatches.sql": "ec9c4b3f8aea03690830ea669e6982ad03598dd38a3ed55cc675f0f41876b21d",
- "drizzle/migrations/0389_doc08_safe_view_access.sql": "ac50a6cb3f9b890c0dda445677fe6ee83d17919b1d73db8f12bde968f3a078a5"
+ "drizzle/migrations/0389_doc08_safe_view_access.sql": "ac50a6cb3f9b890c0dda445677fe6ee83d17919b1d73db8f12bde968f3a078a5",
+ "drizzle/migrations/0390_doc09_unit_inbox.sql": "a0aed05ed181033e7bdf6360a9c664f8d1b70bb0277fb6fbeb765d874c0f08db"
 }
