@@ -2,7 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { analyzeNewClassFeasibility, familyNotice, SECTOR_LINKS } from "./operations-integrations";
 
-const ALL_SQL = readdirSync("drizzle/migrations").filter((f) => f.endsWith(".sql")).map((f) => readFileSync(`drizzle/migrations/${f}`, "utf8")).join("\n");
+const ALL_SQL = ["drizzle/migrations", "supabase/migrations"].flatMap((d) => readdirSync(d).filter((f) => f.endsWith(".sql")).map((f) => readFileSync(`${d}/${f}`, "utf8"))).join("\n");
 const SRC = readFileSync("src/features/operations-center/operations-integrations.ts", "utf8");
 
 describe("Centro de Operações L22 — integrações e viabilidade de nova turma", () => {
