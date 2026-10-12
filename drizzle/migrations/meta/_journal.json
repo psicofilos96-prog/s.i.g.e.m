@@ -2983,6 +2983,13 @@
       "when": 1791798720025,
       "tag": "0425_ops18_transport_vehicles",
       "breakpoints": true
+    },
+    {
+      "idx": 426,
+      "version": "7",
+      "when": 1791798766359,
+      "tag": "0426_ops18_vehicles_hide_doc_refs",
+      "breakpoints": true
     }
   ]
 }
