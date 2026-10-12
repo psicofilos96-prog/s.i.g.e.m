@@ -1,0 +1,3 @@
+## SIGEM Documentos — Gestão Documental e Protocolo (`src/features/document-management/`)
+- L01 (`documents-audit.ts`): 41 seções + 20 critérios apontam só para estruturas já existentes (Studio/GED, DocServ, Tramitação, emissões, base de conhecimento); teste recusa migration que crie tabela concorrente de documento/protocolo/processo e exige que toda tabela citada nasça em migration, porque GED paralelo criaria segunda verdade documental.
+- Integração com sistema oficial municipal nunca é presumida: `EXTERNAL_OFFICIAL_SYSTEMS.found` fica vazio até haver sistema, contrato e decisão da autoridade competente.
