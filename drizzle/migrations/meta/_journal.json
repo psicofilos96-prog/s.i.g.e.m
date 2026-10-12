@@ -3011,6 +3011,13 @@
       "when": 1791799309614,
       "tag": "0429_ops21_fleet_contracts_costs",
       "breakpoints": true
+    },
+    {
+      "idx": 430,
+      "version": "7",
+      "when": 1791800018397,
+      "tag": "0430_ops24_revoke_anon_helpers",
+      "breakpoints": true
     }
   ]
 }
