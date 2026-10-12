@@ -17907,6 +17907,197 @@ export type Database = {
           },
         ]
       }
+      ops_space_type_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          decision_ref: string
+          type_version_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          decision_ref: string
+          type_version_id: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          decision_ref?: string
+          type_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_space_type_approvals_type_version_id_fkey"
+            columns: ["type_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_space_type_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_space_type_versions: {
+        Row: {
+          accessibility_features: string[]
+          allowed_conditions: string[]
+          author_person: string
+          capacity_unit: string | null
+          created_at: string
+          id: string
+          label: string
+          level: string
+          reason: string | null
+          type_key: string
+          version: number
+        }
+        Insert: {
+          accessibility_features?: string[]
+          allowed_conditions?: string[]
+          author_person: string
+          capacity_unit?: string | null
+          created_at?: string
+          id?: string
+          label: string
+          level: string
+          reason?: string | null
+          type_key: string
+          version: number
+        }
+        Update: {
+          accessibility_features?: string[]
+          allowed_conditions?: string[]
+          author_person?: string
+          capacity_unit?: string | null
+          created_at?: string
+          id?: string
+          label?: string
+          level?: string
+          reason?: string | null
+          type_key?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      ops_space_versions: {
+        Row: {
+          accessibility: string[]
+          author_person: string
+          capacity: number | null
+          capacity_source: string | null
+          condition: string | null
+          condition_assessed_on: string | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          name: string
+          reason: string | null
+          restrictions: string | null
+          space_id: string
+          status: string
+          type_version_id: string
+          valid_from: string
+          version: number
+        }
+        Insert: {
+          accessibility?: string[]
+          author_person: string
+          capacity?: number | null
+          capacity_source?: string | null
+          condition?: string | null
+          condition_assessed_on?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          name: string
+          reason?: string | null
+          restrictions?: string | null
+          space_id: string
+          status?: string
+          type_version_id: string
+          valid_from: string
+          version: number
+        }
+        Update: {
+          accessibility?: string[]
+          author_person?: string
+          capacity?: number | null
+          capacity_source?: string | null
+          condition?: string | null
+          condition_assessed_on?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          name?: string
+          reason?: string | null
+          restrictions?: string | null
+          space_id?: string
+          status?: string
+          type_version_id?: string
+          valid_from?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_space_versions_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_space_versions_type_version_id_fkey"
+            columns: ["type_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_space_type_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_spaces: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          level: string
+          parent_id: string | null
+          school_id: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          level: string
+          parent_id?: string | null
+          school_id: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          level?: string
+          parent_id?: string | null
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_spaces_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_spaces_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_disclosure_versions: {
         Row: {
           author_engagement: string
@@ -26281,6 +26472,10 @@ export type Database = {
         }
         Returns: string
       }
+      approve_ops_space_type_version: {
+        Args: { _decision_ref: string; _type_version: string }
+        Returns: undefined
+      }
       approve_permanence_barrier_type: {
         Args: { _decision: string; _type: string }
         Returns: string
@@ -31285,6 +31480,8 @@ export type Database = {
         Args: { _school: string; _sector: string }
         Returns: boolean
       }
+      ops_space_parent_level: { Args: { _level: string }; Returns: string }
+      ops_space_type_usable: { Args: { _tv: string }; Returns: boolean }
       own_engagement_network_now: { Args: never; Returns: boolean }
       own_engagement_schools_now: { Args: never; Returns: string[] }
       password_change_required: { Args: never; Returns: boolean }
@@ -33479,6 +33676,25 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_space_version: {
+        Args: {
+          _accessibility: string[]
+          _assessed_on: string
+          _capacity: number
+          _capacity_source: string
+          _condition: string
+          _expected_version: number
+          _key: string
+          _name: string
+          _reason: string
+          _restrictions: string
+          _space: string
+          _status: string
+          _type_version: string
+          _valid_from: string
+        }
+        Returns: number
+      }
       record_out_of_school_event: {
         Args: {
           _enrollment_ref: string
@@ -34455,6 +34671,23 @@ export type Database = {
       }
       register_operational_task_priority: {
         Args: { _id: string; _label: string; _ordinal: number }
+        Returns: string
+      }
+      register_ops_space: {
+        Args: { _key: string; _level: string; _parent: string; _school: string }
+        Returns: string
+      }
+      register_ops_space_type_version: {
+        Args: {
+          _capacity_unit: string
+          _conditions: string[]
+          _expected_version: number
+          _features: string[]
+          _key: string
+          _label: string
+          _level: string
+          _reason: string
+        }
         Returns: string
       }
       register_out_of_school_signal: {
