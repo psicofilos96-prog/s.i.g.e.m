@@ -34314,6 +34314,125 @@ export type Database = {
           },
         ]
       }
+      tech_ticket_category_approvals: {
+        Row: {
+          category_version_id: string
+          created_at: string
+          decision: string
+          person_id: string
+        }
+        Insert: {
+          category_version_id: string
+          created_at?: string
+          decision: string
+          person_id: string
+        }
+        Update: {
+          category_version_id?: string
+          created_at?: string
+          decision?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_ticket_category_approvals_category_version_id_fkey"
+            columns: ["category_version_id"]
+            isOneToOne: true
+            referencedRelation: "tech_ticket_category_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_ticket_category_versions: {
+        Row: {
+          category_key: string
+          created_at: string
+          fields: Json
+          id: string
+          idempotency_key: string
+          label: string
+          person_id: string
+          reason: string | null
+          requires_attachment: boolean
+          version: number
+        }
+        Insert: {
+          category_key: string
+          created_at?: string
+          fields: Json
+          id?: string
+          idempotency_key: string
+          label: string
+          person_id: string
+          reason?: string | null
+          requires_attachment?: boolean
+          version: number
+        }
+        Update: {
+          category_key?: string
+          created_at?: string
+          fields?: Json
+          id?: string
+          idempotency_key?: string
+          label?: string
+          person_id?: string
+          reason?: string | null
+          requires_attachment?: boolean
+          version?: number
+        }
+        Relationships: []
+      }
+      tech_ticket_classifications: {
+        Row: {
+          answers: Json
+          category_version_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          reason: string | null
+          request_id: string
+          seq: number
+        }
+        Insert: {
+          answers: Json
+          category_version_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          reason?: string | null
+          request_id: string
+          seq: number
+        }
+        Update: {
+          answers?: Json
+          category_version_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          reason?: string | null
+          request_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_ticket_classifications_category_version_id_fkey"
+            columns: ["category_version_id"]
+            isOneToOne: false
+            referencedRelation: "tech_ticket_category_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_ticket_classifications_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_ticket_records: {
         Row: {
           created_at: string
@@ -35825,6 +35944,10 @@ export type Database = {
           _role: string
         }
         Returns: string
+      }
+      approve_tech_ticket_category: {
+        Args: { _decision: string; _version: string }
+        Returns: undefined
       }
       assess_dev_completion: { Args: { _enrollment: string }; Returns: string }
       assess_ops_stop_safety: {
@@ -45439,6 +45562,17 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_ticket_category: {
+        Args: {
+          _fields: Json
+          _key: string
+          _key_cat: string
+          _label: string
+          _reason: string
+          _requires_attachment: boolean
+        }
+        Returns: number
+      }
       record_visit_version: {
         Args: {
           _act_ref: string
@@ -47557,8 +47691,21 @@ export type Database = {
           version_id: string
         }[]
       }
+      tech_answers_problem: { Args: { _a: Json; _f: Json }; Returns: string }
       tech_can_manage: { Args: { _school: string }; Returns: boolean }
       tech_can_read: { Args: { _school: string }; Returns: boolean }
+      tech_classify_ticket: {
+        Args: {
+          _answers: Json
+          _category_version: string
+          _expected_seq: number
+          _key: string
+          _reason: string
+          _request: string
+        }
+        Returns: number
+      }
+      tech_fields_valid: { Args: { _f: Json }; Returns: boolean }
       tech_next_code: { Args: { _prefix: string }; Returns: string }
       tech_open_problem: {
         Args: { _key: string; _school: string; _title: string }
