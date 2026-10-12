@@ -34,6 +34,7 @@ import { Route as CensoEscolarRouteImport } from './routes/censo-escolar'
 import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acessos'
 import { Route as CentralDeDocumentosRouteImport } from './routes/central-de-documentos'
 import { Route as CentralDeIntegracoesRouteImport } from './routes/central-de-integracoes'
+import { Route as CentroDeOperacoesRouteImport } from './routes/centro-de-operacoes'
 import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as ComunicacaoEscolarRouteImport } from './routes/comunicacao-escolar'
 import { Route as ConciliacaoPessoalRouteImport } from './routes/conciliacao-pessoal'
@@ -390,6 +391,11 @@ const CentralDeDocumentosRoute = CentralDeDocumentosRouteImport.update({
 const CentralDeIntegracoesRoute = CentralDeIntegracoesRouteImport.update({
   id: '/central-de-integracoes',
   path: '/central-de-integracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CentroDeOperacoesRoute = CentroDeOperacoesRouteImport.update({
+  id: '/centro-de-operacoes',
+  path: '/centro-de-operacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CieceRoute = CieceRouteImport.update({
@@ -1670,6 +1676,7 @@ export interface FileRoutesByFullPath {
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
+  '/centro-de-operacoes': typeof CentroDeOperacoesRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
@@ -1926,6 +1933,7 @@ export interface FileRoutesByTo {
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
+  '/centro-de-operacoes': typeof CentroDeOperacoesRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
@@ -2155,6 +2163,7 @@ export interface FileRoutesById {
   '/central-de-acessos': typeof CentralDeAcessosRoute
   '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
+  '/centro-de-operacoes': typeof CentroDeOperacoesRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
@@ -2415,6 +2424,7 @@ export interface FileRouteTypes {
     | '/central-de-acessos'
     | '/central-de-documentos'
     | '/central-de-integracoes'
+    | '/centro-de-operacoes'
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
@@ -2671,6 +2681,7 @@ export interface FileRouteTypes {
     | '/central-de-acessos'
     | '/central-de-documentos'
     | '/central-de-integracoes'
+    | '/centro-de-operacoes'
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
@@ -2899,6 +2910,7 @@ export interface FileRouteTypes {
     | '/central-de-acessos'
     | '/central-de-documentos'
     | '/central-de-integracoes'
+    | '/centro-de-operacoes'
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
@@ -3158,6 +3170,7 @@ export interface RootRouteChildren {
   CentralDeAcessosRoute: typeof CentralDeAcessosRoute
   CentralDeDocumentosRoute: typeof CentralDeDocumentosRoute
   CentralDeIntegracoesRoute: typeof CentralDeIntegracoesRoute
+  CentroDeOperacoesRoute: typeof CentroDeOperacoesRoute
   CieceRoute: typeof CieceRoute
   ComunicacaoEscolarRoute: typeof ComunicacaoEscolarRoute
   ConciliacaoPessoalRoute: typeof ConciliacaoPessoalRoute
@@ -3441,6 +3454,13 @@ declare module '@tanstack/react-router' {
       path: '/central-de-integracoes'
       fullPath: '/central-de-integracoes'
       preLoaderRoute: typeof CentralDeIntegracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/centro-de-operacoes': {
+      id: '/centro-de-operacoes'
+      path: '/centro-de-operacoes'
+      fullPath: '/centro-de-operacoes'
+      preLoaderRoute: typeof CentroDeOperacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ciece': {
@@ -5763,6 +5783,7 @@ const rootRouteChildren: RootRouteChildren = {
   CentralDeAcessosRoute: CentralDeAcessosRoute,
   CentralDeDocumentosRoute: CentralDeDocumentosRoute,
   CentralDeIntegracoesRoute: CentralDeIntegracoesRoute,
+  CentroDeOperacoesRoute: CentroDeOperacoesRoute,
   CieceRoute: CieceRoute,
   ComunicacaoEscolarRoute: ComunicacaoEscolarRoute,
   ConciliacaoPessoalRoute: ConciliacaoPessoalRoute,
