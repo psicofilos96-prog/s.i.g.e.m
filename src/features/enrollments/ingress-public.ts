@@ -22,13 +22,15 @@ export const PROTOCOL_STATUS_LABEL: Record<ProtocolStatus, string> = {
 export const TERM_LABEL: Record<string, string> = { anual: "Ano letivo", "1-semestre": "1º semestre", "2-semestre": "2º semestre" };
 
 export const PROTOCOL_RE = /^PROT-\d{4}-\d{1,8}$/;
+/** Pedido do portal (L07): código INS- devolvido no envio. */
+export const APPLICATION_RE = /^INS-[0-9A-F]{10}$/;
 export const CODE_RE = /^[0-9a-f]{12}$/;
 export function normalizeProtocolInput(number: string, code: string) {
   return { number: number.trim().toUpperCase(), code: code.trim().toLowerCase().replace(/[\s-]/g, "") };
 }
 export function validProtocolInput(number: string, code: string) {
   const n = normalizeProtocolInput(number, code);
-  return PROTOCOL_RE.test(n.number) && CODE_RE.test(n.code);
+  return (PROTOCOL_RE.test(n.number) || APPLICATION_RE.test(n.number)) && CODE_RE.test(n.code);
 }
 
 export type Window = "em-breve" | "aberta" | "suspensa" | "encerrada";
@@ -53,6 +55,12 @@ export async function listPublicCampaigns(): Promise<PublicCampaign[]> {
 export async function consultProtocol(number: string, code: string): Promise<{ status: ProtocolStatus; registered_on: string | null; last_update_on: string | null }> {
   const n = normalizeProtocolInput(number, code);
   if (!validProtocolInput(n.number, n.code)) return { status: "indisponivel", registered_on: null, last_update_on: null };
+  if (APPLICATION_RE.test(n.number)) {
+    const { data, error } = await supabase.rpc("enr_public_application_status", { _code: n.number, _check: n.code });
+    if (error) throw new Error("Consulta indisponível no momento.");
+    const a = (data as { status: string; submitted_on: string | null }[] | null)?.[0];
+    return a?.status === "recebido" ? { status: "recebido", registered_on: a.submitted_on, last_update_on: null } : { status: "indisponivel", registered_on: null, last_update_on: null };
+  }
   const { data, error } = await supabase.rpc("enr_public_protocol_status", { _number: n.number, _code: n.code });
   if (error) throw new Error("Consulta indisponível no momento.");
   const r = (data as { status: string; registered_on: string | null; last_update_on: string | null }[] | null)?.[0];

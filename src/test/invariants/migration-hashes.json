@@ -506,5 +506,6 @@
  "drizzle/migrations/0455_enr03_campaigns_persisted.sql": "655aeafba66476e7576fae2d0e5e2b5c89ff00407ac1fdcaabc28226022e25eb",
  "drizzle/migrations/0456_enr03_campaign_school_keys.sql": "cd1706f02b60d19d9972cb213fd1b55489f3166bcd48fc22395d92761d117f2f",
  "drizzle/migrations/0457_enr04_public_portal_readers.sql": "c60973c31a87b3eadccf95c9ab0b134575af6267d76e93c566ecdaa0eb0f68de",
- "drizzle/migrations/0458_enr06_preliminary_student_reconciliation.sql": "68cce06105fe0df4d646ce12a3fd8d65ca6704bb8045bd11907701dcccc9ec1c"
+ "drizzle/migrations/0458_enr06_preliminary_student_reconciliation.sql": "68cce06105fe0df4d646ce12a3fd8d65ca6704bb8045bd11907701dcccc9ec1c",
+ "drizzle/migrations/0459_enr07_public_applications.sql": "50a95e6afbbf1e31b72b8a4bdb63b62529aa5c24af84f5815abc9dab049c0acb"
 }

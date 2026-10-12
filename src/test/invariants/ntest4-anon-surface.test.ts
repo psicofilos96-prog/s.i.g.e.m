@@ -19,6 +19,8 @@ const ACCEPTED_ANON_FUNCTIONS = new Set([
   "verify_dev_certification", // DEV L02: código opaco, sem dado pessoal
   "verify_dev_certificate", // DEV L16: código opaco, sem dado pessoal
   "enr_public_campaigns", // Matrículas L04: só campanhas publicadas, sem dado pessoal
+  "enr_submit_application", // Matrículas L07: envio público fail-closed, CPF só HMAC, sem leitura
+  "enr_public_application_status", // Matrículas L07: código + conferência, resposta uniforme
   "enr_public_protocol_status", // Matrículas L04: número + código, resposta uniforme, só situação
 ]);
 
