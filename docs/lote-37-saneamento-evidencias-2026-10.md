@@ -75,3 +75,9 @@ Nenhuma migration. Correções só documentais (índice, matriz, roadmap, regist
 
 ## 7. SHA e GitHub
 Base `5a95d945`. Este lote entra no próximo registro automático; o número só existe depois desta resposta, e o CI dele não foi conferido.
+
+## 8. Planilhas de pessoal enviadas após o L37 (análise só de contagens)
+- `PLANILHA_MESTRA_SERVIDORES_SEMED_1.xlsx` (aba Consolidado): 2.000 linhas, 2.000 matrículas distintas; CPF válido em 884 (845 CPFs distintos; 39 CPFs com mais de uma matrícula = vínculos múltiplos); 1.116 sem CPF. É planilha consolidada (tem "Nome Corrigido", "Revisão Manual", aba "Fontes e Metodologia"), não arquivo emitido pelo DP. Contém coluna de CID (dado de saúde): nunca importável para o DP.
+- `MATRÍCULA_-_SEMED_-_AGOSTO_-_2026-3.xlsx`: 2.037 linhas com matrícula, nome, admissão, cargo, nascimento — sem CPF.
+- `QP-MEC_ATUALIZADO_-_2026-3.xlsx`, `Memorandos_2026.xlsx`, `26-_Quadro_de_Pessoal...xlsx`, `CONSOLIDADO_-_QUADRO_DE_PESSOAL.xlsx`: matrícula/QP-MEC/lotação, sem CPF.
+- Impedimento que permanece: as 10.822 pessoas do banco não guardam CPF nem impressão dele (só `docserv_identity_links` e inscrições têm `cpf_hmac`). Mesmo com CPF na planilha, não há chave do lado do banco para casar. **Importados: 0.**
