@@ -189,7 +189,7 @@ export const TECH_STAGES: readonly OperationStage[] = [
   {
     id: "pedagogico", title: "Recursos pedagógicos e inovação", summary: "Recurso pedagógico = serviço do catálogo com público estudantes/professores, avaliado pela rubrica aprovada; projeto de inovação com plano de evidência e eventos.",
     reads: [
-      { label: "Rubricas", table: "tech_pedagogical_rubric_versions", columns: ["id", "version", "scale_max", "source_ref", "created_at"], order: "created_at" },
+      { label: "Rubricas", table: "tech_pedagogical_rubric_versions", columns: ["id", "version", "scale_max", "created_at"], order: "created_at" },
       { label: "Avaliações", table: "tech_pedagogical_evaluations", columns: ["id", "service_version_id", "rubric_version_id", "verdict", "created_at"], order: "created_at" },
       { label: "Projetos de inovação", table: "tech_innovation_projects", columns: ["id", "school_id", "title", "service_keys", "created_at"], order: "created_at" },
       { label: "Eventos de projeto", table: "tech_innovation_events", columns: ["project_id", "seq", "kind", "created_at"], order: "created_at" },
