@@ -19680,6 +19680,97 @@ export type Database = {
           },
         ]
       }
+      ops_supply_adjustment_decisions: {
+        Row: {
+          adjustment_id: string
+          approver_person: string
+          decided_at: string
+          decision: string
+          decision_ref: string
+          note: string | null
+        }
+        Insert: {
+          adjustment_id: string
+          approver_person: string
+          decided_at?: string
+          decision: string
+          decision_ref: string
+          note?: string | null
+        }
+        Update: {
+          adjustment_id?: string
+          approver_person?: string
+          decided_at?: string
+          decision?: string
+          decision_ref?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_adjustment_decisions_adjustment_id_fkey"
+            columns: ["adjustment_id"]
+            isOneToOne: true
+            referencedRelation: "ops_supply_adjustments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_supply_adjustments: {
+        Row: {
+          balance_at_request: number
+          count_ref: string | null
+          created_at: string
+          direction: string
+          expires_on: string | null
+          id: string
+          idempotency_key: string
+          item_key: string
+          lot: string | null
+          quantity: number
+          reason: string
+          requester_person: string
+          warehouse_id: string
+        }
+        Insert: {
+          balance_at_request: number
+          count_ref?: string | null
+          created_at?: string
+          direction: string
+          expires_on?: string | null
+          id?: string
+          idempotency_key: string
+          item_key: string
+          lot?: string | null
+          quantity: number
+          reason: string
+          requester_person: string
+          warehouse_id: string
+        }
+        Update: {
+          balance_at_request?: number
+          count_ref?: string | null
+          created_at?: string
+          direction?: string
+          expires_on?: string | null
+          id?: string
+          idempotency_key?: string
+          item_key?: string
+          lot?: string | null
+          quantity?: number
+          reason?: string
+          requester_person?: string
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_adjustments_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "ops_warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_supply_item_approvals: {
         Row: {
           approved_at: string
@@ -19757,6 +19848,7 @@ export type Database = {
       ops_supply_movements: {
         Row: {
           actor_person: string
+          adjustment_id: string | null
           created_at: string
           destination: string | null
           expires_on: string | null
@@ -19771,10 +19863,12 @@ export type Database = {
           reason: string | null
           reverses_id: string | null
           source_doc_ref: string | null
+          transfer_group: string | null
           warehouse_id: string
         }
         Insert: {
           actor_person: string
+          adjustment_id?: string | null
           created_at?: string
           destination?: string | null
           expires_on?: string | null
@@ -19789,10 +19883,12 @@ export type Database = {
           reason?: string | null
           reverses_id?: string | null
           source_doc_ref?: string | null
+          transfer_group?: string | null
           warehouse_id: string
         }
         Update: {
           actor_person?: string
+          adjustment_id?: string | null
           created_at?: string
           destination?: string | null
           expires_on?: string | null
@@ -19807,9 +19903,17 @@ export type Database = {
           reason?: string | null
           reverses_id?: string | null
           source_doc_ref?: string | null
+          transfer_group?: string | null
           warehouse_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ops_supply_adjustment_fk"
+            columns: ["adjustment_id"]
+            isOneToOne: false
+            referencedRelation: "ops_supply_adjustments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ops_supply_movements_item_version_id_fkey"
             columns: ["item_version_id"]
@@ -30184,6 +30288,16 @@ export type Database = {
         Args: { _decision: string; _reason: string; _review: string }
         Returns: string
       }
+      decide_ops_supply_adjustment: {
+        Args: {
+          _adj: string
+          _decision: string
+          _decision_ref: string
+          _note: string
+          _on: string
+        }
+        Returns: string
+      }
       declare_cycle_participation: {
         Args: {
           _act_ref: string
@@ -33506,6 +33620,25 @@ export type Database = {
       ops_supply_balance: {
         Args: { _item: string; _lot: string; _wh: string }
         Returns: number
+      }
+      ops_supply_insert: {
+        Args: {
+          _actor: string
+          _adjustment: string
+          _destination: string
+          _doc: string
+          _expires: string
+          _item_key: string
+          _key: string
+          _kind: string
+          _lot: string
+          _on: string
+          _qty: number
+          _reason: string
+          _transfer: string
+          _wh: string
+        }
+        Returns: string
       }
       ops_work_state: { Args: { _w: string }; Returns: string }
       own_engagement_network_now: { Args: never; Returns: boolean }
@@ -37177,6 +37310,20 @@ export type Database = {
         }
         Returns: string
       }
+      request_ops_supply_adjustment: {
+        Args: {
+          _count_ref: string
+          _direction: string
+          _expires: string
+          _item_key: string
+          _key: string
+          _lot: string
+          _qty: number
+          _reason: string
+          _wh: string
+        }
+        Returns: string
+      }
       require_catalog: {
         Args: { _on: string; _scheme: string; _value: string; _version: number }
         Returns: undefined
@@ -38667,6 +38814,19 @@ export type Database = {
           name: string
           parent_code: string
         }[]
+      }
+      transfer_ops_supply: {
+        Args: {
+          _from: string
+          _item_key: string
+          _key: string
+          _lot: string
+          _on: string
+          _qty: number
+          _reason: string
+          _to: string
+        }
+        Returns: string
       }
       verify_admin_act_signature: {
         Args: { _code: string }
