@@ -643,5 +643,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] A&A Lote 6 — intervenções pedagógicas (aba Intervenções, 0369); pendente: permissões e ligação automática com Diário/CIECE/Direção
 - [x] A&A Lote 7 — importação confiável (aba Importação, 0370; 12 lotes Simula SAEB em revisão)
 - [x] A&A Lote 8 — relatórios no gerador universal (4 modelos prontos, 10 catalogados com motivo)
-- [ ] A&A Lote 06 aplicação e participação
+- [x] A&A Lote 06 aplicação e participação (núcleo; sem tabela)
 - [ ] Auditar as 20 especificações enviadas (NEI, Direção, Secretaria, Supervisão, Alimentação, CIECE, A&A, Docente, Mediador, OP, DP/Lotação, Família, Rede/Vagas, Documentos, Busca Ativa, Transporte/Infra/Patrimônio, Formação, Matrícula Digital, Tecnologia) contra o código e executar lacunas
