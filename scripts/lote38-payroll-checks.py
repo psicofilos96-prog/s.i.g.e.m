@@ -10,10 +10,14 @@ def call(method, path, key, body=None, extra=None):
     req = urllib.request.Request(T + path, data=json.dumps(body).encode() if body is not None else None, method=method, headers=h)
     try:
         with urllib.request.urlopen(req) as r: return r.status, json.loads(r.read() or b"null")
-    except urllib.error.HTTPError as e: return e.code, e.read().decode()[:160]
+    except urllib.error.HTTPError as e: return e.code, e.read().decode()[:600]
 def check(name, ok, info=""): res.append(ok); print(("PASS " if ok else "FAIL ") + name + (f" — {info}" if info else ""))
 
-s, rows = call("GET", "/payroll_functional_registrations?select=id,registration_norm,full_name,birth_date,source_sha256,row_no&limit=3000", svc)
+rows = []
+for off in range(0, 5000, 1000):
+    s, pg = call("GET", f"/payroll_functional_registrations?select=id,registration_norm,full_name,birth_date,source_sha256,row_no&order=row_no&offset={off}&limit=1000", svc)
+    rows += pg
+    if len(pg) < 1000: break
 regs = [r["registration_norm"] for r in rows]
 check("matrícula única por vínculo", len(regs) == len(set(regs)) == 2037, f"{len(regs)} linhas")
 from collections import Counter
@@ -27,10 +31,10 @@ s, b = call("POST", "/payroll_functional_registrations", svc, dup)
 check("reimportação/duplicata de matrícula recusada pelo banco", s == 409, str(s))
 q = dict(dup, row_no=99998, registration_raw="9999999", registration_norm="9999999", qpmec_number="999999-9")
 s, b = call("POST", "/payroll_functional_registrations", svc, q)
-check("QP-MEC igual à matrícula recusado", s == 400 and "qpmec" in b, str(s))
+check("QP-MEC igual à matrícula recusado", s == 400 and "pfr_qpmec_not_registration" in b, str(s))
 bad = dict(dup, row_no=99997, registration_raw="12-3", registration_norm="999")
 s, b = call("POST", "/payroll_functional_registrations", svc, bad)
-check("normalização sem perda de dígito verificador imposta", s == 400 and "norm" in b, str(s))
+check("normalização sem perda de dígito verificador imposta", s == 400 and "pfr_norm_matches" in b, str(s))
 s, b = call("PATCH", f"/payroll_functional_registrations?id=eq.{a['id']}", svc, {"cargo_label": "X"})
 check("append-only: alteração recusada", s >= 400 and "append-only" in b, str(s))
 s, b = call("DELETE", f"/payroll_functional_registrations?id=eq.{a['id']}", svc)
