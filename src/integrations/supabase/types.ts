@@ -18154,6 +18154,104 @@ export type Database = {
           },
         ]
       }
+      permanence_alert_events: {
+        Row: {
+          alert_id: string
+          author_person: string
+          case_id: string | null
+          created_at: string
+          idempotency_key: string
+          justification: string | null
+          kind: string
+          seq: number
+        }
+        Insert: {
+          alert_id: string
+          author_person: string
+          case_id?: string | null
+          created_at?: string
+          idempotency_key: string
+          justification?: string | null
+          kind: string
+          seq: number
+        }
+        Update: {
+          alert_id?: string
+          author_person?: string
+          case_id?: string | null
+          created_at?: string
+          idempotency_key?: string
+          justification?: string | null
+          kind?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_alert_events_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "permanence_alerts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permanence_alert_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanence_alerts: {
+        Row: {
+          created_at: string
+          enrollment_id: string | null
+          id: string
+          idempotency_key: string
+          observation: Json
+          observed_on: string
+          origin: string
+          registered_by: string | null
+          rule_version_id: string
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id?: string | null
+          id?: string
+          idempotency_key: string
+          observation: Json
+          observed_on: string
+          origin: string
+          registered_by?: string | null
+          rule_version_id: string
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string | null
+          id?: string
+          idempotency_key?: string
+          observation?: Json
+          observed_on?: string
+          origin?: string
+          registered_by?: string | null
+          rule_version_id?: string
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_alerts_rule_version_id_fkey"
+            columns: ["rule_version_id"]
+            isOneToOne: false
+            referencedRelation: "permanence_rule_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permanence_rule_approvals: {
         Row: {
           approved_at: string
@@ -32565,6 +32663,17 @@ export type Database = {
         }
         Returns: string
       }
+      record_permanence_alert_event: {
+        Args: {
+          _alert: string
+          _case: string
+          _expected_seq: number
+          _justification: string
+          _key: string
+          _kind: string
+        }
+        Returns: number
+      }
       record_position_matrix_correspondence_version: {
         Args: {
           _act_ref: string
@@ -33382,6 +33491,19 @@ export type Database = {
           _reason: string
           _valid_from: string
           _year: string
+        }
+        Returns: string
+      }
+      register_permanence_alert: {
+        Args: {
+          _enrollment: string
+          _key: string
+          _observation: Json
+          _observed_on: string
+          _origin: string
+          _rule_version: string
+          _school: string
+          _student: string
         }
         Returns: string
       }
