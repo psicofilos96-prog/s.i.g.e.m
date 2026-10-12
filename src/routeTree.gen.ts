@@ -111,6 +111,8 @@ import { Route as AlimentacaoEscolarSaudeDeclaradaRouteImport } from './routes/a
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
 import { Route as AlunosIdRouteImport } from './routes/alunos.$id'
 import { Route as AlunosNovoRouteImport } from './routes/alunos.novo'
+import { Route as AreasIndexRouteImport } from './routes/areas.index'
+import { Route as AreasAreaIdRouteImport } from './routes/areas.$areaId'
 import { Route as AtuacoesPedagogicasIndexRouteImport } from './routes/atuacoes-pedagogicas.index'
 import { Route as AtuacoesPedagogicasNovaRouteImport } from './routes/atuacoes-pedagogicas.nova'
 import { Route as AvaliacoesDoProfessorCartaoRespostaRouteImport } from './routes/avaliacoes-do-professor_.cartao-resposta'
@@ -797,6 +799,16 @@ const AlunosNovoRoute = AlunosNovoRouteImport.update({
   id: '/novo',
   path: '/novo',
   getParentRoute: () => AlunosRoute,
+} as any)
+const AreasIndexRoute = AreasIndexRouteImport.update({
+  id: '/areas/',
+  path: '/areas/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AreasAreaIdRoute = AreasAreaIdRouteImport.update({
+  id: '/areas/$areaId',
+  path: '/areas/$areaId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AtuacoesPedagogicasIndexRoute =
   AtuacoesPedagogicasIndexRouteImport.update({
@@ -1867,6 +1879,7 @@ export interface FileRoutesByFullPath {
   '/alimentacao-escolar/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
+  '/areas/$areaId': typeof AreasAreaIdRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
   '/centro-de-operacoes/operacao': typeof CentroDeOperacoesOperacaoRoute
@@ -1927,6 +1940,7 @@ export interface FileRoutesByFullPath {
   '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
+  '/areas/': typeof AreasIndexRoute
   '/atuacoes-pedagogicas/': typeof AtuacoesPedagogicasIndexRoute
   '/calendario-escolar/': typeof CalendarioEscolarIndexRoute
   '/diario/': typeof DiarioIndexRoute
@@ -2133,6 +2147,7 @@ export interface FileRoutesByTo {
   '/alimentacao-escolar/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
+  '/areas/$areaId': typeof AreasAreaIdRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
   '/centro-de-operacoes/operacao': typeof CentroDeOperacoesOperacaoRoute
@@ -2189,6 +2204,7 @@ export interface FileRoutesByTo {
   '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos': typeof AlunosIndexRoute
+  '/areas': typeof AreasIndexRoute
   '/atuacoes-pedagogicas': typeof AtuacoesPedagogicasIndexRoute
   '/calendario-escolar': typeof CalendarioEscolarIndexRoute
   '/diario': typeof DiarioIndexRoute
@@ -2390,6 +2406,7 @@ export interface FileRoutesById {
   '/alimentacao-escolar_/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
   '/alunos/novo': typeof AlunosNovoRoute
+  '/areas/$areaId': typeof AreasAreaIdRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor_/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
   '/centro-de-operacoes_/operacao': typeof CentroDeOperacoesOperacaoRoute
@@ -2450,6 +2467,7 @@ export interface FileRoutesById {
   '/verificar/$codigo': typeof VerificarCodigoRoute
   '/vinculos-letivos/novo': typeof VinculosLetivosNovoRoute
   '/alunos/': typeof AlunosIndexRoute
+  '/areas/': typeof AreasIndexRoute
   '/atuacoes-pedagogicas/': typeof AtuacoesPedagogicasIndexRoute
   '/calendario-escolar/': typeof CalendarioEscolarIndexRoute
   '/diario/': typeof DiarioIndexRoute
@@ -2669,6 +2687,7 @@ export interface FileRouteTypes {
     | '/alimentacao-escolar/saude-declarada'
     | '/alunos/$id'
     | '/alunos/novo'
+    | '/areas/$areaId'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor/cartao-resposta'
     | '/centro-de-operacoes/operacao'
@@ -2729,6 +2748,7 @@ export interface FileRouteTypes {
     | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos/'
+    | '/areas/'
     | '/atuacoes-pedagogicas/'
     | '/calendario-escolar/'
     | '/diario/'
@@ -2935,6 +2955,7 @@ export interface FileRouteTypes {
     | '/alimentacao-escolar/saude-declarada'
     | '/alunos/$id'
     | '/alunos/novo'
+    | '/areas/$areaId'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor/cartao-resposta'
     | '/centro-de-operacoes/operacao'
@@ -2991,6 +3012,7 @@ export interface FileRouteTypes {
     | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos'
+    | '/areas'
     | '/atuacoes-pedagogicas'
     | '/calendario-escolar'
     | '/diario'
@@ -3191,6 +3213,7 @@ export interface FileRouteTypes {
     | '/alimentacao-escolar_/saude-declarada'
     | '/alunos/$id'
     | '/alunos/novo'
+    | '/areas/$areaId'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor_/cartao-resposta'
     | '/centro-de-operacoes_/operacao'
@@ -3251,6 +3274,7 @@ export interface FileRouteTypes {
     | '/verificar/$codigo'
     | '/vinculos-letivos/novo'
     | '/alunos/'
+    | '/areas/'
     | '/atuacoes-pedagogicas/'
     | '/calendario-escolar/'
     | '/diario/'
@@ -3467,6 +3491,7 @@ export interface RootRouteChildren {
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
   AlimentacaoEscolarCozinhaRoute: typeof AlimentacaoEscolarCozinhaRoute
   AlimentacaoEscolarSaudeDeclaradaRoute: typeof AlimentacaoEscolarSaudeDeclaradaRoute
+  AreasAreaIdRoute: typeof AreasAreaIdRoute
   AvaliacoesDoProfessorCartaoRespostaRoute: typeof AvaliacoesDoProfessorCartaoRespostaRoute
   CentroDeOperacoesOperacaoRoute: typeof CentroDeOperacoesOperacaoRoute
   DiarioFolhaFinalRoute: typeof DiarioFolhaFinalRoute
@@ -3499,6 +3524,7 @@ export interface RootRouteChildren {
   TecnologiaDecisoesRoute: typeof TecnologiaDecisoesRoute
   TecnologiaOperacaoRoute: typeof TecnologiaOperacaoRoute
   VerificarCodigoRoute: typeof VerificarCodigoRoute
+  AreasIndexRoute: typeof AreasIndexRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
   PublicoIndexRoute: typeof PublicoIndexRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -4235,6 +4261,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/alunos/novo'
       preLoaderRoute: typeof AlunosNovoRouteImport
       parentRoute: typeof AlunosRoute
+    }
+    '/areas/': {
+      id: '/areas/'
+      path: '/areas'
+      fullPath: '/areas/'
+      preLoaderRoute: typeof AreasIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/areas/$areaId': {
+      id: '/areas/$areaId'
+      path: '/areas/$areaId'
+      fullPath: '/areas/$areaId'
+      preLoaderRoute: typeof AreasAreaIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/atuacoes-pedagogicas/': {
       id: '/atuacoes-pedagogicas/'
@@ -6224,6 +6264,7 @@ const rootRouteChildren: RootRouteChildren = {
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
   AlimentacaoEscolarCozinhaRoute: AlimentacaoEscolarCozinhaRoute,
   AlimentacaoEscolarSaudeDeclaradaRoute: AlimentacaoEscolarSaudeDeclaradaRoute,
+  AreasAreaIdRoute: AreasAreaIdRoute,
   AvaliacoesDoProfessorCartaoRespostaRoute:
     AvaliacoesDoProfessorCartaoRespostaRoute,
   CentroDeOperacoesOperacaoRoute: CentroDeOperacoesOperacaoRoute,
@@ -6257,6 +6298,7 @@ const rootRouteChildren: RootRouteChildren = {
   TecnologiaDecisoesRoute: TecnologiaDecisoesRoute,
   TecnologiaOperacaoRoute: TecnologiaOperacaoRoute,
   VerificarCodigoRoute: VerificarCodigoRoute,
+  AreasIndexRoute: AreasIndexRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
   PublicoIndexRoute: PublicoIndexRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,

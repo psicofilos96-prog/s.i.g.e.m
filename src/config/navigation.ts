@@ -20,6 +20,7 @@ import {
 
 export type NavigationRoute =
   | "/"
+  | "/areas"
   | "/estacao-administrativa"
   | "/design-system"
   | "/unidades"
@@ -135,6 +136,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Integrações", icon: SlidersHorizontal, to: "/integracoes", hint: "API e webhooks" },
       { label: "Central de integrações", icon: SlidersHorizontal, to: "/central-de-integracoes", hint: "E-mail, armazenamento, identidade, importadores" },
       { label: "Assistente", icon: BookOpen, to: "/assistente", hint: "Perguntas com fonte, só leitura" },
+      { label: "Áreas de trabalho", icon: BookOpen, to: "/areas", hint: "Telas por área e competência" },
       { label: "Ajuda", icon: BookOpen, to: "/ajuda", hint: "Central de ajuda" },
     ],
   },
