@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { TEACHER_SECTIONS, CANONICAL_CHAIN, gaps } from "./teacher-architecture";
 
-const migrations = readdirSync("supabase/migrations").map((f) => readFileSync(`supabase/migrations/${f}`, "utf8")).join("\n");
+const dirs = ["supabase/migrations", "drizzle/migrations"].filter((d) => existsSync(d));
+const migrations = dirs.flatMap((d) => readdirSync(d).filter((f) => f.endsWith(".sql")).map((f) => readFileSync(`${d}/${f}`, "utf8"))).join("\n");
 
 describe("Perfil Docente L01 — auditoria", () => {
   it("cobre as 34 seções em ordem", () => {
