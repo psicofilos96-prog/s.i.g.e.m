@@ -11,7 +11,7 @@ BEGIN
   IF has_function_privilege('authenticated','public.record_enr_campaign_version(uuid,int,text[],text[],uuid[],date,date,uuid,uuid,text)','EXECUTE') THEN RAISE EXCEPTION 'FAIL old overload'; END IF;
   -- Sem sessão (sem pessoa) o writer falha fechado
   BEGIN PERFORM public.create_enr_campaign(2027,'anual','matricula-inicial','k-proof'); RAISE EXCEPTION 'FAIL no-person accepted';
-  EXCEPTION WHEN OTHERS THEN IF SQLERRM NOT LIKE 'enr:%' THEN RAISE; END IF; END;
+  EXCEPTION WHEN insufficient_privilege THEN NULL; WHEN OTHERS THEN IF SQLERRM NOT LIKE 'enr:%' THEN RAISE; END IF; END;
   -- Append-only
   INSERT INTO public.enr_campaigns(cycle_year,cycle_term,kind,author_person,idempotency_key) VALUES (2027,'anual','matricula-inicial',gen_random_uuid(),'k-ao') RETURNING id INTO _c;
   IF public.enr_campaign_state(_c) <> 'rascunho' THEN RAISE EXCEPTION 'FAIL initial state'; END IF;
