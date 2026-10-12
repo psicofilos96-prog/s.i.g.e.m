@@ -3270,6 +3270,13 @@
       "when": 1791809948740,
       "tag": "0466_enr14_distribution_proposals",
       "breakpoints": true
+    },
+    {
+      "idx": 467,
+      "version": "7",
+      "when": 1791810162841,
+      "tag": "0467_enr15_seat_concurrency",
+      "breakpoints": true
     }
   ]
 }
