@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PageHeader, NoteBox } from "@/components/sigem/patterns";
@@ -89,7 +90,7 @@ function Detail({ app }: { app: AdminApplication }) {
       setSubject(""); setNote(""); setMsg("Registrado.");
       await qc.invalidateQueries({ queryKey: ["enr-admin-history", app.id] });
       await qc.invalidateQueries({ queryKey: ["enr-admin"] });
-    } catch (e) { setMsg((e as Error).message); }
+    } catch (e) { setMsg(userErrorText(e)); }
   }
   return (
     <div className="mt-3 grid gap-3 border-t border-border pt-3">

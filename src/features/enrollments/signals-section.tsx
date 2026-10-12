@@ -1,3 +1,4 @@
+import { userErrorText } from "@/lib/observability/governed-errors";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ function SignalRow({ appId, s }: { appId: string; s: Signal }) {
     const p = resolutionProblems(reason);
     if (p.length) return setMsg(p.join(" "));
     try { await resolveSignal(appId, s, decision, reason, key); setMsg("Decisão registrada."); await qc.invalidateQueries({ queryKey: ["enr-signals", appId] }); }
-    catch (e) { setMsg((e as Error).message); }
+    catch (e) { setMsg(userErrorText(e)); }
   }
   return (
     <div className="rounded-md border border-border p-2 text-sm">
