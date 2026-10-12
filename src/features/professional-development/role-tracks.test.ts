@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { isClinicalText, targetProblems, tracksForPerson, type RoleTarget } from "./role-tracks";
+import { isClinicalText, targetProblems, tracksForPerson, type RoleTarget, type Engagement } from "./role-tracks";
 
 const t = (id: string, kind: string, withdrawn = false): RoleTarget => ({ id, trackVersionId: "v", engagementKindId: kind, audienceGroup: "docentes", withdrawn });
 const ok = { trackApproved: true, engagementKindKnown: true, group: "transporte", rationale: "Formação de monitores de transporte escolar", title: "Segurança no embarque", objectives: "Procedimentos de embarque" };
@@ -13,12 +13,12 @@ describe("L21 trilhas por função", () => {
     ];
     const r = tracksForPerson([t("a", "regencia"), t("b", "direcao")], eng, "2026-10-12");
     expect(r.map((x) => x.id)).toEqual(["a"]);
-    expect(r[0].mandatory).toBe(false);
+    expect(r[0]?.mandatory).toBe(false);
   });
   it("atuação encerrada e alvo retirado não indicam", () => {
-    const eng = [{ id: "e1", engagementKindId: "regencia", validFrom: "2026-01-01", validUntil: null, endedOn: "2026-06-01" }];
+    const eng: Engagement[] = [{ id: "e1", engagementKindId: "regencia", validFrom: "2026-01-01", validUntil: null, endedOn: "2026-06-01" }];
     expect(tracksForPerson([t("a", "regencia")], eng, "2026-10-12")).toEqual([]);
-    expect(tracksForPerson([t("a", "regencia", true)], [{ ...eng[0], endedOn: null }], "2026-10-12")).toEqual([]);
+    expect(tracksForPerson([t("a", "regencia", true)], [{ ...eng[0]!, endedOn: null }], "2026-10-12")).toEqual([]);
   });
   it("recusa conteúdo clínico, trilha não aprovada e tipo desconhecido", () => {
     expect(targetProblems(ok)).toEqual([]);
