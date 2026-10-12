@@ -38244,6 +38244,32 @@ export type Database = {
           },
         ]
       }
+      payroll_servant_registrations: {
+        Row: {
+          admission_date: string | null
+          birth_date: string | null
+          cargo_code: string | null
+          cargo_label: string | null
+          full_name: string | null
+          linked_person_id: string | null
+          monthly_hours: number | null
+          reference_period: string | null
+          registration_id: string | null
+          registration_norm: string | null
+          registration_raw: string | null
+          servant_key: string | null
+          weekly_workload_text: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_registration_person_links_person_id_fkey"
+            columns: ["linked_person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payroll_staff_registration_matches: {
         Row: {
           payroll_registration_id: string | null
@@ -44853,6 +44879,10 @@ export type Database = {
       }
       payroll_rows_fingerprint: {
         Args: { _period: string; _rows: Json; _sheet: string }
+        Returns: string
+      }
+      payroll_servant_key: {
+        Args: { _birth: string; _name: string; _registration_norm: string }
         Returns: string
       }
       perf_grant: {
