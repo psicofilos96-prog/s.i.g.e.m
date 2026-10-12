@@ -6,16 +6,16 @@ import { readdirSync, readFileSync, statSync, writeFileSync, existsSync } from "
 import { join } from "node:path";
 
 export const SECTORS = [
-  ["Gestão de Pessoas", ["src/features/professionals", "src/features/staffing", "src/features/people-management"]],
-  ["Organização da Rede", ["src/features/enrollments", "src/features/network-organization"]],
+  ["Gestão de Pessoas", ["src/features/professionals", "src/features/staffing"]],
+  ["Organização da Rede", ["src/features/enrollments", "src/features/offer-organization", "src/features/units"]],
   ["SIGEM Documentos", ["src/features/document-management", "src/features/document-studio", "src/features/document-archive"]],
   ["Permanência", ["src/features/permanence"]],
   ["Centro de Operações", ["src/features/operations-center", "src/features/school-transport", "src/features/school-assets"]],
-  ["Desenvolvimento", ["src/features/professional-development", "src/features/development"]],
-  ["Docente", ["src/features/diary"]],
-  ["Mediador", ["src/features/mediation", "src/features/mediator"]],
-  ["NEI", ["src/features/inclusion", "src/features/nei"]],
-  ["Secretaria", ["src/features/school-secretariat"]],
+  ["Desenvolvimento", ["src/features/professional-development"]],
+  ["Docente", ["src/features/diary", "src/features/teacher-diary", "src/features/teaching-planning", "src/features/teacher-assessment"]],
+  ["Mediador", ["src/features/school-mediator"]],
+  ["NEI", ["src/features/inclusion"]],
+  ["Secretaria", ["src/features/school-secretariat", "src/features/transfers"]],
   ["Direção", ["src/features/school-leadership", "src/features/institutional-decisions"]],
   ["Família", ["src/features/family-portal", "src/features/communication"]],
 ];

@@ -5,9 +5,7 @@
    "src/features/professionals",
    "src/features/staffing"
   ],
-  "missingDirs": [
-   "src/features/people-management"
-  ],
+  "missingDirs": [],
   "routes": [
    "src/routes/conciliacao-pessoal.tsx",
    "src/routes/departamento-pessoal.tsx",
@@ -77,11 +75,11 @@
  {
   "sector": "Organização da Rede",
   "dirs": [
-   "src/features/enrollments"
+   "src/features/enrollments",
+   "src/features/offer-organization",
+   "src/features/units"
   ],
-  "missingDirs": [
-   "src/features/network-organization"
-  ],
+  "missingDirs": [],
   "routes": [
    "src/routes/matriculas.nova.tsx",
    "src/routes/matriculas_.inscricoes.tsx",
@@ -90,11 +88,16 @@
    "src/routes/organizacao-da-rede.tsx",
    "src/routes/publico.acompanhar-inscricao.tsx",
    "src/routes/publico.inscricao.$campanhaId.tsx",
-   "src/routes/publico.matriculas.tsx"
+   "src/routes/publico.matriculas.tsx",
+   "src/routes/turmas.oferta.$id.tsx",
+   "src/routes/unidades.$id.tsx",
+   "src/routes/unidades.editar.$id.tsx",
+   "src/routes/unidades.index.tsx",
+   "src/routes/unidades.nova.tsx"
   ],
-  "modules": 52,
-  "withTest": 48,
-  "withScreen": 16,
+  "modules": 59,
+  "withTest": 52,
+  "withScreen": 22,
   "withoutScreen": [
    "src/features/enrollments/accessibility-planning.ts",
    "src/features/enrollments/application-signals.ts",
@@ -131,13 +134,17 @@
    "src/features/enrollments/transfer-flow.ts",
    "src/features/enrollments/vacancy-board.ts",
    "src/features/enrollments/vacancy-requests.ts",
-   "src/features/enrollments/waiting-list.ts"
+   "src/features/enrollments/waiting-list.ts",
+   "src/features/units/infrastructure-groups.ts"
   ],
   "withoutTest": [
    "src/features/enrollments/enrollment-draft.ts",
    "src/features/enrollments/enrollment-presentation.ts",
    "src/features/enrollments/ingress-identity.ts",
-   "src/features/enrollments/ingress-public.ts"
+   "src/features/enrollments/ingress-public.ts",
+   "src/features/offer-organization/offer-source.ts",
+   "src/features/units/school-registry-source.ts",
+   "src/features/units/units-data.ts"
   ]
  },
  {
@@ -267,9 +274,7 @@
   "dirs": [
    "src/features/professional-development"
   ],
-  "missingDirs": [
-   "src/features/development"
-  ],
+  "missingDirs": [],
   "routes": [
    "src/routes/sigem-desenvolvimento.tsx",
    "src/routes/sigem-desenvolvimento_.historico.tsx",
@@ -306,10 +311,17 @@
  {
   "sector": "Docente",
   "dirs": [
-   "src/features/diary"
+   "src/features/diary",
+   "src/features/teacher-diary",
+   "src/features/teaching-planning",
+   "src/features/teacher-assessment"
   ],
   "missingDirs": [],
   "routes": [
+   "src/routes/acompanhamento-diarios.tsx",
+   "src/routes/acompanhamento-planejamento.tsx",
+   "src/routes/avaliacoes-do-professor.tsx",
+   "src/routes/avaliacoes-do-professor_.cartao-resposta.tsx",
    "src/routes/diario.aulas.tsx",
    "src/routes/diario.chamada.$registroId.tsx",
    "src/routes/diario.chamadas.tsx",
@@ -328,11 +340,14 @@
    "src/routes/diario_.livro.tsx",
    "src/routes/diario_.regras-folha-final.tsx",
    "src/routes/laboratorio.folha-final.tsx",
-   "src/routes/laboratorio.recuperacao.tsx"
+   "src/routes/laboratorio.recuperacao.tsx",
+   "src/routes/meus-diarios.tsx",
+   "src/routes/planejamento.tsx",
+   "src/routes/quadro-permanente-op.tsx"
   ],
-  "modules": 43,
-  "withTest": 15,
-  "withScreen": 26,
+  "modules": 70,
+  "withTest": 35,
+  "withScreen": 38,
   "withoutScreen": [
    "src/features/diary/attendance-correction.ts",
    "src/features/diary/attendance-temporal.ts",
@@ -350,7 +365,22 @@
    "src/features/diary/lesson-versions.ts",
    "src/features/diary/network-model-rules.ts",
    "src/features/diary/stage-engine.ts",
-   "src/features/diary/teacher-agenda.ts"
+   "src/features/diary/teacher-agenda.ts",
+   "src/features/teacher-diary/activities-materials.ts",
+   "src/features/teacher-diary/inclusion-teacher-view.ts",
+   "src/features/teacher-diary/infant-portfolio.ts",
+   "src/features/teacher-diary/learning-record.ts",
+   "src/features/teacher-diary/segment-profile.ts",
+   "src/features/teacher-diary/teacher-agenda.ts",
+   "src/features/teacher-diary/teacher-architecture.ts",
+   "src/features/teacher-diary/teacher-context.ts",
+   "src/features/teacher-diary/teacher-grades.ts",
+   "src/features/teacher-diary/teacher-history-closing.ts",
+   "src/features/teacher-diary/teacher-reports.ts",
+   "src/features/teacher-diary/teacher-requests.ts",
+   "src/features/teacher-diary/teacher-security.ts",
+   "src/features/teacher-diary/teaching-support.ts",
+   "src/features/teaching-planning/plan-editor-model.ts"
   ],
   "withoutTest": [
    "src/features/diary/attendance-closing-fixtures.ts",
@@ -380,21 +410,48 @@
    "src/features/diary/lesson-draft-cloud.ts",
    "src/features/diary/lesson-records.ts",
    "src/features/diary/lesson-versions.ts",
-   "src/features/diary/stage-engine.ts"
+   "src/features/diary/stage-engine.ts",
+   "src/features/teacher-assessment/authoring-model.ts",
+   "src/features/teacher-assessment/authoring-source.ts",
+   "src/features/teacher-assessment/variant-key.ts",
+   "src/features/teacher-diary/teaching-support.ts",
+   "src/features/teaching-planning/planning-model.ts",
+   "src/features/teaching-planning/planning-source.ts",
+   "src/features/teaching-planning/sipe-defaults.ts"
   ]
  },
  {
   "sector": "Mediador",
-  "dirs": [],
-  "missingDirs": [
-   "src/features/mediation",
-   "src/features/mediator"
+  "dirs": [
+   "src/features/school-mediator"
   ],
-  "routes": [],
-  "modules": 0,
-  "withTest": 0,
-  "withScreen": 0,
-  "withoutScreen": [],
+  "missingDirs": [],
+  "routes": [
+   "src/routes/mediador.tsx",
+   "src/routes/mediador_.acompanhamento.$studentId.tsx"
+  ],
+  "modules": 19,
+  "withTest": 19,
+  "withScreen": 2,
+  "withoutScreen": [
+   "src/features/school-mediator/mediator-acceptance.ts",
+   "src/features/school-mediator/mediator-access-policy.ts",
+   "src/features/school-mediator/mediator-architecture.ts",
+   "src/features/school-mediator/mediator-automation.ts",
+   "src/features/school-mediator/mediator-communication.ts",
+   "src/features/school-mediator/mediator-daily-record.ts",
+   "src/features/school-mediator/mediator-designations.ts",
+   "src/features/school-mediator/mediator-guidance-flow.ts",
+   "src/features/school-mediator/mediator-history-integration.ts",
+   "src/features/school-mediator/mediator-occurrences.ts",
+   "src/features/school-mediator/mediator-participation.ts",
+   "src/features/school-mediator/mediator-reports.ts",
+   "src/features/school-mediator/mediator-requests.ts",
+   "src/features/school-mediator/mediator-student-file.ts",
+   "src/features/school-mediator/mediator-support-categories.ts",
+   "src/features/school-mediator/mediator-support-plan.ts",
+   "src/features/school-mediator/mediator-timeline.ts"
+  ],
   "withoutTest": []
  },
  {
@@ -402,9 +459,7 @@
   "dirs": [
    "src/features/inclusion"
   ],
-  "missingDirs": [
-   "src/features/nei"
-  ],
+  "missingDirs": [],
   "routes": [
    "src/routes/inclusao.tsx",
    "src/routes/inclusao_.nei.tsx",
@@ -432,7 +487,8 @@
  {
   "sector": "Secretaria",
   "dirs": [
-   "src/features/school-secretariat"
+   "src/features/school-secretariat",
+   "src/features/transfers"
   ],
   "missingDirs": [],
   "routes": [
@@ -441,11 +497,12 @@
    "src/routes/secretaria_.livro-matricula.tsx",
    "src/routes/secretaria_.servicos.tsx",
    "src/routes/secretaria_.tabelas-semed.tsx",
-   "src/routes/secretaria_.vagas.tsx"
+   "src/routes/secretaria_.vagas.tsx",
+   "src/routes/transferencias.nova.tsx"
   ],
-  "modules": 35,
+  "modules": 37,
   "withTest": 31,
-  "withScreen": 13,
+  "withScreen": 15,
   "withoutScreen": [
    "src/features/school-secretariat/academic-panel.ts",
    "src/features/school-secretariat/admin-agenda.ts",
@@ -474,7 +531,9 @@
    "src/features/school-secretariat/enrollment-wizard-source.ts",
    "src/features/school-secretariat/secretariat-source.ts",
    "src/features/school-secretariat/semed-tables/semed-export.ts",
-   "src/features/school-secretariat/vacancies-book-source.ts"
+   "src/features/school-secretariat/vacancies-book-source.ts",
+   "src/features/transfers/transfer-draft.ts",
+   "src/features/transfers/transfer-presentation.ts"
   ]
  },
  {
