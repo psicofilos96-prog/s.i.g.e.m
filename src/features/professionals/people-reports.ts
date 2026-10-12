@@ -50,7 +50,6 @@ export const PEOPLE_REPORTS: readonly ReportDefinition[] = [
   d("divergencias-lotacao-exercicio", "Divergências lotação × exercício", "Divergências sinalizadas, sem correção automática.", "placement-exercise.ts"),
   d("movimentacoes", "Histórico de movimentações", "Movimentações derivadas das lotações e solicitações protocoladas.", "placement-exercise.ts + movement-requests.ts", PENDING_PERSIST),
   d("designacoes", "Designações de função", "Designações por função, vínculo, escola, ato e situação derivada.", "role-designations.ts", PENDING_PERSIST),
-  d("catalogo-cargos-funcoes", "Catálogo de cargos e funções", "Versões homologadas com fundamento e vigência.", "role-catalog.ts", PENDING_PERSIST),
   d("jornadas-cargas", "Jornadas e cargas", "Cargas contratual, exercício, regência, extraclasse, designação e atribuída em unidades separadas.", "workload.ts"),
   d("disponibilidade", "Disponibilidade operacional", "Capacidade total, comprometida, livre e conflitos por vínculo/data.", "availability.ts"),
   d("afastamentos", "Afastamentos", "Tipo administrativo, período e impacto; sem conteúdo clínico nem documento.", "leave-substitution.ts", PENDING_PERSIST),
