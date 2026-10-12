@@ -40,7 +40,8 @@ function ReadTable({ read }: { read: OperationRead }) {
       ) : (
         <div className="overflow-x-auto rounded-lg border border-border">
           <table className="w-full text-left text-xs">
-            <thead className="bg-muted text-muted-foreground"><tr>{read.columns.map((c) => <th key={c} className="px-2 py-1.5 font-medium">{c}</th>)}</tr></thead>
+            <caption className="sr-only">{read.label}</caption>
+            <thead className="bg-muted text-muted-foreground"><tr>{read.columns.map((c) => <th key={c} scope="col" className="px-2 py-1.5 font-medium">{c}</th>)}</tr></thead>
             <tbody>
               {q.data.map((row, i) => (
                 <tr key={i} className="border-t border-border">
