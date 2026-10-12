@@ -3,7 +3,7 @@ import { ClassRouteGate } from "@/features/classes/class-route-gate";
 import { EmptyState } from "@/components/sigem/patterns";
 import { MediatorCentralPage } from "@/features/school-mediator/mediator-central-page";
 
-export const Route = createFileRoute("/mediador/acompanhamento/$studentId")({
+export const Route = createFileRoute("/mediador_/acompanhamento/$studentId")({
   head: () => ({
     meta: [
       { title: "Central de Acompanhamento — Mediador — SIGEM" },
