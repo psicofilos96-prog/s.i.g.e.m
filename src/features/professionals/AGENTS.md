@@ -23,3 +23,6 @@
 
 ## L16 Dimensionamento não docente (`non-teaching-sizing.ts`)
 - Quantitativo de referência só por critério homologado, com fundamento, vigência, escopo e fórmula de lista fechada (fixo/por-unidade/por-faixa); sem critério, critério ambíguo ou driver ausente ⇒ null com estado explícito, porque quantitativo legal presumido seria norma inventada. Área é lista aberta.
+
+## L17 Simulador de pessoal (`staffing-simulator.ts`)
+- Cenários (abrir/fechar turma, matriz, jornada, afastamento, substituição, redistribuição) operam só sobre cópia da base com impressão digital, retornam `simulacao: true` e `writes: []` e comparam demanda/cobertura/conflitos/sobrecarga antes×depois; base mudada ⇒ desatualizado, porque hipótese nunca pode alterar lotação ou atribuição oficial.
