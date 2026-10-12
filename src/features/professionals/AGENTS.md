@@ -41,3 +41,6 @@
 
 ## L22 Acesso e auditoria (`people-access.ts`, migration 0383)
 - A tela só restringe a RLS: decisão por capacidade × escopo × vigência (própria pessoa lê o próprio registro, operador técnico nunca), afastamento sem `consultar-afastamentos` sai sem documento/observação, exportação exige capacidade própria e omite sensíveis, retificação exige motivo e nunca o próprio registro, cálculo é auditado por metodologia+hash sem dado pessoal; 0383 corrigiu a policy de vínculos que comparava a posting consigo mesma, porque filtro na tela não autoriza nem protege.
+
+## L23 Testes integrados (`people-scenario.integration.test.ts`, `supabase/tests/gp23_people_rls_isolation.sql`)
+- O cenário sintético (dois vínculos, duas escolas, transferência, designação, durações, afastamento/substituição, sobreposição, proposta recusada, atribuição válida, cobertura, simulação, isolamento) encadeia os núcleos sobre as mesmas fixtures; a prova de RLS é bloco SQL que substitui `school_capability_grant` por nome (políticas guardam a identidade de `has_school_capability`) e termina em RAISE, porque fixture persistida ou stub da função errada dariam falsa prova.
