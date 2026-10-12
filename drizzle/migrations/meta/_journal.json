@@ -2934,6 +2934,13 @@
       "when": 1791797118183,
       "tag": "0418_ops11_asset_inventories",
       "breakpoints": true
+    },
+    {
+      "idx": 419,
+      "version": "7",
+      "when": 1791797330537,
+      "tag": "0419_ops12_asset_disposals",
+      "breakpoints": true
     }
   ]
 }

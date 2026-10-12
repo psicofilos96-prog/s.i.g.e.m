@@ -17841,6 +17841,154 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_asset_disposal_events: {
+        Row: {
+          actor_person: string
+          created_at: string
+          decision_ref: string | null
+          destination_kind: string | null
+          destination_party: string | null
+          disposal_id: string
+          doc_ref: string | null
+          effective_on: string
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string | null
+          seq: number
+        }
+        Insert: {
+          actor_person: string
+          created_at?: string
+          decision_ref?: string | null
+          destination_kind?: string | null
+          destination_party?: string | null
+          disposal_id: string
+          doc_ref?: string | null
+          effective_on: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          note?: string | null
+          seq: number
+        }
+        Update: {
+          actor_person?: string
+          created_at?: string
+          decision_ref?: string | null
+          destination_kind?: string | null
+          destination_party?: string | null
+          disposal_id?: string
+          doc_ref?: string | null
+          effective_on?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string | null
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_disposal_events_disposal_id_fkey"
+            columns: ["disposal_id"]
+            isOneToOne: false
+            referencedRelation: "ops_asset_disposals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_disposal_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_disposal_events_doc_ref_fkey"
+            columns: ["doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_asset_disposals: {
+        Row: {
+          assessment_ref: string
+          asset_id: string
+          base_asset_seq: number
+          case_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          justification: string
+          proposer_person: string
+          reason_kind: string
+          school_id: string
+        }
+        Insert: {
+          assessment_ref: string
+          asset_id: string
+          base_asset_seq: number
+          case_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          justification: string
+          proposer_person: string
+          reason_kind: string
+          school_id: string
+        }
+        Update: {
+          assessment_ref?: string
+          asset_id?: string
+          base_asset_seq?: number
+          case_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          proposer_person?: string
+          reason_kind?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_disposals_assessment_ref_fkey"
+            columns: ["assessment_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_disposals_assessment_ref_fkey"
+            columns: ["assessment_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_disposals_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_disposals_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "admin_case_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_disposals_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_asset_events: {
         Row: {
           actor_person: string
@@ -18114,6 +18262,42 @@ export type Database = {
             columns: ["inventory_id"]
             isOneToOne: false
             referencedRelation: "ops_asset_inventories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_asset_maintenance_links: {
+        Row: {
+          asset_id: string
+          author_person: string
+          created_at: string
+          maintenance_order_id: string
+        }
+        Insert: {
+          asset_id: string
+          author_person: string
+          created_at?: string
+          maintenance_order_id: string
+        }
+        Update: {
+          asset_id?: string
+          author_person?: string
+          created_at?: string
+          maintenance_order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_asset_maintenance_links_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "ops_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_asset_maintenance_links_maintenance_order_id_fkey"
+            columns: ["maintenance_order_id"]
+            isOneToOne: false
+            referencedRelation: "ops_maintenance_orders"
             referencedColumns: ["id"]
           },
         ]
@@ -31563,6 +31747,10 @@ export type Database = {
         }
         Returns: string
       }
+      link_ops_asset_maintenance: {
+        Args: { _a: string; _mo: string }
+        Returns: undefined
+      }
       link_ops_preventive_order: {
         Args: { _mo: string; _pv: string }
         Returns: undefined
@@ -33087,6 +33275,7 @@ export type Database = {
         Returns: boolean
       }
       ops_checklist_usable: { Args: { _cv: string }; Returns: boolean }
+      ops_disposal_state: { Args: { _d: string }; Returns: string }
       ops_maintenance_next_ok: {
         Args: { _last: string; _last_result: string; _stage: string }
         Returns: boolean
@@ -33290,6 +33479,18 @@ export type Database = {
           _person: string
           _school: string
           _target_user: string
+        }
+        Returns: string
+      }
+      propose_ops_asset_disposal: {
+        Args: {
+          _a: string
+          _assessment: string
+          _case: string
+          _expected_seq: number
+          _justification: string
+          _key: string
+          _reason: string
         }
         Returns: string
       }
@@ -35274,6 +35475,21 @@ export type Database = {
           _kind: string
           _status: string
           _task: string
+        }
+        Returns: number
+      }
+      record_ops_asset_disposal_event: {
+        Args: {
+          _d: string
+          _decision: string
+          _dest_kind: string
+          _dest_party: string
+          _doc: string
+          _expected_seq: number
+          _key: string
+          _kind: string
+          _note: string
+          _on: string
         }
         Returns: number
       }
