@@ -90,6 +90,7 @@ import { Route as RegrasInstitucionaisRouteImport } from './routes/regras-instit
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anomalias'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
+import { Route as SigemDocumentosRouteImport } from './routes/sigem-documentos'
 import { Route as SimuladorRouteImport } from './routes/simulador'
 import { Route as SugestoesDeHorarioRouteImport } from './routes/sugestoes-de-horario'
 import { Route as SupervisaoEscolarRouteImport } from './routes/supervisao-escolar'
@@ -668,6 +669,11 @@ const RevisaoDeAnomaliasRoute = RevisaoDeAnomaliasRouteImport.update({
 const SecretariaRoute = SecretariaRouteImport.update({
   id: '/secretaria',
   path: '/secretaria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigemDocumentosRoute = SigemDocumentosRouteImport.update({
+  id: '/sigem-documentos',
+  path: '/sigem-documentos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SimuladorRoute = SimuladorRouteImport.update({
@@ -1714,6 +1720,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-documentos': typeof SigemDocumentosRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
@@ -1961,6 +1968,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-documentos': typeof SigemDocumentosRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
@@ -2195,6 +2203,7 @@ export interface FileRoutesById {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-documentos': typeof SigemDocumentosRoute
   '/simulador': typeof SimuladorRoute
   '/sugestoes-de-horario': typeof SugestoesDeHorarioRoute
   '/supervisao-escolar': typeof SupervisaoEscolarRoute
@@ -2453,6 +2462,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-documentos'
     | '/simulador'
     | '/sugestoes-de-horario'
     | '/supervisao-escolar'
@@ -2700,6 +2710,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-documentos'
     | '/simulador'
     | '/sugestoes-de-horario'
     | '/supervisao-escolar'
@@ -2933,6 +2944,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-documentos'
     | '/simulador'
     | '/sugestoes-de-horario'
     | '/supervisao-escolar'
@@ -3190,6 +3202,7 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   RevisaoDeAnomaliasRoute: typeof RevisaoDeAnomaliasRoute
   SecretariaRoute: typeof SecretariaRoute
+  SigemDocumentosRoute: typeof SigemDocumentosRoute
   SimuladorRoute: typeof SimuladorRoute
   SugestoesDeHorarioRoute: typeof SugestoesDeHorarioRoute
   SupervisaoEscolarRoute: typeof SupervisaoEscolarRoute
@@ -3807,6 +3820,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria'
       fullPath: '/secretaria'
       preLoaderRoute: typeof SecretariaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sigem-documentos': {
+      id: '/sigem-documentos'
+      path: '/sigem-documentos'
+      fullPath: '/sigem-documentos'
+      preLoaderRoute: typeof SigemDocumentosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/simulador': {
@@ -5779,6 +5799,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   RevisaoDeAnomaliasRoute: RevisaoDeAnomaliasRoute,
   SecretariaRoute: SecretariaRoute,
+  SigemDocumentosRoute: SigemDocumentosRoute,
   SimuladorRoute: SimuladorRoute,
   SugestoesDeHorarioRoute: SugestoesDeHorarioRoute,
   SupervisaoEscolarRoute: SupervisaoEscolarRoute,
