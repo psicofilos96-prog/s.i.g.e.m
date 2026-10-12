@@ -30,3 +30,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# NSEC.ENV.1 — arquivos de ambiente locais nunca entram no repositório.
+# `.env` raiz é gerado pela plataforma e só pode conter valores públicos (guarda: src/test/invariants/env-file-public-only.test.ts).
+.env.*
+!.env.example
