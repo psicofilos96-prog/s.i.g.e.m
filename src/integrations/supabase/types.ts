@@ -34102,6 +34102,61 @@ export type Database = {
           },
         ]
       }
+      tech_change_documents: {
+        Row: {
+          case_event_ref: string
+          change_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          note: string
+          person_id: string
+        }
+        Insert: {
+          case_event_ref: string
+          change_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          note: string
+          person_id: string
+        }
+        Update: {
+          case_event_ref?: string
+          change_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string
+          person_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_change_documents_case_event_ref_fkey"
+            columns: ["case_event_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_change_documents_case_event_ref_fkey"
+            columns: ["case_event_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_change_documents_change_id_fkey"
+            columns: ["change_id"]
+            isOneToOne: false
+            referencedRelation: "tech_changes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_change_events: {
         Row: {
           act_ref: string | null
@@ -36582,6 +36637,16 @@ export type Database = {
       }
       assign_permanence_case_number: {
         Args: { _case: string }
+        Returns: string
+      }
+      attach_tech_change_document: {
+        Args: {
+          _case_event: string
+          _change: string
+          _key: string
+          _kind: string
+          _note: string
+        }
         Returns: string
       }
       attendance_closing_covering: {
