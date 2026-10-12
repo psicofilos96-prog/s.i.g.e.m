@@ -23,7 +23,7 @@ export interface ConfContext {
   existingActiveEnrollmentRef: string | null | undefined; // undefined = não lido
 }
 export type ConfOutcome =
-  | { ok: true; event: ConfirmationEvent; replay: boolean; pendingDocuments?: string[]; canonicalPlan?: { writer: string; payload: Record<string, string> } }
+  | { ok: true; event: ConfirmationEvent; replay: boolean; canonicalPlan?: { writer: string; payload: Record<string, string> } }
   | { ok: false; reason: string };
 
 export const nextStep = (ev: readonly ConfirmationEvent[]): Step | null => STEPS[ev.length] ?? null;
@@ -39,7 +39,7 @@ export function advance(events: readonly ConfirmationEvent[], input: {
   if (!cap || !actor.capabilities.includes(cap)) return { ok: false, reason: "Competência da etapa não configurada ou ausente." };
   if (events.length !== input.expectedSeq) return { ok: false, reason: "Caso mudou: releia." };
   if (nextStep(events) !== input.step) return { ok: false, reason: `Etapa fora de ordem; esperado ${nextStep(events) ?? "nenhuma"}.` };
-  let pendingDocuments: string[] | undefined; let canonicalPlan: ConfOutcome extends never ? never : { writer: string; payload: Record<string, string> } | undefined;
+  let canonicalPlan: { writer: string; payload: Record<string, string> } | undefined;
   switch (input.step) {
     case "vaga": if (ctx.reservationActive !== true) return { ok: false, reason: "Reserva ativa não comprovada." }; break;
     case "comunicacao": if (ctx.communicationStatus === null) return { ok: false, reason: "Comunicação não lida." };
@@ -60,7 +60,7 @@ export function advance(events: readonly ConfirmationEvent[], input: {
     case "matricula":
       if (ctx.existingActiveEnrollmentRef === undefined) return { ok: false, reason: "Matrículas existentes não lidas." };
       if (ctx.existingActiveEnrollmentRef) return { ok: false, reason: `Estudante já tem matrícula ativa (${ctx.existingActiveEnrollmentRef}): duplicidade.` };
-      if (!input.ref.startsWith("fato:")) return { ok: false, reason: "Exige referência do fato gravado pelo writer canônico.", } as const;
+      if (!input.ref.startsWith("fato:")) return { ok: false, reason: "Exige referência do fato gravado pelo writer canônico." };
       break;
     case "enturmacao":
       if (!input.classId) return { ok: false, reason: "Turma obrigatória." };
@@ -68,11 +68,10 @@ export function advance(events: readonly ConfirmationEvent[], input: {
       break;
     case "ocupacao": if (!input.ref.startsWith("leitura:")) return { ok: false, reason: "Ocupação é derivada: cite a leitura do quadro L05." }; break;
   }
-  if (input.step === "conferencia") pendingDocuments = ctx.documentsPresent.length ? [] : [];
   if (input.step === "confirmacao") canonicalPlan = { writer: "record_enrollment (B3)", payload: { studentRef: input.studentRef, schoolId: input.schoolId, caseId: input.caseId } };
   if (input.step === "matricula" && input.classId) canonicalPlan = { writer: "record_class_allocation (B3)", payload: { studentRef: input.studentRef, classId: input.classId } };
   const event: ConfirmationEvent = { caseId: input.caseId, seq: events.length + 1, step: input.step, personId: actor.personId, at: input.at, idempotencyKey: input.idempotencyKey, ref: input.ref, note: input.note.trim() };
-  return { ok: true, event, replay: false, pendingDocuments, canonicalPlan };
+  return { ok: true, event, replay: false, canonicalPlan };
 }
 
 /** Pendências documentais não bloqueantes (para exibir, nunca para travar). */
