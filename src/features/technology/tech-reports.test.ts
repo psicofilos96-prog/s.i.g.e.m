@@ -26,3 +26,11 @@ describe("L23 relatórios de tecnologia", () => {
     expect(t.undated).toBe(1);
   });
 });
+
+import { readFileSync } from "node:fs";
+describe("L23 fontes reais", () => {
+  it("toda fonte declarada existe no banco", () => {
+    const types = readFileSync("src/integrations/supabase/types.ts", "utf8");
+    for (const r of TECH_REPORTS) for (const s of r.sources) expect(types.includes(`      ${s}: {`), s).toBe(true);
+  });
+});
