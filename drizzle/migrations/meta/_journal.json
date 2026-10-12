@@ -3242,6 +3242,13 @@
       "when": 1791808840658,
       "tag": "0462_enr10_application_protocols",
       "breakpoints": true
+    },
+    {
+      "idx": 463,
+      "version": "7",
+      "when": 1791809130211,
+      "tag": "0463_enr11_admin_panel",
+      "breakpoints": true
     }
   ]
 }
