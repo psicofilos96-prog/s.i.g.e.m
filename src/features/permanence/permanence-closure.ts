@@ -82,7 +82,7 @@ export const PERM_SCENARIOS: readonly { scenario: string; file: string; needle: 
   { scenario: "Frequência não lançada ≠ falta", file: `${F}/attendance-monitoring.test.ts`, needle: "sem lançamento", layer: "ts" },
   { scenario: "Alerta duplicado", file: `${F}/alert-center.test.ts`, needle: "idempot", layer: "ts" },
   { scenario: "Abertura concorrente de caso", file: `${M}/0395_perm05_alert_center.sql`, needle: "UNIQUE", layer: "sql" },
-  { scenario: "Transferência", file: `${F}/sector-integrations.test.ts`, needle: "Secretaria", layer: "ts" },
+  { scenario: "Transferência", file: `${F}/attendance-monitoring.test.ts`, needle: "transferência", layer: "ts" },
   { scenario: "Criança sem matrícula", file: `${F}/permanence-cases.test.ts`, needle: "matr", layer: "ts" },
   { scenario: "EI/EF/EJA", file: `${F}/segment-profiles.test.ts`, needle: "EJA", layer: "ts" },
   { scenario: "Retorno", file: `${F}/school-return.test.ts`, needle: "retorno", layer: "ts" },
