@@ -14545,6 +14545,102 @@ export type Database = {
           },
         ]
       }
+      enr_distribution_events: {
+        Row: {
+          act_ref: string | null
+          action: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          proposal_id: string
+          reason: string
+          seq: number
+        }
+        Insert: {
+          act_ref?: string | null
+          action: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          proposal_id: string
+          reason: string
+          seq: number
+        }
+        Update: {
+          act_ref?: string | null
+          action?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          proposal_id?: string
+          reason?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_distribution_events_act_ref_fkey"
+            columns: ["act_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_act_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_distribution_events_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "enr_distribution_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_distribution_proposals: {
+        Row: {
+          campaign_id: string
+          conflict_count: number
+          conflicts: Json
+          created_at: string
+          id: string
+          proposer_person: string
+          run_id: string
+        }
+        Insert: {
+          campaign_id: string
+          conflict_count: number
+          conflicts: Json
+          created_at?: string
+          id?: string
+          proposer_person: string
+          run_id: string
+        }
+        Update: {
+          campaign_id?: string
+          conflict_count?: number
+          conflicts?: Json
+          created_at?: string
+          id?: string
+          proposer_person?: string
+          run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_distribution_proposals_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enr_distribution_proposals_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: true
+            referencedRelation: "enr_classification_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_document_reviews: {
         Row: {
           created_at: string
@@ -37198,6 +37294,7 @@ export type Database = {
       enr_campaign_state: { Args: { _c: string }; Returns: string }
       enr_can_see_application: { Args: { _app: string }; Returns: boolean }
       enr_classifier: { Args: never; Returns: boolean }
+      enr_distribution_conflicts: { Args: { _run: string }; Returns: Json }
       enr_document_slot_open: { Args: { _name: string }; Returns: boolean }
       enr_norm_name: { Args: { _t: string }; Returns: string }
       enr_preference_policy_current: {
@@ -37223,6 +37320,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      enr_propose_distribution: { Args: { _run: string }; Returns: string }
       enr_protocol_application: {
         Args: { _application: string }
         Returns: {
@@ -41871,6 +41969,17 @@ export type Database = {
           result_hash: string
           run_id: string
         }[]
+      }
+      record_enr_distribution_event: {
+        Args: {
+          _act: string
+          _action: string
+          _expected_seq: number
+          _key: string
+          _proposal: string
+          _reason: string
+        }
+        Returns: number
       }
       record_enr_document_review: {
         Args: {
