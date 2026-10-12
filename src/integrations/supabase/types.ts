@@ -34102,6 +34102,98 @@ export type Database = {
           },
         ]
       }
+      tech_access_request_events: {
+        Row: {
+          created_at: string
+          idempotency_key: string
+          kind: string
+          note: string
+          person_id: string
+          request_id: string
+          seq: number
+        }
+        Insert: {
+          created_at?: string
+          idempotency_key: string
+          kind: string
+          note: string
+          person_id: string
+          request_id: string
+          seq: number
+        }
+        Update: {
+          created_at?: string
+          idempotency_key?: string
+          kind?: string
+          note?: string
+          person_id?: string
+          request_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_access_request_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "tech_access_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_access_requests: {
+        Row: {
+          access_profile: string
+          beneficiary_engagement: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          justification: string
+          requester_person: string
+          school_id: string | null
+          service_key: string
+          service_version_id: string
+        }
+        Insert: {
+          access_profile: string
+          beneficiary_engagement: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          justification: string
+          requester_person: string
+          school_id?: string | null
+          service_key: string
+          service_version_id: string
+        }
+        Update: {
+          access_profile?: string
+          beneficiary_engagement?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          requester_person?: string
+          school_id?: string | null
+          service_key?: string
+          service_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_access_requests_beneficiary_engagement_fkey"
+            columns: ["beneficiary_engagement"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_access_requests_service_version_id_fkey"
+            columns: ["service_version_id"]
+            isOneToOne: false
+            referencedRelation: "tech_digital_service_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_change_documents: {
         Row: {
           case_event_ref: string
@@ -42508,6 +42600,16 @@ export type Database = {
             Args: { _base_version: string; _map: string; _reason: string }
             Returns: string
           }
+      open_tech_access_request: {
+        Args: {
+          _engagement: string
+          _just: string
+          _key: string
+          _profile: string
+          _service: string
+        }
+        Returns: string
+      }
       operational_engagement_active: {
         Args: { _engagement: string; _school: string }
         Returns: boolean
@@ -46479,6 +46581,16 @@ export type Database = {
         }
         Returns: Json
       }
+      record_tech_access_event: {
+        Args: {
+          _expected: number
+          _key: string
+          _kind: string
+          _note: string
+          _req: string
+        }
+        Returns: number
+      }
       record_tech_change_event: {
         Args: {
           _act: string
@@ -48750,6 +48862,7 @@ export type Database = {
           version_id: string
         }[]
       }
+      tech_access_can_read: { Args: { _r: string }; Returns: boolean }
       tech_answers_problem: { Args: { _a: Json; _f: Json }; Returns: string }
       tech_assess_ticket: {
         Args: {

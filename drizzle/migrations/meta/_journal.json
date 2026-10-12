@@ -3424,6 +3424,13 @@
       "when": 1791815633392,
       "tag": "0488_tech15_digital_services_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 489,
+      "version": "7",
+      "when": 1791815810928,
+      "tag": "0489_tech16_access_requests",
+      "breakpoints": true
     }
   ]
 }
