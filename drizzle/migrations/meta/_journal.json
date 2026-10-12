@@ -2787,6 +2787,13 @@
       "when": 1791792309901,
       "tag": "0397_perm09_barrier_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 398,
+      "version": "7",
+      "when": 1791792487171,
+      "tag": "0398_perm10_contact_attempts",
+      "breakpoints": true
     }
   ]
 }
