@@ -35,8 +35,8 @@ export type LessonSituation =
 export type LessonSituationView = {
   situation: LessonSituation;
   /** Quem registrou a versão vigente (autoria real), quando houver registro. */
-  author?: string;
-  version?: number;
+  author?: string | undefined;
+  version?: number | undefined;
   rectified: boolean;
   notes: string[];
 };
