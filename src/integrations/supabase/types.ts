@@ -18252,6 +18252,184 @@ export type Database = {
           },
         ]
       }
+      permanence_case_numbers: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          case_id: string
+          case_number: string
+          case_seq: number
+          case_year: number
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          case_id: string
+          case_number: string
+          case_seq: number
+          case_year: number
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          case_id?: string
+          case_number?: string
+          case_seq?: number
+          case_year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_case_numbers_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanence_case_priorities: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string
+          decision_ref: string
+          label: string
+          rank: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by: string
+          decision_ref: string
+          label: string
+          rank: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string
+          decision_ref?: string
+          label?: string
+          rank?: number
+        }
+        Relationships: []
+      }
+      permanence_case_priority_events: {
+        Row: {
+          author_person: string
+          case_id: string
+          created_at: string
+          justification: string
+          priority_code: string
+          seq: number
+        }
+        Insert: {
+          author_person: string
+          case_id: string
+          created_at?: string
+          justification: string
+          priority_code: string
+          seq: number
+        }
+        Update: {
+          author_person?: string
+          case_id?: string
+          created_at?: string
+          justification?: string
+          priority_code?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_case_priority_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "aa_outreach_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permanence_case_priority_events_priority_code_fkey"
+            columns: ["priority_code"]
+            isOneToOne: false
+            referencedRelation: "permanence_case_priorities"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      permanence_out_of_school_events: {
+        Row: {
+          author_person: string
+          created_at: string
+          enrollment_ref: string | null
+          kind: string
+          note: string | null
+          seq: number
+          signal_id: string
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          enrollment_ref?: string | null
+          kind: string
+          note?: string | null
+          seq: number
+          signal_id: string
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          enrollment_ref?: string | null
+          kind?: string
+          note?: string | null
+          seq?: number
+          signal_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permanence_out_of_school_events_signal_id_fkey"
+            columns: ["signal_id"]
+            isOneToOne: false
+            referencedRelation: "permanence_out_of_school_signals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permanence_out_of_school_signals: {
+        Row: {
+          author_person: string
+          birth_year: number | null
+          child_ref_hmac: string
+          created_at: string
+          display_initials: string | null
+          id: string
+          idempotency_key: string
+          source_kind: string
+          territory_school_id: string
+        }
+        Insert: {
+          author_person: string
+          birth_year?: number | null
+          child_ref_hmac: string
+          created_at?: string
+          display_initials?: string | null
+          id?: string
+          idempotency_key: string
+          source_kind: string
+          territory_school_id: string
+        }
+        Update: {
+          author_person?: string
+          birth_year?: number | null
+          child_ref_hmac?: string
+          created_at?: string
+          display_initials?: string | null
+          id?: string
+          idempotency_key?: string
+          source_kind?: string
+          territory_school_id?: string
+        }
+        Relationships: []
+      }
       permanence_rule_approvals: {
         Row: {
           approved_at: string
@@ -25613,6 +25791,10 @@ export type Database = {
         Args: { _class: string; _expected_sequence: number; _reason: string }
         Returns: string
       }
+      assign_permanence_case_number: {
+        Args: { _case: string }
+        Returns: string
+      }
       attendance_closing_covering: {
         Args: { _class: string; _lesson_logical: string }
         Returns: string
@@ -32596,6 +32778,16 @@ export type Database = {
         }
         Returns: number
       }
+      record_out_of_school_event: {
+        Args: {
+          _enrollment_ref: string
+          _expected_seq: number
+          _kind: string
+          _note: string
+          _signal: string
+        }
+        Returns: number
+      }
       record_own_password_change: { Args: never; Returns: undefined }
       record_performance_disclosure: {
         Args: {
@@ -33481,6 +33673,17 @@ export type Database = {
         Args: { _id: string; _label: string; _ordinal: number }
         Returns: string
       }
+      register_out_of_school_signal: {
+        Args: {
+          _birth_year: number
+          _hmac: string
+          _initials: string
+          _key: string
+          _source: string
+          _territory: string
+        }
+        Returns: string
+      }
       register_period_organization_version: {
         Args: {
           _act_ref: string
@@ -33506,6 +33709,15 @@ export type Database = {
           _student: string
         }
         Returns: string
+      }
+      register_permanence_priority: {
+        Args: {
+          _code: string
+          _decision: string
+          _label: string
+          _rank: number
+        }
+        Returns: undefined
       }
       register_permanence_rule_version: {
         Args: {
@@ -34414,6 +34626,15 @@ export type Database = {
       set_notification_preference: {
         Args: { _kind: string; _opted_out: boolean }
         Returns: undefined
+      }
+      set_permanence_case_priority: {
+        Args: {
+          _case: string
+          _code: string
+          _expected_seq: number
+          _justification: string
+        }
+        Returns: number
       }
       share_teaching_plan: {
         Args: { _plan: string; _recipient: string; _revoke: boolean }
