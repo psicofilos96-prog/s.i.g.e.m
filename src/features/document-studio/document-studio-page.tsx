@@ -12,6 +12,7 @@ import {
   type EmissionEvent, type StudioEmission, type StudioEvent, type StudioVersion,
 } from "./studio-cloud";
 import { EditorError, estimatePages, insertField, insertTable, insertToken, setFooter, setHeaderLines, setStyle } from "./editor-model";
+import { latestLogos, logoAssets, logoRef, setHeaderLogo } from "./studio-logos";
 import { clearLocalDraft, readLocalDraft, saveLocalDraft } from "./editor-draft";
 
 const SAMPLE_NOTE = "Prévia sem dados: campos aparecem como \"sem registro\". A emissão congela os dados informados junto com a versão homologada.";
@@ -66,7 +67,7 @@ export function DocumentStudioPage() {
     try { await f(); setMsg({ kind: "ok", text: ok }); await refresh(); } catch (e) { setMsg({ kind: "erro", text: studioMessage(e) }); } finally { setBusy(false); }
   }
   const issues = validateTemplate(draft.blocks, draft.page);
-  const preview = renderStudio({ title: draft.title, blocks: draft.blocks, page: draft.page, facts: {}, draftLabel: latestState === "homologado" ? null : DRAFT_LABEL });
+  const preview = renderStudio({ title: draft.title, blocks: draft.blocks, page: draft.page, facts: {}, draftLabel: latestState === "homologado" ? null : DRAFT_LABEL, assets: logoAssets() });
   const setBlocks = (f: (b: StudioBlock[]) => StudioBlock[]) => setDraft((d) => ({ ...d, blocks: f(d.blocks) }));
   const move = (i: number, d: -1 | 1) => setBlocks((b) => { const n = [...b]; const j = i + d; if (j < 0 || j >= n.length) return b; [n[i], n[j]] = [n[j]!, n[i]!]; return n; });
   const editText = (i: number, text: string) => setBlocks((b) => b.map((x, k) => k !== i ? x : x.type === "title" ? { ...x, text } : x.type === "rich" ? { ...x, runs: [{ text }] } : x));
@@ -143,6 +144,7 @@ export function DocumentStudioPage() {
             <p className="text-xs text-muted-foreground">Estimativa: {pages} página(s) A4 sem dados. A quebra final depende dos dados e do navegador.</p>
             <fieldset className="space-y-2 rounded-md border border-border p-2 text-sm"><legend className="px-1 font-medium">Cabeçalho e rodapé</legend>
               <label className="block">Linhas do cabeçalho (uma por linha)<textarea className={inp} value={header?.type === "header" ? header.lines.join("\n") : ""} onChange={(e) => tryEdit(() => setBlocks((b) => setHeaderLines(b, e.target.value.split("\n"))))} /></label>
+              <label className="block">Brasão ou logo<select className={inp} value={header?.type === "header" ? header.logoAsset ?? "" : ""} onChange={(e) => tryEdit(() => setBlocks((b) => setHeaderLogo(b, e.target.value || null)))}><option value="">Sem logo</option>{latestLogos().map((l) => <option key={logoRef(l)} value={logoRef(l)}>{l.label} (versão {l.version})</option>)}</select></label>
               <label className="block">Rodapé<input className={inp} maxLength={200} value={draft.page.footerText ?? ""} onChange={(e) => tryEdit(() => setDraft((d) => ({ ...d, page: setFooter(d.page, e.target.value, d.page.pageNumbers) })))} /></label>
               <label className="flex items-center gap-2"><input type="checkbox" checked={draft.page.pageNumbers} onChange={(e) => setDraft((d) => ({ ...d, page: setFooter(d.page, d.page.footerText, e.target.checked) }))} /> Numerar páginas</label>
             </fieldset>

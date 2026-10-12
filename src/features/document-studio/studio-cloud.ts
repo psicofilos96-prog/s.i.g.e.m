@@ -59,6 +59,8 @@ export function diffVersions(a: readonly StudioBlock[], b: readonly StudioBlock[
   return out;
 }
 
+import { logoAssets } from "./studio-logos";
+
 /* ---------- QR (gerado localmente, sem serviço externo) ---------- */
 export const VERIFY_PATH = "/verificar/documento/";
 export const isStudioCode = (c: unknown): c is string => typeof c === "string" && /^[0-9A-F]{20}$/.test(c.trim().toUpperCase());
@@ -89,7 +91,7 @@ export function reproduce(e: Pick<StudioEmission, "snapshot" | "verification_cod
   const facts: Facts = { ...s.facts, "documento.codigo_verificacao": e.verification_code };
   const qr = qrDataUrl(verifyUrl(e.verification_code, origin));
   const label = status === "cancelado" ? "DOCUMENTO CANCELADO" : status === "substituido" ? "DOCUMENTO SUBSTITUÍDO" : null;
-  return renderStudio({ title: s.title, blocks: s.blocks, page: s.page, facts, draftLabel: label, qrImage: qr });
+  return renderStudio({ title: s.title, blocks: s.blocks, page: s.page, facts, draftLabel: label, qrImage: qr, assets: logoAssets() });
 }
 
 /* ---------- Banco ---------- */
