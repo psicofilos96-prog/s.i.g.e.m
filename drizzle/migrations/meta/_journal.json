@@ -3571,6 +3571,13 @@
       "when": 1791842817415,
       "tag": "0509_l39_payroll_import_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 510,
+      "version": "7",
+      "when": 1791842882399,
+      "tag": "0510_l39_switch_revoke_sandbox",
+      "breakpoints": true
     }
   ]
 }
