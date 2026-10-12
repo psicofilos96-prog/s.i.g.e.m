@@ -10483,6 +10483,105 @@ export type Database = {
           },
         ]
       }
+      dev_trainer_designation_endings: {
+        Row: {
+          created_at: string
+          designation_id: string
+          ended_by: string
+          ended_on: string
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          designation_id: string
+          ended_by: string
+          ended_on: string
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          designation_id?: string
+          ended_by?: string
+          ended_on?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_trainer_designation_endings_designation_id_fkey"
+            columns: ["designation_id"]
+            isOneToOne: true
+            referencedRelation: "dev_trainer_designations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_trainer_designations: {
+        Row: {
+          basis: string
+          class_id: string
+          created_at: string
+          designated_by: string
+          engagement_id: string | null
+          id: string
+          idempotency_key: string
+          nature: string
+          person_id: string
+          role_label: string
+          valid_from: string
+          valid_until: string
+        }
+        Insert: {
+          basis: string
+          class_id: string
+          created_at?: string
+          designated_by: string
+          engagement_id?: string | null
+          id?: string
+          idempotency_key: string
+          nature: string
+          person_id: string
+          role_label: string
+          valid_from: string
+          valid_until: string
+        }
+        Update: {
+          basis?: string
+          class_id?: string
+          created_at?: string
+          designated_by?: string
+          engagement_id?: string | null
+          id?: string
+          idempotency_key?: string
+          nature?: string
+          person_id?: string
+          role_label?: string
+          valid_from?: string
+          valid_until?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_trainer_designations_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "dev_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_trainer_designations_engagement_id_fkey"
+            columns: ["engagement_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_trainer_designations_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_version_approvals: {
         Row: {
           approver_person: string
@@ -33489,6 +33588,19 @@ export type Database = {
         }
         Returns: string
       }
+      designate_dev_trainer: {
+        Args: {
+          _basis: string
+          _class: string
+          _engagement: string
+          _from: string
+          _key: string
+          _person: string
+          _role: string
+          _until: string
+        }
+        Returns: string
+      }
       designate_ops_crew: {
         Args: {
           _act_doc: string
@@ -33533,6 +33645,21 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      dev_is_active_trainer: { Args: { _class: string }; Returns: boolean }
+      dev_person_formation_history: {
+        Args: { _person: string }
+        Returns: {
+          class_id: string
+          class_label: string
+          course_title: string
+          course_version: number
+          enrollment_id: string
+          functional_link_id: string
+          last_event: string
+          last_event_at: string
+          requested_at: string
+        }[]
       }
       dev_plan_published: { Args: { _version: string }; Returns: boolean }
       dev_track_approved: { Args: { _v: string }; Returns: boolean }
@@ -34075,6 +34202,10 @@ export type Database = {
           _valid_on: string
         }
         Returns: Json
+      }
+      end_dev_trainer_designation: {
+        Args: { _designation: string; _on: string; _reason: string }
+        Returns: undefined
       }
       end_engagement: {
         Args: { _act_ref: string; _ended_on: string; _engagement: string }
