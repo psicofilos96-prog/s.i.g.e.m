@@ -1,3 +1,4 @@
 ## Perfil Docente SIGEM 2.0 (Lote 01 — `teacher-architecture.ts`)
 - Mapa das 34 seções → rota/módulo/tabela/lacuna vive só em `teacher-architecture.ts` e o teste exige que tudo citado exista, porque matriz manual em documento fica stale e esconderia cadastro paralelo.
 - Lote 02 (`teacher-context.ts`): "minhas turmas" é projeção por data de atuação × atribuição × substituição já lidas; atribuição vale só dentro da atuação, vigente = edição, encerrada = leitura apenas de fatos do próprio período, substituição concede e nunca retira, porque competência após o vínculo não pode ser ampliada nem presumida.
+- Lote 03 (`diary/lesson-central.ts` + `next-lesson-card.tsx`): Central da Aula é o cartão do início do Diário sobre a grade publicada; a aula é sempre "Prevista" até haver registro, alunos válidos = alocação vigente única na data, e ações só levam às telas canônicas (chamada, registro, Pauta, alunos), porque segunda tela de lançamento criaria fato paralelo.
