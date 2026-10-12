@@ -14818,6 +14818,79 @@ export type Database = {
           },
         ]
       }
+      enr_result_notice_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          notice_id: string
+          reason: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          notice_id: string
+          reason: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          notice_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_result_notice_approvals_notice_id_fkey"
+            columns: ["notice_id"]
+            isOneToOne: true
+            referencedRelation: "enr_result_notices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_result_notices: {
+        Row: {
+          action_text: string
+          author_person: string
+          campaign_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          justification_text: string
+          situation: string
+          version: number
+        }
+        Insert: {
+          action_text: string
+          author_person: string
+          campaign_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          justification_text: string
+          situation: string
+          version: number
+        }
+        Update: {
+          action_text?: string
+          author_person?: string
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          justification_text?: string
+          situation?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_result_notices_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_seat_events: {
         Row: {
           application_id: string
@@ -35057,6 +35130,10 @@ export type Database = {
         Args: { _policy: string; _reason: string }
         Returns: string
       }
+      approve_enr_result_notice: {
+        Args: { _notice: string; _reason: string }
+        Returns: undefined
+      }
       approve_enr_seat_hold_rule: {
         Args: { _reason: string; _rule: string }
         Returns: undefined
@@ -37731,6 +37808,17 @@ export type Database = {
           situation: string
           status: string
           submitted_on: string
+        }[]
+      }
+      enr_public_application_result: {
+        Args: { _check: string; _code: string }
+        Returns: {
+          cell: string
+          deadline: string
+          justification: string
+          next_step: string
+          situation: string
+          status: string
         }[]
       }
       enr_public_application_status: {
@@ -42464,6 +42552,16 @@ export type Database = {
           _protocol: string
         }
         Returns: string
+      }
+      record_enr_result_notice: {
+        Args: {
+          _action: string
+          _campaign: string
+          _justification: string
+          _key: string
+          _situation: string
+        }
+        Returns: number
       }
       record_enr_seat_capacity: {
         Args: {
