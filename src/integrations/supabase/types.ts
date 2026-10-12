@@ -19680,6 +19680,218 @@ export type Database = {
           },
         ]
       }
+      ops_supply_item_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          decision_ref: string
+          item_version_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          decision_ref: string
+          item_version_id: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          decision_ref?: string
+          item_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_item_approvals_item_version_id_fkey"
+            columns: ["item_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_supply_item_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_supply_item_versions: {
+        Row: {
+          active: boolean
+          author_person: string
+          category: string
+          created_at: string
+          id: string
+          item_key: string
+          label: string
+          reason: string | null
+          tracks_expiry: boolean
+          tracks_lot: boolean
+          unit: string
+          version: number
+        }
+        Insert: {
+          active?: boolean
+          author_person: string
+          category: string
+          created_at?: string
+          id?: string
+          item_key: string
+          label: string
+          reason?: string | null
+          tracks_expiry?: boolean
+          tracks_lot?: boolean
+          unit: string
+          version: number
+        }
+        Update: {
+          active?: boolean
+          author_person?: string
+          category?: string
+          created_at?: string
+          id?: string
+          item_key?: string
+          label?: string
+          reason?: string | null
+          tracks_expiry?: boolean
+          tracks_lot?: boolean
+          unit?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      ops_supply_movements: {
+        Row: {
+          actor_person: string
+          created_at: string
+          destination: string | null
+          expires_on: string | null
+          id: string
+          idempotency_key: string
+          item_key: string
+          item_version_id: string
+          kind: string
+          lot: string | null
+          occurred_on: string
+          quantity: number
+          reason: string | null
+          reverses_id: string | null
+          source_doc_ref: string | null
+          warehouse_id: string
+        }
+        Insert: {
+          actor_person: string
+          created_at?: string
+          destination?: string | null
+          expires_on?: string | null
+          id?: string
+          idempotency_key: string
+          item_key: string
+          item_version_id: string
+          kind: string
+          lot?: string | null
+          occurred_on: string
+          quantity: number
+          reason?: string | null
+          reverses_id?: string | null
+          source_doc_ref?: string | null
+          warehouse_id: string
+        }
+        Update: {
+          actor_person?: string
+          created_at?: string
+          destination?: string | null
+          expires_on?: string | null
+          id?: string
+          idempotency_key?: string
+          item_key?: string
+          item_version_id?: string
+          kind?: string
+          lot?: string | null
+          occurred_on?: string
+          quantity?: number
+          reason?: string | null
+          reverses_id?: string | null
+          source_doc_ref?: string | null
+          warehouse_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_supply_movements_item_version_id_fkey"
+            columns: ["item_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_supply_item_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_movements_reverses_id_fkey"
+            columns: ["reverses_id"]
+            isOneToOne: false
+            referencedRelation: "ops_supply_movements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_movements_source_doc_ref_fkey"
+            columns: ["source_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_movements_source_doc_ref_fkey"
+            columns: ["source_doc_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_supply_movements_warehouse_id_fkey"
+            columns: ["warehouse_id"]
+            isOneToOne: false
+            referencedRelation: "ops_warehouses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_warehouses: {
+        Row: {
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          name: string
+          school_id: string
+          space_id: string | null
+        }
+        Insert: {
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          name: string
+          school_id: string
+          space_id?: string | null
+        }
+        Update: {
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          name?: string
+          school_id?: string
+          space_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_warehouses_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_warehouses_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_work_events: {
         Row: {
           actor_person: string
@@ -28208,6 +28420,10 @@ export type Database = {
         Args: { _decision_ref: string; _type_version: string }
         Returns: undefined
       }
+      approve_ops_supply_item: {
+        Args: { _decision_ref: string; _iv: string }
+        Returns: undefined
+      }
       approve_permanence_barrier_type: {
         Args: { _decision: string; _type: string }
         Returns: string
@@ -33287,6 +33503,10 @@ export type Database = {
       ops_service_state: { Args: { _so: string }; Returns: string }
       ops_space_parent_level: { Args: { _level: string }; Returns: string }
       ops_space_type_usable: { Args: { _tv: string }; Returns: boolean }
+      ops_supply_balance: {
+        Args: { _item: string; _lot: string; _wh: string }
+        Returns: number
+      }
       ops_work_state: { Args: { _w: string }; Returns: string }
       own_engagement_network_now: { Args: never; Returns: boolean }
       own_engagement_schools_now: { Args: never; Returns: string[] }
@@ -35659,6 +35879,23 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_supply_movement: {
+        Args: {
+          _destination: string
+          _doc: string
+          _expires: string
+          _item_key: string
+          _key: string
+          _kind: string
+          _lot: string
+          _on: string
+          _qty: number
+          _reason: string
+          _reverses: string
+          _wh: string
+        }
+        Returns: string
+      }
       record_ops_work_event: {
         Args: {
           _doc: string
@@ -36729,6 +36966,24 @@ export type Database = {
           _level: string
           _reason: string
         }
+        Returns: string
+      }
+      register_ops_supply_item: {
+        Args: {
+          _active: boolean
+          _category: string
+          _expected_version: number
+          _expiry: boolean
+          _key: string
+          _label: string
+          _lot: boolean
+          _reason: string
+          _unit: string
+        }
+        Returns: string
+      }
+      register_ops_warehouse: {
+        Args: { _key: string; _name: string; _school: string; _space: string }
         Returns: string
       }
       register_out_of_school_signal: {

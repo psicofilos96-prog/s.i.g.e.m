@@ -2941,6 +2941,13 @@
       "when": 1791797330537,
       "tag": "0419_ops12_asset_disposals",
       "breakpoints": true
+    },
+    {
+      "idx": 420,
+      "version": "7",
+      "when": 1791797555573,
+      "tag": "0420_ops13_supply_stock",
+      "breakpoints": true
     }
   ]
 }
