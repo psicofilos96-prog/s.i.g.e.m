@@ -14256,6 +14256,91 @@ export type Database = {
         }
         Relationships: []
       }
+      enr_preference_policies: {
+        Row: {
+          author_person: string
+          campaign_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          justification: string
+          max_choices: number
+          min_choices: number
+          offer_ids: string[]
+          ordering: string
+          shift_ids: string[]
+          version: number
+        }
+        Insert: {
+          author_person: string
+          campaign_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          justification: string
+          max_choices: number
+          min_choices: number
+          offer_ids?: string[]
+          ordering: string
+          shift_ids?: string[]
+          version: number
+        }
+        Update: {
+          author_person?: string
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          justification?: string
+          max_choices?: number
+          min_choices?: number
+          offer_ids?: string[]
+          ordering?: string
+          shift_ids?: string[]
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_preference_policies_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "enr_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      enr_preference_policy_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          id: string
+          policy_id: string
+          reason: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          id?: string
+          policy_id: string
+          reason: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          id?: string
+          policy_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enr_preference_policy_approvals_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: true
+            referencedRelation: "enr_preference_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       enr_preliminary_students: {
         Row: {
           author_person: string
@@ -34110,6 +34195,10 @@ export type Database = {
         Args: { _reason: string; _version: string }
         Returns: undefined
       }
+      approve_enr_preference_policy: {
+        Args: { _policy: string; _reason: string }
+        Returns: string
+      }
       approve_ops_asset_category: {
         Args: { _cv: string; _decision_ref: string }
         Returns: undefined
@@ -36669,6 +36758,29 @@ export type Database = {
       enr_campaign_manager: { Args: never; Returns: boolean }
       enr_campaign_state: { Args: { _c: string }; Returns: string }
       enr_norm_name: { Args: { _t: string }; Returns: string }
+      enr_preference_policy_current: {
+        Args: { _c: string }
+        Returns: {
+          author_person: string
+          campaign_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          justification: string
+          max_choices: number
+          min_choices: number
+          offer_ids: string[]
+          ordering: string
+          shift_ids: string[]
+          version: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "enr_preference_policies"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       enr_public_application_status: {
         Args: { _check: string; _code: string }
         Returns: {
@@ -36692,6 +36804,10 @@ export type Database = {
           stage_ids: string[]
           state: string
         }[]
+      }
+      enr_public_preference_policy: {
+        Args: { _campaign: string }
+        Returns: Json
       }
       enr_public_protocol_status: {
         Args: { _code: string; _number: string }
@@ -41232,6 +41348,20 @@ export type Database = {
             }
             Returns: number
           }
+      record_enr_preference_policy: {
+        Args: {
+          _campaign: string
+          _expected_version: number
+          _justification: string
+          _key: string
+          _max: number
+          _min: number
+          _offers: string[]
+          _ordering: string
+          _shifts: string[]
+        }
+        Returns: string
+      }
       record_enr_preliminary_student: {
         Args: {
           _birth: string
