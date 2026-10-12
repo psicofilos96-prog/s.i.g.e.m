@@ -655,7 +655,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] A&A Lote 08 importação QR/OMR e digital (núcleo; sem tabela de tokens)
 
 ## Lotes corretivos 23–31 (2026-10-12)
-- [ ] L23 auditoria histórica integral + matriz única de pendências
+- [x] L23 auditoria histórica integral + matriz única de pendências
 - [ ] L24 reconciliação banco × migrations
 - [ ] L25 reconciliação Censo 2026 (55 escolas)
 - [ ] L26 matrículas, vagas e vida escolar
