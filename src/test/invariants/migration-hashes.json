@@ -507,5 +507,14 @@
  "drizzle/migrations/0456_enr03_campaign_school_keys.sql": "cd1706f02b60d19d9972cb213fd1b55489f3166bcd48fc22395d92761d117f2f",
  "drizzle/migrations/0457_enr04_public_portal_readers.sql": "c60973c31a87b3eadccf95c9ab0b134575af6267d76e93c566ecdaa0eb0f68de",
  "drizzle/migrations/0458_enr06_preliminary_student_reconciliation.sql": "68cce06105fe0df4d646ce12a3fd8d65ca6704bb8045bd11907701dcccc9ec1c",
- "drizzle/migrations/0459_enr07_public_applications.sql": "50a95e6afbbf1e31b72b8a4bdb63b62529aa5c24af84f5815abc9dab049c0acb"
+ "drizzle/migrations/0459_enr07_public_applications.sql": "50a95e6afbbf1e31b72b8a4bdb63b62529aa5c24af84f5815abc9dab049c0acb",
+ "drizzle/migrations/0460_enr08_preference_policies.sql": "1c498cc9c008e7345c2e1b112a884563a09c42166af9b99422b0c960e2c3aade",
+ "drizzle/migrations/0461_enr09_application_documents.sql": "da37b82bfc67becaa785fd3e78ff131aaf83dff0ad0127e245454e22fadac3ef",
+ "drizzle/migrations/0462_enr10_application_protocols.sql": "c5d7c8996284852e1af00c5d01c867353a75d3e6b2c0efb18c258021b891f051",
+ "drizzle/migrations/0463_enr11_admin_panel.sql": "2bf75e20a38985ec9b3b844b2028dbc3d6cfc17b4bb30c2323a034625556a196",
+ "drizzle/migrations/0464_enr12_application_signals.sql": "238d30d33feaeb9ad3918c312bf96a9c661f621be2736f38f64f1e8e06ae6bd8",
+ "drizzle/migrations/0465_enr13_classification_engine.sql": "e625147b0f69b2f69d511af426b3ef30849fa0950d0dc957f7e69bff5955eee7",
+ "drizzle/migrations/0466_enr14_distribution_proposals.sql": "102a9c88cd410e23562715fe50f15f1d50b83f1c7077a5427ceb75d27a6bd4fc",
+ "drizzle/migrations/0467_enr15_seat_concurrency.sql": "d6f53838b793399c11d569fb507d5225ff350cfb7e89727fed5823d8317d8c45",
+ "drizzle/migrations/0468_enr15_seat_concurrency_apply.sql": "e6f66459909cc53a3881f5d4b039b1ed70ba33ba036d0639de949aa7b72943d0"
 }
