@@ -19138,6 +19138,136 @@ export type Database = {
           },
         ]
       }
+      ops_route_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          decision_ref: string
+          route_version_id: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          decision_ref: string
+          route_version_id: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          decision_ref?: string
+          route_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_route_approvals_route_version_id_fkey"
+            columns: ["route_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_route_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_route_itinerary: {
+        Row: {
+          ord: number
+          route_version_id: string
+          scheduled_time: string
+          stop_logical_id: string
+        }
+        Insert: {
+          ord: number
+          route_version_id: string
+          scheduled_time: string
+          stop_logical_id: string
+        }
+        Update: {
+          ord?: number
+          route_version_id?: string
+          scheduled_time?: string
+          stop_logical_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_route_itinerary_route_version_id_fkey"
+            columns: ["route_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_route_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_route_version_schools: {
+        Row: {
+          route_version_id: string
+          school_id: string
+        }
+        Insert: {
+          route_version_id: string
+          school_id: string
+        }
+        Update: {
+          route_version_id?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_route_version_schools_route_version_id_fkey"
+            columns: ["route_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_route_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_route_version_schools_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_route_versions: {
+        Row: {
+          author_person: string
+          capacity: number | null
+          capacity_source: string | null
+          created_at: string
+          id: string
+          reason: string | null
+          route_logical_id: string
+          shift_label: string
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          author_person: string
+          capacity?: number | null
+          capacity_source?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          route_logical_id: string
+          shift_label: string
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          author_person?: string
+          capacity?: number | null
+          capacity_source?: string | null
+          created_at?: string
+          id?: string
+          reason?: string | null
+          route_logical_id?: string
+          shift_label?: string
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       ops_safety_certificate_refs: {
         Row: {
           author_person: string
@@ -19673,6 +19803,50 @@ export type Database = {
           },
           {
             foreignKeyName: "ops_spaces_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_stop_safety_assessments: {
+        Row: {
+          assessed_on: string
+          assessor_person: string
+          created_at: string
+          findings: string
+          id: string
+          idempotency_key: string
+          result: string
+          school_id: string
+          stop_logical_id: string
+        }
+        Insert: {
+          assessed_on: string
+          assessor_person: string
+          created_at?: string
+          findings: string
+          id?: string
+          idempotency_key: string
+          result: string
+          school_id: string
+          stop_logical_id: string
+        }
+        Update: {
+          assessed_on?: string
+          assessor_person?: string
+          created_at?: string
+          findings?: string
+          id?: string
+          idempotency_key?: string
+          result?: string
+          school_id?: string
+          stop_logical_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_stop_safety_assessments_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "institutional_schools"
@@ -28973,6 +29147,10 @@ export type Database = {
         Args: { _decision_ref: string; _pv: string }
         Returns: undefined
       }
+      approve_ops_route_version: {
+        Args: { _decision_ref: string; _rv: string }
+        Returns: undefined
+      }
       approve_ops_space_type_version: {
         Args: { _decision_ref: string; _type_version: string }
         Returns: undefined
@@ -29011,6 +29189,17 @@ export type Database = {
           _minute_id: string
           _period: string
           _role: string
+        }
+        Returns: string
+      }
+      assess_ops_stop_safety: {
+        Args: {
+          _findings: string
+          _key: string
+          _on: string
+          _result: string
+          _school: string
+          _stop: string
         }
         Returns: string
       }
@@ -36449,6 +36638,21 @@ export type Database = {
           _valid_from: string
         }
         Returns: number
+      }
+      record_ops_route_version: {
+        Args: {
+          _capacity: number
+          _capacity_source: string
+          _expected_version: number
+          _from: string
+          _itinerary: Json
+          _reason: string
+          _route: string
+          _schools: string[]
+          _shift: string
+          _until: string
+        }
+        Returns: string
       }
       record_ops_service_event: {
         Args: {
