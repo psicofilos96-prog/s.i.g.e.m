@@ -352,3 +352,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `docs/relatorio-lacunas-raiz-identidade-2026-10-11.md` — Registro de lote: lacunas-raiz de identidade e vínculos medidas no banco.
 - [Alimentação — matriz de aceite Lote 15](alimentacao-matriz-aceite-lote-15.md) — Registro de lote
 | `ciece-matriz-aceite-lote-20.md` | CIECE — matriz de aceite técnico (Lote 20) | Registro de lote | — | — |
+- [Auditoria de cobertura das especificações](auditoria-cobertura-especificacoes-2026-10-12.md) — Registro de lote
