@@ -71,7 +71,7 @@ export function advance(events: readonly ConfirmationEvent[], input: {
   if (input.step === "confirmacao") canonicalPlan = { writer: "record_enrollment (B3)", payload: { studentRef: input.studentRef, schoolId: input.schoolId, caseId: input.caseId } };
   if (input.step === "matricula" && input.classId) canonicalPlan = { writer: "record_class_allocation (B3)", payload: { studentRef: input.studentRef, classId: input.classId } };
   const event: ConfirmationEvent = { caseId: input.caseId, seq: events.length + 1, step: input.step, personId: actor.personId, at: input.at, idempotencyKey: input.idempotencyKey, ref: input.ref, note: input.note.trim() };
-  return { ok: true, event, replay: false, canonicalPlan };
+  return canonicalPlan ? { ok: true, event, replay: false, canonicalPlan } : { ok: true, event, replay: false };
 }
 
 /** Pendências documentais não bloqueantes (para exibir, nunca para travar). */
