@@ -91,6 +91,7 @@ import { Route as RegrasInstitucionaisRouteImport } from './routes/regras-instit
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anomalias'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
+import { Route as SigemDesenvolvimentoRouteImport } from './routes/sigem-desenvolvimento'
 import { Route as SigemDocumentosRouteImport } from './routes/sigem-documentos'
 import { Route as SigemPermanenciaRouteImport } from './routes/sigem-permanencia'
 import { Route as SimuladorRouteImport } from './routes/simulador'
@@ -676,6 +677,11 @@ const RevisaoDeAnomaliasRoute = RevisaoDeAnomaliasRouteImport.update({
 const SecretariaRoute = SecretariaRouteImport.update({
   id: '/secretaria',
   path: '/secretaria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SigemDesenvolvimentoRoute = SigemDesenvolvimentoRouteImport.update({
+  id: '/sigem-desenvolvimento',
+  path: '/sigem-desenvolvimento',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SigemDocumentosRoute = SigemDocumentosRouteImport.update({
@@ -1733,6 +1739,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
   '/sigem-documentos': typeof SigemDocumentosRoute
   '/sigem-permanencia': typeof SigemPermanenciaRoute
   '/simulador': typeof SimuladorRoute
@@ -1983,6 +1990,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
   '/sigem-documentos': typeof SigemDocumentosRoute
   '/sigem-permanencia': typeof SigemPermanenciaRoute
   '/simulador': typeof SimuladorRoute
@@ -2220,6 +2228,7 @@ export interface FileRoutesById {
   '/relatorios': typeof RelatoriosRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
   '/sigem-documentos': typeof SigemDocumentosRoute
   '/sigem-permanencia': typeof SigemPermanenciaRoute
   '/simulador': typeof SimuladorRoute
@@ -2481,6 +2490,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-desenvolvimento'
     | '/sigem-documentos'
     | '/sigem-permanencia'
     | '/simulador'
@@ -2731,6 +2741,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-desenvolvimento'
     | '/sigem-documentos'
     | '/sigem-permanencia'
     | '/simulador'
@@ -2967,6 +2978,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/sigem-desenvolvimento'
     | '/sigem-documentos'
     | '/sigem-permanencia'
     | '/simulador'
@@ -3227,6 +3239,7 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   RevisaoDeAnomaliasRoute: typeof RevisaoDeAnomaliasRoute
   SecretariaRoute: typeof SecretariaRoute
+  SigemDesenvolvimentoRoute: typeof SigemDesenvolvimentoRoute
   SigemDocumentosRoute: typeof SigemDocumentosRoute
   SigemPermanenciaRoute: typeof SigemPermanenciaRoute
   SimuladorRoute: typeof SimuladorRoute
@@ -3853,6 +3866,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria'
       fullPath: '/secretaria'
       preLoaderRoute: typeof SecretariaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sigem-desenvolvimento': {
+      id: '/sigem-desenvolvimento'
+      path: '/sigem-desenvolvimento'
+      fullPath: '/sigem-desenvolvimento'
+      preLoaderRoute: typeof SigemDesenvolvimentoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sigem-documentos': {
@@ -5840,6 +5860,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   RevisaoDeAnomaliasRoute: RevisaoDeAnomaliasRoute,
   SecretariaRoute: SecretariaRoute,
+  SigemDesenvolvimentoRoute: SigemDesenvolvimentoRoute,
   SigemDocumentosRoute: SigemDocumentosRoute,
   SigemPermanenciaRoute: SigemPermanenciaRoute,
   SimuladorRoute: SimuladorRoute,
