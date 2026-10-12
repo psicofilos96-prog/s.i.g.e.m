@@ -9,6 +9,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateTime } from "@/lib/academic-date";
+import { lookupFilter, summarizeReturn, LOOKUP_LIMIT, LOOKUP_MIN_TERM, type LookupSpec } from "@/features/enrollments/enrollment-lookups";
 import { buildArgs, type OperationAction, type OperationRead, type OperationStage } from "@/features/enrollments/enrollment-operations";
 
 
@@ -61,7 +62,45 @@ function ReadTable({ read, ns }: { read: OperationRead; ns: string }) {
   );
 }
 
-function ActionForm({ action, tables, ns }: { action: OperationAction; tables: readonly string[]; ns: string }) {
+function LookupPicker({ id, spec, value, onPick }: { id: string; spec: LookupSpec; value: string; onPick: (v: string) => void }) {
+  const [term, setTerm] = useState("");
+  const [open, setOpen] = useState(false);
+  const filter = lookupFilter(spec, term);
+  const q = useQuery({
+    queryKey: ["lookup", spec.table, filter],
+    enabled: open && filter !== null,
+    staleTime: 30_000,
+    retry: 1,
+    queryFn: async ({ signal }) => {
+      let sel = supabase.from(spec.table as never).select(["id", ...spec.label].join(",")) as any;
+      if (filter) sel = sel.or(filter);
+      const r = await sel.order(spec.order, { ascending: false }).range(0, LOOKUP_LIMIT - 1).abortSignal(signal);
+      if (r.error) throw new Error(r.error.message);
+      return (r.data ?? []) as unknown as Record<string, unknown>[];
+    },
+  });
+  const cls = "mt-1 block w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm";
+  return (
+    <span className="block">
+      <input id={id} className={cls} value={value} onChange={(e) => onPick(e.target.value)} placeholder="Identificador ou escolha abaixo" />
+      <span className="mt-1 flex gap-2">
+        <input aria-label="Buscar por nome" className={cls} value={term} onFocus={() => setOpen(true)} onChange={(e) => { setTerm(e.target.value); setOpen(true); }}
+          placeholder={spec.search ? `Buscar por nome (mín. ${LOOKUP_MIN_TERM} letras)` : "Mostrar os mais recentes"} />
+      </span>
+      {open ? (filter === null ? <span className="mt-1 block">Digite ao menos {LOOKUP_MIN_TERM} letras.</span>
+        : q.isPending ? <span className="mt-1 block">Buscando…</span>
+        : q.isError ? <span className="mt-1 block text-destructive">{userErrorText(q.error, { operation: `buscar-${spec.table}` })}</span>
+        : q.data.length === 0 ? <span className="mt-1 block">Nenhum registro visível para sua conta.</span>
+        : <span className="mt-1 flex max-h-40 flex-col gap-1 overflow-y-auto">{q.data.map((r) => (
+            <button type="button" key={String(r["id"])} className="rounded border border-border px-2 py-1 text-left text-foreground hover:bg-muted"
+              onClick={() => { onPick(String(r["id"])); setOpen(false); }}>
+              {spec.label.map((c) => { const v = r[c]; return v === null || v === undefined ? "—" : c.endsWith("_at") ? formatDateTime(String(v)) : String(v); }).join(" · ")}
+            </button>))}</span>) : null}
+    </span>
+  );
+}
+
+function ActionForm({ action, tables, ns, lookups }: { action: OperationAction; tables: readonly string[]; ns: string; lookups?: Readonly<Record<string, LookupSpec>> | undefined }) {
   const qc = useQueryClient();
   const newKey = () => `${ns}:${crypto.randomUUID()}`;
   const [values, setValues] = useState<Record<string, string>>({});
@@ -75,8 +114,9 @@ function ActionForm({ action, tables, ns }: { action: OperationAction; tables: r
     setBusy(true);
     setMsg(null);
     try {
-      await callRpc(action.rpc, { ...args, ...(action.fixed ?? {}) });
-      setMsg({ ok: true, text: "Gravado pelo writer do banco." });
+      const ret = await callRpc<unknown>(action.rpc, { ...args, ...(action.fixed ?? {}) });
+      const summary = summarizeReturn(ret);
+      setMsg({ ok: true, text: summary ? `Gravado pelo writer do banco. Retorno: ${summary}` : "Gravado pelo writer do banco." });
       setValues({});
       setKey(newKey());
       await Promise.all(tables.map((t) => qc.invalidateQueries({ queryKey: [ns, t] })));
@@ -98,7 +138,9 @@ function ActionForm({ action, tables, ns }: { action: OperationAction; tables: r
           return (
             <label key={f.arg} htmlFor={id} className="text-xs text-muted-foreground">
               {f.label}{f.optional ? " (opcional)" : ""}
-              {f.kind === "bool" ? (
+              {f.kind === "uuid" && lookups?.[f.arg] ? (
+                <LookupPicker id={id} spec={lookups[f.arg]!} value={values[f.arg] ?? ""} onPick={set} />
+              ) : f.kind === "bool" ? (
                 <select id={id} className={cls} value={values[f.arg] ?? ""} onChange={(e) => set(e.target.value)}>
                   <option value="">Escolha…</option><option value="sim">sim</option><option value="não">não</option>
                 </select>
@@ -129,10 +171,10 @@ function ActionForm({ action, tables, ns }: { action: OperationAction; tables: r
   );
 }
 
-export interface OperationsConsoleProps { ns: string; eyebrow: string; title: string; description: string; stages: readonly OperationStage[] }
+export interface OperationsConsoleProps { ns: string; eyebrow: string; title: string; description: string; stages: readonly OperationStage[]; lookups?: Readonly<Record<string, LookupSpec>> | undefined }
 
 /** Console operacional declarativo: lê sob RLS de quem consulta e grava só pelos writers do banco. */
-export function OperationsConsole({ ns, eyebrow, title, description, stages }: OperationsConsoleProps) {
+export function OperationsConsole({ ns, eyebrow, title, description, stages, lookups }: OperationsConsoleProps) {
   return (
     <div className="space-y-6">
       <PageHeader eyebrow={eyebrow} title={title} description={description} />
@@ -145,7 +187,7 @@ export function OperationsConsole({ ns, eyebrow, title, description, stages }: O
             <p className="text-sm text-muted-foreground">{s.summary}</p>
             {s.reads.map((r) => <ReadTable key={r.table} read={r} ns={ns} />)}
             <div className="grid gap-4 lg:grid-cols-2">
-              {s.actions.map((a) => <ActionForm key={a.id} action={a} tables={s.reads.map((r) => r.table)} ns={ns} />)}
+              {s.actions.map((a) => <ActionForm key={a.id} action={a} tables={s.reads.map((r) => r.table)} ns={ns} lookups={lookups} />)}
             </div>
           </TabsContent>
         ))}
