@@ -68,6 +68,7 @@ import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as MediadorRouteImport } from './routes/mediador'
 import { Route as MeusDiariosRouteImport } from './routes/meus-diarios'
+import { Route as OrganizacaoDaRedeRouteImport } from './routes/organizacao-da-rede'
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as PaineisRouteImport } from './routes/paineis'
 import { Route as PendenciasRouteImport } from './routes/pendencias'
@@ -556,6 +557,11 @@ const MediadorRoute = MediadorRouteImport.update({
 const MeusDiariosRoute = MeusDiariosRouteImport.update({
   id: '/meus-diarios',
   path: '/meus-diarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrganizacaoDaRedeRoute = OrganizacaoDaRedeRouteImport.update({
+  id: '/organizacao-da-rede',
+  path: '/organizacao-da-rede',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrientacaoRoute = OrientacaoRouteImport.update({
@@ -1680,6 +1686,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
+  '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
@@ -1928,6 +1935,7 @@ export interface FileRoutesByTo {
   '/matriculas': typeof MatriculasRouteWithChildren
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
+  '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
@@ -2157,6 +2165,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
+  '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/pendencias': typeof PendenciasRoute
@@ -2413,6 +2422,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/mediador'
     | '/meus-diarios'
+    | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
     | '/pendencias'
@@ -2661,6 +2671,7 @@ export interface FileRouteTypes {
     | '/matriculas'
     | '/mediador'
     | '/meus-diarios'
+    | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
     | '/pendencias'
@@ -2889,6 +2900,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/mediador'
     | '/meus-diarios'
+    | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
     | '/pendencias'
@@ -3144,6 +3156,7 @@ export interface RootRouteChildren {
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   MediadorRoute: typeof MediadorRoute
   MeusDiariosRoute: typeof MeusDiariosRoute
+  OrganizacaoDaRedeRoute: typeof OrganizacaoDaRedeRoute
   OrientacaoRoute: typeof OrientacaoRoute
   PaineisRoute: typeof PaineisRoute
   PendenciasRoute: typeof PendenciasRoute
@@ -3627,6 +3640,13 @@ declare module '@tanstack/react-router' {
       path: '/meus-diarios'
       fullPath: '/meus-diarios'
       preLoaderRoute: typeof MeusDiariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/organizacao-da-rede': {
+      id: '/organizacao-da-rede'
+      path: '/organizacao-da-rede'
+      fullPath: '/organizacao-da-rede'
+      preLoaderRoute: typeof OrganizacaoDaRedeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orientacao': {
@@ -5717,6 +5737,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   MediadorRoute: MediadorRoute,
   MeusDiariosRoute: MeusDiariosRoute,
+  OrganizacaoDaRedeRoute: OrganizacaoDaRedeRoute,
   OrientacaoRoute: OrientacaoRoute,
   PaineisRoute: PaineisRoute,
   PendenciasRoute: PendenciasRoute,
