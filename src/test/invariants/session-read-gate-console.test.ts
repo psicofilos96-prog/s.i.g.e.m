@@ -11,7 +11,7 @@ describe("portão de sessão × console operacional", () => {
     .filter((f) => f.endsWith(".tsx"))
     .map((f) => readFileSync(`${DIR}/${f}`, "utf8"))
     .filter((src) => src.includes("<OperationsConsole"))
-    .map((src) => /createFileRoute\("([^"]+)"\)/.exec(src)?.[1])
+    .map((src) => /createFileRoute\("([^"]+)"\)/.exec(src)?.[1]?.replace(/_(?=\/|$)/g, ""))
     .filter((p): p is string => !!p);
 
   it("encontra as rotas do console", () => {
