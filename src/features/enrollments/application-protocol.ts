@@ -13,11 +13,12 @@ export const SITUATION_LABEL = { "aguardando-protocolo": "Recebido — número d
 
 export function parseReceipt(row: unknown): Receipt {
   const r = row as { status?: unknown; submitted_on?: unknown; campaign_kind?: unknown; campaign_year?: unknown; protocol_number?: unknown; situation?: unknown } | null;
-  if (!r || r.status !== "ok" || typeof r.submitted_on !== "string" || typeof r.campaign_kind !== "string" || typeof r.campaign_year !== "number") return { status: "indisponivel" };
+  const on = r?.submitted_on, kind = r?.campaign_kind, year = r?.campaign_year;
+  if (!r || r.status !== "ok" || typeof on !== "string" || typeof kind !== "string" || typeof year !== "number") return { status: "indisponivel" };
   const num = typeof r.protocol_number === "string" && /^PROT-\d{4}-\d{6}$/.test(r.protocol_number) ? r.protocol_number : null;
   const situation = num ? "protocolado" : "aguardando-protocolo";
   if (r.situation !== situation) return { status: "indisponivel" };
-  return { status: "ok", protocolNumber: num, submittedOn: r.submitted_on, campaignKind: r.campaign_kind, campaignYear: r.campaign_year, situation };
+  return { status: "ok", protocolNumber: num, submittedOn: on, campaignKind: kind, campaignYear: year, situation };
 }
 
 export async function fetchReceipt(code: string, check: string): Promise<Receipt> {
