@@ -38,10 +38,10 @@ describe("Centro de Operações L03 — hierarquia física", () => {
     const vs = [V("b", 1), V("f", 1), V("s1", 1, { capacity: 30, capacitySource: "medição" }), V("s1", 2, { validFrom: "2026-06-01", capacity: 25, capacitySource: "laudo", reason: "Reforma reduziu a área." }), V("s2", 1)];
     expect(spaceOn(vs, "s1", "2026-05-31")!.capacity).toBe(30);
     expect(spaceOn(vs, "s1", "2026-06-01")!.capacity).toBe(25);
-    const [tree] = buildTree("e1", spaces, vs, "2026-07-01");
-    expect(tree.children[0].children.map((c) => c.capacityLabel)).toEqual(["25 (fonte: laudo)", "não informada"]);
+    const tree = buildTree("e1", spaces, vs, "2026-07-01")[0]!;
+    expect(tree.children[0]!.children.map((c) => c.capacityLabel)).toEqual(["25 (fonte: laudo)", "não informada"]);
     expect(aggregateCapacity(tree)).toEqual({ value: null, missing: 1 });
-    expect(tree.children[0].children[1].conditionLabel).toBe("não avaliada");
+    expect(tree.children[0]!.children[1]!.conditionLabel).toBe("não avaliada");
   });
   it("banco: append-only, capacidades, autoaprovação recusada, tipo aprovado, base esperada, sem retroagir", () => {
     for (const t of ["opsst_immutable", "opssta_immutable", "opss_immutable", "opssv_immutable"]) expect(SQL).toContain(`${t} BEFORE UPDATE OR DELETE`);
