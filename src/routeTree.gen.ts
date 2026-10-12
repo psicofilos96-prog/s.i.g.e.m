@@ -72,6 +72,7 @@ import { Route as MeusDiariosRouteImport } from './routes/meus-diarios'
 import { Route as OrganizacaoDaRedeRouteImport } from './routes/organizacao-da-rede'
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as PaineisRouteImport } from './routes/paineis'
+import { Route as PainelDeTecnologiaRouteImport } from './routes/painel-de-tecnologia'
 import { Route as PendenciasRouteImport } from './routes/pendencias'
 import { Route as Pessoal2026RouteImport } from './routes/pessoal-2026'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
@@ -587,6 +588,11 @@ const OrientacaoRoute = OrientacaoRouteImport.update({
 const PaineisRoute = PaineisRouteImport.update({
   id: '/paineis',
   path: '/paineis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelDeTecnologiaRoute = PainelDeTecnologiaRouteImport.update({
+  id: '/painel-de-tecnologia',
+  path: '/painel-de-tecnologia',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PendenciasRoute = PendenciasRouteImport.update({
@@ -1753,6 +1759,7 @@ export interface FileRoutesByFullPath {
   '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
+  '/painel-de-tecnologia': typeof PainelDeTecnologiaRoute
   '/pendencias': typeof PendenciasRoute
   '/pessoal-2026': typeof Pessoal2026Route
   '/planejamento': typeof PlanejamentoRoute
@@ -2012,6 +2019,7 @@ export interface FileRoutesByTo {
   '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
+  '/painel-de-tecnologia': typeof PainelDeTecnologiaRoute
   '/pendencias': typeof PendenciasRoute
   '/pessoal-2026': typeof Pessoal2026Route
   '/planejamento': typeof PlanejamentoRoute
@@ -2252,6 +2260,7 @@ export interface FileRoutesById {
   '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
+  '/painel-de-tecnologia': typeof PainelDeTecnologiaRoute
   '/pendencias': typeof PendenciasRoute
   '/pessoal-2026': typeof Pessoal2026Route
   '/planejamento': typeof PlanejamentoRoute
@@ -2519,6 +2528,7 @@ export interface FileRouteTypes {
     | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
+    | '/painel-de-tecnologia'
     | '/pendencias'
     | '/pessoal-2026'
     | '/planejamento'
@@ -2778,6 +2788,7 @@ export interface FileRouteTypes {
     | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
+    | '/painel-de-tecnologia'
     | '/pendencias'
     | '/pessoal-2026'
     | '/planejamento'
@@ -3017,6 +3028,7 @@ export interface FileRouteTypes {
     | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
+    | '/painel-de-tecnologia'
     | '/pendencias'
     | '/pessoal-2026'
     | '/planejamento'
@@ -3283,6 +3295,7 @@ export interface RootRouteChildren {
   OrganizacaoDaRedeRoute: typeof OrganizacaoDaRedeRoute
   OrientacaoRoute: typeof OrientacaoRoute
   PaineisRoute: typeof PaineisRoute
+  PainelDeTecnologiaRoute: typeof PainelDeTecnologiaRoute
   PendenciasRoute: typeof PendenciasRoute
   Pessoal2026Route: typeof Pessoal2026Route
   PlanejamentoRoute: typeof PlanejamentoRoute
@@ -3801,6 +3814,13 @@ declare module '@tanstack/react-router' {
       path: '/paineis'
       fullPath: '/paineis'
       preLoaderRoute: typeof PaineisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel-de-tecnologia': {
+      id: '/painel-de-tecnologia'
+      path: '/painel-de-tecnologia'
+      fullPath: '/painel-de-tecnologia'
+      preLoaderRoute: typeof PainelDeTecnologiaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pendencias': {
@@ -5944,6 +5964,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrganizacaoDaRedeRoute: OrganizacaoDaRedeRoute,
   OrientacaoRoute: OrientacaoRoute,
   PaineisRoute: PaineisRoute,
+  PainelDeTecnologiaRoute: PainelDeTecnologiaRoute,
   PendenciasRoute: PendenciasRoute,
   Pessoal2026Route: Pessoal2026Route,
   PlanejamentoRoute: PlanejamentoRoute,
