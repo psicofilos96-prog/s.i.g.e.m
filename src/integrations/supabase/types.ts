@@ -34194,6 +34194,68 @@ export type Database = {
           },
         ]
       }
+      tech_annual_plan_approvals: {
+        Row: {
+          created_at: string
+          decision_ref: string
+          person_id: string
+          plan_version_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision_ref: string
+          person_id: string
+          plan_version_id: string
+        }
+        Update: {
+          created_at?: string
+          decision_ref?: string
+          person_id?: string
+          plan_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_annual_plan_approvals_plan_version_id_fkey"
+            columns: ["plan_version_id"]
+            isOneToOne: true
+            referencedRelation: "tech_annual_plan_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_annual_plan_versions: {
+        Row: {
+          actions: Json
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          reason: string | null
+          version: number
+          year: number
+        }
+        Insert: {
+          actions: Json
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          reason?: string | null
+          version: number
+          year: number
+        }
+        Update: {
+          actions?: Json
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          reason?: string | null
+          version?: number
+          year?: number
+        }
+        Relationships: []
+      }
       tech_backup_plan_approvals: {
         Row: {
           created_at: string
@@ -35206,6 +35268,63 @@ export type Database = {
             columns: ["space_id"]
             isOneToOne: false
             referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_license_versions: {
+        Row: {
+          contract_ref: string | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          license_kind: string
+          person_id: string
+          seats: number | null
+          service_key: string
+          valid_from: string
+          valid_until: string | null
+          version: number
+        }
+        Insert: {
+          contract_ref?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          license_kind: string
+          person_id: string
+          seats?: number | null
+          service_key: string
+          valid_from: string
+          valid_until?: string | null
+          version: number
+        }
+        Update: {
+          contract_ref?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          license_kind?: string
+          person_id?: string
+          seats?: number | null
+          service_key?: string
+          valid_from?: string
+          valid_until?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_license_versions_contract_ref_fkey"
+            columns: ["contract_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_license_versions_contract_ref_fkey"
+            columns: ["contract_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -37813,6 +37932,10 @@ export type Database = {
           _role: string
         }
         Returns: string
+      }
+      approve_tech_annual_plan: {
+        Args: { _decision: string; _plan: string }
+        Returns: undefined
       }
       approve_tech_backup_plan: { Args: { _plan: string }; Returns: undefined }
       approve_tech_digital_service: {
@@ -47513,6 +47636,16 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_annual_plan: {
+        Args: {
+          _actions: Json
+          _expected: number
+          _key: string
+          _reason: string
+          _year: number
+        }
+        Returns: number
+      }
       record_tech_backup_plan: {
         Args: {
           _every: number
@@ -47636,6 +47769,19 @@ export type Database = {
           _space: string
         }
         Returns: string
+      }
+      record_tech_license: {
+        Args: {
+          _contract: string
+          _expected: number
+          _from: string
+          _key: string
+          _kind: string
+          _seats: number
+          _service: string
+          _until: string
+        }
+        Returns: number
       }
       record_tech_pedagogical_evaluation: {
         Args: {
