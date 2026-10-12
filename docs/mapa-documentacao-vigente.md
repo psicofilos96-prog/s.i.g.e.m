@@ -353,6 +353,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `sigem-relatorio-pendencias-lote22.md` — Registro de lote: relatório de pendências do fechamento (lotes 01–21), uma linha por pendência.
 - `auditoria-integral-sigem-2026-10.md` — Registro de lote: auditoria integral do Lote 23 (evidências, limite do histórico auditado).
 - `matriz-unica-pendencias-sigem-2026-10.md` — Registro de lote: matriz única de pendências do Lote 23.
+- `homologacao-tecnica-lotes-24-31-2026-10.md` — Registro de lote: reconciliação banco/Censo e homologação técnica dos Lotes 24–31.
 - `docs/relatorio-lacunas-raiz-identidade-2026-10-11.md` — Registro de lote: lacunas-raiz de identidade e vínculos medidas no banco.
 - [Alimentação — matriz de aceite Lote 15](alimentacao-matriz-aceite-lote-15.md) — Registro de lote
 | `ciece-matriz-aceite-lote-20.md` | CIECE — matriz de aceite técnico (Lote 20) | Registro de lote | — | — |
