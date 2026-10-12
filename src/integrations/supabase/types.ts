@@ -17779,6 +17779,205 @@ export type Database = {
           },
         ]
       }
+      ops_checklist_approvals: {
+        Row: {
+          approved_at: string
+          approver_person: string
+          checklist_version_id: string
+          decision_ref: string
+        }
+        Insert: {
+          approved_at?: string
+          approver_person: string
+          checklist_version_id: string
+          decision_ref: string
+        }
+        Update: {
+          approved_at?: string
+          approver_person?: string
+          checklist_version_id?: string
+          decision_ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_checklist_approvals_checklist_version_id_fkey"
+            columns: ["checklist_version_id"]
+            isOneToOne: true
+            referencedRelation: "ops_checklist_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_checklist_versions: {
+        Row: {
+          author_person: string
+          checklist_key: string
+          created_at: string
+          id: string
+          items: Json
+          label: string
+          priorities: string[]
+          reason: string | null
+          version: number
+        }
+        Insert: {
+          author_person: string
+          checklist_key: string
+          created_at?: string
+          id?: string
+          items: Json
+          label: string
+          priorities?: string[]
+          reason?: string | null
+          version: number
+        }
+        Update: {
+          author_person?: string
+          checklist_key?: string
+          created_at?: string
+          id?: string
+          items?: Json
+          label?: string
+          priorities?: string[]
+          reason?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      ops_inspection_records: {
+        Row: {
+          answers: Json
+          created_at: string
+          evidence_refs: string[]
+          id: string
+          idempotency_key: string
+          inspection_id: string
+          inspector_person: string
+          kind: string
+          note: string | null
+          performed_on: string | null
+          recommendations: Json
+          seq: number
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          evidence_refs?: string[]
+          id?: string
+          idempotency_key: string
+          inspection_id: string
+          inspector_person: string
+          kind: string
+          note?: string | null
+          performed_on?: string | null
+          recommendations?: Json
+          seq: number
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          evidence_refs?: string[]
+          id?: string
+          idempotency_key?: string
+          inspection_id?: string
+          inspector_person?: string
+          kind?: string
+          note?: string | null
+          performed_on?: string | null
+          recommendations?: Json
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_inspection_records_inspection_id_fkey"
+            columns: ["inspection_id"]
+            isOneToOne: false
+            referencedRelation: "ops_inspections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_inspections: {
+        Row: {
+          author_person: string
+          checklist_version_id: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          motive: string | null
+          request_id: string | null
+          responsible_engagement: string
+          scheduled_on: string
+          school_id: string
+          space_id: string | null
+        }
+        Insert: {
+          author_person: string
+          checklist_version_id: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          motive?: string | null
+          request_id?: string | null
+          responsible_engagement: string
+          scheduled_on: string
+          school_id: string
+          space_id?: string | null
+        }
+        Update: {
+          author_person?: string
+          checklist_version_id?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          motive?: string | null
+          request_id?: string | null
+          responsible_engagement?: string
+          scheduled_on?: string
+          school_id?: string
+          space_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_inspections_checklist_version_id_fkey"
+            columns: ["checklist_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_checklist_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_inspections_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "ops_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_inspections_responsible_engagement_fkey"
+            columns: ["responsible_engagement"]
+            isOneToOne: false
+            referencedRelation: "institutional_engagements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_inspections_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_inspections_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "ops_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_request_events: {
         Row: {
           actor_person: string
@@ -26472,6 +26671,10 @@ export type Database = {
         }
         Returns: string
       }
+      approve_ops_checklist_version: {
+        Args: { _cv: string; _decision_ref: string }
+        Returns: undefined
+      }
       approve_ops_space_type_version: {
         Args: { _decision_ref: string; _type_version: string }
         Returns: undefined
@@ -31480,6 +31683,7 @@ export type Database = {
         Args: { _school: string; _sector: string }
         Returns: boolean
       }
+      ops_checklist_usable: { Args: { _cv: string }; Returns: boolean }
       ops_space_parent_level: { Args: { _level: string }; Returns: string }
       ops_space_type_usable: { Args: { _tv: string }; Returns: boolean }
       own_engagement_network_now: { Args: never; Returns: boolean }
@@ -33660,6 +33864,20 @@ export type Database = {
         }
         Returns: number
       }
+      record_ops_inspection: {
+        Args: {
+          _answers: Json
+          _evidence: string[]
+          _expected_seq: number
+          _inspection: string
+          _key: string
+          _kind: string
+          _note: string
+          _performed_on: string
+          _recommendations: Json
+        }
+        Returns: number
+      }
       record_ops_request_event: {
         Args: {
           _case_event: string
@@ -34673,6 +34891,17 @@ export type Database = {
         Args: { _id: string; _label: string; _ordinal: number }
         Returns: string
       }
+      register_ops_checklist_version: {
+        Args: {
+          _expected_version: number
+          _items: Json
+          _key: string
+          _label: string
+          _priorities: string[]
+          _reason: string
+        }
+        Returns: string
+      }
       register_ops_space: {
         Args: { _key: string; _level: string; _parent: string; _school: string }
         Returns: string
@@ -34975,6 +35204,20 @@ export type Database = {
           _purpose: string
           _school: string
           _student: string
+        }
+        Returns: string
+      }
+      schedule_ops_inspection: {
+        Args: {
+          _cv: string
+          _engagement: string
+          _key: string
+          _kind: string
+          _motive: string
+          _on: string
+          _request: string
+          _school: string
+          _space: string
         }
         Returns: string
       }
