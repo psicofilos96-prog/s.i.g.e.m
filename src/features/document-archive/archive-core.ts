@@ -57,7 +57,7 @@ export type Preview = "pdf" | "imagem" | "texto" | "nenhuma";
 export function previewKind(mime: string): Preview {
   if (mime === "application/pdf") return "pdf";
   if (["image/png", "image/jpeg", "image/webp", "image/gif"].includes(mime)) return "imagem";
-  if (mime === "text/plain" || mime === ALLOWED.csv) return "texto";
+  if (mime === "text/plain" || mime === ALLOWED["csv"]) return "texto";
   return "nenhuma";
 }
 
