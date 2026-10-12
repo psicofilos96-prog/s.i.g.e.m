@@ -28,6 +28,7 @@ const ACCEPTED_ANON_FUNCTIONS = new Set([
   "enr_public_application_receipt", // Matrículas L10: comprovante com código + conferência, resposta uniforme
   "enr_public_waitlist_position", // Matrículas L17: só a própria posição e o total, resposta uniforme
   "enr_public_application_result", // Matrículas L18: resultado individual por código + conferência, resposta uniforme
+  "enr_public_accept_seat", // Matrículas L19: aceite da família só da própria reserva ativa, resposta de lista fechada
   "enr_public_protocol_status", // Matrículas L04: número + código, resposta uniforme, só situação
 ]);
 
