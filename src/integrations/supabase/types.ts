@@ -34436,6 +34436,104 @@ export type Database = {
           },
         ]
       }
+      tech_digital_service_approvals: {
+        Row: {
+          created_at: string
+          decision_ref: string
+          person_id: string
+          version_id: string
+        }
+        Insert: {
+          created_at?: string
+          decision_ref: string
+          person_id: string
+          version_id: string
+        }
+        Update: {
+          created_at?: string
+          decision_ref?: string
+          person_id?: string
+          version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_digital_service_approvals_version_id_fkey"
+            columns: ["version_id"]
+            isOneToOne: true
+            referencedRelation: "tech_digital_service_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_digital_service_versions: {
+        Row: {
+          access_url: string | null
+          audience: string[]
+          contract_ref: string | null
+          created_at: string
+          data_classes: string[]
+          id: string
+          idempotency_key: string
+          kind: string
+          name: string
+          operator: string
+          person_id: string
+          purpose: string
+          service_key: string
+          status: string
+          version: number
+        }
+        Insert: {
+          access_url?: string | null
+          audience: string[]
+          contract_ref?: string | null
+          created_at?: string
+          data_classes: string[]
+          id?: string
+          idempotency_key: string
+          kind: string
+          name: string
+          operator: string
+          person_id: string
+          purpose: string
+          service_key: string
+          status: string
+          version: number
+        }
+        Update: {
+          access_url?: string | null
+          audience?: string[]
+          contract_ref?: string | null
+          created_at?: string
+          data_classes?: string[]
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          name?: string
+          operator?: string
+          person_id?: string
+          purpose?: string
+          service_key?: string
+          status?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_digital_service_versions_contract_ref_fkey"
+            columns: ["contract_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_digital_service_versions_contract_ref_fkey"
+            columns: ["contract_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_equipment_category_mark_approvals: {
         Row: {
           created_at: string
@@ -36750,6 +36848,10 @@ export type Database = {
           _role: string
         }
         Returns: string
+      }
+      approve_tech_digital_service: {
+        Args: { _decision: string; _version: string }
+        Returns: undefined
       }
       approve_tech_equipment_category_mark: {
         Args: { _decision: string; _mark: string }
@@ -46401,6 +46503,23 @@ export type Database = {
           _up: number
         }
         Returns: string
+      }
+      record_tech_digital_service: {
+        Args: {
+          _aud: string[]
+          _contract: string
+          _data: string[]
+          _expected: number
+          _idem: string
+          _key: string
+          _kind: string
+          _name: string
+          _op: string
+          _purpose: string
+          _status: string
+          _url: string
+        }
+        Returns: number
       }
       record_tech_equipment_sheet: {
         Args: {
