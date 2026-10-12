@@ -36,6 +36,7 @@ Situações: CONCLUÍDO E VALIDADO · IMPLEMENTADO SEM VALIDAÇÃO · PARCIAL ·
 | P1-14 | CONCLUÍDO E VALIDADO | Infraestrutura oficial INEP 2026 (L33) | `docs/data/lote37-infraestrutura-por-escola.json` | n/a | Executado L37 | nenhum (sem fonte concorrente para comparar) | 2.970 observações, 55 escolas × 54 atributos, 0 vazias | manter |
 | P2-07 | BLOQUEADO | Jornadas escolares (L33) | `class_journeys` | n/a | consulta L37 | nenhuma fonte de jornada | 0 jornadas, 0 declarações de horário | enviar fonte oficial |
 | P2-08 | BLOQUEADO | Concorrência de numeração/reservas | `scripts/lote16-concurrency-e2e.mjs` | n/a | Executado L37: 2 PASS/0 FAIL/2 BLOQ. | P2-03 | resíduo 0 | ver P2-03 |
+| P1-15 | EXECUTADO L44 (técnico) / BLOQUEADO (homologação) | Contas em massa e áreas institucionais (L43/L44) | `password_change_required` (0512), `PasswordChangeGate`, `institutional-profiles.ts`, `account-consolidation.ts` | n/a | `institutional-profiles.test.ts` 9/9; `l44-accounts.test.ts` 9/9 | 10 perfis propostos aguardam homologação competente; Família sem vínculo verificado; consolidação exige ligação matrícula↔pessoa comprovada | 2.205 contas (2.037 por matrícula, 168 setoriais), 0 com atuação, todas com troca obrigatória de senha; 0 consolidações | homologar perfis; ligar matrículas; distribuir senhas por canal seguro |
 
 ## Totais
 

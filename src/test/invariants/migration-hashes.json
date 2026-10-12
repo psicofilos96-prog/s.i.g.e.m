@@ -559,5 +559,6 @@
  "drizzle/migrations/0508_l38_payroll_functional_registrations.sql": "2bf2f915bf921e1034d94cec656580ac20292e26ea7bfb8dd62cbdbd7da315a2",
  "drizzle/migrations/0509_l39_payroll_import_hardening.sql": "839cb5435e8719a52ccda899a6052fcdee0b3b7f5a76941a9272686cf28146f7",
  "drizzle/migrations/0510_l39_switch_revoke_sandbox.sql": "8e6cd563ee3e1f77c3f2e1c45aea13d1f54919eb5b6e5784898f08d3f3330b5c",
- "drizzle/migrations/0511_l41_payroll_servant_grouping.sql": "5158b4214b202197fecad2f7e50278feb12272a8167ddc02ae3d24ec4c79ef20"
+ "drizzle/migrations/0511_l41_payroll_servant_grouping.sql": "5158b4214b202197fecad2f7e50278feb12272a8167ddc02ae3d24ec4c79ef20",
+ "drizzle/migrations/0512_l44_bulk_login_password_change.sql": "42da0bca5d5e337827408c4d318cb50d1769a8eddd08462173a893c3479c53a8"
 }

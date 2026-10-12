@@ -3585,6 +3585,13 @@
       "when": 1791843793817,
       "tag": "0511_l41_payroll_servant_grouping",
       "breakpoints": true
+    },
+    {
+      "idx": 512,
+      "version": "7",
+      "when": 1791847275838,
+      "tag": "0512_l44_bulk_login_password_change",
+      "breakpoints": true
     }
   ]
 }

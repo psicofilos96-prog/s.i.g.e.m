@@ -1,3 +1,4 @@
+import { PasswordChangeGate } from "@/features/authority/password-change-gate";
 import { useQuery } from "@tanstack/react-query";
 import { ConnectionBanner } from "./connection-banner";
 /**
@@ -532,6 +533,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (pathname === "/login" || pathname === "/auth" || pathname === "/primeiro-acesso" || isPublicPath(pathname)) return <>{children}</>;
 
   return (
+    <PasswordChangeGate>
     <TooltipProvider delayDuration={250}>
       <div className="min-h-dvh bg-background" data-density="comfortable">
         <a href="#conteudo" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-foreground focus:ring-2 focus:ring-ring">Pular para o conteúdo</a>
@@ -565,6 +567,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </TooltipProvider>
+    </PasswordChangeGate>
   );
 }
 
