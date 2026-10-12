@@ -20841,6 +20841,226 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_trip_executions: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          idempotency_key: string
+          km_end: number | null
+          km_start: number | null
+          outcome: string
+          reason: string | null
+          recorded_by: string
+          started_at: string | null
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          idempotency_key: string
+          km_end?: number | null
+          km_start?: number | null
+          outcome: string
+          reason?: string | null
+          recorded_by: string
+          started_at?: string | null
+          trip_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          idempotency_key?: string
+          km_end?: number | null
+          km_start?: number | null
+          outcome?: string
+          reason?: string | null
+          recorded_by?: string
+          started_at?: string | null
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_trip_executions_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: true
+            referencedRelation: "ops_trip_programmings"
+            referencedColumns: ["trip_id"]
+          },
+        ]
+      }
+      ops_trip_occurrence_measures: {
+        Row: {
+          created_at: string
+          id: string
+          idempotency_key: string
+          measure: string
+          occurrence_id: string
+          recorded_by: string
+          taken_on: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          measure: string
+          occurrence_id: string
+          recorded_by: string
+          taken_on: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          measure?: string
+          occurrence_id?: string
+          recorded_by?: string
+          taken_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_trip_occurrence_measures_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "ops_trip_occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_trip_occurrences: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          idempotency_key: string
+          occurred_at: string
+          recorded_by: string
+          trip_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          idempotency_key: string
+          occurred_at: string
+          recorded_by: string
+          trip_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          idempotency_key?: string
+          occurred_at?: string
+          recorded_by?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_trip_occurrences_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "ops_trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_trip_programmings: {
+        Row: {
+          created_at: string
+          driver_shift_id: string
+          monitor_shift_id: string | null
+          programmed_by: string
+          trip_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          driver_shift_id: string
+          monitor_shift_id?: string | null
+          programmed_by: string
+          trip_id: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          driver_shift_id?: string
+          monitor_shift_id?: string | null
+          programmed_by?: string
+          trip_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_trip_programmings_driver_shift_id_fkey"
+            columns: ["driver_shift_id"]
+            isOneToOne: false
+            referencedRelation: "ops_crew_shifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_trip_programmings_monitor_shift_id_fkey"
+            columns: ["monitor_shift_id"]
+            isOneToOne: false
+            referencedRelation: "ops_crew_shifts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_trip_programmings_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: true
+            referencedRelation: "ops_trips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ops_trip_programmings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "ops_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_trips: {
+        Row: {
+          created_at: string
+          direction: string
+          id: string
+          idempotency_key: string
+          planned_by: string
+          route_version_id: string
+          trip_date: string
+        }
+        Insert: {
+          created_at?: string
+          direction: string
+          id?: string
+          idempotency_key: string
+          planned_by: string
+          route_version_id: string
+          trip_date: string
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          id?: string
+          idempotency_key?: string
+          planned_by?: string
+          route_version_id?: string
+          trip_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ops_trips_route_version_id_fkey"
+            columns: ["route_version_id"]
+            isOneToOne: false
+            referencedRelation: "ops_route_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ops_vehicle_events: {
         Row: {
           accessible_seats: number | null
@@ -34717,6 +34937,7 @@ export type Database = {
         Returns: boolean
       }
       ops_service_state: { Args: { _so: string }; Returns: string }
+      ops_shift_person: { Args: { _shift: string }; Returns: string }
       ops_space_parent_level: { Args: { _level: string }; Returns: string }
       ops_space_type_usable: { Args: { _tv: string }; Returns: boolean }
       ops_stop_active_on: {
@@ -34754,6 +34975,7 @@ export type Database = {
           request_id: string
         }[]
       }
+      ops_trip_readable: { Args: { _trip: string }; Returns: boolean }
       ops_work_state: { Args: { _w: string }; Returns: string }
       own_engagement_network_now: { Args: never; Returns: boolean }
       own_engagement_schools_now: { Args: never; Returns: string[] }
@@ -34894,6 +35116,15 @@ export type Database = {
           weekday: number
         }[]
       }
+      plan_ops_trip: {
+        Args: {
+          _date: string
+          _direction: string
+          _key: string
+          _route_version: string
+        }
+        Returns: string
+      }
       plan_period_window: {
         Args: {
           _class: string
@@ -34938,6 +35169,15 @@ export type Database = {
           school_id: string
           start_known: boolean
         }[]
+      }
+      program_ops_trip: {
+        Args: {
+          _driver_shift: string
+          _monitor_shift: string
+          _trip: string
+          _vehicle: string
+        }
+        Returns: undefined
       }
       propose_identity_link: {
         Args: {
@@ -37179,6 +37419,33 @@ export type Database = {
           _r: string
         }
         Returns: number
+      }
+      record_ops_trip_execution: {
+        Args: {
+          _end: string
+          _key: string
+          _km_end: number
+          _km_start: number
+          _outcome: string
+          _reason: string
+          _start: string
+          _trip: string
+        }
+        Returns: undefined
+      }
+      record_ops_trip_measure: {
+        Args: { _key: string; _measure: string; _occ: string; _on: string }
+        Returns: string
+      }
+      record_ops_trip_occurrence: {
+        Args: {
+          _at: string
+          _category: string
+          _description: string
+          _key: string
+          _trip: string
+        }
+        Returns: string
       }
       record_ops_vehicle_event: {
         Args: {
