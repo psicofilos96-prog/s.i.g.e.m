@@ -27777,6 +27777,86 @@ export type Database = {
         }
         Relationships: []
       }
+      payroll_functional_servant_registrations: {
+        Row: {
+          created_at: string
+          registration_id: string
+          registration_norm: string
+          servant_id: string
+        }
+        Insert: {
+          created_at?: string
+          registration_id: string
+          registration_norm: string
+          servant_id: string
+        }
+        Update: {
+          created_at?: string
+          registration_id?: string
+          registration_norm?: string
+          servant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_functional_servant_registrations_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: true
+            referencedRelation: "payroll_functional_registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payroll_functional_servant_registrations_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: true
+            referencedRelation: "payroll_servant_registrations"
+            referencedColumns: ["registration_id"]
+          },
+          {
+            foreignKeyName: "payroll_functional_servant_registrations_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: true
+            referencedRelation: "payroll_staff_registration_matches"
+            referencedColumns: ["payroll_registration_id"]
+          },
+          {
+            foreignKeyName: "payroll_functional_servant_registrations_servant_id_fkey"
+            columns: ["servant_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_functional_servants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_functional_servants: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          display_name: string
+          grouping_rule: string
+          id: string
+          servant_key: string
+          source_sha256: string | null
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          display_name: string
+          grouping_rule?: string
+          id?: string
+          servant_key: string
+          source_sha256?: string | null
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          display_name?: string
+          grouping_rule?: string
+          id?: string
+          servant_key?: string
+          source_sha256?: string | null
+        }
+        Relationships: []
+      }
       payroll_import_switch_events: {
         Row: {
           decided_by: string
@@ -27851,6 +27931,50 @@ export type Database = {
             columns: ["person_id"]
             isOneToOne: false
             referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payroll_servant_identity_candidates: {
+        Row: {
+          created_at: string
+          evidence: Json
+          evidence_kind: string
+          id: string
+          registration_norm: string
+          servant_id: string
+          status: string
+          target_id: string
+          target_kind: string
+        }
+        Insert: {
+          created_at?: string
+          evidence?: Json
+          evidence_kind: string
+          id?: string
+          registration_norm: string
+          servant_id: string
+          status?: string
+          target_id: string
+          target_kind: string
+        }
+        Update: {
+          created_at?: string
+          evidence?: Json
+          evidence_kind?: string
+          id?: string
+          registration_norm?: string
+          servant_id?: string
+          status?: string
+          target_id?: string
+          target_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_servant_identity_candidates_servant_id_fkey"
+            columns: ["servant_id"]
+            isOneToOne: false
+            referencedRelation: "payroll_functional_servants"
             referencedColumns: ["id"]
           },
         ]
