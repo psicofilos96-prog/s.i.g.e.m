@@ -154,9 +154,9 @@ function Documents({ t, creds, onDone }: { t: Extract<Tracking, { status: "ok" }
     setBusy(true);
     try {
       const r = await uploadApplicationDocument(creds.code, creds.check, type, file, keyRef.current);
-      setMsg(UPLOAD_TEXT[r] ?? UPLOAD_TEXT.indisponivel!);
+      setMsg(UPLOAD_TEXT[r] ?? UPLOAD_TEXT["indisponivel"]!);
       if (r === "ok" || r === "ja-registrado") { keyRef.current = crypto.randomUUID(); setFile(null); await onDone(); }
-    } catch { setMsg(UPLOAD_TEXT.indisponivel!); }
+    } catch { setMsg(UPLOAD_TEXT["indisponivel"]!); }
     finally { setBusy(false); }
   }
   return (
