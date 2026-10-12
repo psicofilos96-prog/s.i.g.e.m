@@ -491,5 +491,16 @@
  "drizzle/migrations/0440_dev11_participants_trainers.sql": "0be2b2fd921ebbf859e9b73d00688090cbc1380ba739961cd0add51fcef66ce6",
  "drizzle/migrations/0441_dev12_attendance.sql": "d331cee0280ea2fb65d51a92552395c844b273fcff0e9f9f12adeea025031f38",
  "drizzle/migrations/0442_dev13_learning_environment.sql": "34b2c15e1a8e0355e319e9d0829a001f57ff3ba922beeac8a313b7ac6e5acce7",
- "drizzle/migrations/0443_dev14_learning_results.sql": "3cebba842677762e7856ab5e34b9f74d89c05978843daf0bd41713cd35509d5d"
+ "drizzle/migrations/0443_dev14_learning_results.sql": "3cebba842677762e7856ab5e34b9f74d89c05978843daf0bd41713cd35509d5d",
+ "drizzle/migrations/0444_dev15_completion_engine.sql": "f30ecb999311208edb1a1c311580d260cc14633ca57eb283fee3c6ed14e5c17e",
+ "drizzle/migrations/0445_dev16_certificates.sql": "089df4723a91a4ec0e1ac32a0f14f49ee78703424461d103fc735681ce7cebbf",
+ "drizzle/migrations/0446_dev17_formation_record.sql": "c82f62a6514f408ddf0679e9a1d78f03ff899f2d924446c99b2b5c281cc22400",
+ "drizzle/migrations/0447_dev17_own_record_default.sql": "c4b491af386cd825e9b6becfac72e1cdf0212b0efc1fe69f780768209ac76dc8",
+ "drizzle/migrations/0448_dev18_external_trainings.sql": "a1e86416a208f868dae7965239b5e88f8fded723178946801d4f337d94df826b",
+ "drizzle/migrations/0449_dev18_hide_certificate_ref.sql": "03758b3bb3fe4d547f3d6aaaeb6048c65ef0c91d91ac8857c77329fe8715ea96",
+ "drizzle/migrations/0450_dev19_competencies_idp.sql": "8dd8647cb66886a3acaeb33b0145dac580b3c9b2d098446220f1c3933d0e0505",
+ "drizzle/migrations/0451_dev20_evaluation_impact.sql": "a0c400363bf82adef0f56647006b2edd433bda63952d062168fd2970d81587ff",
+ "drizzle/migrations/0452_dev21_role_tracks.sql": "0bf9cbb6ac373f2663eb04e1523d831e972e9d4c8aa3d656f283a44a3406ee3a",
+ "drizzle/migrations/0453_dev22_partners_integration.sql": "38b7c75d621a9906b8db3946c1a5bd456d0a600cfd93245deab722d6572e7a1a",
+ "drizzle/migrations/0454_dev24_append_only_role_tracks_partners.sql": "e645309b56e79f9ddc285a2db1d5cd0b5e6aeba46384dca5feae2d4cadc526fd"
 }
