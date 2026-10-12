@@ -29,3 +29,6 @@
 
 ## L18 Relatórios de pessoal (`people-reports.ts`)
 - Os 22 relatórios são `ReportDefinition` sobre o `report-engine` (CSV/XLSX/PDF), reusando os três da Frente X.1; data de referência e knownAt obrigatórios, natureza "projeção dinâmica", matrícula funcional sensível, cenário simulado recusado e fonte não persistida declarada em `dependency`, porque exportador ou fonte próprios dariam número sem ACL ou sem origem.
+
+## L19 Atos administrativos e comprovantes (`administrative-acts.ts`)
+- Ato de pessoal = ledger append-only (registro→publicação→retificação/revogação, seq contínuo, motivo, autor humano com capacidade, sem autoato, identidade imutável) que só referencia o documento do GED; tipo que exige ato oficial fica `aguardando-ato-oficial` e sem efeito até referência oficial, leitura exige capacidade+escopo e toda leitura/negação vai à trilha, porque registro digital não substitui ato legalmente exigido.
