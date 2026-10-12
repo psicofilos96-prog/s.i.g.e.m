@@ -34280,6 +34280,162 @@ export type Database = {
         }
         Relationships: []
       }
+      tech_connectivity_links: {
+        Row: {
+          contract_ref: string | null
+          contracted_down_mbps: number | null
+          contracted_up_mbps: number | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          person_id: string
+          provider_name: string
+          school_id: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          contract_ref?: string | null
+          contracted_down_mbps?: number | null
+          contracted_up_mbps?: number | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          person_id: string
+          provider_name: string
+          school_id: string
+          valid_from: string
+          valid_until?: string | null
+        }
+        Update: {
+          contract_ref?: string | null
+          contracted_down_mbps?: number | null
+          contracted_up_mbps?: number | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          person_id?: string
+          provider_name?: string
+          school_id?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_connectivity_links_contract_ref_fkey"
+            columns: ["contract_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_connectivity_links_contract_ref_fkey"
+            columns: ["contract_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_connectivity_measurements: {
+        Row: {
+          available: boolean | null
+          created_at: string
+          down_mbps: number | null
+          evidence_ref: string | null
+          id: string
+          idempotency_key: string
+          latency_ms: number | null
+          link_id: string
+          measured_at: string
+          method: string
+          person_id: string
+          up_mbps: number | null
+        }
+        Insert: {
+          available?: boolean | null
+          created_at?: string
+          down_mbps?: number | null
+          evidence_ref?: string | null
+          id?: string
+          idempotency_key: string
+          latency_ms?: number | null
+          link_id: string
+          measured_at: string
+          method: string
+          person_id: string
+          up_mbps?: number | null
+        }
+        Update: {
+          available?: boolean | null
+          created_at?: string
+          down_mbps?: number | null
+          evidence_ref?: string | null
+          id?: string
+          idempotency_key?: string
+          latency_ms?: number | null
+          link_id?: string
+          measured_at?: string
+          method?: string
+          person_id?: string
+          up_mbps?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_connectivity_measurements_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_connectivity_measurements_evidence_ref_fkey"
+            columns: ["evidence_ref"]
+            isOneToOne: false
+            referencedRelation: "admin_case_events_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tech_connectivity_measurements_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "tech_connectivity_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tech_connectivity_verifications: {
+        Row: {
+          created_at: string
+          measurement_id: string
+          person_id: string
+          reason: string | null
+          verdict: string
+        }
+        Insert: {
+          created_at?: string
+          measurement_id: string
+          person_id: string
+          reason?: string | null
+          verdict: string
+        }
+        Update: {
+          created_at?: string
+          measurement_id?: string
+          person_id?: string
+          reason?: string | null
+          verdict?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_connectivity_verifications_measurement_id_fkey"
+            columns: ["measurement_id"]
+            isOneToOne: true
+            referencedRelation: "tech_connectivity_measurements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tech_equipment_category_mark_approvals: {
         Row: {
           created_at: string
@@ -46232,6 +46388,20 @@ export type Database = {
         }
         Returns: number
       }
+      record_tech_connectivity_measurement: {
+        Args: {
+          _at: string
+          _avail: boolean
+          _down: number
+          _evidence: string
+          _key: string
+          _lat: number
+          _link: string
+          _method: string
+          _up: number
+        }
+        Returns: string
+      }
       record_tech_equipment_sheet: {
         Args: {
           _asset: string
@@ -46866,6 +47036,19 @@ export type Database = {
       }
       register_student_with_exact_identity: {
         Args: { _cpf: string; _display_name: string; _inep: string }
+        Returns: string
+      }
+      register_tech_connectivity_link: {
+        Args: {
+          _contract: string
+          _down: number
+          _from: string
+          _key: string
+          _provider: string
+          _school: string
+          _until: string
+          _up: number
+        }
         Returns: string
       }
       register_workflow_definition: {
@@ -48700,6 +48883,10 @@ export type Database = {
         }[]
       }
       verify_studio_document: { Args: { _code: string }; Returns: Json }
+      verify_tech_connectivity_measurement: {
+        Args: { _m: string; _reason: string; _verdict: string }
+        Returns: undefined
+      }
       withdraw_dev_material: {
         Args: { _material: string; _reason: string }
         Returns: undefined
