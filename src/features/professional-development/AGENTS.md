@@ -1,0 +1,2 @@
+## SIGEM Desenvolvimento (`src/features/professional-development/`)
+- L01 (`development-audit.ts`): 47 seções + 18 critérios apontam só para fontes canônicas (pessoas, atuações, vínculos, titulação, escolas, calendário, Documentos, avaliação, SEMED T10); teste exige que cada tabela nasça na migration citada e recusa tabela duplicada, porque cadastro paralelo de pessoa ou titulação criaria segunda verdade.
