@@ -30,6 +30,6 @@ describe("L22 relatórios da Permanência", () => {
   it("sem data de referência não executa; ausência não vira zero", () => {
     expect(() => runPermanenceReport("casos-abertos", { params: { scope: "escola" } }, [], new Set())).toThrow();
     const { result } = runPermanenceReport("retornos", req, [{ escola: "E1" }], new Set());
-    expect(result.rows[0]["valor"]).toBeNull();
+    expect(result.rows[0][result.columns.findIndex((c) => c.id === "valor")]).toBeNull();
   });
 });
