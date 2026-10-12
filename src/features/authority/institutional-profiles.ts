@@ -97,3 +97,20 @@ export function verbMatrix(rules: readonly PolicyRule[]) {
     return { area: a.id, total: caps.length, byVerb, blocked: !a.kinds.length };
   });
 }
+
+/**
+ * L44 — tipos de atuação PROPOSTOS para as áreas sem perfil. Proposta não é política:
+ * nada aqui entra em `kinds` nem em effective_capabilities até homologação competente.
+ */
+export const PROPOSED_AREA_KINDS: Readonly<Record<string, string>> = {
+  mediador: "proposta:mediador-escolar",
+  "nei-aee": "proposta:nei-aee",
+  alimentacao: "proposta:alimentacao-escolar",
+  avaliacao: "proposta:acompanhamento-e-avaliacao",
+  "organizacao-da-rede": "proposta:organizacao-da-rede-e-vagas",
+  documental: "proposta:gestao-documental-e-protocolo",
+  "busca-ativa": "proposta:busca-ativa-e-permanencia",
+  operacoes: "proposta:transporte-infra-patrimonio",
+  formacao: "proposta:formacao-continuada",
+  tecnologia: "proposta:tecnologia-e-suporte",
+};
