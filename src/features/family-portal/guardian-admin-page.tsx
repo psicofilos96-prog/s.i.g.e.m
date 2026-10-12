@@ -62,14 +62,14 @@ export function GuardianAdminPage() {
           <h2 className="text-lg font-semibold">{student.display_name ?? "Nome não registrado"}</h2>
           <AuthorizationList items={chain} busy={busy} onAct={async (base, kind, d) => {
             setBusy(true); setNotice(null);
-            try { await recordAuthorization({ base, kind, student: null, person: null, school: null, sections: kind === "revogacao" ? null : d.sections, validFrom: kind === "revogacao" ? null : d.validFrom, validUntil: d.validUntil || null, reason: d.reason || null });
+            try { await recordAuthorization({ base, kind, student: null, person: null, school: null, sections: kind === "revogacao" ? null : d.sections, validFrom: kind === "revogacao" ? null : d.validFrom, validUntil: d.validUntil || null, reason: d.reason || null, linkType: d.linkType ?? null, restrictions: d.restrictions ?? null, sourceRef: d.sourceRef ?? null });
               setNotice(kind === "revogacao" ? "Autorização revogada." : "Autorização alterada."); await reload(student.student_id!); }
             catch (e) { setErr(adminMessage((e as Error).message)); }
             setBusy(false);
           }} />
           <NewGrant school={school} busy={busy} onGrant={async (person, d) => {
             setBusy(true); setNotice(null);
-            try { await recordAuthorization({ base: null, kind: "constituicao", student: student.student_id, person, school, sections: d.sections, validFrom: d.validFrom, validUntil: d.validUntil || null, reason: d.reason || null });
+            try { await recordAuthorization({ base: null, kind: "constituicao", student: student.student_id, person, school, sections: d.sections, validFrom: d.validFrom, validUntil: d.validUntil || null, reason: d.reason || null, linkType: d.linkType ?? "cadastrado", restrictions: d.restrictions ?? [], sourceRef: d.sourceRef ?? null });
               setNotice("Autorização concedida."); await reload(student.student_id!); }
             catch (e) { setErr(adminMessage((e as Error).message)); }
             setBusy(false);
