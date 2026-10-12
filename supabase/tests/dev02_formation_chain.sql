@@ -3,7 +3,7 @@ DO $$
 DECLARE bad text[] := '{}'; r record; n int;
 BEGIN
   SELECT count(*) INTO n FROM pg_class c JOIN pg_namespace s ON s.oid = c.relnamespace WHERE s.nspname = 'public' AND c.relkind = 'r' AND c.relname LIKE 'dev\_%';
-  IF n < 19 THEN bad := bad || format('esperadas ≥19 tabelas dev_, há %s', n); END IF;
+  IF n < 25 THEN bad := bad || format('esperadas ≥25 tabelas dev_, há %s', n); END IF;
   FOR r IN SELECT c.relname, c.relrowsecurity FROM pg_class c JOIN pg_namespace s ON s.oid = c.relnamespace WHERE s.nspname = 'public' AND c.relkind = 'r' AND c.relname LIKE 'dev\_%' LOOP
     IF NOT r.relrowsecurity THEN bad := bad || ('sem RLS: ' || r.relname); END IF;
     IF has_table_privilege('anon', 'public.' || r.relname, 'SELECT') THEN bad := bad || ('anon lê: ' || r.relname); END IF;
@@ -14,8 +14,9 @@ BEGIN
   IF has_column_privilege('authenticated', 'public.dev_need_evidence', 'document_version_ref', 'SELECT') OR has_column_privilege('authenticated', 'public.dev_need_evidence', 'record_ref', 'SELECT') THEN bad := bad || 'referência de evidência legível'::text; END IF;
   IF has_function_privilege('authenticated', 'public.dev_current_threshold()', 'EXECUTE') THEN bad := bad || 'helper de limiar exposto'::text; END IF;
   IF has_column_privilege('authenticated', 'public.dev_plan_events', 'act_document_ref', 'SELECT') THEN bad := bad || 'ato do plano legível'::text; END IF;
+  IF has_column_privilege('authenticated', 'public.dev_track_mandates', 'act_document_ref', 'SELECT') OR has_column_privilege('authenticated', 'public.dev_track_mandate_revocations', 'act_document_ref', 'SELECT') THEN bad := bad || 'ato do mandato legível'::text; END IF;
   FOR r IN SELECT p.oid, p.proname, p.prosecdef FROM pg_proc p JOIN pg_namespace s ON s.oid = p.pronamespace
-            WHERE s.nspname = 'public' AND p.proname ~ '^(record_dev|decide_dev|enroll_dev|issue_dev|submit_dev|consolidate_dev|approve_dev)' LOOP
+            WHERE s.nspname = 'public' AND p.proname ~ '^(record_dev|decide_dev|enroll_dev|issue_dev|submit_dev|consolidate_dev|approve_dev|mandate_dev|revoke_dev)' LOOP
     IF has_function_privilege('anon', r.oid, 'EXECUTE') THEN bad := bad || ('anon executa: ' || r.proname); END IF;
     IF NOT r.prosecdef THEN bad := bad || ('writer INVOKER: ' || r.proname); END IF;
   END LOOP;

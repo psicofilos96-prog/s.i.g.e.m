@@ -9786,6 +9786,267 @@ export type Database = {
           },
         ]
       }
+      dev_track_approvals: {
+        Row: {
+          approver_person: string
+          created_at: string
+          decision: string
+          id: string
+          idempotency_key: string
+          reason: string
+          track_version_id: string
+        }
+        Insert: {
+          approver_person: string
+          created_at?: string
+          decision: string
+          id?: string
+          idempotency_key: string
+          reason: string
+          track_version_id: string
+        }
+        Update: {
+          approver_person?: string
+          created_at?: string
+          decision?: string
+          id?: string
+          idempotency_key?: string
+          reason?: string
+          track_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_track_approvals_track_version_id_fkey"
+            columns: ["track_version_id"]
+            isOneToOne: true
+            referencedRelation: "dev_track_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_track_mandate_revocations: {
+        Row: {
+          act_document_ref: string
+          author_person: string
+          created_at: string
+          effective_on: string
+          idempotency_key: string
+          mandate_id: string
+          reason: string
+        }
+        Insert: {
+          act_document_ref: string
+          author_person: string
+          created_at?: string
+          effective_on: string
+          idempotency_key: string
+          mandate_id: string
+          reason: string
+        }
+        Update: {
+          act_document_ref?: string
+          author_person?: string
+          created_at?: string
+          effective_on?: string
+          idempotency_key?: string
+          mandate_id?: string
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_track_mandate_revocations_act_document_ref_fkey"
+            columns: ["act_document_ref"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_track_mandate_revocations_mandate_id_fkey"
+            columns: ["mandate_id"]
+            isOneToOne: true
+            referencedRelation: "dev_track_mandates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_track_mandates: {
+        Row: {
+          act_document_ref: string
+          audience: string
+          author_person: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          legal_basis: string
+          track_version_id: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          act_document_ref: string
+          audience: string
+          author_person: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          legal_basis: string
+          track_version_id: string
+          valid_from: string
+          valid_until?: string | null
+        }
+        Update: {
+          act_document_ref?: string
+          audience?: string
+          author_person?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          legal_basis?: string
+          track_version_id?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_track_mandates_act_document_ref_fkey"
+            columns: ["act_document_ref"]
+            isOneToOne: false
+            referencedRelation: "docserv_document_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_track_mandates_track_version_id_fkey"
+            columns: ["track_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_track_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_track_steps: {
+        Row: {
+          course_id: string
+          elective: boolean
+          id: string
+          ord: number
+          prerequisite_ords: number[]
+          title: string
+          track_version_id: string
+        }
+        Insert: {
+          course_id: string
+          elective?: boolean
+          id?: string
+          ord: number
+          prerequisite_ords?: number[]
+          title: string
+          track_version_id: string
+        }
+        Update: {
+          course_id?: string
+          elective?: boolean
+          id?: string
+          ord?: number
+          prerequisite_ords?: number[]
+          title?: string
+          track_version_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_track_steps_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "dev_courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dev_track_steps_track_version_id_fkey"
+            columns: ["track_version_id"]
+            isOneToOne: false
+            referencedRelation: "dev_track_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_track_versions: {
+        Row: {
+          audience: string
+          author_person: string
+          competencies: string[]
+          completion_criteria: string
+          created_at: string
+          id: string
+          idempotency_key: string
+          objectives: string
+          reason: string | null
+          title: string
+          track_id: string
+          version: number
+        }
+        Insert: {
+          audience: string
+          author_person: string
+          competencies?: string[]
+          completion_criteria: string
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          objectives: string
+          reason?: string | null
+          title: string
+          track_id: string
+          version: number
+        }
+        Update: {
+          audience?: string
+          author_person?: string
+          competencies?: string[]
+          completion_criteria?: string
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          objectives?: string
+          reason?: string | null
+          title?: string
+          track_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_track_versions_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "dev_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dev_tracks: {
+        Row: {
+          created_at: string
+          id: string
+          program_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          program_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dev_tracks_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "dev_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dev_version_approvals: {
         Row: {
           approver_person: string
@@ -32658,6 +32919,15 @@ export type Database = {
         }
       }
       data_quality_can_review: { Args: { _school: string }; Returns: boolean }
+      decide_dev_track_version: {
+        Args: {
+          _decision: string
+          _key: string
+          _reason: string
+          _version: string
+        }
+        Returns: string
+      }
       decide_dev_version: {
         Args: {
           _decision: string
@@ -32758,6 +33028,7 @@ export type Database = {
         }
       }
       dev_plan_published: { Args: { _version: string }; Returns: boolean }
+      dev_track_approved: { Args: { _v: string }; Returns: boolean }
       dev_version_usable: {
         Args: { _subject: string; _version: string }
         Returns: boolean
@@ -34562,6 +34833,18 @@ export type Database = {
           display_name: string
           student_id: string
         }[]
+      }
+      mandate_dev_track: {
+        Args: {
+          _act: string
+          _audience: string
+          _basis: string
+          _from: string
+          _key: string
+          _until: string
+          _version: string
+        }
+        Returns: string
       }
       map_mediation_projection_at: {
         Args: { _on: string; _school: string }
@@ -37379,6 +37662,22 @@ export type Database = {
         }
         Returns: string
       }
+      record_dev_track_version: {
+        Args: {
+          _audience: string
+          _competencies: string[]
+          _criteria: string
+          _expected_version: number
+          _key: string
+          _objectives: string
+          _program: string
+          _reason: string
+          _steps: Json
+          _title: string
+          _track: string
+        }
+        Returns: string
+      }
       record_diary_correction_policy_draft: {
         Args: {
           _expected_version: number
@@ -40142,6 +40441,16 @@ export type Database = {
       }
       revoke_curricular_reference_relation: {
         Args: { _effective_on: string; _reason: string; _relation: string }
+        Returns: string
+      }
+      revoke_dev_track_mandate: {
+        Args: {
+          _act: string
+          _effective: string
+          _key: string
+          _mandate: string
+          _reason: string
+        }
         Returns: string
       }
       revoke_nei_role_grant: {

@@ -481,5 +481,6 @@
  "drizzle/migrations/0430_ops24_revoke_anon_helpers.sql": "070fa75eed72dc3c342c7a46ca33494a516224edcf749deb8f9b646cc904764f",
  "drizzle/migrations/0431_dev02_core_formation_chain.sql": "dff9b7ec2a9cbab434f9f166dafd5c2ad8e1f6de65cf7ca9b62521a14a72bda1",
  "drizzle/migrations/0432_dev04_needs_diagnosis.sql": "ceb894326fe246ddc299fbe4f8b88fd23fa35ffff86fbd379ce8e86eb907d6c8",
- "drizzle/migrations/0433_dev05_annual_plan_workflow.sql": "2402e09527afc27033d078087b899aaf83a0a82cc67cf718be8063353fa95f8d"
+ "drizzle/migrations/0433_dev05_annual_plan_workflow.sql": "2402e09527afc27033d078087b899aaf83a0a82cc67cf718be8063353fa95f8d",
+ "drizzle/migrations/0434_dev06_programs_tracks.sql": "16f609236175f48cde7c9df3e5ce28e49e0c43da433615dad2c41e8e2aec08e4"
 }
