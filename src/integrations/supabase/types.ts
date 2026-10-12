@@ -1019,6 +1019,435 @@ export type Database = {
         }
         Relationships: []
       }
+      acv_acl: {
+        Row: {
+          granted_at: string
+          granted_by_person: string | null
+          granted_by_principal: string | null
+          id: string
+          node_id: string
+          person_id: string | null
+          principal_id: string | null
+          revoked_at: string | null
+          revoked_by_person: string | null
+          revoked_by_principal: string | null
+          role: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by_person?: string | null
+          granted_by_principal?: string | null
+          id?: string
+          node_id: string
+          person_id?: string | null
+          principal_id?: string | null
+          revoked_at?: string | null
+          revoked_by_person?: string | null
+          revoked_by_principal?: string | null
+          role: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by_person?: string | null
+          granted_by_principal?: string | null
+          id?: string
+          node_id?: string
+          person_id?: string | null
+          principal_id?: string | null
+          revoked_at?: string | null
+          revoked_by_person?: string | null
+          revoked_by_principal?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_acl_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "acv_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      acv_events: {
+        Row: {
+          action: string
+          actor_person: string | null
+          actor_principal: string | null
+          auth_user: string | null
+          created_at: string
+          detail: Json
+          id: number
+          idempotency_key: string | null
+          node_id: string | null
+          space_id: string
+        }
+        Insert: {
+          action: string
+          actor_person?: string | null
+          actor_principal?: string | null
+          auth_user?: string | null
+          created_at?: string
+          detail?: Json
+          id?: number
+          idempotency_key?: string | null
+          node_id?: string | null
+          space_id: string
+        }
+        Update: {
+          action?: string
+          actor_person?: string | null
+          actor_principal?: string | null
+          auth_user?: string | null
+          created_at?: string
+          detail?: Json
+          id?: number
+          idempotency_key?: string | null
+          node_id?: string | null
+          space_id?: string
+        }
+        Relationships: []
+      }
+      acv_favorites: {
+        Row: {
+          auth_user: string
+          created_at: string
+          node_id: string
+        }
+        Insert: {
+          auth_user?: string
+          created_at?: string
+          node_id: string
+        }
+        Update: {
+          auth_user?: string
+          created_at?: string
+          node_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_favorites_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "acv_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      acv_file_versions: {
+        Row: {
+          copied_from: string | null
+          created_at: string
+          created_by_person: string | null
+          created_by_principal: string | null
+          ext: string
+          id: string
+          mime: string
+          node_id: string
+          sha256: string
+          size_bytes: number
+          storage_path: string
+          version: number
+        }
+        Insert: {
+          copied_from?: string | null
+          created_at?: string
+          created_by_person?: string | null
+          created_by_principal?: string | null
+          ext: string
+          id?: string
+          mime: string
+          node_id: string
+          sha256: string
+          size_bytes: number
+          storage_path: string
+          version: number
+        }
+        Update: {
+          copied_from?: string | null
+          created_at?: string
+          created_by_person?: string | null
+          created_by_principal?: string | null
+          ext?: string
+          id?: string
+          mime?: string
+          node_id?: string
+          sha256?: string
+          size_bytes?: number
+          storage_path?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_file_versions_copied_from_fkey"
+            columns: ["copied_from"]
+            isOneToOne: false
+            referencedRelation: "acv_file_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acv_file_versions_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "acv_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      acv_links: {
+        Row: {
+          case_id: string
+          created_at: string
+          id: string
+          node_id: string
+          person_id: string | null
+          principal_id: string | null
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          id?: string
+          node_id: string
+          person_id?: string | null
+          principal_id?: string | null
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          id?: string
+          node_id?: string
+          person_id?: string | null
+          principal_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_links_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "acv_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      acv_nodes: {
+        Row: {
+          created_at: string
+          created_by_person: string | null
+          created_by_principal: string | null
+          current_version: number | null
+          id: string
+          is_official: boolean
+          kind: string
+          name: string
+          name_key: string
+          parent_id: string | null
+          space_id: string
+          trashed_at: string | null
+          trashed_by_person: string | null
+          trashed_by_principal: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by_person?: string | null
+          created_by_principal?: string | null
+          current_version?: number | null
+          id?: string
+          is_official?: boolean
+          kind: string
+          name: string
+          name_key: string
+          parent_id?: string | null
+          space_id: string
+          trashed_at?: string | null
+          trashed_by_person?: string | null
+          trashed_by_principal?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by_person?: string | null
+          created_by_principal?: string | null
+          current_version?: number | null
+          id?: string
+          is_official?: boolean
+          kind?: string
+          name?: string
+          name_key?: string
+          parent_id?: string | null
+          space_id?: string
+          trashed_at?: string | null
+          trashed_by_person?: string | null
+          trashed_by_principal?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_nodes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "acv_nodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acv_nodes_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "acv_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      acv_space_members: {
+        Row: {
+          granted_at: string
+          granted_by_person: string | null
+          granted_by_principal: string | null
+          id: string
+          person_id: string | null
+          principal_id: string | null
+          revoked_at: string | null
+          revoked_by_person: string | null
+          revoked_by_principal: string | null
+          role: string
+          space_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by_person?: string | null
+          granted_by_principal?: string | null
+          id?: string
+          person_id?: string | null
+          principal_id?: string | null
+          revoked_at?: string | null
+          revoked_by_person?: string | null
+          revoked_by_principal?: string | null
+          role: string
+          space_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by_person?: string | null
+          granted_by_principal?: string | null
+          id?: string
+          person_id?: string | null
+          principal_id?: string | null
+          revoked_at?: string | null
+          revoked_by_person?: string | null
+          revoked_by_principal?: string | null
+          role?: string
+          space_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_space_members_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "acv_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      acv_spaces: {
+        Row: {
+          created_at: string
+          id: string
+          quota_bytes: number | null
+          school_id: string | null
+          station_code: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          quota_bytes?: number | null
+          school_id?: string | null
+          station_code: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          quota_bytes?: number | null
+          school_id?: string | null
+          station_code?: string
+        }
+        Relationships: []
+      }
+      acv_uploads: {
+        Row: {
+          auth_user: string
+          created_at: string
+          ext: string
+          id: string
+          idempotency_key: string
+          mime: string
+          name: string
+          node_id: string | null
+          parent_id: string | null
+          result_node: string | null
+          sha256: string
+          size_bytes: number
+          space_id: string
+          status: string
+          storage_path: string
+        }
+        Insert: {
+          auth_user: string
+          created_at?: string
+          ext: string
+          id?: string
+          idempotency_key: string
+          mime: string
+          name: string
+          node_id?: string | null
+          parent_id?: string | null
+          result_node?: string | null
+          sha256: string
+          size_bytes: number
+          space_id: string
+          status?: string
+          storage_path: string
+        }
+        Update: {
+          auth_user?: string
+          created_at?: string
+          ext?: string
+          id?: string
+          idempotency_key?: string
+          mime?: string
+          name?: string
+          node_id?: string | null
+          parent_id?: string | null
+          result_node?: string | null
+          sha256?: string
+          size_bytes?: number
+          space_id?: string
+          status?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acv_uploads_node_id_fkey"
+            columns: ["node_id"]
+            isOneToOne: false
+            referencedRelation: "acv_nodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acv_uploads_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "acv_nodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acv_uploads_space_id_fkey"
+            columns: ["space_id"]
+            isOneToOne: false
+            referencedRelation: "acv_spaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_act_reviews: {
         Row: {
           act_version_id: string
@@ -37581,6 +38010,121 @@ export type Database = {
           undated_count: number
         }[]
       }
+      acv_add_member: {
+        Args: {
+          _key: string
+          _person: string
+          _principal: string
+          _role: string
+          _space: string
+        }
+        Returns: string
+      }
+      acv_begin_upload: {
+        Args: {
+          _key: string
+          _mime: string
+          _name: string
+          _node: string
+          _parent: string
+          _sha: string
+          _size: number
+          _space: string
+        }
+        Returns: {
+          storage_path: string
+          upload_id: string
+        }[]
+      }
+      acv_commit_upload: { Args: { _upload: string }; Returns: string }
+      acv_copy: {
+        Args: {
+          _key: string
+          _name: string
+          _node: string
+          _parent: string
+          _space: string
+        }
+        Returns: string
+      }
+      acv_copy_internal: {
+        Args: { _name: string; _parent: string; _space: string; _src: string }
+        Returns: string
+      }
+      acv_create_folder: {
+        Args: { _key: string; _name: string; _parent: string; _space: string }
+        Returns: string
+      }
+      acv_ensure_space: { Args: never; Returns: string }
+      acv_ext_of: { Args: { _name: string }; Returns: string }
+      acv_has_share_in_space: { Args: { _space: string }; Returns: boolean }
+      acv_link_case: {
+        Args: { _case: string; _key: string; _node: string }
+        Returns: string
+      }
+      acv_log: {
+        Args: {
+          _action: string
+          _detail: Json
+          _key: string
+          _node: string
+          _space: string
+        }
+        Returns: undefined
+      }
+      acv_log_download: { Args: { _version: string }; Returns: undefined }
+      acv_mime_ok: { Args: { _ext: string; _mime: string }; Returns: boolean }
+      acv_move: {
+        Args: { _key: string; _node: string; _parent: string; _space: string }
+        Returns: string
+      }
+      acv_name_ok: { Args: { _name: string }; Returns: boolean }
+      acv_node_rank: { Args: { _node: string }; Returns: number }
+      acv_node_trashed: { Args: { _node: string }; Returns: boolean }
+      acv_node_visible: { Args: { _node: string }; Returns: boolean }
+      acv_object_readable: { Args: { _name: string }; Returns: boolean }
+      acv_person_eligible: {
+        Args: { _person: string; _school: string }
+        Returns: boolean
+      }
+      acv_rename: {
+        Args: { _key: string; _name: string; _node: string }
+        Returns: string
+      }
+      acv_replay: { Args: { _key: string }; Returns: string }
+      acv_require_actor: { Args: never; Returns: undefined }
+      acv_restore: { Args: { _key: string; _node: string }; Returns: string }
+      acv_revoke_member: {
+        Args: { _key: string; _member: string }
+        Returns: string
+      }
+      acv_revoke_share: {
+        Args: { _acl: string; _key: string }
+        Returns: string
+      }
+      acv_role_rank: { Args: { _role: string }; Returns: number }
+      acv_set_quota: {
+        Args: { _bytes: number; _key: string; _space: string }
+        Returns: string
+      }
+      acv_share: {
+        Args: {
+          _key: string
+          _node: string
+          _person: string
+          _principal: string
+          _role: string
+        }
+        Returns: string
+      }
+      acv_space_rank: { Args: { _space: string }; Returns: number }
+      acv_space_usage: { Args: { _space: string }; Returns: number }
+      acv_target_rank: {
+        Args: { _parent: string; _space: string }
+        Returns: number
+      }
+      acv_trash: { Args: { _key: string; _node: string }; Returns: string }
+      acv_upload_slot_ok: { Args: { _name: string }; Returns: boolean }
       admin_account_overview: {
         Args: never
         Returns: {

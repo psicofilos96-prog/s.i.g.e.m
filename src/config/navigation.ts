@@ -42,7 +42,7 @@ export type NavigationRoute =
   | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/supervisao-escolar" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/mapa-censo-2026" | "/mapa-mensal-2026" | "/consolidado-2026" | "/auditoria"
-  | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos";
+  | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos" | "/acervo-documental";
 
 export type NavigationItem = {
   label: string;
@@ -126,6 +126,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Qualidade dos dados", icon: Gavel, to: "/qualidade-dos-dados", hint: "Inconsistências" },
       { label: "Variações para revisar", icon: Gavel, to: "/revisao-de-anomalias", hint: "Sinais estatísticos" },
       { label: "Base de conhecimento", icon: Gavel, to: "/base-de-conhecimento", hint: "Documentos e normas" },
+      { label: "Acervo Documental", icon: Gavel, to: "/acervo-documental", hint: "Pastas e arquivos do setor" },
       { label: "Tarefas e agenda", icon: Gavel, to: "/tarefas", hint: "Pendências pessoais e do setor" },
       { label: "Quadro docente", icon: Scale, to: "/quadro-docente", hint: "Aulas, cobertura e necessidade" },
       { label: "Simulador de cenários", icon: Scale, to: "/simulador", hint: "E se? sem alterar fatos" },
