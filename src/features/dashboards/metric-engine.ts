@@ -27,13 +27,13 @@ export type MetricDefinition = Readonly<{
 
 export type PerspectiveId = "secretaria" | "departamento-pessoal" | "alimentacao" | "pessoal";
 
-export type CapabilityRow = Readonly<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }>;
+export type CapabilityRow = Readonly<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null; engagement_id?: string | null }>;
 
 /** Alcance: capability homologada na própria escola ou na rede. Cargo textual nunca entra. */
 export function hasScope(caps: readonly CapabilityRow[], wanted: readonly string[], scope: Scope): boolean {
   if (wanted.length === 0) return scope.kind === "pessoal";
   if (scope.kind !== "escola") return false;
-  return caps.some((c) => c.policy_id && wanted.includes(c.capability_id) && (c.scope_level === "rede" || (c.scope_level === "escola" && c.school_id === scope.schoolId)));
+  return caps.some((c) => (c.policy_id || c.engagement_id === null) && wanted.includes(c.capability_id) && (c.scope_level === "rede" || (c.scope_level === "escola" && c.school_id === scope.schoolId)));
 }
 
 export const notAvailable = (reason: string): MetricResult => ({ status: "nao-disponivel", reason });

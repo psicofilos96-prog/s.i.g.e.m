@@ -3620,6 +3620,13 @@
       "when": 1791906177049,
       "tag": "0516_meal_accept_sector_station_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 517,
+      "version": "7",
+      "when": 1791907521678,
+      "tag": "0517_sector_accounts_accept_station_grants",
+      "breakpoints": true
     }
   ]
 }
