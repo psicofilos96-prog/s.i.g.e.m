@@ -16914,6 +16914,30 @@ export type Database = {
           },
         ]
       }
+      first_access_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          login: string
+          ok: boolean
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          login: string
+          ok: boolean
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          login?: string
+          ok?: boolean
+          reason?: string
+        }
+        Relationships: []
+      }
       guardian_authorizations: {
         Row: {
           event_kind: string
@@ -42381,6 +42405,14 @@ export type Database = {
           sections: string[]
           student_id: string
           valid_until: string
+        }[]
+      }
+      first_access_record: { Args: { p_user: string }; Returns: undefined }
+      first_access_verify: {
+        Args: { p_birth: string; p_login: string }
+        Returns: {
+          reason: string
+          user_id: string
         }[]
       }
       functional_grant: {
