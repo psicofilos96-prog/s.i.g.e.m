@@ -3669,6 +3669,27 @@
       "when": 1791915297910,
       "tag": "0523_perf_census_schools_grouped_semed_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 524,
+      "version": "7",
+      "when": 1791918606504,
+      "tag": "0524_perf_class_allocations_at_scoped_ctes",
+      "breakpoints": true
+    },
+    {
+      "idx": 525,
+      "version": "7",
+      "when": 1791919045841,
+      "tag": "0525_perf_readable_class_ids_network_shortcut",
+      "breakpoints": true
+    },
+    {
+      "idx": 526,
+      "version": "7",
+      "when": 1791919172918,
+      "tag": "0526_fix_readable_class_ids_pure_sql",
+      "breakpoints": true
     }
   ]
 }

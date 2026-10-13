@@ -50,8 +50,8 @@ export function NetworkProjectionPage() {
   async function load() {
     setBusy(true); setErr(null); setDetail(null);
     try {
-      setRes(await fetchProjection({ data: { year, month, ...(refDate ? { referenceDate: refDate } : {}),
-        knownAt: knownAt ? new Date(knownAt).toISOString() : null } }) as Result);
+      setRes(await withTimeout(fetchProjection({ data: { year, month, ...(refDate ? { referenceDate: refDate } : {}),
+        knownAt: knownAt ? new Date(knownAt).toISOString() : null } }), 90_000) as Result);
     } catch (e) { { const g = governError(e); setErr(`${g.userMessage} Código: ${g.correlationId}.`); } } finally { setBusy(false); }
   }
 
@@ -205,4 +205,9 @@ export function NetworkProjectionPage() {
       <MapRuleAdmin />
     </div>
   );
+}
+
+/** Nunca deixa a tela presa em "Calculando…": após o limite, mostra erro com opção de tentar de novo. */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([p, new Promise<T>((_, rej) => setTimeout(() => rej(new Error("A consulta demorou demais. Tente de novo.")), ms))]);
 }
