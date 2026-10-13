@@ -47,6 +47,7 @@ function AuthPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [caps, setCaps] = useState(false);
+  const [first, setFirst] = useState(false);
   // NLOGIN.2: estado da sessão — conferindo, já conectado (redireciona) ou sem sessão (formulário).
   const [session, setSession] = useState<"checking" | "signed-in" | "signed-out">("checking");
 
@@ -125,9 +126,14 @@ function AuthPage() {
                 {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
                 {busy ? "Entrando…" : <>Entrar <ArrowRight className="h-5 w-5" aria-hidden /></>}
               </button>
-              <p className="text-xs text-login-ink/70">Primeiro acesso ou senha esquecida: use o link individual entregue por quem administra as contas (vale uma única vez).</p>
+              <p className="text-xs text-login-ink/70">É seu primeiro acesso? <button type="button" onClick={() => setMsg(null) ?? setFirst(true)} className="text-login-gold-soft underline underline-offset-4">Crie sua senha</button> com seu login e sua data de nascimento.</p>
             </form>
           )}
+          {first && session === "signed-out" ? <FirstAccess field={field} login={login} onDone={async (l, pw) => {
+            const { error } = await supabase.auth.signInWithPassword({ email: l, password: pw });
+            if (error) { setFirst(false); return setMsg("Senha criada. Entre com seu login e a nova senha."); }
+            setSession("signed-in"); go();
+          }} onCancel={() => setFirst(false)} /> : null}
           <div className="mt-auto pt-10">
             <div className="flex items-center justify-center gap-3 border-t border-login-ink/15 pt-5">
               {[{ s: logoPrefeitura.url, a: "Prefeitura de Itaperuna" }, { s: logoEducacao.url, a: "Secretaria Municipal de Educação" }, { s: logoCiece.url, a: "Central de Informações, Estatística e Censo Escolar" }].map((l, k) => (
