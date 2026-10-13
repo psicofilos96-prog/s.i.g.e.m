@@ -8,6 +8,7 @@ import { brand } from "@/config/branding";
 import { useSessionAuthority, useSessionUser } from "@/features/authority/session-authority";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { HomeTodayPanel } from "@/features/workspace/home-today";
+import { SimpleHome } from "@/features/workspace/simple-home";
 import { BUILDER_SOURCES } from "@/features/reports/builder-sources";
 import { panoramaTotals, type PanoramaRow } from "@/features/reports/cross-reports";
 
@@ -62,6 +63,8 @@ function HomePage() {
   const totals = rows.length ? panoramaTotals(rows) : null;
   const ranked = [...rows].filter((r) => r.enrollments !== null).sort((a, b) => (b.enrollments ?? 0) - (a.enrollments ?? 0));
   const max = ranked[0]?.enrollments ?? 1;
+
+  if (user && authority.status === "signed-in") return <SimpleHome userId={user.id} authority={authority} />;
 
   return (
     <div className="pilot-page -m-3 min-h-[calc(100svh-var(--topbar-height))] bg-background sm:-m-4 lg:-m-5 xl:-m-6">
