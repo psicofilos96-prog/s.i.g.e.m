@@ -50560,6 +50560,10 @@ export type Database = {
           capability_id: string
         }[]
       }
+      sector_holds_on: {
+        Args: { _capability: string; _on: string; _school: string }
+        Returns: boolean
+      }
       sector_password_record: {
         Args: { p_by: string; p_user: string }
         Returns: boolean
