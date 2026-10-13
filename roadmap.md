@@ -696,6 +696,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Permissão por turma sem multiplicar capacidade × 698 turmas (0518)
 - [x] Mapa do Censo 2026: permissão faltante e consultas lentas (0519–0521)
 - [x] Varredura do menu como CIECE: 32 telas abrem
-- [ ] Varredura dos demais setores (Supervisão, Secretaria, Direção, OP, Avaliação, Alimentação, Inclusão, Transporte)
-- [ ] Rapidez: medir e reduzir telas acima de 2 s (CIECE início, Mapa Estatístico)
+- [ ] Varredura dos demais setores — bloqueada: logins de setor sem senha definida param em "Troque sua senha inicial"
+- [x] Rapidez rodada 1: leitura de turmas em conjunto (0522), cache de 60 s, pré-carregamento no menu
+- [ ] Rapidez rodada 2: CIECE (5,8 s), Mapa do Censo (5 s), Mapa Estatístico (3,7 s), Início (3 s)
 - [ ] Visual simples: 3 telas-modelo (Início, Mapa Estatístico, Alunos) para aprovação
