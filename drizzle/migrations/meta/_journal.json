@@ -3606,6 +3606,13 @@
       "when": 1791901507874,
       "tag": "0514_first_access_birth_date",
       "breakpoints": true
+    },
+    {
+      "idx": 515,
+      "version": "7",
+      "when": 1791901955895,
+      "tag": "0515_sector_password_set_by_owner",
+      "breakpoints": true
     }
   ]
 }
