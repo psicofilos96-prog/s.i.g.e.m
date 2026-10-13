@@ -3627,6 +3627,34 @@
       "when": 1791907521678,
       "tag": "0517_sector_accounts_accept_station_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 518,
+      "version": "7",
+      "when": 1791912937173,
+      "tag": "0518_perf_has_capability_no_class_expansion",
+      "breakpoints": true
+    },
+    {
+      "idx": 519,
+      "version": "7",
+      "when": 1791913190869,
+      "tag": "0519_perf_census_map_grants_and_initplan",
+      "breakpoints": true
+    },
+    {
+      "idx": 520,
+      "version": "7",
+      "when": 1791913396365,
+      "tag": "0520_perf_class_census_declarations_policy",
+      "breakpoints": true
+    },
+    {
+      "idx": 521,
+      "version": "7",
+      "when": 1791913562248,
+      "tag": "0521_perf_census_map_2026_classes_aggregate",
+      "breakpoints": true
     }
   ]
 }
