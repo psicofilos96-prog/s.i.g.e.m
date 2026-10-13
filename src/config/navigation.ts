@@ -43,7 +43,7 @@ export type NavigationRoute =
   | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/supervisao-escolar" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/mapa-censo-2026" | "/mapa-mensal-2026" | "/consolidado-2026" | "/auditoria"
-  | "/central-de-acessos" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos" | "/acervo-documental";
+  | "/central-de-acessos" | "/senhas-de-setores" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos" | "/acervo-documental";
 
 export type NavigationItem = {
   label: string;
@@ -121,6 +121,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Auditoria", icon: Scale, to: "/auditoria", hint: "Trilha de ações" },
       { label: "Estação administrativa", icon: SlidersHorizontal, to: "/estacao-administrativa", hint: "Governança e configuração" },
       { label: "Central de acessos", icon: SlidersHorizontal, to: "/central-de-acessos", hint: "Contas, atuações e políticas" },
+      { label: "Senhas de setores", icon: SlidersHorizontal, to: "/senhas-de-setores", hint: "Definir senha das contas de setor" },
       { label: "Publicações", icon: Landmark, to: "/publicacoes", hint: "Portal público" },
       { label: "Configuração inicial", icon: School, to: "/configuracao-inicial", hint: "Assistente da escola" },
       { label: "Prontidão para piloto", icon: Gavel, to: "/prontidao-piloto", hint: "Go/no-go" },
