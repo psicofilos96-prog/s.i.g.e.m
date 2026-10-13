@@ -3648,6 +3648,13 @@
       "when": 1791913396365,
       "tag": "0520_perf_class_census_declarations_policy",
       "breakpoints": true
+    },
+    {
+      "idx": 521,
+      "version": "7",
+      "when": 1791913562248,
+      "tag": "0521_perf_census_map_2026_classes_aggregate",
+      "breakpoints": true
     }
   ]
 }
