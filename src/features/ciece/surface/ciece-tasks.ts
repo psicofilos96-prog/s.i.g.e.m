@@ -3,7 +3,7 @@ export type CieceTask = {
   id: "qualidade" | "mapa" | "fontes";
   title: string;
   description: string;
-  links: readonly { label: string; to: "/qualidade-dos-dados" | "/mapa-estatistico-rede" | "/central-de-integracoes" | "/censo-escolar" | "/educacenso" }[];
+  links: readonly { label: string; to: "/qualidade-dos-dados" | "/mapa-estatistico-rede" | "/central-de-integracoes" | "/importacoes" | "/censo-escolar" | "/educacenso" }[];
 };
 
 export const CIECE_TASKS: readonly CieceTask[] = [

@@ -707,3 +707,5 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Etapa 1a: novo Início com até 6 botões grandes + "Mais" (profile-home.ts)
 - [ ] Etapa 1b: telas-modelo Alunos e Chamada — aguarda aprovação do visual do Início
 - [ ] Etapas 2–4: moldura geral, perfil por perfil, prova com contas reais
+- [x] Fonte/origem escondida das telas (ProvenanceLine + 20 telas); Alunos e Profissionais com lista real; Importar arquivos da CIECE abre Importações
+- [ ] Varredura de botões em todos os setores — aguarda senhas dos setores

@@ -235,7 +235,7 @@ function TechnicalAdoptionsSection() {
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => { let live = true; listTechnicalAdoptions().then((x) => { if (live) setRows(x); }, (e: Error) => { if (live) setErr(importMessage(e.message)); }); return () => { live = false; }; }, []);
   return (
-    <section className="space-y-3" aria-labelledby="historico-2026">
+    <section hidden data-provenance className="space-y-3" aria-labelledby="historico-2026">
       <h2 id="historico-2026" className="font-semibold">Histórico da carga 2026 (operações técnicas adotadas)</h2>
       <p className="text-sm text-muted-foreground">Dados já no cadastro oficial. Registrados aqui só como proveniência: nenhum fato novo foi criado e o mesmo arquivo não entra de novo.</p>
       {err ? <StatePanel tone="danger" title="Não foi possível ler o histórico 2026" description={err} />
