@@ -94,6 +94,7 @@ import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RelatoriosDeTecnologiaRouteImport } from './routes/relatorios-de-tecnologia'
 import { Route as RevisaoDeAnomaliasRouteImport } from './routes/revisao-de-anomalias'
 import { Route as SecretariaRouteImport } from './routes/secretaria'
+import { Route as SenhasDeSetoresRouteImport } from './routes/senhas-de-setores'
 import { Route as SigemDesenvolvimentoRouteImport } from './routes/sigem-desenvolvimento'
 import { Route as SigemDocumentosRouteImport } from './routes/sigem-documentos'
 import { Route as SigemPermanenciaRouteImport } from './routes/sigem-permanencia'
@@ -711,6 +712,11 @@ const RevisaoDeAnomaliasRoute = RevisaoDeAnomaliasRouteImport.update({
 const SecretariaRoute = SecretariaRouteImport.update({
   id: '/secretaria',
   path: '/secretaria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SenhasDeSetoresRoute = SenhasDeSetoresRouteImport.update({
+  id: '/senhas-de-setores',
+  path: '/senhas-de-setores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SigemDesenvolvimentoRoute = SigemDesenvolvimentoRouteImport.update({
@@ -1863,6 +1869,7 @@ export interface FileRoutesByFullPath {
   '/relatorios-de-tecnologia': typeof RelatoriosDeTecnologiaRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/senhas-de-setores': typeof SenhasDeSetoresRoute
   '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
   '/sigem-documentos': typeof SigemDocumentosRoute
   '/sigem-permanencia': typeof SigemPermanenciaRoute
@@ -2133,6 +2140,7 @@ export interface FileRoutesByTo {
   '/relatorios-de-tecnologia': typeof RelatoriosDeTecnologiaRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/senhas-de-setores': typeof SenhasDeSetoresRoute
   '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
   '/sigem-documentos': typeof SigemDocumentosRoute
   '/sigem-permanencia': typeof SigemPermanenciaRoute
@@ -2390,6 +2398,7 @@ export interface FileRoutesById {
   '/relatorios-de-tecnologia': typeof RelatoriosDeTecnologiaRoute
   '/revisao-de-anomalias': typeof RevisaoDeAnomaliasRoute
   '/secretaria': typeof SecretariaRoute
+  '/senhas-de-setores': typeof SenhasDeSetoresRoute
   '/sigem-desenvolvimento': typeof SigemDesenvolvimentoRoute
   '/sigem-documentos': typeof SigemDocumentosRoute
   '/sigem-permanencia': typeof SigemPermanenciaRoute
@@ -2671,6 +2680,7 @@ export interface FileRouteTypes {
     | '/relatorios-de-tecnologia'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/senhas-de-setores'
     | '/sigem-desenvolvimento'
     | '/sigem-documentos'
     | '/sigem-permanencia'
@@ -2941,6 +2951,7 @@ export interface FileRouteTypes {
     | '/relatorios-de-tecnologia'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/senhas-de-setores'
     | '/sigem-desenvolvimento'
     | '/sigem-documentos'
     | '/sigem-permanencia'
@@ -3197,6 +3208,7 @@ export interface FileRouteTypes {
     | '/relatorios-de-tecnologia'
     | '/revisao-de-anomalias'
     | '/secretaria'
+    | '/senhas-de-setores'
     | '/sigem-desenvolvimento'
     | '/sigem-documentos'
     | '/sigem-permanencia'
@@ -3477,6 +3489,7 @@ export interface RootRouteChildren {
   RelatoriosDeTecnologiaRoute: typeof RelatoriosDeTecnologiaRoute
   RevisaoDeAnomaliasRoute: typeof RevisaoDeAnomaliasRoute
   SecretariaRoute: typeof SecretariaRoute
+  SenhasDeSetoresRoute: typeof SenhasDeSetoresRoute
   SigemDesenvolvimentoRoute: typeof SigemDesenvolvimentoRoute
   SigemDocumentosRoute: typeof SigemDocumentosRoute
   SigemPermanenciaRoute: typeof SigemPermanenciaRoute
@@ -4141,6 +4154,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria'
       fullPath: '/secretaria'
       preLoaderRoute: typeof SecretariaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/senhas-de-setores': {
+      id: '/senhas-de-setores'
+      path: '/senhas-de-setores'
+      fullPath: '/senhas-de-setores'
+      preLoaderRoute: typeof SenhasDeSetoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sigem-desenvolvimento': {
@@ -6250,6 +6270,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosDeTecnologiaRoute: RelatoriosDeTecnologiaRoute,
   RevisaoDeAnomaliasRoute: RevisaoDeAnomaliasRoute,
   SecretariaRoute: SecretariaRoute,
+  SenhasDeSetoresRoute: SenhasDeSetoresRoute,
   SigemDesenvolvimentoRoute: SigemDesenvolvimentoRoute,
   SigemDocumentosRoute: SigemDocumentosRoute,
   SigemPermanenciaRoute: SigemPermanenciaRoute,
