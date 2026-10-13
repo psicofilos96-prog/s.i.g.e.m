@@ -26,11 +26,17 @@ export function KitchenStation() {
   useEffect(() => {
     void (async () => {
       try {
-        const caps = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }[]>("effective_scope_capabilities", {});
-        const ids = [...new Set((caps ?? []).filter((c) => c.policy_id && c.capability_id === KITCHEN_CAP && c.scope_level === "escola" && c.school_id).map((c) => c.school_id!))];
-        const { data } = await db.from("institutional_school_record_versions").select("school_id, official_name, version_number").in("school_id", ids.length ? ids : ["-"]).order("version_number", { ascending: false });
-        const names = new Map<string, string>(); for (const r of data ?? []) if (!names.has(r.school_id)) names.set(r.school_id, r.official_name);
-        const list = ids.map((id) => ({ id, name: names.get(id) ?? id })); setSchools(list); if (list.length === 1) setSchool(list[0]!.id);
+        const caps = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null; engagement_id: string | null }[]>("effective_scope_capabilities", {});
+        // Concessão homologada (política) ou da estação do setor (sem atuação); o banco revalida em meal_kitchen_day_at.
+        const mine = (caps ?? []).filter((c) => (c.policy_id || !c.engagement_id) && c.capability_id === KITCHEN_CAP);
+        const network = mine.some((c) => c.scope_level === "rede");
+        const ids = [...new Set(mine.filter((c) => c.scope_level === "escola" && c.school_id).map((c) => c.school_id!))];
+        let q = db.from("institutional_school_record_versions").select("school_id, official_name, version_number, active").order("version_number", { ascending: false });
+        if (!network) q = q.in("school_id", ids.length ? ids : ["-"]);
+        const { data } = await q;
+        const heads = new Map<string, { name: string; active: boolean }>(); for (const r of data ?? []) if (!heads.has(r.school_id)) heads.set(r.school_id, { name: r.official_name, active: r.active });
+        const all = network ? [...heads.entries()].filter(([, h]) => h.active).map(([id]) => id) : ids;
+        const list = all.map((id) => ({ id, name: heads.get(id)?.name ?? id })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")); setSchools(list); if (list.length === 1) setSchool(list[0]!.id);
       } catch (e) { setErr(opsMessage((e as Error).message)); }
     })();
     void db.from("attribute_value_definitions").select("value_id, label").eq("scheme_id", "refeicao-escolar").eq("status", "homologada").then((r: any) => setSlots(r.data ?? []));
