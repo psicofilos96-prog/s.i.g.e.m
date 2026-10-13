@@ -20,7 +20,7 @@ export function SimpleHome({ userId, authority }: { userId: string; authority: S
     <div className="mx-auto max-w-4xl space-y-8 px-1 py-4 sm:py-8">
       <header>
         <h1 className="font-display text-3xl sm:text-4xl">{greeting(now.getHours())}{name ? `, ${name}` : ""}</h1>
-        <p className="mt-1 text-lg capitalize text-muted-foreground">{today}</p>
+        <p className="mt-1 text-lg text-muted-foreground">{today.charAt(0).toUpperCase() + today.slice(1)}</p>
       </header>
 
       <section aria-label="O que você quer fazer">

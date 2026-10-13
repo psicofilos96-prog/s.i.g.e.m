@@ -7,7 +7,6 @@ export type RouteGuide = { where: string; todo: string; next?: string; primary?:
 /** NHOME.1: `primary` é a ação principal da home quando a própria tela não a destaca; sempre rota existente, nunca afirma dado. */
 
 export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
-  "/": { where: "Início", todo: "Veja suas pendências e entre na área em que vai trabalhar.", next: "escolha uma área no menu ao lado." },
   "/tarefas": { where: "Tarefas", todo: "Confira o que está aguardando você.", next: "abra uma tarefa para ver o que falta." },
   "/avisos": { where: "Avisos", todo: "Leia os comunicados recebidos.", next: "abra um aviso para ver o texto completo." },
   "/ajuda": { where: "Ajuda", todo: "Procure orientação sobre como usar o sistema." },

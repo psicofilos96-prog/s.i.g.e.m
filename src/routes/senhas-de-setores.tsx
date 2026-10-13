@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { PageHeader } from "@/components/sigem/patterns";
+import { SkeletonState } from "@/components/sigem/guidance";
 import { listSectorLogins, setSectorPassword } from "@/features/authority/sector-passwords.functions";
 
 export const Route = createFileRoute("/senhas-de-setores")({
@@ -43,10 +45,9 @@ function SectorPasswordsPage() {
 
   const rows = (q.data ?? []).filter((r) => r.login.includes(filter.toLowerCase()));
   return (
-    <section aria-labelledby="sp-title" className="mx-auto max-w-3xl space-y-4 p-6">
-      <h1 id="sp-title" className="text-2xl font-semibold">Senhas dos setores</h1>
-      <p className="text-sm text-muted-foreground">Escolha a conta do setor e defina a senha. Depois repasse a senha ao setor; ele entra direto, sem precisar trocar.</p>
-      {q.isLoading ? <p role="status">Carregando contas…</p> : q.isError ? <p role="alert" className="text-destructive">Só a administração pode usar esta tela.</p> : (
+    <section className="mx-auto max-w-3xl space-y-4 p-6">
+      <PageHeader title="Senhas dos setores" description="Escolha a conta do setor e defina a senha. Depois repasse a senha ao setor; ele entra direto, sem precisar trocar." />
+      {q.isLoading ? <SkeletonState label="Carregando contas" /> : q.isError ? <p role="alert" className="text-destructive">Só a administração pode usar esta tela.</p> : (
         <>
           <label className="block text-sm">Buscar conta<input value={filter} onChange={(e) => setFilter(e.target.value)} className="mt-1 block min-h-11 w-full rounded-md border bg-background px-2" /></label>
           <ul className="max-h-72 overflow-auto rounded-md border" aria-label="Contas de setor">
