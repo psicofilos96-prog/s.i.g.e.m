@@ -81,7 +81,7 @@ export function CieceCentral({ pathAllowed }: { pathAllowed: (p: string) => bool
               </li>
             ))}
           </ul>
-          <p className="pt-2 text-xs text-muted-foreground">Ausência de leitura nunca aparece como zero. Vínculos não são pessoas.</p>
+          <p hidden className="pt-2 text-xs text-muted-foreground">Ausência de leitura nunca aparece como zero. Vínculos não são pessoas.</p>
         </TabsContent>
 
         <TabsContent value="mapa">
