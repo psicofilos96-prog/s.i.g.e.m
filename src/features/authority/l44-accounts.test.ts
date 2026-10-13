@@ -29,11 +29,14 @@ describe("L44 consolidação de logins", () => {
 });
 
 describe("L44 senha inicial", () => {
-  it("regra mínima da nova senha", () => {
-    expect(passwordProblem("curta1", "curta1")).not.toBeNull();
-    expect(passwordProblem("semnumeroaqui", "semnumeroaqui")).not.toBeNull();
-    expect(passwordProblem("abcdefgh12", "abcdefgh13")).not.toBeNull();
-    expect(passwordProblem("abcdefgh12", "abcdefgh12")).toBeNull();
+  it("regra mínima da nova senha: maiúscula, minúscula, número, símbolo, 6+", () => {
+    expect(passwordProblem("Ab1!x", "Ab1!x")).not.toBeNull();
+    expect(passwordProblem("Ab1!xy", "Ab1!xy")).toBeNull();
+    expect(passwordProblem("ab1!xy", "ab1!xy")).not.toBeNull();
+    expect(passwordProblem("AB1!XY", "AB1!XY")).not.toBeNull();
+    expect(passwordProblem("Abc!xy", "Abc!xy")).not.toBeNull();
+    expect(passwordProblem("Abc1xy", "Abc1xy")).not.toBeNull();
+    expect(passwordProblem("Ab1!xy", "Ab1!xz")).not.toBeNull();
   });
   it("migration 0512 exige troca para contas em massa e não toca senha", () => {
     const sql = readFileSync("drizzle/migrations/0512_l44_bulk_login_password_change.sql", "utf8");

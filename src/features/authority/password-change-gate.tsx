@@ -23,7 +23,13 @@ export function PasswordChangeGate({ children }: { children: ReactNode }) {
     const p = passwordProblem(pw, pw2); if (p) return setErr(p);
     setBusy(true);
     const { error } = await supabase.auth.updateUser({ password: pw });
-    if (error) { setBusy(false); return setErr("Não foi possível trocar a senha. Tente outra senha."); }
+    if (error) {
+      setBusy(false);
+      const m = error.message.toLowerCase();
+      if (m.includes("same")) return setErr("A nova senha precisa ser diferente da senha inicial.");
+      if (m.includes("6 char") || m.includes("at least")) return setErr("A nova senha precisa ter pelo menos 6 caracteres.");
+      return setErr("Não foi possível trocar a senha. Recarregue a página e tente de novo.");
+    }
     const r = await supabase.rpc("record_own_password_change");
     setBusy(false);
     if (r.error) return setErr("Senha trocada, mas o registro falhou. Recarregue a página.");
