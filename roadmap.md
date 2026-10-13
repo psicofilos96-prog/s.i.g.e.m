@@ -702,3 +702,8 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Medir telas dos demais setores — aguarda o proprietário definir senhas em Senhas de setores
 - [ ] Rapidez rodada 2: CIECE (5,8 s), Mapa do Censo (5 s), Mapa Estatístico (3,7 s), Início (3 s)
 - [ ] Visual simples: 3 telas-modelo (Início, Mapa Estatístico, Alunos) para aprovação
+
+## Layout simples (plano 2026-10-13)
+- [x] Etapa 1a: novo Início com até 6 botões grandes + "Mais" (profile-home.ts)
+- [ ] Etapa 1b: telas-modelo Alunos e Chamada — aguarda aprovação do visual do Início
+- [ ] Etapas 2–4: moldura geral, perfil por perfil, prova com contas reais
