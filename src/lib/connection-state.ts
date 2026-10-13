@@ -26,5 +26,5 @@ export const CONNECTION_MESSAGES: Record<Exclude<ConnectionPhase, "online">, str
  */
 export const QUERY_CLIENT_DEFAULTS = {
   mutations: { networkMode: "always", retry: 0 },
-  queries: { retry: 2 },
+  queries: { retry: 1, staleTime: 60_000, refetchOnWindowFocus: false },
 } as const;
