@@ -3641,6 +3641,13 @@
       "when": 1791913190869,
       "tag": "0519_perf_census_map_grants_and_initplan",
       "breakpoints": true
+    },
+    {
+      "idx": 520,
+      "version": "7",
+      "when": 1791913396365,
+      "tag": "0520_perf_class_census_declarations_policy",
+      "breakpoints": true
     }
   ]
 }
