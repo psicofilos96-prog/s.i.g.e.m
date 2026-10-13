@@ -709,4 +709,4 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [ ] Etapas 2–4: moldura geral, perfil por perfil, prova com contas reais
 - [x] Fonte/origem escondida das telas (ProvenanceLine + 20 telas); Alunos e Profissionais com lista real; Importar arquivos da CIECE abre Importações
 - [ ] Varredura de botões em todos os setores — aguarda senhas dos setores
-- [ ] Mapa da rede: botão Calcular fica em "Calculando…" para sempre
+- [x] Mapa da rede: cálculo termina (~40 s, antes nunca); meta de velocidade segue aberta
