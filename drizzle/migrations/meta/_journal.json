@@ -3662,6 +3662,13 @@
       "when": 1791914071232,
       "tag": "0522_perf_readable_class_ids_set_based",
       "breakpoints": true
+    },
+    {
+      "idx": 523,
+      "version": "7",
+      "when": 1791915297910,
+      "tag": "0523_perf_census_schools_grouped_semed_scope",
+      "breakpoints": true
     }
   ]
 }
