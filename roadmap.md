@@ -698,5 +698,7 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] Varredura do menu como CIECE: 32 telas abrem
 - [ ] Varredura dos demais setores — bloqueada: logins de setor sem senha definida param em "Troque sua senha inicial"
 - [x] Rapidez rodada 1: leitura de turmas em conjunto (0522), cache de 60 s, pré-carregamento no menu
+- [x] Rapidez rodada 2 (0523): Censo por escola agrupado (3,1 s → 1,2–1,5 s, totais conferidos com a rede); escolas da SEMED 1,9 s → 0,8 s
+- [ ] Medir telas dos demais setores — aguarda o proprietário definir senhas em Senhas de setores
 - [ ] Rapidez rodada 2: CIECE (5,8 s), Mapa do Censo (5 s), Mapa Estatístico (3,7 s), Início (3 s)
 - [ ] Visual simples: 3 telas-modelo (Início, Mapa Estatístico, Alunos) para aprovação
