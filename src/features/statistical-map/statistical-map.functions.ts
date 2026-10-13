@@ -33,15 +33,15 @@ function ruleFromRow(r: any): MapCompetenceRule | null {
 
 /** Nome da turma na data da fotografia pelo reader B2.5 `class_at`; ausência/inconsistência é declarada, nunca escolhida. */
 async function mapClassNames(db: Db, ids: string[], temporal: BitemporalContext | null): Promise<{ id: string; name: string }[]> {
-  if (!temporal) return ids.map((id) => ({ id, name: `${id} (sem data de fotografia)` })).sort((a, b) => a.name.localeCompare(b.name));
-  const got = await classNamesAt(db, ids, temporal);
+  // Sem data da fotografia, o nome exibido vem do cadastro vigente hoje (só rótulo; números não mudam).
+  const t: BitemporalContext = temporal ?? { validOn: new Date().toISOString().slice(0, 10) };
+  const got = await classNamesAt(db, ids, t);
   const out = ids.map((id) => {
     const o = got.get(id);
-    if (!o || o.kind === "erro") return { id, name: `${id} (cadastro não pôde ser lido)` };
-    if (o.kind === "ok") return { id, name: o.name };
-    return { id, name: o.kind === "inconsistente" ? `${id} (cadastro inconsistente na data)` : `${id} (sem cadastro vigente na data)` };
+    if (o?.kind === "ok") return { id, name: o.name };
+    return { id, name: "Turma sem nome no cadastro" };
   });
-  return out.sort((a, b) => a.name.localeCompare(b.name));
+  return out.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
 }
 
 /**

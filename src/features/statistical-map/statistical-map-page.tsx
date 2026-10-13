@@ -92,8 +92,8 @@ function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-sm font-medium break-words">{c.label}</p>
-          <p className="text-xs font-medium">{originBadge(c)}</p>
-          <p className="text-xs text-muted-foreground">{ORIGIN[c.origin]}{ref ? ` · ${ref}` : ""}</p>
+          {c.state !== "indeterminado" && <p className="text-xs font-medium">{originBadge(c)}</p>}
+          <p hidden data-provenance className="text-xs text-muted-foreground">{ORIGIN[c.origin]}{ref ? ` · ${ref}` : ""}</p>
         </div>
         <span className={cn("rounded-md border px-2 py-0.5 text-xs font-medium", st.tone)}>{st.label}</span>
       </div>
@@ -107,7 +107,7 @@ function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }
       {c.notes.length > 0 && <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">{c.notes.map((n) => <li key={n}>{n}</li>)}</ul>}
       {c.coverage && !c.coverage.complete && <p className="mt-1 text-xs text-muted-foreground">Cobertura incompleta: {c.coverage.observed} de {c.coverage.eligible} com registro.</p>}
       {(c.source || c.recordRefs.length > 0 || c.ruleRef) && (
-        <details className="mt-2 text-xs">
+        <details hidden data-provenance className="mt-2 text-xs">
           <summary className="cursor-pointer text-muted-foreground">Origem da informação</summary>
           <dl className="mt-1 space-y-1 break-all">
             {c.source && <div hidden data-provenance><dt className="inline font-medium">Fonte: </dt><dd className="inline">{c.source}</dd></div>}
