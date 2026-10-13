@@ -14,7 +14,7 @@ export async function schoolsInScope(): Promise<string[]> {
   if (error) throw new Error(error.message);
   const ids = new Set<string>();
   for (const c of (data as { scope_level: string; school_id: string | null; policy_id: string | null }[]) ?? [])
-    if (c.scope_level === "escola" && c.school_id && c.policy_id) ids.add(c.school_id);
+    if (c.scope_level === "escola" && c.school_id && (c.policy_id || !c.engagement_id)) ids.add(c.school_id);
   return [...ids].sort();
 }
 
