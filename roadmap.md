@@ -691,3 +691,11 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 - [x] E2E autenticado com fixtures técnicas (21/21, resíduo zero) nas 10 áreas e no cadastro funcional.
 - [ ] CI verde do novo SHA confirmado no GitHub.
 - [ ] Homologação da política rascunho; prova de identidade servidor↔pessoa (decisões/insumos humanos).
+
+## Hotfix 2026-10-13 — funcionar, rapidez, simplicidade
+- [x] Permissão por turma sem multiplicar capacidade × 698 turmas (0518)
+- [x] Mapa do Censo 2026: permissão faltante e consultas lentas (0519–0521)
+- [x] Varredura do menu como CIECE: 32 telas abrem
+- [ ] Varredura dos demais setores (Supervisão, Secretaria, Direção, OP, Avaliação, Alimentação, Inclusão, Transporte)
+- [ ] Rapidez: medir e reduzir telas acima de 2 s (CIECE início, Mapa Estatístico)
+- [ ] Visual simples: 3 telas-modelo (Início, Mapa Estatístico, Alunos) para aprovação
