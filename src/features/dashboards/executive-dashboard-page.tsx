@@ -77,7 +77,7 @@ function NetworkIntelligence() {
                 <header className="flex items-start justify-between gap-2"><h3 className="font-medium">{d.name}</h3><span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">{natureLabel(d, i)}</span></header>
                 <p className="text-3xl font-semibold tabular-nums">{displayValue(i)}</p>
                 <p className="text-xs" data-state={displayState(i)}><strong>{STATE_LABEL[i.state]}</strong>{i.reason ? ` — ${i.reason}` : ""}</p>
-                <p className="text-xs text-muted-foreground">{d.definition} Unidade: {d.unit}. Versão {d.version}. Fonte: {i.source}.</p>
+                <p hidden data-provenance className="text-xs text-muted-foreground">{d.definition} Unidade: {d.unit}. Versão {d.version}. Fonte: {i.source}.</p>
                 {by && Object.keys(by).length > 1 ? (
                   <div><Button variant="link" className="h-auto p-0 text-xs" onClick={() => setOpen(open === i.key ? null : i.key)}>{open === i.key ? "Ocultar escolas" : "Ver por escola"}</Button>
                     {open === i.key ? <ul className="mt-1 max-h-48 overflow-auto text-xs">{Object.entries(by).sort((a, b) => name(a[0]).localeCompare(name(b[0]))).map(([k, v]) => <li key={k}>{name(k)}: {v}</li>)}</ul> : null}</div>
@@ -151,7 +151,7 @@ function MetricCard({ d, ctx, caps, tick }: { d: MetricDefinition; ctx: Ctx; cap
         <dl className="text-xs space-y-1">
           <div><dt className="inline font-medium">Definição: </dt><dd className="inline">{d.definition}</dd></div>
           <div><dt className="inline font-medium">Fórmula (v{d.version}): </dt><dd className="inline">{d.formula}</dd></div>
-          <div><dt className="inline font-medium">Fonte: </dt><dd className="inline">{d.source}</dd></div>
+          <div hidden data-provenance><dt className="inline font-medium">Fonte: </dt><dd className="inline">{d.source}</dd></div>
           <div><dt className="inline font-medium">Granularidade: </dt><dd className="inline">{d.granularity}</dd></div>
           <div><dt className="inline font-medium">Situação em: </dt><dd className="inline">{ctx.validOn}; conhecido até {ctx.knownAt ?? "agora"}</dd></div>
           {r?.status === "disponivel" && r.refs.length > 0 && <div><dt className="font-medium">Registros que compõem o número ({r.refs.length}):</dt><dd className="font-mono break-all max-h-24 overflow-auto">{r.refs.slice(0, 200).join(", ")}{r.refs.length > 200 ? " …" : ""}</dd></div>}

@@ -78,7 +78,7 @@ function SchoolCentral({ schoolId, date }: { schoolId: string; date: string }) {
             <li key={b.id} className="rounded border bg-card p-3" data-state={b.state}>
               <span className="block text-xs text-muted-foreground">{b.label}</span>
               <span className="block text-base font-semibold">{counterText(b)}</span>
-              <span className="block text-xs text-muted-foreground">{b.note || `Fonte: ${b.source}`}</span>
+              <span className="block text-xs text-muted-foreground">{b.note}</span>
             </li>))}
         </ul>
       </TabsContent>

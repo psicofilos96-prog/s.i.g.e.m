@@ -157,7 +157,7 @@ function ObjectiveSelector({
         Objetivos de aprendizagem e desenvolvimento
       </legend>
       <p className="mt-1 text-xs text-muted-foreground">
-        Fonte: BNCC (MEC/CNE, 2018), consultada pela Matriz de Habilidades. Os objetivos são
+        Os objetivos são
         referência para observação e documentação pedagógica, não itens de avaliação.
       </p>
       {!classAgeGroups.length ? (

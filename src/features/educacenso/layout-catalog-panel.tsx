@@ -34,7 +34,7 @@ export function LayoutCatalogPanel({ year, stage, canConfigure }: { year: string
     <section className="space-y-3 rounded-md border p-3" aria-label="Catálogo de leiaute">
       <h2 className="text-sm font-semibold">Catálogo de leiaute (campos e regras)</h2>
       {!spec ? <p className="text-xs text-muted-foreground">Não há catálogo para {year} / {stage}. Só existe o catálogo da 1ª etapa 2026, extraído do guia que você enviou.</p> : <>
-        <p className="text-xs text-muted-foreground">Fonte: <strong>{spec.source.file}</strong> (guia do usuário, impressão digital {spec.source.sha256.slice(0, 12)}…). Não confrontado com a documentação oficial do INEP.</p>
+        <p hidden data-provenance className="text-xs text-muted-foreground">Fonte: <strong>{spec.source.file}</strong> (guia do usuário, impressão digital {spec.source.sha256.slice(0, 12)}…). Não confrontado com a documentação oficial do INEP.</p>
         <div className="overflow-x-auto"><table className="w-full text-xs"><thead><tr className="text-left"><th scope="col">Registro</th><th scope="col">Conteúdo</th><th scope="col">Campos</th><th scope="col">Obrigatórios</th><th scope="col">Condicionais</th><th scope="col">Com lista de códigos</th></tr></thead>
           <tbody>{specSummary(spec).map((r) => <tr key={r.record} className="border-t"><td>{r.record === "ID" ? "Identificação" : r.record}</td><td>{r.title}</td><td>{r.extracted}/{r.declared}</td><td>{r.required}</td><td>{r.conditional}</td><td>{r.withCodes}</td></tr>)}</tbody></table></div>
         <details className="rounded-md border p-2"><summary className="cursor-pointer text-xs font-medium text-destructive">Envio oficial bloqueado — {blockers.length} pendência(s)</summary>

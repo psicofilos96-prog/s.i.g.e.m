@@ -33,7 +33,7 @@ function DocCard({ doc }: { doc: CoverageDoc }) {
         <h2 className="text-sm font-semibold">{doc.document}</h2>
         <span className="rounded border px-2 text-xs">{NATURE_LABEL[doc.nature]}</span>
       </div>
-      <p className="mt-1 text-xs text-muted-foreground">Fonte: {doc.sourceTotal?.toLocaleString("pt-BR") ?? "não declarado"}{doc.sourceTotalOrigin ? ` (${doc.sourceTotalOrigin})` : ""}
+      <p hidden data-provenance className="mt-1 text-xs text-muted-foreground">Fonte: {doc.sourceTotal?.toLocaleString("pt-BR") ?? "não declarado"}{doc.sourceTotalOrigin ? ` (${doc.sourceTotalOrigin})` : ""}
         {q.data ? ` · visível para você: ${row.imported?.toLocaleString("pt-BR")} · diferença: ${row.divergence ?? "não comparável"}` : ""}</p>
       {!open ? <Button size="sm" variant="link" className="h-auto p-0" onClick={() => setOpen(true)}>Conferir campos</Button>
         : q.isLoading ? <SkeletonState label="Carregando" />

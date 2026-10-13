@@ -182,7 +182,7 @@ export function SemedTablesPage() {
               </ol>
               <div className="text-xs text-muted-foreground">Preenchimento: {pr.filled}/{pr.total} (seções de grade contam linhas com dados; linha vazia pode ser etapa não ofertada).</div>
               <div className="h-1.5 w-full rounded bg-muted" role="progressbar" aria-valuemin={0} aria-valuemax={pr.total} aria-valuenow={pr.filled}><div className="h-1.5 rounded bg-primary" style={{ width: `${pr.total ? (100 * pr.filled) / pr.total : 0}%` }} /></div>
-              <div className="flex flex-wrap gap-3 text-micro text-muted-foreground"><span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-primary" />Fonte: cadastro central (somente leitura)</span><span>Campos com caixa: preenchidos pela Secretaria</span></div>
+              <div className="flex flex-wrap gap-3 text-micro text-muted-foreground"><span><span className="mr-1 inline-block h-2 w-2 rounded-full bg-primary" />Vem do cadastro (só leitura)</span><span>Campos com caixa: preenchidos pela Secretaria</span></div>
             </div>); })()}
           {def.sections.filter((s) => !(def.code === "10" && s.kind === "grid")).map((s) => (
             <section key={s.id} className="rounded-md border p-3">

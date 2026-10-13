@@ -27,7 +27,7 @@ export function RegistrationObservationsPanel({ studentId }: { studentId: string
       <p className="text-sm text-muted-foreground">Copiados das planilhas "Banco de dados" de cada escola. Mostram o que a escola informou, com a fonte; se duas planilhas divergem, as duas aparecem.</p>
       {q.data.map((o) => (
         <div key={`${o.source_file}-${o.source_row}`} className="rounded-lg border p-4">
-          <p className="mb-2 text-xs text-muted-foreground">Fonte: {school(o.source_file)} · linha {o.source_row}</p>
+          <p hidden data-provenance className="mb-2 text-xs text-muted-foreground">Fonte: {school(o.source_file)} · linha {o.source_row}</p>
           <dl className="grid gap-3 text-sm sm:grid-cols-3">
             <CardFact label="Nome">{o.civil_name ?? NI}</CardFact>
             <CardFact label="Nascimento">{o.birth_date ? formatAcademicDate(o.birth_date) : NI}</CardFact>

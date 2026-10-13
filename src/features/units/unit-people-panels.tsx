@@ -87,7 +87,7 @@ export function UnitStaffPanel({ schoolId }: { schoolId: string }) {
           ))}</tbody>
         </table>
       </div>
-      <p className="text-xs text-muted-foreground">Fonte: {s.rows[0]!.source_file} (referência {s.rows[0]!.reference_period}). Registro administrativo: não dá acesso ao SIGEM.</p>
+      <p hidden data-provenance className="text-xs text-muted-foreground">Fonte: {s.rows[0]!.source_file} (referência {s.rows[0]!.reference_period}). Registro administrativo: não dá acesso ao SIGEM.</p>
     </div>
   );
 }

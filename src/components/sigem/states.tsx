@@ -76,7 +76,8 @@ export function ProvenanceLine({
 }) {
   const parts = [source && `Fonte: ${source}`, actor && `Registrado por ${actor}`, recordedAt && `em ${recordedAt}`].filter(Boolean);
   return (
-    <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+    // Origem do dado não aparece na tela de uso diário (decisão do proprietário); fica só para auditoria/testes.
+    <p hidden data-provenance className="flex items-start gap-1.5 text-xs text-muted-foreground">
       <History className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
       <span>{parts.length ? parts.join(" · ") : "Proveniência não informada"}{children}</span>
     </p>

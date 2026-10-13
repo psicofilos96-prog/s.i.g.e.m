@@ -13,7 +13,7 @@ function IntervalList({ items }: { items: readonly DayInterval[] }) {
 }
 
 function Provenance({ i }: { i: DayInterval }) {
-  return <p className="mt-1 text-xs text-muted-foreground">Fonte: {i.source ?? "planilha de jornadas 2026"} · texto declarado: “{i.literal ?? "não informado"}” · normalização {i.parser} · observado em {formatAcademicDate(civilDateOf(i.knownAt))}</p>;
+  return <p hidden data-provenance className="mt-1 text-xs text-muted-foreground">Fonte: {i.source ?? "planilha de jornadas 2026"} · texto declarado: “{i.literal ?? "não informado"}” · normalização {i.parser} · observado em {formatAcademicDate(civilDateOf(i.knownAt))}</p>;
 }
 
 const NOTE = "Jornada declarada do estudante na fonte 2026. Não é a grade oficial da turma nem a carga horária de professor.";

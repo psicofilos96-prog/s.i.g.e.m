@@ -118,7 +118,7 @@ function Hub() {
               <li key={r.id} className="rounded-md border p-3 text-sm">
                 <p className="font-medium">{r.title}</p>
                 <p className="text-xs text-muted-foreground">{r.methodology}</p>
-                <p className="mt-1 text-xs">Fonte: {r.source}</p>
+                <p hidden data-provenance className="mt-1 text-xs">Fonte: {r.source}</p>
                 <p className="text-xs">Para: {r.perspectives.map((x) => x === "coordenacao" ? "coordenação" : x).join(", ")} · data de referência obrigatória</p>
                 {r.dependency && <p className="text-xs text-destructive">Bloqueado: falta {r.dependency}.</p>}
               </li>))}</ul>)}

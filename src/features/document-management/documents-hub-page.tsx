@@ -89,7 +89,7 @@ export function DocumentsHubPage() {
       {tab === "caixa" && <Inbox />}
       {tab === "pesquisa" && <Search />}
       {tab === "relatorios" && <ul className="grid gap-2 md:grid-cols-2">{DOC_REPORTS.map((r) => (
-        <li key={r.key} className="rounded-md border p-3 text-sm"><p className="font-medium">{r.title}</p><p className="text-xs text-muted-foreground">{r.methodology} Fonte: {r.source}.</p>
+        <li key={r.key} className="rounded-md border p-3 text-sm"><p className="font-medium">{r.title}</p><p hidden data-provenance className="text-xs text-muted-foreground">{r.methodology} Fonte: {r.source}.</p>
           {r.blocker && <p className="mt-1 text-xs text-destructive">{r.blocker}</p>}</li>))}</ul>}
       {tab === "lotes" && <ul className="grid gap-2 md:grid-cols-2">{DOC_LOTS.map((l) => (
         <li key={l.lot} className="rounded-md border p-3 text-sm"><div className="flex justify-between gap-2"><span className="font-medium">L{l.lot}. {l.title}</span><span className="text-xs text-muted-foreground">{LABEL[l.status]}</span></div>
