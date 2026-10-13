@@ -49,7 +49,7 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
     ]);
     const units = unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []);
     const t = { _valid_on: w.referenceDate, _known_at: w.knownAt };
-    const schools = await inBatches(ids, 6, async (id): Promise<SchoolProjection> => {
+    const schools = await inBatches(ids, 14, async (id): Promise<SchoolProjection> => {
       const unit = units.find((u) => u.schoolId === id);
       const ver = unit ? schoolVersionAt(unit, w.referenceDate) : null;
       const dims = unit ? projectSchoolDimensions(units, id, w.referenceDate) : null;
