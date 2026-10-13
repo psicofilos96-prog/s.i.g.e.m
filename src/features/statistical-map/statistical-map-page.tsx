@@ -110,7 +110,7 @@ function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }
         <details className="mt-2 text-xs">
           <summary className="cursor-pointer text-muted-foreground">Origem da informação</summary>
           <dl className="mt-1 space-y-1 break-all">
-            {c.source && <div><dt className="inline font-medium">Fonte: </dt><dd className="inline">{c.source}</dd></div>}
+            {c.source && <div hidden data-provenance><dt className="inline font-medium">Fonte: </dt><dd className="inline">{c.source}</dd></div>}
             {c.ruleRef && <div><dt className="inline font-medium">Regra: </dt><dd className="inline">{c.ruleRef}</dd></div>}
             {c.recordRefs.length > 0 && <div><dt className="font-medium">Registros ({c.recordRefs.length}):</dt><dd>{c.recordRefs.slice(0, 20).join(", ")}{c.recordRefs.length > 20 ? " …" : ""}</dd></div>}
           </dl>

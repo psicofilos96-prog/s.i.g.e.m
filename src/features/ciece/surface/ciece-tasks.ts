@@ -22,9 +22,9 @@ export const CIECE_TASKS: readonly CieceTask[] = [
   {
     id: "fontes",
     title: "Importar e reconciliar fontes",
-    description: "Traga arquivos externos e compare com os dados do sistema. Comparar nunca corrige dado.",
+    description: "Traga planilhas e compare com os dados do sistema.",
     links: [
-      { label: "Importar arquivos", to: "/central-de-integracoes" },
+      { label: "Importar arquivos", to: "/importacoes" },
       { label: "Reconciliar com o Censo", to: "/censo-escolar" },
       { label: "Controle do Educacenso", to: "/educacenso" },
     ],

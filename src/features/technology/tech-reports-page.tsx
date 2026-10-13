@@ -104,7 +104,7 @@ export function TechReportsPage() {
                 <p className="text-muted-foreground">{r.methodology}</p>
                 <p><span className="text-muted-foreground">Data de referência:</span> {r.dateBasis}</p>
                 <p><span className="text-muted-foreground">Filtros:</span> {r.filters.join(", ")}</p>
-                <p className="break-words text-xs text-muted-foreground">Fonte: {r.sources.join(", ")}</p>
+                <p hidden data-provenance className="break-words text-xs text-muted-foreground">Fonte: {r.sources.join(", ")}</p>
                 <p className={s.status === "bloqueado" ? "text-destructive" : "text-primary"}>{s.status === "bloqueado" ? `Bloqueado: ${s.reason}` : "Disponível"}</p>
               </li>
             );

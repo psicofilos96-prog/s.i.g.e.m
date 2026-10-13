@@ -70,7 +70,7 @@ export function ReportsCatalogPage() {
               <p className="text-sm"><strong>Indisponível:</strong> {r.dependency}</p>
             ) : (
               <>
-                <p className="text-xs">Fonte: {r.source}</p>
+                <p hidden data-provenance className="text-xs">Fonte: {r.source}</p>
                 <p className="text-xs">Acesso: {r.acl}</p>
                 <p className="text-xs">Filtros: {r.params.length ? r.params.join(", ") : "nenhum"}{r.temporal.asOf ? " · data de referência" : ""}{r.temporal.knownAt ? " · conhecido até" : ""}</p>
                 <p className="text-xs">Formatos: {r.formats.map((x) => (x === "pdf" ? "impressão" : x.toUpperCase())).join(", ")}</p>

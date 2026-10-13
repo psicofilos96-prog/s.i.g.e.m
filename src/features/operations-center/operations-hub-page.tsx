@@ -74,7 +74,7 @@ function Hub({ caps, tab, setTab }: { caps: ReadonlySet<string>; tab: Tab; setTa
           <section key={s} className="space-y-2"><h2 className="font-medium">{SECTOR_LABEL[s]} ({OPS_REPORTS.filter((r) => r.sector === s).length})</h2>
             <ul className="grid gap-2 md:grid-cols-2">{OPS_REPORTS.filter((r) => r.sector === s).map((r) => (
               <li key={r.id} className="rounded-md border p-3 text-sm"><p className="font-medium">{r.title}</p>
-                <p className="text-xs text-muted-foreground">Fonte: {r.source}. {r.methodology} Conta: {r.unit}.</p>
+                <p hidden data-provenance className="text-xs text-muted-foreground">Fonte: {r.source}. {r.methodology} Conta: {r.unit}.</p>
                 {r.dependency && <p className="mt-1 text-xs text-destructive">Indisponível: {r.dependency}</p>}</li>))}</ul></section>))}
       </>}
     </div>

@@ -77,11 +77,11 @@ export function CieceCentral({ pathAllowed }: { pathAllowed: (p: string) => bool
               <li key={c.key} className="rounded-lg border bg-card p-3">
                 <p className="text-sm text-muted-foreground">{LABEL[c.key]}</p>
                 <p className="text-2xl font-semibold">{c.display}</p>
-                <p className="text-xs text-muted-foreground">{c.reading.state === "lido" ? `Fonte: ${c.reading.source} · ${c.reading.referenceDate}` : c.reading.reason}</p>
+                <p hidden data-provenance className="text-xs text-muted-foreground">{c.reading.state === "lido" ? `Fonte: ${c.reading.source} · ${c.reading.referenceDate}` : c.reading.reason}</p>
               </li>
             ))}
           </ul>
-          <p className="pt-2 text-xs text-muted-foreground">Ausência de leitura nunca aparece como zero. Vínculos não são pessoas.</p>
+          <p hidden className="pt-2 text-xs text-muted-foreground">Ausência de leitura nunca aparece como zero. Vínculos não são pessoas.</p>
         </TabsContent>
 
         <TabsContent value="mapa">

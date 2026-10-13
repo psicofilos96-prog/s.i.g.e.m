@@ -82,7 +82,7 @@ function Dashboard() {
             <dl className="mt-2 grid grid-cols-2 gap-1 text-sm">{Object.entries(p.values).map(([k, n]) => (<div key={k} className="flex justify-between gap-2"><dt className="text-muted-foreground">{k}</dt><dd className="font-semibold">{n}</dd></div>))}</dl>
           ) : <p className="mt-2 text-sm text-muted-foreground">Nenhum registro visível.</p>)
             : <p role="status" className="mt-2 text-sm text-muted-foreground">Indisponível: {p.reason}</p>}
-          <p className="mt-2 text-xs text-muted-foreground">Fonte: {p.source}</p>
+          <p hidden data-provenance className="mt-2 text-xs text-muted-foreground">Fonte: {p.source}</p>
         </section>))}</div>
     </div>
   );
