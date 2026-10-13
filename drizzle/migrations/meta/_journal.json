@@ -3690,6 +3690,13 @@
       "when": 1791919172918,
       "tag": "0526_fix_readable_class_ids_pure_sql",
       "breakpoints": true
+    },
+    {
+      "idx": 527,
+      "version": "7",
+      "when": 1791923643313,
+      "tag": "0527_test_school_marker",
+      "breakpoints": true
     }
   ]
 }
