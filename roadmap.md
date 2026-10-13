@@ -683,5 +683,11 @@ PENDENTE (não falha): sessão real da professora; conta→pessoa→atuação; l
 ## L45
 - [x] Áreas de trabalho (/areas, /areas/$areaId) para as 10 áreas + Família (equipe) + execução técnica (só leitura), com acesso por pathAllowed.
 - [x] Política em rascunho (draft-capability-policy.ts) separada da v8, com análise de segregação; nunca ativa.
-- [ ] Estrutura canônica de servidor funcional + crosswalk de candidatos no banco (Entrega 3).
-- [ ] E2E autenticado com fixtures técnicas nas novas áreas; CI verde confirmado no GitHub.
+- [x] Estrutura canônica de servidor funcional + crosswalk de candidatos (L46).
+- [x] E2E autenticado nas novas áreas (L46); CI no GitHub: ver L46.
+
+## L46
+- [x] Servidor funcional persistido (1.952), vínculos (2.037), crosswalk de candidatos (213, só matrícula idêntica).
+- [x] E2E autenticado com fixtures técnicas (21/21, resíduo zero) nas 10 áreas e no cadastro funcional.
+- [ ] CI verde do novo SHA confirmado no GitHub.
+- [ ] Homologação da política rascunho; prova de identidade servidor↔pessoa (decisões/insumos humanos).

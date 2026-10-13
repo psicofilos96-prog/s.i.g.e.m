@@ -30,7 +30,6 @@ async def main():
                 await page.get_by_text("Conferindo sua sessão…").wait_for(state="detached", timeout=60000)
                 draft = await page.get_by_text("rascunho, sem homologação").count()
                 n_ok = await page.get_by_text("Disponível", exact=True).count(); n_wait = await page.get_by_text("Aguarda homologação", exact=True).count(); n_no = await page.get_by_text("Sem acesso", exact=True).count()
-                if a == "mediador": print("debug", n_ok, (await page.inner_text("main"))[:300].replace("\n"," | "))
                 ok(f"{who}: {a} renderiza ({n_wait} aguarda/{n_no} sem acesso), nada 'Disponível' em perfil rascunho", draft == 1 and n_ok == 0 and n_wait + n_no >= 1)
             await page.goto(BASE + "/areas/inexistente", wait_until="load")
             try: await page.get_by_text("Área não encontrada").wait_for(timeout=30000); nf = True
