@@ -29,7 +29,7 @@ const MONTHS = MONTH_NAMES_LOWER;
 const STATE: Record<CellState, { label: string; tone: string }> = {
   disponivel: { label: "Disponível", tone: "state-success" },
   ausente: { label: "Sem registro", tone: "state-warning" },
-  indeterminado: { label: "Indeterminado", tone: "state-warning" },
+  indeterminado: { label: "Ainda sem número", tone: "state-warning" },
   "nao-aplicavel": { label: "Não se aplica", tone: "state-neutral" },
   "sem-regra": { label: "Sem regra homologada", tone: "state-neutral" },
   "sem-fonte": { label: "Sem fonte no SIGEM", tone: "state-neutral" },
