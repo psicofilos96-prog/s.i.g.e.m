@@ -16,10 +16,24 @@ async function loadPayroll(): Promise<{ rows: PayrollRegRow[]; truncated: boolea
   if (error) throw new Error(error.message);
   return { rows: data ?? [], truncated };
 }
+async function loadPersisted(): Promise<{ total: number; candidates: Map<string, number> }> {
+  const [sv, cand] = await Promise.all([
+    readPages<{ id: string; servant_key: string }>((a, b) => db.from("payroll_functional_servants").select("id, servant_key").order("id").range(a, b), 20000),
+    readPages<{ servant_id: string }>((a, b) => db.from("payroll_servant_identity_candidates").select("servant_id").order("id").range(a, b), 20000),
+  ]);
+  if (sv.error) throw new Error(sv.error.message);
+  if (cand.error) throw new Error(cand.error.message);
+  const byId = new Map<string, number>();
+  for (const c of cand.data ?? []) byId.set(c.servant_id, (byId.get(c.servant_id) ?? 0) + 1);
+  const candidates = new Map<string, number>();
+  for (const s of sv.data ?? []) candidates.set(s.servant_key, byId.get(s.id) ?? 0);
+  return { total: (sv.data ?? []).length, candidates };
+}
 const date = (d: string | null) => (d ? d.split("-").reverse().join("/") : "não informada");
 
 export function PayrollServants({ uid }: { uid: string }) {
   const q = useQuery({ queryKey: ["payroll-servants", uid], queryFn: loadPayroll, retry: false });
+  const persisted = useQuery({ queryKey: ["payroll-servants-persisted", uid], queryFn: loadPersisted, retry: false });
   const [text, setText] = useState("");
   const [multi, setMulti] = useState(false);
   const [page, setPage] = useState(0);
@@ -40,6 +54,7 @@ export function PayrollServants({ uid }: { uid: string }) {
         <div className="rounded-md border p-2"><dt className="text-xs text-muted-foreground">Servidores</dt><dd className="tabular-nums text-lg">{s.servidores}</dd></div>
         <div className="rounded-md border p-2"><dt className="text-xs text-muted-foreground">Com mais de um vínculo</dt><dd className="tabular-nums text-lg">{s.comMaisDeUmVinculo}</dd></div>
         <div className="rounded-md border p-2"><dt className="text-xs text-muted-foreground">Ligados ao cadastro de pessoas</dt><dd className="tabular-nums text-lg">{s.ligadosAPessoa}</dd></div>
+        <div className="rounded-md border p-2"><dt className="text-xs text-muted-foreground">Cadastros funcionais persistidos</dt><dd className="tabular-nums text-lg">{persisted.data ? persisted.data.total : persisted.isError ? "indisponível" : "…"}</dd></div>
       </dl>
       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
         <label className="text-sm">Buscar por nome ou matrícula<input className="mt-1 block min-h-11 w-full rounded-md border bg-background px-2" value={text} onChange={(e) => { setText(e.target.value); setPage(0); }} /></label>
@@ -48,7 +63,7 @@ export function PayrollServants({ uid }: { uid: string }) {
       <p className="text-sm text-muted-foreground">{rows.length} servidor(es)</p>
       <ul className="space-y-2">{view.map((sv) => (
         <li key={sv.key} className="rounded-md border p-3">
-          <p className="font-medium">{sv.name} <span className="text-xs text-muted-foreground">· {sv.registrations.length} vínculo(s){sv.linkedPersonIds.length ? " · ligado ao cadastro" : " · sem ligação comprovada"}</span></p>
+          <p className="font-medium">{sv.name} <span className="text-xs text-muted-foreground">· {sv.registrations.length} vínculo(s){sv.linkedPersonIds.length ? " · ligado ao cadastro" : " · sem ligação comprovada"}{persisted.data?.candidates.get(sv.key) ? ` · ${persisted.data.candidates.get(sv.key)} candidato(s) por matrícula idêntica — a conferir` : ""}</span></p>
           <div className="overflow-x-auto"><table className="mt-1 w-full text-sm"><caption className="sr-only">Vínculos de {sv.name}</caption>
             <thead><tr className="text-left text-xs text-muted-foreground"><th scope="col">Matrícula</th><th scope="col">Cargo</th><th scope="col">Admissão</th><th scope="col">Jornada</th></tr></thead>
             <tbody>{sv.registrations.map((r) => (

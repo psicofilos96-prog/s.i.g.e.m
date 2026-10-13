@@ -51,3 +51,12 @@ describe("L45 — áreas de trabalho e política em rascunho", () => {
     expect(readFileSync("src/features/authority/area-workspace-page.tsx", "utf8")).not.toMatch(/supabase\.(from|rpc)/);
   });
 });
+
+import { activityStatus } from "./area-workspace-page";
+describe("L46 — estado da atividade", () => {
+  it("perfil rascunho nunca aparece como Disponível", () => {
+    expect(activityStatus(true, true)).toBe("Aguarda homologação");
+    expect(activityStatus(false, true)).toBe("Sem acesso");
+    expect(activityStatus(true, false)).toBe("Disponível");
+  });
+});
