@@ -37940,6 +37940,32 @@ export type Database = {
           },
         ]
       }
+      test_school_markers: {
+        Row: {
+          created_at: string
+          reason: string
+          school_id: string
+        }
+        Insert: {
+          created_at?: string
+          reason: string
+          school_id: string
+        }
+        Update: {
+          created_at?: string
+          reason?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_school_markers_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_person_links: {
         Row: {
           created_at: string
