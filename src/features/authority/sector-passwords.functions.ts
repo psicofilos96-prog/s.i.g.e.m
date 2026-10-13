@@ -45,7 +45,10 @@ export const setSectorPassword = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: u } = await supabaseAdmin.auth.admin.getUserById(data.userId);
     if (!isSectorAccount(u?.user)) return { ok: false, message: "Esta conta não é de setor." };
-    const up = await supabaseAdmin.auth.admin.updateUserById(data.userId, { password: data.password });
+    const up = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
+      password: data.password,
+      app_metadata: { ...(u?.user?.app_metadata ?? {}), sigem_account: "sector" },
+    });
     if (up.error) return { ok: false, message: "Não foi possível gravar a senha. Tente outra senha." };
     const rec = await supabaseAdmin.rpc("sector_password_record", { p_user: data.userId, p_by: context.userId });
     if (rec.error) return { ok: false, message: "Senha gravada, mas o registro falhou." };
