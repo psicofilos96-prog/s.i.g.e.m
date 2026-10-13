@@ -46,7 +46,7 @@ export const STATION_HOME: Record<SectorStation, string> = {
 };
 
 const STATION_ROUTES: Record<SectorStation, readonly string[]> = {
-  ciece: ["/ciece", "/secretaria/tabelas-semed", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026", "/mapa-estatistico", "/mapa-estatistico-rede", "/qualidade-dos-dados", "/revisao-de-anomalias", "/paineis", "/relatorios", "/integracoes", "/central-de-integracoes", "/unidades", "/base-de-conhecimento", "/censo-escolar", "/educacenso", "/alunos", "/turmas", "/docserv"],
+  ciece: ["/ciece", "/secretaria/tabelas-semed", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026", "/mapa-estatistico", "/mapa-estatistico-rede", "/qualidade-dos-dados", "/revisao-de-anomalias", "/paineis", "/relatorios", "/integracoes", "/central-de-integracoes", "/importacoes", "/unidades", "/base-de-conhecimento", "/censo-escolar", "/educacenso", "/alunos", "/turmas", "/docserv"],
   supervisao: ["/supervisao-escolar", "/unidades", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026"],
   alimentacao: ["/alimentacao-escolar", "/unidades", "/relatorios"],
   avaliacao: ["/avaliacao-desempenho", "/acompanhamento-avaliacao", "/paineis", "/relatorios", "/alunos", "/turmas"],
