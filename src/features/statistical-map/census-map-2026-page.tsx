@@ -1,3 +1,4 @@
+import { compareClasses, stageRank } from "@/features/classes/class-stage-order";
 import { downloadBlob } from "@/features/reports/report-engine";
 import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -58,7 +59,7 @@ export function CensusMap2026Page({ mode = "escola" }: { mode?: "escola" | "rede
   const opts = (k: "stage_group" | "stage") => [...new Set((q.data?.classes ?? []).filter((c) => !schoolId || c.school_id === schoolId).map((c) => c[k] ?? "não informado"))].sort((a, b) => a.localeCompare(b, "pt-BR"));
   const types = useMemo(() => [...new Set((q.data?.classes ?? []).map((c) => c.class_type ?? "não informado"))].sort(), [q.data]);
   const classes = useMemo(() => (q.data?.classes ?? []).filter((c) => (!schoolId || c.school_id === schoolId) && passes(c))
-    .sort((a, b) => `${names.get(a.school_id)}${a.class_name}`.localeCompare(`${names.get(b.school_id)}${b.class_name}`, "pt-BR")), [q.data, schoolId, type, names]);
+    .sort((a, b) => (names.get(a.school_id) ?? "").localeCompare(names.get(b.school_id) ?? "", "pt-BR") || compareClasses({ name: a.class_name ?? "", stageRank: stageRank(a.stage, null) }, { name: b.class_name ?? "", stageRank: stageRank(b.stage, null) })), [q.data, schoolId, type, names]);
   const selected = q.data?.schools.find((s) => s.school_id === schoolId) ?? null;
 
   if (q.isPending) return <LoadingState label="Carregando o mapa 2026" />;
