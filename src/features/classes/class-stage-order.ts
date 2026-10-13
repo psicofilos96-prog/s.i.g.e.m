@@ -29,7 +29,7 @@ export function stageRank(etapa: string | null | undefined, tipo: string | null 
 
 const collator = new Intl.Collator("pt-BR", { numeric: true, sensitivity: "base" });
 
-export function compareClasses(a: { name: string; stageRank?: number }, b: { name: string; stageRank?: number }): number {
+export function compareClasses(a: { name: string; stageRank?: number | undefined }, b: { name: string; stageRank?: number | undefined }): number {
   return (a.stageRank ?? 900) - (b.stageRank ?? 900) || collator.compare(a.name, b.name);
 }
 
