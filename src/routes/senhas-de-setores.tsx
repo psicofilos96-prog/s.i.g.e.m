@@ -30,12 +30,13 @@ function SectorPasswordsPage() {
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!sel) return;
-    const f = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const f = new FormData(form);
     setBusy(true); setMsg(null);
     try {
       const r = await save({ data: { userId: sel, password: String(f.get("pw")), password2: String(f.get("pw2")) } });
       setMsg({ ok: r.ok, text: r.message });
-      if (r.ok) e.currentTarget.reset();
+      if (r.ok) form.reset();
     } catch { setMsg({ ok: false, text: "Sem permissão ou falha ao gravar." }); }
     finally { setBusy(false); }
   }
