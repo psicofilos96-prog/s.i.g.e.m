@@ -3,6 +3,9 @@ import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-r
 import { hideBrokenImage, hideIfAlreadyBroken } from "@/lib/img-fallback";
 import { ArrowRight, Eye, EyeOff, GraduationCap, LockKeyhole, Loader2, School, UserRound, Users, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { firstAccessSetPassword } from "@/features/authority/first-access.functions";
+import { passwordProblem } from "@/features/authority/password-policy";
 import { safeRedirect } from "@/features/authority/session-lifecycle";
 import { classifyLoginError, loginMessage } from "@/features/authority/login-messages";
 import wallpaper from "@/assets/itaperuna-wallpaper.png.asset.json";
@@ -96,7 +99,7 @@ function AuthPage() {
           {search.motivo === "expirada" && (
             <p role="status" className="mt-4 rounded-xl border border-login-ink/20 bg-login-ink/10 p-3 text-sm">Sua sessão terminou. Entre de novo para continuar de onde parou.</p>
           )}
-          {session !== "signed-out" ? (
+          {first && session === "signed-out" ? null : session !== "signed-out" ? (
             <p role="status" aria-live="polite" className="mt-8 flex items-center gap-2 text-sm text-login-ink/80">
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
               {session === "checking" ? "Conferindo se você já está conectado…" : "Você já está conectado. Abrindo o SIGEM…"}
@@ -126,7 +129,7 @@ function AuthPage() {
                 {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
                 {busy ? "Entrando…" : <>Entrar <ArrowRight className="h-5 w-5" aria-hidden /></>}
               </button>
-              <p className="text-xs text-login-ink/70">É seu primeiro acesso? <button type="button" onClick={() => setMsg(null) ?? setFirst(true)} className="text-login-gold-soft underline underline-offset-4">Crie sua senha</button> com seu login e sua data de nascimento.</p>
+              <p className="text-xs text-login-ink/70">É seu primeiro acesso? <button type="button" onClick={() => { setMsg(null); setFirst(true); }} className="text-login-gold-soft underline underline-offset-4">Crie sua senha</button> com seu login e sua data de nascimento.</p>
             </form>
           )}
           {first && session === "signed-out" ? <FirstAccess field={field} login={login} onDone={async (l, pw) => {
@@ -184,5 +187,41 @@ function LiveClock() {
       <span className="block font-display text-2xl">{now.toLocaleTimeString("pt-BR", { ...tz, hour: "2-digit", minute: "2-digit" })}</span>
       <span className="block text-xs uppercase tracking-widest text-login-ink/70">Itaperuna - RJ</span>
     </p>
+  );
+}
+
+/** Primeiro acesso: login + data de nascimento conferida com a folha; a pessoa escolhe a primeira senha. */
+function FirstAccess({ field, login, onDone, onCancel }: { field: string; login: string; onDone: (login: string, pw: string) => Promise<void>; onCancel: () => void }) {
+  const run = useServerFn(firstAccessSetPassword);
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const l = String(f.get("fa-login")).trim().toLowerCase(), b = String(f.get("fa-birth")), pw = String(f.get("fa-pw")), pw2 = String(f.get("fa-pw2"));
+    if (!l || !b) return setErr("Preencha o login e a data de nascimento.");
+    const p = passwordProblem(pw, pw2); if (p) return setErr(p);
+    setBusy(true); setErr(null);
+    try {
+      const r = await run({ data: { login: l, birthDate: b, password: pw, password2: pw2 } });
+      if (!r.ok) return setErr(r.message);
+      await onDone(l, pw);
+    } catch { setErr("Não foi possível concluir agora. Confira os dados e tente de novo."); }
+    finally { setBusy(false); }
+  }
+  const box = field.replace("pl-11", "px-3");
+  return (
+    <form onSubmit={submit} className="mt-8 space-y-3" aria-labelledby="fa-title" aria-busy={busy}>
+      <h2 id="fa-title" className="text-lg font-semibold">Primeiro acesso</h2>
+      <p className="text-sm text-login-ink/80">Informe seu login e sua data de nascimento e escolha sua senha.</p>
+      <label className="block text-sm">Login<input name="fa-login" defaultValue={login} autoComplete="username" placeholder="m0000-0@sigem.itap.gov.br" required className={`${box} mt-1`} /></label>
+      <label className="block text-sm">Data de nascimento<input name="fa-birth" type="date" required className={`${box} mt-1`} /></label>
+      <label className="block text-sm">Nova senha<input name="fa-pw" type="password" autoComplete="new-password" required className={`${box} mt-1`} /></label>
+      <label className="block text-sm">Repita a nova senha<input name="fa-pw2" type="password" autoComplete="new-password" required className={`${box} mt-1`} /></label>
+      <p className="text-xs text-login-ink/70">Pelo menos 6 caracteres, com letra maiúscula, minúscula, número e símbolo.</p>
+      {err ? <p role="alert" className="rounded-xl border border-destructive/50 bg-destructive/20 px-3 py-2 text-sm">{err}</p> : null}
+      <button type="submit" disabled={busy} className="login-gold-button flex h-12 w-full items-center justify-center gap-2 rounded-xl font-semibold disabled:opacity-70">{busy ? <Loader2 className="h-5 w-5 animate-spin" /> : null}Criar senha e entrar</button>
+      <button type="button" onClick={onCancel} className="w-full text-sm text-login-gold-soft underline underline-offset-4">Voltar para o login</button>
+    </form>
   );
 }
