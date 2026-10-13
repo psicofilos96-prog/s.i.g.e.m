@@ -26,7 +26,7 @@ export function TransportPage() {
     (async () => {
       const { data: caps, error } = await db.rpc("effective_scope_capabilities", {});
       if (error) throw new Error(error.message);
-      const mine = (caps ?? []).filter((c: any) => (c.policy_id || !c.engagement_id) && CAPS.includes(c.capability_id));
+      const mine = (caps ?? []).filter((c: any) => (c.policy_id || c.engagement_id === null) && CAPS.includes(c.capability_id));
       if (!mine.length) return [];
       const { data } = await db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false });
       const names = new Map<string, string>(); for (const r of data ?? []) if (!names.has(r.school_id)) names.set(r.school_id, r.official_name);

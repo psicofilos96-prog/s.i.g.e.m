@@ -174,8 +174,8 @@ export function ExecutiveDashboardPage() {
       const c = (data ?? []) as CapabilityRow[];
       const { data: v } = await db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false });
       const names = new Map<string, string>(); for (const r of v ?? []) if (!names.has(r.school_id)) names.set(r.school_id, r.official_name);
-      const net = c.some((x) => (x.policy_id || !x.engagement_id) && x.scope_level === "rede");
-      const ids = net ? [...names.keys()] : [...new Set(c.filter((x) => (x.policy_id || !x.engagement_id) && x.school_id).map((x) => x.school_id!))];
+      const net = c.some((x) => (x.policy_id || x.engagement_id === null) && x.scope_level === "rede");
+      const ids = net ? [...names.keys()] : [...new Set(c.filter((x) => (x.policy_id || x.engagement_id === null) && x.school_id).map((x) => x.school_id!))];
       setSchools(ids.map((id) => ({ id, name: names.get(id) ?? "Escola sem nome registrado" })).sort((a, b) => a.name.localeCompare(b.name)));
       setCaps(c);
     })().catch(() => setErr("Não foi possível ler suas permissões vigentes."));
