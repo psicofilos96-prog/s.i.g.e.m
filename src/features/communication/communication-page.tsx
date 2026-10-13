@@ -19,7 +19,7 @@ type Row = { communication_id: string; version: number; title: string; body: str
 type Hist = { entry_kind: string; number: number; detail: string | null; reason: string | null; recorded_at: string };
 
 async function mySchools() {
-  const caps = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }[]>("effective_scope_capabilities", {});
+  const caps = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null; engagement_id?: string | null }[]>("effective_scope_capabilities", {});
   const mine = (caps ?? []).filter((c) => (c.policy_id || !c.engagement_id) && CAPS.includes(c.capability_id));
   if (mine.length === 0) return [];
   const { data } = await db.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("version_number", { ascending: false });

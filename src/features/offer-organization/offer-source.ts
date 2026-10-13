@@ -42,12 +42,12 @@ export async function readOfferContext(classId: string): Promise<OfferContext | 
 
 /** Capacidades efetivas na data-alvo (não no relógio), só para mostrar/ocultar ações. */
 export async function capabilitiesOn(on: string, schoolId: string): Promise<Set<string>> {
-  const rows = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }[]>("effective_scope_capabilities", { _on: on });
+  const rows = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null; engagement_id?: string | null }[]>("effective_scope_capabilities", { _on: on });
   return new Set((rows ?? []).filter((r) => (r.policy_id || !r.engagement_id) && ((r.scope_level === "escola" && r.school_id === schoolId) || r.scope_level === "rede")).map((r) => r.capability_id));
 }
 
 export async function canWriteOn(on: string, schoolId: string, cap: string): Promise<boolean> {
-  const rows = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }[]>("effective_scope_capabilities", { _on: on });
+  const rows = await call<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null; engagement_id?: string | null }[]>("effective_scope_capabilities", { _on: on });
   return (rows ?? []).some((r) => (r.policy_id || !r.engagement_id) && r.capability_id === cap && r.scope_level === "escola" && r.school_id === schoolId);
 }
 

@@ -27,7 +27,7 @@ export type MetricDefinition = Readonly<{
 
 export type PerspectiveId = "secretaria" | "departamento-pessoal" | "alimentacao" | "pessoal";
 
-export type CapabilityRow = Readonly<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null }>;
+export type CapabilityRow = Readonly<{ capability_id: string; scope_level: string; school_id: string | null; policy_id: string | null; engagement_id?: string | null }>;
 
 /** Alcance: capability homologada na própria escola ou na rede. Cargo textual nunca entra. */
 export function hasScope(caps: readonly CapabilityRow[], wanted: readonly string[], scope: Scope): boolean {
