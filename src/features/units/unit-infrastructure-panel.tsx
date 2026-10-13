@@ -53,7 +53,7 @@ export function UnitInfrastructurePanel({ schoolId, on, knownAt }: { schoolId: s
                 <li key={f.attributeId} className="rounded-md border border-border p-2 text-sm">
                   <span className="font-medium">{f.label.replace(/\s*\(G\d\)$/, "")}:</span> {f.display}
                   {f.current ? (
-                    <span className="block text-xs text-muted-foreground">
+                    <span hidden data-provenance className="block text-xs text-muted-foreground">
                       Fonte: {f.current.source_ref}
                       {f.current.source_locator ? ` · ${f.current.source_locator}` : ""} · vigente desde {formatAcademicDate(f.current.valid_from)}
                       {f.current.technical_operation_id ? " · carga técnica" : ""}
