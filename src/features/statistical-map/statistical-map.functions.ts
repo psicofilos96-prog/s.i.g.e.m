@@ -1,3 +1,4 @@
+import { compareClasses, readStageRanks } from "@/features/classes/class-stage-order";
 /**
  * 14.10 — Entrada servidor do Mapa Estatístico. Lê com a sessão do requisitante (RLS),
  * monta a fotografia só a partir de fontes canônicas e do motor 14.2, e grava apenas
@@ -35,13 +36,14 @@ function ruleFromRow(r: any): MapCompetenceRule | null {
 async function mapClassNames(db: Db, ids: string[], temporal: BitemporalContext | null): Promise<{ id: string; name: string }[]> {
   // Sem data da fotografia, o nome exibido vem do cadastro vigente hoje (só rótulo; números não mudam).
   const t: BitemporalContext = temporal ?? { validOn: new Date().toISOString().slice(0, 10) };
-  const got = await classNamesAt(db, ids, t);
+  const [got, ranks] = await Promise.all([classNamesAt(db, ids, t), readStageRanks(db, ids)]);
   const out = ids.map((id) => {
     const o = got.get(id);
-    if (o?.kind === "ok") return { id, name: o.name };
-    return { id, name: "Turma sem nome no cadastro" };
+    const stageRank = ranks.get(id);
+    if (o?.kind === "ok") return { id, name: o.name, stageRank };
+    return { id, name: "Turma sem nome no cadastro", stageRank };
   });
-  return out.sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
+  return out.sort(compareClasses).map(({ id, name }) => ({ id, name }));
 }
 
 /**

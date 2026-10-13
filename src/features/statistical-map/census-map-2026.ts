@@ -1,3 +1,4 @@
+import { stageRank } from "@/features/classes/class-stage-order";
 /**
  * LOTE 15 — Mapa do Censo 2026 (descritivo). Projeção pura sobre os readers INVOKER
  * `census_map_2026_*` (RLS de quem consulta). Não é o Mapa Estatístico mensal oficial
@@ -127,11 +128,11 @@ export function mapGrid(rows: MapClassRow[]): GridRow[] {
     declared: cs.some((c) => c.declared_students === null) ? null : cs.reduce((t, c) => t + (c.declared_students as number), 0),
   });
   const out: GridRow[] = [];
-  for (const g of [...groups.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"))) {
+  for (const g of [...groups.keys()].sort((a, b) => groupRank(a) - groupRank(b) || a.localeCompare(b, "pt-BR"))) {
     const cs = groups.get(g)!;
     const stages = new Map<string, MapClassRow[]>();
     for (const c of cs) { const s = c.stage ?? "não informado"; stages.set(s, [...(stages.get(s) ?? []), c]); }
-    for (const s of [...stages.keys()].sort((a, b) => a.localeCompare(b, "pt-BR"))) out.push(sum(stages.get(s)!, g, s, "linha"));
+    for (const s of [...stages.keys()].sort((a, b) => stageRank(a, null) - stageRank(b, null) || a.localeCompare(b, "pt-BR"))) out.push(sum(stages.get(s)!, g, s, "linha"));
     out.push(sum(cs, g, `Subtotal — ${g}`, "subtotal"));
   }
   if (rows.length) out.push(sum(rows, "", "Total geral", "total"));
@@ -159,4 +160,13 @@ export const MAP_GRID_REPORT = def("mapa-censo-2026-grade", "Mapa do Censo 2026 
 ]);
 export function gridCells(grid: GridRow[]): Record<string, CellValue>[] {
   return grid.map((g) => ({ group: g.kind === "linha" ? g.group : "", stage: g.stage, classes: g.classes, declared: g.declared, bonds: g.bonds, aee: g.aee_bonds }));
+}
+
+/** Ordem das etapas agregadas: Infantil, Fundamental, Multi/correção, EJA, demais. */
+function groupRank(g: string): number {
+  if (/infantil/i.test(g)) return 1;
+  if (/^ensino fundamental/i.test(g)) return 2;
+  if (/multi|corre/i.test(g)) return 3;
+  if (/jovens|EJA/i.test(g)) return 4;
+  return 9;
 }
