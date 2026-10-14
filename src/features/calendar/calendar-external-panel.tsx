@@ -110,7 +110,7 @@ export function ExternalEditor({ template, profile, onChange, types, presentatio
   presentation?: Record<string, unknown> | null;
 }) {
   const inherited = institutionalIdentity(presentation).logos;
-  const def = defaultProfile(template, presentation, calendarId);
+  const def = defaultProfile(template, presentation);
   const [err, setErr] = useState<string | null>(null);
   const set = <K extends keyof ExternalProfile>(k: K, v: ExternalProfile[K]) => onChange({ ...profile, [k]: v });
   const img = async (f: File | undefined, apply: (u: string) => void) => { const r = await pickImage(f); if ("error" in r) setErr(r.error); else { setErr(null); apply(r.ok); } };
@@ -378,7 +378,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
     const now = new Date().toISOString();
     const at = [now, knownAt, lastSavedAt.current ?? ""].sort().at(-1)!;
     const r = await readExternalProfile({ calendarId, template, on, knownAt: at, presentation });
-    setRead(r); resetDraft(r.kind === "lido" || r.kind === "padrao" ? r.profile : defaultProfile(template, presentation, calendarId));
+    setRead(r); resetDraft(r.kind === "lido" ? r.profile : defaultProfile(template, presentation, calendarId));
   };
   useEffect(() => { void load(); }, [calendarId, template]); // eslint-disable-line react-hooks/exhaustive-deps
   const types = vm.legendCodes.map((c) => ({ code: c, label: String((presentation["dayTypeCatalog"] as Record<string, { label?: string }> | undefined)?.[c]?.label ?? c) }));
