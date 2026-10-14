@@ -1,3 +1,4 @@
+import { DEFAULT_FREE_LAYOUT_BY_CALENDAR } from "./calendar-external-default-layouts";
 /**
  * CAL.EXT.1 — Uma verdade, três apresentações. Registry dos modelos de apresentação do calendário e
  * view-model SOMENTE de apresentação derivado de `PrintModel` (que é a única fonte de dias/efeitos/totais).
@@ -117,11 +118,13 @@ export const inheritedLogos = (presentation: Record<string, unknown> | null | un
   institutionalIdentity(presentation).logos.map((l) => ({ id: `herdada:${l.id}`, ref: l.id, src: null, alt: l.label, hidden: !l.visible,
     heightMm: 16, position: l.position === "direita" ? "direita" : "esquerda" }));
 /** Padrão do modelo = padrão artístico do prompt-guia do modelo + identidade institucional herdada do snapshot. */
-export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null): ExternalProfile {
+export function defaultProfile(t: ExternalTemplateCode, presentation?: Record<string, unknown> | null, calendarId?: string): ExternalProfile {
   const b = structuredClone(BASE); b.logos = inheritedLogos(presentation);
   void t; // único modelo externo: layout livre com imagem opcional só no topo (nunca de página inteira)
   b.free = defaultFreeLayout("fotografico");
   b.free.photo = { ...b.free.photo, page: null, bottom: null, bottomHmm: 0, veilStrength: 0 };
+  const own = calendarId ? DEFAULT_FREE_LAYOUT_BY_CALENDAR[calendarId] : undefined;
+  if (own) { const top = b.free.photo.top, useTop = b.free.photo.useDefaultTop; b.free = sanitizeFree(own, b.free, FONTS, ASSET_MAX_CHARS); b.free.photo = { ...b.free.photo, top, useDefaultTop: useTop }; }
   return b;
 }
 
