@@ -402,7 +402,7 @@ export function MosaicSheet({ vm, p, presentation }: { vm: ExternalViewModel; p:
               {vm.months.map((m) => {
                 const bands = bandsOf(m, types, p);
                 return (
-                  <tr key={`${g.key}-${m.key}`} data-month={m.key}>
+                  <tr key={m.key} data-month={m.key}>
                     <th scope="row">{m.name}</th>
                     {cols.map((n) => n > m.daysInMonth ? <td key={n} className="cx-dia cx-inexistente" aria-hidden />
                       : <DayCell key={n} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={[0, 6].includes((m.firstWeekday + n - 1) % 7)} mode="sigla" band={bands.get(n) ?? null} />)}
