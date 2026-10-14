@@ -318,7 +318,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   useEffect(() => { let alive = true; void readCouncilConfiguration({ versionId: councilVersionId, on, knownAt }).then((c) => { if (alive) setCouncil(c); }); return () => { alive = false; }; }, [councilVersionId, on, knownAt]);
   const vm = useMemo(() => buildExternalViewModel(model, presentation, { versionId: councilVersionId, config: council, days }), [model, presentation, councilVersionId, council, days]);
   const [read, setRead] = useState<ExternalProfileRead | null>(null);
-  const [hist, setHist] = useState<History<ExternalProfile>>(() => ({ past: [], present: defaultProfile(template, presentation), future: [] }));
+  const [hist, setHist] = useState<History<ExternalProfile>>(() => ({ past: [], present: defaultProfile(template, presentation, calendarId), future: [] }));
   const draft = hist.present;
   const setDraft = (p: ExternalProfile) => setHist((h) => historyPush(h, p));
   const resetDraft = (p: ExternalProfile) => setHist({ past: [], present: p, future: [] });
@@ -378,7 +378,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
     const now = new Date().toISOString();
     const at = [now, knownAt, lastSavedAt.current ?? ""].sort().at(-1)!;
     const r = await readExternalProfile({ calendarId, template, on, knownAt: at, presentation });
-    setRead(r); resetDraft(r.kind === "lido" || r.kind === "padrao" ? r.profile : defaultProfile(template, presentation));
+    setRead(r); resetDraft(r.kind === "lido" ? r.profile : defaultProfile(template, presentation, calendarId));
   };
   useEffect(() => { void load(); }, [calendarId, template]); // eslint-disable-line react-hooks/exhaustive-deps
   const types = vm.legendCodes.map((c) => ({ code: c, label: String((presentation["dayTypeCatalog"] as Record<string, { label?: string }> | undefined)?.[c]?.label ?? c) }));
@@ -428,7 +428,7 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
         {editing && <Button type="button" size="sm" variant="outline" disabled={!hist.past.length} aria-keyshortcuts="Control+Z" onClick={() => setHist(historyUndo)}>Desfazer</Button>}
         {editing && <Button type="button" size="sm" variant="outline" disabled={!hist.future.length} aria-keyshortcuts="Control+Shift+Z" onClick={() => setHist(historyRedo)}>Refazer</Button>}
         {editing && <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Descartar alterações</Button>}
-        {editing && <Button type="button" size="sm" variant="outline" onClick={() => setDraft(defaultProfile(template, presentation))}>Restaurar padrão</Button>}
+        {editing && <Button type="button" size="sm" variant="outline" onClick={() => setDraft(defaultProfile(template, presentation, calendarId))}>Restaurar padrão</Button>}
         {editing && free && <span className="self-center text-xs text-muted-foreground">Salvar grava este layout como o padrão do município para este modelo.</span>}
       </div>
       {freeIssues && (freeIssues.overlaps.length > 0 || freeIssues.tableOverflow) && <div role="alert" className="space-y-1 text-xs text-destructive">
@@ -440,8 +440,8 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
       {msg && <p role="status" className="text-xs">{msg}</p>}
       <div className={canEdit && editing ? "grid gap-3 xl:grid-cols-[22rem_minmax(0,1fr)]" : ""}>
         {canEdit && editing && <div className="space-y-2 xl:max-h-[85vh] xl:overflow-y-auto xl:pr-1">
-          <ExternalPresetsBar template={template} draft={draft} defaults={defaultProfile(template, presentation)} presentation={presentation} onApply={setDraft} />
-          {free && <FreeLayoutEditor profile={draft} onChange={setDraft} selected={selected} onSelect={setSelected} defaults={defaultProfile(template, presentation).free} selectedLayer={selectedLayer} onSelectLayer={setSelectedLayer}
+          <ExternalPresetsBar template={template} draft={draft} defaults={defaultProfile(template, presentation, calendarId)} presentation={presentation} onApply={setDraft} />
+          {free && <FreeLayoutEditor profile={draft} onChange={setDraft} selected={selected} onSelect={setSelected} defaults={defaultProfile(template, presentation, calendarId).free} selectedLayer={selectedLayer} onSelectLayer={setSelectedLayer}
             canUndo={hist.past.length > 0} canRedo={hist.future.length > 0} onUndo={() => setHist(historyUndo)} onRedo={() => setHist(historyRedo)} />}
           <ExternalEditor template={template} profile={draft} onChange={setDraft} types={types} presentation={presentation} /></div>}
         {/* Em telas estreitas a prévia vem primeiro e fica presa no topo: cada ajuste do editor aparece na hora, sem rolar. */}
