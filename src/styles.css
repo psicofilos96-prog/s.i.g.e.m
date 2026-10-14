@@ -524,8 +524,11 @@
 .cd-grade td.cd-total {
   font-weight: 700;
   background: #fff;
-  text-align: center;
-  vertical-align: middle;
+  text-align: center !important;
+  vertical-align: middle !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  text-indent: 0 !important;
 }
 .cd-grade td.cd-ferias {
   font-weight: 700;
