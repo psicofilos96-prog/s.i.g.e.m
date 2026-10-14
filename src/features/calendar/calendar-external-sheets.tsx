@@ -364,14 +364,15 @@ function renderBlock(b: InfoBlock, vm: ExternalViewModel, types: Types, p: Exter
   }
 }
 
-/** Faixa contínua de férias/recesso: blocos contíguos (≥ 3 dias) do mesmo código cujo tipo é férias ou recesso. */
+/** Faixa contínua de férias: blocos contíguos (≥ 3 dias) do mesmo código cujo tipo é férias. */
 function bandsOf(m: ExternalMonth, types: Types, p: ExternalProfile): Map<number, Band> {
   const out = new Map<number, Band>();
   let n = 1;
   while (n <= m.daysInMonth) {
     const code = m.byDay.get(n)?.symbolCode ?? null;
     const kind = code ? visualOf(code, types, p).kind : null;
-    if (!code || (kind !== "ferias" && kind !== "recesso")) { n++; continue; }
+    // Recesso nunca vira faixa: cada dia de recesso mostra a própria sigla (R).
+    if (!code || kind !== "ferias") { n++; continue; }
     let e = n; while (e + 1 <= m.daysInMonth && m.byDay.get(e + 1)?.symbolCode === code) e++;
     const len = e - n + 1;
     if (len >= 3) {
