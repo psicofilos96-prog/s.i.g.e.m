@@ -1456,8 +1456,7 @@
 .cf-livre .cf-per-cons-grade li { display: flex; gap: 1mm; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cf-livre .cf-per-cons-grade b { color: var(--cx-text); flex-shrink: 0; }
 /* Períodos letivos: um só tamanho de letra para datas, totais e conselhos (a caixa mantém o tamanho). */
-.cf-livre .cf-per-lista table, .cf-livre .cf-per-lista .cf-total, .cf-livre .cf-per-cons-grade { font-size: 0.8em !important; }
-.cf-livre .cf-per-lista table th, .cf-livre .cf-per-lista table td, .cf-livre .cf-per-cons-grade li, .cf-livre .cf-per-cons-grade b { font-size: inherit !important; }
+[data-free-block="periodos"] .cf-per-lista, [data-free-block="periodos"] .cf-per-lista * { font-size: 7.5pt !important; }
 /* CAL.EXT.5 — assinaturas do rodapé premium: linhas finas espaçadas, nome abaixo. */
 .cf-livre .cf-assinaturas { gap: 30mm; justify-content: space-between; }
 .cf-livre .cf-assinaturas > div { max-width: 80mm; } .cf-livre .cf-assinaturas p { margin: 0.6mm 0 0; font-weight: 600; }
