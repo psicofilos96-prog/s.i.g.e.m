@@ -538,9 +538,18 @@ function LayerView({ l, ctx, selected, onSelect, onMove }: { l: Layer; ctx: { ye
 
 type Count = { schoolDays: number | null; reason: string | null };
 /** Soma dos totais mensais do motor; qualquer mês indeterminado torna o semestre indeterminado (nunca zero). */
-export function semesterTotal(months: readonly ExternalMonth[]): Count {
-  if (months.some((m) => m.total.schoolDays === null)) return { schoolDays: null, reason: "Há mês com total indeterminado neste semestre." };
-  return { schoolDays: months.reduce((a, m) => a + (m.total.schoolDays ?? 0), 0), reason: null };
+export function semesterTotal(months: readonly ExternalMonth[], part?: 0 | 1): Count {
+  if (months.some((m) => !m.split && m.total.schoolDays === null)) return { schoolDays: null, reason: "Há mês com total indeterminado neste semestre." };
+  return { schoolDays: months.reduce((a, m) => a + (m.split ? (part === undefined ? m.split[0] + m.split[1] : m.split[part]) : (m.total.schoolDays ?? 0)), 0), reason: null };
+}
+/** Semestres da folha: o mês dividido na fronteira (ex.: julho na EJA) aparece nos dois, cada um com a sua parte. */
+export function sheetSemesters(months: readonly ExternalMonth[]) {
+  const cut = months.findIndex((m) => m.split);
+  const end1 = cut >= 0 ? cut + 1 : 6, start2 = cut >= 0 ? cut : 6;
+  return [
+    { months: months.slice(0, end1), part: 0 as const, label: "TOTAL DE DIAS LETIVOS DO 1º SEMESTRE", key: "s1" },
+    { months: months.slice(start2), part: 1 as const, label: "TOTAL DE DIAS LETIVOS DO 2º SEMESTRE", key: "s2" },
+  ];
 }
 /** Agrupa períodos pelo semestre da data de início (jan–jun = 1º, jul–dez = 2º). */
 export function periodSemesters<P extends Count & { startsOn: string }>(periods: readonly P[]) {
@@ -590,18 +599,18 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
         {cards ? <div className="cx-meses cf-meses" style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "1.5mm", height: "100%" }}>
           {vm.months.map((m) => <MonthCard key={m.key} m={m} types={types} p={p} />)}</div> :
         <div className={t.semesters ? "cf-semestres" : "cf-matriz-wrap"} style={{ display: "flex", flexDirection: "column", gap: "1.2mm", flex: 1, minHeight: 0, height: "100%" }}>
-        {(t.semesters ? [{ months: vm.months.slice(0, 6), label: "TOTAL DE DIAS LETIVOS DO 1º SEMESTRE", key: "s1" }, { months: vm.months.slice(6), label: "TOTAL DE DIAS LETIVOS DO 2º SEMESTRE", key: "s2" }]
-          : [{ months: vm.months, label: "TOTAL DE DIAS LETIVOS", key: "geral" }]).map((g) => { const tot = g.key === "geral" ? vm.total : semesterTotal(g.months);
+        {(t.semesters ? sheetSemesters(vm.months)
+          : [{ months: vm.months, part: undefined, label: "TOTAL DE DIAS LETIVOS", key: "geral" }]).map((g) => { const tot = g.key === "geral" ? vm.total : semesterTotal(g.months, g.part);
           return <table key={g.key} className={`cf-matriz${manual ? " cf-manual" : ""}`} style={{ ...tableStyle, ...(!manual ? { height: t.semesters ? "calc(50% - 0.6mm)" : "100%" } : {}) }}>
           <colgroup><col style={{ width: mm(t.monthColMm) }} />{cols.map((c) => <col key={c} />)}{p.show.totaisMensais && t.totalColMm > 0 && <col style={{ width: mm(t.totalColMm) }} />}</colgroup>
           <thead style={{ fontSize: `${t.headPt}pt` }}><tr><th scope="col">Mês / Dia</th>{cols.map((c) => <th key={c} scope="col" style={cell ? { width: cell.width, minWidth: cell.minWidth } : undefined}>{c}</th>)}
             {p.show.totaisMensais && t.totalColMm > 0 && <th scope="col" className="cf-col-total">Total de<br />dias letivos</th>}</tr></thead>
           <tbody>{g.months.map((m) => { const bands = bandsOf(m, types, p);
-            return <tr key={m.key} data-month={m.key} style={cell ? { height: cell.height } : undefined}>
+            return <tr key={`${g.key}-${m.key}`} data-month={m.key} style={cell ? { height: cell.height } : undefined}>
               <th scope="row" style={{ fontSize: `${t.monthPt}pt` }}>{m.name}</th>
               {cols.map((n) => n > m.daysInMonth ? <td key={n} className="cx-dia cx-inexistente" aria-hidden />
                 : <DayCell key={n} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={[0, 6].includes((m.firstWeekday + n - 1) % 7)} mode={t.showDayNumbers ? "numero" : "sigla"} band={t.showDayNumbers ? null : bands.get(n) ?? null} />)}
-              {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total" data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{m.split ? <span className="cx-split"><span>{m.split[0]}</span><span>{m.split[1]}</span></span> : countText(m.total)}</td>}
+              {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total" data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{m.split ? (g.part !== undefined ? m.split[g.part] : <span className="cx-split"><span>{m.split[0]}</span><span>{m.split[1]}</span></span>) : countText(m.total)}</td>}
             </tr>; })}</tbody>
           {p.show.totaisMensais && t.totalColMm > 0 && <tfoot><tr className="cf-total-geral">
             <th scope="row" colSpan={cols.length + 1}>{g.label}</th>
