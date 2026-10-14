@@ -308,9 +308,15 @@ export function ExternalPresentationPanel({ template, model: rawModel, presentat
   // Mesma fonte (dias/períodos); só o vínculo visual é normalizado (calendar-visual-resolver).
   const presentation = useMemo(() => externalPresentation(rawPresentation), [rawPresentation]);
   const model = useMemo(() => buildPrintModel(presentation, days, rawModel.periods.map((x) => ({ name: x.name, startsOn: x.startsOn, endsOn: x.endsOn }))), [presentation, days, rawModel]);
+  // Conselhos vêm da MESMA versão cujas declarações estão na folha (ex.: rascunho aberto, dias da homologada).
+  const councilVersionId = useMemo(() => {
+    const ids = new Set<string>();
+    for (const d of days) for (const r of d.rows ?? []) if (r.versionId) ids.add(r.versionId);
+    return ids.size === 1 ? [...ids][0]! : versionId;
+  }, [days, versionId]);
   const [council, setCouncil] = useState<CouncilConfiguration | null>(null);
-  useEffect(() => { let alive = true; void readCouncilConfiguration({ versionId, on, knownAt }).then((c) => { if (alive) setCouncil(c); }); return () => { alive = false; }; }, [versionId, on, knownAt]);
-  const vm = useMemo(() => buildExternalViewModel(model, presentation, { versionId, config: council, days }), [model, presentation, versionId, council, days]);
+  useEffect(() => { let alive = true; void readCouncilConfiguration({ versionId: councilVersionId, on, knownAt }).then((c) => { if (alive) setCouncil(c); }); return () => { alive = false; }; }, [councilVersionId, on, knownAt]);
+  const vm = useMemo(() => buildExternalViewModel(model, presentation, { versionId: councilVersionId, config: council, days }), [model, presentation, councilVersionId, council, days]);
   const [read, setRead] = useState<ExternalProfileRead | null>(null);
   const [hist, setHist] = useState<History<ExternalProfile>>(() => ({ past: [], present: defaultProfile(template, presentation), future: [] }));
   const draft = hist.present;
