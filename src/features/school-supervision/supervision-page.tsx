@@ -86,7 +86,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
                 <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? "—"}</p>
                 {b.reason && <p className="text-xs text-muted-foreground">{b.reason}</p>}
               </Link>))}
-            <Link to="/calendario-escolar" className="rounded-lg border border-dashed bg-card p-4 hover:bg-accent"><h3 className="text-sm font-semibold">Calendário e períodos</h3><p className="text-xs text-muted-foreground">Abrir o calendário homologado aplicável.</p></Link>
+            <Link to="/calendario-escolar" className="rounded-lg border border-dashed bg-card p-4 hover:bg-accent"><h3 className="text-sm font-semibold">Calendário e períodos</h3><p className="text-xs text-muted-foreground">Abrir o calendário do ano.</p></Link>
             <Link to="/mapa-estatistico" className="rounded-lg border border-dashed bg-card p-4 hover:bg-accent"><h3 className="text-sm font-semibold">Mapa Estatístico</h3><p className="text-xs text-muted-foreground">Abrir os mapas da escola conforme sua atuação.</p></Link>
           </div>)}
       </section>
@@ -192,7 +192,7 @@ function Records({ school, schoolName, knownAt }: { school: string; schoolName: 
           {!knownAt && (
             <form className="rounded-lg border bg-card p-4 space-y-3" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
               <h3 className="text-sm font-semibold">{editing ? (editing.kind === "anulacao" ? "Anular registro" : "Corrigir registro (nova versão)") : "Novo registro"}</h3>
-              {mods.length === 0 && !editing ? <StatePanel tone="info" title="Catálogo pendente" description="Não há modalidade de acompanhamento homologada. Sem ela, nenhum registro pode ser gravado." /> : (
+              {mods.length === 0 && !editing ? <StatePanel tone="info" title="Falta cadastrar os tipos de visita" description="Peça à SEMED para cadastrar os tipos de acompanhamento." /> : (
                 <>
                   {editing?.kind !== "anulacao" && <div className="grid gap-3 sm:grid-cols-2">
                     <label className="text-sm">Modalidade<select className={field} value={form.modality} onChange={(e) => setForm({ ...form, modality: e.target.value })}><option value="">Escolha</option>{mods.map((m) => <option key={m.value_id} value={m.value_id}>{m.label}</option>)}</select></label>
@@ -233,7 +233,7 @@ function SupervisionHome() {
         ))}
       </ul>
       <details className="text-sm text-muted-foreground"><summary>Por que algumas ferramentas estão só em consulta?</summary>
-        <p className="mt-1">Agir depende de uma permissão dada pela política homologada da rede. Esta tela não concede permissão: onde ninguém foi designado, a ferramenta fica só em consulta até a decisão.</p></details>
+        <p className="mt-1">Algumas ferramentas ficam só para consulta até a SEMED liberar quem pode usá-las.</p></details>
     </section>
   );
 }
