@@ -32093,6 +32093,278 @@ export type Database = {
           },
         ]
       }
+      sg_attendance: {
+        Row: {
+          class_id: string | null
+          created_at: string
+          day: string
+          id: string
+          present: boolean
+          student_id: string
+          updated_by: string | null
+        }
+        Insert: {
+          class_id?: string | null
+          created_at?: string
+          day: string
+          id?: string
+          present: boolean
+          student_id: string
+          updated_by?: string | null
+        }
+        Update: {
+          class_id?: string | null
+          created_at?: string
+          day?: string
+          id?: string
+          present?: boolean
+          student_id?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sg_attendance_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "sg_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sg_attendance_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "sg_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sg_classes: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          id: string
+          name: string
+          school_id: string | null
+          shift: string | null
+          stage: string | null
+          teacher_id: string | null
+          updated_at: string
+          updated_by: string | null
+          year: number
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          school_id?: string | null
+          shift?: string | null
+          stage?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          year?: number
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          school_id?: string | null
+          shift?: string | null
+          stage?: string | null
+          teacher_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sg_classes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "sg_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sg_classes_teacher_fk"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "sg_staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sg_schools: {
+        Row: {
+          address: string | null
+          created_at: string
+          district: string | null
+          email: string | null
+          id: string
+          inep: string | null
+          name: string
+          phone: string | null
+          updated_at: string
+          updated_by: string | null
+          zone: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          district?: string | null
+          email?: string | null
+          id?: string
+          inep?: string | null
+          name: string
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          zone?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          district?: string | null
+          email?: string | null
+          id?: string
+          inep?: string | null
+          name?: string
+          phone?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          zone?: string | null
+        }
+        Relationships: []
+      }
+      sg_staff: {
+        Row: {
+          bond: string | null
+          created_at: string
+          function: string | null
+          id: string
+          name: string
+          phone: string | null
+          registration: string | null
+          role: string | null
+          school_id: string | null
+          status: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          bond?: string | null
+          created_at?: string
+          function?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          registration?: string | null
+          role?: string | null
+          school_id?: string | null
+          status?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          bond?: string | null
+          created_at?: string
+          function?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          registration?: string | null
+          role?: string | null
+          school_id?: string | null
+          status?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sg_staff_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "sg_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sg_students: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          class_id: string | null
+          created_at: string
+          father_name: string | null
+          guardian_name: string | null
+          id: string
+          mother_name: string | null
+          name: string
+          phone: string | null
+          race: string | null
+          school_id: string | null
+          sex: string | null
+          special_needs: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          class_id?: string | null
+          created_at?: string
+          father_name?: string | null
+          guardian_name?: string | null
+          id?: string
+          mother_name?: string | null
+          name: string
+          phone?: string | null
+          race?: string | null
+          school_id?: string | null
+          sex?: string | null
+          special_needs?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          class_id?: string | null
+          created_at?: string
+          father_name?: string | null
+          guardian_name?: string | null
+          id?: string
+          mother_name?: string | null
+          name?: string
+          phone?: string | null
+          race?: string | null
+          school_id?: string | null
+          sex?: string | null
+          special_needs?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sg_students_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "sg_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sg_students_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "sg_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sia_card_corrections: {
         Row: {
           approved_review_event_id: string

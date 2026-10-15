@@ -27,6 +27,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AutorizacoesFamiliaRouteImport } from './routes/autorizacoes-familia'
 import { Route as AvaliacaoDesempenhoRouteImport } from './routes/avaliacao-desempenho'
 import { Route as AvaliacoesDoProfessorRouteImport } from './routes/avaliacoes-do-professor'
+import { Route as AvancadoRouteImport } from './routes/avancado'
 import { Route as AvisosRouteImport } from './routes/avisos'
 import { Route as BaseDeConhecimentoRouteImport } from './routes/base-de-conhecimento'
 import { Route as CarteirinhasRouteImport } from './routes/carteirinhas'
@@ -36,6 +37,7 @@ import { Route as CentralDeAcessosRouteImport } from './routes/central-de-acesso
 import { Route as CentralDeDocumentosRouteImport } from './routes/central-de-documentos'
 import { Route as CentralDeIntegracoesRouteImport } from './routes/central-de-integracoes'
 import { Route as CentroDeOperacoesRouteImport } from './routes/centro-de-operacoes'
+import { Route as ChamadaRouteImport } from './routes/chamada'
 import { Route as CieceRouteImport } from './routes/ciece'
 import { Route as ComunicacaoEscolarRouteImport } from './routes/comunicacao-escolar'
 import { Route as ConciliacaoPessoalRouteImport } from './routes/conciliacao-pessoal'
@@ -70,6 +72,7 @@ import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
 import { Route as MediadorRouteImport } from './routes/mediador'
 import { Route as MeusDiariosRouteImport } from './routes/meus-diarios'
+import { Route as NumerosRouteImport } from './routes/numeros'
 import { Route as OrganizacaoDaRedeRouteImport } from './routes/organizacao-da-rede'
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as PaineisRouteImport } from './routes/paineis'
@@ -117,6 +120,10 @@ import { Route as AreasAreaIdRouteImport } from './routes/areas.$areaId'
 import { Route as AtuacoesPedagogicasIndexRouteImport } from './routes/atuacoes-pedagogicas.index'
 import { Route as AtuacoesPedagogicasNovaRouteImport } from './routes/atuacoes-pedagogicas.nova'
 import { Route as AvaliacoesDoProfessorCartaoRespostaRouteImport } from './routes/avaliacoes-do-professor_.cartao-resposta'
+import { Route as CadastroAlunosRouteImport } from './routes/cadastro.alunos'
+import { Route as CadastroEscolasRouteImport } from './routes/cadastro.escolas'
+import { Route as CadastroServidoresRouteImport } from './routes/cadastro.servidores'
+import { Route as CadastroTurmasRouteImport } from './routes/cadastro.turmas'
 import { Route as CalendarioEscolarIndexRouteImport } from './routes/calendario-escolar.index'
 import { Route as CentroDeOperacoesOperacaoRouteImport } from './routes/centro-de-operacoes_.operacao'
 import { Route as DiarioIndexRouteImport } from './routes/diario.index'
@@ -379,6 +386,11 @@ const AvaliacoesDoProfessorRoute = AvaliacoesDoProfessorRouteImport.update({
   path: '/avaliacoes-do-professor',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AvancadoRoute = AvancadoRouteImport.update({
+  id: '/avancado',
+  path: '/avancado',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AvisosRoute = AvisosRouteImport.update({
   id: '/avisos',
   path: '/avisos',
@@ -422,6 +434,11 @@ const CentralDeIntegracoesRoute = CentralDeIntegracoesRouteImport.update({
 const CentroDeOperacoesRoute = CentroDeOperacoesRouteImport.update({
   id: '/centro-de-operacoes',
   path: '/centro-de-operacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChamadaRoute = ChamadaRouteImport.update({
+  id: '/chamada',
+  path: '/chamada',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CieceRoute = CieceRouteImport.update({
@@ -592,6 +609,11 @@ const MediadorRoute = MediadorRouteImport.update({
 const MeusDiariosRoute = MeusDiariosRouteImport.update({
   id: '/meus-diarios',
   path: '/meus-diarios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NumerosRoute = NumerosRouteImport.update({
+  id: '/numeros',
+  path: '/numeros',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrganizacaoDaRedeRoute = OrganizacaoDaRedeRouteImport.update({
@@ -833,6 +855,26 @@ const AvaliacoesDoProfessorCartaoRespostaRoute =
     path: '/avaliacoes-do-professor/cartao-resposta',
     getParentRoute: () => rootRouteImport,
   } as any)
+const CadastroAlunosRoute = CadastroAlunosRouteImport.update({
+  id: '/cadastro/alunos',
+  path: '/cadastro/alunos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroEscolasRoute = CadastroEscolasRouteImport.update({
+  id: '/cadastro/escolas',
+  path: '/cadastro/escolas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroServidoresRoute = CadastroServidoresRouteImport.update({
+  id: '/cadastro/servidores',
+  path: '/cadastro/servidores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroTurmasRoute = CadastroTurmasRouteImport.update({
+  id: '/cadastro/turmas',
+  path: '/cadastro/turmas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CalendarioEscolarIndexRoute = CalendarioEscolarIndexRouteImport.update({
   id: '/calendario-escolar/',
   path: '/calendario-escolar/',
@@ -1802,6 +1844,7 @@ export interface FileRoutesByFullPath {
   '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
+  '/avancado': typeof AvancadoRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
@@ -1811,6 +1854,7 @@ export interface FileRoutesByFullPath {
   '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/centro-de-operacoes': typeof CentroDeOperacoesRoute
+  '/chamada': typeof ChamadaRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
@@ -1845,6 +1889,7 @@ export interface FileRoutesByFullPath {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
+  '/numeros': typeof NumerosRoute
   '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
@@ -1889,6 +1934,10 @@ export interface FileRoutesByFullPath {
   '/areas/$areaId': typeof AreasAreaIdRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  '/cadastro/alunos': typeof CadastroAlunosRoute
+  '/cadastro/escolas': typeof CadastroEscolasRoute
+  '/cadastro/servidores': typeof CadastroServidoresRoute
+  '/cadastro/turmas': typeof CadastroTurmasRoute
   '/centro-de-operacoes/operacao': typeof CentroDeOperacoesOperacaoRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
@@ -2080,6 +2129,7 @@ export interface FileRoutesByTo {
   '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
+  '/avancado': typeof AvancadoRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
@@ -2089,6 +2139,7 @@ export interface FileRoutesByTo {
   '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/centro-de-operacoes': typeof CentroDeOperacoesRoute
+  '/chamada': typeof ChamadaRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
@@ -2119,6 +2170,7 @@ export interface FileRoutesByTo {
   '/matriculas': typeof MatriculasRouteWithChildren
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
+  '/numeros': typeof NumerosRoute
   '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
@@ -2158,6 +2210,10 @@ export interface FileRoutesByTo {
   '/areas/$areaId': typeof AreasAreaIdRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  '/cadastro/alunos': typeof CadastroAlunosRoute
+  '/cadastro/escolas': typeof CadastroEscolasRoute
+  '/cadastro/servidores': typeof CadastroServidoresRoute
+  '/cadastro/turmas': typeof CadastroTurmasRoute
   '/centro-de-operacoes/operacao': typeof CentroDeOperacoesOperacaoRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
@@ -2331,6 +2387,7 @@ export interface FileRoutesById {
   '/autorizacoes-familia': typeof AutorizacoesFamiliaRoute
   '/avaliacao-desempenho': typeof AvaliacaoDesempenhoRoute
   '/avaliacoes-do-professor': typeof AvaliacoesDoProfessorRoute
+  '/avancado': typeof AvancadoRoute
   '/avisos': typeof AvisosRoute
   '/base-de-conhecimento': typeof BaseDeConhecimentoRoute
   '/carteirinhas': typeof CarteirinhasRoute
@@ -2340,6 +2397,7 @@ export interface FileRoutesById {
   '/central-de-documentos': typeof CentralDeDocumentosRoute
   '/central-de-integracoes': typeof CentralDeIntegracoesRoute
   '/centro-de-operacoes': typeof CentroDeOperacoesRoute
+  '/chamada': typeof ChamadaRoute
   '/ciece': typeof CieceRoute
   '/comunicacao-escolar': typeof ComunicacaoEscolarRoute
   '/conciliacao-pessoal': typeof ConciliacaoPessoalRoute
@@ -2374,6 +2432,7 @@ export interface FileRoutesById {
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
+  '/numeros': typeof NumerosRoute
   '/organizacao-da-rede': typeof OrganizacaoDaRedeRoute
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
@@ -2418,6 +2477,10 @@ export interface FileRoutesById {
   '/areas/$areaId': typeof AreasAreaIdRoute
   '/atuacoes-pedagogicas/nova': typeof AtuacoesPedagogicasNovaRoute
   '/avaliacoes-do-professor_/cartao-resposta': typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  '/cadastro/alunos': typeof CadastroAlunosRoute
+  '/cadastro/escolas': typeof CadastroEscolasRoute
+  '/cadastro/servidores': typeof CadastroServidoresRoute
+  '/cadastro/turmas': typeof CadastroTurmasRoute
   '/centro-de-operacoes_/operacao': typeof CentroDeOperacoesOperacaoRoute
   '/diario/aulas': typeof DiarioAulasRoute
   '/diario/chamadas': typeof DiarioChamadasRoute
@@ -2613,6 +2676,7 @@ export interface FileRouteTypes {
     | '/autorizacoes-familia'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
+    | '/avancado'
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
@@ -2622,6 +2686,7 @@ export interface FileRouteTypes {
     | '/central-de-documentos'
     | '/central-de-integracoes'
     | '/centro-de-operacoes'
+    | '/chamada'
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
@@ -2656,6 +2721,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/mediador'
     | '/meus-diarios'
+    | '/numeros'
     | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
@@ -2700,6 +2766,10 @@ export interface FileRouteTypes {
     | '/areas/$areaId'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor/cartao-resposta'
+    | '/cadastro/alunos'
+    | '/cadastro/escolas'
+    | '/cadastro/servidores'
+    | '/cadastro/turmas'
     | '/centro-de-operacoes/operacao'
     | '/diario/aulas'
     | '/diario/chamadas'
@@ -2891,6 +2961,7 @@ export interface FileRouteTypes {
     | '/autorizacoes-familia'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
+    | '/avancado'
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
@@ -2900,6 +2971,7 @@ export interface FileRouteTypes {
     | '/central-de-documentos'
     | '/central-de-integracoes'
     | '/centro-de-operacoes'
+    | '/chamada'
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
@@ -2930,6 +3002,7 @@ export interface FileRouteTypes {
     | '/matriculas'
     | '/mediador'
     | '/meus-diarios'
+    | '/numeros'
     | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
@@ -2969,6 +3042,10 @@ export interface FileRouteTypes {
     | '/areas/$areaId'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor/cartao-resposta'
+    | '/cadastro/alunos'
+    | '/cadastro/escolas'
+    | '/cadastro/servidores'
+    | '/cadastro/turmas'
     | '/centro-de-operacoes/operacao'
     | '/diario/aulas'
     | '/diario/chamadas'
@@ -3141,6 +3218,7 @@ export interface FileRouteTypes {
     | '/autorizacoes-familia'
     | '/avaliacao-desempenho'
     | '/avaliacoes-do-professor'
+    | '/avancado'
     | '/avisos'
     | '/base-de-conhecimento'
     | '/carteirinhas'
@@ -3150,6 +3228,7 @@ export interface FileRouteTypes {
     | '/central-de-documentos'
     | '/central-de-integracoes'
     | '/centro-de-operacoes'
+    | '/chamada'
     | '/ciece'
     | '/comunicacao-escolar'
     | '/conciliacao-pessoal'
@@ -3184,6 +3263,7 @@ export interface FileRouteTypes {
     | '/matrizes-curriculares'
     | '/mediador'
     | '/meus-diarios'
+    | '/numeros'
     | '/organizacao-da-rede'
     | '/orientacao'
     | '/paineis'
@@ -3228,6 +3308,10 @@ export interface FileRouteTypes {
     | '/areas/$areaId'
     | '/atuacoes-pedagogicas/nova'
     | '/avaliacoes-do-professor_/cartao-resposta'
+    | '/cadastro/alunos'
+    | '/cadastro/escolas'
+    | '/cadastro/servidores'
+    | '/cadastro/turmas'
     | '/centro-de-operacoes_/operacao'
     | '/diario/aulas'
     | '/diario/chamadas'
@@ -3422,6 +3506,7 @@ export interface RootRouteChildren {
   AutorizacoesFamiliaRoute: typeof AutorizacoesFamiliaRoute
   AvaliacaoDesempenhoRoute: typeof AvaliacaoDesempenhoRoute
   AvaliacoesDoProfessorRoute: typeof AvaliacoesDoProfessorRoute
+  AvancadoRoute: typeof AvancadoRoute
   AvisosRoute: typeof AvisosRoute
   BaseDeConhecimentoRoute: typeof BaseDeConhecimentoRoute
   CarteirinhasRoute: typeof CarteirinhasRoute
@@ -3431,6 +3516,7 @@ export interface RootRouteChildren {
   CentralDeDocumentosRoute: typeof CentralDeDocumentosRoute
   CentralDeIntegracoesRoute: typeof CentralDeIntegracoesRoute
   CentroDeOperacoesRoute: typeof CentroDeOperacoesRoute
+  ChamadaRoute: typeof ChamadaRoute
   CieceRoute: typeof CieceRoute
   ComunicacaoEscolarRoute: typeof ComunicacaoEscolarRoute
   ConciliacaoPessoalRoute: typeof ConciliacaoPessoalRoute
@@ -3465,6 +3551,7 @@ export interface RootRouteChildren {
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
   MediadorRoute: typeof MediadorRoute
   MeusDiariosRoute: typeof MeusDiariosRoute
+  NumerosRoute: typeof NumerosRoute
   OrganizacaoDaRedeRoute: typeof OrganizacaoDaRedeRoute
   OrientacaoRoute: typeof OrientacaoRoute
   PaineisRoute: typeof PaineisRoute
@@ -3506,6 +3593,10 @@ export interface RootRouteChildren {
   AlimentacaoEscolarSaudeDeclaradaRoute: typeof AlimentacaoEscolarSaudeDeclaradaRoute
   AreasAreaIdRoute: typeof AreasAreaIdRoute
   AvaliacoesDoProfessorCartaoRespostaRoute: typeof AvaliacoesDoProfessorCartaoRespostaRoute
+  CadastroAlunosRoute: typeof CadastroAlunosRoute
+  CadastroEscolasRoute: typeof CadastroEscolasRoute
+  CadastroServidoresRoute: typeof CadastroServidoresRoute
+  CadastroTurmasRoute: typeof CadastroTurmasRoute
   CentroDeOperacoesOperacaoRoute: typeof CentroDeOperacoesOperacaoRoute
   DiarioFolhaFinalRoute: typeof DiarioFolhaFinalRoute
   DiarioLivroRoute: typeof DiarioLivroRoute
@@ -3687,6 +3778,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AvaliacoesDoProfessorRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/avancado': {
+      id: '/avancado'
+      path: '/avancado'
+      fullPath: '/avancado'
+      preLoaderRoute: typeof AvancadoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/avisos': {
       id: '/avisos'
       path: '/avisos'
@@ -3748,6 +3846,13 @@ declare module '@tanstack/react-router' {
       path: '/centro-de-operacoes'
       fullPath: '/centro-de-operacoes'
       preLoaderRoute: typeof CentroDeOperacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chamada': {
+      id: '/chamada'
+      path: '/chamada'
+      fullPath: '/chamada'
+      preLoaderRoute: typeof ChamadaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ciece': {
@@ -3986,6 +4091,13 @@ declare module '@tanstack/react-router' {
       path: '/meus-diarios'
       fullPath: '/meus-diarios'
       preLoaderRoute: typeof MeusDiariosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/numeros': {
+      id: '/numeros'
+      path: '/numeros'
+      fullPath: '/numeros'
+      preLoaderRoute: typeof NumerosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/organizacao-da-rede': {
@@ -4315,6 +4427,34 @@ declare module '@tanstack/react-router' {
       path: '/avaliacoes-do-professor/cartao-resposta'
       fullPath: '/avaliacoes-do-professor/cartao-resposta'
       preLoaderRoute: typeof AvaliacoesDoProfessorCartaoRespostaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro/alunos': {
+      id: '/cadastro/alunos'
+      path: '/cadastro/alunos'
+      fullPath: '/cadastro/alunos'
+      preLoaderRoute: typeof CadastroAlunosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro/escolas': {
+      id: '/cadastro/escolas'
+      path: '/cadastro/escolas'
+      fullPath: '/cadastro/escolas'
+      preLoaderRoute: typeof CadastroEscolasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro/servidores': {
+      id: '/cadastro/servidores'
+      path: '/cadastro/servidores'
+      fullPath: '/cadastro/servidores'
+      preLoaderRoute: typeof CadastroServidoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro/turmas': {
+      id: '/cadastro/turmas'
+      path: '/cadastro/turmas'
+      fullPath: '/cadastro/turmas'
+      preLoaderRoute: typeof CadastroTurmasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendario-escolar/': {
@@ -6203,6 +6343,7 @@ const rootRouteChildren: RootRouteChildren = {
   AutorizacoesFamiliaRoute: AutorizacoesFamiliaRoute,
   AvaliacaoDesempenhoRoute: AvaliacaoDesempenhoRoute,
   AvaliacoesDoProfessorRoute: AvaliacoesDoProfessorRoute,
+  AvancadoRoute: AvancadoRoute,
   AvisosRoute: AvisosRoute,
   BaseDeConhecimentoRoute: BaseDeConhecimentoRoute,
   CarteirinhasRoute: CarteirinhasRoute,
@@ -6212,6 +6353,7 @@ const rootRouteChildren: RootRouteChildren = {
   CentralDeDocumentosRoute: CentralDeDocumentosRoute,
   CentralDeIntegracoesRoute: CentralDeIntegracoesRoute,
   CentroDeOperacoesRoute: CentroDeOperacoesRoute,
+  ChamadaRoute: ChamadaRoute,
   CieceRoute: CieceRoute,
   ComunicacaoEscolarRoute: ComunicacaoEscolarRoute,
   ConciliacaoPessoalRoute: ConciliacaoPessoalRoute,
@@ -6246,6 +6388,7 @@ const rootRouteChildren: RootRouteChildren = {
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
   MediadorRoute: MediadorRoute,
   MeusDiariosRoute: MeusDiariosRoute,
+  NumerosRoute: NumerosRoute,
   OrganizacaoDaRedeRoute: OrganizacaoDaRedeRoute,
   OrientacaoRoute: OrientacaoRoute,
   PaineisRoute: PaineisRoute,
@@ -6288,6 +6431,10 @@ const rootRouteChildren: RootRouteChildren = {
   AreasAreaIdRoute: AreasAreaIdRoute,
   AvaliacoesDoProfessorCartaoRespostaRoute:
     AvaliacoesDoProfessorCartaoRespostaRoute,
+  CadastroAlunosRoute: CadastroAlunosRoute,
+  CadastroEscolasRoute: CadastroEscolasRoute,
+  CadastroServidoresRoute: CadastroServidoresRoute,
+  CadastroTurmasRoute: CadastroTurmasRoute,
   CentroDeOperacoesOperacaoRoute: CentroDeOperacoesOperacaoRoute,
   DiarioFolhaFinalRoute: DiarioFolhaFinalRoute,
   DiarioLivroRoute: DiarioLivroRoute,
