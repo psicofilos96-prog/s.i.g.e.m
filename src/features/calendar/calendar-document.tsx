@@ -1,3 +1,4 @@
+import { finalCouncilText } from "./calendar-final-council-label";
 /**
  * Documento "Calendário Escolar" — reprodução fiel do modelo interno da
  * Supervisão (grade-calendario.tsx da especificação). A tela administrativa
@@ -219,7 +220,7 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
             <div key={c.key} className="cd-conselho-linha">
               <b>{shortDate(c.date)}</b>
               <span>—</span>
-              <span>{c.label}</span>
+              <span>{finalCouncilText(c.label)}</span>
             </div>
           ))}
         </div>
@@ -348,7 +349,7 @@ export function CalendarDocument({
                 >
                   <DayMark code={code} text={info.mark} overrides={cal.symbology} where="legenda" />
                 </div>
-                <div>{info.label}</div>
+                <div>{finalCouncilText(info.label)}</div>
               </div>
             );
           })}
@@ -360,7 +361,7 @@ export function CalendarDocument({
               >
                 {c.mark}
               </div>
-              <div>{c.label}</div>
+              <div>{finalCouncilText(c.label)}</div>
             </div>
           ))}
         </div>
