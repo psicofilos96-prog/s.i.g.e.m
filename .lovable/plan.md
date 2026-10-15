@@ -31,3 +31,13 @@
 - Dados: `teacher-context.ts` (minhas turmas), `lesson-central.ts`/`teacher-agenda.ts` (semana e aulas), `attendance-temporal.ts`/`attendanceStore` (chamada), `lesson-versions.ts` (registro), Pauta/`teacher-grades.ts` (notas), `learning-record.ts` (resumo). Primitivas de `components/sigem/attendance-speed.tsx` e `states.tsx` reaproveitadas.
 - Tokens em `src/styles.css` com escopo `.diary-premium` (oklch), sem cores cruas nos componentes; teste de tokens existente continua valendo.
 - Recursos utilizados: se o registro de aula ainda não tiver campo para isso, a seção fica visível mas desligada com a frase "Ainda não disponível", e peço sua autorização antes de criar o campo no banco.
+
+## Ressalvas aprovadas (obrigatórias)
+1. Tela realmente integrada: todas as abas usam o mesmo ano, escola, turma, disciplina e período; reusar as peças e serviços atuais, sem embutir as páginas antigas.
+2. Chamada, notas, médias e situação continuam presas à aula ou ao período de cada uma; a tabela só as mostra lado a lado.
+3. Todo resumo diz o período de referência; "sem registro", "pendente", "carregando" e "erro" aparecem diferentes; ausência nunca vira zero, falta ou nota.
+4. Alta fidelidade à imagem (proporções, espaços, letras, tabela compacta, menu, quadros de baixo).
+5. Peças reutilizáveis e cores com escopo próprio do Diário, prontas para outros módulos depois, sem mexer neles agora.
+6. Testes automáticos: troca de contexto, abas, permissões, gravação, histórico, telas vazias, aviso de alterações não salvas e funções antigas.
+- Restrições: sem mudar regras, sem migrações, sem mudar permissões, sem dados fictícios, rotas antigas mantidas, outros módulos intocados, sem imagem substituta do Cristo. Recursos da aula ficam visíveis e desligados se não houver campo.
+- Ao final: lista de arquivos alterados, testes rodados, resultados e limitações.
