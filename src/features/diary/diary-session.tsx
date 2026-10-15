@@ -139,10 +139,12 @@ async function loadContext(
 ) {
   const t = { validOn: reference.validOn, knownAt: reference.knownAt };
   try {
-    const [roster, teaching, diary] = await Promise.all([
-      readInstitutionalRoster(t),
-      readInstitutionalTeaching(target.userId, t),
-      readDiaryFromCloud(),
+    const diaryP = readDiaryFromCloud();
+    const teaching = await readInstitutionalTeaching(target.userId, t);
+    // Estudantes só das escolas das turmas do professor (antes: todas as escolas da rede).
+    const [roster, diary] = await Promise.all([
+      readInstitutionalRoster(t, [...new Set(teaching.classes.map((c) => c.schoolId))]),
+      diaryP,
     ]);
     if (diaryGeneration() !== mine) return; // contexto trocado/desmontado: descarta antes de qualquer mutação
     applyInstitutionalRoster(roster);

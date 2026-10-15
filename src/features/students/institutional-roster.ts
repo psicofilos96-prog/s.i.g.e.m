@@ -48,7 +48,7 @@ export function rosterStudentName(id: string): string | undefined {
  * B4.10.0c — leitura PURA (sem mutar globais): o controlador de sessão do Diário só aplica o resultado
  * (`applyInstitutionalRoster`) se o contexto que a pediu ainda for o corrente. Qualquer falha lança.
  */
-export async function readInstitutionalRoster(t: { validOn: string; knownAt: string }): Promise<InstitutionalRosterRead> {
+export async function readInstitutionalRoster(t: { validOn: string; knownAt: string }, onlySchools?: readonly string[]): Promise<InstitutionalRosterRead> {
   // B4.10.0d — knownAt e data de referência vêm do lote (nunca recapturados aqui). Os episódios são
   // lidos com validOn:null (histórico completo conhecido até knownAt), necessário à frequência passada;
   // situação "corrente" é decidida na data de referência, nunca no relógio.
@@ -62,7 +62,9 @@ export async function readInstitutionalRoster(t: { validOn: string; knownAt: str
   let enrollments: CycleEnrollmentAtRow[] = [];
   let participations: CycleParticipationRow[] = [];
   try {
-    const schools = (sc.data ?? []).map((x) => x.id);
+    // Desempenho: o Diário pede só as escolas das próprias turmas (antes: 3 leituras × todas as escolas).
+    const wanted = onlySchools ? new Set(onlySchools) : null;
+    const schools = (sc.data ?? []).map((x) => x.id).filter((id) => !wanted || wanted.has(id));
     const per = await Promise.all(schools.map(async (school) => Promise.all([
       readClassAllocations({ school }, { validOn: null, knownAt }),
       readCycleEnrollments(school, { validOn: null, knownAt }),
