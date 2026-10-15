@@ -61,7 +61,7 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
             ))}
           </section>
           <p className="rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
-            Alertas: desativados — não há regra homologada. A ficha não calcula risco nem pontuação.
+            Esta ficha mostra só o que foi registrado.
           </p>
           {t.events.length === 0 ? (
             <EmptyState compact title="Nenhum registro no período" description="Ausência de registro não é zero nem falta." />

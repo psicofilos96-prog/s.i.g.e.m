@@ -24,7 +24,7 @@ const PERSPECTIVE = {
   },
   direcao: {
     eyebrow: "Direção Escolar",
-    description: "Veja o que precisa de decisão ou providência na escola. A Direção consulta Diário e matrícula, sem alterá-los.",
+    description: "O que precisa da sua atenção na escola hoje.",
     actions: [
       { to: "/mapa-estatistico", label: "Ver Mapa do mês" },
       { to: "/diario/frequencia", label: "Consultar frequência" },
@@ -45,7 +45,7 @@ export function SchoolFollowupPage({ perspective }: { perspective: "orientacao" 
       <PageHeader eyebrow={cfg.eyebrow} title="O que depende de você hoje" description={cfg.description} />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <SkeletonState label="Carregando" />
-        : schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua atuação não tem permissão vigente com alcance de escola. O acesso não vem do nome do cargo." />
+        : schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua conta ainda não está ligada a uma escola. Peça ao administrador do SIGEM." />
         : (
           <>
             <div className="flex flex-wrap items-end gap-3 text-sm">
@@ -86,7 +86,7 @@ function SchoolView({ perspective, school, validOn, knownAt }: { perspective: "o
       <TabsContent value="revisar" className="space-y-6">
       <section aria-labelledby="pend" className="space-y-3">
         <h2 id="pend" className="text-lg font-semibold">Pendências da escola</h2>
-        {panel.pending.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhuma pendência encontrada nos registros que você pode ler. Isso não quer dizer que tudo está em ordem: o que você não pode ler não aparece aqui.</p> : (
+        {panel.pending.length === 0 ? <p className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Nenhuma pendência no momento.</p> : (
           <ul className="space-y-3">
             {(Object.keys(QUEUE_PRESENTATION) as (keyof typeof QUEUE_PRESENTATION)[]).map((kind) => {
               const q = QUEUE_PRESENTATION[kind];
@@ -117,7 +117,7 @@ function SchoolView({ perspective, school, validOn, knownAt }: { perspective: "o
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Cell label="Turmas" v={panel.totals.classes} /><Cell label="Matrículas vigentes" v={panel.totals.enrollments} /><Cell label="Estudantes em turma" v={panel.totals.allocated} />
         </div>
-        {panel.classes.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma turma registrada ou legível para sua conta.</p> : (
+        {panel.classes.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma turma encontrada.</p> : (
           <div className="overflow-x-auto"><table className="w-full text-sm">
             <thead><tr className="text-left"><th scope="col" className="p-2">Turma</th><th scope="col" className="p-2">Estudantes</th><th scope="col" className="p-2">Fechamentos de frequência</th><th scope="col" className="p-2">Fechamentos avaliativos</th><th scope="col" className="p-2"><span className="sr-only">Ações</span></th></tr></thead>
             <tbody>{panel.classes.map((c) => (
@@ -146,7 +146,7 @@ function SchoolView({ perspective, school, validOn, knownAt }: { perspective: "o
 
       <TabsContent value="decidir" className="space-y-3">
         <h2 className="text-lg font-semibold">Decidir</h2>
-        <p className="text-sm text-muted-foreground">Cada decisão é feita na tela própria, com as permissões dela.</p>
+        <p className="text-sm text-muted-foreground">Escolha o que deseja fazer.</p>
         <ul className="grid gap-2 sm:grid-cols-2">
           {cfg.actions.map((a) => <li key={a.to}><Link to={a.to} className="flex min-h-11 items-center rounded-lg border bg-card px-4 py-3 font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{a.label}</Link></li>)}
         </ul>
@@ -216,7 +216,7 @@ function Records({ school, subject, knownAt, onBack, mode }: { mode: "acompanhar
       {!err && mode === "acompanhar" && (
         <div className="space-y-2 rounded border p-3 text-sm">
           <h3 className="font-medium">Novo registro</h3>
-          {cats && cats.length === 0 ? <p className="text-muted-foreground">Nenhuma categoria de acompanhamento aprovada no catálogo. Sem categoria, não é possível registrar.</p> : (
+          {cats && cats.length === 0 ? <p className="text-muted-foreground">Ainda não há categorias de acompanhamento. Peça à SEMED para cadastrá-las.</p> : (
             <>
               <label className="block">Categoria<select className="mt-1 block w-full rounded border bg-background p-2" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
                 <option value="">Escolha…</option>{(cats ?? []).map((c) => <option key={c.value_id} value={c.value_id}>{c.label}</option>)}</select></label>

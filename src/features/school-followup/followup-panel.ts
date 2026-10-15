@@ -81,7 +81,7 @@ export function followupMessage(raw: string): string {
   if (raw.includes("session-required")) return "Sua sessão expirou. Entre novamente.";
   if (raw.includes("capability:registrar-acompanhamento-pedagogico")) return "Sua atuação não tem permissão para registrar acompanhamento nesta escola.";
   if (raw.includes("capability:consultar-acompanhamento-pedagogico")) return "Sua atuação não tem permissão para consultar acompanhamentos desta escola.";
-  if (raw.includes("followup:category-not-homologated")) return "Escolha uma categoria aprovada no catálogo.";
+  if (raw.includes("followup:category-not-homologated")) return "Escolha uma categoria da lista.";
   if (raw.includes("followup:subject-not-in-school")) return "Este estudante ou turma não pertence a esta escola.";
   if (raw.includes("followup:only-author-rectifies")) return "Só quem fez o registro pode corrigi-lo ou anulá-lo.";
   if (raw.includes("followup:base-superseded")) return "Este registro já foi corrigido por outra versão. Recarregue.";
