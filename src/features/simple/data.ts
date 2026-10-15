@@ -26,7 +26,7 @@ export function useOptions(key: EntityKey, enabled = true) {
     staleTime: 60_000,
     queryFn: async () => {
       const rows = await readAll(ENTITIES[key].table, key === "classes" ? "id,name,school_id" : "id,name");
-      rows.sort((a, b) => String(a.name).localeCompare(String(b.name), "pt-BR"));
+      rows.sort((a, b) => String(a["name"]).localeCompare(String(b["name"]), "pt-BR"));
       return rows as { id: string; name: string; school_id?: string }[];
     },
   });

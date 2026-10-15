@@ -8,6 +8,7 @@ import { db, deleteRow, saveRow, useOptions } from "./data";
 import { PageTitle } from "./simple-shell";
 
 const PAGE = 30;
+type Opts = { [K in EntityKey]?: { id: string; name: string; school_id?: string }[] | undefined };
 const fmtDate = (v: unknown) => (typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v) ? v.slice(0, 10).split("-").reverse().join("/") : v == null ? "" : String(v));
 
 function useRefMaps(e: Entity) {
@@ -15,7 +16,7 @@ function useRefMaps(e: Entity) {
   const schools = useOptions("schools", refs.includes("schools"));
   const classes = useOptions("classes", refs.includes("classes"));
   const staff = useOptions("staff", refs.includes("staff"));
-  const opts: Partial<Record<EntityKey, { id: string; name: string; school_id?: string }[]>> = { schools: schools.data, classes: classes.data, staff: staff.data };
+  const opts: Opts = { schools: schools.data, classes: classes.data, staff: staff.data };
   const maps = useMemo(() => {
     const m: Partial<Record<EntityKey, Map<string, string>>> = {};
     for (const k of refs) m[k] = new Map((opts[k] ?? []).map((o) => [o.id, o.name]));
@@ -114,7 +115,7 @@ export function EntityPage({ entityKey }: { entityKey: EntityKey }) {
   );
 }
 
-function EntityForm({ e, initial, opts, onDone }: { e: Entity; initial: Record<string, unknown>; opts: Partial<Record<EntityKey, { id: string; name: string; school_id?: string }[]>>; onDone: () => void }) {
+function EntityForm({ e, initial, opts, onDone }: { e: Entity; initial: Record<string, unknown>; opts: Opts; onDone: () => void }) {
   const [v, setV] = useState<Record<string, unknown>>(() => {
     const o: Record<string, unknown> = { id: initial["id"] };
     for (const f of e.fields) o[f.key] = initial[f.key] ?? (f.key === "year" ? 2026 : "");
