@@ -68,4 +68,4 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Testes: `.test.ts` rodam em node e `.test.tsx` em jsdom (projetos em `vitest.config.ts`; `.ts` que precise de DOM entra em `DOM_TS_TESTS`), porque jsdom em tudo custava 70% da suíte.
 
 ## SIGEM Simples (`src/features/simple/`)
-- Telas do dia a dia (`/`, `/cadastro/*`, `/chamada`, `/numeros`) usam só as tabelas `sg_*` com leitura/escrita direta por qualquer conta logada e o `SimpleShell`; cadastros novos entram em `entities.ts`, porque o proprietário pediu sistema direto sem barreiras. Telas antigas ficam em `/avancado`.
+- O design oficial é o AppShell anterior (início em `/`, `/avancado` só redireciona); `/cadastro/*`, `/chamada` e `/numeros` sobre `sg_*` rodam dentro do AppShell e o `SimpleShell` não é montado, porque o proprietário rejeitou o tema separado. Simplificar = menos informação no mesmo visual, nunca outra aparência.
