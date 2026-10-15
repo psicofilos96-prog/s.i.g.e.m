@@ -131,10 +131,10 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
   const baseSearch: DiarySearch = { ...(search.professor ? { professor: search.professor } : {}), unidade: unitId, turma: classId, componente: field, data: date };
 
   return (
-    <div className="diary-premium -m-4 min-h-full bg-dp-bg p-4 text-dp-ink sm:-m-6 sm:p-6">
+    <div className="diary-premium font-sans [&_:is(h1,h2,h3)]:font-sans -m-4 min-h-full bg-dp-bg p-4 text-dp-ink sm:-m-6 sm:p-6">
       {/* Cabeçalho do módulo */}
       <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div className="flex items-start gap-4">
+        <div className="flex shrink-0 items-start gap-4">
           <BookOpen className="mt-1 size-12 shrink-0 text-dp-navy" strokeWidth={1.75} aria-hidden="true" />
           <div>
             <h1 className="whitespace-nowrap text-[32px] font-bold leading-tight tracking-tight text-dp-ink">Diário de Classe</h1>
@@ -146,7 +146,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
             </nav>
           </div>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 xl:flex-nowrap">
           <Field label="Ano Letivo" value={search.ano ?? yearOpts[0]!.value} options={yearOpts} onChange={(v) => set({ ano: v })} />
           <Field label="Escola" value={unitId} options={units} onChange={(v) => set({ unidade: v, turma: undefined, componente: undefined })} />
           <Field label="Turma" value={classId} options={classOpts} onChange={(v) => set({ turma: v, componente: undefined })} />
