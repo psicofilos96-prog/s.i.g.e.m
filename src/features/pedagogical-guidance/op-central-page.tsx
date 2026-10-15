@@ -84,7 +84,7 @@ function SchoolCentral({ schoolId, date }: { schoolId: string; date: string }) {
       </TabsContent>
 
       <TabsContent value="fichas">
-        <AbsenceState kind="nao-configurado" title="Fichas ainda não gravadas" description="A ficha de acompanhamento docente aguarda o registro no banco e a atribuição da capacidade de orientação. Nenhuma ficha é exibida por suposição." />
+        <AbsenceState kind="nao-configurado" title="Fichas ainda não gravadas" description="Ainda não há fichas de acompanhamento dos professores." />
       </TabsContent>
 
       <TabsContent value="planejamentos">
