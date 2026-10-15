@@ -13,9 +13,9 @@ describe("documento Calendário Escolar", () => {
     ).toBeTruthy();
     // Mês/Dia + 31 dias + Total
     expect(container.querySelectorAll("thead th")).toHaveLength(33);
-    // Legenda: 10 itens, sem PP
+    // Legenda: 11 itens (CF e CF T), sem PP
     const legend = screen.getByText("Legenda:").parentElement!;
-    expect(legend.querySelectorAll(".cd-legenda-linha")).toHaveLength(10);
+    expect(legend.querySelectorAll(".cd-legenda-linha")).toHaveLength(11);
     expect(within(legend).queryByText(/Planejamento Pedagógico/)).toBeNull();
     // Rótulos de assinatura sem caixa
     expect(screen.getByText("Secretária Municipal de Educação")).toBeTruthy();

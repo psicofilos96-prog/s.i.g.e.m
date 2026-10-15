@@ -23,6 +23,7 @@ export const DAY_TYPE_CODES = [
   "INICIO",
   "RETORNO",
   "TERMINO",
+  "TERMINO_ANO",
   "CC",
   "CF",
   "CENSO",

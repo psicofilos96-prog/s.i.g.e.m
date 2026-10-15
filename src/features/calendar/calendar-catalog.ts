@@ -71,9 +71,10 @@ export const DAY_TYPES: DayTypeCatalog = {
   }),
   CENSO: t("CENSO", "Dia Nacional do Censo Escolar", "C", "#FFFFFF", "#FF0000", true, "evento", 9, true),
   RETORNO: t("RETORNO", "Retorno às aulas", "RA", "#36A874", "#000000", true, "evento", 10, true),
-  TERMINO: t("TERMINO", "Término do ano letivo", "CF T", "#996633", "#FFFFFF", true, "evento", 11, true, {
+  TERMINO: t("TERMINO", "Conselho de Classe Final / Término do Ano Letivo", "CF T", "#996633", "#FFFFFF", true, "evento", 11, true, {
     councilRole: "conselho-final",
   }),
+  TERMINO_ANO: t("TERMINO_ANO", "Término do Ano Letivo", "T", "#996633", "#FFFFFF", true, "evento", 11, true),
   MESTRE: t("MESTRE", "Dia do Mestre (transferido)", "MESTRE", "#7030A0", "#FFFFFF", false, "evento", 0, false),
   PP: t("PP", "Planejamento Pedagógico / Formação", "PP", "#B8CCE4", "#000000", false, "evento", 12, true),
   PF: t("PF", "Ponto Facultativo", "PF", "#FCD5B4", "#000000", false, "feriado", 13, true),
@@ -83,7 +84,11 @@ export const DAY_TYPES: DayTypeCatalog = {
 export function dayTypesOf(cal: Pick<NetworkCalendar, "dayTypeCatalog"> | null | undefined): DayTypeCatalog {
   const own = cal?.dayTypeCatalog;
   if (!own || Object.keys(own).length === 0) return DAY_TYPES;
-  return { ...DAY_TYPES, ...own };
+  const merged = { ...DAY_TYPES, ...own };
+  // Nome antigo gravado do CF T: o dia combina dois eventos e é exibido pelo texto combinado.
+  const term = merged["TERMINO"];
+  if (term && /^\s*t[ée]rmino do ano letivo\s*$/i.test(term.label)) merged["TERMINO"] = { ...term, label: DAY_TYPES["TERMINO"]!.label };
+  return merged;
 }
 
 /** Tipo desconhecido (removido do catálogo) nunca vira letivo nem some: fica explícito. */
