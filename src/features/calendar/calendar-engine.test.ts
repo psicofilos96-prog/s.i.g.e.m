@@ -11,13 +11,13 @@ describe("alternância de exibição das férias (texto vs marcador)", () => {
     expect(hasFeriasBand).toBe(true);
   });
 
-  it("modo marcador não mescla férias: cada dia aparece como célula individual", () => {
+  it("calendário salvo com o antigo modo marcador também mostra férias em faixa única (decisão do proprietário)", () => {
     const [regular] = createCalendarFixtures();
     const cal = { ...regular!, document: { ...regular!.document, vacationDisplay: "marcador" as const } };
     const proj = deriveCalendarProjection(cal);
     const monthRows = proj.grid.filter((r) => r.kind === "mes") as Array<{ segments: Array<{ kind: string }> }>;
     const hasFeriasBand = monthRows.some((r) => r.segments.some((s) => s.kind === "ferias"));
-    expect(hasFeriasBand).toBe(false);
+    expect(hasFeriasBand).toBe(true);
   });
 
   it("invariante crítico: o total de dias letivos anual é idêntico em ambos os modos", () => {
