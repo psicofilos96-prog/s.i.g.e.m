@@ -41,6 +41,11 @@ export async function locateStudent(school: string, kind: StudentLookupKind, val
   return rows[0] ?? { outcome: "nao-encontrado", student_id: null, display_name: null, active_here: null, active_elsewhere: null };
 }
 
+export interface StudentNameMatch { student_id: string; display_name: string; birth_date: string | null; mother_name: string | null; father_name: string | null; guardian_name: string | null; last_class: string | null; last_grade: string | null; phones: string[] }
+/** Busca na base já cadastrada (planilhas da rede) por nome, com nascimento opcional. */
+export const locateStudentByName = (school: string, name: string, birth: string | null) =>
+  call<StudentNameMatch[]>("locate_student_by_name", { _school: school, _name: name, _birth: birth || null });
+
 export const enrollStudent = (student: string, school: string, year: string, declaredOn: string | null) =>
   call<string>("enroll_student_in_school_year", { _student: student, _school: school, _year: year, _declared_on: declaredOn, _act_ref: null });
 

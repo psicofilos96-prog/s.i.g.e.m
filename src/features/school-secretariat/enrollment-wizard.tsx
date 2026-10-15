@@ -198,19 +198,26 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
   if (ident.existingStudentId) return <p>Aluno já cadastrado: <strong>{ident.existingName ?? "selecionado"}</strong>. Os dados pessoais seguem a ficha existente.</p>;
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">Primeiro confira se o aluno já tem cadastro na rede (busca só por documento, nunca por nome).</p>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={cpf} onChange={setCpf} error={(cpf.trim() && !validCpf(cpf) ? "CPF inválido: confira os 11 dígitos." : undefined) ?? fp.identificacao} />
-        <Field label="Código INEP do aluno" value={inep} onChange={setInep} error={fp.identificacao} />
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" disabled={busy} onClick={() => void search()}>Já tem cadastro? Buscar</Button>
-        <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Guardar documento</Button>
-      </div>
+      <NameSearch school={school} busy={busy} onPick={async (m) => {
+        setFound({ id: m.student_id, name: m.display_name, activeHere: false });
+        edit((x) => ({ ...x, aluno: { ...x.aluno, nome: m.display_name, nascimento: m.birth_date ?? x.aluno?.nascimento },
+          responsaveis: x.responsaveis?.length ? x.responsaveis : [m.mother_name ? { nome: m.mother_name, parentesco: "Mãe", telefone: m.phones[0] ?? "" } : null, m.father_name ? { nome: m.father_name, parentesco: "Pai", telefone: m.phones[1] ?? "" } : null].filter(Boolean) as NonNullable<WizardPayload["responsaveis"]> }));
+      }} />
+      <details className="rounded-md border p-3">
+        <summary className="cursor-pointer text-sm">Buscar por CPF ou INEP</summary>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={cpf} onChange={setCpf} error={(cpf.trim() && !validCpf(cpf) ? "CPF inválido: confira os 11 dígitos." : undefined) ?? fp.identificacao} />
+          <Field label="Código INEP do aluno" value={inep} onChange={setInep} error={fp.identificacao} />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button variant="outline" disabled={busy} onClick={() => void search()}>Buscar</Button>
+          <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Guardar documento</Button>
+        </div>
+      </details>
       {found ? (
-        <div className="rounded-md border p-3">
+        <div className="rounded-md border border-primary/40 bg-primary/5 p-3">
           <p>Encontrado: <strong>{found.name}</strong>{found.activeHere ? " (já matriculado nesta escola neste ano)" : ""}</p>
-          <Button className="mt-2" disabled={busy} onClick={() => void bind(found.id)}>Usar este cadastro</Button>
+          <Button className="mt-2" disabled={busy} onClick={() => void bind(found.id)}>Usar este cadastro e continuar</Button>
         </div>
       ) : null}
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
