@@ -1667,4 +1667,3 @@
   --color-dp-violet-soft: var(--dp-violet-soft);
   --shadow-dp: var(--dp-shadow);
 }
-.diary-premium, .diary-premium :is(h1, h2, h3, h4) { font-family: var(--font-sans); }

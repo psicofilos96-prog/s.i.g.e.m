@@ -131,7 +131,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
   const baseSearch: DiarySearch = { ...(search.professor ? { professor: search.professor } : {}), unidade: unitId, turma: classId, componente: field, data: date };
 
   return (
-    <div className="diary-premium font-sans [&_:is(h1,h2,h3)]:font-sans -m-4 min-h-full bg-dp-bg p-4 text-dp-ink sm:-m-6 sm:p-6">
+    <div className="diary-premium text-dp-ink">
       {/* Cabeçalho do módulo */}
       <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div className="flex shrink-0 items-start gap-4">
