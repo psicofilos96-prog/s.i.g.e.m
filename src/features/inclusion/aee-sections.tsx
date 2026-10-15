@@ -114,7 +114,7 @@ function Sessions({ service }: { service: AeeService }) {
       <p className="text-xs text-muted-foreground">Frequência do AEE é própria do atendimento e não altera a frequência da turma regular.</p>
       {!rows ? <SkeletonState label="Carregando" /> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma sessão registrada.</p> : (
         <ul className="space-y-1">{rows.map((s) => <li key={s.id}>{br(s.session_date)} · {s.event_kind === "anulacao" ? "anulada" : (opts?.find((o) => o.value_id === s.presence_value_id)?.label ?? s.presence_value_id)}{s.version > 1 ? ` · versão ${s.version}` : ""}{s.pedagogical_note ? ` · ${s.pedagogical_note}` : ""}</li>)}</ul>)}
-      {opts && opts.length === 0 ? <p className="text-muted-foreground">Registro de sessão indisponível: o catálogo de presença no AEE ainda não foi homologado.</p> : (
+      {opts && opts.length === 0 ? <p className="text-muted-foreground">Ainda não dá para registrar a presença no AEE: falta cadastrar as opções de presença. Peça à SEMED.</p> : (
         <div className="flex flex-wrap items-end gap-2">
           <label>Data<DateInput value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} /></label>
           <label>Presença<select className={field} value={f.value} onChange={(e) => setF({ ...f, value: e.target.value })}><option value="">Escolha…</option>{(opts ?? []).map((o) => <option key={o.value_id} value={o.value_id}>{o.label}</option>)}</select></label>
