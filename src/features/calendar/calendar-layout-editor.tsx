@@ -319,8 +319,6 @@ export function CalendarAppearanceEditor({
   }, [open]);
 
   const { layout, symbology, vacationDisplay } = h.draft;
-  const setVacationDisplay = (v: "texto" | "marcador") =>
-    h.update("vacationDisplay", (d) => ({ ...d, vacationDisplay: v }));
   const logos = (layout as unknown as { logos?: CalendarLogo[] }).logos ?? DEFAULT_LOGOS;
   const setLogos = (next: CalendarLogo[]) =>
     h.update("logos", (d) => ({ ...d, layout: { ...(d.layout as object), logos: next } as DocumentLayout }));
@@ -515,19 +513,6 @@ export function CalendarAppearanceEditor({
                       }}
                     />
                   ))}
-                </Section>
-                <Section title="Exibição das férias">
-                  <Field label="Modo de exibição" className="col-span-2">
-                    <select
-                      aria-label="Modo de exibição das férias"
-                      value={vacationDisplay}
-                      className={inputCls}
-                      onChange={(e) => setVacationDisplay(e.target.value as "texto" | "marcador")}
-                    >
-                      <option value="texto">Texto por extenso ("FÉRIAS")</option>
-                      <option value="marcador">Marcador por dia ("F")</option>
-                    </select>
-                  </Field>
                 </Section>
                 <Section title="Região do rodapé (Legenda · Feriados · Períodos)">
                   <Num label="Distância da grade" unit="pt" limit="marginPt" value={g.footerTopPt} onChange={(footerTopPt) => setGlobal("ft", { footerTopPt })} />

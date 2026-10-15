@@ -594,7 +594,7 @@ export function buildGrid(
   if (named.length === 0) {
     const cuts = totalColumnCuts(cal.periods, cal.year);
     for (let m = 1; m <= 12; m++)
-      rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m), cal.document.vacationDisplay ?? "texto", cal.periods));
+      rows.push(monthRow(r, m, 1, daysIn(cal.year, m), cuts.get(m), "texto" /* férias sempre em faixa única "FÉRIAS" (decisão do proprietário 2026-10-15) */, cal.periods));
     rows.push({
       kind: "total",
       label: "TOTAL DE DIAS LETIVOS",
@@ -620,7 +620,7 @@ export function buildGrid(
           m === a.m ? a.d : 1,
           m === z.m ? z.d : daysIn(cal.year, m),
           undefined,
-          cal.document.vacationDisplay ?? "texto",
+          "texto" /* férias sempre em faixa única "FÉRIAS" (decisão do proprietário 2026-10-15) */,
           cal.periods,
         ),
       );
