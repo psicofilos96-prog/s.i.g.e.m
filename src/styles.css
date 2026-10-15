@@ -1619,3 +1619,4 @@
 .cx-misto .cx-caixa { overflow: visible; }
 .cx-misto .cx-caixa-corpo { overflow: visible; }
 .cx-misto-meio { display: flex; flex-direction: column; gap: 2mm; min-width: 0; }
+.cx-misto [data-cx-bloco="conselhos"] .cx-caixa-corpo { font-size: 7.6pt; }
