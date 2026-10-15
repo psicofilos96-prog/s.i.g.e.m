@@ -628,8 +628,8 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
             {g.total && <tr className="cf-sem-total"><th scope="row" colSpan={4}>Total do {g.label?.toLowerCase()}</th><td className="cf-per-num" title={g.total.reason ?? ""}>{countText(g.total)}{g.total.schoolDays !== null ? " dias" : ""}</td></tr>}
           </Fragment>)}</tbody></table>
           <p className="cf-total">{t.semesters ? "Total anual" : "Total de dias letivos"} = <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b>{vm.total.schoolDays !== null ? " dias" : ""}</p>
-          {!B.conselhos.visible && vm.councils.state === "configurada" && vm.councils.items.length > 0 && <ul className="cf-per-cons-grade">
-            {vm.councils.items.map((i, _n, all) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{councilItemText(i.name, i.on, all)}</span></li>)}</ul>}
+          {!B.conselhos.visible && vm.councils.state === "configurada" && vm.councils.items.length > 0 && <ul className="cf-per-cons-grade" style={{ gridAutoFlow: "column", gridTemplateRows: `repeat(${Math.ceil(vm.councils.items.length / 2)}, auto)` }}>
+            {[...vm.councils.items].sort((a, b) => a.on.localeCompare(b.on)).map((i, _n, all) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{councilItemText(i.name, i.on, all)}</span></li>)}</ul>}
           {!B.conselhos.visible && vm.councils.state !== "configurada" && <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
         </div> :
         <div className={`cf-periodos cf-${B.periodos.style.orientation}`}>
