@@ -264,7 +264,7 @@ describe("navegação do Diário com chamada", () => {
   });
   it("frequência exibe separação de aulas e aviso normativo", async () => {
     renderDiary("/diario/frequencia");
-    expect(await screen.findByText("Regras de contabilização não homologadas")).toBeInTheDocument();
+    expect(await screen.findByText("Regras de contagem ainda não cadastradas")).toBeInTheDocument();
     expect(screen.getAllByText("Com chamada concluída").length).toBeGreaterThan(0);
   });
 });
