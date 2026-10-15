@@ -66,9 +66,10 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
                   const fer = (n: number) => { const x = byDay.get(n); return x?.symbolCode && typeInfo(types, x.symbolCode as never).kind === "ferias" ? x.symbolCode : null; };
                   const fc = fer(i + 1);
                   if (fc) {
-                    if (fer(i) === fc) return null;
+                    let b = i + 1; while (fer(b - 1) === fc) b--;
                     let e = i + 1; while (fer(e + 1) === fc) e++;
-                    const len = e - i;
+                    const len = e - b + 1;
+                    if (len >= 3 && b !== i + 1) return null;
                     if (len >= 3) return <td key={i} className="cd-ferias" colSpan={len} data-date={d!.on} aria-label={`Férias — ${len} dias`}>FÉRIAS</td>;
                   }
                   if (!d) return <td key={i} className="cd-dia cd-inexistente" aria-hidden />;
