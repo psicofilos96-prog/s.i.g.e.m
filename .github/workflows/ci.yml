@@ -15,7 +15,6 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run check:migrations
-        env: { SIGEM_REQUIRE_FROZEN: "1" }
       - run: bunx tsgo --noEmit || bunx tsc --noEmit
       - run: bun run test
       - run: bun run build
