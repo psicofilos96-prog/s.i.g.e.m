@@ -267,7 +267,7 @@ export function DayMark({
   const one = (s: MarkerSymbology, delta: SymbologyDeltaMap | undefined) => {
     const own = where === "legenda" ? (s.legendText ?? s.text ?? text) : (s.text ?? text);
     const legendMarker = where === "legenda" ? { ...s, representation: "marcador" as const } : s;
-    const list = where === "grade" ? [...(s.companions ?? []), ...(extra ?? [])] : [];
+    const list = where === "grade" ? [...(s.companions ?? []), ...(extra ?? [])] : [...(s.companions ?? [])];
     const main = <Glyph s={legendMarker} code={code} text={own} types={types} />;
     if (list.length === 0) return main;
     return (
