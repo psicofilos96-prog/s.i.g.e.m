@@ -516,19 +516,6 @@ export function CalendarAppearanceEditor({
                     />
                   ))}
                 </Section>
-                <Section title="Exibição das férias">
-                  <Field label="Modo de exibição" className="col-span-2">
-                    <select
-                      aria-label="Modo de exibição das férias"
-                      value={vacationDisplay}
-                      className={inputCls}
-                      onChange={(e) => setVacationDisplay(e.target.value as "texto" | "marcador")}
-                    >
-                      <option value="texto">Texto por extenso ("FÉRIAS")</option>
-                      <option value="marcador">Marcador por dia ("F")</option>
-                    </select>
-                  </Field>
-                </Section>
                 <Section title="Região do rodapé (Legenda · Feriados · Períodos)">
                   <Num label="Distância da grade" unit="pt" limit="marginPt" value={g.footerTopPt} onChange={(footerTopPt) => setGlobal("ft", { footerTopPt })} />
                   <Num label="Entre colunas" unit="pt" limit="gapPt" value={g.footerGapPt} onChange={(footerGapPt) => setGlobal("fg", { footerGapPt })} />
