@@ -548,8 +548,8 @@ export function sheetSemesters(months: readonly ExternalMonth[]) {
   const cut = months.findIndex((m) => m.split);
   const end1 = cut >= 0 ? cut + 1 : 6, start2 = cut >= 0 ? cut : 6;
   return [
-    { months: months.slice(0, end1), part: 0 as const, label: "TOTAL DE DIAS LETIVOS DO 1º SEMESTRE", key: "s1" },
-    { months: months.slice(start2), part: 1 as const, label: "TOTAL DE DIAS LETIVOS DO 2º SEMESTRE", key: "s2" },
+    { months: months.slice(0, end1), part: 0 as const, label: "TOTAL DE DIAS LETIVOS DO 1º SEMESTRE", key: "s1", cutKey: months[cut]?.key },
+    { months: months.slice(start2), part: 1 as const, label: "TOTAL DE DIAS LETIVOS DO 2º SEMESTRE", key: "s2", cutKey: months[cut]?.key },
   ];
 }
 /** Agrupa períodos pelo semestre da data de início (jan–jun = 1º, jul–dez = 2º). */
@@ -601,7 +601,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
           {vm.months.map((m) => <MonthCard key={m.key} m={m} types={types} p={p} />)}</div> :
         <div className={t.semesters ? "cf-semestres" : "cf-matriz-wrap"} style={{ display: "flex", flexDirection: "column", gap: "1.2mm", flex: 1, minHeight: 0, height: "100%" }}>
         {(t.semesters ? sheetSemesters(vm.months)
-          : [{ months: vm.months, part: undefined, label: "TOTAL DE DIAS LETIVOS", key: "geral" }]).map((g) => { const tot = g.key === "geral" ? vm.total : semesterTotal(g.months, g.part);
+          : [{ months: vm.months, part: undefined, label: "TOTAL DE DIAS LETIVOS", key: "geral", cutKey: undefined }]).map((g) => { const tot = g.key === "geral" ? vm.total : semesterTotal(g.months, g.part);
           return <table key={g.key} className={`cf-matriz${manual ? " cf-manual" : ""}`} style={{ ...tableStyle, ...(!manual ? { height: t.semesters ? "calc(50% - 0.6mm)" : "100%" } : {}) }}>
           <colgroup><col style={{ width: mm(t.monthColMm) }} />{cols.map((c) => <col key={c} />)}{p.show.totaisMensais && t.totalColMm > 0 && <col style={{ width: mm(t.totalColMm) }} />}</colgroup>
           <thead style={{ fontSize: `${t.headPt}pt` }}><tr><th scope="col">Mês / Dia</th>{cols.map((c) => <th key={c} scope="col" style={cell ? { width: cell.width, minWidth: cell.minWidth } : undefined}>{c}</th>)}
@@ -609,7 +609,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
           <tbody>{g.months.map((m) => { const bands = bandsOf(m, types, p);
             return <tr key={`${g.key}-${m.key}`} data-month={m.key} style={cell ? { height: cell.height } : undefined}>
               <th scope="row" style={{ fontSize: `${t.monthPt}pt` }}>{m.name}</th>
-              {cols.map((n) => n > m.daysInMonth || (m.splitAt !== undefined && g.part !== undefined && (g.part === 0 ? n >= m.splitAt : n < m.splitAt)) ? <td key={n} className="cx-dia cx-inexistente" aria-hidden />
+              {cols.map((n) => n > m.daysInMonth || (m.splitAt !== undefined && g.part !== undefined && m.key === g.cutKey && (g.part === 0 ? n >= m.splitAt : n < m.splitAt)) ? <td key={n} className="cx-dia cx-inexistente" aria-hidden />
                 : <DayCell key={n} d={m.byDay.get(n)} n={n} types={types} p={p} weekend={[0, 6].includes((m.firstWeekday + n - 1) % 7)} mode={t.showDayNumbers ? "numero" : "sigla"} band={t.showDayNumbers ? null : bands.get(n) ?? null} />)}
               {p.show.totaisMensais && t.totalColMm > 0 && <td className="cx-total" data-testid={`cx-total-${m.key}`} title={m.total.reason ?? ""}>{m.split ? (g.part !== undefined ? m.split[g.part] : <span className="cx-split"><span>{m.split[0]}</span><span>{m.split[1]}</span></span>) : countText(m.total)}</td>}
             </tr>; })}</tbody>
