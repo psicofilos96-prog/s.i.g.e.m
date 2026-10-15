@@ -1,4 +1,4 @@
-import { finalCouncilText } from "./calendar-final-council-label";
+import { finalCouncilText, legendLabel, withFinalTerminoLegend } from "./calendar-final-council-label";
 /**
  * Documento "Calendário Escolar" — reprodução fiel do modelo interno da
  * Supervisão (grade-calendario.tsx da especificação). A tela administrativa
@@ -339,7 +339,7 @@ export function CalendarDocument({
       <div className="cd-rodape">
         <div data-cd-bloco="legenda">
           <h4 className="cd-titulo-bloco">Legenda:</h4>
-          {legend.map((code) => {
+          {withFinalTerminoLegend(legend).map((code) => {
             const info = typeInfo(dayTypesOf(cal), code);
             return (
               <div key={code} className="cd-legenda-linha">
@@ -349,7 +349,7 @@ export function CalendarDocument({
                 >
                   <DayMark code={code} text={info.mark} overrides={cal.symbology} where="legenda" />
                 </div>
-                <div>{finalCouncilText(info.label)}</div>
+                <div>{legendLabel(code, info.label)}</div>
               </div>
             );
           })}
@@ -361,7 +361,7 @@ export function CalendarDocument({
               >
                 {c.mark}
               </div>
-              <div>{finalCouncilText(c.label)}</div>
+              <div>{c.label}</div>
             </div>
           ))}
         </div>

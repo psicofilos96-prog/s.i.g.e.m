@@ -1,4 +1,4 @@
-import { finalCouncilText } from "./calendar-final-council-label";
+import { finalCouncilText, legendLabel, withFinalTerminoLegend } from "./calendar-final-council-label";
 /**
  * CAL.EXT.1 / N2 — Folhas dos modelos externos (Panorâmico e Mosaico), desenhadas conforme os dois prompts-guia
  * do usuário. Consomem SÓ `ExternalViewModel` (derivado de `PrintModel`) e o perfil visual; não tocam no renderer
@@ -35,7 +35,7 @@ function visualOf(code: string, types: Types, p: ExternalProfile) {
   const known = Object.prototype.hasOwnProperty.call(types, code);
   const t = typeInfo(types, code as never);
   const o = p.symbolOverrides[code] ?? {};
-  return { mark: known ? t.mark : code, label: finalCouncilText(t.label), bg: o.background ?? t.background, fg: o.foreground ?? t.foreground, known, kind: known ? t.kind : null };
+  return { mark: known ? t.mark : code, label: legendLabel(code, t.label), bg: o.background ?? t.background, fg: o.foreground ?? t.foreground, known, kind: known ? t.kind : null };
 }
 
 type CellMode = "numero" | "sigla";
@@ -143,7 +143,7 @@ function Box({ title, bloco, children, className = "", fit = true, scale = 1 }: 
 }
 
 function Legend({ vm, types, p, vertical }: { vm: ExternalViewModel; types: Types; p: ExternalProfile; vertical?: boolean }) {
-  const codes = externalLegendCodes(vm, (c) => visualOf(c, types, p));
+  const codes = withFinalTerminoLegend(externalLegendCodes(vm, (c) => visualOf(c, types, p)));
   const anyUnsure = vm.days.some((d) => d.effect !== "letivo" && d.effect !== "nao-letivo" && d.effect !== "sem-declaracao");
   return (
     <Box title="Legenda" bloco="legenda" scale={p.typeScale.legend}>
@@ -570,7 +570,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
   const topImg = f.photo.top ?? (f.photo.useDefaultTop ? homeImage.url : null);
   const title = p.visualTitle ?? "CALENDÁRIO ESCOLAR";
   const year = vm.year !== null && !title.includes(String(vm.year)) ? ` ${vm.year}` : "";
-  const legend = externalLegendCodes(vm, (c) => visualOf(c, types, p));
+  const legend = withFinalTerminoLegend(externalLegendCodes(vm, (c) => visualOf(c, types, p)));
   const common = (k: FreeBlockId) => ({ id: k, b: B[k], p, selected: selected === k, onSelect, onMove });
   const manual = t.mode === "manual";
   const tableStyle: CSSProperties = { fontSize: `${t.dayPt}pt`, ...(manual ? { width: "auto", height: "auto" } : {}), ["--cf-div" as string]: mm(t.dividerMm) } as CSSProperties;
