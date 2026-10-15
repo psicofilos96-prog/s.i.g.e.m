@@ -269,18 +269,20 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-[13px]">
+                <caption className="sr-only">Estudantes da turma com frequência do dia</caption>
                 <thead className="bg-dp-head text-left text-xs font-semibold">
                   <tr>
-                    <th rowSpan={2} className="w-12 px-3 py-2">Nº</th>
-                    <th rowSpan={2} className="px-3 py-2">Estudante ({students.length})</th>
-                    <th colSpan={Math.max(1, slots.length)} className="border-l border-dp-line px-3 py-1 text-center">Frequência</th>
-                    <th rowSpan={2} className="border-l border-dp-line px-3 py-2">Avaliações</th>
-                    <th rowSpan={2} className="w-24 px-3 py-2 text-center">Ações</th>
+                    <th scope="col" rowSpan={2} className="w-12 px-3 py-2">Nº</th>
+                    <th scope="col" rowSpan={2} className="px-3 py-2">Estudante ({students.length})</th>
+                    <th scope="colgroup" colSpan={Math.max(1, slots.length)} className="border-l border-dp-line px-3 py-1 text-center">Frequência</th>
+                    <th scope="col" rowSpan={2} className="border-l border-dp-line px-3 py-2">Avaliações</th>
+                    <th scope="col" rowSpan={2} className="w-24 px-3 py-2 text-center">Ações</th>
                   </tr>
                   <tr>
                     {slots.length
-                      ? slots.map((s) => <th key={`${s.entryId}-${s.key}`} className="border-l border-dp-line px-2 py-1 text-center font-medium">{s.label.replace("Aula ", "")}ª aula</th>)
-                      : <th className="border-l border-dp-line px-2 py-1 text-center font-medium text-dp-muted">sem aula registrada</th>}
+                      ? slots.map((s) => <th scope="col" key={`${s.entryId}-${s.key}`} className="border-l border-dp-line px-2 py-1 text-center font-medium">{s.label.replace("Aula ", "")}ª aula</th>)
+                      
+                      : <th scope="col" className="border-l border-dp-line px-2 py-1 text-center font-medium text-dp-muted">sem aula registrada</th>}
                   </tr>
                 </thead>
                 <tbody>
