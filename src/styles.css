@@ -1412,6 +1412,9 @@
 }
 .cf-livre .cf-matriz td.cx-faixa-ini, .cf-livre .cf-matriz td.cx-faixa-unico { overflow: visible; z-index: 2; }
 .cf-livre .cf-matriz .cx-faixa-txt { z-index: 3; color: inherit; }
+/* Férias lisas: sem linhas internas entre os dias da faixa */
+.cx-matriz td.cx-faixa.cx-faixa-ini, .cx-matriz td.cx-faixa.cx-faixa-meio, .cf-livre .cf-matriz td.cx-faixa.cx-faixa-ini, .cf-livre .cf-matriz td.cx-faixa.cx-faixa-meio { border-right-color: transparent !important; }
+.cx-matriz td.cx-faixa.cx-faixa-meio, .cx-matriz td.cx-faixa.cx-faixa-fim, .cf-livre .cf-matriz td.cx-faixa.cx-faixa-meio, .cf-livre .cf-matriz td.cx-faixa.cx-faixa-fim { border-left-color: transparent !important; }
 .cx-split { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
 .cx-split > span { text-align: center; }
 .cx-split > span + span { border-left: 0.15mm solid color-mix(in srgb, currentColor 45%, transparent); }
