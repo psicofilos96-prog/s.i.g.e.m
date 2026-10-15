@@ -43697,6 +43697,20 @@ export type Database = {
           person_id: string
         }[]
       }
+      locate_student_by_name: {
+        Args: { _birth?: string; _name: string; _school: string }
+        Returns: {
+          birth_date: string
+          display_name: string
+          father_name: string
+          guardian_name: string
+          last_class: string
+          last_grade: string
+          mother_name: string
+          phones: string[]
+          student_id: string
+        }[]
+      }
       locate_student_exact: {
         Args: { _kind: string; _school: string; _value: string; _year: string }
         Returns: {

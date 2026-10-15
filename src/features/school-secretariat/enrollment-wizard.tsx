@@ -6,7 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { createAutosave, type AutosaveStatus } from "@/features/autosave/autosave-controller";
-import { readYears, locateStudent, type YearOption } from "@/features/year-transition/year-transition-source";
+import { readYears, locateStudent, locateStudentByName, type StudentNameMatch, type YearOption } from "@/features/year-transition/year-transition-source";
 import { readSchoolLife } from "./secretariat-source";
 import { lifeKindLabel } from "./secretariat";
 import { WIZARD_STEPS, canComplete, fieldProblems, missingByStep, photoPath, photoProblem, seatLabel, sniffImage, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
@@ -198,19 +198,26 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
   if (ident.existingStudentId) return <p>Aluno já cadastrado: <strong>{ident.existingName ?? "selecionado"}</strong>. Os dados pessoais seguem a ficha existente.</p>;
   return (
     <div className="space-y-3">
-      <p className="text-sm text-muted-foreground">Primeiro confira se o aluno já tem cadastro na rede (busca só por documento, nunca por nome).</p>
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={cpf} onChange={setCpf} error={(cpf.trim() && !validCpf(cpf) ? "CPF inválido: confira os 11 dígitos." : undefined) ?? fp.identificacao} />
-        <Field label="Código INEP do aluno" value={inep} onChange={setInep} error={fp.identificacao} />
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button variant="outline" disabled={busy} onClick={() => void search()}>Já tem cadastro? Buscar</Button>
-        <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Guardar documento</Button>
-      </div>
+      <NameSearch school={school} busy={busy} onPick={async (m) => {
+        setFound({ id: m.student_id, name: m.display_name, activeHere: false });
+        edit((x) => ({ ...x, aluno: { ...x.aluno, nome: m.display_name, ...(m.birth_date ? { nascimento: m.birth_date } : {}) },
+          responsaveis: x.responsaveis?.length ? x.responsaveis : [m.mother_name ? { nome: m.mother_name, parentesco: "Mãe", telefone: m.phones[0] ?? "" } : null, m.father_name ? { nome: m.father_name, parentesco: "Pai", telefone: m.phones[1] ?? "" } : null].filter(Boolean) as NonNullable<WizardPayload["responsaveis"]> }));
+      }} />
+      <details className="rounded-md border p-3">
+        <summary className="cursor-pointer text-sm">Buscar por CPF ou INEP</summary>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={cpf} onChange={setCpf} error={(cpf.trim() && !validCpf(cpf) ? "CPF inválido: confira os 11 dígitos." : undefined) ?? fp.identificacao} />
+          <Field label="Código INEP do aluno" value={inep} onChange={setInep} error={fp.identificacao} />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Button variant="outline" disabled={busy} onClick={() => void search()}>Buscar</Button>
+          <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Guardar documento</Button>
+        </div>
+      </details>
       {found ? (
-        <div className="rounded-md border p-3">
+        <div className="rounded-md border border-primary/40 bg-primary/5 p-3">
           <p>Encontrado: <strong>{found.name}</strong>{found.activeHere ? " (já matriculado nesta escola neste ano)" : ""}</p>
-          <Button className="mt-2" disabled={busy} onClick={() => void bind(found.id)}>Usar este cadastro</Button>
+          <Button className="mt-2" disabled={busy} onClick={() => void bind(found.id)}>Usar este cadastro e continuar</Button>
         </div>
       ) : null}
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
@@ -410,6 +417,45 @@ function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: s
         {busy ? <p className="text-xs text-muted-foreground">Enviando…</p> : null}
         {err ? <p role="alert" className="text-xs text-destructive">{err}</p> : null}
       </div>
+    </div>
+  );
+}
+
+/** Procura o aluno na base já cadastrada (planilhas da rede) e traz os dados para continuar. */
+function NameSearch({ school, busy, onPick }: { school: string; busy: boolean; onPick: (m: StudentNameMatch) => void | Promise<void> }) {
+  const [name, setName] = useState(""); const [birth, setBirth] = useState("");
+  const [rows, setRows] = useState<StudentNameMatch[] | null>(null); const [msg, setMsg] = useState(""); const [loading, setLoading] = useState(false);
+  async function run() {
+    setMsg(""); setRows(null);
+    if (name.trim().split(/\s+/).length < 2) { setMsg("Digite nome e sobrenome."); return; }
+    setLoading(true);
+    try { const r = await locateStudentByName(school, name.trim(), birth || null); setRows(r); if (!r.length) setMsg("Nenhum aluno encontrado. Pode cadastrar como novo abaixo."); }
+    catch (e) { setMsg(wizardMessage(e)); } finally { setLoading(false); }
+  }
+  return (
+    <div className="space-y-3 rounded-md border bg-muted/30 p-3">
+      <p className="text-sm font-medium">Procure o aluno: os dados já cadastrados aparecem prontos.</p>
+      <div className="grid gap-3 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
+        <Field label="Nome do aluno" value={name} onChange={setName} />
+        <Field label="Nascimento (opcional)" type="date" value={birth} onChange={setBirth} />
+        <Button disabled={busy || loading} onClick={() => void run()}>{loading ? "Buscando…" : "Buscar"}</Button>
+      </div>
+      {msg ? <p role="status" className="text-sm">{msg}</p> : null}
+      {rows?.length ? (
+        <ul className="divide-y rounded-md border bg-background">
+          {rows.map((m) => (
+            <li key={m.student_id} className="flex flex-wrap items-center justify-between gap-2 p-3">
+              <span>
+                <strong>{m.display_name}</strong>
+                <span className="block text-xs text-muted-foreground">
+                  {[m.birth_date ? `Nasc. ${m.birth_date.split("-").reverse().join("/")}` : null, m.mother_name ? `Mãe: ${m.mother_name}` : null, m.last_grade ?? m.last_class].filter(Boolean).join(" · ")}
+                </span>
+              </span>
+              <Button size="sm" variant="outline" onClick={() => { void onPick(m); setRows(null); }}>Selecionar</Button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }
