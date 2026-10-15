@@ -23,6 +23,56 @@ const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 
 const Count = ({ c }: { c: PrintCount }) =>
   c.schoolDays === null ? <span className="cd-indeterminado" title={c.reason ?? ""}>indeterminado</span> : <>{c.schoolDays}</>;
 
+type GridRowI =
+  | { kind: "mes"; key: string; month: PrintModel["months"][number]; from: string; to: string; split: boolean }
+  | { kind: "total"; key: string; label: string; total: PrintCount };
+
+/** Conta dias letivos do intervalo; qualquer dia não determinado torna o total indeterminado (nunca 0). */
+export function countRange(days: readonly PrintModel["months"][number]["days"][number][], from: string, to: string): PrintCount {
+  let n = 0;
+  for (const d of days) {
+    if (d.on < from || d.on > to) continue;
+    if (d.effect !== "letivo" && d.effect !== "nao-letivo") return { schoolDays: null, reason: `${d.on}: ${d.effect}` };
+    if (d.effect === "letivo") n++;
+  }
+  return { schoolDays: n, reason: null };
+}
+
+const prevDay = (iso: string) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
+
+/**
+ * Linhas da grade igual ao interno do laboratório: com grupos de períodos (ex.: semestres) declarados na
+ * apresentação, cada grupo tem seus meses (o mês dividido aparece nos dois, escuro fora do intervalo) e uma
+ * faixa de total; sem grupos, os 12 meses seguidos.
+ */
+export function gridRows(model: PrintModel, presentation: Record<string, unknown>, year: number | null): GridRowI[] {
+  const groups = Array.isArray(presentation["periodGroups"]) ? (presentation["periodGroups"] as Record<string, unknown>[]) : [];
+  const periods = Array.isArray(presentation["periods"]) ? (presentation["periods"] as Record<string, unknown>[]) : [];
+  const named = groups
+    .map((g) => {
+      const starts = periods.filter((p) => p["groupId"] === g["id"] && typeof p["start"] === "string").map((p) => p["start"] as string).sort();
+      return { id: String(g["id"]), order: typeof g["order"] === "number" ? g["order"] : 0, label: typeof g["totalLabel"] === "string" ? g["totalLabel"] : String(g["name"] ?? ""), start: starts[0] };
+    })
+    .filter((g): g is typeof g & { start: string } => !!g.start)
+    .sort((a, b) => a.order - b.order || a.start.localeCompare(b.start));
+  const y = year ?? Number(model.months[0]?.key.slice(0, 4));
+  if (named.length < 2 || !y) return model.months.map((m) => ({ kind: "mes", key: m.key, month: m, from: `${m.key}-01`, to: `${m.key}-31`, split: false }));
+  const rows: GridRowI[] = [];
+  let from = `${y}-01-01`;
+  named.forEach((g, i) => {
+    const to = named[i + 1] ? prevDay(named[i + 1]!.start) : `${y}-12-31`;
+    const all: PrintModel["months"][number]["days"][number][] = [];
+    for (const m of model.months) {
+      if (`${m.key}-31` < from || `${m.key}-01` > to) continue;
+      rows.push({ kind: "mes", key: `${g.id}-${m.key}`, month: m, from, to, split: true });
+      all.push(...m.days);
+    }
+    rows.push({ kind: "total", key: `${g.id}-total`, label: g.label, total: countRange(all, from, to) });
+    from = named[i + 1]?.start ?? from;
+  });
+  return rows;
+}
+
 export function InstitutionalPrintSheet({ model, presentation, versionId = "institucional", footer }: {
   model: PrintModel; presentation: Record<string, unknown>; versionId?: string;
   /** Terceiro modelo: substitui só a parte abaixo da tabela pelos quadros do externo. */
@@ -56,10 +106,18 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
         <colgroup><col className="cd-col-mes" />{Array.from({ length: 31 }, (_, i) => <col key={i} className="cd-col-dia" />)}<col className="cd-col-total" /><col className="cd-col-total" /></colgroup>
         <thead><tr><th scope="col" className="cd-mesdia">Mês/Dia</th>{Array.from({ length: 31 }, (_, i) => <th scope="col" key={i}>{i + 1}</th>)}<th scope="col" className="cd-total-cab" colSpan={2}>Total de<br />dias letivos</th></tr></thead>
         <tbody>
-          {model.months.map((m) => {
-            const byDay = new Map(m.days.map((d) => [Number(d.on.slice(8, 10)), d]));
+          {gridRows(model, presentation, year).map((row) => {
+            if (row.kind === "total") return (
+              <tr key={row.key} className="cd-faixa">
+                <td className="cd-faixa-rotulo" colSpan={32}>{row.label}</td>
+                <td colSpan={2}><Count c={row.total} /></td>
+              </tr>
+            );
+            const m = row.month;
+            const inRange = (on: string) => on >= row.from && on <= row.to;
+            const byDay = new Map(m.days.filter((d) => inRange(d.on)).map((d) => [Number(d.on.slice(8, 10)), d]));
             return (
-              <tr key={m.key}>
+              <tr key={row.key}>
                 <td className="cd-mes">{MONTHS[Number(m.key.slice(5, 7)) - 1]}</td>
                 {Array.from({ length: 31 }, (_, i) => {
                   const d = byDay.get(i + 1);
@@ -83,7 +141,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
                     </td>
                   );
                 })}
-                <td className="cd-total" colSpan={2}><Count c={m.total} /></td>
+                <td className="cd-total" colSpan={2}><Count c={row.split ? countRange(m.days, row.from, row.to) : m.total} /></td>
               </tr>
             );
           })}
