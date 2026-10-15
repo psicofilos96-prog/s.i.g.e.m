@@ -124,6 +124,8 @@ afterEach(() => vi.useRealTimers());
 describe("B4.10.0d — referência de consulta e knownAt único", () => {
   it("data histórica distinta do relógio: mesma data e UM knownAt até class_at, class_shift_at e grade", async () => {
     signedIn("uA");
+    // O Diário só lê cadastro/turno das turmas em que a pessoa atua.
+    m.dataset = dataset("D", { institutional_engagements: [{ id: "eng-t1", person_id: "pA", class_id: "t1", component_id: null, period_id: null, valid_from: "2020-01-01", valid_until: null, created_at: "2020-01-01T00:00:00Z" }] });
     const view = render(tree("2025-05-10"));
     await flush();
     const st = diarySessionState();

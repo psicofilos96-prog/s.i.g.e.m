@@ -132,6 +132,13 @@ export function enterDiaryContext(target: DiarySessionTarget) {
   void loadContext(mine, target, reference);
 }
 
+/** Escolas das turmas do professor; se alguma atuação aponta turma sem cadastro legível, lê todas (sem perder alunos). */
+function rosterSchools(teaching: Awaited<ReturnType<typeof readInstitutionalTeaching>>): string[] | undefined {
+  const bySchool = new Map(teaching.classes.map((c) => [c.id, c.schoolId]));
+  if (teaching.assignments.some((a) => !bySchool.has(a.classId))) return undefined;
+  return [...new Set(bySchool.values())];
+}
+
 async function loadContext(
   mine: number,
   target: Extract<DiarySessionTarget, { kind: "conta" }>,
@@ -144,7 +151,7 @@ async function loadContext(
     const teaching = await readInstitutionalTeaching(target.userId, t);
     // Estudantes só das escolas das turmas do professor (antes: todas as escolas da rede).
     const [roster, diary] = await Promise.all([
-      readInstitutionalRoster(t, [...new Set(teaching.classes.map((c) => c.schoolId))]),
+      readInstitutionalRoster(t, rosterSchools(teaching)),
       diaryP,
     ]);
     if (diaryGeneration() !== mine) return; // contexto trocado/desmontado: descarta antes de qualquer mutação
