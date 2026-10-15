@@ -1620,3 +1620,49 @@
 .cx-misto .cx-caixa-corpo { overflow: visible; }
 .cx-misto-meio { display: flex; flex-direction: column; gap: 2mm; min-width: 0; }
 .cx-misto [data-cx-bloco="conselhos"] .cx-caixa-corpo { font-size: 7.6pt; }
+
+/* Diário de Classe — identidade "premium" com escopo próprio (.diary-premium). */
+.diary-premium {
+  --dp-navy: oklch(0.27 0.06 255);
+  --dp-ink: oklch(0.24 0.05 258);
+  --dp-ink-2: oklch(0.45 0.03 257);
+  --dp-muted: oklch(0.55 0.03 257);
+  --dp-bg: oklch(0.973 0.006 250);
+  --dp-surface-2: oklch(0.984 0.004 250);
+  --dp-head: oklch(0.955 0.012 250);
+  --dp-line: oklch(0.925 0.013 255);
+  --dp-action: oklch(0.55 0.22 263);
+  --dp-action-hover: oklch(0.49 0.22 264);
+  --dp-select: oklch(0.93 0.04 255);
+  --dp-ok: oklch(0.6 0.16 150);
+  --dp-ok-soft: oklch(0.95 0.05 150);
+  --dp-bad: oklch(0.58 0.22 27);
+  --dp-bad-soft: oklch(0.95 0.03 25);
+  --dp-warn: oklch(0.55 0.14 70);
+  --dp-warn-soft: oklch(0.95 0.07 85);
+  --dp-violet: oklch(0.54 0.25 293);
+  --dp-violet-soft: oklch(0.95 0.03 295);
+  --dp-shadow: 0 1px 2px color-mix(in oklab, var(--dp-navy) 6%, transparent), 0 4px 14px -6px color-mix(in oklab, var(--dp-navy) 12%, transparent);
+}
+@theme inline {
+  --color-dp-navy: var(--dp-navy);
+  --color-dp-ink: var(--dp-ink);
+  --color-dp-ink-2: var(--dp-ink-2);
+  --color-dp-muted: var(--dp-muted);
+  --color-dp-bg: var(--dp-bg);
+  --color-dp-surface-2: var(--dp-surface-2);
+  --color-dp-head: var(--dp-head);
+  --color-dp-line: var(--dp-line);
+  --color-dp-action: var(--dp-action);
+  --color-dp-action-hover: var(--dp-action-hover);
+  --color-dp-select: var(--dp-select);
+  --color-dp-ok: var(--dp-ok);
+  --color-dp-ok-soft: var(--dp-ok-soft);
+  --color-dp-bad: var(--dp-bad);
+  --color-dp-bad-soft: var(--dp-bad-soft);
+  --color-dp-warn: var(--dp-warn);
+  --color-dp-warn-soft: var(--dp-warn-soft);
+  --color-dp-violet: var(--dp-violet);
+  --color-dp-violet-soft: var(--dp-violet-soft);
+  --shadow-dp: var(--dp-shadow);
+}
