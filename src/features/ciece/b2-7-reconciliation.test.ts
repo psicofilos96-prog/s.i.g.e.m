@@ -151,6 +151,7 @@ describe("B2.7 — Diário institucional", () => {
     setDiaryPersistenceMode("cloud");
     tableImpl = (t) => t === "user_person_links" ? { data: [{ person_id: "p1" }], error: null }
       : t === "institutional_classes" ? { data: [{ id: "t1", school_id: "e1", academic_year_id: "a1" }], error: null }
+      : t === "institutional_engagements" ? { data: [{ id: "g1", person_id: "p1", class_id: "t1", component_id: null, period_id: null, valid_from: "2026-01-01", valid_until: null, created_at: "2026-01-01T00:00:00Z" }], error: null }
       : { data: [], error: null };
     rpcImpl = (fn) => ({ data: fn === "class_at" ? [{ name: "6A", code: null, administrative_status: "ativa", created_at: "t" }] : [], error: null });
     await hydrateInstitutionalTeaching("u1", { validOn: "2026-03-02", knownAt: "2026-03-02T12:00:00.000Z" });

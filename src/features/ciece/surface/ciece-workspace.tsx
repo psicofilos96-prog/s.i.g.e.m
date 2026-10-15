@@ -267,7 +267,7 @@ export function CieceWorkspace({ source, catalog, initialReference, tasks }: { s
         <summary className="cursor-pointer text-base font-semibold text-foreground">Consultar indicadores</summary>
         <div className="mt-3 space-y-6">
       {catalog.scopes.length === 0 ? (
-        <StatePanel tone="neutral" title={STATE_PRESENTATION["nao-autorizado"].label} description="Nenhuma turma está no seu escopo analítico. Uma atuação vigente com a capacidade de consulta agregada, concedida por política homologada, é necessária." />
+        <StatePanel tone="neutral" title={STATE_PRESENTATION["nao-autorizado"].label} description="Sua conta ainda não pode consultar os números das turmas. Peça ao administrador do SIGEM." />
       ) : (
         <>
           <section aria-label="Exploração" className="grid gap-3 rounded-md border border-border/70 p-3 sm:grid-cols-2 lg:grid-cols-4">
