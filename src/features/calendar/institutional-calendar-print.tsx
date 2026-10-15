@@ -63,6 +63,15 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
                 <td className="cd-mes">{MONTHS[Number(m.key.slice(5, 7)) - 1]}</td>
                 {Array.from({ length: 31 }, (_, i) => {
                   const d = byDay.get(i + 1);
+                  const fer = (n: number) => { const x = byDay.get(n); return x?.symbolCode && typeInfo(types, x.symbolCode as never).kind === "ferias" ? x.symbolCode : null; };
+                  const fc = fer(i + 1);
+                  if (fc) {
+                    let b = i + 1; while (fer(b - 1) === fc) b--;
+                    let e = i + 1; while (fer(e + 1) === fc) e++;
+                    const len = e - b + 1;
+                    if (len >= 3 && b !== i + 1) return null;
+                    if (len >= 3) return <td key={i} className="cd-ferias" colSpan={len} data-date={d!.on} aria-label={`Férias — ${len} dias`}>FÉRIAS</td>;
+                  }
                   if (!d) return <td key={i} className="cd-dia cd-inexistente" aria-hidden />;
                   const t = d.symbolCode ? typeInfo(types, d.symbolCode as never) : null;
                   const tip = `${short(d.on)} — ${d.label ?? d.typeLabel ?? ""} (${d.effect})`;
