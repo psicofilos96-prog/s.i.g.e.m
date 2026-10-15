@@ -136,7 +136,7 @@ function CloudReportEditor(props: EditorProps & { authority: Extract<ReturnType<
   const chain = q.data ?? [];
   const noAuthorNote = !props.authority.person
     ? "Sua conta ainda não está vinculada a uma pessoa institucional. Nenhuma capacidade foi concedida."
-    : "Sua atuação vigente não recebe, por política homologada, a capacidade de oficializar pareceres nesta turma e período.";
+    : "Você não pode oficializar pareceres nesta turma e período.";
   return (
     <>
       <ReportEditor

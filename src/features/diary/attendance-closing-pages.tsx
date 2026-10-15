@@ -160,13 +160,13 @@ function AttendanceClosingBody({
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
 
   if (cloud && (!cloudPolicies.ready || !norms.ready))
-    return <StatePanel tone="info" title="Carregando" description="Lendo a política de frequência e a configuração homologadas." />;
+    return <StatePanel tone="info" title="Carregando" description="Lendo as regras de frequência." />;
   if (cloud && cloudPolicies.error)
     return (
       <StatePanel
         tone="danger"
         title="Fechamento de frequência indisponível"
-        description="Não foi possível ler a política de frequência homologada. Isto não significa que ela não exista; nada é concluído."
+        description="Não foi possível ler as regras de frequência. Tente de novo em instantes."
       />
     );
   if (!policy)
@@ -176,8 +176,8 @@ function AttendanceClosingBody({
         title="Fechamento de frequência indisponível"
         description={
           availablePolicies.length > 1
-            ? "Mais de uma política de frequência homologada está vigente; a definição depende de decisão institucional."
-            : "Não existe política de frequência homologada e vigente registrada. Nenhuma política demonstrativa é usada no lugar."
+            ? "Há mais de uma regra de frequência valendo ao mesmo tempo. Peça à SEMED para manter só uma."
+            : "A regra de frequência ainda não foi cadastrada. Peça à SEMED."
         }
       />
     );

@@ -63,7 +63,7 @@ export function AttendanceOccurrencesSection({
         <StatePanel
           tone="warning"
           title="Registro indisponível"
-          description="Nenhum tipo de ocorrência de frequência está homologado e vigente. Nenhum tipo demonstrativo é usado no lugar."
+          description="Os tipos de ocorrência ainda não foram cadastrados. Peça à SEMED."
         />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
@@ -77,7 +77,7 @@ export function AttendanceOccurrencesSection({
             </select>
           </label>
           <label className="grid gap-1 text-sm">
-            Tipo homologado
+            Tipo
             <select className={inputCls} value={typeId} onChange={(e) => setTypeId(e.target.value)}>
               <option value="">Selecione</option>
               {source.types.map((t) => (

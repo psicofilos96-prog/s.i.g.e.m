@@ -271,7 +271,7 @@ export function AcademicContextSelector({
                 <SheetHeader className="text-left">
                   <SheetTitle>Trocar contexto docente</SheetTitle>
                   <SheetDescription>
-                    Escolha uma atuação vigente; escola, turma e campo são atualizados juntos.
+                    Escolha a turma; escola e disciplina mudam juntas.
                   </SheetDescription>
                 </SheetHeader>
                 <div className="mt-4">{choices}</div>

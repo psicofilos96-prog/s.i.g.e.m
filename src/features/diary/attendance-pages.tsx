@@ -785,7 +785,7 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
       />
       <StatePanel
         tone="warning"
-        title="Regras de contabilização não homologadas"
+        title="Regras de contagem ainda não cadastradas"
         description="Ausências justificadas, abonos, arredondamentos, Educação Infantil, AEE e atividades complementares dependem de confirmação normativa. Percentuais aparecem apenas como prévia sem pendências."
       />
       {scopes.length === 0 ? (
