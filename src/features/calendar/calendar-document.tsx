@@ -1,4 +1,4 @@
-import { finalCouncilText, legendLabel, withFinalTerminoLegend } from "./calendar-final-council-label";
+import { councilItemText, finalCouncilText, legendLabel, withFinalTerminoLegend } from "./calendar-final-council-label";
 /**
  * Documento "Calendário Escolar" — reprodução fiel do modelo interno da
  * Supervisão (grade-calendario.tsx da especificação). A tela administrativa
@@ -220,7 +220,7 @@ function Periods({ cal, p }: { cal: NetworkCalendar; p: CalendarProjection }) {
             <div key={c.key} className="cd-conselho-linha">
               <b>{shortDate(c.date)}</b>
               <span>—</span>
-              <span>{finalCouncilText(c.label)}</span>
+              <span>{councilItemText(finalCouncilText(c.label), c.date, councils.map((x) => ({ name: finalCouncilText(x.label), on: x.date })))}</span>
             </div>
           ))}
         </div>
