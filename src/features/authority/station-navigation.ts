@@ -47,12 +47,12 @@ export const STATION_HOME: Record<SectorStation, string> = {
 
 export const STATION_ROUTES: Record<SectorStation, readonly string[]> = {
   ciece: ["/ciece", "/secretaria/tabelas-semed", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026", "/mapa-estatistico", "/mapa-estatistico-rede", "/qualidade-dos-dados", "/revisao-de-anomalias", "/paineis", "/relatorios", "/numeros", "/integracoes", "/central-de-integracoes", "/importacoes", "/unidades", "/base-de-conhecimento", "/censo-escolar", "/educacenso", "/alunos", "/turmas", "/docserv"],
-  supervisao: ["/supervisao-escolar", "/unidades", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026"],
+  supervisao: ["/supervisao-escolar", "/relatorios", "/numeros", "/unidades", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026"],
   alimentacao: ["/alimentacao-escolar", "/unidades", "/relatorios", "/numeros"],
   avaliacao: ["/avaliacao-desempenho", "/acompanhamento-avaliacao", "/paineis", "/relatorios", "/numeros", "/alunos", "/turmas"],
-  secretaria_escolar: ["/secretaria", "/alunos", "/turmas", "/enturmacoes", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/documentos-escolares", "/horarios", "/educacenso", "/docserv"],
-  direcao_escolar: ["/direcao", "/secretaria/tabelas-semed", "/secretaria/modelos-de-texto", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar", "/educacenso", "/docserv"],
-  orientacao_pedagogica: ["/orientacao", "/secretaria/modelos-de-texto", "/planejamento", "/alunos", "/turmas", "/horarios"],
+  secretaria_escolar: ["/secretaria", "/relatorios", "/numeros", "/alunos", "/turmas", "/enturmacoes", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/documentos-escolares", "/horarios", "/educacenso", "/docserv"],
+  direcao_escolar: ["/direcao", "/relatorios", "/numeros", "/secretaria/tabelas-semed", "/secretaria/modelos-de-texto", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar", "/educacenso", "/docserv"],
+  orientacao_pedagogica: ["/orientacao", "/relatorios", "/numeros", "/secretaria/modelos-de-texto", "/planejamento", "/alunos", "/turmas", "/horarios"],
   inclusao_nei: ["/inclusao", "/unidades", "/relatorios", "/numeros", "/alunos"],
 };
 
