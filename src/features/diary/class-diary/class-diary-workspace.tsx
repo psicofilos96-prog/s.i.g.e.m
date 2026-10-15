@@ -25,12 +25,12 @@ function Field({ label, value, options, onChange }: {
   label: string; value: string; options: Array<{ value: string; label: string }>; onChange: (v: string) => void;
 }) {
   return (
-    <label className="flex min-w-[8.5rem] flex-col gap-1 text-xs font-medium text-dp-ink">
+    <label className="flex min-w-0 flex-col gap-1 text-xs font-medium text-dp-ink">
       {label}
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="h-10 rounded-lg border border-dp-line bg-card px-3 text-sm text-dp-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dp-action"
+        className="h-10 w-full truncate rounded-lg border border-dp-line bg-card px-3 text-sm text-dp-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dp-action"
       >
         {options.length === 0 ? <option value="">Sem opções</option> : null}
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -54,8 +54,8 @@ function Metric({ tone, icon: Icon, label, value, sub }: { tone: "ok" | "bad" | 
   return (
     <div className={cn("flex flex-col items-center gap-1 rounded-lg px-2 py-3 text-center", toneCls)}>
       <Icon className="size-5" aria-hidden="true" />
-      <span className="text-[11px] font-medium text-dp-ink-2">{label}</span>
-      <span className="text-xl font-bold">{value}</span>
+      <span className="text-[10px] font-medium leading-tight text-dp-ink-2">{label}</span>
+      <span className="whitespace-nowrap text-lg font-bold">{value}</span>
       {sub ? <span className="text-[11px] text-dp-ink-2">({sub})</span> : null}
     </div>
   );
@@ -146,7 +146,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
             </nav>
           </div>
         </div>
-        <div className="flex flex-wrap gap-3 xl:flex-nowrap">
+        <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 xl:max-w-[50rem] xl:grid-cols-[6.5rem_minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,1fr)]">
           <Field label="Ano Letivo" value={search.ano ?? yearOpts[0]!.value} options={yearOpts} onChange={(v) => set({ ano: v })} />
           <Field label="Escola" value={unitId} options={units} onChange={(v) => set({ unidade: v, turma: undefined, componente: undefined })} />
           <Field label="Turma" value={classId} options={classOpts} onChange={(v) => set({ turma: v, componente: undefined })} />
