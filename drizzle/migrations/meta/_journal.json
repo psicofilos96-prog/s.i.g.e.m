@@ -3704,6 +3704,13 @@
       "when": 1792065455354,
       "tag": "0528_sigem_simples",
       "breakpoints": true
+    },
+    {
+      "idx": 529,
+      "version": "7",
+      "when": 1792089400699,
+      "tag": "0529_locate_student_by_name",
+      "breakpoints": true
     }
   ]
 }
