@@ -134,7 +134,7 @@ export function enterDiaryContext(target: DiarySessionTarget) {
 
 /** Escolas das turmas do professor; se alguma atuação aponta turma sem cadastro legível, lê todas (sem perder alunos). */
 function rosterSchools(teaching: Awaited<ReturnType<typeof readInstitutionalTeaching>>): string[] | undefined {
-  const bySchool = new Map(teaching.classes.map((c) => [c.id, c.schoolId]));
+  const bySchool = new Map(teaching.classes.map((c) => [c.id, c.unitId]));
   if (teaching.assignments.some((a) => !bySchool.has(a.classId))) return undefined;
   return [...new Set(bySchool.values())];
 }
