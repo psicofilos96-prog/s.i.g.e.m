@@ -15,3 +15,10 @@ export function withFinalTerminoLegend(codes: string[]): string[] {
   out.splice(out.indexOf("CF") + 1, 0, "TERMINO");
   return out;
 }
+/** Lista do quadro: o ÚLTIMO Conselho Final (por data, com ou sem sufixo " / N") recebe o texto combinado. */
+export function councilItemText(name: string, on: string, items: ReadonlyArray<{ name: string; on: string }>): string {
+  const isFinal = (n: string) => /^\s*conselho de classe final(\s*\/\s*\d+)?\s*$/i.test(n);
+  if (!isFinal(name)) return name;
+  const last = items.filter((i) => isFinal(i.name)).map((i) => i.on).sort().at(-1);
+  return on === last ? FINAL_COUNCIL_TEXT : finalCouncilText(name);
+}
