@@ -10,7 +10,7 @@ import {
   reasonRequired, transitionError, type Candidate, type PreparationSummary, type ProfessionalLookupKind, type StudentLookupKind, type TransitionDecision,
 } from "./year-transition";
 import {
-  enrollStudent, locateProfessional, locateStudent, readCandidates, readSummary, readYears, recordDecision, registerStudent,
+  enrollStudent, locateProfessional, locateProfessionalByName, locateStudent, readCandidates, readSummary, readYears, recordDecision, registerStudent,
   type ProfessionalLookupResult, type StudentLookupResult, type YearOption,
 } from "./year-transition-source";
 
@@ -162,6 +162,20 @@ function StudentSearch({ school, toYear, onDone }: { school: string; toYear: str
       <h2 className="text-lg font-semibold">Busca ativa de aluno</h2>
       <p className="text-xs text-muted-foreground">Somente CPF ou identificação INEP completos. O valor digitado não é guardado.</p>
       <div className="flex flex-wrap gap-2">
+        <input autoComplete="off" placeholder="Nome do servidor" className="min-w-64 flex-1 rounded border bg-background p-2 text-sm" value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") byName(); }} aria-label="Nome do servidor" />
+        <button type="button" onClick={byName} className="rounded bg-primary px-3 py-2 text-sm text-primary-foreground">Buscar pelo nome</button>
+      </div>
+      {matches && (matches.length === 0 ? <p className="text-sm">Nenhum servidor com esse nome.</p> : (
+        <ul className="divide-y rounded border text-sm">
+          {matches.map((m, i) => (
+            <li key={i}><button type="button" className="w-full p-2 text-left hover:bg-muted" disabled={!m.registration}
+              onClick={() => { setKind("matricula"); setValue(m.registration ?? ""); setMatches(null); }}>
+              <strong>{m.full_name}</strong> · matrícula {m.registration ?? "não informada"}{m.cargo ? ` · ${m.cargo}` : ""}{m.school_name ? ` · ${m.school_name}` : ""}
+            </button></li>
+          ))}
+        </ul>
+      ))}
+      <div className="flex flex-wrap gap-2">
         <select className="rounded border bg-background p-2 text-sm" value={kind} onChange={(e) => setKind(e.target.value as StudentLookupKind)}>
           <option value="cpf">CPF</option><option value="inep">Identificação INEP</option>
         </select>
@@ -199,9 +213,15 @@ function ProfessionalSearch({ school }: { school: string }) {
   const [value, setValue] = useState("");
   const [res, setRes] = useState<ProfessionalLookupResult | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+  const [name, setName] = useState("");
+  const [matches, setMatches] = useState<ProfessionalNameMatch[] | null>(null);
+  const byName = () => {
+    setMsg(null); setMatches(null);
+    locateProfessionalByName(school, name).then(setMatches, (e: Error) => setMsg(/too-short/.test(e.message) ? "Digite nome e sobrenome." : transitionError(e.message)));
+  };
   const search = () => {
     const v = normalizeProfessionalLookup(value);
-    if (!v) { setMsg("Informe a matrícula funcional ou o QP-MEC exatos. Busca por nome não existe."); return; }
+    if (!v) { setMsg("Informe a matrícula funcional ou o QP-MEC."); return; }
     setMsg(null);
     locateProfessional(school, kind, v).then(setRes, (e: Error) => setMsg(transitionError(e.message)));
     setValue("");
