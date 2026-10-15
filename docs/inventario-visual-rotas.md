@@ -228,3 +228,4 @@ Pendente: zoom 200%, contraste e mobile com login real = INTERACTIVE_BROWSER_VAL
 | `verificar.carteirinha.$codigo.tsx` | EXCECAO_IMPRESSAO_PUBLICA |
 | `vinculos-letivos.novo.tsx` | NOVA |
 | `vinculos-letivos.tsx` | LAYOUT |
+- `diario.index.tsx` — Diário de Classe com identidade própria (escopo `.diary-premium`), só tokens.

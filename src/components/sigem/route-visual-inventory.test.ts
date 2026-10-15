@@ -14,6 +14,7 @@ const EXCEPTION = /impressao|documento\.tsx|verificar|publico|^login|^auth|^prim
 const DOCUMENTED = new Set([
   "index.tsx", // página inicial com imagem de capa própria, só tokens semânticos
   "diario.turmas.$turmaId.avaliacao.tsx", // layout com parâmetros de busca
+  "diario.index.tsx", // Diário de Classe com identidade própria (.diary-premium), só tokens
 ]);
 
 function resolve(spec: string, from: string): string | null {

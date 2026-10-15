@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { DiaryHomePage } from "@/features/diary/diary-pages";
+import { ClassDiaryWorkspace } from "@/features/diary/class-diary/class-diary-workspace";
 const schema = z.object({
   professor: z.string().optional(),
   unidade: z.string().optional(),
@@ -13,14 +13,15 @@ const schema = z.object({
   de: z.string().optional(),
   ate: z.string().optional(),
   estado: z.string().optional(),
+  aba: z.string().optional(),
 });
 export const Route = createFileRoute("/diario/")({
   validateSearch: schema,
   head: () => ({
     meta: [
-      { title: "Meu Diário — SIGEM" },
-      { name: "description", content: "Aula de hoje, chamada, registro e pendências do professor." },
-      { property: "og:title", content: "Meu Diário — SIGEM" },
+      { title: "Diário de Classe — SIGEM" },
+      { name: "description", content: "Registro de aulas, frequência, conteúdos e avaliações da turma." },
+      { property: "og:title", content: "Diário de Classe — SIGEM" },
       {
         property: "og:description",
         content: "Turmas, alunos e registros acadêmicos no contexto docente.",
@@ -32,5 +33,5 @@ export const Route = createFileRoute("/diario/")({
   component: Page,
 });
 function Page() {
-  return <DiaryHomePage search={Route.useSearch()} />;
+  return <ClassDiaryWorkspace search={Route.useSearch()} />;
 }
