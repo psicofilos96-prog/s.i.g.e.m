@@ -63,3 +63,16 @@ describe("conselhos no rodapé", () => {
     expect(lines.every((t) => !t!.includes(" e "))).toBe(true);
   });
 });
+
+describe("último Conselho Final do ano", () => {
+  it("ganha ' - Término do Ano Letivo' mesmo com numeração; o anterior não", () => {
+    const [, eja] = createCalendarFixtures();
+    const custom = { ...eja!, periods: eja!.periods.map((p) => ({ ...p, finalCouncilLabel: "Conselho de Classe Final / X" })) };
+    render(<CalendarDocument cal={custom} />);
+    const lines = [...document.querySelectorAll(".cd-conselho-linha")].map((l) => l.textContent ?? "");
+    const finals = lines.filter((t) => t.includes("Conselho de Classe Final / X"));
+    expect(finals.length).toBeGreaterThan(0);
+    expect(finals.at(-1)).toContain("Conselho de Classe Final / X - Término do Ano Letivo");
+    expect(finals.slice(0, -1).every((t) => !t.includes("Término"))).toBe(true);
+  });
+});
