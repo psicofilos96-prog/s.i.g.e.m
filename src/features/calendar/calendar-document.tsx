@@ -1,4 +1,4 @@
-import { councilItemText, finalCouncilText, legendLabel, withFinalTerminoLegend } from "./calendar-final-council-label";
+import { councilItemText, legendLabel, withFinalTerminoLegend } from "./calendar-final-council-label";
 /**
  * Documento "Calendário Escolar" — reprodução fiel do modelo interno da
  * Supervisão (grade-calendario.tsx da especificação). A tela administrativa

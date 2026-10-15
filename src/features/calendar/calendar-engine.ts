@@ -1,4 +1,3 @@
-import { finalCouncilText } from "./calendar-final-council-label";
 /**
  * Motor temporal puro do calendário da rede (porta de motor.ts,
  * preparar-grade.ts e validacoes.ts da especificação 2027). Sem React.
