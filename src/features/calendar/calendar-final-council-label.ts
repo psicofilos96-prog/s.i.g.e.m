@@ -15,10 +15,13 @@ export function withFinalTerminoLegend(codes: string[]): string[] {
   out.splice(out.indexOf("CF") + 1, 0, "TERMINO");
   return out;
 }
-/** Lista do quadro: o ÚLTIMO Conselho Final (por data, com ou sem sufixo " / N") recebe o texto combinado. */
+/** Lista do quadro: o ÚLTIMO Conselho Final (por data) ganha " - Término do Ano Letivo". */
 export function councilItemText(name: string, on: string, items: ReadonlyArray<{ name: string; on: string }>): string {
-  const isFinal = (n: string) => /^\s*conselho de classe final(\s*\/\s*\d+)?\s*$/i.test(n);
+  const norm = (n: string) => n.normalize("NFKC").replace(/\s+/g, " ").toLowerCase();
+  const isFinal = (n: string) => norm(n).includes("conselho de classe final");
   if (!isFinal(name)) return name;
+  if (/t[ée]rmino/.test(norm(name))) return name;
   const last = items.filter((i) => isFinal(i.name)).map((i) => i.on).sort().at(-1);
-  return on === last ? FINAL_COUNCIL_TEXT : finalCouncilText(name);
+  if (on !== last) return name;
+  return /^\s*conselho de classe final\s*$/i.test(norm(name)) ? FINAL_COUNCIL_TEXT : `${name} - Término do Ano Letivo`;
 }
