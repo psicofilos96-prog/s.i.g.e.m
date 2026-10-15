@@ -365,6 +365,18 @@ function renderBlock(b: InfoBlock, vm: ExternalViewModel, types: Types, p: Exter
   }
 }
 
+/** Terceiro modelo: quadros do externo (Legenda | Períodos + Conselhos | Feriados) para ir abaixo da tabela do interno. */
+export function ExternalInfoStrip({ vm, p, presentation }: { vm: ExternalViewModel; p: ExternalProfile; presentation: Record<string, unknown> }) {
+  const types = dayTypesOf({ dayTypeCatalog: (presentation["dayTypeCatalog"] ?? undefined) as never });
+  return (
+    <div className="cx-misto" data-testid="cx-misto" style={themeVars(p, "externo-livre")}>
+      <Legend vm={vm} types={types} p={p} vertical />
+      <div className="cx-misto-meio"><Periods vm={vm} p={p} /><Councils vm={vm} p={p} /></div>
+      <Holidays vm={vm} cols={1} p={p} />
+    </div>
+  );
+}
+
 /** Faixa contínua de férias: blocos contíguos (≥ 3 dias) do mesmo código cujo tipo é férias. */
 function bandsOf(m: ExternalMonth, types: Types, p: ExternalProfile): Map<number, Band> {
   const out = new Map<number, Band>();

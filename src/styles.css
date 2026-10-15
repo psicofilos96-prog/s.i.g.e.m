@@ -1611,3 +1611,11 @@
 }
 @utility sg-glow { box-shadow: var(--sg-glow); }
 .sg :is(h1,h2,h3) { font-family: inherit; }
+
+/* Terceiro modelo: interno com quadros do externo abaixo da tabela */
+.cx-misto { display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: 3mm; margin-top: 2.5mm; align-items: start;
+  color: var(--cx-text); font-family: var(--cx-body-font); font-size: 7pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.cx-misto * { box-sizing: border-box; }
+.cx-misto .cx-caixa { overflow: visible; }
+.cx-misto .cx-caixa-corpo { overflow: visible; }
+.cx-misto-meio { display: flex; flex-direction: column; gap: 2mm; min-width: 0; }
