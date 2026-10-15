@@ -202,7 +202,10 @@ export async function readInstitutionalTeaching(
     if (endingOf.has(x.engagement_id)) throw new Error(`encerramento ambíguo da atuação ${x.engagement_id}`);
     endingOf.set(x.engagement_id, x.ended_on);
   }
-  const ident = (cls.data ?? []) as { id: string; school_id: string; academic_year_id: string }[];
+  // Desempenho: o Diário só mostra turmas das atuações da própria pessoa; ler cadastro/turno de
+  // todas as turmas visíveis (704 numa conta de rede) gerava ~1.400 consultas por abertura.
+  const engagedClassIds = new Set(ownEngagements.map((e) => e.class_id as string));
+  const ident = ((cls.data ?? []) as { id: string; school_id: string; academic_year_id: string }[]).filter((c) => engagedClassIds.has(c.id));
   const schoolIds = [...new Set(ident.map((c) => c.school_id))];
   const yearIds = [...new Set(ident.map((c) => c.academic_year_id))];
   const [sRows, iRows, vRows, yRows, perClass] = await Promise.all([

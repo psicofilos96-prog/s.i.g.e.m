@@ -146,3 +146,4 @@
 - `/diario` monta `ClassDiaryWorkspace`: ano/escola/turma/disciplina/data/aba vivem na URL e são o contexto único das abas, porque estado local por aba divergiria; as telas oficiais continuam donas da gravação.
 - Visual só pelos tokens `.diary-premium` (`--dp-*` em styles.css), sem tocar o tema global, para poder ser estendido a outros módulos depois.
 - `class-diary-model.ts` é projeção pura: sem chamada ⇒ "—" (nunca zero), aluno sem marca não vira presença/falta, percentual só com denominador observado.
+- Leitura de ensino do Diário: cadastro/turno só das turmas das atuações da própria pessoa e estudantes só das escolas dessas turmas (fallback: todas, se alguma turma da atuação não for legível), porque ler toda a rede gerava ~1.800 consultas por abertura.
