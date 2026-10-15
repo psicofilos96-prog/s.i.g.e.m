@@ -377,7 +377,7 @@ export function ExternalInfoStrip({ vm, p, presentation }: { vm: ExternalViewMod
   );
 }
 
-/** Faixa contínua de férias: blocos contíguos (≥ 3 dias) do mesmo código cujo tipo é férias. */
+/** Faixa contínua de férias: blocos contíguos (≥ 2 dias) do mesmo código cujo tipo é férias. */
 function bandsOf(m: ExternalMonth, types: Types, p: ExternalProfile): Map<number, Band> {
   const out = new Map<number, Band>();
   let n = 1;
@@ -388,7 +388,7 @@ function bandsOf(m: ExternalMonth, types: Types, p: ExternalProfile): Map<number
     if (!code || kind !== "ferias") { n++; continue; }
     let e = n; while (e + 1 <= m.daysInMonth && m.byDay.get(e + 1)?.symbolCode === code) e++;
     const len = e - n + 1;
-    if (len >= 3) {
+    if (len >= 2) {
       const text = kind === "ferias" ? p.feriasText : (visualOf(code, types, p).mark || visualOf(code, types, p).label.toUpperCase());
       for (let k = n; k <= e; k++) out.set(k, { role: k === n ? "ini" : k === e ? "fim" : "meio", len, text });
     }

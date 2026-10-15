@@ -69,8 +69,8 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
                     let b = i + 1; while (fer(b - 1) === fc) b--;
                     let e = i + 1; while (fer(e + 1) === fc) e++;
                     const len = e - b + 1;
-                    if (len >= 3 && b !== i + 1) return null;
-                    if (len >= 3) return <td key={i} className="cd-ferias" colSpan={len} data-date={d!.on} aria-label={`Férias — ${len} dias`}>FÉRIAS</td>;
+                    if (len >= 2 && b !== i + 1) return null;
+                    if (len >= 2) return <td key={i} className="cd-ferias" colSpan={len} data-date={d!.on} aria-label={`Férias — ${len} dias`}>FÉRIAS</td>;
                   }
                   if (!d) return <td key={i} className="cd-dia cd-inexistente" aria-hidden />;
                   const t = d.symbolCode ? typeInfo(types, d.symbolCode as never) : null;
