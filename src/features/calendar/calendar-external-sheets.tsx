@@ -48,7 +48,12 @@ function DayCell({ d, n, types, p, weekend, mode, band }: { d: PrintDay | undefi
   const extras = d.extraCodes.map((c) => ({ c, t: typeInfo(types, c as never) }));
   const tip = `${shortDate(d.on)} — ${d.label ?? d.typeLabel ?? v?.label ?? "sem declaração"} (${EFFECT_TEXT[d.effect]})${extras.length ? ` + ${extras.map((e) => e.t.label).join(", ")}` : ""}`;
   const painted = v && !(isWhite(v.bg) && !v.mark);
-  const style: CSSProperties | undefined = v ? { backgroundColor: v.bg, color: v.fg } : undefined;
+  // Faixa de férias lisa: as divisões internas recebem a própria cor da faixa (transparente deixaria ver o fundo da tabela).
+  const bandEdges: CSSProperties = band && v ? {
+    ...(band.role === "ini" || band.role === "meio" ? { borderRightColor: v.bg } : {}),
+    ...(band.role === "meio" || band.role === "fim" ? { borderLeftColor: v.bg } : {}),
+  } : {};
+  const style: CSSProperties | undefined = v ? { backgroundColor: v.bg, color: v.fg, ...bandEdges } : undefined;
   const cls = ["cx-dia", `cx-efeito-${d.effect}`, weekend ? "cx-fds" : "", painted ? "cx-marcado" : "", band ? `cx-faixa cx-faixa-${band.role}` : ""].filter(Boolean).join(" ");
   return (
     <td className={cls} data-date={d.on} data-effect={d.effect} title={tip} aria-label={tip} style={style}>

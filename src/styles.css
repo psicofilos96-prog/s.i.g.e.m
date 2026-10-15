@@ -1306,8 +1306,7 @@
 .cx-matriz td.cx-dia { font-size: calc(5.6pt * var(--cx-k, 1) * var(--cx-ts-days, 1)); }
 .cx-matriz .cx-sigla { font-size: 1em; }
 .cx-matriz .cx-inexistente { background: #2b2b2b; border: 0.15mm solid #2b2b2b; }
-.cx-matriz .cx-faixa { border-left-color: transparent; border-right-color: transparent; overflow: visible; }
-.cx-matriz .cx-faixa-ini { border-left-color: inherit; }
+.cx-matriz .cx-faixa { overflow: visible; }
 .cx-faixa-txt { position: absolute; left: 0; top: 0; bottom: 0; z-index: 1; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 6.4pt; letter-spacing: 1.2pt; white-space: nowrap; pointer-events: none; }
 .cx-total { text-align: center; vertical-align: middle; font-weight: 800; font-size: 7pt; color: var(--cx-primary); background: var(--cx-light); border: var(--cx-gw, 0.15mm) solid var(--cx-grid, #8FB3D9); }
 .cx-matriz tfoot th, .cx-matriz tfoot td { background: color-mix(in srgb, var(--cx-light) 70%, var(--cx-border)); color: var(--cx-primary); font-weight: 800; font-size: 5.6pt; text-align: center; border: var(--cx-gw, 0.15mm) solid var(--cx-grid, #8FB3D9); padding: 0.5mm 0; }
@@ -1412,9 +1411,7 @@
 }
 .cf-livre .cf-matriz td.cx-faixa-ini, .cf-livre .cf-matriz td.cx-faixa-unico { overflow: visible; z-index: 2; }
 .cf-livre .cf-matriz .cx-faixa-txt { z-index: 3; color: inherit; }
-/* Férias lisas: sem linhas internas entre os dias da faixa */
-.cx-matriz td.cx-faixa.cx-faixa-ini, .cx-matriz td.cx-faixa.cx-faixa-meio, .cf-livre .cf-matriz td.cx-faixa.cx-faixa-ini, .cf-livre .cf-matriz td.cx-faixa.cx-faixa-meio { border-right-color: transparent !important; }
-.cx-matriz td.cx-faixa.cx-faixa-meio, .cx-matriz td.cx-faixa.cx-faixa-fim, .cf-livre .cf-matriz td.cx-faixa.cx-faixa-meio, .cf-livre .cf-matriz td.cx-faixa.cx-faixa-fim { border-left-color: transparent !important; }
+/* Férias lisas: divisões internas da faixa recebem a cor da faixa (inline em DayCell). */
 .cx-split { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
 .cx-split > span { text-align: center; }
 .cx-split > span + span { border-left: 0.15mm solid color-mix(in srgb, currentColor 45%, transparent); }
