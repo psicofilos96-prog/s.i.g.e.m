@@ -1,5 +1,5 @@
 import { SECRETARIAT_TASKS } from "./secretariat-tasks";
-import { operationalToday } from "@/lib/academic-date";
+import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/si
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
-import { readYears, locateStudent, type YearOption } from "@/features/year-transition/year-transition-source";
+import { readYears, locateStudent, locateStudentByName, type StudentNameMatch, type YearOption } from "@/features/year-transition/year-transition-source";
 import { lookupMessage, normalizeStudentLookup, type StudentLookupKind } from "@/features/year-transition/year-transition";
 import {
   decisionLabel, issueLabel, lifeKindLabel, movementTypeLabel, orderLife, secretariatMessage, yearStateLabel,
@@ -104,7 +104,7 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
       <section aria-labelledby="ano" className="flex flex-wrap items-center gap-2 text-sm">
         <h2 id="ano" className="font-semibold">{ov.year.label ?? year}</h2>
         <StatusBadge tone={ov.year.state === "aberto" ? "success" : "neutral"}>{yearStateLabel(ov.year.state)}</StatusBadge>
-        {ov.year.state !== "aberto" ? <span className="text-muted-foreground">Somente consulta: gravações exigem ano aberto pelo ato próprio.</span> : null}
+        {ov.year.state !== "aberto" ? <span className="text-muted-foreground">Este ano está fechado: dá para consultar, mas não para alterar.</span> : null}
       </section>
       <section aria-label="Trabalho de hoje" className="grid gap-4 sm:grid-cols-3">
         <WorkCard tone={ov.allocations.enrollments_without_class ? "attention" : "ok"} value={ov.allocations.enrollments_without_class}
@@ -165,9 +165,16 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
 }
 
 function Lookup({ school, year, onFound }: { school: string; year: string; onFound: (s: { id: string; name: string }) => void }) {
-  const [kind, setKind] = useState<StudentLookupKind>("cpf"); const [value, setValue] = useState(""); const [msg, setMsg] = useState<string | null>(null);
+  const [kind, setKind] = useState<StudentLookupKind | "nome">("nome"); const [value, setValue] = useState(""); const [msg, setMsg] = useState<string | null>(null);
+  const [matches, setMatches] = useState<StudentNameMatch[] | null>(null);
   async function go() {
-    setMsg(null);
+    setMsg(null); setMatches(null);
+    if (kind === "nome") {
+      if (value.trim().split(/\s+/).length < 2) { setMsg("Digite nome e sobrenome."); return; }
+      try { const r = await locateStudentByName(school, value.trim(), null); setMatches(r); if (!r.length) setMsg("Nenhum aluno encontrado com esse nome."); }
+      catch (e) { setMsg(errText(e)); }
+      return;
+    }
     const v = normalizeStudentLookup(kind, value);
     if (!v) { setMsg(lookupMessage("entrada-invalida")); return; }
     try {
@@ -180,13 +187,22 @@ function Lookup({ school, year, onFound }: { school: string; year: string; onFou
     <section aria-labelledby="busca" className="space-y-2">
       <h2 id="busca" className="scroll-mt-20 font-semibold">Achar aluno</h2>
       <div className="flex flex-wrap gap-2">
-        <select aria-label="Buscar por" className="rounded-md border border-input bg-background p-2 text-sm" value={kind} onChange={(e) => setKind(e.target.value as StudentLookupKind)}>
-          <option value="cpf">CPF</option><option value="inep">INEP</option></select>
-        <Input id="busca-valor" className="max-w-xs" aria-label="Número do documento" inputMode="numeric" value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void go(); }} />
+        <select aria-label="Buscar por" className="rounded-md border border-input bg-background p-2 text-sm" value={kind} onChange={(e) => { setKind(e.target.value as StudentLookupKind | "nome"); setMatches(null); setMsg(null); }}>
+          <option value="nome">Nome</option><option value="cpf">CPF</option><option value="inep">INEP</option></select>
+        <Input id="busca-valor" className="max-w-xs" aria-label={kind === "nome" ? "Nome do aluno" : "Número do documento"} placeholder={kind === "nome" ? "Nome e sobrenome" : ""} inputMode={kind === "nome" ? "text" : "numeric"} value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void go(); }} />
         <Button onClick={go}>Buscar</Button>
       </div>
-      <p className="text-xs text-muted-foreground">Digite o CPF ou o INEP do aluno. Não há busca por nome.</p>
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
+      {matches && matches.length > 0 ? (
+        <ul className="max-h-72 divide-y divide-border overflow-auto rounded-md border border-border text-sm">
+          {matches.slice(0, 50).map((m) => (
+            <li key={m.student_id}>
+              <button type="button" className="flex w-full flex-wrap items-baseline justify-between gap-2 p-2 text-left hover:bg-accent" onClick={() => onFound({ id: m.student_id, name: m.display_name })}>
+                <span className="font-medium">{m.display_name}</span>
+                <span className="text-xs text-muted-foreground">{[m.birth_date ? formatAcademicDateNumeric(m.birth_date as never) : null, m.mother_name ? `mãe: ${m.mother_name}` : null, m.last_class].filter(Boolean).join(" · ")}</span>
+              </button>
+            </li>))}
+        </ul>) : null}
     </section>
   );
 }
@@ -251,7 +267,7 @@ function Actions({ school, year, enrollment, episode, on, onDone }: { school: st
       <fieldset className="space-y-2 rounded-md border border-border p-3 text-sm">
         <legend className="font-medium">Saída ou transferência</legend>
         {types === null ? <SkeletonState label="Carregando tipos" />
-          : types.length === 0 ? <p className="text-muted-foreground">Nenhum tipo de movimentação homologado. A saída fica indisponível até a homologação.</p>
+          : types.length === 0 ? <p className="text-muted-foreground">Os tipos de saída ainda não foram cadastrados. Peça à SEMED para cadastrá-los.</p>
           : <>
             <select aria-label="Tipo" className="w-full rounded-md border border-input bg-background p-2" value={type} onChange={(e) => setType(e.target.value)}>
               <option value="">Escolha o tipo de saída</option>{types.map((x) => <option key={`${x.id}@${x.version}`} value={`${x.id}@${x.version}`}>{x.label}</option>)}</select>
