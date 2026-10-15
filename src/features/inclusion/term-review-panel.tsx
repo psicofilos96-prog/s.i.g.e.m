@@ -45,7 +45,7 @@ export function TermReviewPanel() {
     const { error } = await rpc("record_inclusion_term_review_v2", { _alias: null, _category: null, _category_version: null, _note: null, ...args });
     if (error) setErr(termMessage(error.message)); await load();
   }
-  if (err === "ASSIGNMENT_PENDING") return <StatePanel tone="info" title="Fila de termos — atribuição pendente" description="A fila está pronta, mas nenhuma conta da rede recebeu ainda a permissão de revisar termos de inclusão." />;
+  if (err === "ASSIGNMENT_PENDING") return <StatePanel tone="info" title="Ninguém revisa os termos ainda" description="Peça ao administrador do SIGEM para escolher quem revisa os termos de inclusão." />;
   return (
     <section aria-labelledby="termos" className="space-y-3">
       <h2 id="termos" className="text-lg font-semibold">Fila de termos</h2>
