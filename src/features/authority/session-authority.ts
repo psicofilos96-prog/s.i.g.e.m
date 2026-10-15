@@ -151,46 +151,21 @@ export function useSessionAuthority(): SessionAuthority {
     // usuário), então nunca cruza usuários; a garantia continua no banco (RLS/writers).
     staleTime: 5 * 60_000,
     queryFn: async () => {
+      // PERF: vínculo, ator e capacidades são leituras independentes — em paralelo, não em cascata.
       // Vínculo PRÓPRIO, explícito por user.id: administradores podem ler outras linhas.
-      const { data: links, error: linkError } = await supabase
-        .from("user_person_links")
-        .select("person_id")
-        .eq("user_id", user!.id)
-        .limit(2);
+      const [linkRes, actorRes, capsRes] = await Promise.all([
+        supabase.from("user_person_links").select("person_id").eq("user_id", user!.id).limit(2),
+        supabase.rpc("current_actor"),
+        readAllEffectiveCapabilities(supabase),
+      ]);
+      const { data: links, error: linkError } = linkRes;
       if (linkError) throw linkError;
       if ((links ?? []).length > 1) throw new Error("vínculo institucional ambíguo");
-      const link = (links ?? [])[0];
-      if (!link) {
-        // BQ.1 Lote 2 — conta de setor: principal institucional (nunca pessoa). Sem principal ⇒ zero.
-        const { data: actorRows, error: actorError } = await supabase.rpc("current_actor");
-        if (actorError) throw actorError;
-        const a = (actorRows ?? [])[0];
-        if (!a || a.actor_kind !== "institutional" || !a.institutional_principal_id || !a.station_code)
-          return { person: null, principal: null, capabilities: [] as EffectiveCapability[] };
-        const { data: caps, error } = await readAllEffectiveCapabilities(supabase);
-        if (error) throw error;
-        return {
-          person: null,
-          principal: {
-            id: a.institutional_principal_id,
-            station: a.station_code as SectorPrincipal["station"],
-            scope: a.scope_kind === "school" ? ("school" as const) : ("network" as const),
-            schoolId: a.school_id ?? null,
-          },
-          capabilities: mapCaps(caps as CapRow[] | null),
-        };
-      }
-      const [{ data: person, error: personError }, { data: caps, error }, actorRes] = await Promise.all([
-        supabase.from("institutional_persons").select("id, display_name").eq("id", link.person_id).maybeSingle(),
-        readAllEffectiveCapabilities(supabase),
-        supabase.rpc("current_actor"),
-      ]);
-      if (personError) throw personError;
-      if (error) throw error;
       if (actorRes?.error) throw actorRes.error;
-      // Conta com vínculo histórico E principal setorial (ex.: Supervisão): a tela segue a estação.
+      if (capsRes.error) throw capsRes.error;
+      const link = (links ?? [])[0];
       const ar = Array.isArray(actorRes?.data) ? actorRes.data[0] : undefined;
-      const linkedPrincipal: SectorPrincipal | null =
+      const principal: SectorPrincipal | null =
         ar && ar.actor_kind === "institutional" && ar.institutional_principal_id && ar.station_code
           ? {
               id: ar.institutional_principal_id,
@@ -199,10 +174,18 @@ export function useSessionAuthority(): SessionAuthority {
               schoolId: ar.school_id ?? null,
             }
           : null;
+      if (!link) {
+        // BQ.1 Lote 2 — conta de setor: principal institucional (nunca pessoa). Sem principal ⇒ zero.
+        if (!principal) return { person: null, principal: null, capabilities: [] as EffectiveCapability[] };
+        return { person: null, principal, capabilities: mapCaps(capsRes.data as CapRow[] | null) };
+      }
+      const { data: person, error: personError } = await supabase
+        .from("institutional_persons").select("id, display_name").eq("id", link.person_id).maybeSingle();
+      if (personError) throw personError;
       return {
         person: person ? { id: person.id, displayName: person.display_name } : null,
-        principal: linkedPrincipal,
-        capabilities: mapCaps(caps as CapRow[] | null),
+        principal,
+        capabilities: mapCaps(capsRes.data as CapRow[] | null),
       };
     },
   });
