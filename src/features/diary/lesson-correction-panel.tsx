@@ -287,7 +287,7 @@ export function LessonCorrectionPanel({ entry, profileId }: LessonCorrectionPane
               description={
                 projection.requiredCapabilities.length
                   ? `A correção deste registro depende de autorização institucional que não consta para quem está operando (${profile.label}).`
-                  : "Não há regra homologada que discipline a correção deste registro."
+                  : "A correção deste registro ainda não está liberada pela SEMED."
               }
               action={
                 <div className="space-y-2 text-sm">
@@ -301,7 +301,7 @@ export function LessonCorrectionPanel({ entry, profileId }: LessonCorrectionPane
                     </p>
                   ) : (
                     <p className="text-muted-foreground">
-                      É necessária regra homologada que discipline a correção deste registro.
+                      A correção deste registro ainda não está liberada pela SEMED.
                     </p>
                   )}
                   {projection.consultedClosing ? (

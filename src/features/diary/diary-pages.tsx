@@ -184,7 +184,7 @@ export function DiaryHomePage({ search }: { search: DiarySearch }) {
         <StatePanel
           tone="warning"
           title="Sem atuação pedagógica vigente"
-          description="Não há atuação vigente para esta data. O Diário só apresenta turmas associadas a atuações pedagógicas válidas; lotação na escola não concede acesso a turmas."
+          description="Você não tem turmas nesta data. Se dá aula, peça à Direção para ligar você à turma."
         />
       ) : null}
       <div id="proxima-aula" tabIndex={-1} className="scroll-mt-20 focus:outline-none">

@@ -233,7 +233,7 @@ export function LessonRecordForm({
             </div>
           ) : (
             <EmptyState
-              title="Nenhuma atuação vigente"
+              title="Você não tem turmas nesta data"
               description="Não há atuação pedagógica deste profissional na data escolhida."
               compact
             />
