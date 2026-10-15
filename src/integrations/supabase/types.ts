@@ -43688,6 +43688,17 @@ export type Database = {
           person_id: string
         }[]
       }
+      locate_professional_by_name: {
+        Args: { _name: string; _school: string }
+        Returns: {
+          cargo: string
+          full_name: string
+          funcao: string
+          registration: string
+          school_name: string
+          vinculo: string
+        }[]
+      }
       locate_professional_exact: {
         Args: { _kind: string; _school: string; _value: string }
         Returns: {

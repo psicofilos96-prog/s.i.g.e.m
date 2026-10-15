@@ -57,3 +57,8 @@ export async function locateProfessional(school: string, kind: ProfessionalLooku
   const rows = await call<ProfessionalLookupResult[]>("locate_professional_exact", { _school: school, _kind: kind, _value: value });
   return rows[0] ?? { outcome: "nao-encontrado", person_id: null, display_name: null, functional_link_logical_ids: null };
 }
+
+export interface ProfessionalNameMatch { full_name: string; registration: string | null; cargo: string | null; funcao: string | null; vinculo: string | null; school_name: string | null }
+/** Busca nos servidores já cadastrados (planilha da SEMED) por nome. */
+export const locateProfessionalByName = (school: string, name: string) =>
+  call<ProfessionalNameMatch[]>("locate_professional_by_name", { _school: school, _name: name });
