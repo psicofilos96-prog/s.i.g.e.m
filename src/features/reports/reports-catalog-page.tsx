@@ -24,6 +24,7 @@ export function ReportsCatalogPage() {
       />
       <section aria-labelledby="quick-h" className="space-y-3">
         <h2 id="quick-h" className="font-display text-2xl font-semibold text-foreground">Mais usados</h2>
+        <p className="text-sm"><Link to="/numeros" className="font-medium text-primary underline">Contar e exportar em um clique</Link> — alunos, servidores e turmas por escola, etapa ou situação, em Excel ou PDF.</p>
         <div className="grid gap-4 lg:grid-cols-2">{QUICK_REPORTS.map((q) => <QuickReportCard key={q.sourceId} {...q} />)}</div>
       </section>
       <section aria-labelledby="builder-h" className="space-y-3">
