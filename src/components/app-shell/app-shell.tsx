@@ -531,6 +531,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   if (pathname === "/login" || pathname === "/auth" || pathname === "/primeiro-acesso" || isPublicPath(pathname)) return <>{children}</>;
+  if (isSimplePath(pathname)) return <PasswordChangeGate><SimpleShell>{children}</SimpleShell></PasswordChangeGate>;
 
   return (
     <PasswordChangeGate>
