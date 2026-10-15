@@ -15,7 +15,7 @@ const REGULAR = [
   "05-21 Conselho de Classe do 1º Período Letivo",
   "09-10 Conselho de Classe do 2º Período Letivo",
   "12-10 Conselho de Classe do 3º Período Letivo",
-  "12-17 Conselho de Classe Final",
+  "12-17 Conselho de Classe Final / Término do Ano Letivo",
 ];
 
 describe("Conselhos de Classe de referência", () => {

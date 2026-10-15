@@ -66,7 +66,7 @@ export const DAY_TYPES: DayTypeCatalog = {
   CC: t("CC", "Conselho de Classe", "CC", "#FFFFFF", "#000000", true, "evento", 7, true, {
     councilRole: "conselho",
   }),
-  CF: t("CF", "Conselho de Classe Final", "CF", "#FFFFFF", "#000000", true, "evento", 8, true, {
+  CF: t("CF", "Conselho de Classe Final / Término do Ano Letivo", "CF", "#FFFFFF", "#000000", true, "evento", 8, true, {
     councilRole: "conselho-final",
   }),
   CENSO: t("CENSO", "Dia Nacional do Censo Escolar", "C", "#FFFFFF", "#FF0000", true, "evento", 9, true),

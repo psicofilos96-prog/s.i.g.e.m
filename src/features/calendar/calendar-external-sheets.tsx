@@ -1,3 +1,4 @@
+import { finalCouncilText } from "./calendar-final-council-label";
 /**
  * CAL.EXT.1 / N2 — Folhas dos modelos externos (Panorâmico e Mosaico), desenhadas conforme os dois prompts-guia
  * do usuário. Consomem SÓ `ExternalViewModel` (derivado de `PrintModel`) e o perfil visual; não tocam no renderer
@@ -34,7 +35,7 @@ function visualOf(code: string, types: Types, p: ExternalProfile) {
   const known = Object.prototype.hasOwnProperty.call(types, code);
   const t = typeInfo(types, code as never);
   const o = p.symbolOverrides[code] ?? {};
-  return { mark: known ? t.mark : code, label: t.label, bg: o.background ?? t.background, fg: o.foreground ?? t.foreground, known, kind: known ? t.kind : null };
+  return { mark: known ? t.mark : code, label: finalCouncilText(t.label), bg: o.background ?? t.background, fg: o.foreground ?? t.foreground, known, kind: known ? t.kind : null };
 }
 
 type CellMode = "numero" | "sigla";
@@ -193,7 +194,7 @@ function Councils({ vm, p }: { vm: ExternalViewModel; p: ExternalProfile }) {
     <section className="cx-caixa" data-cx-bloco="conselhos" data-council-state={c.state} style={{ ["--cx-bs" as string]: String(p.typeScale.councils) } as CSSProperties}><h2>Conselhos de classe</h2>
       <div className="cx-caixa-corpo" data-fit={p.typeScale.councils === 1 ? "" : undefined}>
         {c.state === "configurada"
-          ? c.items.length ? <ul className="cx-feriados cx-duas">{c.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{i.name}</span></li>)}</ul>
+          ? c.items.length ? <ul className="cx-feriados cx-duas">{c.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{finalCouncilText(i.name)}</span></li>)}</ul>
             : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
           : <p className="cx-vazio">{COUNCIL_TEXT[c.state]}</p>}
       </div>
@@ -628,7 +629,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
           </Fragment>)}</tbody></table>
           <p className="cf-total">{t.semesters ? "Total anual" : "Total de dias letivos"} = <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b>{vm.total.schoolDays !== null ? " dias" : ""}</p>
           {!B.conselhos.visible && vm.councils.state === "configurada" && vm.councils.items.length > 0 && <ul className="cf-per-cons-grade">
-            {vm.councils.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{i.name}</span></li>)}</ul>}
+            {vm.councils.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{finalCouncilText(i.name)}</span></li>)}</ul>}
           {!B.conselhos.visible && vm.councils.state !== "configurada" && <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
         </div> :
         <div className={`cf-periodos cf-${B.periodos.style.orientation}`}>
@@ -648,7 +649,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
       </FreeBox>}
       {B.conselhos.visible && <FreeBox {...common("conselhos")} title="Conselhos de Classe">
         {vm.councils.state === "configurada"
-          ? vm.councils.items.length ? <ul className="cf-lista" style={{ columnCount: B.conselhos.style.cols }}>{vm.councils.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {i.name}</li>)}</ul>
+          ? vm.councils.items.length ? <ul className="cf-lista" style={{ columnCount: B.conselhos.style.cols }}>{vm.councils.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {finalCouncilText(i.name)}</li>)}</ul>
             : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
           : <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
         {INFO_PLACES.map((pl) => <InfoLinesAt key={pl.code} lines={info} place={pl.code} />)}
