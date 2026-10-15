@@ -1,5 +1,5 @@
 import { SECRETARIAT_TASKS } from "./secretariat-tasks";
-import { operationalToday } from "@/lib/academic-date";
+import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
@@ -9,7 +9,7 @@ import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/si
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
-import { readYears, locateStudent, type YearOption } from "@/features/year-transition/year-transition-source";
+import { readYears, locateStudent, locateStudentByName, type StudentNameMatch, type YearOption } from "@/features/year-transition/year-transition-source";
 import { lookupMessage, normalizeStudentLookup, type StudentLookupKind } from "@/features/year-transition/year-transition";
 import {
   decisionLabel, issueLabel, lifeKindLabel, movementTypeLabel, orderLife, secretariatMessage, yearStateLabel,
@@ -199,7 +199,7 @@ function Lookup({ school, year, onFound }: { school: string; year: string; onFou
             <li key={m.student_id}>
               <button type="button" className="flex w-full flex-wrap items-baseline justify-between gap-2 p-2 text-left hover:bg-accent" onClick={() => onFound({ id: m.student_id, name: m.display_name })}>
                 <span className="font-medium">{m.display_name}</span>
-                <span className="text-xs text-muted-foreground">{[m.birth_date ? formatDate(m.birth_date) : null, m.mother_name ? `mãe: ${m.mother_name}` : null, m.last_class].filter(Boolean).join(" · ")}</span>
+                <span className="text-xs text-muted-foreground">{[m.birth_date ? formatAcademicDateNumeric(m.birth_date as never) : null, m.mother_name ? `mãe: ${m.mother_name}` : null, m.last_class].filter(Boolean).join(" · ")}</span>
               </button>
             </li>))}
         </ul>) : null}
