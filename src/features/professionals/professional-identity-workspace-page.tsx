@@ -186,7 +186,7 @@ export function ProfessionalIdentityWorkspacePage({
       <div className="flex flex-wrap items-center gap-3 border-b border-border pb-3 text-xs">
         <StatusBadge tone="warning">Cadastro demonstrativo</StatusBadge>
         <span className="text-muted-foreground">
-          Pessoa é a identidade canônica; Profissional é um papel associado.
+          Uma pessoa pode ter mais de um papel no SIGEM.
         </span>
         <span className="ml-auto inline-flex items-center gap-1.5">
           {dirty ? (
@@ -671,8 +671,7 @@ export function ProfessionalIdentityWorkspacePage({
                 Próximo passo: criar vínculo funcional
               </Button>
               <p className="mt-1 text-xs text-muted-foreground">
-                Disponível em etapa futura, com autorização por capability, escopo, finalidade e
-                perfil institucional.
+                Disponível em breve.
               </p>
             </DetailSection>
           </section>

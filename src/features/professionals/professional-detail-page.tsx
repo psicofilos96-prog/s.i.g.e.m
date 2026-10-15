@@ -414,8 +414,7 @@ export function ProfessionalDetailPage({ id }: { id: string }) {
                   Leitura do contexto
                 </h2>
                 <p className="mt-3 text-sm leading-relaxed">
-                  Consulta estrutural e somente leitura. Classificações e relações jurídicas são
-                  exemplos de capacidade do modelo, não taxonomias oficiais.
+                  Somente consulta.
                 </p>
                 <dl className="mt-4 space-y-3 text-xs">
                   <div>
