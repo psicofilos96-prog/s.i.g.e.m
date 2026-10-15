@@ -629,7 +629,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
           </Fragment>)}</tbody></table>
           <p className="cf-total">{t.semesters ? "Total anual" : "Total de dias letivos"} = <b data-testid="cx-total-anual" title={vm.total.reason ?? ""}>{countText(vm.total)}</b>{vm.total.schoolDays !== null ? " dias" : ""}</p>
           {!B.conselhos.visible && vm.councils.state === "configurada" && vm.councils.items.length > 0 && <ul className="cf-per-cons-grade">
-            {vm.councils.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{councilItemText(i.name, i.on, vm.councils.items)}</span></li>)}</ul>}
+            {vm.councils.items.map((i, _n, all) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{councilItemText(i.name, i.on, all)}</span></li>)}</ul>}
           {!B.conselhos.visible && vm.councils.state !== "configurada" && <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
         </div> :
         <div className={`cf-periodos cf-${B.periodos.style.orientation}`}>
@@ -649,7 +649,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
       </FreeBox>}
       {B.conselhos.visible && <FreeBox {...common("conselhos")} title="Conselhos de Classe">
         {vm.councils.state === "configurada"
-          ? vm.councils.items.length ? <ul className="cf-lista" style={{ columnCount: B.conselhos.style.cols }}>{vm.councils.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {councilItemText(i.name, i.on, vm.councils.items)}</li>)}</ul>
+          ? vm.councils.items.length ? <ul className="cf-lista" style={{ columnCount: B.conselhos.style.cols }}>{vm.councils.items.map((i, _n, all) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {councilItemText(i.name, i.on, all)}</li>)}</ul>
             : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
           : <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
         {INFO_PLACES.map((pl) => <InfoLinesAt key={pl.code} lines={info} place={pl.code} />)}
