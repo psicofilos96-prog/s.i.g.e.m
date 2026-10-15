@@ -128,7 +128,7 @@ function MasterForm({ kind, all, schools, record }: { kind: string; all: Record<
       ))}
       <label>Vigência a partir de<DateInput className={field} value={from} onChange={(e) => setFrom(e.target.value)} /></label>
       <div className="flex items-end gap-2 sm:col-span-3"><Button type="submit">Registrar rascunho</Button>
-        <span className="text-xs text-muted-foreground">Conferência e homologação são feitas por outras pessoas com competência; o banco recusa autoaprovação.</span></div>
+        <span className="text-xs text-muted-foreground">Quem cadastra não pode aprovar o próprio item: outra pessoa confere e aprova.</span></div>
       {err && <p role="alert" className="text-destructive sm:col-span-3">{err}</p>}
     </form>
   );
@@ -139,7 +139,7 @@ function Pending({ rows, stagings }: { rows: Record<string, MasterRow[]>; stagin
   const open = stagings.filter((s) => s.state === "pendente" || s.state === "conferencia");
   return (
     <div className="space-y-2">
-      {items.length === 0 && open.length === 0 && <p className="text-muted-foreground">Nenhuma pendência de conferência ou homologação.</p>}
+      {items.length === 0 && open.length === 0 && <p className="text-muted-foreground">Nada esperando conferência ou aprovação.</p>}
       {items.map(({ k, r }) => <p key={r.logical_id}>{KIND_LABEL[k]}: {summarize(r)} — {knownLabel(STATUS_LABEL, r.status)}</p>)}
       {open.map((s) => <p key={s.id}>Carga {KIND_LABEL[s.kind]} “{s.context_key}” ({s.row_count} linhas) — {s.state === "pendente" ? "aguardando conferência" : "conferida, aguardando aplicação"}</p>)}
     </div>

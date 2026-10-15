@@ -77,7 +77,7 @@ export function ReportingCenter({ names, network, defaultSchool }: { names: Map<
           </div>
           <div className="rounded-lg border p-3">
             <h3 className="font-medium">Regras e fontes pendentes</h3>
-            <p className="text-xs text-muted-foreground">Não calculados até haver regra homologada ou fonte oficial. Não é zero.</p>
+            <p className="text-xs text-muted-foreground">Ainda sem número: falta a regra de cálculo.</p>
             <ul className="mt-1 grid gap-1 sm:grid-cols-2">{blocked.map((b) => <li key={b.key}><span className="font-medium">{KEY_LABEL[b.key] ?? b.key}</span>: Bloqueado <span className="block text-xs text-muted-foreground">{b.reason}</span></li>)}</ul>
           </div>
         </>)}
