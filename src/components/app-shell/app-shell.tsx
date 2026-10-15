@@ -1,5 +1,4 @@
 import { PasswordChangeGate } from "@/features/authority/password-change-gate";
-import { SimpleShell, isSimplePath } from "@/features/simple/simple-shell";
 import { useQuery } from "@tanstack/react-query";
 import { ConnectionBanner } from "./connection-banner";
 /**
@@ -532,7 +531,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   if (pathname === "/login" || pathname === "/auth" || pathname === "/primeiro-acesso" || isPublicPath(pathname)) return <>{children}</>;
-  if (isSimplePath(pathname)) return <PasswordChangeGate><SimpleShell>{children}</SimpleShell></PasswordChangeGate>;
 
   return (
     <PasswordChangeGate>
