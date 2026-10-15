@@ -137,7 +137,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
         <div className="flex items-start gap-4">
           <BookOpen className="mt-1 size-12 shrink-0 text-dp-navy" strokeWidth={1.75} aria-hidden="true" />
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-dp-ink">Diário de Classe</h1>
+            <h1 className="whitespace-nowrap text-[32px] font-bold leading-tight tracking-tight text-dp-ink">Diário de Classe</h1>
             <p className="text-sm text-dp-ink-2">Registro de aulas, frequência, conteúdos e avaliações</p>
             <nav aria-label="Caminho" className="mt-2 flex items-center gap-1 text-xs text-dp-muted">
               <Link to="/" className="text-dp-action hover:underline">Início</Link>
