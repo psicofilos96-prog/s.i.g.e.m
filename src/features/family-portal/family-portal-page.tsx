@@ -24,7 +24,7 @@ export function FamilyPortalPage({ requested }: { requested: string | undefined 
   return (
     <div className="space-y-6">
       <PageHeader title="Portal da Família" description="Consulta dos educandos que você tem autorização para acompanhar." />
-      {list.length === 0 ? <EmptyState title="Nenhum educando autorizado" description="Sua conta ainda não tem autorização vigente para acompanhar nenhum educando. Procure a secretaria da escola." /> : (
+      {list.length === 0 ? <EmptyState title="Nenhum educando autorizado" description="Seu acesso ainda não foi liberado. Procure a secretaria da escola do seu filho." /> : (
         <label className="block text-sm max-w-md">Educando
           <select className="mt-1 block w-full rounded border bg-background p-2" value={sel.id ?? ""}
             onChange={(e) => void navigate({ to: "/familia", search: { aluno: e.target.value || undefined } })}>
@@ -32,7 +32,7 @@ export function FamilyPortalPage({ requested }: { requested: string | undefined 
             {list.map((s) => <option key={s.student_id} value={s.student_id}>{s.display_name ?? "Nome não registrado"}</option>)}
           </select>
         </label>)}
-      {sel.rejected && <StatePanel tone="warning" title="Educando não disponível" description="Não há autorização vigente para você consultar o educando indicado no endereço." />}
+      {sel.rejected && <StatePanel tone="warning" title="Educando não disponível" description="Você não tem acesso a este aluno." />}
       {sel.id && <Summary key={sel.id} studentId={sel.id} student={list.find((x) => x.student_id === sel.id) ?? null} />}
     </div>
   );
