@@ -14,6 +14,8 @@ import logoEducacao from "@/assets/logo-educacao-white.png.asset.json";
 import logoPrefeitura from "@/assets/logo-prefeitura-white.png.asset.json";
 import brasao from "@/assets/brasao-borda.png.asset.json";
 import sigemLogo from "@/assets/logo-sigem-white.png.asset.json";
+import { DateInput } from "@/components/sigem/date-input";
+import { parseAcademicDate } from "@/lib/academic-date";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -198,7 +200,7 @@ function FirstAccess({ field, login, onDone, onCancel }: { field: string; login:
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
-    const l = String(f.get("fa-login")).trim().toLowerCase(), b = String(f.get("fa-birth")), pw = String(f.get("fa-pw")), pw2 = String(f.get("fa-pw2"));
+    const l = String(f.get("fa-login")).trim().toLowerCase(), b = parseAcademicDate(String(f.get("fa-birth"))) ?? "", pw = String(f.get("fa-pw")), pw2 = String(f.get("fa-pw2"));
     if (!l || !b) return setErr("Preencha o login e a data de nascimento.");
     const p = passwordProblem(pw, pw2); if (p) return setErr(p);
     setBusy(true); setErr(null);
@@ -215,7 +217,7 @@ function FirstAccess({ field, login, onDone, onCancel }: { field: string; login:
       <h2 id="fa-title" className="text-lg font-semibold">Primeiro acesso</h2>
       <p className="text-sm text-login-ink/80">Informe seu login e sua data de nascimento e escolha sua senha.</p>
       <label className="block text-sm">Login<input name="fa-login" defaultValue={login} autoComplete="username" placeholder="m0000-0@sigem.itap.gov.br" required className={`${box} mt-1`} /></label>
-      <label className="block text-sm">Data de nascimento<input name="fa-birth" type="date" required className={`${box} mt-1`} /></label>
+      <label className="block text-sm">Data de nascimento<DateInput name="fa-birth" required className={`${box} mt-1`} /></label>
       <label className="block text-sm">Nova senha<input name="fa-pw" type="password" autoComplete="new-password" required className={`${box} mt-1`} /></label>
       <label className="block text-sm">Repita a nova senha<input name="fa-pw2" type="password" autoComplete="new-password" required className={`${box} mt-1`} /></label>
       <p className="text-xs text-login-ink/70">Pelo menos 6 caracteres, com letra maiúscula, minúscula, número e símbolo.</p>

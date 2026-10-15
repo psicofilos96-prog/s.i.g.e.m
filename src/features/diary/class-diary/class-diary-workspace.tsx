@@ -54,9 +54,9 @@ function Metric({ tone, icon: Icon, label, value, sub }: { tone: "ok" | "bad" | 
   return (
     <div className={cn("flex flex-col items-center gap-1 rounded-lg px-2 py-3 text-center", toneCls)}>
       <Icon className="size-5" aria-hidden="true" />
-      <span className="text-[10px] font-medium leading-tight text-dp-ink-2">{label}</span>
+      <span className="text-2xs font-medium leading-tight text-dp-ink-2">{label}</span>
       <span className="whitespace-nowrap text-lg font-bold">{value}</span>
-      {sub ? <span className="text-[11px] text-dp-ink-2">({sub})</span> : null}
+      {sub ? <span className="text-micro text-dp-ink-2">({sub})</span> : null}
     </div>
   );
 }
@@ -194,7 +194,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
                     className={cn("flex h-12 w-24 flex-col items-center justify-center rounded-lg border text-sm transition-colors",
                       sel ? "border-dp-action bg-dp-select font-semibold" : "border-dp-line bg-card hover:bg-dp-surface-2")}>
                     <span>{dayChipLabel(d)}</span>
-                    <span className="text-[11px] text-dp-muted">{n ? `${n} ${n === 1 ? "aula" : "aulas"}` : "sem aula"}</span>
+                    <span className="text-micro text-dp-muted">{n ? `${n} ${n === 1 ? "aula" : "aulas"}` : "sem aula"}</span>
                   </button>
                 );
               })}
@@ -245,7 +245,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
                   <label key={r} className="flex items-center gap-2"><input type="checkbox" className="size-4" />{r}</label>
                 ))}
               </fieldset>
-              <p id="recursos-nota" className="mt-1 text-[11px] text-dp-muted">Ainda não disponível.</p>
+              <p id="recursos-nota" className="mt-1 text-micro text-dp-muted">Ainda não disponível.</p>
               {entry ? (
                 <Link to="/diario/registros/$registroId" params={{ registroId: entry.id }} className="mt-2 inline-block text-xs font-medium text-dp-action hover:underline">Abrir registro</Link>
               ) : null}
@@ -291,7 +291,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
                       <td className="px-3 py-2 text-center">{current * pageSize + i + 1}</td>
                       <td className="px-3 py-2">
                         <span className="flex items-center gap-2">
-                          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-dp-select text-[11px] font-semibold text-dp-navy" aria-hidden="true">{initials(s.student.personName)}</span>
+                          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-dp-select text-micro font-semibold text-dp-navy" aria-hidden="true">{initials(s.student.personName)}</span>
                           {s.student.personName}
                         </span>
                       </td>
@@ -377,7 +377,7 @@ function LessonBadge({ items }: { items: AgendaItem[] }) {
   const state = items.every((i) => i.state === "Registrada") ? "Aula registrada"
     : items.some((i) => i.state === "Rascunho em elaboração") ? "Rascunho" : "Pendente";
   const cls = state === "Aula registrada" ? "bg-dp-ok-soft text-dp-ok" : state === "Rascunho" ? "bg-dp-warn-soft text-dp-warn" : "bg-dp-surface-2 text-dp-ink-2";
-  return <span className={cn("rounded-md px-2 py-0.5 text-[11px] font-medium", cls)}>{state}</span>;
+  return <span className={cn("rounded-md px-2 py-0.5 text-micro font-medium", cls)}>{state}</span>;
 }
 
 /** Abas que levam às telas oficiais do Diário mantendo escola, turma, disciplina e data. */

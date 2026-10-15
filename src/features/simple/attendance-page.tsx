@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { db, readAll, useOptions } from "./data";
 import { PageTitle } from "./simple-shell";
+import { DateInput } from "@/components/sigem/date-input";
+import { userErrorText } from "@/lib/observability/governed-errors";
+import { ACTION } from "@/config/ui-vocabulary";
 
 export function AttendancePage() {
   const schools = useOptions("schools");
@@ -20,7 +23,7 @@ export function AttendancePage() {
       const st = await readAll("sg_students", "id,name", (q) => q.eq("class_id", klass));
       st.sort((a, b) => String(a["name"]).localeCompare(String(b["name"]), "pt-BR"));
       const { data, error } = await db.from("sg_attendance").select("student_id,present").eq("class_id", klass).eq("day", day);
-      if (error) throw new Error(error.message);
+      if (error) throw new Error("Não foi possível carregar a chamada.");
       const m: Record<string, boolean> = {};
       for (const r of data as { student_id: string; present: boolean }[]) m[r.student_id] = r.present;
       return { students: st as { id: string; name: string }[], marks: m };
@@ -44,7 +47,7 @@ export function AttendancePage() {
           <option value="">2. Escolha a turma</option>
           {(classes.data ?? []).filter((c) => c.school_id === school).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
         </select>
-        <input aria-label="Dia" type="date" value={day} onChange={(e) => setDay(e.target.value)} className={sel} />
+        <DateInput aria-label="Dia" value={day} onChange={(e) => setDay(e.target.value)} className={`${sel} h-14`} />
       </div>
 
       {klass && (
@@ -54,7 +57,8 @@ export function AttendancePage() {
             <button type="button" onClick={() => setMarks(Object.fromEntries(list.map((s) => [s.id, true])))} className="min-h-12 rounded-2xl bg-secondary px-4">Todos presentes</button>
           </div>
           {roster.isLoading && <p className="text-xl text-muted-foreground">Abrindo a turma…</p>}
-          {!roster.isLoading && list.length === 0 && <p className="text-xl text-muted-foreground">Esta turma ainda não tem alunos.</p>}
+          {roster.error && <div role="alert" className="rounded-2xl bg-destructive/10 p-4 text-lg"><p>{userErrorText(roster.error)}</p><button type="button" className="mt-2 underline" onClick={() => void roster.refetch()}>{ACTION.tentarNovamente}</button></div>}
+          {!roster.isLoading && !roster.error && list.length === 0 && <p className="text-xl text-muted-foreground">Esta turma ainda não tem alunos.</p>}
           <ul className="grid gap-2">
             {list.map((s, i) => (
               <li key={s.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-card p-3">
@@ -74,7 +78,7 @@ export function AttendancePage() {
               const rows = Object.entries(marks).map(([student_id, p]) => ({ student_id, class_id: klass, day, present: p }));
               const { error } = await db.from("sg_attendance").upsert(rows, { onConflict: "student_id,day" });
               setBusy(false);
-              if (error) toast.error(error.message); else toast.success("Chamada salva ✓");
+              if (error) toast.error(userErrorText(error)); else toast.success("Chamada salva ✓");
             }} className="mt-6 min-h-16 w-full rounded-2xl bg-primary text-2xl font-bold text-primary-foreground sg-glow disabled:opacity-50">
               {busy ? "Salvando…" : "✓ Salvar chamada"}
             </button>

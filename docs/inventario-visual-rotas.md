@@ -8,7 +8,7 @@
 
 Critério: rota de conteúdo chega (rota ou módulos importados, até 3 níveis) a uma primitiva do design system (PageHeader, WorkspaceHero, DiaryHeader, SectionHeader, StatePanel, EmptyState, SkeletonState, GuidedErrorState, WorkSurface, DecisionDesk, FollowUpWorkspace, ReviewQueue). Guardado por `src/components/sigem/route-visual-inventory.test.ts`.
 
-Totais: 210 rotas — NOVA 163, LAYOUT 34, EXCEÇÃO impressão/pública/login 11, visual próprio documentado 2.
+Totais: 217 rotas — NOVA 169, LAYOUT 34, EXCEÇÃO impressão/pública/login/redirect 12, visual próprio documentado 2.
 
 Migradas nesta rodada (sem mudança de regra): tarefas, secretaria/serviços, enturmações, base de conhecimento (carregando + vazio honesto), assistente, integrações externas, central de integrações, regras institucionais, central de acessos.
 
@@ -37,6 +37,7 @@ Pendente: zoom 200%, contraste e mobile com login real = INTERACTIVE_BROWSER_VAL
 | `atuacoes-pedagogicas.tsx` | LAYOUT |
 | `auditoria.tsx` | NOVA |
 | `auth.tsx` | EXCECAO_IMPRESSAO_PUBLICA |
+| `avancado.tsx` | REDIRECT_ONLY |
 | `autorizacoes-familia.tsx` | NOVA |
 | `avaliacao-desempenho.tsx` | NOVA |
 | `avaliacoes-do-professor.tsx` | NOVA |

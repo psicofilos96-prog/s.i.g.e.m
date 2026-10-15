@@ -2,6 +2,10 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { confirmAction } from "@/components/sigem/confirm-action";
+import { ACTION } from "@/config/ui-vocabulary";
+import { presentError } from "@/lib/observability/governed-errors";
+import { DateInput } from "@/components/sigem/date-input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ENTITIES, type Entity, type EntityKey, type Field } from "./entities";
 import { db, deleteRow, saveRow, useOptions } from "./data";
@@ -44,7 +48,7 @@ export function EntityPage({ entityKey }: { entityKey: EntityKey }) {
       if (t) q = q.ilike("name", `%${t}%`);
       if (schoolFilter) q = q.eq("school_id", schoolFilter);
       const { data, error, count } = await q;
-      if (error) throw new Error(error.message);
+      if (error) throw new Error("Não foi possível carregar os registros.");
       return { rows: data as Record<string, unknown>[], count: count ?? 0 };
     },
   });
@@ -77,7 +81,7 @@ export function EntityPage({ entityKey }: { entityKey: EntityKey }) {
       </div>
 
       <p className="mb-3 text-lg text-muted-foreground">{list.isLoading ? "Procurando…" : `${total.toLocaleString("pt-BR")} ${total === 1 ? e.one.toLowerCase() : e.many.toLowerCase()}`}</p>
-      {list.error && <p className="rounded-2xl bg-destructive/20 p-4 text-lg">Não consegui ler agora. <button className="underline" onClick={() => list.refetch()}>Tentar de novo</button></p>}
+      {list.error && <p className="rounded-2xl bg-destructive/20 p-4 text-lg">Não consegui ler agora. <button className="underline" onClick={() => list.refetch()}>{ACTION.tentarNovamente}</button></p>}
 
       <ul className="grid gap-3">
         {(list.data?.rows ?? []).map((r) => (
@@ -89,8 +93,9 @@ export function EntityPage({ entityKey }: { entityKey: EntityKey }) {
             <div className="flex shrink-0 gap-2">
               <button type="button" aria-label={`Editar ${String(r["name"])}`} onClick={() => setEditing(r)} className="grid size-12 place-items-center rounded-xl bg-secondary hover:bg-accent"><Pencil className="size-6" /></button>
               <button type="button" aria-label={`Apagar ${String(r["name"])}`} onClick={async () => {
-                if (!window.confirm(`Apagar "${String(r["name"])}"?`)) return;
-                try { await deleteRow(e.key, String(r["id"])); toast.success("Apagado"); refresh(); } catch (err) { toast.error((err as Error).message); }
+                const confirmed = await confirmAction({ title: "Apagar registro?", consequence: `O registro de ${String(r["name"])} será excluído permanentemente.`, actionLabel: "Apagar", destructive: true });
+                if (!confirmed) return;
+                try { await deleteRow(e.key, String(r["id"])); toast.success("Apagado"); refresh(); } catch (err) { toast.error(presentError(err)); }
               }} className="grid size-12 place-items-center rounded-xl bg-secondary hover:bg-destructive"><Trash2 className="size-6" /></button>
             </div>
           </li>
@@ -128,7 +133,7 @@ function EntityForm({ e, initial, opts, onDone }: { e: Entity; initial: Record<s
     <form className="grid gap-4" onSubmit={async (ev) => {
       ev.preventDefault();
       setBusy(true);
-      try { await saveRow(e.key, v); toast.success("Salvo ✓"); onDone(); } catch (err) { toast.error((err as Error).message); } finally { setBusy(false); }
+      try { await saveRow(e.key, v); toast.success("Salvo ✓"); onDone(); } catch (err) { toast.error(presentError(err)); } finally { setBusy(false); }
     }}>
       {e.fields.map((f) => {
         const id = `sg-${e.key}-${f.key}`;
@@ -149,8 +154,10 @@ function EntityForm({ e, initial, opts, onDone }: { e: Entity; initial: Record<s
                 <option value="">—</option>
                 {choices.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
               </select>
+            ) : f.type === "date" ? (
+              <DateInput id={id} required={f.required} value={val} placeholder={f.placeholder} onChange={(x) => set(x.target.value)} className={`${input} h-14`} />
             ) : (
-              <input id={id} required={f.required} type={f.type === "date" ? "date" : f.type === "number" ? "number" : "text"} value={f.type === "date" ? val.slice(0, 10) : val} placeholder={f.placeholder}
+              <input id={id} required={f.required} type={f.type === "number" ? "number" : "text"} value={val}
                 onChange={(x) => set(f.type === "number" ? (x.target.value === "" ? "" : Number(x.target.value)) : x.target.value)} className={input} />
             )}
           </div>

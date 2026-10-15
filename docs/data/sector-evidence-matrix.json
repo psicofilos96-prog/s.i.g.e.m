@@ -354,9 +354,9 @@
    "src/routes/planejamento.tsx",
    "src/routes/quadro-permanente-op.tsx"
   ],
-  "modules": 70,
-  "withTest": 35,
-  "withScreen": 38,
+  "modules": 71,
+  "withTest": 36,
+  "withScreen": 39,
   "withoutScreen": [
    "src/features/diary/attendance-correction.ts",
    "src/features/diary/attendance-temporal.ts",

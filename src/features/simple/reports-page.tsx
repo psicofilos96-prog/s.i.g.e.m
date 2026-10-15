@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 import { ENTITIES, ENTITY_LIST, type EntityKey } from "./entities";
 import { readAll, useOptions } from "./data";
 import { PageTitle } from "./simple-shell";
+import { DateInput } from "@/components/sigem/date-input";
 
 type Subject = EntityKey | "attendance";
 type Row = Record<string, unknown>;
@@ -126,8 +127,8 @@ export function ReportsPage() {
           </label>
         )}
         {isAtt && <>
-          <label className="grid gap-1 text-base">De<input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={sel} /></label>
-          <label className="grid gap-1 text-base">Até<input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={sel} /></label>
+          <label className="grid gap-1 text-base">De<DateInput value={from} onChange={(e) => setFrom(e.target.value)} className={`${sel} h-14`} /></label>
+          <label className="grid gap-1 text-base">Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} className={`${sel} h-14`} /></label>
         </>}
       </div>
 
@@ -156,7 +157,7 @@ export function ReportsPage() {
       <div className="overflow-x-auto rounded-3xl bg-card">
         <table className="w-full text-left text-lg">
           <caption className="sr-only">{title}</caption>
-          <thead><tr>{head.map((h) => <th key={h} className="border-b border-border p-3">{h}</th>)}</tr></thead>
+          <thead><tr>{head.map((h) => <th key={h} scope="col" className="border-b border-border p-3">{h}</th>)}</tr></thead>
           <tbody>{tableRows.map((r) => <tr key={String(r[0])} className="border-b border-border/50">{r.map((c, i) => <td key={i} className="p-3">{String(c)}</td>)}</tr>)}</tbody>
         </table>
       </div>
