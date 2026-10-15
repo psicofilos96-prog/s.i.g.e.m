@@ -140,6 +140,7 @@ async function loadContext(
   const t = { validOn: reference.validOn, knownAt: reference.knownAt };
   try {
     const diaryP = readDiaryFromCloud();
+    diaryP.catch(() => undefined); // erro tratado abaixo; evita rejeição solta se o ensino falhar antes
     const teaching = await readInstitutionalTeaching(target.userId, t);
     // Estudantes só das escolas das turmas do professor (antes: todas as escolas da rede).
     const [roster, diary] = await Promise.all([
