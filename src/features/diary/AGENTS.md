@@ -141,3 +141,8 @@
 - Nota do período só compõe instrumentos com coluna do modelo declarada (`definition.modelColumn` AV1/AV2/IV/PA/RP/RF), na Folha Final (`cellsFrom(..., compose)`) e no Livro, porque inferir coluna pelo título criaria norma escondida.
 - Folha Final, Boletim, Ficha e Ata são emitidos só pela Folha Final (atos + hash); o Livro aponta para lá, porque segunda impressão seria segunda versão.
 - Sem regra de resultado homologada o Livro sai como RASCUNHO com os parâmetros do modelo citados; período sem chamada imprime "—", nunca zero falta.
+
+## Diário de Classe (redesign — `class-diary/`)
+- `/diario` monta `ClassDiaryWorkspace`: ano/escola/turma/disciplina/data/aba vivem na URL e são o contexto único das abas, porque estado local por aba divergiria; as telas oficiais continuam donas da gravação.
+- Visual só pelos tokens `.diary-premium` (`--dp-*` em styles.css), sem tocar o tema global, para poder ser estendido a outros módulos depois.
+- `class-diary-model.ts` é projeção pura: sem chamada ⇒ "—" (nunca zero), aluno sem marca não vira presença/falta, percentual só com denominador observado.
