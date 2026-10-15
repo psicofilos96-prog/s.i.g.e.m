@@ -3,15 +3,21 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { homeActionsFor } from "@/config/profile-home";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { STATION_ROUTES } from "@/features/authority/station-navigation";
 import type { SessionAuthority } from "@/features/authority/session-authority";
 import { HomeTodayPanel } from "./home-today";
+
+function sectorOf(a: SessionAuthority) {
+  const pr = (a as { principal?: { station: keyof typeof STATION_ROUTES } | null }).principal;
+  return pr ? { station: pr.station, routes: STATION_ROUTES[pr.station] ?? [] } : null;
+}
 
 function greeting(h: number) { return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite"; }
 
 /** Início simples: saudação, até 6 botões grandes, "Mais" e o painel de hoje. */
 export function SimpleHome({ userId, authority }: { userId: string; authority: SessionAuthority }) {
   const [open, setOpen] = useState(false);
-  const { primary, more } = homeActionsFor((p) => pathAllowed(authority, p));
+  const { primary, more } = homeActionsFor((p) => pathAllowed(authority, p), sectorOf(authority));
   const name = (authority as { person?: { displayName?: string } | null }).person?.displayName?.split(" ")[0];
   const now = new Date();
   const today = now.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
