@@ -3725,6 +3725,13 @@
       "when": 1792090416232,
       "tag": "0531_locate_professional_by_name",
       "breakpoints": true
+    },
+    {
+      "idx": 532,
+      "version": "7",
+      "when": 1792096804226,
+      "tag": "0532_perf_capability_rows_filtered",
+      "breakpoints": true
     }
   ]
 }
