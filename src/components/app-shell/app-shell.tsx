@@ -177,9 +177,12 @@ function SidebarNavigation({
       {!compact && q && groups.length === 0 && (
         <p role="status" className="px-2.5 text-sm text-sidebar-muted">Nenhuma área do seu acesso tem esse nome.</p>
       )}
-      {groups.map((group) => {
+      {groups.map((group, gi) => {
         const groupActive = group.items.some((item) => item.to === pathname || (item.to !== "/" && pathname.startsWith(`${item.to}/`)));
-        const open = compact || q !== "" || groupActive || !closedGroups.has(group.label);
+        // Menu enxuto: só o primeiro grupo e o grupo da tela atual abrem sozinhos; os demais abrem com um clique.
+        const defaultOpen = gi === 0 || groups.length <= 2;
+        const toggled = closedGroups.has(group.label);
+        const open = compact || q !== "" || groupActive || (defaultOpen ? !toggled : toggled);
         return (
         <div className="mb-4" key={group.label}>
           {!compact && (
