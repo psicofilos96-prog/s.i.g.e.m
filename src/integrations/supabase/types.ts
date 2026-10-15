@@ -40168,6 +40168,19 @@ export type Database = {
         Args: { _policy: string; _valid_from: string }
         Returns: string
       }
+      capability_rows: {
+        Args: { _caps: string[]; _on?: string }
+        Returns: {
+          capability_id: string
+          class_id: string
+          component_id: string
+          engagement_id: string
+          period_id: string
+          policy_id: string
+          policy_version: number
+          school_id: string
+        }[]
+      }
       capability_unbound: { Args: { _capability: string }; Returns: boolean }
       case_can_act: { Args: { _cap: string; _unit: string }; Returns: boolean }
       census_advance_stage: {
