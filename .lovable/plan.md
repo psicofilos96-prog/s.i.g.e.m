@@ -1,33 +1,43 @@
-# SIGEM Simples 2 — todos os setores, visual bonito
+# SIGEM: volta ao design anterior, com menos complexidade
 
-## O que você vai ver
-1. **Tela inicial por setor**: depois do login, uma grade de cartões grandes, cada um com ícone ilustrado, cor própria e nome curto. Cada setor aparece com tudo o que ele faz:
-   - Secretaria (matrículas, transferências, remanejamentos, documentos do aluno)
-   - Direção (painel da escola, demandas, plano de gestão)
-   - Supervisão Escolar (visitas, calendário, acompanhamento)
-   - Orientação Pedagógica, CIECE, Avaliação
-   - Inclusão / NEI (ficha, AEE, apoio, agenda)
-   - Diário do Professor (chamada, notas, conteúdo)
-   - Alimentação / NAE
-   - Departamento Pessoal (servidores, lotação, licenças)
-   - DocServ e Documentos / Protocolo
-   - Mapa Estatístico, Calendário Escolar, Relatórios
-   - Família, Patrimônio, Tecnologia
-2. **Página de cada setor**: cabeçalho colorido com o nome do setor e até 6 botões grandes das tarefas mais usadas, mais "Ver tudo" com as outras funções. Os botões abrem as telas que já existem (nada é perdido) ou as fichas simples novas.
-3. **Busca única no topo**: digitar nome de aluno, servidor, turma, escola ou tarefa e ir direto.
-4. **Cadastros simples completos**: além de alunos, servidores, turmas e escolas, fichas para matrícula/transferência/remanejamento, licenças e lotação, todas ligadas entre si e aparecendo em Relatórios.
-5. **Visual novo**: fundo escuro com brilho suave, vidro fosco nos cartões, ícones ilustrados por setor, números grandes animados, gráficos com gradiente, tipografia moderna (títulos marcantes + texto muito legível), cantos arredondados, botões enormes com ícone + palavra. Versão clara automática para impressão.
-6. Cada pessoa vê os setores do seu login primeiro; o administrador vê todos.
+## 1. Voltar ao design anterior
+- A tela azul escura ("SIGEM Simples") sai. Volta a aparência anterior do SIGEM: menu lateral, cores, logos e páginas de antes.
+- A tela inicial volta a ser a anterior (hoje ela fica em "Modo avançado").
+- Nenhum dado é apagado. Os cadastros feitos nas telas novas continuam guardados e são ligados aos cadastros oficiais (passo 4), para nada se perder.
 
-## Ordem de trabalho
-1. Visual: novas cores, fontes, cartões e ícones dos setores.
-2. Tela inicial com todos os setores e busca única.
-3. Páginas de setor com as tarefas, ligadas às telas existentes.
-4. Novas fichas simples (movimentações, licenças, lotação) e inclusão delas em Relatórios.
-5. Conferência no navegador com seu login: cada setor abre, cada botão leva a algum lugar, nada fica "carregando" para sempre.
+## 2. Menos informação na tela, com o mesmo visual
+Mantemos o design e tiramos o excesso:
+- **Início por setor:** cada pessoa vê só as tarefas do próprio setor. São até 6 cartões grandes, com ícone e uma palavra (ex.: "Matricular", "Chamada", "Relatórios"). O restante fica em "Ver tudo".
+- **Cada página:** um título, uma frase curta e uma ação principal bem visível. Os detalhes ficam em abas ou em "Mais detalhes", fechados por padrão.
+- **Some do uso diário:** códigos internos, versões, "proveniência", "homologação", "rascunho", "indeterminado", "sem regra", avisos técnicos e selos de estado repetidos.
+- **Avisos:** só aparecem quando a pessoa pode resolver algo, numa frase simples e com o botão que resolve.
+- **Menu lateral:** agrupado por setor, com nomes curtos, e mostra só o que o login pode usar.
+
+## 3. Sem travas
+- Fazer o trabalho do dia a dia não depende mais de norma, homologação, ato ou vínculo: cadastrar servidor, aluno, turma e escola; matricular, transferir e remanejar; chamada; notas; licenças e lotação; calendário; mapa. A pessoa preenche e salva.
+- Quando a regra de cálculo não foi configurada, o sistema usa uma regra padrão: 200 dias letivos, frequência mínima de 75%, média 6, e o Mapa tirado no último dia letivo. Você pode mudar essas regras depois numa tela de "Configurações".
+- O histórico continua guardado, para relatórios e desfazer, mas sem exigir aprovação.
+- O calendário, o Mapa Estatístico e os PDFs oficiais continuam funcionando como hoje.
+
+## 4. Tudo ligado e pronto para relatório
+- Há um cadastro único para cada coisa (aluno, servidor, turma, escola). As telas novas e as antigas passam a usar a mesma base, para não haver duas versões do mesmo dado.
+- A tela Relatórios atual ganha um modo rápido: escolher o assunto, como separar (escola, turma, etapa, sexo, idade, cargo, mês) e ver o gráfico e a tabela na hora, com Excel e PDF.
+
+## 5. Visual mais caprichado, no estilo atual
+- Mantemos as cores, as fontes e os logos de hoje. Ganham destaque os cartões com ícone, os números grandes no início de cada setor e os espaços mais arejados.
+- Os textos ficam curtos, com uma ação principal por tela, e a interface se ajusta ao celular e ao computador.
+
+## Ordem de entrega
+1. Voltar o design anterior (rápido, sem perder dados).
+2. Início por setor e menu enxuto.
+3. Tirar as travas e os textos técnicos, setor por setor: Secretaria, Direção, Professor, Supervisão, CIECE, Orientação, NEI, Alimentação, DP e Família.
+4. Unificar os cadastros e criar o modo rápido de relatórios.
+5. Conferir cada setor no navegador.
 
 ## Detalhes técnicos
-- Registro único `src/features/simple/sectors.ts` (setor → cor, ícone, tarefas → rota existente ou ficha `sg_*`); setores do login vêm das concessões setoriais existentes, admin vê todos.
-- Rotas novas `/setor/$slug`; `isSimplePath` passa a incluir `/setor`; telas antigas abrem dentro do SimpleShell com botão "Voltar ao início".
-- Novas tabelas `sg_movements`, `sg_leaves`, `sg_postings` com RLS para logados; entram em `entities.ts` e no relatório.
-- Tokens novos em `src/styles.css` (.sg), fontes via `<link>` no `__root.tsx`; ícones ilustrados gerados e salvos em `src/assets/sectors/`.
+- Remover o desvio `isSimplePath` em `app-shell.tsx`. Restaurar `src/routes/index.tsx` a partir de `avancado.tsx`, mantendo `/avancado` como redirecionamento. As rotas `/cadastro/*`, `/chamada` e `/numeros` passam a usar o AppShell ou redirecionam às telas equivalentes.
+- Remover o tema `.sg` de `styles.css` e o `SimpleShell`.
+- Tabelas `sg_*`: migração de reconciliação para as tabelas institucionais. Depois disso, ficam só para leitura. Nada é apagado.
+- Writers que hoje recusam por falta de norma/homologação passam a aplicar uma "regra padrão do proprietário": versão de configuração registrada como decisão do proprietário, editável. As travas `fail-closed` deixam de bloquear o uso diário. Permissão por login continua: cada setor vê o seu, e o admin vê tudo.
+- Os textos técnicos saem por `ui-vocabulary`/`state-presentation` e pelas primitivas de `states.tsx` (uma mudança central, não tela por tela). A proveniência fica só no modo auditoria.
+- Atualizar `AGENTS.md` e a memória com a nova regra do proprietário: padrão aplicado, nada bloqueia, e o design anterior fica mantido.
