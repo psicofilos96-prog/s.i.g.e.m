@@ -13,6 +13,7 @@ import {
   CLASS_DIARY_TABS, bnccCodes, dayChipLabel, dayResume, initials, resolveTab, share, weekDays, weekRangeLabel,
   type ClassDiaryTab,
 } from "./class-diary-model";
+import { LessonResources } from "./lesson-resources";
 
 export type ClassDiarySearch = DiarySearch & { aba?: string };
 
@@ -240,12 +241,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
                 <h3 className="text-xs font-semibold">Recursos utilizados</h3>
                 <LessonBadge items={today} />
               </div>
-              <fieldset disabled className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-dp-muted" aria-describedby="recursos-nota">
-                {["Lousa", "Projetor", "Livro didático", "Vídeo", "Atividade impressa", "Outro"].map((r) => (
-                  <label key={r} className="flex items-center gap-2"><input type="checkbox" className="size-4" />{r}</label>
-                ))}
-              </fieldset>
-              <p id="recursos-nota" className="mt-1 text-micro text-dp-muted">Ainda não disponível.</p>
+              <LessonResources lessonRef={entry ? entry.id : null} />
               {entry ? (
                 <Link to="/diario/registros/$registroId" params={{ registroId: entry.id }} className="mt-2 inline-block text-xs font-medium text-dp-action hover:underline">Abrir registro</Link>
               ) : null}
