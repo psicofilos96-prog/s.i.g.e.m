@@ -18,7 +18,7 @@ import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonNam
  * que iniciou a escrita ainda for o corrente. RPC aceito não é desfeito: nada aqui promete rollback.
  */
 import { supabase } from "@/integrations/supabase/client";
-import { readAllEffectiveCapabilities } from "@/features/authority/read-all-capabilities";
+import { readEffectiveCapabilitiesShared } from "@/features/authority/capabilities-cache";
 import {
   diaryGeneration,
   diarySessionState,
