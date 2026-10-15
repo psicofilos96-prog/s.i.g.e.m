@@ -50,9 +50,33 @@ export const HOME_ACTIONS: readonly HomeAction[] = [
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart2 },
 ];
 
-/** Atalhos liberados, divididos em principais (até 6) e "Mais". */
-export function homeActionsFor(allowed: (path: string) => boolean): { primary: HomeAction[]; more: HomeAction[] } {
+/** Cartão de abertura de cada setor (só apresentação; a autoridade continua decidindo). */
+export const SECTOR_HOME_ACTION: Record<string, HomeAction> = {
+  secretaria_escolar: { to: "/secretaria", label: "Secretaria", icon: ClipboardList },
+  direcao_escolar: { to: "/direcao", label: "Direção", icon: School },
+  orientacao_pedagogica: { to: "/orientacao", label: "Orientação", icon: Eye },
+  supervisao: { to: "/supervisao-escolar", label: "Escolas", icon: Eye },
+  ciece: { to: "/ciece", label: "Estatística", icon: BarChart3 },
+  alimentacao: { to: "/alimentacao-escolar", label: "Alimentação", icon: Soup },
+  avaliacao: { to: "/avaliacao-desempenho", label: "Desempenho", icon: LineChart },
+  inclusao_nei: { to: "/inclusao", label: "Inclusão", icon: HandHeart },
+};
+
+/**
+ * Atalhos liberados, divididos em principais (até 6) e "Mais".
+ * Com setor conhecido, o cartão do setor vem primeiro e os atalhos das rotas do setor vêm antes dos demais.
+ */
+export function homeActionsFor(
+  allowed: (path: string) => boolean,
+  sector?: { station: string; routes: readonly string[] } | null,
+): { primary: HomeAction[]; more: HomeAction[] } {
   const seen = new Set<string>();
-  const list = HOME_ACTIONS.filter((a) => !seen.has(a.to) && allowed(a.to) && seen.add(a.to));
+  const head = sector ? SECTOR_HOME_ACTION[sector.station] : undefined;
+  const ordered = head ? [head, ...HOME_ACTIONS] : [...HOME_ACTIONS];
+  let list = ordered.filter((a) => !seen.has(a.to) && allowed(a.to) && seen.add(a.to));
+  if (sector) {
+    const own = (to: string) => sector.routes.some((r) => to === r || to.startsWith(`${r}/`));
+    list = [...list.filter((a) => own(a.to)), ...list.filter((a) => !own(a.to))];
+  }
   return { primary: list.slice(0, HOME_MAX_PRIMARY), more: list.slice(HOME_MAX_PRIMARY) };
 }
