@@ -72,8 +72,15 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(0);
 
-  const set = (changes: Partial<ClassDiarySearch>) =>
-    void navigate({ to: "/diario", search: (prev: ClassDiarySearch) => ({ ...prev, ...changes }) });
+  const set = (changes: { [K in keyof ClassDiarySearch]?: string | undefined }) =>
+    void navigate({
+      to: "/diario",
+      search: ((prev: Record<string, unknown>) => {
+        const next: Record<string, unknown> = { ...prev, ...changes };
+        for (const k of Object.keys(next)) if (next[k] === undefined) delete next[k];
+        return next;
+      }) as never,
+    });
 
   const units = context.units;
   const unitId = search.unidade && units.some((u) => u.value === search.unidade) ? search.unidade : units[0]?.value ?? "";
@@ -121,7 +128,7 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
   const registered = today.filter((i) => i.state === "Registrada").length;
   const skills = bnccCodes(entry ? `${entry.optional.skills ?? ""} ${entry.summary}` : "");
   const refDate = date.split("-").reverse().join("/");
-  const baseSearch = { professor: search.professor, unidade: unitId, turma: classId, componente: field, data: date };
+  const baseSearch: DiarySearch = { ...(search.professor ? { professor: search.professor } : {}), unidade: unitId, turma: classId, componente: field, data: date };
 
   return (
     <div className="diary-premium -m-4 min-h-full bg-dp-bg p-4 text-dp-ink sm:-m-6 sm:p-6">
