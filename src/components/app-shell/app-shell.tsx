@@ -1,4 +1,5 @@
 import { PasswordChangeGate } from "@/features/authority/password-change-gate";
+import { SimpleShell, isSimplePath } from "@/features/simple/simple-shell";
 import { useQuery } from "@tanstack/react-query";
 import { ConnectionBanner } from "./connection-banner";
 /**
