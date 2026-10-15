@@ -204,7 +204,7 @@ function TransferForm({ school, lines }: { school: string; lines: Line[] }) {
     catch (e) { setMsg(opsMessage((e as Error).message)); }
   });
   return (<fieldset className="grid gap-2 sm:grid-cols-3"><legend className="font-medium">Transferência entre escolas</legend>
-    <p className="sm:col-span-3 text-muted-foreground">Só é aceita com política homologada de transferência e permissão de rede. Sem ela, o banco recusa com o código do bloqueio.</p>
+    <p className="sm:col-span-3 text-muted-foreground">Transferências entre cozinhas dependem de regra da SEMED.</p>
     <label>Item<select className={field} value={it} onChange={(e) => setIt(e.target.value)}><option value="">Escolha…</option>{items.map((i) => <option key={i} value={i}>{i.replace("|", " · ")}</option>)}</select></label>
     <label>Escola de destino (código)<input className={field} value={to} onChange={(e) => setTo(e.target.value)} /></label>
     <label>Quantidade<input inputMode="decimal" className={field} value={qty} onChange={(e) => setQty(e.target.value)} /></label>

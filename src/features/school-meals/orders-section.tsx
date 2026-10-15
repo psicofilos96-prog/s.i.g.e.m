@@ -135,7 +135,7 @@ function SchoolOrder({ school, competence, order, items, units, pubs, act }: { s
   const [lines, setLines] = useState<OrderLine[]>(order?.lines ?? []);
   useEffect(() => setLines(order?.lines ?? []), [order]);
   const editable = !order || schoolCanEdit(order.status);
-  if (items.length === 0 || units.length === 0) return <StatePanel tone="warning" title="Catálogo não homologado" description="Sem itens e unidades homologados pelo Núcleo não é possível montar pedido." />;
+  if (items.length === 0 || units.length === 0) return <StatePanel tone="warning" title="Faltam os itens do pedido" description="O Núcleo de Alimentação precisa cadastrar os itens e as unidades antes." />;
   const base = { _logical: order?.logical_id ?? null, _expected_version: order?.version ?? null, _school: school, _competence: competence };
   return (
     <div className="space-y-2">
@@ -153,7 +153,7 @@ function SchoolOrder({ school, competence, order, items, units, pubs, act }: { s
           <label>Público atendido<input type="number" min={0} className={field} disabled={!editable} value={l.publico_atendido ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_atendido: e.target.value === "" ? undefined : Number(e.target.value) } : x)))} /></label>
           <label>Base do público<input className={field} disabled={!editable} value={l.publico_base ?? ""} placeholder="ex.: matrícula de agosto" onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_base: e.target.value || undefined } : x)))} /></label>
           <label>Dias letivos<input type="number" min={0} className={field} disabled={!editable} value={l.dias_letivos ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, dias_letivos: e.target.value === "" ? undefined : Number(e.target.value) } : x)))} /></label>
-          <label>Base dos dias<input className={field} disabled={!editable} value={l.dias_base ?? ""} placeholder="ex.: calendário homologado" onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, dias_base: e.target.value || undefined } : x)))} /></label>
+          <label>Base dos dias<input className={field} disabled={!editable} value={l.dias_base ?? ""} placeholder="ex.: calendário do ano" onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, dias_base: e.target.value || undefined } : x)))} /></label>
         </div>
       ))}
       <CeilingPanel school={school} lines={lines} />

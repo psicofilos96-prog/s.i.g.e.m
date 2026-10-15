@@ -133,7 +133,7 @@ function NcList({ ncs, names, reload, setMsg }: { ncs: Nc[]; names: Map<string, 
     <ul className="divide-y">{ncs.map((n) => (
       <li key={n.logical_id} className="space-y-1 py-2">
         <p>{names.get(n.school_id) ?? n.school_id} · {knownLabel(NONCONFORMITY_LABEL, n.status)} · {n.motive} · {n.evidence_refs.length} evidência(s)</p>
-        <p className="text-muted-foreground">Prazo: {n.deadline_state === NONCONFORMITY_DEADLINE_BLOCK ? "sem regra homologada — nenhum prazo é calculado" : n.deadline_state}</p>
+        <p className="text-muted-foreground">Prazo: {n.deadline_state === NONCONFORMITY_DEADLINE_BLOCK ? "sem prazo definido" : n.deadline_state}</p>
         {n.status !== "encerrada" && <div className="flex flex-wrap gap-2">{(["comunicada", "providencia", "resolvida", "encerrada"] as NonconformityStatus[]).filter((s) => s !== n.status).map((s) =>
           <Button key={s} variant="outline" onClick={() => void move(n, s)}>{NONCONFORMITY_LABEL[s]}</Button>)}</div>}
         <EvidencePanel kind="nao-conformidade" target={n.logical_id} canWrite />

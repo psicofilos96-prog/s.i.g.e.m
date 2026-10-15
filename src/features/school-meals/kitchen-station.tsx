@@ -70,7 +70,7 @@ function KitchenDayView({ school, day, slots, docs, onDone, today }: { school: s
   return (<div className="space-y-4">
     <StatePanel tone="info" title="Dia operacional" description={CALENDAR_UNRESOLVED} />
     <Card title="Refeições de hoje">
-      {slots.length === 0 ? <p className="text-muted-foreground">Nenhuma refeição homologada.</p> : (
+      {slots.length === 0 ? <p className="text-muted-foreground">Nenhuma refeição cadastrada.</p> : (
         <ul className="space-y-2">{slots.map((s) => { const e = day.executions.find((x) => x.slot === s.value_id); return (
           <li key={s.value_id} className="rounded-lg border p-3"><strong>{s.label}</strong>: {!e ? "sem registro" : e.followed === true ? "cardápio seguido" : e.followed === false ? `desvio — ${e.deviation ?? ""}` : "não informado"}
             {e && <div className="text-muted-foreground">Refeições servidas: {e.meals_total ?? "não informado"} · Alunos presentes: {e.students_present ?? "não informado"}</div>}</li>); })}</ul>)}
@@ -91,7 +91,7 @@ function KitchenDayView({ school, day, slots, docs, onDone, today }: { school: s
     <QuickConsumption school={school} stock={day.stock} today={today} onDone={onDone} />
     <Card title="Checklist e documentos">
       <p>Registros operacionais de hoje: {day.operational_records}. Checklists só existem sobre modelo operacional homologado.</p>
-      {docs === null ? <p className="text-muted-foreground">Documentos técnicos não disponíveis para sua atuação.</p> : docs.length === 0 ? <p className="text-muted-foreground">Nenhum POP ou cartilha homologado.</p>
+      {docs === null ? <p className="text-muted-foreground">Documentos técnicos não disponíveis para sua conta.</p> : docs.length === 0 ? <p className="text-muted-foreground">Nenhum POP ou cartilha cadastrado.</p>
         : <ul className="list-disc pl-5">{docs.map((d, i) => <li key={i}>{d.title}</li>)}</ul>}
       <p className="text-muted-foreground">Etiquetas: {LABELS_STATE} — sem modelo aprovado, nenhuma etiqueta é impressa.</p>
     </Card>

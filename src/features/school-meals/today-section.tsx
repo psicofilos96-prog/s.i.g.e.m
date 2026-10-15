@@ -44,7 +44,7 @@ export function TodaySection({ school, slots }: { school: string; slots: Slot[] 
         <ul className="space-y-1">{slots.map((s) => { const r = rows.find((x) => x.meal_slot_value_id === s.value_id) ?? null; const f = servedFacts(r);
           return <li key={s.value_id} className="rounded border p-2"><strong>{s.label}</strong>: {LABEL[plannedVsExecuted(r)]}
             {r && <> · Refeições servidas: {f.meals ?? "não informado"}{f.basis ? ` (${f.basis})` : ""} · Alunos presentes: {f.students ?? "não informado"}</>}</li>; })}
-          {slots.length === 0 && <li className="text-muted-foreground">Nenhuma refeição homologada.</li>}</ul>)}
+          {slots.length === 0 && <li className="text-muted-foreground">Nenhuma refeição cadastrada.</li>}</ul>)}
       <fieldset className="grid gap-2 sm:grid-cols-2"><legend className="font-medium">Registrar execução</legend>
         <label>Refeição<select className="block w-full rounded border p-2" value={slot} onChange={(e) => setSlot(e.target.value)}><option value="">Escolha…</option>{slots.map((s) => <option key={s.value_id} value={s.value_id}>{s.label}</option>)}</select></label>
         <label>Cardápio seguido?<select className="block w-full rounded border p-2" value={followed} onChange={(e) => setFollowed(e.target.value as "" | "sim" | "nao")}><option value="">Não informar</option><option value="sim">Sim</option><option value="nao">Não</option></select></label>
