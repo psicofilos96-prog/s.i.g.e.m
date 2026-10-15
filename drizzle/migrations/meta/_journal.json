@@ -3711,6 +3711,13 @@
       "when": 1792089400699,
       "tag": "0529_locate_student_by_name",
       "breakpoints": true
+    },
+    {
+      "idx": 530,
+      "version": "7",
+      "when": 1792089855607,
+      "tag": "0530_locate_student_by_name_inclui_cadastros",
+      "breakpoints": true
     }
   ]
 }

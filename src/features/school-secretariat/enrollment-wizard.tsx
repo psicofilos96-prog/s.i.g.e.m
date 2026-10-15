@@ -199,7 +199,9 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
   return (
     <div className="space-y-3">
       <NameSearch school={school} busy={busy} onPick={async (m) => {
-        setFound({ id: m.student_id, name: m.display_name, activeHere: false });
+        // Aluno só dos cadastros da rede: os dados preenchem a ficha e a matrícula cria o cadastro oficial.
+        if (m.student_id.startsWith("sg:")) { setFound(null); setMsg("Dados do cadastro da rede preenchidos. Confira e continue."); }
+        else setFound({ id: m.student_id, name: m.display_name, activeHere: false });
         edit((x) => ({ ...x, aluno: { ...x.aluno, nome: m.display_name, ...(m.birth_date ? { nascimento: m.birth_date } : {}) },
           responsaveis: x.responsaveis?.length ? x.responsaveis : [m.mother_name ? { nome: m.mother_name, parentesco: "Mãe", telefone: m.phones[0] ?? "" } : null, m.father_name ? { nome: m.father_name, parentesco: "Pai", telefone: m.phones[1] ?? "" } : null].filter(Boolean) as NonNullable<WizardPayload["responsaveis"]> }));
       }} />
