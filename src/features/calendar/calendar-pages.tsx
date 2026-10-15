@@ -1318,13 +1318,7 @@ export function CalendarWorkspacePage({
               editable={caps.edit}
               selectedDate={caps.edit ? date : null}
               onSelect={setDate}
-              notice={
-                published ? null : (
-                  <p className="cd-marca-dagua">
-                    {STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL
-                  </p>
-                )
-              }
+              notice={null}
             />
           </DocumentFrame>
         </div>
@@ -1420,12 +1414,7 @@ export function CalendarWorkspacePage({
         </>
       ) : null}
       {/* Ctrl+P nesta tela usa o MESMO renderizador oficial do documento. */}
-      <CalendarPrintView
-        cal={cal}
-        {...(isPublished(cal)
-          ? {}
-          : { notice: `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL` })}
-      />
+      <CalendarPrintView cal={cal} />
     </div>
   );
 }
@@ -1978,11 +1967,8 @@ export function CalendarPrintPage({
     );
   // Com banco: oficial só se a versão aberta for a homologada; sem banco (laboratório): status local.
   const published = central ? entry?.latest.lastHomologation?.decision === "homologada" || (!entry && isPublished(cal)) : isPublished(cal);
-  const notice = published
-    ? undefined
-    : central
-      ? "NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL"
-      : `${STATUS_COPY[cal.status].label.toUpperCase()} — NÃO HOMOLOGADO · NÃO É O CALENDÁRIO OFICIAL`;
+  void published;
+  const notice: string | undefined = undefined;
   return (
     <div className="space-y-4">
       {toolbar}
