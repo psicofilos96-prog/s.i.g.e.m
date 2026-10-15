@@ -1,15 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { EntityPage } from "@/features/simple/entity-page";
-const Page = () => <EntityPage entityKey="staff" />;
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// Um cadastro só (decisão do proprietário, 2026-10-15): o cadastro rápido leva ao oficial.
+// Os dados das planilhas continuam guardados e aparecem nas buscas do cadastro oficial.
 export const Route = createFileRoute("/cadastro/servidores")({
-  head: () => ({ meta: [
-    { title: "Servidores — SIGEM" },
-    { name: "description", content: "Cadastro de servidores da rede." },
-    { property: "og:title", content: "Servidores — SIGEM" },
-    { property: "og:description", content: "Cadastro de servidores da rede." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
-  component: Page,
+  beforeLoad: () => { throw redirect({ to: "/profissionais", replace: true }); },
 });
