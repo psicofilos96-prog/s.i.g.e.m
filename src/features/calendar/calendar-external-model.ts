@@ -229,6 +229,8 @@ export type ExternalMonth = Readonly<{
   byDay: ReadonlyMap<number, PrintDay>; total: PrintCount;
   /** Mês com passagem de período (um termina e outro começa nele): letivos de cada lado, como no interno. */
   split?: readonly [number, number];
+  /** Dia em que começa o período seguinte no mês dividido: antes dele é do 1º semestre, a partir dele do 2º. */
+  splitAt?: number;
   /** Grade semanal D..S: null = célula vazia antes/depois do mês. */
   weeks: readonly (readonly (number | null)[])[];
 }>;
@@ -291,7 +293,7 @@ export function buildExternalViewModel(model: PrintModel, presentation: Record<s
     legendCodes: model.legendCodes, unmappedTypes: model.unmappedTypes, mismatches: model.mismatches, signatures: model.signatures, councils, days };
 }
 
-function splitOf(key: string, days: readonly PrintDay[], periods: readonly PrintPeriod[]): { split?: readonly [number, number] } {
+function splitOf(key: string, days: readonly PrintDay[], periods: readonly PrintPeriod[]): { split?: readonly [number, number]; splitAt?: number } {
   const ps = [...periods].sort((a, b) => a.startsOn.localeCompare(b.startsOn));
   for (let i = 0; i + 1 < ps.length; i++) {
     const end = ps[i]!.endsOn, next = ps[i + 1]!.startsOn;
@@ -299,7 +301,7 @@ function splitOf(key: string, days: readonly PrintDay[], periods: readonly Print
     const inAny = (on: string) => ps.some((p) => p.startsOn <= on && p.endsOn >= on);
     let a = 0, b = 0;
     for (const d of days) if (d.effect === "letivo" && inAny(d.on)) { if (d.on <= end) a++; else b++; }
-    return { split: [a, b] };
+    return { split: [a, b], splitAt: Number(next.slice(8, 10)) };
   }
   return {};
 }
