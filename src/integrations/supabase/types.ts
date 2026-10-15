@@ -20540,6 +20540,33 @@ export type Database = {
           },
         ]
       }
+      lesson_resource_records: {
+        Row: {
+          id: string
+          lesson_ref: string
+          other_text: string | null
+          recorded_at: string
+          recorded_by: string
+          resources: string[]
+        }
+        Insert: {
+          id?: string
+          lesson_ref: string
+          other_text?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          resources?: string[]
+        }
+        Update: {
+          id?: string
+          lesson_ref?: string
+          other_text?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          resources?: string[]
+        }
+        Relationships: []
+      }
       map_competence_rules: {
         Row: {
           created_at: string

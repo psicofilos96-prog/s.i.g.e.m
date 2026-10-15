@@ -7,4 +7,5 @@
 - [ ] 5. Conferir cada setor no navegador
 
 - [x] Diário de Classe — novo visual (tela única, abas, semana, cartão da aula, tabela, quadros)
-- [ ] Diário de Classe — lançamento inline (chamada/conteúdo/notas na própria tela) e recursos da aula (aguarda autorização para o campo)
+- [x] Diário — campo "Recursos utilizados" (gravado com histórico)
+- [ ] Diário — lançamento inline de chamada/conteúdo/notas
