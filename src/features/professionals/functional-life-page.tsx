@@ -37,10 +37,10 @@ export function FunctionalLifePage() {
   }, []);
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Departamento Pessoal" title="Profissionais da escola" description="Consulta por escola. A vida funcional administrativa (vínculos, lotações, eventos, atos, processos) é registrada no SIGEM; folha, previdência, pensão e consignações ficam fora. Vínculo, lotação, presença na escola e regência são fatos distintos — regência nunca vem do DP." />
+      <PageHeader eyebrow="Departamento Pessoal" title="Profissionais da escola" description="Vínculos, lotações, férias e licenças dos servidores de cada escola." />
       {err ? <StatePanel tone="danger" title="Não foi possível abrir" description={err} />
         : !schools ? <SkeletonState label="Carregando" />
-        : schools.length === 0 ? <EmptyState title="Sem acesso ao registro funcional" description="Sua atuação não tem permissão vigente para consultar o registro funcional de nenhuma escola. Cargo ou vínculo não dão essa permissão." />
+        : schools.length === 0 ? <EmptyState title="Sem acesso ao registro funcional" description="Sua conta ainda não pode consultar os servidores. Peça ao administrador do SIGEM." />
         : <>
             <div className="grid gap-3 text-sm sm:grid-cols-3">
               <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
@@ -78,13 +78,13 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
   const picture = useMemo(() => (src ? functionalPicture(src, school, on, knownAt) : null), [src, school, on, knownAt]);
   if (err) return <StatePanel tone="danger" title="Registro funcional indisponível" description={err} />;
   if (!picture) return <SkeletonState label="Carregando registro funcional" />;
-  if (!picture.length) return <EmptyState title="Nenhuma lotação registrada nesta escola" description="Não há vínculo funcional com lotação nesta escola até a data de conhecimento escolhida. Isso não significa quadro zerado: o registro pode ainda não ter sido feito." />;
+  if (!picture.length) return <EmptyState title="Nenhuma lotação registrada nesta escola" description="Ainda não há servidores lotados registrados nesta escola." />;
   const attention = attentionItems(pictureFacts(picture), on, 30);
   return (
     <div className="space-y-4">
     <section aria-labelledby="dp-atencao" className="rounded border p-4 text-sm">
       <h2 id="dp-atencao" className="font-semibold">O que precisa de atenção (próximos 30 dias)</h2>
-      {attention.length === 0 ? <p className="text-muted-foreground">Nenhum término declarado de vínculo ou lotação vencido ou nos próximos 30 dias. Prazos sem regra institucional (probatório, quinquênio, aposentadoria, acúmulo) não são calculados.</p>
+      {attention.length === 0 ? <p className="text-muted-foreground">Nenhum vínculo ou lotação terminando nos próximos 30 dias.</p>
         : <ul className="mt-2 space-y-1">{attention.map((a) => <li key={a.factId}>{names.get(a.personId) ?? "Pessoa sem nome disponível"} — {a.label} em {br(a.date)} <em>({a.state === "vencido" ? "já passou" : "em breve"})</em></li>)}</ul>}
     </section>
     <ul className="space-y-4">
