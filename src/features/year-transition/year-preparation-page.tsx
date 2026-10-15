@@ -11,7 +11,7 @@ import {
 } from "./year-transition";
 import {
   enrollStudent, locateProfessional, locateProfessionalByName, locateStudent, readCandidates, readSummary, readYears, recordDecision, registerStudent,
-  type ProfessionalLookupResult, type StudentLookupResult, type YearOption,
+  type ProfessionalLookupResult, type ProfessionalNameMatch, type StudentLookupResult, type YearOption,
 } from "./year-transition-source";
 
 const STATE_LABEL: Record<string, string> = {
