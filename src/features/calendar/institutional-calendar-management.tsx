@@ -35,7 +35,10 @@ import {
   type PendingPresentation, type PresentationRead,
 } from "./institutional-calendar-presentation";
 import { InstitutionalCalendarPrint, InstitutionalPrintSheet } from "./institutional-calendar-print";
-import { DEFAULT_TEMPLATE, type PresentationTemplateCode } from "./calendar-external-model";
+import { buildExternalViewModel, DEFAULT_TEMPLATE, defaultProfile, type PresentationTemplateCode } from "./calendar-external-model";
+import { ExternalInfoStrip } from "./calendar-external-sheets";
+import { externalPresentation } from "./calendar-visual-resolver";
+import type { CouncilConfiguration } from "./institutional-calendar-councils";
 import { ExternalPresentationPanel, TemplateSelector } from "./calendar-external-panel";
 import { AcademicStructureAssistant, B24_CAPABILITY } from "./calendar-activation-assistant";
 import { councilProposals, readCouncilConfiguration, recordCouncilConfiguration } from "./institutional-calendar-councils";
@@ -345,7 +348,7 @@ function PrintVersion({ version, presentation, knownAt, periods, autoLoad = fals
   const [model, setModel] = useState<ReturnType<typeof buildPrintModel> | null>(null);
   const [readDays, setReadDays] = useState<readonly CalendarDayRead[]>([]);
   const [err, setErr] = useState<string | null>(null);
-  const [template, setTemplate] = useState<PresentationTemplateCode>(DEFAULT_TEMPLATE);
+  const [template, setTemplate] = useState<PresentationTemplateCode | "interno-quadros">(DEFAULT_TEMPLATE);
   const load = async () => {
     setErr(null);
     try {
@@ -360,8 +363,10 @@ function PrintVersion({ version, presentation, knownAt, periods, autoLoad = fals
     <div className="space-y-1">
       {autoLoad && !model && !err && <p role="status" className="text-xs text-muted-foreground">Lendo as declarações da versão…</p>}
       {autoLoad && err && <p role="alert" className="text-xs text-destructive">{err}</p>}
-      {model && <TemplateSelector value={template} onChange={setTemplate} />}
-      {template === "interno" ? (
+      {model && <TemplateSelector value={template} onChange={setTemplate} extra={MIXED_OPTION} />}
+      {template === "interno-quadros" ? model && (
+        <MixedSheet model={model} presentation={presentation} version={version} knownAt={knownAt} days={readDays} />
+      ) : template === "interno" ? (
         <>
           <div className="flex gap-2">
             <Button type="button" size="sm" variant="outline" onClick={() => void load()}>Visualizar folha institucional</Button>
@@ -374,6 +379,27 @@ function PrintVersion({ version, presentation, knownAt, periods, autoLoad = fals
         <ExternalPresentationPanel template={template} model={model} presentation={presentation} calendarId={version.calendarId} versionId={version.versionId} days={readDays} on={version.validFrom} knownAt={knownAt} canEdit={canEdit} />
       )}
     </div>
+  );
+}
+
+const MIXED_OPTION = [{ code: "interno-quadros" as const, label: "Interno com quadros do externo" }];
+
+/** Terceiro modelo: a folha interna inteira, trocando só a parte abaixo da tabela pelos quadros do externo. */
+function MixedSheet({ model, presentation, version, knownAt, days }: {
+  model: ReturnType<typeof buildPrintModel>; presentation: Record<string, unknown>; version: CalendarVersionSummary; knownAt: string; days: readonly CalendarDayRead[];
+}) {
+  const [council, setCouncil] = useState<CouncilConfiguration | null>(null);
+  useEffect(() => { let alive = true; void readCouncilConfiguration({ versionId: version.versionId, on: version.validFrom, knownAt }).then((c) => { if (alive) setCouncil(c); }); return () => { alive = false; }; }, [version.versionId, version.validFrom, knownAt]);
+  const pres = useMemo(() => externalPresentation(presentation), [presentation]);
+  const vm = useMemo(() => buildExternalViewModel(model, pres, { versionId: version.versionId, config: council, days }), [model, pres, version.versionId, council, days]);
+  const profile = useMemo(() => defaultProfile("externo-livre", pres, version.calendarId), [pres, version.calendarId]);
+  const footer = <ExternalInfoStrip vm={vm} p={profile} presentation={pres} />;
+  return (
+    <>
+      <div className="flex gap-2"><Button type="button" size="sm" variant="outline" onClick={() => window.print()}>Imprimir</Button></div>
+      <InstitutionalPrintSheet model={model} presentation={presentation} versionId={version.versionId} footer={footer} />
+      <InstitutionalCalendarPrint model={model} presentation={presentation} versionId={version.versionId} footer={footer} />
+    </>
   );
 }
 

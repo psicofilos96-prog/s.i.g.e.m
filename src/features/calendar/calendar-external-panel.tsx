@@ -37,13 +37,13 @@ function fitSummary(a: ExternalProfile, b: ExternalProfile): string {
   return parts.length ? `Ajustado para caber: ${parts.join("; ")}. Confira a prévia e salve.` : "Tudo cabe.";
 }
 
-export function TemplateSelector({ value, onChange }: { value: PresentationTemplateCode; onChange: (v: PresentationTemplateCode) => void }) {
+export function TemplateSelector<T extends string = PresentationTemplateCode>({ value, onChange, extra = [] }: { value: T; onChange: (v: T) => void; extra?: readonly { code: T; label: string }[] }) {
   return (
     <div role="radiogroup" aria-label="Modelo de apresentação" className="flex flex-wrap gap-1">
       <span className="mr-1 self-center text-xs font-medium">Modelo de apresentação:</span>
-      {PRESENTATION_TEMPLATES.map((t) => (
+      {[...(PRESENTATION_TEMPLATES as readonly { code: string; label: string }[]), ...extra].map((t) => (
         <Button key={t.code} type="button" size="sm" role="radio" aria-checked={value === t.code}
-          variant={value === t.code ? "default" : "outline"} onClick={() => onChange(t.code)}>{t.label}</Button>
+          variant={value === t.code ? "default" : "outline"} onClick={() => onChange(t.code as T)}>{t.label}</Button>
       ))}
     </div>
   );

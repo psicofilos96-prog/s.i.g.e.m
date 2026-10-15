@@ -5,7 +5,7 @@
  * Não chama `deriveCalendarProjection`/`resolveCalendar`: o motor do laboratório não é norma.
  * Total indeterminado é impresso como texto, nunca como número 0.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { DayMark } from "./calendar-mark";
 import { LogoItem, observationLines } from "./calendar-document";
@@ -23,8 +23,10 @@ const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 
 const Count = ({ c }: { c: PrintCount }) =>
   c.schoolDays === null ? <span className="cd-indeterminado" title={c.reason ?? ""}>indeterminado</span> : <>{c.schoolDays}</>;
 
-export function InstitutionalPrintSheet({ model, presentation, versionId = "institucional" }: {
+export function InstitutionalPrintSheet({ model, presentation, versionId = "institucional", footer }: {
   model: PrintModel; presentation: Record<string, unknown>; versionId?: string;
+  /** Terceiro modelo: substitui só a parte abaixo da tabela pelos quadros do externo. */
+  footer?: ReactNode;
 }) {
   const doc = (isObj(presentation["document"]) ? presentation["document"] : {}) as unknown as NetworkCalendar["document"];
   const overrides = (presentation["symbology"] ?? undefined) as never;
@@ -78,7 +80,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
           })}
         </tbody>
       </table>
-      <div className="cd-rodape">
+      {footer ?? <div className="cd-rodape">
         <div data-cd-bloco="legenda">
           <h4 className="cd-titulo-bloco">Legenda:</h4>
           {model.legendCodes.map((code) => {
@@ -126,7 +128,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
           <InfoLinesAt lines={info} place="depois-total" />
           <InfoLinesAt lines={info} place="depois-conselhos" />
         </div>
-      </div>
+      </div>}
       <div className="cd-assinaturas">
         {model.signatures.map((s, i) => <div key={i} className="cd-assinatura"><div className="cd-assinatura-espaco" /><div className="cd-assinatura-rotulo">{s}</div></div>)}
       </div>
@@ -134,7 +136,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
   );
 }
 
-export function InstitutionalCalendarPrint(props: { model: PrintModel; presentation: Record<string, unknown>; versionId?: string }) {
+export function InstitutionalCalendarPrint(props: { model: PrintModel; presentation: Record<string, unknown>; versionId?: string; footer?: ReactNode }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
