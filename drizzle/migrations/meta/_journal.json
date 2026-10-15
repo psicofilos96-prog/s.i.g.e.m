@@ -3732,6 +3732,13 @@
       "when": 1792096804226,
       "tag": "0532_perf_capability_rows_filtered",
       "breakpoints": true
+    },
+    {
+      "idx": 533,
+      "version": "7",
+      "when": 1792103632923,
+      "tag": "0533_lesson_resources",
+      "breakpoints": true
     }
   ]
 }
