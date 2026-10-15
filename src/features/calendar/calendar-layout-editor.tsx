@@ -319,8 +319,6 @@ export function CalendarAppearanceEditor({
   }, [open]);
 
   const { layout, symbology, vacationDisplay } = h.draft;
-  const setVacationDisplay = (v: "texto" | "marcador") =>
-    h.update("vacationDisplay", (d) => ({ ...d, vacationDisplay: v }));
   const logos = (layout as unknown as { logos?: CalendarLogo[] }).logos ?? DEFAULT_LOGOS;
   const setLogos = (next: CalendarLogo[]) =>
     h.update("logos", (d) => ({ ...d, layout: { ...(d.layout as object), logos: next } as DocumentLayout }));
