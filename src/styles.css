@@ -1623,26 +1623,27 @@
 
 /* Diário de Classe — identidade "premium" com escopo próprio (.diary-premium). */
 .diary-premium {
-  --dp-navy: oklch(0.27 0.06 255);
-  --dp-ink: oklch(0.24 0.05 258);
-  --dp-ink-2: oklch(0.45 0.03 257);
-  --dp-muted: oklch(0.55 0.03 257);
-  --dp-bg: oklch(0.973 0.006 250);
-  --dp-surface-2: oklch(0.984 0.004 250);
-  --dp-head: oklch(0.955 0.012 250);
-  --dp-line: oklch(0.925 0.013 255);
-  --dp-action: oklch(0.55 0.22 263);
-  --dp-action-hover: oklch(0.49 0.22 264);
-  --dp-select: oklch(0.93 0.04 255);
-  --dp-ok: oklch(0.6 0.16 150);
-  --dp-ok-soft: oklch(0.95 0.05 150);
-  --dp-bad: oklch(0.58 0.22 27);
-  --dp-bad-soft: oklch(0.95 0.03 25);
-  --dp-warn: oklch(0.55 0.14 70);
-  --dp-warn-soft: oklch(0.95 0.07 85);
-  --dp-violet: oklch(0.54 0.25 293);
-  --dp-violet-soft: oklch(0.95 0.03 295);
-  --dp-shadow: 0 1px 2px color-mix(in oklab, var(--dp-navy) 6%, transparent), 0 4px 14px -6px color-mix(in oklab, var(--dp-navy) 12%, transparent);
+  /* Padronizado com o resto do SIGEM: o Diário usa as mesmas cores do sistema. */
+  --dp-navy: var(--institutional);
+  --dp-ink: var(--foreground);
+  --dp-ink-2: var(--muted-foreground);
+  --dp-muted: var(--muted-foreground);
+  --dp-bg: var(--background);
+  --dp-surface-2: var(--card);
+  --dp-head: var(--muted);
+  --dp-line: var(--border);
+  --dp-action: var(--primary);
+  --dp-action-hover: color-mix(in oklab, var(--primary) 88%, var(--foreground));
+  --dp-select: color-mix(in oklab, var(--primary) 12%, var(--card));
+  --dp-ok: var(--success);
+  --dp-ok-soft: color-mix(in oklab, var(--success) 12%, var(--card));
+  --dp-bad: var(--destructive);
+  --dp-bad-soft: color-mix(in oklab, var(--destructive) 10%, var(--card));
+  --dp-warn: var(--warning);
+  --dp-warn-soft: color-mix(in oklab, var(--warning) 14%, var(--card));
+  --dp-violet: var(--info);
+  --dp-violet-soft: color-mix(in oklab, var(--info) 12%, var(--card));
+  --dp-shadow: var(--shadow-panel);
 }
 @theme inline {
   --color-dp-navy: var(--dp-navy);
