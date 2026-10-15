@@ -1,4 +1,3 @@
-import { finalCouncilText } from "./calendar-final-council-label";
 /**
  * Motor temporal puro do calendário da rede (porta de motor.ts,
  * preparar-grade.ts e validacoes.ts da especificação 2027). Sem React.
@@ -974,7 +973,7 @@ export function councilDates(cal: NetworkCalendar, r: ResolvedCalendar = resolve
     const period = owner(date);
     const final = role === "conselho-final";
     const label = final
-      ? finalCouncilText(period.finalCouncilLabel?.trim() || "Conselho de Classe Final")
+      ? period.finalCouncilLabel?.trim() || "Conselho de Classe Final"
       : period.councilLabel?.trim() || `Conselho de Classe do ${period.name}`;
     out.push({ key: `${period.id}-${final ? "cf" : "cc"}-${date}`, periodId: period.id, date, label, final });
   }
