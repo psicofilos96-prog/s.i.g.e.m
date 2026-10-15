@@ -194,7 +194,7 @@ function Councils({ vm, p }: { vm: ExternalViewModel; p: ExternalProfile }) {
     <section className="cx-caixa" data-cx-bloco="conselhos" data-council-state={c.state} style={{ ["--cx-bs" as string]: String(p.typeScale.councils) } as CSSProperties}><h2>Conselhos de classe</h2>
       <div className="cx-caixa-corpo" data-fit={p.typeScale.councils === 1 ? "" : undefined}>
         {c.state === "configurada"
-          ? c.items.length ? <ul className="cx-feriados cx-duas">{c.items.map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{councilItemText(i.name, i.on, c.items)}</span></li>)}</ul>
+          ? c.items.length ? <ul className="cx-feriados cx-duas">{[...c.items].sort((a, b) => a.on.localeCompare(b.on)).map((i) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b><span>{councilItemText(i.name, i.on, c.items)}</span></li>)}</ul>
             : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
           : <p className="cx-vazio">{COUNCIL_TEXT[c.state]}</p>}
       </div>
@@ -649,7 +649,7 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
       </FreeBox>}
       {B.conselhos.visible && <FreeBox {...common("conselhos")} title="Conselhos de Classe">
         {vm.councils.state === "configurada"
-          ? vm.councils.items.length ? <ul className="cf-lista" style={{ columnCount: B.conselhos.style.cols }}>{vm.councils.items.map((i, _n, all) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {councilItemText(i.name, i.on, all)}</li>)}</ul>
+          ? vm.councils.items.length ? <ul className="cf-lista" style={{ columnCount: B.conselhos.style.cols }}>{[...vm.councils.items].sort((a, b) => a.on.localeCompare(b.on)).map((i, _n, all) => <li key={i.on + i.role}><b>{shortDate(i.on)}</b> {councilItemText(i.name, i.on, all)}</li>)}</ul>
             : <p className="cx-vazio">Tipos de conselho configurados, sem datas declaradas nesta versão.</p>
           : <p className="cx-vazio" data-council-state={vm.councils.state}>{COUNCIL_TEXT[vm.councils.state]}</p>}
         {INFO_PLACES.map((pl) => <InfoLinesAt key={pl.code} lines={info} place={pl.code} />)}
