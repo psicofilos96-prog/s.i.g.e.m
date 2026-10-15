@@ -120,7 +120,7 @@ function AuthorizationList({ items, busy, onAct }: { items: AuthorizationView[];
           <span className="rounded bg-muted px-2 py-0.5 text-xs">{STATE_TEXT[a.state]}</span>
         </div>
         <p className="text-sm">Seções: {a.head.sections.map((s) => SECTION_LABEL[s as FamilySection] ?? s).join(", ") || "nenhuma"} · de {fmtDate(a.head.valid_from)} {a.head.valid_until ? `até ${fmtDate(a.head.valid_until)}` : "sem data de fim"}</p>
-        <p className="text-xs text-muted-foreground">Parentesco: {a.head.relation_value_id ?? "não registrado (sem catálogo homologado)"}</p>
+        <p className="text-xs text-muted-foreground">Parentesco: {a.head.relation_value_id ?? "não informado"}</p>
         <details className="text-xs"><summary>Histórico ({a.history.length})</summary>
           <ol className="mt-1 space-y-1">{a.history.map((h) => <li key={h.id}>v{h.version} · {KIND_TEXT[h.event_kind]} · {formatDateTime(h.recorded_at)}{h.reason ? ` · ${h.reason}` : ""}</li>)}</ol></details>
         {a.state !== "revogada" && !a.legacy ? (edit?.id === a.head.id ? (
