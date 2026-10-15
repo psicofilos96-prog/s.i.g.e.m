@@ -1609,3 +1609,4 @@
   font-size: 1.125rem;
 }
 @utility sg-glow { box-shadow: var(--sg-glow); }
+.sg :is(h1,h2,h3) { font-family: inherit; }
