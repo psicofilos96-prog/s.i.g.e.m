@@ -19,7 +19,7 @@ const ALL_KINDS = [...new Set(PLANNING_TABS.flatMap((t) => t.kinds))];
 interface Staging { id: string; kind: string; context_key: string; source_name: string | null; row_count: number; state: string }
 
 const field = "mt-1 block w-full rounded border bg-background p-2";
-const ACTION_LABEL = { conferencia: "Conferir", homologacao: "Homologar", retirada: "Retirar" } as const;
+const ACTION_LABEL = { validar: "Validar agora", conferencia: "Conferir", homologacao: "Homologar", retirada: "Retirar" } as const;
 
 export function PlanningSection({ schools = [] }: { schools?: { id: string; name: string }[] }) {
   const [tab, setTab] = useState(PLANNING_TABS[0]!.id);
@@ -73,7 +73,12 @@ export function PlanningSection({ schools = [] }: { schools?: { id: string; name
 
 type RecordFn = (a: Record<string, unknown>) => Promise<boolean>;
 function KindList({ kind, rows, all, schools, record }: { kind: string; rows: MasterRow[]; all: Record<string, MasterRow[]>; schools: { id: string; name: string }[]; record: RecordFn }) {
-  const act = async (r: MasterRow, action: "conferencia" | "homologacao" | "retirada") => {
+  const act = async (r: MasterRow, action: "validar" | "conferencia" | "homologacao" | "retirada") => {
+    if (action === "validar") {
+      const base = { _kind: kind, _logical: r.logical_id, _payload: null, _school: null, _from: null, _to: null, _reason: null };
+      if (await record({ ...base, _expected_version: r.version, _action: "conferencia" })) await record({ ...base, _expected_version: r.version + 1, _action: "homologacao" });
+      return;
+    }
     const reason = action === "retirada" ? await askText("Motivo da retirada:") : null;
     if (action === "retirada" && !reason?.trim()) return;
     await record({ _kind: kind, _logical: r.logical_id, _expected_version: r.version, _action: action, _payload: null, _school: null, _from: null, _to: null, _reason: reason });
@@ -91,7 +96,7 @@ function KindList({ kind, rows, all, schools, record }: { kind: string; rows: Ma
                 {r.functional_validation ? ` · ${r.functional_validation}` : ""}
               </span>
               {MASTER_FORM[kind] && <span className="flex gap-1">{masterActions(r.status).map((a) => (
-                <Button key={a} size="sm" variant={a === "retirada" ? "outline" : "default"} onClick={() => void act(r, a)}>{ACTION_LABEL[a]}</Button>))}</span>}
+                <Button key={a} size="sm" variant={a === "validar" ? "default" : "outline"} onClick={() => void act(r, a)}>{ACTION_LABEL[a]}</Button>))}</span>}
             </li>
           ))}
         </ul>
@@ -128,7 +133,7 @@ function MasterForm({ kind, all, schools, record }: { kind: string; all: Record<
       ))}
       <label>Vigência a partir de<DateInput className={field} value={from} onChange={(e) => setFrom(e.target.value)} /></label>
       <div className="flex items-end gap-2 sm:col-span-3"><Button type="submit">Registrar rascunho</Button>
-        <span className="text-xs text-muted-foreground">Quem cadastra não pode aprovar o próprio item: outra pessoa confere e aprova.</span></div>
+        <span className="text-xs text-muted-foreground">Depois de registrar, use "Validar agora" para o item já valer. Se outra pessoa precisar conferir, use "Conferir".</span></div>
       {err && <p role="alert" className="text-destructive sm:col-span-3">{err}</p>}
     </form>
   );
