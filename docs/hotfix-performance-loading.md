@@ -132,3 +132,20 @@ reabertas sem trava em concorrência 2 — falso positivo de carga do servidor l
 Cancelamento de leituras obsoletas: `src/lib/server-page.ts` (troca de filtro/página aborta a anterior) e
 infraestrutura (troca de data cancela). Não verificado nesta rodada: navegador autenticado (sem aprovação de
 sessão), tempo em produção publicada.
+
+## PERF.LOADING.1 — medição com sessão real (2026-10-16)
+Conta: Supervisão (sessão injetada). Critério: sem "Carregando"/skeleton após a abertura.
+
+| Tela | 1ª abertura | 2ª abertura | Leituras |
+|---|---|---|---|
+| Início | 4,3 s | 2,3 s | 23 |
+| Turmas | 3,7 s | 2,6 s | 13 |
+| Matrículas | 2,1 s | 2,5 s | 13 |
+| Mapa Estatístico | 12,7 s | 3,3 s | 14–18 |
+| CIECE | 2,7 s | 2,4 s | 14 |
+| Orientação | 2,8 s | 2,2 s | 13 |
+| Alimentação | 2,1 s | 2,1 s | 13 |
+
+- 0 telas presas; nenhuma leitura de banco acima de 0,8 s (Mapa: maior = `effective_capability_scope_classes`).
+- Os 12,7 s do Mapa na 1ª abertura são compilação do servidor de desenvolvimento (módulo grande), não consulta; não ocorre na versão publicada, que já vem compilada.
+- Antes (registro anterior): 3–9 s na 2ª abertura. Agora: 2,1–3,3 s. Situação: PERF.LOADING.1 encerrado com sessão real.
