@@ -12,6 +12,7 @@ import { useDebounced } from "@/features/global-search/global-search";
  */
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState, type FormEvent, type ReactNode } from "react";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, History, Building2, CalendarRange, Layers, ArrowLeft } from "lucide-react";
@@ -91,10 +92,13 @@ export function InstitutionalClassesListPage() {
   const [pageNo, setPageNo] = useState(1);
   const term = ilikeTerm(useDebounced(query, 300));
   const setQuery = (v: string) => { setQueryRaw(v); setPageNo(1); };
-  const [schoolFilter, setSchoolRaw] = useState("");
+  const [pickedSchool, setSchoolRaw] = useState("");
   const setSchool = (v: string) => { setSchoolRaw(v); setPageNo(1); };
+  // Conta de escola: sempre só a própria escola, sem seletor.
+  const own = useOwnSchoolId();
+  const schoolFilter = own ?? pickedSchool;
   const registry = useSchoolRegistry();
-  const schoolOptions = registry.status === "ready" ? unitListRows(registry.units).map((u) => ({ id: u.schoolId, name: u.name })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")) : [];
+  const schoolOptions = !own && registry.status === "ready" ? unitListRows(registry.units).map((u) => ({ id: u.schoolId, name: u.name })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR")) : [];
   const canCreate = schoolsWithCapability(caps, CLASS_REGISTRY_CAPABILITY).length > 0;
   // PERF.LOADING.2: página lida no servidor (50 por vez), com tempo-limite e nova tentativa manual.
   const q = useServerPage<InstitutionalClassSummary>(["inst-classes", validOn, term, schoolFilter], pageNo, ({ from, to, signal }) => listInstitutionalClassesPage({ validOn, from, to, term, schoolId: schoolFilter || null, signal }));

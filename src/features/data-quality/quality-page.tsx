@@ -9,6 +9,8 @@ import { PageHeader, EmptyState } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { listSchools } from "@/features/onboarding/onboarding-source";
+import { useOwnSchoolId } from "@/features/authority/own-school";
+import { OwnSchoolName } from "@/features/authority/own-school-field";
 import { SIGNAL_CLASS_LABEL, classifyFinding, filterByClass, type SignalClass, QUALITY_RULES, SEVERITY_UNCONFIGURED, detect, evidenceHash, filterInbox, inbox, ruleById, severityOf, type InboxItem, type ReviewState, type Sector } from "./quality-model";
 import { canReview, loadQualityInputs, loadReviewEvents, recordReview } from "./quality-source";
 import { BulkPanel } from "@/features/bulk/bulk-panel";
@@ -41,7 +43,9 @@ export function DataQualityPage() {
   const a = useSessionAuthority();
   const uid = a.status === "signed-in" ? a.user.id : null;
   const qc = useQueryClient();
-  const [schoolId, setSchoolId] = useState<string | null>(null);
+  const own = useOwnSchoolId();
+  const [picked, setSchoolId] = useState<string | null>(null);
+  const schoolId = own ?? picked;
   const [sector, setSector] = useState<Sector | null>(null);
   const [states, setStates] = useState<ReviewState[]>(["aberto"]);
   const [cls, setCls] = useState<SignalClass | "">("");
@@ -66,12 +70,12 @@ export function DataQualityPage() {
     <div className="space-y-6">
       <PageHeader title="Qualidade dos dados" description="Inconsistências objetivas detectadas nos registros oficiais. Nada é corrigido aqui: cada item leva à tela onde o fato é corrigido." />
       <div className="flex flex-wrap gap-3">
-        <label className="w-full max-w-full text-sm sm:w-auto">Escola{" "}
+        {own ? <OwnSchoolName schoolId={own} /> : <label className="w-full max-w-full text-sm sm:w-auto">Escola{" "}
           <select className="mt-1 block min-h-11 w-full max-w-full rounded-md border bg-background px-2 sm:ml-1 sm:mt-0 sm:inline-block sm:w-auto" value={schoolId ?? ""} onChange={(e) => setSchoolId(e.target.value || null)}>
             <option value="">Selecione</option>
             {(schools.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select>
-        </label>
+        </label>}
         <label className="text-sm">Setor{" "}
           <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={sector ?? ""} onChange={(e) => setSector((e.target.value || null) as Sector | null)}>
             <option value="">Todos</option>

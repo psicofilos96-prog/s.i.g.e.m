@@ -13,6 +13,7 @@ import { PhotoCapture } from "./photo-capture";
 import { candidateDisambiguation } from "./student-lookup";
 import { CARD_ACCENT_LABEL, CARD_LOGOS, CARD_LOGO_LABEL, DEFAULT_CARD_LAYOUT, cardLayoutProblem, readCardLayout, type CardLayout } from "./card-layout";
 import type { StudentCard } from "./student-card";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 const today = () => operationalToday();
 const origin = () => (typeof window !== "undefined" ? window.location.origin : "");
@@ -27,7 +28,7 @@ function toCard(c: CardChainView, photoUrl: string | null): StudentCard {
 /** Secretaria: foto, modelo, emissão, reemissão, cancelamento e impressão em lote. Permissão e dados oficiais são do banco; a tela só coleta. */
 export function CardAdminPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[]>([]);
-  const [school, setSchool] = useState("");
+  const own = useOwnSchoolId(); const [pickedSchool, setSchool] = useState(""); const school = own ?? pickedSchool;
   const [chain, setChain] = useState<CardChainView[] | null>(null);
   const [layouts, setLayouts] = useState<{ version: number; layout: CardLayout }[]>([]);
   const [err, setErr] = useState<string | null>(null);
@@ -106,11 +107,11 @@ export function CardAdminPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Carteirinhas" description="Foto 3×4, modelo da escola, emissão, reemissão, cancelamento e impressão em lote. Nome, escola e turma vêm do cadastro oficial; cada ato fica no histórico." />
-      <label className="block max-w-md text-sm">Escola
+      {!own && <label className="block max-w-md text-sm">Escola
         <select className="mt-1 block w-full rounded border bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
           <option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
-      </label>
+      </label>}
       {err && <StatePanel tone="danger" title="Não foi possível concluir" description={err} />}
       {notice && <StatePanel tone="success" title="Registrado" description={notice} />}
       {school && chain && (

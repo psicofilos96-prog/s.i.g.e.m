@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ENTITIES, type Entity, type EntityKey, type Field } from "./entities";
 import { db, deleteRow, saveRow, useOptions } from "./data";
 import { PageTitle } from "./simple-shell";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 const PAGE = 30;
 type Opts = { [K in EntityKey]?: { id: string; name: string; school_id?: string }[] | undefined };
@@ -33,7 +34,9 @@ export function EntityPage({ entityKey }: { entityKey: EntityKey }) {
   const e = ENTITIES[entityKey];
   const qc = useQueryClient();
   const [term, setTerm] = useState("");
-  const [schoolFilter, setSchoolFilter] = useState("");
+  const own = useOwnSchoolId();
+  const [pickedSchool, setSchoolFilter] = useState("");
+  const schoolFilter = own ?? pickedSchool;
   const [page, setPage] = useState(0);
   const [editing, setEditing] = useState<Record<string, unknown> | null>(null);
   const { opts, maps } = useRefMaps(e);
@@ -72,7 +75,7 @@ export function EntityPage({ entityKey }: { entityKey: EntityKey }) {
           <span className="sr-only">Procurar</span>
           <input value={term} onChange={(ev) => { setTerm(ev.target.value); setPage(0); }} placeholder="Procurar pelo nome" className="min-w-0 flex-1 bg-transparent text-xl outline-none placeholder:text-muted-foreground" />
         </label>
-        {hasSchool && (
+        {hasSchool && !own && (
           <select aria-label="Escola" value={schoolFilter} onChange={(ev) => { setSchoolFilter(ev.target.value); setPage(0); }} className="min-h-14 rounded-2xl border border-border bg-card px-4 text-lg sm:max-w-xs">
             <option value="">Todas as escolas</option>
             {(opts.schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}

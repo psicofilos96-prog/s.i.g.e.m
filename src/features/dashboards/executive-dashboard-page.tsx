@@ -12,12 +12,13 @@ import { LINKED_SURFACES, METRIC_CATALOG } from "./metric-catalog";
 import { NETWORK_INDICATORS } from "./network-indicator-catalog";
 import { STATE_LABEL, natureLabel, parseNetworkReading, type NetworkReading } from "./network-indicator-runtime";
 import { ANALYTICS_BLOCKS, YEAR_LABEL, analyticsCsv, compareAll, displayState, displayValue, pointOf, qualityPanel, yearNature, type YearNature } from "./network-analytics";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 /** AD.2 + AM: indicadores da rede pelo reader canônico; ano por estado registrado, comparação só compatível, qualidade separada. */
 function NetworkIntelligence() {
   const [on, setOn] = useState(today());
   const [known, setKnown] = useState("");
-  const [school, setSchool] = useState("");
+  const own = useOwnSchoolId(); const [pickedSchool, setSchool] = useState(""); const school = own ?? pickedSchool;
   const [year, setYear] = useState("");
   const [cmpOn, setCmpOn] = useState("");
   const [cmpYear, setCmpYear] = useState("");
@@ -62,7 +63,7 @@ function NetworkIntelligence() {
         <Button variant="outline" onClick={exportCsv} disabled={!reading}>Exportar CSV</Button>
       </div>
       <div className="flex flex-wrap items-end gap-3">
-        <label className="text-sm">Recorte<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Rede</option>{schools.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+        {!own && <label className="text-sm">Recorte<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Rede</option>{schools.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>}
         <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={year} onChange={(e) => setYear(e.target.value)}><option value="">Todos (sem recorte de ano)</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name} — {YEAR_LABEL[y.nature]}</option>)}</select></label>
         <label className="text-sm">Situação em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
         <label className="text-sm">Conhecido até (opcional) <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
@@ -167,7 +168,7 @@ export function ExecutiveDashboardPage() {
   const [caps, setCaps] = useState<CapabilityRow[] | null>(null);
   const [schools, setSchools] = useState<{ id: string; name: string }[]>([]);
   const [err, setErr] = useState<string | null>(null);
-  const [school, setSchool] = useState(""); const [on, setOn] = useState(today()); const [known, setKnown] = useState(""); const [tick, setTick] = useState(0);
+  const own = useOwnSchoolId(); const [pickedSchool, setSchool] = useState(""); const school = own ?? pickedSchool; const [on, setOn] = useState(today()); const [known, setKnown] = useState(""); const [tick, setTick] = useState(0);
   useEffect(() => {
     (async () => {
       const { data, error } = await db.rpc("effective_scope_capabilities", {});
@@ -199,7 +200,7 @@ export function ExecutiveDashboardPage() {
         {schools.length === 0 ? <EmptyState title="Nenhuma escola no seu alcance" description="Sua atuação não tem permissão vigente com alcance de escola ou rede." /> : (
           <>
             <div className="flex flex-wrap items-end gap-3">
-              <label className="text-sm">Escola<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Selecione…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+              {!own && <label className="text-sm">Escola<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Selecione…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
               <label className="text-sm">Situação em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
               <label className="text-sm">Conhecido até (opcional) <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
               <Button variant="outline" onClick={() => { cache.invalidate(); setTick((t) => t + 1); }}>Atualizar</Button>

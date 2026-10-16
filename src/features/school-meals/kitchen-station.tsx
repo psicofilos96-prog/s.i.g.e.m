@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { ADHESION_BLOCK, CALENDAR_UNRESOLVED, THEORETICAL_DEBIT_BLOCK, executionMessage } from "./execution-model";
 import { LABELS_STATE, MANUAL_CLASSES, MOVEMENT_CLASS_LABEL, expiresWithin, expiryText, lotText, opsMessage, type KitchenDay } from "./operations-l3-model";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = callRpc;
@@ -19,7 +20,7 @@ const KITCHEN_CAP = "registrar-execucao-alimentacao";
 export function KitchenStation() {
   const today = operationalToday();
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
-  const [school, setSchool] = useState(""); const [day, setDay] = useState<KitchenDay | null>(null);
+  const own = useOwnSchoolId(); const [pickedSchool, setSchool] = useState(""); const school = own ?? pickedSchool; const [day, setDay] = useState<KitchenDay | null>(null);
   const [slots, setSlots] = useState<{ value_id: string; label: string }[]>([]);
   const [docs, setDocs] = useState<{ title: string }[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -53,7 +54,7 @@ export function KitchenStation() {
       {schools === null && !err ? <SkeletonState label="Carregando" />
         : schools && schools.length === 0 ? <StatePanel tone="warning" title="Sem atuação de cozinha" description="Sua atuação não inclui registro de execução da alimentação em nenhuma escola nesta data." />
         : (<>
-          {schools && schools.length > 1 && <label className="block">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
+          {!own && schools && schools.length > 1 && <label className="block">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
           {err && <StatePanel tone="warning" title="Não disponível" description={err} />}
           {school && day && <KitchenDayView school={school} day={day} slots={slots} docs={docs} onDone={load} today={today} />}
         </>)}

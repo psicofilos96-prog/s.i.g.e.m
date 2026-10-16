@@ -6,11 +6,14 @@ import { PageTitle } from "./simple-shell";
 import { DateInput } from "@/components/sigem/date-input";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { ACTION } from "@/config/ui-vocabulary";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 export function AttendancePage() {
   const schools = useOptions("schools");
   const classes = useOptions("classes");
-  const [school, setSchool] = useState("");
+  const own = useOwnSchoolId();
+  const [pickedSchool, setSchool] = useState("");
+  const school = own ?? pickedSchool;
   const [klass, setKlass] = useState("");
   const [day, setDay] = useState(() => new Date().toISOString().slice(0, 10));
   const [marks, setMarks] = useState<Record<string, boolean>>({});
@@ -39,10 +42,10 @@ export function AttendancePage() {
     <div>
       <PageTitle emoji="✅" title="Chamada" />
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <select aria-label="Escola" value={school} onChange={(e) => { setSchool(e.target.value); setKlass(""); }} className={sel}>
+        {!own && <select aria-label="Escola" value={school} onChange={(e) => { setSchool(e.target.value); setKlass(""); }} className={sel}>
           <option value="">1. Escolha a escola</option>
           {(schools.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+        </select>}
         <select aria-label="Turma" value={klass} onChange={(e) => setKlass(e.target.value)} className={sel} disabled={!school}>
           <option value="">2. Escolha a turma</option>
           {(classes.data ?? []).filter((c) => c.school_id === school).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}

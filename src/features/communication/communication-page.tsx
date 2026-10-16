@@ -8,6 +8,7 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { Button } from "@/components/ui/button";
 import { ATTACHMENTS_PENDING, AUDIENCE_LABEL, EXTERNAL_DELIVERY_PROVIDER_PENDING, STATE_LABEL, allowedActions, availabilityLine, commMessage, type Audience, type CommState } from "./communication-model";
 import { formatDateTime } from "@/lib/academic-date";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
@@ -31,7 +32,7 @@ async function mySchools() {
 
 export function CommunicationPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
-  const [school, setSchool] = useState("");
+  const own = useOwnSchoolId(); const [pickedSchool, setSchool] = useState(""); const school = own ?? pickedSchool;
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => { mySchools().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!.id); }, (e: Error) => setErr(commMessage(e.message))); }, []);
   return (
@@ -42,7 +43,7 @@ export function CommunicationPage() {
         : !schools ? <SkeletonState label="Carregando" />
         : schools.length === 0 ? <EmptyState title="Sem permissão de comunicação" description="Sua atuação não tem permissão vigente para comunicar ou consultar comunicados." />
         : <>
-            <label className="block max-w-md text-sm">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+            {!own && <label className="block max-w-md text-sm">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
             {school && <School key={school} school={school} />}
           </>}
     </div>

@@ -13,6 +13,7 @@ import {
   CLASS_COLUMNS, MAP_CLASS_REPORT, MAP_SCHOOL_REPORT, classCells, divergences, exportMap, groupClasses, normalizeClasses, normalizeSchools,
   receiptStatus, schoolCells, MAP_GRID_REPORT, gridCells, sliceTotals, mapGrid, classChecks, editableCells, type MapNetworkRow,
 } from "./census-map-2026";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 type Rpc = (f: string) => Promise<{ data: Record<string, unknown>[] | null; error: { message: string } | null }>;
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as Rpc;
@@ -42,7 +43,9 @@ function Stat({ label, value, note }: { label: string; value: number | null | un
 
 export function CensusMap2026Page({ mode = "escola" }: { mode?: "escola" | "rede" }) {
   const q = useQuery({ queryKey: ["census-map-2026"], queryFn: load, staleTime: 60_000 });
-  const [schoolId, setSchoolId] = useState<string>("");
+  const own = useOwnSchoolId();
+  const [pickedSchool, setSchoolId] = useState<string>("");
+  const schoolId = own ?? pickedSchool;
   const [search, setSearch] = useState("");
   const [type, setType] = useState("");
   const [group, setGroup] = useState("");
@@ -103,14 +106,14 @@ export function CensusMap2026Page({ mode = "escola" }: { mode?: "escola" | "rede
     <div className="space-y-6">
       <RegistryHero eyebrow="Censo Escolar 2026 · leitura do banco" title={selected ? (selected.school_name ?? "Escola") : mode === "rede" ? "Consolidado 2026 da rede" : "Mapa Estatístico 2026 — escolha a escola"}
         lede={selected ? `INEP ${selected.inep ?? "não informado"} · recibo do Censo: ${receiptStatus(selected, divs)}.` : "Números calculados agora, a partir dos registros do Censo 2026, com as permissões da sua conta. Alunos em AEE não contam como alunos novos."}
-        actions={selected ? <Button size="sm" variant="outline" onClick={() => setSchoolId("")}>Voltar à rede</Button> : undefined} />
+        actions={selected && !own ? <Button size="sm" variant="outline" onClick={() => setSchoolId("")}>Voltar à rede</Button> : undefined} />
 
       <RegistryToolbar summary={`${scopeClasses.length} turma(s) no recorte`}>
-        <label className="text-sm">Escola
+        {!own && <label className="text-sm">Escola
           <select aria-label="Escola" value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className="mt-1 block h-9 max-w-xs rounded-md border border-input bg-background px-2">
             <option value="">{mode === "rede" ? "Consolidado da rede" : "Escolha a escola"}</option>{q.data.schools.map((s) => <option key={s.school_id} value={s.school_id}>{s.school_name ?? s.inep}</option>)}
           </select>
-        </label>
+        </label>}
         <label className="text-sm">Modalidade
           <select value={group} onChange={(e) => setGroup(e.target.value)} className="mt-1 block h-9 max-w-xs rounded-md border border-input bg-background px-2">
             <option value="">Todas</option>{opts("stage_group").map((t) => <option key={t} value={t}>{t}</option>)}

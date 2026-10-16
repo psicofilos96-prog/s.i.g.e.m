@@ -9,6 +9,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { ExportButtons } from "@/features/performance/station-sections";
 import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
 import { TRANSPORTE_ROTAS, transportReportRows, duplicatedStudents, transportMessage, transportPicture, type TransportFact } from "./transport-model";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 const db = supabase as unknown as { from: (t: string) => any; rpc: (f: string, a?: Record<string, unknown>) => any };
 const field = "mt-1 block w-full rounded border bg-background p-2";
@@ -20,7 +21,7 @@ type School = { id: string; name: string; canWrite: boolean };
 export function TransportPage() {
   const [schools, setSchools] = useState<School[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [school, setSchool] = useState("");
+  const own = useOwnSchoolId(); const [pickedSchool, setSchool] = useState(""); const school = own ?? pickedSchool;
   const [on, setOn] = useState(today());
   useEffect(() => {
     (async () => {
@@ -45,7 +46,7 @@ export function TransportPage() {
         : schools.length === 0 ? <EmptyState title="Sem acesso ao transporte escolar" description="Sua conta não tem permissão vigente para consultar o transporte de nenhuma escola. Peça a atribuição à administração." />
         : <>
             <div className="grid gap-3 text-sm sm:grid-cols-2 print:hidden">
-              <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+              {!own && <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
               <label>Situação na data<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
             </div>
             {current && on && <SchoolTransport key={current.id} school={current} on={on} />}

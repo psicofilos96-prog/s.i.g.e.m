@@ -5,12 +5,16 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { OffsetPager } from "@/components/sigem/list-pager";
 import { Input } from "@/components/ui/input";
 import { RECORD_KINDS, STAFF_PAGE_SIZE, STAFF_SOURCES, readStaffRecords, readStaffSchools, type StaffFilters } from "./staff-records";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 const empty: StaffFilters = { source: "", schoolId: "", sector: "", situacao: "", search: "" };
 
 export function StaffRecordsPage() {
-  const [typed, setTyped] = useState(empty);
-  const [f, setF] = useState(empty);
+  const own = useOwnSchoolId();
+  const [typedRaw, setTyped] = useState(empty);
+  const [fRaw, setF] = useState(empty);
+  const typed = own ? { ...typedRaw, schoolId: own } : typedRaw;
+  const f = own ? { ...fRaw, schoolId: own } : fRaw;
   const [page, setPage] = useState(0);
   useEffect(() => { const t = setTimeout(() => { setF(typed); setPage(0); }, 300); return () => clearTimeout(t); }, [typed]);
   const schools = useQuery({ queryKey: ["staff-schools"], queryFn: ({ signal }) => readStaffSchools(signal), staleTime: 300_000 });
@@ -35,10 +39,10 @@ export function StaffRecordsPage() {
           <option value="">Todas as fontes</option>
           {Object.entries(STAFF_SOURCES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
-        <select aria-label="Escola" className={sel} value={typed.schoolId} onChange={(e) => set("schoolId")(e.target.value)}>
+        {!own && <select aria-label="Escola" className={sel} value={typed.schoolId} onChange={(e) => set("schoolId")(e.target.value)}>
           <option value="">Todas as escolas visíveis</option>
           {(schools.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+        </select>}
         <Input aria-label="Setor" placeholder="Setor (SEMED)" value={typed.sector} onChange={(e) => set("sector")(e.target.value)} className="max-w-[12rem]" />
         <Input aria-label="Situação" placeholder="Situação" value={typed.situacao} onChange={(e) => set("situacao")(e.target.value)} className="max-w-[12rem]" />
       </div>

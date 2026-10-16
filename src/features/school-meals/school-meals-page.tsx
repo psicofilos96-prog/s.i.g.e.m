@@ -22,6 +22,7 @@ import { ReportingCenter } from "./reporting-section";
 import { NAV } from "./nucleo-model";
 import { SectorParametersPanel } from "@/components/sigem/sector-parameters-panel";
 import { compare, coverage, mealMessage, shown, type Forecast, type Menu, type Service } from "./meals-model";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, a) => (supabase.rpc as unknown as Rpc)(fn, a);
@@ -64,7 +65,7 @@ function useCatalog(scheme: string) {
 export function SchoolMealsPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [school, setSchool] = useState("");
+  const own = useOwnSchoolId(); const [pickedSchool, setSchool] = useState(""); const school = own ?? pickedSchool;
   const [from, setFrom] = useState(() => monthBounds(operationalMonthKey()).from);
   const [to, setTo] = useState(() => monthBounds(operationalMonthKey()).to);
   useEffect(() => { mealSchools().then((s) => { setSchools(s); if (s.length === 1) setSchool(s[0]!.id); }, (e: Error) => setErr(mealMessage(e.message))); }, []);
@@ -77,7 +78,7 @@ export function SchoolMealsPage() {
         : <>
             <IntegrationsSection />
             <div className="flex flex-wrap gap-3 text-sm">
-              <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+              {!own && <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
               <label>De<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
               <label>Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} /></label>
             </div>
