@@ -21,3 +21,6 @@
 
 - [ ] Enturmar 35 alunos novos de 2026 com turma ambígua (aba "Para decidir" de proposta-enturmacao-alunos-novos-2026.xlsx) — aguarda decisão do proprietário
 - [ ] 21 nomes parecidos e 18 sem nascimento — aguarda decisão
+
+- [ ] 43 professores da rede sem login (22 nome parecido na folha, 21 fora da folha) — deixado para depois pelo proprietário
+- [ ] Disciplina de cada professor nas turmas — a fazer

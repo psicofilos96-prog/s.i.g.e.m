@@ -66,3 +66,5 @@
 - LOTE 13 (0298/0299): capacidade de rede em writer SQL é checada por `has_network_capability`, nunca `has_capability(cap, NULL)`, porque esta só casa concessão sem turma e recusava toda atuação de rede.
 - Lote 12: E2E autenticado só por `scripts/lote12-authenticated-e2e.mjs` (harness BO, fail-closed, limpeza com resíduo 0), porque prova com conta real não pode deixar identidade nem fato no banco.
 - Contas de setor (`0516`/`0517`): portas que exigiam política de pessoa aceitam também a concessão da estação (`sector_station_grants`, linha sem política e sem atuação + `current_principal_id()`); telas aceitam linha com `engagement_id === null`; portas pessoais/administrativas (admin geral, contas, diário docente, oficialização) seguem só por pessoa, porque conta de setor é órgão com regra própria homologada.
+
+- Profissional não servidor tem identificador `id-profissional` (P + 6 dígitos) atribuído só por `technical_assign_non_servant_professional_ids`, que recusa quem tem matrícula funcional, porque login de não servidor não pode colidir nem substituir matrícula.
