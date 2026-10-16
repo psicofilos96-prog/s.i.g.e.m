@@ -77,6 +77,7 @@ import { Route as OrganizacaoDaRedeRouteImport } from './routes/organizacao-da-r
 import { Route as OrientacaoRouteImport } from './routes/orientacao'
 import { Route as PaineisRouteImport } from './routes/paineis'
 import { Route as PainelDeTecnologiaRouteImport } from './routes/painel-de-tecnologia'
+import { Route as ParametrosRouteImport } from './routes/parametros'
 import { Route as PendenciasRouteImport } from './routes/pendencias'
 import { Route as Pessoal2026RouteImport } from './routes/pessoal-2026'
 import { Route as PlanejamentoRouteImport } from './routes/planejamento'
@@ -634,6 +635,11 @@ const PaineisRoute = PaineisRouteImport.update({
 const PainelDeTecnologiaRoute = PainelDeTecnologiaRouteImport.update({
   id: '/painel-de-tecnologia',
   path: '/painel-de-tecnologia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParametrosRoute = ParametrosRouteImport.update({
+  id: '/parametros',
+  path: '/parametros',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PendenciasRoute = PendenciasRouteImport.update({
@@ -1894,6 +1900,7 @@ export interface FileRoutesByFullPath {
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/painel-de-tecnologia': typeof PainelDeTecnologiaRoute
+  '/parametros': typeof ParametrosRoute
   '/pendencias': typeof PendenciasRoute
   '/pessoal-2026': typeof Pessoal2026Route
   '/planejamento': typeof PlanejamentoRoute
@@ -2175,6 +2182,7 @@ export interface FileRoutesByTo {
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/painel-de-tecnologia': typeof PainelDeTecnologiaRoute
+  '/parametros': typeof ParametrosRoute
   '/pendencias': typeof PendenciasRoute
   '/pessoal-2026': typeof Pessoal2026Route
   '/planejamento': typeof PlanejamentoRoute
@@ -2437,6 +2445,7 @@ export interface FileRoutesById {
   '/orientacao': typeof OrientacaoRoute
   '/paineis': typeof PaineisRoute
   '/painel-de-tecnologia': typeof PainelDeTecnologiaRoute
+  '/parametros': typeof ParametrosRoute
   '/pendencias': typeof PendenciasRoute
   '/pessoal-2026': typeof Pessoal2026Route
   '/planejamento': typeof PlanejamentoRoute
@@ -2726,6 +2735,7 @@ export interface FileRouteTypes {
     | '/orientacao'
     | '/paineis'
     | '/painel-de-tecnologia'
+    | '/parametros'
     | '/pendencias'
     | '/pessoal-2026'
     | '/planejamento'
@@ -3007,6 +3017,7 @@ export interface FileRouteTypes {
     | '/orientacao'
     | '/paineis'
     | '/painel-de-tecnologia'
+    | '/parametros'
     | '/pendencias'
     | '/pessoal-2026'
     | '/planejamento'
@@ -3268,6 +3279,7 @@ export interface FileRouteTypes {
     | '/orientacao'
     | '/paineis'
     | '/painel-de-tecnologia'
+    | '/parametros'
     | '/pendencias'
     | '/pessoal-2026'
     | '/planejamento'
@@ -3556,6 +3568,7 @@ export interface RootRouteChildren {
   OrientacaoRoute: typeof OrientacaoRoute
   PaineisRoute: typeof PaineisRoute
   PainelDeTecnologiaRoute: typeof PainelDeTecnologiaRoute
+  ParametrosRoute: typeof ParametrosRoute
   PendenciasRoute: typeof PendenciasRoute
   Pessoal2026Route: typeof Pessoal2026Route
   PlanejamentoRoute: typeof PlanejamentoRoute
@@ -4126,6 +4139,13 @@ declare module '@tanstack/react-router' {
       path: '/painel-de-tecnologia'
       fullPath: '/painel-de-tecnologia'
       preLoaderRoute: typeof PainelDeTecnologiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parametros': {
+      id: '/parametros'
+      path: '/parametros'
+      fullPath: '/parametros'
+      preLoaderRoute: typeof ParametrosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pendencias': {
@@ -6393,6 +6413,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrientacaoRoute: OrientacaoRoute,
   PaineisRoute: PaineisRoute,
   PainelDeTecnologiaRoute: PainelDeTecnologiaRoute,
+  ParametrosRoute: ParametrosRoute,
   PendenciasRoute: PendenciasRoute,
   Pessoal2026Route: Pessoal2026Route,
   PlanejamentoRoute: PlanejamentoRoute,
