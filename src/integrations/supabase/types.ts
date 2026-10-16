@@ -30936,6 +30936,47 @@ export type Database = {
           },
         ]
       }
+      school_enrollment_entry_origins: {
+        Row: {
+          created_at: string
+          enrollment_id: string
+          entry_kind: string
+          id: string
+          origin_kind: string | null
+          origin_school_inep: string | null
+          origin_school_name: string | null
+          recorded_by: string
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id: string
+          entry_kind: string
+          id?: string
+          origin_kind?: string | null
+          origin_school_inep?: string | null
+          origin_school_name?: string | null
+          recorded_by: string
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string
+          entry_kind?: string
+          id?: string
+          origin_kind?: string | null
+          origin_school_inep?: string | null
+          origin_school_name?: string | null
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_enrollment_entry_origins_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_enrollment_start_declarations: {
         Row: {
           author_engagement: string
@@ -47439,6 +47480,16 @@ export type Database = {
           _type_version: number
         }
         Returns: number
+      }
+      record_enrollment_entry_origin: {
+        Args: {
+          _enrollment: string
+          _entry_kind: string
+          _origin_inep: string
+          _origin_kind: string
+          _origin_name: string
+        }
+        Returns: string
       }
       record_family_communication_receipt: {
         Args: { _kind: string; _student: string; _version: string }
