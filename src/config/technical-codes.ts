@@ -76,6 +76,6 @@ export function humanizeTechnical(text: string | null | undefined) {
 /** Só para a tela: código com cara de constante interna e não traduzido vira frase genérica. */
 export function humanizeForScreen<T>(text: T): T {
   const h = humanizeTechnical(text as unknown as string) as unknown;
-  if (typeof h !== "string" || !h) return h;
+  if (typeof h !== "string" || !h) return h as T;
   return (h as string).replace(/\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+){1,}\b/g, (c) => (SUBJECT[c] || LONE[c] ? phrase(c) : GENERIC)) as T;
 }
