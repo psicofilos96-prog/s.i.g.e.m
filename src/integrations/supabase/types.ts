@@ -51972,6 +51972,14 @@ export type Database = {
         Returns: boolean
       }
       tech_text_exposes_network: { Args: { _t: string }; Returns: boolean }
+      technical_assign_non_servant_professional_ids: {
+        Args: { _person_ids: string[]; _source_ref: string }
+        Returns: {
+          outcome: string
+          person_id: string
+          professional_id: string
+        }[]
+      }
       technical_automation_enabled: { Args: never; Returns: boolean }
       technical_correct_educacenso_2026_temporal: {
         Args: { _operation_kind: string; _payload: Json; _source_hash: string }
