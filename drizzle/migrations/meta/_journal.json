@@ -3739,6 +3739,13 @@
       "when": 1792103632923,
       "tag": "0533_lesson_resources",
       "breakpoints": true
+    },
+    {
+      "idx": 534,
+      "version": "7",
+      "when": 1792111905198,
+      "tag": "0534_ciece_teaching_assignment",
+      "breakpoints": true
     }
   ]
 }
