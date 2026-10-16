@@ -28,9 +28,9 @@ export function toAttendanceRows(rows: InfrequencyRow[]): { rows: AttendanceRow[
 }
 
 /** Período e acumulado são listas separadas; mesmo estudante em turmas diferentes (transferência) fica em linhas separadas, nunca somado. */
-export function infrequencyAlerts(rows: InfrequencyRow[], period: number) {
+export function infrequencyAlerts(rows: InfrequencyRow[], period: number, threshold = 75) {
   const { rows: ar, withoutPeriod, unmarked } = toAttendanceRows(rows);
-  const periodo = attendanceAt(ar, period, "periodo"); const acumulado = attendanceAt(ar, period, "acumulado");
+  const periodo = attendanceAt(ar, period, "periodo", threshold); const acumulado = attendanceAt(ar, period, "acumulado", threshold);
   const multi = new Map<string, Set<string>>();
   for (const r of ar.filter((x) => x.period <= period)) multi.set(r.studentId, (multi.get(r.studentId) ?? new Set()).add(r.classId));
   const transferred = [...multi].filter(([, s]) => s.size > 1).map(([id]) => id);
@@ -39,8 +39,8 @@ export function infrequencyAlerts(rows: InfrequencyRow[], period: number) {
 
 export const countBy = (r: AttendanceResult[]) => ({ alerta: r.filter((x) => x.status === "alerta").length, semAlerta: r.filter((x) => x.status === "sem-alerta").length, naoApurado: r.filter((x) => x.status === "nao-apurado").length });
 
-/** Busca ativa: abrir caso só a partir de alerta (< 75%). */
-export const canOpenCase = (r: AttendanceResult) => r.status === "alerta" && r.presencePct != null && r.presencePct < 75;
+/** Busca ativa: abrir caso só a partir de alerta (abaixo do limite em Parâmetros; padrão 75%). */
+export const canOpenCase = (r: AttendanceResult, threshold = 75) => r.status === "alerta" && r.presencePct != null && r.presencePct < threshold;
 
 export const INFREQ_REPORT: ReportDefinition = {
   id: "aa-infrequencia", version: 1, title: "Infrequência — alertas (presença abaixo de 75%)", description: "Projeção de aa_infrequency_at.",

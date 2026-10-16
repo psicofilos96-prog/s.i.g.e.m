@@ -9,7 +9,7 @@ import { governError } from "@/lib/observability/governed-errors";
 import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { runReport, toPdfFile, toXlsx } from "@/features/reports/report-engine";
 import { operationalToday } from "@/lib/academic-date";
-import { ALERT_THRESHOLD_PCT, DECLARED_2026, compareDeclared, outreachState, type AttendanceResult, type OutreachEvent } from "./attendance-performance";
+import { DECLARED_2026, compareDeclared, outreachState, type AttendanceResult, type OutreachEvent } from "./attendance-performance";
 import { INFREQ_REPORT, canOpenCase, countBy, infreqReportRows, infrequencyAlerts, periodOrder, type InfrequencyRow } from "./infrequency-source";
 
 type Rpc = (fn: string, args?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
@@ -25,6 +25,8 @@ export function AttendancePanel() {
   const [cases, setCases] = useState<{ c: Case[]; e: Ev[] }>({ c: [], e: [] });
   const [names, setNames] = useState(new Map<string, string>());
   const [period, setPeriod] = useState(1);
+  const [ALERT_THRESHOLD_PCT, setThreshold] = useState(75);
+  useEffect(() => { void rpc("aa_infrequency_threshold").then((r) => { if (!r.error && typeof r.data === "number") setThreshold(r.data); }); }, []);
   const [mode, setMode] = useState<"periodo" | "acumulado">("periodo");
   const [msg, setMsg] = useState<string | null>(null);
   const [ev, setEv] = useState<Record<string, { kind: string; guardian: string; channel: string; destination: string; due: string; note: string }>>({});
@@ -40,7 +42,7 @@ export function AttendancePanel() {
   useEffect(() => { void load(); }, [load]);
 
   const periods = useMemo(() => Array.isArray(rows) ? periodOrder(rows) : [], [rows]);
-  const res = useMemo(() => Array.isArray(rows) ? infrequencyAlerts(rows, period) : null, [rows, period]);
+  const res = useMemo(() => Array.isArray(rows) ? infrequencyAlerts(rows, period, ALERT_THRESHOLD_PCT) : null, [rows, period, ALERT_THRESHOLD_PCT]);
   const cmp = compareDeclared(DECLARED_2026[0]!, DECLARED_2026[1]!);
   const school = (id: string) => names.get(id) ?? id;
 
@@ -101,7 +103,7 @@ export function AttendancePanel() {
           <tbody>{alerts.map((r) => { const c = caseOf(r); return (
             <tr key={`${r.enrollmentId}|${r.classId}`}><td>{school(r.schoolId)}</td><td>{r.classId.slice(0, 8)}</td><td>{r.studentId.slice(0, 8)}</td><td>{r.planned}</td><td>{r.absences}</td><td>{pct(r.presencePct)}</td>
               <td>{res?.unmarked.get(`${r.enrollmentId}|${r.classId}`) ?? 0}</td>
-              <td>{c ? "Caso aberto" : canOpenCase(r) && <Button size="sm" variant="ghost" onClick={() => void open(r)}>Abrir caso</Button>}</td></tr>); })}</tbody></table>
+              <td>{c ? "Caso aberto" : canOpenCase(r, ALERT_THRESHOLD_PCT) && <Button size="sm" variant="ghost" onClick={() => void open(r)}>Abrir caso</Button>}</td></tr>); })}</tbody></table>
       </>)}
       <section aria-label="Casos de busca ativa" className="space-y-2">
         <h3 className="font-semibold">Casos de busca ativa</h3>
