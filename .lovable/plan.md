@@ -22,9 +22,11 @@ Página 4  (opcional) Controle de Renovação de Matrícula
 - **Paginação segura, sem cortar nada:** antes de gerar, o sistema mede a altura real de cada seção com os dados reais. Se uma seção não couber na página prevista, ela passa inteira para uma página de continuação (com cabeçalho compacto e "continuação"), nunca é cortada, encolhida ilegível ou sobreposta. Textos longos quebram em várias linhas dentro do campo, e a seção cresce o necessário.
 
 ## Controle de Renovação
-- Tabela por ano letivo: ano, ano de escolaridade/turma, data, assinatura do responsável, assinatura da secretaria.
+- Mesmo quadro da 2ª página da ficha original enviada, sem simplificar: **Ano letivo, Série/Ano, Autorização de imagem (Sim/Não), Mudança de endereço, Assinatura do responsável, Rubrica do servidor**.
 - Na ficha preenchida, mostra as renovações já registradas no SIGEM (separadas da matrícula inicial); linhas restantes em branco. Na ficha em branco, todas as linhas vazias.
-- Não recebi o formulário original de renovação nesta conversa; sigo esse formato e ajusto se você me enviar o original.
+
+## Ficha em branco independente
+- Gerada direto pela Secretaria Escolar, sem precisar de aluno nem matrícula: usa só os dados da escola e o ano letivo escolhido.
 
 ## De onde vem cada informação
 Preenche só o que o SIGEM já registra; o resto fica em branco (nunca "null", "não informado" etc.):
@@ -35,7 +37,9 @@ Preenche só o que o SIGEM já registra; o resto fica em branco (nunca "null", "
 - Sem tabelas ou campos novos nesta etapa. O que o modelo pede e o SIGEM ainda não guarda (cor/raça, etnia, NIS, RG e órgão, profissão dos pais, alergias, diabetes, autorização de imagem, recursos SAEB, deferimento etc.) sai em branco e fica listado num documento de lacunas, com proposta de onde guardar.
 
 ## Conferência antes de entregar
-Testes automáticos e inspeção de cada página dos PDFs gerados em: nomes muito longos, endereços longos, campos vazios, ficha em branco, com e sem anexo de Educação Especial, com e sem Renovação.
+- Testes automáticos e inspeção de cada página dos PDFs gerados em: nomes muito longos, endereços longos, campos vazios, ficha em branco, com e sem anexo de Educação Especial, com e sem Renovação.
+- **Comparação visual pré-visualização × PDF**: as duas saídas são rasterizadas e comparadas página a página (fontes, quebras de linha, posições, margens, dimensões), com tolerância pequena; diferença acima do limite reprova o teste.
+- Entrego os PDFs de exemplo para sua inspeção; a ficha só é considerada homologada depois da sua conferência.
 
 ## Fora desta etapa
 - Tela de personalização do modelo (cores, margens, logos).
