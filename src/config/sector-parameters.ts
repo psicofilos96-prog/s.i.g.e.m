@@ -60,7 +60,7 @@ export const SECTOR_PARAMETERS: Record<string, readonly SectorParameter[]> = {
     {
       key: "frequencia.limite-infrequencia", group: "Infrequência", label: "Limite de presença para alerta",
       help: "Abaixo desse percentual de presença o estudante entra no alerta de infrequência e pode ter caso de busca ativa aberto. O alerta não reprova ninguém.",
-      usedIn: [{ label: "Infrequência e busca ativa", href: "/inteligencia-educacional" }],
+      usedIn: [{ label: "Infrequência e busca ativa", href: "/acompanhamento-avaliacao" }],
       readBy: "aa_infrequency_threshold", input: { kind: "percentual" }, undefinedEffect: "",
     },
   ],
