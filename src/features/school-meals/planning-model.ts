@@ -8,8 +8,8 @@ export interface MasterRow {
 
 export const PLANNING_TABS: { id: string; label: string; kinds: string[]; blocker?: string }[] = [
   { id: "catalogos", label: "Catálogos", kinds: ["item-alimentar", "unidade-de-medida", "apresentacao-embalagem", "especificacao-tecnica", "fornecedor", "referencia-contratual", "marca-aprovada", "programacao-de-entrega", "publico-de-atendimento"] },
-  { id: "cardapios", label: "Cardápios", kinds: ["cardapio-planejado"], blocker: "MENU_CONTENT — AWAITING_OFFICIAL_NORMALIZED_SOURCE" },
-  { id: "fichas", label: "Fichas Técnicas", kinds: ["receita-ficha-tecnica"], blocker: "MENU_CONTENT — AWAITING_OFFICIAL_NORMALIZED_SOURCE" },
+  { id: "cardapios", label: "Cardápios", kinds: ["cardapio-planejado"], blocker: "Aguardando o cardápio anual da nutricionista para carregar." },
+  { id: "fichas", label: "Fichas Técnicas", kinds: ["receita-ficha-tecnica"], blocker: "Aguardando o cardápio anual da nutricionista para carregar." },
   { id: "parametros", label: "Parâmetros", kinds: ["parametro-per-capita", "fator-de-conversao", "regra-de-elegibilidade-item"] },
   { id: "especiais", label: "Especiais", kinds: ["necessidade-alimentar-especial"] },
   { id: "inspetores", label: "Inspetores", kinds: ["designacao-inspetor", "treinamento-inspetor"], blocker: "FUNCTIONAL_SOURCE_REQUIRED" },

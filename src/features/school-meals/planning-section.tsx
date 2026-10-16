@@ -120,7 +120,7 @@ function MasterForm({ kind, all, schools, record }: { kind: string; all: Record<
   return (
     <form aria-label={`Novo registro: ${KIND_LABEL[kind] ?? kind}`} className="grid gap-2 rounded border p-2 sm:grid-cols-3" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
       {spec.school && <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">—</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
-      {spec.fields.map((f) => (
+      {spec.fields.filter((f) => !f.fixed).map((f) => (
         <label key={f.key}>{f.label}
           {f.kind === "ref" ? (
             <select className={field} value={v[f.key] ?? ""} onChange={(e) => setV({ ...v, [f.key]: e.target.value })}>
