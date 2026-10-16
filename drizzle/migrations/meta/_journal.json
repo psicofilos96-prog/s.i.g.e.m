@@ -3753,6 +3753,13 @@
       "when": 1792139919657,
       "tag": "0535_sector_parameters",
       "breakpoints": true
+    },
+    {
+      "idx": 536,
+      "version": "7",
+      "when": 1792140516478,
+      "tag": "0536_sector_parameter_defaults",
+      "breakpoints": true
     }
   ]
 }

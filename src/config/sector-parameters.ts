@@ -33,6 +33,14 @@ export const SECTOR_PARAMETERS: Record<string, readonly SectorParameter[]> = {
       input: { kind: "escolha", options: [{ value: "refeicoes-por-presentes", label: "Refeições servidas ÷ alunos presentes" }] },
       undefinedEffect: "o quadro “Adesão” fica sem número.",
     },
+    {
+      key: "alimentacao.dias-de-atendimento", group: "Atendimento", label: "Dias de atendimento",
+      help: "Em quais dias da semana as escolas servem refeição. Usado para apontar escolas sem refeição registrada.",
+      usedIn: [{ label: "Central — Escolas sem execução registrada", href: "/alimentacao-escolar#visao-geral" }],
+      readBy: "meal_network_action_summary",
+      input: { kind: "escolha", options: [{ value: "segunda-a-sexta", label: "Segunda a sexta" }, { value: "segunda-a-sabado", label: "Segunda a sábado" }] },
+      undefinedEffect: "",
+    },
   ],
 };
 
