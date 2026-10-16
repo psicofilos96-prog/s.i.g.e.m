@@ -25,13 +25,15 @@ export function ManagementPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [years, setYears] = useState<YearOption[]>([]);
   const [f, setF] = useState({ school: "", year: "", on: today(), knownAt: "" });
+  const own = useOwnSchoolId();
+  useEffect(() => { if (own) setF((p) => (p.school === own ? p : { ...p, school: own })); }, [own]);
   useEffect(() => {
     void supabase.from("institutional_school_record_versions").select("school_id,official_name,version_number").order("version_number", { ascending: false }).then(({ data }) => {
       const m = new Map<string, string>();
       for (const r of (data ?? []) as { school_id: string; official_name: string }[]) if (!m.has(r.school_id)) m.set(r.school_id, r.official_name);
       setSchools([...m].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)));
     });
-    readYears().then(setYears).catch(() => setYears([]));
+    readYears().then((ys) => { setYears(ys); const open = ys.find((y) => y.state === "aberto") ?? ys[0]; if (open) setF((p) => (p.year ? p : { ...p, year: open.id })); }).catch(() => setYears([]));
   }, []);
   const ready = f.school && f.year && f.on;
   return (
@@ -39,8 +41,8 @@ export function ManagementPage() {
       <PageHeader eyebrow="Direção" title="Estação da gestão escolar"
         description="Situação operacional da escola montada na hora a partir dos registros oficiais que sua atuação alcança. Não é documento oficial nem nota da escola." />
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
-        <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
-          <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+        {own ? <OwnSchoolName schoolId={own} /> : <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
+          <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
         <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => setF({ ...f, year: e.target.value })}>
           <option value="">Escolha o ano</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}</select></label>
         <label className="text-sm">Data de referência<DateInput value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
