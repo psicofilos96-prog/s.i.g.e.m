@@ -38885,6 +38885,7 @@ export type Database = {
           unmarked: number
         }[]
       }
+      aa_infrequency_threshold: { Args: never; Returns: number }
       aa_instrument_completeness_internal: {
         Args: { _instrument: string }
         Returns: Json
