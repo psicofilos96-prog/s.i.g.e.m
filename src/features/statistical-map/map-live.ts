@@ -114,10 +114,11 @@ export function buildLiveDoc(d: LiveMapData, o: { headerLines: readonly string[]
   const sum = (k: "turno1" | "turno2" | "turno3" | "integral") => { const v = classes.map((c) => c[k]).filter((x): x is number => x !== null); return v.length ? v.reduce((a, b) => a + b, 0) : null; };
   const total = classes.length ? classes.reduce((a, c) => a + (c.alunos ?? 0), 0) : null;
   const cnt = (g: string) => d.movements.filter((m) => m.grp === g).length;
+  const tin = d.movements.filter((m) => m.grp === "A" && /^Transfer/i.test(m.kind ?? "")).length;
   const integral = sum("integral");
   const doc = buildFromDeclared({
     headerLines: o.headerLines, schoolName: d.schoolName, inep: d.inep, year: d.year, month: d.month, identification: d.identification,
-    movement: { previous_month_enrollment: d.previousTotal, transfers_in: null, new_students: cnt("A"), transfers_out: cnt("B"), dropouts: cnt("C"), withdrawn_cancelled: cnt("D"), total_ii: total, declared_classes: classes.length || null },
+    movement: { previous_month_enrollment: d.previousTotal, transfers_in: tin, new_students: cnt("A") - tin, transfers_out: cnt("B"), dropouts: cnt("C"), withdrawn_cancelled: cnt("D"), total_ii: total, declared_classes: classes.length || null },
     shifts: { turno1: sum("turno1"), turno2: sum("turno2"), turno3: sum("turno3"), integral, parcial: total !== null ? total - (integral ?? 0) : null, total },
     classes, projects: [], movements: movementRows(d.movements), people: peopleRows(d.staff), visits: visitRows(d.visits),
     signatures: o.signatures, generatedAt: o.generatedAt,
