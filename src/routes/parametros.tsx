@@ -7,7 +7,7 @@ import { brand } from "@/config/branding";
 const title = `Parâmetros — ${brand.name}`;
 const description = "Prazos, fórmulas e limites de cada setor, num só lugar. Altere quando quiser; o histórico fica guardado.";
 
-const SECTOR_LABEL: Record<string, string> = { alimentacao: "Alimentação Escolar", matriculas: "Matrículas", avaliacao: "Avaliação e frequência" };
+const SECTOR_LABEL: Record<string, string> = { alimentacao: "Alimentação Escolar", matriculas: "Matrículas", avaliacao: "Avaliação e frequência", frequencia: "Frequência e busca ativa" };
 
 export const Route = createFileRoute("/parametros")({
   ssr: false,
