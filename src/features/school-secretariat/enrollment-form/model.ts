@@ -21,7 +21,7 @@ export type EnrollmentFormData = {
     nee?: Yn; report?: Yn; zone?: "Urbana" | "Rural" | null; district?: string | null; nis?: string | null;
     birthCertificate?: string | null; socialName?: string | null; censusId?: string | null; repeater?: Yn; formerStudent?: Yn;
   };
-  father?: PersonBlock; mother?: PersonBlock; guardian?: PersonBlock;
+  father?: PersonBlock | undefined; mother?: PersonBlock | undefined; guardian?: PersonBlock | undefined;
   /** ids de DOCUMENTS marcados por conferência registrada. */
   documents?: string[];
   health?: { foodAllergy?: Yn; foodAllergyWhich?: string | null; otherAllergy?: Yn; otherAllergyWhich?: string | null; diabetes?: Yn; medicalReport?: Yn; notes?: string | null };
