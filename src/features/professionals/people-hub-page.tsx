@@ -8,6 +8,8 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { FactValue } from "@/components/sigem/states";
 import { SignInRequired } from "@/components/sigem/sign-in-required";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { useOwnSchoolId } from "@/features/authority/own-school";
+import { OwnSchoolName } from "@/features/authority/own-school-field";
 import { projectClass } from "@/features/staffing/staffing-model";
 import { loadStaffingInputs } from "@/features/staffing/staffing-source";
 import { functionalMessage, functionalPicture, functionalTimeline, VALIDITY_LABEL, type PersonPicture } from "./functional-life";
