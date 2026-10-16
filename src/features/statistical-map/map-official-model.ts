@@ -28,7 +28,7 @@ const norm = (s: unknown) => String(s ?? "").normalize("NFD").replace(/[\u0300-\
 const EMPTY_LIST = "Sem registro nominal nesta competência.";
 
 /** Colunas da movimentação estatística, como no modelo da rede. */
-export const ETAPA_COLS = ["Creche", "Pré-escola", "1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "EJA I", "EJA II a V", "EJA VI a IX"] as const;
+export const ETAPA_COLS = ["Creche", "Pré-esc.", "1º ano", "2º ano", "3º ano", "4º ano", "5º ano", "6º ano", "7º ano", "8º ano", "9º ano", "EJA I", "EJA II a V", "EJA VI a IX"] as const;
 /** Coluna da etapa declarada; null quando não se reconhece (não é presumida). */
 export function etapaColumn(etapa: unknown, modalidade?: unknown): number | null {
   const e = norm(etapa); const m = norm(modalidade);
@@ -124,7 +124,7 @@ function movementMatrix(src: DeclaredSource): Block[] {
   const blank = ETAPA_COLS.map(() => MISSING);
   const line = (label: string, total: number | null, per?: string[]): Row => ({ cells: [label, ...(per ?? blank), show(total)] });
   const cols: Col[] = [{ label: "", w: 22 }, ...ETAPA_COLS.map((l) => ({ label: l, w: 5.4, align: "right" as const })), { label: "Total", w: 6.4, align: "right" }];
-  const groups = [{ label: "", span: 1 }, { label: "Educação Infantil", span: 2 }, { label: "Ensino Fundamental", span: 9 }, { label: "Jovens e Adultos", span: 3 }, { label: "", span: 1 }];
+  const groups = [{ label: "", span: 1 }, { label: "Ed. Infantil", span: 2 }, { label: "Ensino Fundamental", span: 9 }, { label: "EJA", span: 3 }, { label: "", span: 1 }];
   const s = src.shifts ?? {};
   return [
     { kind: "table", groups, cols, rows: [
