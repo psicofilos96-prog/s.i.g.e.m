@@ -54,3 +54,12 @@ describe("formulário de cadastro técnico", () => {
     expect(masterActions("retirada")).toEqual([]);
   });
 });
+
+import { allowedItems } from "./master-form-model";
+describe("itens vedados por público", () => {
+  const items = [{ logical_id: "acucar" }, { logical_id: "arroz" }];
+  const rules = [{ payload: { efeito: "vedado", item_ref: "acucar", publico_ref: "creche" } }];
+  it("creche não vê açúcar", () => expect(allowedItems(items, rules, "creche").map((i) => i.logical_id)).toEqual(["arroz"]));
+  it("fundamental vê tudo", () => expect(allowedItems(items, rules, "fund")).toHaveLength(2));
+  it("rascunho pode ser validado na hora", () => expect(masterActions("rascunho")[0]).toBe("validar"));
+});

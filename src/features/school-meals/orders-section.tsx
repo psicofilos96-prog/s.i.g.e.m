@@ -1,3 +1,4 @@
+import { allowedItems } from "./master-form-model";
 import { callRpc } from "@/lib/rpc-call";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { shiftMonthKey, operationalMonthKey } from "@/lib/academic-date";
@@ -50,20 +51,21 @@ export function OrdersSection({ school, network, names }: { school: string; netw
   // NDATE.2: próxima competência com virada de ano (dezembro → janeiro do ano seguinte).
   const [competence, setCompetence] = useState(() => shiftMonthKey(operationalMonthKey(), 1));
   const [orders, setOrders] = useState<Order[] | null>(null);
-  const [items, setItems] = useState<Named[]>([]); const [units, setUnits] = useState<Named[]>([]); const [pubs, setPubs] = useState<Named[]>([]);
+  const [items, setItems] = useState<Named[]>([]); const [rules, setRules] = useState<Named[]>([]); const [units, setUnits] = useState<Named[]>([]); const [pubs, setPubs] = useState<Named[]>([]);
   const [contracts, setContracts] = useState<Named[]>([]); const [suppliers, setSuppliers] = useState<Named[]>([]);
   const [cons, setCons] = useState<Cons[] | null>(null);
   const [msg, setMsg] = useState<string | null>(null); const [err, setErr] = useState<string | null>(null);
   const label = (list: Named[], id: string) => String(list.find((x) => x.logical_id === id)?.payload["nome"] ?? "item não identificado");
   const load = useCallback(async () => {
     try {
-      const [o, it, un, pb] = await Promise.all([
+      const [o, it, un, pb, rl] = await Promise.all([
         call<Order[]>("meal_orders_at", { _competence: competence, _school: network ? null : school || null, _known_at: null }),
         call<Named[]>("meal_master_at", { _kind: "item-alimentar", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
         call<Named[]>("meal_master_at", { _kind: "unidade-de-medida", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
         call<Named[]>("meal_master_at", { _kind: "publico-de-atendimento", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
+        call<Named[]>("meal_master_at", { _kind: "regra-de-elegibilidade-item", _on: null, _known_at: null, _include_drafts: false }).catch(() => []),
       ]);
-      setOrders(o); setItems(it); setUnits(un); setPubs(pb); setErr(null);
+      setRules(rl); setOrders(o); setItems(it); setUnits(un); setPubs(pb); setErr(null);
       if (network) {
         setCons(await call<Cons[]>("meal_demand_consolidation_at", { _competence: competence }).catch(() => null));
         const [ct, sp] = await Promise.all([
@@ -112,7 +114,7 @@ export function OrdersSection({ school, network, names }: { school: string; netw
       {err ? <StatePanel tone="warning" title="Não disponível" description={err} />
         : !orders ? <SkeletonState label="Carregando" />
         : network ? <><OrderWindowForm competence={competence} onDone={async (m) => { setMsg(m); await load(); }} /><NetworkQueue orders={orders} names={names} act={act} itemLabel={(id) => label(items, id)} contracts={contracts} onDone={async (m) => { setMsg(m); await load(); }} /></>
-        : <SchoolOrder school={school} competence={competence} order={mine ?? null} items={items} units={units} pubs={pubs} act={act} />}
+        : <SchoolOrder school={school} competence={competence} order={mine ?? null} items={items} units={units} pubs={pubs} rules={rules} act={act} />}
       {orders && orders.length > 0 && <Button variant="outline" onClick={() => void exportOrders()}>Exportar pedidos (CSV)</Button>}
       {network && cons && (
         <div className="space-y-1">
@@ -131,8 +133,11 @@ export function OrdersSection({ school, network, names }: { school: string; netw
   );
 }
 
-function SchoolOrder({ school, competence, order, items, units, pubs, act }: { school: string; competence: string; order: Order | null; items: Named[]; units: Named[]; pubs: Named[]; act: (a: Record<string, unknown>) => Promise<void> }) {
+function SchoolOrder({ school, competence, order, items: allItems, units, pubs, rules, act }: { school: string; competence: string; order: Order | null; items: Named[]; units: Named[]; pubs: Named[]; rules: Named[]; act: (a: Record<string, unknown>) => Promise<void> }) {
   const [lines, setLines] = useState<OrderLine[]>(order?.lines ?? []);
+  const [publico, setPublico] = useState<string>(order?.lines?.[0]?.publico_ref ?? "");
+  const items = allowedItems(allItems, rules, publico || null);
+  const choosePublico = (p: string) => { setPublico(p); setLines((ls) => ls.map((l) => ({ ...l, publico_ref: p || undefined }))); };
   useEffect(() => setLines(order?.lines ?? []), [order]);
   const editable = !order || schoolCanEdit(order.status);
   if (items.length === 0 || units.length === 0) return <StatePanel tone="warning" title="Faltam os itens do pedido" description="O Núcleo de Alimentação precisa cadastrar os itens e as unidades antes." />;
@@ -140,6 +145,8 @@ function SchoolOrder({ school, competence, order, items, units, pubs, act }: { s
   return (
     <div className="space-y-2">
       <p>Situação: {order ? knownLabel(ORDER_STATUS_LABEL, order.status) : "sem pedido"}{order ? ` · janela fecha em ${new Date(order.window_closes_at).toLocaleString("pt-BR", { timeZone: order.window_time_zone })} (${order.window_time_zone})` : ""}</p>
+      {pubs.length > 0 && <label className="block max-w-sm">Quem a escola atende<select className={field} disabled={!editable} value={publico} onChange={(e) => choosePublico(e.target.value)}><option value="">escolha</option>{pubs.map((p) => <option key={p.logical_id} value={p.logical_id}>{String(p.payload["rotulo"] ?? "público")}</option>)}</select>
+        <span className="text-xs text-muted-foreground">Os itens que esse público não recebe nem aparecem na lista.</span></label>}
       {order?.reason && <p className="text-muted-foreground">Motivo registrado: {order.reason}</p>}
       {lines.map((l, i) => (
         <div key={i} className="grid gap-2 sm:grid-cols-4">
@@ -149,7 +156,6 @@ function SchoolOrder({ school, competence, order, items, units, pubs, act }: { s
           <label>Se zero, por quê<select className={field} disabled={!editable || l.quantidade > 0} value={l.zero_motivo ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, zero_motivo: (e.target.value || undefined) as OrderLine["zero_motivo"] } : x)))}>
             <option value="">—</option><option value="saldo-suficiente">Saldo suficiente</option><option value="nao-aplicavel">Não aplicável</option><option value="outro">Outro</option></select>
             {classifyZero(l) === "zero-sem-justificativa" && <span className="text-muted-foreground">Zero sem justificativa (permitido).</span>}</label>
-          <label>Público (per capita)<select className={field} disabled={!editable} value={l.publico_ref ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_ref: e.target.value || undefined } : x)))}><option value="">não informado</option>{pubs.map((p) => <option key={p.logical_id} value={p.logical_id}>{String(p.payload["rotulo"] ?? p.payload["nome"] ?? "público")}</option>)}</select></label>
           <label>Público atendido<input type="number" min={0} className={field} disabled={!editable} value={l.publico_atendido ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_atendido: e.target.value === "" ? undefined : Number(e.target.value) } : x)))} /></label>
           <label>Base do público<input className={field} disabled={!editable} value={l.publico_base ?? ""} placeholder="ex.: matrícula de agosto" onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, publico_base: e.target.value || undefined } : x)))} /></label>
           <label>Dias letivos<input type="number" min={0} className={field} disabled={!editable} value={l.dias_letivos ?? ""} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, dias_letivos: e.target.value === "" ? undefined : Number(e.target.value) } : x)))} /></label>
@@ -159,7 +165,7 @@ function SchoolOrder({ school, competence, order, items, units, pubs, act }: { s
       <CeilingPanel school={school} lines={lines} />
       {editable && (
         <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={() => setLines([...lines, { item_ref: items[0]!.logical_id, unidade_ref: units[0]!.logical_id, quantidade: 0 }])}>Adicionar item</Button>
+          <Button variant="outline" onClick={() => setLines([...lines, { item_ref: items[0]!.logical_id, unidade_ref: units[0]!.logical_id, quantidade: 0, publico_ref: publico || undefined }])}>Adicionar item</Button>
           <Button variant="outline" onClick={() => void act({ ...base, _action: "rascunho", _lines: lines, _reason: null })}>Salvar rascunho</Button>
           {order && <Button onClick={() => void act({ ...base, _action: "submissao", _lines: lines, _reason: null })}>Submeter pedido</Button>}
         </div>
