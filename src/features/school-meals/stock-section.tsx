@@ -9,7 +9,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
-import { ALERT_LABEL, MINIMUM_STOCK_STATE, STOCK_BASIS_BLOCK, stockMessage, suggestLotsByExpiry } from "./stock-model";
+import { ALERT_LABEL, stockMessage, suggestLotsByExpiry } from "./stock-model";
+const BASIS_LABEL: Record<string, string> = { "saldo-atual": "saldo atual", "saldo-menos-entregas-previstas": "saldo atual menos entregas já previstas" };
 import {
   MANUAL_CLASSES, MOVEMENT_CLASS_LABEL, adjustmentFor, divergence, expiryText, filterLedger, itemCard, lotText, opsMessage,
   type CountLine, type LedgerFilter, type LedgerRow,
@@ -51,10 +52,10 @@ export function StockSection({ school }: { school: string }) {
         call<LedgerRow[]>("meal_stock_ledger_at", { _school: school, _from: from, _to: on, _known_at: null }),
         call<Alert[]>("meal_stock_alerts_at", { _school: school, _on: on, _expiry_window_days: null }).catch(() => [] as Alert[]),
         call<Count[]>("meal_stock_counts_at", { _school: school }).catch(() => [] as Count[]),
-        call<{ state: string }[]>("meal_stock_basis_at", { _school: school, _competence: on.slice(0, 7) }).catch(() => [] as { state: string }[]),
+        call<{ state: string; policy: { opcao?: string } | null }[]>("meal_stock_basis_at", { _school: school, _competence: on.slice(0, 7) }).catch(() => [] as { state: string; policy: { opcao?: string } | null }[]),
       ]);
       if (!current()) return;
-      setLines(l); setLedger(g); setAlerts(a); setCounts(c); setBasis(b[0]?.state ?? null); setErr(null);
+      setLines(l); setLedger(g); setAlerts(a); setCounts(c); setBasis(b[0]?.policy?.opcao ?? null); setErr(null);
     } catch (e) { if (current()) setErr(stockMessage((e as Error).message)); }
   }, [school, on, from, latest]);
   useEffect(() => { void load(); }, [load]);
@@ -66,8 +67,7 @@ export function StockSection({ school }: { school: string }) {
         <label>Histórico desde<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
         <label>Saldo em<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
       </div>
-      <StatePanel tone="info" title="Saldo derivado dos movimentos" description={`Nunca é digitado. Entrada só nasce do aceite do recebimento. ${MINIMUM_STOCK_STATE}: sem estoque mínimo, ideal ou cobertura em dias.`} />
-      {basis === "STOCK_BASIS_POLICY_PENDING" && <StatePanel tone="warning" title="Saldo para pedido não definido" description={`${STOCK_BASIS_BLOCK}. O sistema não escolhe qual saldo vale para o pedido.`} />}
+      <p className="text-muted-foreground">O saldo é calculado pelas entradas e saídas registradas; a entrada nasce do aceite do recebimento.{basis ? ` Saldo que vale para o pedido: ${BASIS_LABEL[basis] ?? "conforme Parâmetros"}.` : ""}</p>
       <div role="tablist" aria-label="Estoque" className="flex flex-wrap gap-2">{TABS.map(([id, l]) => (
         <button key={id} role="tab" type="button" aria-selected={tab === id} onClick={() => setTab(id)} className={`rounded-full border px-3 py-1.5 ${tab === id ? "bg-primary text-primary-foreground" : ""}`}>{l}</button>))}</div>
       {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !lines || !ledger ? <SkeletonState label="Carregando" /> : (
