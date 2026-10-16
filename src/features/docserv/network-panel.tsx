@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
@@ -90,7 +91,7 @@ export function NetworkPanel() {
       </details>
 
       <details><summary className="cursor-pointer font-semibold">Solicitações abertas ({data.requests.length})</summary>
-        <ul>{data.requests.map((r) => <li key={r.request_id} className="border-t py-1">{r.at.slice(0, 10)} · {names.get(r.school_id) ?? r.school_id} · {r.kind === "solicitar-vinculo" ? "vínculo" : "desvínculo"}{r.nature ? ` (${r.nature})` : ""} · {r.person_masked} — {r.reason}{r.conflict ? " · CONFLITO: outro pedido de titularidade aberto" : ""}
+        <ul>{data.requests.map((r) => <li key={r.request_id} className="border-t py-1">{r.at.slice(0, 10)} · {names.get(r.school_id) ?? r.school_id} · {r.kind === "solicitar-vinculo" ? "vínculo" : "desvínculo"}{r.nature ? ` (${r.nature})` : ""} · {r.person_masked} — {humanizeForScreen(r.reason)}{r.conflict ? " · CONFLITO: outro pedido de titularidade aberto" : ""}
           <span className="ml-1 space-x-1"><Button size="sm" variant="outline" onClick={() => void answer(r.request_id, r.seq, "encaminhada-ao-dp")}>Encaminhar ao DP</Button><Button size="sm" variant="ghost" onClick={() => void answer(r.request_id, r.seq, "recusada")}>Recusar</Button></span></li>)}</ul>
       </details>
 
@@ -155,7 +156,7 @@ function SeasonEditor({ onMsg }: { onMsg: (m: string) => void }) {
         <select className={field} value={f.cycle} onChange={(e) => setF({ ...f, cycle: Number(e.target.value) })} aria-label="Ciclo">{[1, 2, 3].map((c) => <option key={c} value={c}>Ciclo {c}</option>)}</select>
         <DateInput className={field} value={f.opens} onChange={(e) => setF({ ...f, opens: e.target.value })} aria-label="Abre" />
         <DateInput className={field} value={f.closes} onChange={(e) => setF({ ...f, closes: e.target.value })} aria-label="Fecha" />
-        <input className={field} placeholder="Motivo" value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} />
+        <input className={field} placeholder="Motivo" value={humanizeForScreen(f.reason)} onChange={(e) => setF({ ...f, reason: e.target.value })} />
         <Button size="sm" onClick={() => void rec("aberta")}>Abrir ciclo</Button>
       </div>
     </details>

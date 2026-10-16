@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -58,7 +59,7 @@ export function MyDocuments({ person }: { person: string }) {
   return (
     <div className="space-y-3">
       <label className="text-xs">Período <input className={`${field} w-20`} value={season} onChange={(e) => setSeason(e.target.value.replace(/\D/g, "").slice(0, 4))} aria-label="Período" /></label>
-      <p className="text-xs text-muted-foreground">{win.reason}</p>
+      <p className="text-xs text-muted-foreground">{humanizeForScreen(win.reason)}</p>
       {alerts.length > 0 && <ul className="space-y-1" aria-label="Alertas">{alerts.map((a) => (
         <li key={a.key} className={`flex items-center justify-between gap-2 rounded border p-2 text-xs ${a.tone === "danger" ? "border-destructive text-destructive" : ""}`}>
           <span>{a.text}</span>{a.tone !== "info" && <Button size="sm" variant="ghost" onClick={() => void markRead(a.key)}>Marcar como lido</Button>}

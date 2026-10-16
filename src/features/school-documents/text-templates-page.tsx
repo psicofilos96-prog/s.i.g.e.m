@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,7 +84,7 @@ function Editor({ kind, school, schoolName }: { kind: TextTemplateKind; school: 
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}{notice && <p role="status" className="text-sm">{notice}</p>}
         <Button disabled={busy} onClick={() => void save()}>{head ? "Salvar nova versão" : "Salvar como versão 1"}</Button>
         {versions.length > 0 && <details><summary className="cursor-pointer text-sm">Histórico ({versions.length})</summary>
-          <ul className="ml-4 list-disc text-xs">{versions.map((v) => <li key={v.id}>v{v.version} — {new Date(v.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} — {v.by_me ? "você" : "outra pessoa"}{v.reason ? ` — ${v.reason}` : ""}</li>)}</ul></details>}
+          <ul className="ml-4 list-disc text-xs">{versions.map((v) => <li key={v.id}>v{v.version} — {new Date(v.recorded_at).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })} — {v.by_me ? "você" : "outra pessoa"}{v.reason ? ` — ${humanizeForScreen(v.reason)}` : ""}</li>)}</ul></details>}
       </section>
       <Generate kind={kind} school={school} schoolName={schoolName} head={head} />
     </div>

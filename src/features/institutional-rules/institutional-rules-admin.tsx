@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
@@ -55,7 +56,7 @@ function DomainSection({ info }: { info: RuleDomainInfo }) {
               <span className="font-medium">{r.logicalId} v{r.version}</span>
               <span>{stateLabel(r.state)}</span>
               {info.temporal && <span className="text-muted-foreground">Vigência: {r.validFrom ?? "—"} a {r.validUntil ?? "sem fim"}</span>}
-              <span className="text-muted-foreground">Motivo: {r.reason}</span>
+              <span className="text-muted-foreground">Motivo: {humanizeForScreen(r.reason)}</span>
               {r.state === "rascunho" && <Button size="sm" variant="outline" disabled={approve.isPending} onClick={() => approve.mutate({ logicalId: r.logicalId, version: r.version })}>Homologar v{r.version}</Button>}
             </li>))}
         </ul>)}

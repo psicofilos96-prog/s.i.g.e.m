@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /** Tecnologia L23 — catálogo de relatórios e ficha do chamado com linha do tempo. Nada é lido antes da sessão. */
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -105,7 +106,7 @@ export function TechReportsPage() {
                 <p><span className="text-muted-foreground">Data de referência:</span> {r.dateBasis}</p>
                 <p><span className="text-muted-foreground">Filtros:</span> {r.filters.join(", ")}</p>
                 <p hidden data-provenance className="break-words text-xs text-muted-foreground">Fonte: {r.sources.join(", ")}</p>
-                <p className={s.status === "bloqueado" ? "text-destructive" : "text-primary"}>{s.status === "bloqueado" ? `Bloqueado: ${s.reason}` : "Disponível"}</p>
+                <p className={s.status === "bloqueado" ? "text-destructive" : "text-primary"}>{s.status === "bloqueado" ? `Bloqueado: ${humanizeForScreen(s.reason)}` : "Disponível"}</p>
               </li>
             );
           })}

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { chartTextSummary, comparisonText, RESULT_STATUS_LABEL } from "./performance-station";
 import { callRpc } from "@/lib/rpc-call";
 import { MoreFilters } from "@/components/sigem/more-filters";
@@ -101,7 +102,7 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
                 <p className="font-medium">{m.label} <span className="text-xs text-muted-foreground">v{m.version}</span></p>
                 <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Como é calculado</summary><p className="mt-1">Fórmula: {FORMULA_LABEL(m.formula)} · População: {m.population_key} · Fonte: {m.source_note}. Ausentes e não aplicados não contam como zero.</p></details>
                 <p className="mt-1 text-lg">{fmt(total)} {total.status === "calculada" && m.unit_label}<button className="ml-2 text-sm underline" onClick={() => openDrill({ title: m.label, ids: total.resultIds })}>ver os registros que formam este número</button></p>
-                {c && <p className="text-sm"><strong>Comparação:</strong> {c.comparable ? comparisonText(c.delta, other!.title) : `não é possível comparar — ${c.reason}`}</p>}
+                {c && <p className="text-sm"><strong>Comparação:</strong> {c.comparable ? comparisonText(c.delta, other!.title) : `não é possível comparar — ${humanizeForScreen(c.reason)}`}</p>}
                 <Coverage v={total} />
                 <Goals metric={m} value={total} />
                 <GroupChart groups={groups} unit={m.unit_label} />
@@ -144,7 +145,7 @@ function Goals({ metric, value }: { metric: MetricVersion; value: MetricValue })
 }
 
 function Coverage({ v }: { v: MetricValue }) {
-  if (v.status === "formula-incompativel") return <p className="text-sm text-muted-foreground">Não calculado: {v.reason}</p>;
+  if (v.status === "formula-incompativel") return <p className="text-sm text-muted-foreground">Não calculado: {humanizeForScreen(v.reason)}</p>;
   const base = v.status === "calculada" ? v.base : 0;
   return (
     <p className="mt-1 text-sm text-muted-foreground">

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /**
  * 6D.3.2.4 — Correção Focal de Resultado Avaliativo.
  *
@@ -75,7 +76,7 @@ export function correctionValueLabel(
     return option?.label ?? storedLabel ?? "Opção sem rótulo declarado";
   }
   if (value.kind === "descritiva") return value.text;
-  return value.reason ? `Não registrado · ${value.reason}` : "Não registrado";
+  return value.reason ? `Não registrado · ${humanizeForScreen(value.reason)}` : "Não registrado";
 }
 
 function parseNumeric(raw: string): number | null {

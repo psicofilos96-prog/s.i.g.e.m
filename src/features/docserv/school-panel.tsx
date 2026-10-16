@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -96,7 +97,7 @@ export function SchoolDocsPanel({ school }: { school: string }) {
         <p className="text-muted-foreground">A escola pede; a rede encaminha ao Departamento Pessoal, que registra o vínculo. O pedido sozinho não vincula ninguém.</p>
         <select className={field} value={nature} onChange={(e) => setNature(e.target.value)} aria-label="Natureza do vínculo"><option value="nao-informado">Natureza não informada</option><option value="titular">Titular</option><option value="dobra">Dobra</option><option value="ajt">AJT</option></select>
         <RequestLink onPick={(person) => void request(person, "solicitar-vinculo")} />
-        {data.requests.length === 0 ? <p className="text-muted-foreground">Nenhuma solicitação.</p> : <ul>{data.requests.map((r) => <li key={r.request_id}>{r.at.slice(0, 10)} · {r.kind === "solicitar-vinculo" ? "vínculo" : "desvínculo"} · {r.person_masked} · {REQ_STATE[r.state] ?? "situação não reconhecida"} — {r.reason}
+        {data.requests.length === 0 ? <p className="text-muted-foreground">Nenhuma solicitação.</p> : <ul>{data.requests.map((r) => <li key={r.request_id}>{r.at.slice(0, 10)} · {r.kind === "solicitar-vinculo" ? "vínculo" : "desvínculo"} · {r.person_masked} · {REQ_STATE[r.state] ?? "situação não reconhecida"} — {humanizeForScreen(r.reason)}
           {r.state === "aberta" && <Button size="sm" variant="ghost" onClick={() => void cancel(r.request_id, r.seq)}>Cancelar</Button>}</li>)}</ul>}
       </section>
     </div>

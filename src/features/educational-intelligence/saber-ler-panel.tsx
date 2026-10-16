@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -168,7 +169,7 @@ function EntryGrid({ inst, students, entries, reviews, homologated, onDone, onPi
               <label key={it.n} className="text-xs">Item {it.n} ({axisLabel(it.axis)})
                 <select className={field} value={edit.items[String(it.n)] ?? ""} onChange={(e) => { const items = { ...edit.items }; if (e.target.value) items[String(it.n)] = e.target.value as ItemResult; else delete items[String(it.n)]; setEdit({ ...edit, items }); }}>
                   <option value="">Sem registro</option>{RES.map((r) => <option key={r} value={r}>{RES_LABEL[r]}</option>)}</select></label>))}</div> : null}
-            {h ? <input aria-label="Motivo da retificação" placeholder="Motivo da retificação (mín. 5)" className={field + " w-full"} value={edit.reason} onChange={(e) => setEdit({ ...edit, reason: e.target.value })} /> : null}
+            {h ? <input aria-label="Motivo da retificação" placeholder="Motivo da retificação (mín. 5)" className={field + " w-full"} value={humanizeForScreen(edit.reason)} onChange={(e) => setEdit({ ...edit, reason: e.target.value })} /> : null}
             <div className="space-x-1"><Button size="sm" onClick={() => save(s)}>Salvar</Button><Button size="sm" variant="ghost" onClick={() => setEdit(null)}>Cancelar</Button></div>
           </td></tr>) : null}
         </Fragment>); })}</tbody></table>

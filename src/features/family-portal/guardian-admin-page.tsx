@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { useEffect, useState } from "react";
@@ -104,7 +105,7 @@ function DraftFields({ d, set }: { d: GrantDraft; set: (d: GrantDraft) => void }
         <label className="text-sm">Início <DateInput value={d.validFrom} onChange={(e) => set({ ...d, validFrom: e.target.value })} /></label>
         <label className="text-sm">Fim (opcional) <DateInput value={d.validUntil} onChange={(e) => set({ ...d, validUntil: e.target.value })} /></label>
       </div>
-      <label className="block text-sm">Motivo (opcional)<input className="mt-1 block w-full rounded border border-input bg-background p-2" value={d.reason} onChange={(e) => set({ ...d, reason: e.target.value })} /></label>
+      <label className="block text-sm">Motivo (opcional)<input className="mt-1 block w-full rounded border border-input bg-background p-2" value={humanizeForScreen(d.reason)} onChange={(e) => set({ ...d, reason: e.target.value })} /></label>
     </div>
   );
 }
@@ -122,11 +123,11 @@ function AuthorizationList({ items, busy, onAct }: { items: AuthorizationView[];
         <p className="text-sm">Seções: {a.head.sections.map((s) => SECTION_LABEL[s as FamilySection] ?? s).join(", ") || "nenhuma"} · de {fmtDate(a.head.valid_from)} {a.head.valid_until ? `até ${fmtDate(a.head.valid_until)}` : "sem data de fim"}</p>
         <p className="text-xs text-muted-foreground">Parentesco: {a.head.relation_value_id ?? "não informado"}</p>
         <details className="text-xs"><summary>Histórico ({a.history.length})</summary>
-          <ol className="mt-1 space-y-1">{a.history.map((h) => <li key={h.id}>v{h.version} · {KIND_TEXT[h.event_kind]} · {formatDateTime(h.recorded_at)}{h.reason ? ` · ${h.reason}` : ""}</li>)}</ol></details>
+          <ol className="mt-1 space-y-1">{a.history.map((h) => <li key={h.id}>v{h.version} · {KIND_TEXT[h.event_kind]} · {formatDateTime(h.recorded_at)}{h.reason ? ` · ${humanizeForScreen(h.reason)}` : ""}</li>)}</ol></details>
         {a.state !== "revogada" && !a.legacy ? (edit?.id === a.head.id ? (
           <div className="space-y-2 border-t border-border pt-2">
             {edit.kind === "substituicao" ? <DraftFields d={edit.d} set={(d) => setEdit({ ...edit, d })} />
-              : <label className="block text-sm">Motivo da revogação<input className="mt-1 block w-full rounded border border-input bg-background p-2" value={edit.d.reason} onChange={(e) => setEdit({ ...edit, d: { ...edit.d, reason: e.target.value } })} /></label>}
+              : <label className="block text-sm">Motivo da revogação<input className="mt-1 block w-full rounded border border-input bg-background p-2" value={humanizeForScreen(edit.d.reason)} onChange={(e) => setEdit({ ...edit, d: { ...edit.d, reason: e.target.value } })} /></label>}
             {errs.length ? <ul className="text-xs text-destructive">{errs.map((x) => <li key={x}>{x}</li>)}</ul> : null}
             <div className="flex gap-2">
               <Button variant={edit.kind === "revogacao" ? "destructive" : "default"} disabled={busy || errs.length > 0} onClick={() => void onAct(a.head.id, edit.kind, edit.d).then(() => setEdit(null))}>{edit.kind === "revogacao" ? "Confirmar revogação" : "Salvar alteração"}</Button>

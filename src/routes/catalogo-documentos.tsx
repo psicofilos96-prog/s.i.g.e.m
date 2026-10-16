@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHeader } from "@/components/sigem/patterns";
 import { useState } from "react";
@@ -39,7 +40,7 @@ function Page() {
           <li key={d.id} className="flex flex-wrap items-start justify-between gap-3 p-4">
             <div className="min-w-0 flex-1">
               <p className="font-medium text-foreground">{d.label}</p>
-              <p className="text-xs text-muted-foreground">{d.sector} · Depende de: {d.dependsOn === "desenvolvimento" ? "desenvolvimento" : d.dependsOn === "norma" ? "norma ausente" : "dados reais (só produção)"} · {d.reason}</p>
+              <p className="text-xs text-muted-foreground">{d.sector} · Depende de: {d.dependsOn === "desenvolvimento" ? "desenvolvimento" : d.dependsOn === "norma" ? "norma ausente" : "dados reais (só produção)"} · {humanizeForScreen(d.reason)}</p>
             </div>
             <span className={`rounded px-2 py-0.5 text-xs font-semibold ${STATUS_STYLE[d.status]}`}>{d.status}</span>
             {d.route && !d.route.includes("$") ? <Button asChild size="sm" variant="outline"><Link to={d.route as "/relatorios"}>Abrir</Link></Button> : null}

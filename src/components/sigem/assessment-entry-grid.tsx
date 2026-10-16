@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /**
  * SIGEM Human Interface Language — primitivas da pauta de lançamento avaliativo
  * (Rodada 6D.3.2.2, laboratório de rascunho).
@@ -69,7 +70,7 @@ export function entryValueLabel(value: EntryValue, mode: InstrumentInputMode): s
     return option?.label ?? value.optionId;
   }
   if (value.kind === "descritiva") return value.text;
-  return value.reason ? `Não registrado · ${value.reason}` : "Não registrado";
+  return value.reason ? `Não registrado · ${humanizeForScreen(value.reason)}` : "Não registrado";
 }
 
 /** Texto bruto inicial do editor a partir do valor em rascunho ou oficial. */

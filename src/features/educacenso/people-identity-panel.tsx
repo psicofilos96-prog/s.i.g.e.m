@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export function PeopleIdentityPanel({ schools, names, network }: { schools: stri
         <ul className="mb-2 list-disc pl-5 text-xs">{peoplePendencies(data.summary).map((p) => <li key={p}>{p}</li>)}</ul>
         {data.collisions.length > 0 && <div className="mb-3 rounded-md border p-2"><h3 className="text-xs font-semibold">Fila de revisão de duplicidade</h3>
           {network && <input aria-label="Motivo da revisão" placeholder="Motivo da decisão" className={`${field} my-1 w-full`} value={reason} onChange={(e) => setReason(e.target.value)} />}
-          <ul className="space-y-1 text-xs">{data.collisions.map((c) => <li key={c.key}>{COLLISION_LABEL[c.kind] ?? c.kind}: {(c.masked_names ?? []).join(" · ")} — {c.review ? `${REVIEW_LABEL[c.review.decision] ?? c.review.decision} (${c.review.reason})` : "aguardando revisão"}
+          <ul className="space-y-1 text-xs">{data.collisions.map((c) => <li key={c.key}>{COLLISION_LABEL[c.kind] ?? c.kind}: {(c.masked_names ?? []).join(" · ")} — {c.review ? `${REVIEW_LABEL[c.review.decision] ?? c.review.decision} (${humanizeForScreen(c.review.reason)})` : "aguardando revisão"}
             {network && (c.review?.decision === "manter-separados" || c.review?.decision === "encaminhar-correcao-na-origem"
               ? <Button size="sm" variant="outline" className="ml-2 h-6" onClick={() => void review(c.key, c.kind, c.person_ids, "reabrir", c.review!.seq)}>Reabrir</Button>
               : <><Button size="sm" variant="outline" className="ml-2 h-6" onClick={() => void review(c.key, c.kind, c.person_ids, "manter-separados", c.review?.seq ?? 0)}>São pessoas diferentes</Button>

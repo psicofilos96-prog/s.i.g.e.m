@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
@@ -132,7 +133,7 @@ export function EducacensoPage() {
 
       <section className="rounded-md border p-3"><h2 className="mb-2 text-sm font-semibold">Histórico da etapa</h2>
         {stageEvents.length === 0 ? <p className="text-xs text-muted-foreground">Nenhuma ação ainda.</p> :
-          <ol className="space-y-1 text-xs">{[...stageEvents].reverse().map((e) => <li key={e.seq}>#{e.seq} · {new Date(e.recorded_at).toLocaleString("pt-BR")} · {ACT_LABEL[e.act]} · ref. {e.reference_date ?? "—"} · {e.reason}</li>)}</ol>}
+          <ol className="space-y-1 text-xs">{[...stageEvents].reverse().map((e) => <li key={e.seq}>#{e.seq} · {new Date(e.recorded_at).toLocaleString("pt-BR")} · {ACT_LABEL[e.act]} · ref. {e.reference_date ?? "—"} · {humanizeForScreen(e.reason)}</li>)}</ol>}
       </section>
     </div>
   );

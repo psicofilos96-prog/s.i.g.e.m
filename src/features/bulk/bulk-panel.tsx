@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ export function BulkPanel<P>({ op, items, authorizedScopes, onDone }: { op: Bulk
       </div>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {result && <p role="status" className="text-sm">{Object.entries(result.counts).filter(([, n]) => n > 0).map(([k, n]) => `${OUTCOME_LABEL[k as keyof typeof OUTCOME_LABEL]}: ${n}`).join(" · ")}</p>}
-      {rows.length > 0 && <ul className="max-h-64 overflow-auto text-xs">{rows.map((r, i) => <li key={`${r.key}-${i}`}>{r.key} — {OUTCOME_LABEL[r.outcome]}{r.reason ? `: ${r.reason}` : ""}</li>)}</ul>}
+      {rows.length > 0 && <ul className="max-h-64 overflow-auto text-xs">{rows.map((r, i) => <li key={`${r.key}-${i}`}>{r.key} — {OUTCOME_LABEL[r.outcome]}{r.reason ? `: ${humanizeForScreen(r.reason)}` : ""}</li>)}</ul>}
     </section>
   );
 }

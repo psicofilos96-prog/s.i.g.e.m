@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RegistryHero } from "@/components/sigem/registry-layout";
@@ -60,7 +61,7 @@ function ReviewCard({ item, me }: { item: ReviewItem; me: string | null }) {
       <div className="flex justify-between"><strong>{STATE_LABEL[item.state]}</strong><span className="text-muted-foreground">{new Date(item.proposed_at).toLocaleString("pt-BR")}</span></div>
       <p>Evidência: {EVIDENCE_KINDS[item.evidence_kind as EvidenceKind] ?? item.evidence_kind} — {item.evidence_note}</p>
       {item.school_id && <p>Escola indicada: {item.school_id}</p>}
-      {item.decision && <p>Decisão: {item.decision.reason}</p>}
+      {item.decision && <p>Decisão: {humanizeForScreen(item.decision.reason)}</p>}
       {canDecide(item, me) && (
         <div className="mt-2 space-y-2">
           <Input aria-label="Motivo da decisão" placeholder="Motivo (mínimo 10 caracteres)" value={reason} onChange={(e) => setReason(e.target.value)} />

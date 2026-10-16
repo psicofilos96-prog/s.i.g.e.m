@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { importTooLarge, IMPORT_TOO_LARGE_TEXT } from "@/features/data-import/import-kernel";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { readCensusSource, censusRejectionsCsv, downloadCsv } from "@/features/data-import/import-center-view";
@@ -167,7 +168,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
         <StatusBadge tone={c.nature === "nativo" ? "info" : "neutral"}>{c.nature === "nativo" ? "Operação nativa" : "Observado/importado (histórico)"}</StatusBadge>
         <span className="text-sm text-muted-foreground">Referência {c.reference_date} · etapa: {last ? STAGE_LABEL[last.stage] : "—"}</span>
       </div>
-      <ol className="flex flex-wrap gap-2 text-xs">{c.events.map((e) => <li key={e.seq} className="rounded border border-border px-2 py-1">{e.seq}. {STAGE_LABEL[e.stage]} · {new Date(e.created_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {e.reason}</li>)}</ol>
+      <ol className="flex flex-wrap gap-2 text-xs">{c.events.map((e) => <li key={e.seq} className="rounded border border-border px-2 py-1">{e.seq}. {STAGE_LABEL[e.stage]} · {new Date(e.created_at).toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" })} · {humanizeForScreen(e.reason)}</li>)}</ol>
       {head && live && live !== head.fingerprint ? <StatePanel tone="warning" title="Os fatos mudaram" description="Os registros mudaram depois da fotografia vigente; gere nova versão para conferir." /> : null}
 
       <Tabs defaultValue="cobertura">
@@ -184,11 +185,11 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
                 <table className="w-full text-xs"><caption className="sr-only">Cobertura por domínio</caption>
                   <thead><tr><th scope="col" className="text-left">Domínio</th><th scope="col" className="text-left">Conhecidas</th><th scope="col" className="text-left">Desconhecidas</th><th scope="col" className="text-left">Inconsistências</th></tr></thead>
                   <tbody>{domainCoverage(content).map((d) => <tr key={d.domain} className="border-t border-border"><td>{DOMAIN_LABEL[d.domain]}</td><td>{d.known}</td><td>{d.unknown}</td><td>{d.findings}</td></tr>)}</tbody></table>
-                <p className="text-xs text-muted-foreground">Fora da fotografia: {content.domains_unavailable.map((d) => `${d.domain} (${d.reason})`).join("; ") || "nenhum"}</p>
+                <p className="text-xs text-muted-foreground">Fora da fotografia: {content.domains_unavailable.map((d) => `${d.domain} (${humanizeForScreen(d.reason)})`).join("; ") || "nenhum"}</p>
               </>}
           <div className="space-y-1"><h3 className="font-medium">Fotografias</h3>
             {c.snapshots.length === 0 ? <p className="text-muted-foreground">Nenhuma fotografia.</p>
-              : <ul>{c.snapshots.map((s) => <li key={s.id} className={s.current ? "" : "text-muted-foreground"}>v{s.version} · {short(s.fingerprint)} · {s.conferences} conferência(s){s.current ? " · vigente" : " · substituída"}{s.reason ? ` · ${s.reason}` : ""}</li>)}</ul>}</div>
+              : <ul>{c.snapshots.map((s) => <li key={s.id} className={s.current ? "" : "text-muted-foreground"}>v{s.version} · {short(s.fingerprint)} · {s.conferences} conferência(s){s.current ? " · vigente" : " · substituída"}{s.reason ? ` · ${humanizeForScreen(s.reason)}` : ""}</li>)}</ul>}</div>
         </TabsContent>
         {CENSUS_DOMAINS.map((d) => <TabsContent key={d} value={d}>{domainTable(d)}</TabsContent>)}
         <TabsContent value="importacoes" className="space-y-2 text-sm">
@@ -198,7 +199,7 @@ function CycleCard({ c, names, onChanged }: { c: CycleView; names: Map<string, s
           <ol className="space-y-2">{c.imports.map((i) => (
             <li key={i.id} className="rounded border border-border p-2">
               <p>{formatDateTime(i.created_at)} · {i.origin} · {countLabel(i.accepted, "linha aceita", "linhas aceitas")} · {countLabel(i.rejections.length, "rejeitada", "rejeitadas")} · hash {short(i.source_sha256)}</p>
-              {i.rejections.length ? <><Button size="sm" variant="outline" onClick={() => downloadCsv(`rejeicoes-${i.origin}.csv`, censusRejectionsCsv(i.rejections))}>Baixar relatório de exceções (CSV)</Button><details className="text-xs"><summary>Ver rejeições</summary><ul>{i.rejections.slice(0, 200).map((r) => <li key={r.row}>linha {r.row}: {r.reason}</li>)}</ul></details></> : null}
+              {i.rejections.length ? <><Button size="sm" variant="outline" onClick={() => downloadCsv(`rejeicoes-${i.origin}.csv`, censusRejectionsCsv(i.rejections))}>Baixar relatório de exceções (CSV)</Button><details className="text-xs"><summary>Ver rejeições</summary><ul>{i.rejections.slice(0, 200).map((r) => <li key={r.row}>linha {r.row}: {humanizeForScreen(r.reason)}</li>)}</ul></details></> : null}
               {head ? <Button size="sm" variant="outline" onClick={() => readCompare(head.id, i.id).then(setCmp, (e) => setMsg(errText(e)))}>Comparar com fotografia v{head.version}</Button> : null}
             </li>))}</ol>
           {cmp ? <div><p>{Object.entries(summarizeCompare(cmp)).map(([k, n]) => `${CATEGORY_LABEL[k] ?? k}: ${n}`).join(" · ")}</p>

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCloudPeriodFacts } from "./assessment-period-sources";
 import { useAssessmentNormativeSource, normativeSessionArgs, useAttendancePolicySource } from "./assessment-normative-sources";
 import { demonstrationAttendanceFormulas } from "@/features/diary/attendance-formula-fixtures";
@@ -153,7 +154,7 @@ export function AcademicStandingPage({
   const state = norms.state;
   const rules = norms.rules;
   if (referenceDate.kind === "invalid")
-    return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={referenceDate.reason} />;
+    return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={humanizeForScreen(referenceDate.reason)} />;
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
@@ -180,7 +181,7 @@ export function AcademicStandingPage({
   const curriculumRef = curriculumRefOf(item.record);
   const cycleResolution = resolveCyclesForOrigin(cloud ? "institucional" : "laboratorio", { configuration, structure });
   if (cycleResolution.kind === "unavailable")
-    return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={cycleResolution.reason} />;
+    return <StatePanel tone="warning" title="Situação acadêmica indisponível" description={humanizeForScreen(cycleResolution.reason)} />;
   const cycles = cycleResolution.cycles;
 
   const assessmentRule = rules.find(
@@ -724,7 +725,7 @@ function StandingStateBlock({ row, onRegister }: { row: StandingRow; onRegister:
           </ul>
           <p className="mt-1 text-muted-foreground">
             {row.divergence.impact.kind === "impact-undetermined"
-              ? `Impacto indeterminado: ${row.divergence.impact.reason}`
+              ? `Impacto indeterminado: ${humanizeForScreen(row.divergence.impact.reason)}`
               : row.divergence.impact.kind === "standing-unchanged"
                 ? "Pela regra do registro, a situação permaneceria a mesma."
                 : row.divergence.impact.kind === "standing-would-change"

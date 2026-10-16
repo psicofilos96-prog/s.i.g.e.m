@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
@@ -226,7 +227,7 @@ export function SemedTablesPage() {
           </div>
 
           <section className="rounded-md border p-3"><h3 className="mb-2 text-sm font-semibold">Histórico</h3>
-            {evs.length === 0 ? <p className="text-xs text-muted-foreground">Nenhuma ação ainda.</p> : <ol className="space-y-1 text-xs">{[...evs].reverse().map((e) => <li key={e.id}>#{e.seq} · {new Date(e.created_at).toLocaleString("pt-BR")} · {ACT_LABEL[e.act]} → {STATE_LABEL[e.state_after]} · {e.actor_scope === "rede" ? "rede" : "escola"}{e.reason ? ` · motivo: ${e.reason}` : ""}</li>)}</ol>}
+            {evs.length === 0 ? <p className="text-xs text-muted-foreground">Nenhuma ação ainda.</p> : <ol className="space-y-1 text-xs">{[...evs].reverse().map((e) => <li key={e.id}>#{e.seq} · {new Date(e.created_at).toLocaleString("pt-BR")} · {ACT_LABEL[e.act]} → {STATE_LABEL[e.state_after]} · {e.actor_scope === "rede" ? "rede" : "escola"}{e.reason ? ` · motivo: ${humanizeForScreen(e.reason)}` : ""}</li>)}</ol>}
           </section>
         </div>
       )}

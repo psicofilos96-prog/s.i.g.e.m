@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /** LOTE 8 — correção de prova aprovada pela OP: imagem do cartão → leitura → decisão humana → gravação (opcionalmente no Diário). */
 import { LoadingState } from "@/components/sigem/states";
 import { useEffect, useMemo, useState } from "react";
@@ -69,7 +70,7 @@ export function CorrectionPanel() {
     const pq = parseQr(code);
     if (code && (!pq || pq.instrumentVersionId !== sel?.id || pq.letter !== letter)) { setMsg(pq ? "O QR é de outra prova ou de outra versão. Escolha a prova/versão do cartão ou fotografe o cartão certo." : "QR não reconhecido como cartão desta prova."); setReads(null); return; }
     const r = rectify(layout, { width: c.width, height: c.height, data: gray });
-    if (!r.ok) { setMsg(`Foto não lida: ${r.reason}. Você ainda pode registrar as respostas manualmente abaixo.`); setReads([]); return; }
+    if (!r.ok) { setMsg(`Foto não lida: ${humanizeForScreen(r.reason)}. Você ainda pode registrar as respostas manualmente abaixo.`); setReads([]); return; }
     setReads(readCard(layout, r.image));
   };
 
@@ -134,7 +135,7 @@ export function CorrectionPanel() {
                   <td>{obj ? <select aria-label={`Decisão ${ln.number}`} className="rounded border border-input bg-background" value={d?.status ?? (d && "option" in d ? d.option ?? "" : "auto")} onChange={(e) => { const v = e.target.value; const nd = { ...dec }; if (v === "auto") delete nd[ln.number]; else nd[ln.number] = v === "anulada" || v === "nao-lida" ? { status: v } : { option: v === "" ? null : v }; setDec(nd); }}>
                       <option value="auto">Manter leitura</option><option value="">Em branco</option>{layout.options.map((o) => <option key={o} value={o}>{o}</option>)}<option value="anulada">Anular questão</option><option value="nao-lida">Não lida</option></select>
                     : <input aria-label={`Nota da questão ${ln.number}`} inputMode="decimal" className="w-20 rounded border border-input bg-background p-1" placeholder={w != null ? `0–${w}` : "sem peso"} value={d?.points ?? ""} onChange={(e) => { const t = e.target.value.replace(",", "."); const nd = { ...dec }; if (t === "" || Number.isNaN(Number(t))) delete nd[ln.number]; else nd[ln.number] = { points: Number(t) }; setDec(nd); }} />}</td>
-                  <td>{ln.status === null ? <span className="text-destructive">{ln.reason}</span> : ln.status === "nao-lida" ? "Não lida (não conta)" : ln.status === "pontuada" ? `${String(ln.points).replace(".", ",")} pt` : ln.status}</td></tr>); })}</tbody></table>
+                  <td>{ln.status === null ? <span className="text-destructive">{humanizeForScreen(ln.reason)}</span> : ln.status === "nao-lida" ? "Não lida (não conta)" : ln.status === "pontuada" ? `${String(ln.points).replace(".", ",")} pt` : ln.status}</td></tr>); })}</tbody></table>
             {sum && <p className="text-sm" data-testid="sia-score">{sum.pending.length ? `Decida as questões ${sum.pending.join(", ")}.` : sum.score !== null ? `Nota: ${String(sum.score).replace(".", ",")} de ${String(sum.max).replace(".", ",")} (pesos desta versão aprovada).` : sum.weightsMissing ? "Sem nota: há questões sem peso nesta versão." : `Sem nota: ${sum.unread} questão(ões) não lida(s).`}{sum.badPoints ? " Nota de discursiva fora do peso." : ""}</p>}
             <label className="block text-sm">Código do cartão (QR) <input aria-label="Código do cartão" className="ml-1 rounded border border-input bg-background p-1" value={qr} onChange={(e) => setQr(e.target.value)} placeholder="não lido — digite" /></label>
             {head && <label className="block text-sm">Motivo da nova correção <input aria-label="Motivo" className="ml-1 w-full rounded border border-input bg-background p-1" value={reason} onChange={(e) => setReason(e.target.value)} /></label>}

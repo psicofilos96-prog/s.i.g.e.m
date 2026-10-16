@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -171,7 +172,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
           <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Justificativa (mín. 10 caracteres)" aria-label="Justificativa da apuração" />
           <Button size="sm" disabled={!canFreeze(selected, operationalToday()) || reason.trim().length < 10} onClick={record}>{selected.frozen ? "Registrar revisão" : "Apurar e congelar o mês"}</Button>
           {msg && <p role="status" className="text-sm">{msg}</p>}
-          {history.length > 0 && <ul className="text-sm">{history.map((h) => <li key={h.version}>v{h.version} · {h.kind === "apuracao" ? "apuração" : "revisão"} · {new Date(h.created_at).toLocaleString("pt-BR")}{h.reason ? ` · ${h.reason}` : ""}</li>)}</ul>}
+          {history.length > 0 && <ul className="text-sm">{history.map((h) => <li key={h.version}>v{h.version} · {h.kind === "apuracao" ? "apuração" : "revisão"} · {new Date(h.created_at).toLocaleString("pt-BR")}{h.reason ? ` · ${humanizeForScreen(h.reason)}` : ""}</li>)}</ul>}
         </section>
       )}
     </div>

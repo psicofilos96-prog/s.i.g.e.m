@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { userErrorText } from "@/lib/observability/governed-errors";
@@ -67,8 +68,8 @@ function AdjustBox({ c, info, canAdjust, busy, onSubmit }: AdjustProps & { c: Ma
   return (
     <details className="mt-2 text-xs print:hidden">
       <summary className="cursor-pointer font-medium">Ajuste manual{info.history.length ? ` (${info.history.length} registro${info.history.length > 1 ? "s" : ""})` : ""}</summary>
-      {c.adjustment && <p className="mt-1">Calculado pelo SIGEM: <strong>{cellValueText(c.adjustment.calculated)}</strong> · Valor efetivo: <strong>{cellValueText(c.adjustment.adjusted)}</strong> · Motivo: {c.adjustment.reason}</p>}
-      {info.history.length > 0 && <ol className="mt-1 list-decimal pl-4">{info.history.map((h) => <li key={h.at}>{formatDateTime(h.at)} — {h.kind === "anulacao" ? "ajuste anulado" : `ajustado para ${h.adjusted}`} pela {h.side === "escola" ? "escola" : "Estatística"}: {h.reason}</li>)}</ol>}
+      {c.adjustment && <p className="mt-1">Calculado pelo SIGEM: <strong>{cellValueText(c.adjustment.calculated)}</strong> · Valor efetivo: <strong>{cellValueText(c.adjustment.adjusted)}</strong> · Motivo: {humanizeForScreen(c.adjustment.reason)}</p>}
+      {info.history.length > 0 && <ol className="mt-1 list-decimal pl-4">{info.history.map((h) => <li key={h.at}>{formatDateTime(h.at)} — {h.kind === "anulacao" ? "ajuste anulado" : `ajustado para ${h.adjusted}`} pela {h.side === "escola" ? "escola" : "Estatística"}: {humanizeForScreen(h.reason)}</li>)}</ol>}
       {canAdjust && (
         <div className="mt-2 space-y-1">
           <input aria-label={`Novo valor para ${c.label}`} className="w-full rounded-md border border-input bg-background p-1" value={val} onChange={(e) => setVal(e.target.value)} placeholder="Novo valor" />
@@ -103,7 +104,7 @@ function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }
       {c.groups && c.groups.length > 0 && (
         <ul className="mt-2 space-y-0.5 text-sm">{c.groups.map((g) => <li key={g.key ?? "—"}>{g.key ?? "Sem classificação"}: {cellValueText(g.value)}</li>)}</ul>
       )}
-      {c.adjustment && <p className="mt-1 text-xs">Ajustado de <strong>{cellValueText(c.adjustment.calculated)}</strong> para <strong>{cellValueText(c.adjustment.adjusted)}</strong> — motivo: {c.adjustment.reason}</p>}
+      {c.adjustment && <p className="mt-1 text-xs">Ajustado de <strong>{cellValueText(c.adjustment.calculated)}</strong> para <strong>{cellValueText(c.adjustment.adjusted)}</strong> — motivo: {humanizeForScreen(c.adjustment.reason)}</p>}
       {c.notes.length > 0 && <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground">{c.notes.map((n) => <li key={n}>{n}</li>)}</ul>}
       {c.coverage && !c.coverage.complete && <p className="mt-1 text-xs text-muted-foreground">Cobertura incompleta: {c.coverage.observed} de {c.coverage.eligible} com registro.</p>}
       {(c.source || c.recordRefs.length > 0 || c.ruleRef) && (
@@ -293,7 +294,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
             </div>
           )}
           {v.openCorrection && (
-            <p className="mt-2 text-sm">Correção aberta em {formatDateTime(v.openCorrection.openedAt)}. Motivo: {v.openCorrection.reason}</p>
+            <p className="mt-2 text-sm">Correção aberta em {formatDateTime(v.openCorrection.openedAt)}. Motivo: {humanizeForScreen(v.openCorrection.reason)}</p>
           )}
           {(!correcting || v.openCorrection) && (
             <div className="mt-3 flex flex-wrap gap-2">

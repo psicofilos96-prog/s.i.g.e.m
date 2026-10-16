@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /** SIPE.1 — modelos da Secretaria, compartilhamento seletivo, copiar e adaptar, e impressão A4 com cabeçalho automático. */
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -72,7 +73,7 @@ export function TemplatesAdmin({ schoolIds }: { schoolIds: string[] }) {
         <label className="block text-sm">Segmento<input aria-label="Segmento" className={inp} disabled={!!d.head} placeholder="Ex.: Anos iniciais" value={d.segment} onChange={(e) => setD({ ...d, segment: e.target.value })} /></label>
         <label className="block text-sm">Organização<select className={inp} value={d.mode} onChange={(e) => setD({ ...d, mode: e.target.value as "unidocente" })}><option value="unidocente">Um planejamento da turma (anos iniciais)</option><option value="por-componente">Um por componente (anos finais)</option></select></label>
         <label className="block text-sm">Campos de cada dia (um por linha)<textarea aria-label="Campos do dia" rows={8} className={inp} value={d.fields} onChange={(e) => setD({ ...d, fields: e.target.value })} /></label>
-        {d.head && <label className="block text-sm">Motivo da nova versão<input aria-label="Motivo" className={inp} value={d.reason} onChange={(e) => setD({ ...d, reason: e.target.value })} /></label>}
+        {d.head && <label className="block text-sm">Motivo da nova versão<input aria-label="Motivo" className={inp} value={humanizeForScreen(d.reason)} onChange={(e) => setD({ ...d, reason: e.target.value })} /></label>}
         <div className="flex gap-2"><Button size="sm" onClick={save} disabled={!d.segment.trim()}>Gravar modelo</Button><Button size="sm" variant="ghost" onClick={() => setD(null)}>Cancelar</Button></div>
       </div>}
       {msg && <p role="status" className="text-sm">{msg}</p>}

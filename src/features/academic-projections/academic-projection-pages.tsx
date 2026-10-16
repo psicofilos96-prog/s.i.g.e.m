@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { teachingClass } from "@/features/diary/institutional-teaching";
 import { useAssessmentNormativeSource, normativeSessionArgs } from "@/features/assessment/assessment-normative-sources";
 /**
@@ -170,7 +171,7 @@ export function AcademicProjectionPage({
   if (pending)
     return <StatePanel tone="neutral" title="Verificando sessão…" description="A projeção aparece depois que a sessão for confirmada." />;
   if (referenceDate.kind === "invalid")
-    return <StatePanel tone="warning" title="Projeção indisponível" description={referenceDate.reason} />;
+    return <StatePanel tone="warning" title="Projeção indisponível" description={humanizeForScreen(referenceDate.reason)} />;
   // B4.6.2b.2 — nada é afirmado (catálogo vazio, ausência de política) antes da leitura do encerramento.
   if (cloud && (!cloudClosing.ready || !norms.ready))
     return <StatePanel tone="info" title="Carregando" description="Lendo encerramentos e políticas homologadas." />;
@@ -191,7 +192,7 @@ export function AcademicProjectionPage({
   const { configuration, structure, year } = state;
   const cycleResolution = resolveCyclesForOrigin(cloud ? "institucional" : "laboratorio", { configuration, structure });
   if (cycleResolution.kind === "unavailable")
-    return <StatePanel tone="warning" title="Projeção indisponível" description={cycleResolution.reason} />;
+    return <StatePanel tone="warning" title="Projeção indisponível" description={humanizeForScreen(cycleResolution.reason)} />;
   // Laboratório: legado demonstrativo.
   const cycle = cycleResolution.cycles[0];
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { DateInput } from "@/components/sigem/date-input";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -54,7 +55,7 @@ export function OpCentralPage() {
               <DateInput className="mt-1 rounded border bg-background p-2" value={date} onChange={(e) => setDate(e.target.value)} />
             </label>
           </div>
-          {iso && !iso.ok ? <AbsenceState kind="nenhum-resultado" title="Escolha a escola" description={iso.reason} /> : iso && iso.ok && <SchoolCentral schoolId={iso.schoolId} date={date} />}
+          {iso && !iso.ok ? <AbsenceState kind="nenhum-resultado" title="Escolha a escola" description={humanizeForScreen(iso.reason)} /> : iso && iso.ok && <SchoolCentral schoolId={iso.schoolId} date={date} />}
         </>)}
     </div>
   );

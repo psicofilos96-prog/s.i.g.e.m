@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { CensusOfficialPanel } from "./census-official-panel";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -132,7 +133,7 @@ function Item({ item, hash, reviewer, onReview }: { item: InboxItem; hash: strin
         <dt className="text-muted-foreground">detectado em</dt><dd>{formatDateTime(item.finding.detectedAt)}</dd>
       </dl>}
       {item.evidenceChanged && <p className="mt-1 text-xs">Reaberto: a evidência mudou desde a última revisão.</p>}
-      {item.head && <p className="mt-1 text-xs text-muted-foreground">Última revisão: {item.head.state} — {item.head.reason}</p>}
+      {item.head && <p className="mt-1 text-xs text-muted-foreground">Última revisão: {item.head.state} — {humanizeForScreen(item.head.reason)}</p>}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {rule && item.finding && <Button asChild size="sm" variant="outline"><Link to={rule.fix(ev) as never}>Abrir a tela de correção</Link></Button>}
         {reviewer && item.state !== "resolvido" && hash && <>

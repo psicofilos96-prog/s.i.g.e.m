@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
@@ -76,7 +77,7 @@ function NetworkIntelligence() {
               <article key={i.key} className="space-y-2 rounded-lg border border-border bg-card p-4" aria-label={d.name}>
                 <header className="flex items-start justify-between gap-2"><h3 className="font-medium">{d.name}</h3><span className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">{natureLabel(d, i)}</span></header>
                 <p className="text-3xl font-semibold tabular-nums">{displayValue(i)}</p>
-                <p className="text-xs" data-state={displayState(i)}><strong>{STATE_LABEL[i.state]}</strong>{i.reason ? ` — ${i.reason}` : ""}</p>
+                <p className="text-xs" data-state={displayState(i)}><strong>{STATE_LABEL[i.state]}</strong>{i.reason ? ` — ${humanizeForScreen(i.reason)}` : ""}</p>
                 <p hidden data-provenance className="text-xs text-muted-foreground">{d.definition} Unidade: {d.unit}. Versão {d.version}. Fonte: {i.source}.</p>
                 {by && Object.keys(by).length > 1 ? (
                   <div><Button variant="link" className="h-auto p-0 text-xs" onClick={() => setOpen(open === i.key ? null : i.key)}>{open === i.key ? "Ocultar escolas" : "Ver por escola"}</Button>
@@ -91,7 +92,7 @@ function NetworkIntelligence() {
               <label className="text-sm">Situação em <DateInput value={cmpOn} onChange={(e) => setCmpOn(e.target.value)} /></label>
               <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={cmpYear} onChange={(e) => setCmpYear(e.target.value)}><option value="">Todos</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name} — {YEAR_LABEL[y.nature]}</option>)}</select></label>
             </div>
-            {comparisons ? <ul className="space-y-1 text-sm">{comparisons.map((c) => <li key={c.key}>{c.name}: {c.result.kind === "comparavel" ? `diferença ${c.result.delta.toLocaleString("pt-BR")}` : `não comparável — ${c.result.reason}`}</li>)}</ul> : null}
+            {comparisons ? <ul className="space-y-1 text-sm">{comparisons.map((c) => <li key={c.key}>{c.name}: {c.result.kind === "comparavel" ? `diferença ${c.result.delta.toLocaleString("pt-BR")}` : `não comparável — ${humanizeForScreen(c.result.reason)}`}</li>)}</ul> : null}
           </section>
           <section aria-labelledby="qualidade-ind" className="space-y-2 rounded-lg border border-border p-4">
             <h3 id="qualidade-ind" className="font-medium">Qualidade das fontes</h3>
@@ -100,7 +101,7 @@ function NetworkIntelligence() {
           </section>
           <section aria-labelledby="bloqueios-ind" className="space-y-2 rounded-lg border border-border p-4">
             <h3 id="bloqueios-ind" className="font-medium">Bloqueados por fonte ou parâmetro ausente</h3>
-            <ul className="space-y-1 text-sm">{ANALYTICS_BLOCKS.map((b) => <li key={b.code} data-state="BLOCKED"><strong>{b.label}</strong> ({b.code}): {b.reason}</li>)}</ul>
+            <ul className="space-y-1 text-sm">{ANALYTICS_BLOCKS.map((b) => <li key={b.code} data-state="BLOCKED"><strong>{b.label}</strong> ({b.code}): {humanizeForScreen(b.reason)}</li>)}</ul>
           </section>
         </>
       )}
@@ -143,7 +144,7 @@ function MetricCard({ d, ctx, caps, tick }: { d: MetricDefinition; ctx: Ctx; cap
       <h3 id={`m-${d.id}`} className="text-sm font-medium text-muted-foreground">{d.label}</h3>
       {!r ? <p role="status" className="text-sm">Calculando…</p>
         : r.status === "disponivel" ? <p className="text-3xl font-semibold tabular-nums">{r.value.toLocaleString("pt-BR")} <span className="text-sm font-normal text-muted-foreground">{r.unit}</span></p>
-        : <p className="text-sm"><strong>Não disponível.</strong> {r.reason}</p>}
+        : <p className="text-sm"><strong>Não disponível.</strong> {humanizeForScreen(r.reason)}</p>}
       {r?.status === "disponivel" && r.note && <p className="text-xs text-muted-foreground">{r.note}</p>}
       {state && <p className="text-xs text-muted-foreground">Calculado às {new Date(state.fetchedAt).toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo" })}{state.stale ? " — desatualizado, use Atualizar" : ""}</p>}
       <button type="button" className="text-xs underline" aria-expanded={open} onClick={() => setOpen(!open)}>De onde veio esse número?</button>

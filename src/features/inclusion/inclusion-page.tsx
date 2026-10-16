@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { callRpc } from "@/lib/rpc-call";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -162,7 +163,7 @@ function Student({ school, student }: { school: string; student: string }) {
               <Attachments recordLogicalId={r.logical_id} />
             </li>))}</ul>}
       {history && <div role="region" aria-label="Histórico" className="rounded border p-2 text-xs"><div className="flex justify-between"><strong>Histórico</strong><Button size="sm" variant="ghost" onClick={() => setHistory(null)}>Fechar</Button></div>
-        <ol>{[...history].sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {formatDateTime(h.recorded_at)}{h.reason ? ` · motivo: ${h.reason}` : ""}</li>)}</ol></div>}
+        <ol>{[...history].sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {formatDateTime(h.recorded_at)}{h.reason ? ` · motivo: ${humanizeForScreen(h.reason)}` : ""}</li>)}</ol></div>}
       {!err && <NewRecord school={school} student={student} onDone={load} />}
       <ClinicalSection school={school} student={student} onLoaded={setClinical} />
       {msg && <p role="status" className="text-sm">{msg}</p>}

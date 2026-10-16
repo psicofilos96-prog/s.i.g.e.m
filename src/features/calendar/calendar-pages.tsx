@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { FactValue } from "@/components/sigem/states";
 import { useCalendarRepository, useCentralMode, useSupervisionMode } from "./calendar-supervision-context";
@@ -163,7 +164,7 @@ export function CalendarListPage({ profile }: { profile: CalendarProfile }) {
         <StatePanel
           tone="danger"
           title="O calendário salvo neste navegador não pôde ser lido"
-          description={`Motivo: ${storage.reason}. O registro foi preservado sem alteração e nada será gravado sobre ele.`}
+          description={`Motivo: ${humanizeForScreen(storage.reason)}. O registro foi preservado sem alteração e nada será gravado sobre ele.`}
           action={
             repo.openProjectSource && calendars.length === 0 ? (
               <Button size="sm" variant="outline" onClick={() => repo.openProjectSource?.()}>

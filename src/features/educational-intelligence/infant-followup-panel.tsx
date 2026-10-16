@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,7 @@ export function InfantFollowupPanel() {
         <section aria-label="Histórico" className="space-y-1 text-sm"><h3 className="font-semibold">Histórico</h3>
           <ol className="space-y-1">{ok.fu.filter((r) => r.student_id === sel.student_id).sort((a, b) => a.observed_on.localeCompare(b.observed_on) || a.version - b.version).map((r) => (
             <li key={r.id}>{br(r.observed_on)} · {EI_FIELDS.find((x) => x.key === r.field_key)?.label}{r.objective_code ? ` (${r.objective_code})` : ""} · {MODALITY_LABEL[r.modality]} · v{r.version}{r.family_visible ? " · visível à família" : ""}: {r.observation}
-              {r.adaptation_note && <> — Adaptação: {r.adaptation_note}</>}{r.evidence.length > 0 && <> — Evidências: {r.evidence.join("; ")}</>}{r.reason && <> — Motivo: {r.reason}</>}</li>))}
+              {r.adaptation_note && <> — Adaptação: {r.adaptation_note}</>}{r.evidence.length > 0 && <> — Evidências: {r.evidence.join("; ")}</>}{r.reason && <> — Motivo: {humanizeForScreen(r.reason)}</>}</li>))}
             {ok.fb.filter((x) => x.student_id === sel.student_id).map((x) => <li key={x.id}>{br(x.recorded_at)} · {x.kind}{x.sipe_ref ? ` (SIPE ${x.sipe_ref})` : ""}: {x.text_body}</li>)}</ol></section>
         <fieldset className="space-y-2 rounded-md border p-3"><legend className="text-sm font-medium">Nova observação</legend>
           <div className="flex flex-wrap gap-2">

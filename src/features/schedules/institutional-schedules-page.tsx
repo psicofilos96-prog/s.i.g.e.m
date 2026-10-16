@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { CONFLICT_TEXT, findConflicts, gridBlocksOf } from "./schedule-conflicts";
 import { CrossClassPanel } from "./cross-class-panel";
 import { governError } from "@/lib/observability/governed-errors";
@@ -99,7 +100,7 @@ export function CalendarDayNotice({ validOn, knownAt, contextKey, classId, schoo
   const text = allocs.error
     ? "Calendário nesta data: não foi possível ler as alocações da turma; nada foi contado."
     : !classId ? null
-    : dep.reason ? `Calendário nesta data: ${dep.reason}`
+    : dep.reason ? `Calendário nesta data: ${humanizeForScreen(dep.reason)}`
     : `Calendário nesta data: ${dep.summary.days[0]?.state === "letivo" ? "dia letivo" : "dia não letivo"} para todos os estudantes da turma.`;
   return text ? <p role="note" data-testid="calendar-day-notice" className="text-sm text-muted-foreground">{text} A grade abaixo não indica aula prevista.</p> : null;
 }
@@ -138,7 +139,7 @@ export function InstitutionalSchedulesPage({ contextKey, referenceDate, onDateCh
         )}
       </div>
       {ref.kind === "bloqueada" ? (
-        <p role="alert" className="text-sm text-destructive">{ref.reason}</p>
+        <p role="alert" className="text-sm text-destructive">{humanizeForScreen(ref.reason)}</p>
       ) : (
         <>
         <p className="text-xs text-muted-foreground">

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -62,7 +63,7 @@ export function YearPreparationPage() {
         <ol className="divide-y divide-border rounded-md border border-border">
           {ITEMS.map((d) => { const s = byId.get(d.id)!; return (
             <li key={d.id} className="flex flex-col gap-1 p-3 text-sm sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0"><p className="font-medium">{d.label} — <span data-state={s.state} data-checklist={cls.get(d.id)}>{CHECKLIST_LABEL[cls.get(d.id)!]}</span></p><p className="text-xs text-muted-foreground">{d.domain} · {d.scope === "annual" ? "Do ano 2027" : "Sem ano (cadastro institucional)"}</p><p className="text-muted-foreground">{s.reason}</p></div>
+              <div className="min-w-0"><p className="font-medium">{d.label} — <span data-state={s.state} data-checklist={cls.get(d.id)}>{CHECKLIST_LABEL[cls.get(d.id)!]}</span></p><p className="text-xs text-muted-foreground">{d.domain} · {d.scope === "annual" ? "Do ano 2027" : "Sem ano (cadastro institucional)"}</p><p className="text-muted-foreground">{humanizeForScreen(s.reason)}</p></div>
               <Link to={d.to} className="shrink-0 text-primary underline-offset-4 hover:underline">Abrir ferramenta</Link>
             </li>); })}
         </ol>

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -79,7 +80,7 @@ export function PublicationsAdminPage() {
         <div><Label htmlFor="pub-summary">Resumo</Label><Input id="pub-summary" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} /></div>
         <div><Label htmlFor="pub-body">Texto</Label><Textarea id="pub-body" rows={8} value={form.body} onChange={(e) => setForm({ ...form, body: e.target.value })} /></div>
         <p className="text-xs text-muted-foreground">Não inclua nomes de estudantes, servidores, contatos privados, notas ou frequência: o texto publicado fica acessível a qualquer pessoa.</p>
-        <div><Label htmlFor="pub-reason">Motivo (obrigatório para revogar)</Label><Input id="pub-reason" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
+        <div><Label htmlFor="pub-reason">Motivo (obrigatório para revogar)</Label><Input id="pub-reason" value={humanizeForScreen(form.reason)} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => save("rascunho")}>Salvar rascunho</Button>
           <Button onClick={() => save("publicado")}>Publicar</Button>

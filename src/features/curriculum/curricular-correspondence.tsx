@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { NoteBox } from "@/components/sigem/patterns";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -80,7 +81,7 @@ function ValidityFields({ id, v, set, isNew, actLabel }: { id: string; v: Validi
       <div className="space-y-1"><Label htmlFor={`${id}-act`}>{actLabel}</Label>
         <Input id={`${id}-act`} value={v.actRef} onChange={(e) => set({ ...v, actRef: e.target.value })} /></div>
       <div className="space-y-1 sm:col-span-2"><Label htmlFor={`${id}-reason`}>Motivo{isNew ? " (opcional)" : " (obrigatório)"}</Label>
-        <Textarea id={`${id}-reason`} value={v.reason} onChange={(e) => set({ ...v, reason: e.target.value })} /></div>
+        <Textarea id={`${id}-reason`} value={humanizeForScreen(v.reason)} onChange={(e) => set({ ...v, reason: e.target.value })} /></div>
     </>
   );
 }
@@ -99,7 +100,7 @@ function useSubmit(onDone: () => void) {
 function VersionMeta({ v }: { v: { version: number; changeKind: string; validFrom: string; validUntil: string | null; actRef: string | null; reason: string | null } }) {
   return (
     <p className="text-xs text-muted-foreground">
-      Versão {v.version} · {v.changeKind} · desde {formatAcademicDate(v.validFrom)}{v.validUntil ? ` até ${formatAcademicDate(v.validUntil)}` : " · sem término declarado"}{v.actRef ? ` · referência documental ${v.actRef}` : ""}{v.reason ? ` · motivo: ${v.reason}` : ""}
+      Versão {v.version} · {v.changeKind} · desde {formatAcademicDate(v.validFrom)}{v.validUntil ? ` até ${formatAcademicDate(v.validUntil)}` : " · sem término declarado"}{v.actRef ? ` · referência documental ${v.actRef}` : ""}{v.reason ? ` · motivo: ${humanizeForScreen(v.reason)}` : ""}
     </p>
   );
 }

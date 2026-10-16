@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { useEffect, useRef, useState } from "react";
@@ -135,7 +136,7 @@ export function CardAdminPage() {
                   {c.open_card && <span className="rounded border px-2 text-xs">já tem carteirinha</span>}
                   {(() => { const d = candidateDisambiguation(c, cands); return d.ok
                     ? <Button type="button" size="sm" variant="ghost" className="ml-auto" onClick={() => setPick(c)}>Selecionar</Button>
-                    : <span role="note" className="ml-auto text-xs text-destructive">{d.reason}</span>; })()}
+                    : <span role="note" className="ml-auto text-xs text-destructive">{humanizeForScreen(d.reason)}</span>; })()}
                 </li>))}</ul>)}
             {pick && (
               <div className="space-y-3">

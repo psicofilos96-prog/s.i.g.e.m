@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -136,7 +137,7 @@ function Page() {
           </div>
         </>}
         <section aria-labelledby="hist" className="space-y-1"><h2 id="hist" className="font-medium">Histórico de atos</h2>
-          {data!.acts.length === 0 ? <p className="text-muted-foreground">Nenhum ato registrado.</p> : <ol className="list-decimal pl-5">{data!.acts.map((a) => <li key={a.seq}>{ACTION_LABEL[a.action] ?? a.action} · {new Date(a.created_at).toLocaleString("pt-BR")}{a.reason ? ` · motivo: ${a.reason}` : ""} · impressão {a.snapshot_sha256.slice(0, 12)}</li>)}</ol>}
+          {data!.acts.length === 0 ? <p className="text-muted-foreground">Nenhum ato registrado.</p> : <ol className="list-decimal pl-5">{data!.acts.map((a) => <li key={a.seq}>{ACTION_LABEL[a.action] ?? a.action} · {new Date(a.created_at).toLocaleString("pt-BR")}{a.reason ? ` · motivo: ${humanizeForScreen(a.reason)}` : ""} · impressão {a.snapshot_sha256.slice(0, 12)}</li>)}</ol>}
         </section>
       </>}
     </div>

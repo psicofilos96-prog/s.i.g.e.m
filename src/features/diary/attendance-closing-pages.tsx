@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { diaryClassCalendar, useComposedCalendarRefresh } from "./diary-calendar";
 import { calendarRangeExplanation } from "@/features/calendar/institutional-calendar-days";
 import { diaryReference } from "./diary-session-state";
@@ -154,7 +155,7 @@ function AttendanceClosingBody({
   const state = norms.state;
 
   if (referenceDate.kind === "invalid")
-    return <StatePanel tone="warning" title="Fechamento de frequência indisponível" description={referenceDate.reason} />;
+    return <StatePanel tone="warning" title="Fechamento de frequência indisponível" description={humanizeForScreen(referenceDate.reason)} />;
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
   const item = context.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });

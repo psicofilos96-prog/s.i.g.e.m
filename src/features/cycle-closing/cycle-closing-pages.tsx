@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { diaryClassCalendar, useComposedCalendarRefresh } from "@/features/diary/diary-calendar";
 import { diaryReference } from "@/features/diary/diary-session-state";
 import { useCloudClosingSync } from "@/features/assessment/period-closing-cloud";
@@ -204,7 +205,7 @@ function CycleClosingBody({
   const state = norms.state;
 
   if (referenceDate.kind === "invalid")
-    return <StatePanel tone="warning" title="Encerramento indisponível" description={referenceDate.reason} />;
+    return <StatePanel tone="warning" title="Encerramento indisponível" description={humanizeForScreen(referenceDate.reason)} />;
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
   const item = context.assignments.find((assignment) => assignment.classId === classId);
 
@@ -228,7 +229,7 @@ function CycleClosingBody({
   // B4.6.2b.2 (A6) — com sessão, sem fonte homologada de ciclos ⇒ indisponível (nunca fallback/calendário local).
   const cycleResolution = resolveCyclesForOrigin(origin.kind, { configuration, structure });
   if (cycleResolution.kind === "unavailable")
-    return <StatePanel tone="warning" title="Encerramento indisponível" description={cycleResolution.reason} />;
+    return <StatePanel tone="warning" title="Encerramento indisponível" description={humanizeForScreen(cycleResolution.reason)} />;
   // Laboratório: legado demonstrativo (primeiro ciclo do fallback declarado).
   const cycle = cycleResolution.cycles[0];
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
@@ -597,7 +598,7 @@ function CycleClosingBody({
                   {ADMISSIBILITY_LABEL[decision.admissibility]}
                 </StatusBadge>
                 <span className="ml-2 font-medium text-foreground">{operationLabel}</span>
-                <p className="text-muted-foreground">{decision.reason}</p>
+                <p className="text-muted-foreground">{humanizeForScreen(decision.reason)}</p>
               </li>
             );
           })}
@@ -698,7 +699,7 @@ function DiagnosisPanel({ diagnosis }: { diagnosis: ClosingDiagnosis }) {
                 Situação terminal: {student.terminalStandingId ?? "não determinada"}
               </StatusBadge>
             </div>
-            <p className="mt-1 text-muted-foreground">{student.reason}</p>
+            <p className="mt-1 text-muted-foreground">{humanizeForScreen(student.reason)}</p>
             {student.diagnoses.length ? (
               <RequirementList title="Exigências individuais" items={student.diagnoses} />
             ) : null}
@@ -740,7 +741,7 @@ function RequirementList({
               </StatusBadge>
               <span className="font-medium text-foreground">{item.label}</span>
             </div>
-            <p className="text-muted-foreground">{item.reason}</p>
+            <p className="text-muted-foreground">{humanizeForScreen(item.reason)}</p>
           </li>
         ))}
       </ul>

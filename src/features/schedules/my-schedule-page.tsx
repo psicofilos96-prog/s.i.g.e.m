@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /**
  * B4.5 — "Meu horário" (sessão institucional): projeção somente leitura da própria pessoa.
  * Sem seletor de outros profissionais, sem editar/publicar/corrigir/redistribuir.
@@ -38,7 +39,7 @@ export function MySchedulePage({ contextKey, referenceDate, onDateChange }: {
         <DateInput id="b45-date" value={inputValue} onChange={(e) => { const iso = choose(e.target.value); if (iso) onDateChange?.(iso); }} />
       </div>
       {ref.kind === "bloqueada" ? (
-        <p role="alert" className="text-sm text-destructive">{ref.reason}</p>
+        <p role="alert" className="text-sm text-destructive">{humanizeForScreen(ref.reason)}</p>
       ) : (
         <p className="text-xs text-muted-foreground">Consulta em {fmt(ref.validOn)}. O horário pertence às grades das turmas; aqui ele só é reunido para você.</p>
       )}

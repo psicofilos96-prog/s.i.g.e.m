@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { useClassConfigurationState } from "./assessment-normative-sources";
 import { periodSourcePresentation } from "./period-source-presentation";
@@ -133,7 +134,7 @@ export function StudentAssessmentJourneyPage({
         <StatePanel
           tone="warning"
           title="Sem configuração avaliativa"
-          description={journey.reason}
+          description={humanizeForScreen(journey.reason)}
         />
       ) : (
         <>

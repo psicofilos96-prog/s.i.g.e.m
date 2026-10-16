@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -84,7 +85,7 @@ export function T10Panel({ school, year, editable, onData }: { school: string; y
             <span>{T10_LEVEL_LABEL[f.level]}: {formationText(f)}{f.institution ? ` · ${f.institution}` : ""}{f.conclusion_year ? ` · ${f.conclusion_year}` : ""} <span className="text-muted-foreground">(v{f.version})</span></span>
             {f.evidence && (seeEvidence ? <button type="button" className="underline" onClick={() => void openEvidence(f.evidence!.path)}>comprovante</button> : <span className="text-muted-foreground">comprovante registrado</span>)}
             {editable && <Button size="sm" variant="ghost" onClick={() => start(s, f)}>Corrigir</Button>}
-            {f.history.length > 1 && <details><summary className="cursor-pointer text-muted-foreground">histórico</summary><ol>{f.history.map((h) => <li key={h.id}>v{h.version} · {new Date(h.recorded_at).toLocaleString("pt-BR")} · {formationText(h)}{h.reason ? ` · motivo: ${h.reason}` : ""}</li>)}</ol></details>}
+            {f.history.length > 1 && <details><summary className="cursor-pointer text-muted-foreground">histórico</summary><ol>{f.history.map((h) => <li key={h.id}>v{h.version} · {new Date(h.recorded_at).toLocaleString("pt-BR")} · {formationText(h)}{h.reason ? ` · motivo: ${humanizeForScreen(h.reason)}` : ""}</li>)}</ol></details>}
           </li>)}</ul>}
           {editable && <Button size="sm" variant="outline" className="mt-1" onClick={() => start(s, null)}>Adicionar formação</Button>}
           {edit?.staff.staff_key === s.staff_key && (
@@ -97,7 +98,7 @@ export function T10Panel({ school, year, editable, onData }: { school: string; y
               <label>Instituição (opcional)<br /><input aria-label="Instituição" className="w-full rounded border border-input bg-background p-1" maxLength={200} value={edit.institution} onChange={(e) => setEdit({ ...edit, institution: e.target.value })} /></label>
               <label>Ano de conclusão (opcional)<br /><input aria-label="Ano de conclusão" type="number" min={1940} max={2100} className="w-full rounded border border-input bg-background p-1" value={edit.year} onChange={(e) => setEdit({ ...edit, year: e.target.value })} /></label>
               <label>Comprovante (PDF/JPG/PNG, opcional)<br /><input ref={fileRef} type="file" aria-label="Comprovante" accept=".pdf,.jpg,.jpeg,.png" /></label>
-              {edit.f && <label className="sm:col-span-3">Motivo da correção ou retirada<br /><input aria-label="Motivo" className="w-full rounded border border-input bg-background p-1" value={edit.reason} onChange={(e) => setEdit({ ...edit, reason: e.target.value })} /></label>}
+              {edit.f && <label className="sm:col-span-3">Motivo da correção ou retirada<br /><input aria-label="Motivo" className="w-full rounded border border-input bg-background p-1" value={humanizeForScreen(edit.reason)} onChange={(e) => setEdit({ ...edit, reason: e.target.value })} /></label>}
               <div className="flex gap-2 sm:col-span-3"><Button size="sm" disabled={busy} onClick={() => void save()}>{edit.f ? "Salvar correção" : "Registrar formação"}</Button>
                 {edit.f && <Button size="sm" variant="outline" disabled={busy} onClick={() => void save(true)}>Retirar formação</Button>}
                 <Button size="sm" variant="ghost" onClick={() => setEdit(null)}>Cancelar</Button></div>

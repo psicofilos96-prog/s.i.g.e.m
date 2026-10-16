@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
@@ -193,7 +194,7 @@ function PeriodTotals({ contextKey, calendarId, knownAt, periods }: { contextKey
         {q.data.map(({ p, r }) => {
           if (r.kind !== "lido") return <li key={p.id}>{p.name}: não calculável — leitura indisponível.</li>;
           const c = countSchoolDaysStrict(r.days);
-          return <li key={p.id}>{p.name} ({p.startsOn} a {p.endsOn}): {c.count === null ? `não calculável — ${c.reason}` : `${c.count} dias letivos, ${c.nonSchool} não letivos`}</li>;
+          return <li key={p.id}>{p.name} ({p.startsOn} a {p.endsOn}): {c.count === null ? `não calculável — ${humanizeForScreen(c.reason)}` : `${c.count} dias letivos, ${c.nonSchool} não letivos`}</li>;
         })}
       </ul>
     </section>

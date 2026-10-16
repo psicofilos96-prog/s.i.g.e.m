@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /**
  * COLOCAR ALUNO EM TURMA e TROCAR DE TURMA — jornadas guiadas (13UX · 6B.2.2).
  *
@@ -143,7 +144,7 @@ function ClassOptionSummary({ option }: { option: ClassOption }) {
         {item.situation}
         {option.eligibility === "incerta" ? " · compatibilidade a conferir" : ""}
       </p>
-      <p className="mt-0.5 text-sm text-muted-foreground">{option.reason}</p>
+      <p className="mt-0.5 text-sm text-muted-foreground">{humanizeForScreen(option.reason)}</p>
     </div>
   );
 }
@@ -577,7 +578,7 @@ export function AllocationWorkspacePage({
                     {option.item.code}
                   </span>
                 </p>
-                <p className="mt-0.5 text-sm text-muted-foreground">{option.reason}</p>
+                <p className="mt-0.5 text-sm text-muted-foreground">{humanizeForScreen(option.reason)}</p>
                 <Link
                   to="/turmas/$id"
                   params={{ id: option.item.id }}

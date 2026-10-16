@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { MoreFilters } from "@/components/sigem/more-filters";
 import { operationalToday } from "@/lib/academic-date";
@@ -84,7 +85,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
               <Link key={b.id} to={b.link as "/secretaria"} className="rounded-lg border bg-card p-4 space-y-1 hover:bg-accent">
                 <div className="flex items-baseline justify-between gap-2"><h3 className="text-sm font-semibold">{b.title}</h3><span className="text-xs text-muted-foreground">{knownLabel(STATE_LABEL, b.state)}</span></div>
                 <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? "—"}</p>
-                {b.reason && <p className="text-xs text-muted-foreground">{b.reason}</p>}
+                {b.reason && <p className="text-xs text-muted-foreground">{humanizeForScreen(b.reason)}</p>}
               </Link>))}
             <Link to="/calendario-escolar" className="rounded-lg border border-dashed bg-card p-4 hover:bg-accent"><h3 className="text-sm font-semibold">Calendário e períodos</h3><p className="text-xs text-muted-foreground">Abrir o calendário do ano.</p></Link>
             <Link to="/mapa-estatistico" className="rounded-lg border border-dashed bg-card p-4 hover:bg-accent"><h3 className="text-sm font-semibold">Mapa Estatístico</h3><p className="text-xs text-muted-foreground">Abrir os mapas da escola conforme sua atuação.</p></Link>
@@ -204,7 +205,7 @@ function Records({ school, schoolName, knownAt }: { school: string; schoolName: 
                     <label className="text-sm">Situação<select className={field} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}><option value="">Não declarada</option>{sts.map((m) => <option key={m.value_id} value={m.value_id}>{m.label}</option>)}</select></label>
                     <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.schoolVisible} onChange={(e) => setForm({ ...form, schoolVisible: e.target.checked })} />Visível à escola</label>
                   </div>}
-                  {editing && <label className="text-sm block">Motivo<input className={field} value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></label>}
+                  {editing && <label className="text-sm block">Motivo<input className={field} value={humanizeForScreen(form.reason)} onChange={(e) => setForm({ ...form, reason: e.target.value })} /></label>}
                   <div className="flex gap-2"><Button type="submit" disabled={busy}>{busy ? "Gravando…" : "Gravar"}</Button>
                     {editing && <Button type="button" variant="ghost" onClick={() => { setEditing(null); setForm(blank); }}>Cancelar</Button>}</div>
                 </>)}

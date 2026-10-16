@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
@@ -66,7 +67,7 @@ function Section({ s, k, studentId }: { s: FamilySummary; k: FamilySection; stud
       <h2 id={`sec-${k}`} className="font-semibold">{SECTION_LABEL[k]}</h2>
       {k === "comunicados" ? <FamilyCommunications studentId={studentId} />
         : k === "saude" ? <FamilyHealth studentId={studentId} />
-        : st.kind === "sem-publicacao" ? <p className="text-sm text-muted-foreground">{st.reason}</p>
+        : st.kind === "sem-publicacao" ? <p className="text-sm text-muted-foreground">{humanizeForScreen(st.reason)}</p>
         : st.kind === "vazia" ? <p className="text-sm text-muted-foreground">{st.message}</p>
         : k === "matricula" ? (
           <ul className="space-y-2 text-sm">{s.enrollments!.map((e, i) => (

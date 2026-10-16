@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,7 @@ export function SemedReconciliation({ school, schoolName, year, network, canAct 
               {network && <><Button size="sm" variant="outline" onClick={() => void act(c, "retornar")}>Retornar à escola</Button><Button size="sm" variant="outline" onClick={() => void act(c, "aprovar")}>Aprovar com justificativa</Button></>}</div>
           </div>}</td>}
         </tr>; })}</tbody></table></div>
-      {events.length > 0 && <details><summary className="cursor-pointer text-xs">Trilha de atos ({events.length})</summary><ol className="text-xs">{events.map((e) => <li key={`${e.check_key}-${e.seq}`}>{new Date(e.created_at).toLocaleString("pt-BR")} · {checks.find((c) => c.key === e.check_key)?.label ?? e.check_key} · #{e.seq} {e.act} ({e.actor_scope}) · {e.reason}</li>)}</ol></details>}
+      {events.length > 0 && <details><summary className="cursor-pointer text-xs">Trilha de atos ({events.length})</summary><ol className="text-xs">{events.map((e) => <li key={`${e.check_key}-${e.seq}`}>{new Date(e.created_at).toLocaleString("pt-BR")} · {checks.find((c) => c.key === e.check_key)?.label ?? e.check_key} · #{e.seq} {e.act} ({e.actor_scope}) · {humanizeForScreen(e.reason)}</li>)}</ol></details>}
       <div className="flex flex-wrap gap-2"><Button size="sm" variant="outline" onClick={() => void exp("pdf", "escola")}>PDF da conciliação</Button><Button size="sm" variant="outline" onClick={() => void exp("xlsx", "escola")}>XLSX da conciliação</Button>
         {network && <Button size="sm" onClick={() => void loadNet()}>Consolidar rede</Button>}</div>
       {net && <div className="space-y-2 rounded border p-2" aria-label="Painel CIECE">

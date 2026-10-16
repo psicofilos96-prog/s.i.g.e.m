@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,7 +92,7 @@ export function ExternalResultsPanel() {
             : <p className="text-sm text-muted-foreground">Menos de duas edições comparáveis homologadas.</p>}
           <table className="text-sm"><caption className="sr-only">Tabela equivalente ao gráfico</caption><thead><tr><th scope="col">Edição</th><th scope="col">Valor</th></tr></thead>
             <tbody>{chart.map((c) => <tr key={c.ano}><td>{c.ano}</td><td>{c.valor ?? "não disponível"}</td></tr>)}</tbody></table>
-          {series.excluded.length > 0 && <ul className="text-sm text-muted-foreground">{series.excluded.map((x) => <li key={x.row.id}>{x.row.edition_year}: fora da série — {x.reason}</li>)}</ul>}
+          {series.excluded.length > 0 && <ul className="text-sm text-muted-foreground">{series.excluded.map((x) => <li key={x.row.id}>{x.row.edition_year}: fora da série — {humanizeForScreen(x.reason)}</li>)}</ul>}
         </section>)}
       <details><summary className="cursor-pointer text-sm font-medium">Registrar resultado oficial</summary>
         <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">

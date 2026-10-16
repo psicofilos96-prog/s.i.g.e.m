@@ -58,7 +58,7 @@ function phrase(code: string): string {
 export function humanizeTechnical(text: string): string;
 export function humanizeTechnical(text: string | null | undefined): string | null | undefined;
 export function humanizeTechnical(text: string | null | undefined) {
-  if (!text || !CODE.test(text)) return text;
+  if (typeof text !== "string" || !CODE.test(text)) return text;
   // "ASSUNTO — MOTIVO" (com espaço livre opcional entre palavras, ex.: "RULE CALCULATION")
   let out = text.replace(/\b([A-Z][A-Z0-9_ ]*[A-Z0-9])\s+[—-]\s+([A-Z][A-Z0-9_]+)\b/g, (all, subj: string, why: string) => {
     const key = subj.replace(/\s+/g, "_");
@@ -74,8 +74,8 @@ export function humanizeTechnical(text: string | null | undefined) {
 }
 
 /** Só para a tela: código com cara de constante interna e não traduzido vira frase genérica. */
-export function humanizeForScreen(text: string | null | undefined): string | null | undefined {
-  const h = humanizeTechnical(text);
-  if (!h) return h;
-  return h.replace(/\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+){1,}\b/g, (c) => (SUBJECT[c] || LONE[c] ? phrase(c) : GENERIC));
+export function humanizeForScreen<T>(text: T): T {
+  const h = humanizeTechnical(text as unknown as string) as unknown;
+  if (typeof h !== "string" || !h) return h;
+  return (h as string).replace(/\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+){1,}\b/g, (c) => (SUBJECT[c] || LONE[c] ? phrase(c) : GENERIC)) as T;
 }

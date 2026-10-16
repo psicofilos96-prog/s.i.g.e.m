@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -94,7 +95,7 @@ export function LocalAssessmentsPanel() {
         </details>
       </section>
 
-      {comparison ? <p className="text-sm" role="status">{comparison.ok ? "Comparação permitida: instrumentos compatíveis." : `Comparação bloqueada: ${comparison.reason}`}</p> : null}
+      {comparison ? <p className="text-sm" role="status">{comparison.ok ? "Comparação permitida: instrumentos compatíveis." : `Comparação bloqueada: ${humanizeForScreen(comparison.reason)}`}</p> : null}
 
       {inst ? (
         <section className="rounded-md border p-3 space-y-3">
@@ -146,7 +147,7 @@ function EntryGrid({ inst, students, entries, reviews, homologated, onDone }: { 
                   if (v === "") delete r[k.k]; else r[k.k] = v === "nao-aplicado" ? "nao-aplicado" : Number(v); setEdit({ ...edit, results: r }); }}>
                   <option value="">Sem registro</option><option value="nao-aplicado">Não aplicado</option>
                   {Array.from({ length: Math.floor(k.max) + 1 }, (_, i) => <option key={i} value={i}>{k.bin ? (i ? "1 (acerto)" : "0 (erro)") : i}</option>)}</select></label>))}</div> : null}
-            {h ? <input aria-label="Motivo da retificação" placeholder="Motivo da retificação (mín. 5)" className={field + " w-full"} value={edit.reason} onChange={(e) => setEdit({ ...edit, reason: e.target.value })} /> : null}
+            {h ? <input aria-label="Motivo da retificação" placeholder="Motivo da retificação (mín. 5)" className={field + " w-full"} value={humanizeForScreen(edit.reason)} onChange={(e) => setEdit({ ...edit, reason: e.target.value })} /> : null}
             <div className="space-x-1"><Button size="sm" onClick={() => save(s)}>Salvar</Button><Button size="sm" variant="ghost" onClick={() => setEdit(null)}>Cancelar</Button></div>
           </td></tr>) : null}
         </Fragment>); })}</tbody></table>
