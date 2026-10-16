@@ -33445,6 +33445,36 @@ export type Database = {
           },
         ]
       }
+      statistical_map_freezes: {
+        Row: {
+          frozen_at: string
+          frozen_by: string
+          id: string
+          month: number
+          note: string | null
+          school_id: string
+          year: number
+        }
+        Insert: {
+          frozen_at?: string
+          frozen_by: string
+          id?: string
+          month: number
+          note?: string | null
+          school_id: string
+          year: number
+        }
+        Update: {
+          frozen_at?: string
+          frozen_by?: string
+          id?: string
+          month?: number
+          note?: string | null
+          school_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
       statistical_map_versions: {
         Row: {
           capability_policy_id: string | null
@@ -42826,6 +42856,24 @@ export type Database = {
           user_id: string
         }[]
       }
+      freeze_statistical_map: {
+        Args: { _month: number; _note?: string; _school: string; _year: number }
+        Returns: {
+          frozen_at: string
+          frozen_by: string
+          id: string
+          month: number
+          note: string | null
+          school_id: string
+          year: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "statistical_map_freezes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       functional_grant: {
         Args: { _school: string }
         Returns: Record<string, unknown>
@@ -43874,6 +43922,16 @@ export type Database = {
           students: number
         }[]
       }
+      map_live_classes_known: {
+        Args: { _known_at: string; _on: string; _school: string }
+        Returns: {
+          class_id: string
+          class_name: string
+          shift_label: string
+          stage_label: string
+          students: number
+        }[]
+      }
       map_live_movements: {
         Args: { _from: string; _school: string; _to: string }
         Returns: {
@@ -43882,6 +43940,24 @@ export type Database = {
           grp: string
           happened_on: string
           kind: string
+          student_name: string
+        }[]
+      }
+      map_live_movements_known: {
+        Args: {
+          _after: string
+          _from: string
+          _school: string
+          _to: string
+          _until: string
+        }
+        Returns: {
+          census_id: string
+          class_label: string
+          grp: string
+          happened_on: string
+          kind: string
+          recorded_at: string
           student_name: string
         }[]
       }
