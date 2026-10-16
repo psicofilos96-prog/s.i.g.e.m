@@ -3830,6 +3830,13 @@
       "when": 1792170785317,
       "tag": "0546_map_movement_freeze",
       "breakpoints": true
+    },
+    {
+      "idx": 547,
+      "version": "7",
+      "when": 1792170929020,
+      "tag": "0547_map_freeze_ciece_capability",
+      "breakpoints": true
     }
   ]
 }
