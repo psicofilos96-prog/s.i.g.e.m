@@ -50,9 +50,9 @@ export const STATION_ROUTES: Record<SectorStation, readonly string[]> = {
   supervisao: ["/supervisao-escolar", "/relatorios", "/numeros", "/unidades", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026"],
   alimentacao: ["/alimentacao-escolar", "/unidades", "/relatorios", "/numeros"],
   avaliacao: ["/avaliacao-desempenho", "/acompanhamento-avaliacao", "/paineis", "/relatorios", "/numeros", "/alunos", "/turmas"],
-  secretaria_escolar: ["/secretaria", "/relatorios", "/numeros", "/alunos", "/turmas", "/enturmacoes", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/documentos-escolares", "/horarios", "/educacenso", "/docserv"],
-  direcao_escolar: ["/direcao", "/relatorios", "/numeros", "/secretaria/tabelas-semed", "/secretaria/modelos-de-texto", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar", "/educacenso", "/docserv"],
-  orientacao_pedagogica: ["/orientacao", "/relatorios", "/numeros", "/secretaria/modelos-de-texto", "/planejamento", "/alunos", "/turmas", "/horarios"],
+  secretaria_escolar: ["/secretaria", "/matriculas", "/transferencias", "/carteirinhas", "/autorizacoes-familia", "/transporte-escolar", "/comunicacao-escolar", "/profissionais", "/quadro-docente", "/gestao-escolar", "/relatorios", "/numeros", "/alunos", "/turmas", "/enturmacoes", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/documentos-escolares", "/horarios", "/educacenso", "/docserv"],
+  direcao_escolar: ["/direcao", "/matriculas", "/transferencias", "/carteirinhas", "/autorizacoes-familia", "/transporte-escolar", "/comunicacao-escolar", "/quadro-docente", "/relatorios", "/numeros", "/secretaria/tabelas-semed", "/secretaria/modelos-de-texto", "/gestao-escolar", "/alunos", "/turmas", "/profissionais", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/horarios", "/paineis", "/alimentacao-escolar", "/educacenso", "/docserv"],
+  orientacao_pedagogica: ["/orientacao", "/matriculas", "/quadro-docente", "/relatorios", "/numeros", "/secretaria/modelos-de-texto", "/planejamento", "/alunos", "/turmas", "/horarios"],
   inclusao_nei: ["/inclusao", "/unidades", "/relatorios", "/numeros", "/alunos"],
 };
 
