@@ -100,7 +100,7 @@ function classTable(lines: readonly Line[], caption: string, subtotal: string): 
   const totals = [...SHIFTS.map((k) => sumKnown(rows.map((r) => num(r[k])))), sumKnown(rows.map((r) => num(r.alunos)))];
   let last = "";
   const body: Row[] = rows.map((r) => { const e = txt(r.etapa); const shown = e === last ? "" : e; last = e;
-    return { cells: [shown, txt(r.turma), ...SHIFTS.map((k) => show(num(r[k]))), show(num(r.alunos))] }; });
+    const t = txt(r.turma); return { cells: [shown, norm(t) === norm(e) ? MISSING : t, ...SHIFTS.map((k) => show(num(r[k]))), show(num(r.alunos))] }; });
   return { block: { kind: "table", caption, cols: III_COLS, rows: [...body, { cells: [subtotal, "", ...totals.map(show)], style: "sub" }], empty: "Nenhuma turma declarada." }, totals };
 }
 
@@ -131,7 +131,7 @@ function movementMatrix(src: DeclaredSource): Block[] {
       line("Matrícula do mês anterior", m.previous_month_enrollment), line("Transferências recebidas", m.transfers_in), line("Alunos novos", m.new_students),
       line("Transferências expedidas", m.transfers_out), line("Evadidos", m.dropouts), line("Desistentes / cancelados", m.withdrawn_cancelled),
       { ...line("Total", m.total_ii, perCol.map((ls) => show(sumKnown(ls.map((l) => num(l.alunos)))))), style: "total" },
-      line("Nº de turmas", m.declared_classes ?? null, perCol.map((ls) => (ls.length ? String(new Set(ls.map((l) => norm(l.turma))).size) : MISSING))),
+      line("Nº de turmas", m.declared_classes ?? null, perCol.map((ls) => (ls.length ? String(ls.length) : MISSING))),
       line("Turmas de AC, CF e Multi.", special.length ? new Set(special.map((l) => norm(l.turma))).size : null),
       line("Professor regente", null),
     ] },
