@@ -31,5 +31,6 @@
 - [ ] Etapa 3: Seção IV em quatro grupos A–D com nome/ID/data e Seção V por categorias A–K
 - [ ] Etapa 4: editor de aparência salvo (fonte, cores, margens) e fotos oficiais da capa (aguardam envio)
 - [x] Reconstrução do Mapa: PDF direto A4 deitado com paginação física real, estrutura I–VI fiel (A–D, A–K, visitas), sem estados técnicos
-- [ ] Mapa: preencher Identificação, IV (nomes), V (pessoal A–K) e VI com dados do SIGEM; nomes das turmas do mapa declarado (leitor da planilha não guardou)
+- [x] Mapa vivo: tela e PDF montados dos registros da escola (turmas, entradas/saídas, pessoal A–K, visitas) para todas as escolas e meses
+- [ ] Mapa: etapa das turmas sem etapa no cadastro; cargo dos professores sem matrícula ligada; nomes de turmas do mapa declarado 2026
 - [ ] Mapa: tela própria de Conferência (hoje as pendências seguem na tela de gestão)
