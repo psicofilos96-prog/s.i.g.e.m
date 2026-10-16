@@ -1,3 +1,4 @@
+import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { SECRETARIAT_TASKS } from "./secretariat-tasks";
 import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date";
@@ -45,7 +46,7 @@ export function SecretariatPage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Secretaria Escolar" title="O que precisa de você hoje"
         description="Só a sua escola. Comece pelos itens em destaque." />
-      <p className="text-sm"><Link to="/secretaria/modelos-de-texto" search={{ documento: undefined }} className="underline">Modelos de texto da escola (Atestado de Escolaridade)</Link></p>
+      <div className="flex flex-wrap items-center gap-3 text-sm"><Link to="/secretaria/modelos-de-texto" search={{ documento: undefined }} className="underline">Modelos de texto da escola (Atestado de Escolaridade)</Link><EnrollmentFormDialog kind="branco" schoolId={school || null} yearLabel={years.find((y) => y.id === year)?.label ?? null} trigger={<Button size="sm" variant="outline">Ficha de Matrícula em branco</Button>} /></div>
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-3">
         {own || schools?.length === 1 ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{schools?.find((s) => s.id === school)?.name ?? "Minha escola"}</strong></p> : <label className="text-sm">Escola
           <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>

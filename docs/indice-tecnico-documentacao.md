@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 345. Sem classe: 0. Com referência quebrada: 0.
+Documentos: 346. Sem classe: 0. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -33,7 +33,7 @@ Documentos: 345. Sem classe: 0. Com referência quebrada: 0.
 
 ## Secretaria, matrícula e documentos
 
-**Vigente:** `documentos-canonicos-por-dominio-ndocs2.md`, `documentos-escolares-motor.md`, `documentos-impressao-auditoria.md`, `familia-carteirinha-autorizacoes.md`, `secretaria-documentos-transferencias-renovacao.md`, `secretaria-escolar-produto-completo.md`, `secretaria-fluxo-real-pos-diario.md`, `secretaria-vida-escolar.md`
+**Vigente:** `documentos-canonicos-por-dominio-ndocs2.md`, `documentos-escolares-motor.md`, `documentos-impressao-auditoria.md`, `familia-carteirinha-autorizacoes.md`, `ficha-matricula-impressao.md`, `secretaria-documentos-transferencias-renovacao.md`, `secretaria-escolar-produto-completo.md`, `secretaria-fluxo-real-pos-diario.md`, `secretaria-vida-escolar.md`
 
 **Registros de lote (decisões e provas da etapa):** `analise-rar-prototipo-e-documentos-2026-10-10.md`, `auditoria-familia-carteirinha-n925.md`, `auditoria-pdfs-npdf3.md`, `auditoria-secretaria-n56.md`, `central-documentos-institucionais.md`, `familia-carteirinha-nfam1.md`, `matriz-aceite-secretaria-2026-10-11.md`, `n2026-import-3-turmas-alunos-matriculas.md`, `rede-matriculas-vagas-auditoria-lote-01.md`, `relatorio-secretaria-lote09-modelos-legados-2026-10-11.md`, `relatorio-secretaria-lote1-2026-10-11.md`, `relatorio-secretaria-lote2-2026-10-11.md`, `relatorio-secretaria-lote3-2026-10-11.md`, `relatorio-secretaria-lote4-2026-10-11.md`, `relatorio-secretaria-unidade-lote01-auditoria-2026-10-11.md`, `secretaria-escolar-produto-final.md`
 

@@ -509,8 +509,8 @@
    "src/routes/secretaria_.vagas.tsx",
    "src/routes/transferencias.nova.tsx"
   ],
-  "modules": 37,
-  "withTest": 31,
+  "modules": 41,
+  "withTest": 32,
   "withScreen": 15,
   "withoutScreen": [
    "src/features/school-secretariat/academic-panel.ts",
@@ -521,6 +521,10 @@
    "src/features/school-secretariat/document-pendencies.ts",
    "src/features/school-secretariat/document-readiness.ts",
    "src/features/school-secretariat/enrollment-flow.ts",
+   "src/features/school-secretariat/enrollment-form/layout.ts",
+   "src/features/school-secretariat/enrollment-form/model.ts",
+   "src/features/school-secretariat/enrollment-form/render.ts",
+   "src/features/school-secretariat/enrollment-form/source.ts",
    "src/features/school-secretariat/family-requests.ts",
    "src/features/school-secretariat/legacy-templates.ts",
    "src/features/school-secretariat/movement-flow.ts",
@@ -537,6 +541,9 @@
    "src/features/school-secretariat/year-closing-wizard.ts"
   ],
   "withoutTest": [
+   "src/features/school-secretariat/enrollment-form/model.ts",
+   "src/features/school-secretariat/enrollment-form/render.ts",
+   "src/features/school-secretariat/enrollment-form/source.ts",
    "src/features/school-secretariat/enrollment-wizard-source.ts",
    "src/features/school-secretariat/secretariat-source.ts",
    "src/features/school-secretariat/semed-tables/semed-export.ts",

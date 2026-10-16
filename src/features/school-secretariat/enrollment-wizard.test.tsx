@@ -68,6 +68,7 @@ describe("matrícula guiada — tela", () => {
     expect(await screen.findByText("Capacidade não informada · 4 enturmado(s)")).toBeTruthy();
     fireEvent.click(screen.getByText("1º ANO A"));
     expect(screen.getByText(/Tudo pronto para concluir/)).toBeTruthy();
+    fireEvent.click(screen.getByLabelText(/Aluno novo/));
     // recusa do banco: mensagem simples, nada técnico, rascunho continua
     db.failNext = "secretariat:class-invalid";
     fireEvent.click(screen.getByRole("button", { name: "Concluir matrícula" }));
