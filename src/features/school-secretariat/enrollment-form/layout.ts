@@ -291,10 +291,11 @@ export function layoutEnrollmentForm(data: EnrollmentFormData, opt: FormOptions,
         const room = BOTTOM - y;
         let take = blocks.length;
         if (need > room) {
-          const freshRoom = area(compactTop());
+          const freshRoom = area(COMPACT_TOP);
           if (need <= freshRoom || room < BAND + PADT + PADB + blocks[0]!.h + 12) { newPage(false, true); continue; }
           let acc = BAND + PADT + PADB; take = 0;
           while (take < blocks.length && acc + blocks[take]!.h <= room) { acc += blocks[take]!.h; take++; }
+          take = Math.max(1, take);
         }
         const part = blocks.slice(0, take);
         y = drawSection(cur!.prims, sec, part, y, cont, BAND, PADT, PADB) + GAP;
@@ -308,8 +309,7 @@ export function layoutEnrollmentForm(data: EnrollmentFormData, opt: FormOptions,
   return { pages };
 }
 
-let _compactTop = 0;
-const compactTop = () => _compactTop;
+const COMPACT_TOP = PAGE.m + 15.6;
 
 function box(x: number, y: number, s: number, checked: boolean): Prim[] {
   const out: Prim[] = [{ k: "rect", x, y, w: s, h: s, fill: C.white, stroke: C.blue, lw: 0.28, r: 0.4 }];
@@ -418,7 +418,6 @@ function compactHeader(out: Prim[], d: EnrollmentFormData, blank: boolean, measu
   const name = blank ? "" : clean(d.student.name);
   if (name) out.push({ k: "text", x: m + CW, y: m + 8.4, s: fit(`Aluno(a): ${name}`, 66, 7.6, false, measure), size: 7.6, color: C.text, align: "right" });
   out.push({ k: "line", x1: m, y1: m + 12.6, x2: m + CW, y2: m + 12.6, stroke: C.blue, lw: 0.5 });
-  _compactTop = m + 15.6;
   return m + 15.6;
 }
 
