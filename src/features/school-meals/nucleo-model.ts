@@ -29,7 +29,7 @@ export function classify(row: SummaryRow | undefined): { state: SummaryState; va
   if (row.state === "BLOCKED" || row.state === "UNAVAILABLE") return { state: row.state, value: null, reason: row.reason };
   if (row.value === null || row.value === undefined) return { state: "UNKNOWN", value: null, reason: row.reason ?? "Sem valor." };
   const n = Number(row.value);
-  return { state: n === 0 ? "ZERO" : "AVAILABLE", value: n, reason: null };
+  return { state: n === 0 ? "ZERO" : "AVAILABLE", value: n, reason: row.reason ?? null };
 }
 
 export function indicators(rows: SummaryRow[] | null): Indicator[] {
@@ -57,7 +57,7 @@ export const QUALITY_LABELS: Record<string, string> = {
 export const NAV = [
   ["visao-geral", "Visão geral"], ["planejamento", "Planejamento nutricional"], ["pedidos", "Pedidos"], ["autorizacoes", "Autorizações"],
   ["consolidacao", "Compras/Consolidação"], ["entregas", "Entregas"], ["estoque", "Estoque"], ["execucao", "Execução"],
-  ["nao-conformidades", "Não conformidades"], ["documentos", "Documentos"], ["relatorios", "Relatórios"], ["qualidade", "Qualidade dos dados"], ["trilha", "Trilha"],
+  ["nao-conformidades", "Não conformidades"], ["documentos", "Documentos"], ["relatorios", "Relatórios"], ["qualidade", "Qualidade dos dados"], ["trilha", "Trilha"], ["parametros", "Parâmetros"],
 ] as const;
 
 export const SOURCE_LABEL: Record<string, string> = {
