@@ -40,3 +40,8 @@
 ## Conta de escola sem seletor de escola (16/10/2026)
 - [x] Contas de Secretaria/Direção/Orientação: nenhuma tela pede para escolher a escola; dados sempre só da própria escola (Quadro docente, Turmas e demais)
 - [x] Turmas: lista "demorou demais" na conta da Secretaria
+
+## Ficha de Matrícula — impressão A4 (16/10/2026)
+- [x] Modelo preenchido e em branco, PDF direto, impressão, anexo de Educação Especial e Controle de Renovação
+- [ ] Homologação visual — aguarda conferência do proprietário nos PDFs de exemplo
+- [ ] Campos sem fonte no SIGEM (ver docs/ficha-matricula-impressao.md) — aguarda decisão
