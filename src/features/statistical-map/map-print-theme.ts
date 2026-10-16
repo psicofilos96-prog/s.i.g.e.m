@@ -7,7 +7,7 @@ export type MapDocumentModel = "premium" | "administrativo";
 export const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]!);
 const P = { navy: "#0f2a52", mid: "#1f5fa8", light: "#e8f0fa", gray: "#f5f7fa", line: "#c9d6e8", gold: "#b8932f", ink: "#14213d" };
 
-export type ThemeInput = { model?: MapDocumentModel; cover?: boolean; emblemUrl?: string | null; headerLines: readonly string[]; schoolName: string; competence: string; signatures: number };
+export type ThemeInput = { model?: MapDocumentModel | undefined; cover?: boolean | undefined; emblemUrl?: string | null | undefined; headerLines: readonly string[]; schoolName: string; competence: string; signatures: number };
 
 export function mapTheme(t: ThemeInput) {
   const premium = (t.model ?? "premium") === "premium"; const cover = premium && t.cover !== false;
