@@ -151,6 +151,7 @@ import { downloadOfficialMapPdf } from "./map-pdf";
 import { buildLiveDoc } from "./map-live";
 import { getLiveMapData } from "./map-live.functions";
 import { MapSectionView } from "./map-doc-view";
+import { Checkbox } from "@/components/ui/checkbox";
 function openMapDocument(v: MapView, c: { year: number; month: number }, versionId?: string) {
   const ver = versionId ? v.versions.find((x) => x.id === versionId) : v.versions.find((x) => !x.superseded);
   const useOfficial = !!ver && (versionId || v.status.id === "oficializado");
@@ -365,7 +366,7 @@ function LiveDocument({ competence, conference }: { competence: { schoolId: stri
           <p className="text-sm text-muted-foreground">{MONTHS[competence.month - 1]} de {competence.year}{live.data ? ` · atualizado com os registros da escola até ${fmtDate(live.data.referenceDate)}` : ""}</p>
         </div>
         <div className="flex items-center gap-3">
-          <label className="flex items-center gap-1.5 text-sm"><input type="checkbox" checked={cover} onChange={(e) => setCover(e.target.checked)} /> Com capa</label>
+          <label className="flex items-center gap-1.5 text-sm"><Checkbox checked={cover} onCheckedChange={(v) => setCover(v === true)} /> Com capa</label>
           <Button disabled={!doc} onClick={pdf}>Baixar PDF</Button>
         </div>
       </div>
