@@ -15,6 +15,10 @@ import {
 } from "./monthly-map-2026";
 import { EXPECTED_MONTHS, IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
 import { CATEGORY_LABEL, NETWORK_FILTERS, type NetworkFilter, NETWORK_FILTER_LABEL, classifySchool, declaredOccurrences, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
+import { renderDeclaredMapDocument } from "./declared-map-document";
+import { PrintChoice, printOpts } from "./map-print-choice";
+import { NETWORK_BRANDING } from "@/features/reports/report-registry";
+import { institution } from "@/config/institution";
 import type { ReportDefinition } from "@/features/reports/report-engine";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
@@ -162,7 +166,7 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
         </table>
       </section>
 
-      {selected && <DeclaredPanel schoolId={selected.school_id} month={month} sigem={selected} registryInep={selected.inep ?? null} />}
+      {selected && <DeclaredPanel schoolName={selected.school_name ?? "Unidade escolar"} schoolId={selected.school_id} month={month} sigem={selected} registryInep={selected.inep ?? null} />}
       {mode === "rede" && <DeclaredCoveragePanel names={new Map((cur.data?.rows ?? []).map((r) => [r.school_id, { name: r.school_name ?? r.school_id, inep: r.inep ?? null }]))} />}
 
       {selected && (
@@ -179,10 +183,21 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   );
 }
 
-const DECLARED_COLS = "school_id,inep_declared,year,month,source_file,source_sheet,shifts,previous_month_enrollment,transfers_in,new_students,transfers_out,dropouts,withdrawn_cancelled,total_ii,declared_classes,total_iii,classes,consistency_issues,originating_act_ref";
+const DECLARED_COLS = "projects,school_id,inep_declared,year,month,source_file,source_sheet,shifts,previous_month_enrollment,transfers_in,new_students,transfers_out,dropouts,withdrawn_cancelled,total_ii,declared_classes,total_iii,classes,consistency_issues,originating_act_ref";
 const VERDICT: Record<string, string> = { coincide: "Coincide", diverge: "Diverge", indisponivel: "Sem dado para comparar", "referencia-nao-apurada": "Sem veredito: o mês do SIGEM não está apurado" };
 
-function DeclaredPanel({ schoolId, month, sigem, registryInep }: { schoolId: string; month: number; registryInep: string | null; sigem: { distinct_students: number | null; classes_with_students: number | null; status: string } }) {
+function printDeclared(d: DeclaredMap, schoolName: string, inep: string | null, month: number) {
+  const html = renderDeclaredMapDocument({
+    headerLines: NETWORK_BRANDING.headerLines, schoolName, inep, year: 2026, month, movement: d, shifts: d.shifts as never,
+    classes: d.classes as never, projects: ((d as unknown as { projects?: unknown[] }).projects ?? []) as never, issues: d.consistency_issues ?? [], sourceFile: d.source_file,
+    model: printOpts.model, cover: printOpts.cover, emblemUrl: institution.emblemUrl,
+    signatures: ["Responsável pelo estabelecimento de ensino", "Responsável pelo preenchimento"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+  });
+  const w = window.open("", "_blank"); if (!w) return;
+  w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 400);
+}
+
+function DeclaredPanel({ schoolId, month, sigem, registryInep, schoolName }: { schoolId: string; month: number; registryInep: string | null; schoolName: string; sigem: { distinct_students: number | null; classes_with_students: number | null; status: string } }) {
   const q = useQuery({
     queryKey: ["mapa-declarado-2026", schoolId, month],
     queryFn: async () => {
@@ -204,6 +219,7 @@ function DeclaredPanel({ schoolId, month, sigem, registryInep }: { schoolId: str
         const p = projectDeclared(d, registryInep, prevs.length === 1 ? prevs[0] : null);
         return (
           <div key={d.source_sheet + d.source_file} className="space-y-2 text-sm">
+            <div className="flex flex-wrap items-center gap-2"><PrintChoice /><Button size="sm" onClick={() => printDeclared(d, schoolName, registryInep ?? d.inep_declared ?? null, month)}>PDF do mapa (A4 deitado)</Button></div>
             <p><strong>{STATE_LABEL[p.state]}</strong> · Seção I {SECTION_LABEL[p.section_i]} · Seção II {SECTION_LABEL[p.section_ii]} · Seção III {SECTION_LABEL[p.section_iii]}</p>
             {p.identity !== "confirmada" && <div role="alert" className="rounded border border-border bg-muted/40 p-2"><strong>Identidade não confirmada.</strong> {IDENTITY_NOTICE} (planilha: {p.inep_declared ?? "sem INEP"}; cadastro: {registryInep ?? "não informado"})</div>}
             <p hidden data-provenance className="text-muted-foreground">Fonte: planilha "{d.source_file}", aba {d.source_sheet}.</p>
