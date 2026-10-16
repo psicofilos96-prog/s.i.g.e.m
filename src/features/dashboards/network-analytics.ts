@@ -105,7 +105,7 @@ export const displayValue = (i: IndicatorReading): string => (i.state === "avail
 
 /** Bloqueios reais da análise da rede: dependem de fonte/parâmetro externo; nunca são calculados nem zerados. */
 export const ANALYTICS_BLOCKS: readonly Readonly<{ code: string; label: string; reason: string }>[] = [
-  { code: "CONTRACTUAL_BALANCE", label: "Saldo de carga contratual", reason: "Depende da futura planilha oficial do DP externo (DP_FILE_CONTRACT_PENDING)." },
+  { code: "CONTRACTUAL_BALANCE", label: "Saldo de carga contratual", reason: "Carga contratual já registrada por matrícula; falta lançar a grade horária das turmas para calcular o saldo." },
   { code: "MAX_CAPACITY", label: "Lotação máxima / dimensionamento", reason: "PARAMETER_PENDING — parâmetro não homologado." },
   { code: "TERRITORIAL_DATA_PENDING", label: "Mapa territorial", reason: "Sem coordenadas canônicas das unidades; endereço não é geocodificado." },
   { code: "CONTENT_SOURCE_PENDING", label: "Indicadores BNCC/SAEB", reason: "Sem fonte oficial carregada." },
