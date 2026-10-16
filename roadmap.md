@@ -11,3 +11,4 @@
 - [ ] Diário — lançamento inline de chamada/conteúdo/notas
 
 - [ ] Parâmetros por setor: atalhos de Matrículas/Avaliação nas telas desses setores; onda 3 (capacidade máxima de turma, prazo de protocolos, limiar de infrequência, carga contratual) com padrão editável
+- [x] Registrar jornadas escolares de 2026 como base histórica das turmas, sem alterar calendário, matrículas ou grade docente

@@ -26,7 +26,7 @@ export const FRONT_STATE_FIXTURE: Readonly<Record<string, DependencyState>> = {
   mapa: { front: "T (Mapa Estatístico)", ready: false, reason: "Nenhum mapa oficial: 2027 sem estado operacional e sem regra humana homologada." },
   curriculo: { front: "U (matriz/organização)", ready: false, reason: "Sem posições, correspondências ou matrizes homologadas por ato humano." },
   oferta: { front: "V (oferta/grade)", ready: false, reason: "Ledger de oferta 2027 vazio; fechamento de V pendente." },
-  docente: { front: "X (necessidade docente)", ready: false, reason: "CONTRACTUAL_BALANCE — BLOCKED_BY_FUNCTIONAL_SOURCE; sem atribuições 2027." },
+  docente: { front: "X (necessidade docente)", ready: false, reason: "Carga contratual registrada por matrícula; o saldo aparece quando a grade horária das turmas for lançada." },
   diario: { front: "W (Diário)", ready: false, reason: "Sem aulas registradas; ano 2027 não operacional." },
   frequencia: { front: "W (frequência)", ready: false, reason: "Sem chamadas registradas." },
   avaliacao: { front: "AA (avaliação)", ready: false, reason: "RULE CALCULATION — BLOCKED_BY_HOMOLOGATED_RULES; sem resultados." },
