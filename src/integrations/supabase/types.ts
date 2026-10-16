@@ -31588,6 +31588,7 @@ export type Database = {
         Row: {
           allowed: Json | null
           capability_id: string
+          default_value: Json | null
           key: string
           sector: string
           value_kind: string
@@ -31595,6 +31596,7 @@ export type Database = {
         Insert: {
           allowed?: Json | null
           capability_id: string
+          default_value?: Json | null
           key: string
           sector: string
           value_kind: string
@@ -31602,6 +31604,7 @@ export type Database = {
         Update: {
           allowed?: Json | null
           capability_id?: string
+          default_value?: Json | null
           key?: string
           sector?: string
           value_kind?: string
