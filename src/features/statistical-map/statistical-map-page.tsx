@@ -1,3 +1,4 @@
+import { useOwnSchoolId } from "@/features/authority/own-school";
 import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -395,12 +396,13 @@ export function StatisticalMapWorkspace() {
   const list = useServerFn(listMapSchools);
   const get = useServerFn(getStatisticalMap);
   const qc = useQueryClient();
-  const [schoolId, setSchoolId] = useState<string>("");
+  const [picked, setSchoolId] = useState<string>("");
+  const own = useOwnSchoolId();
   const today = operationalToday();
   const [year, setYear] = useState<number>(Number(today.slice(0, 4)));
   const [month, setMonth] = useState<number>(Number(today.slice(5, 7)));
   const schools = useQuery({ queryKey: ["map-schools"], queryFn: () => list() });
-  const sid = schoolId;
+  const sid = own ?? (picked || (schools.data?.length === 1 ? schools.data[0]!.schoolId : ""));
   const ready = !!sid;
   const competence = { schoolId: sid, year, month };
   const key = ["statistical-map", sid, year, month];
@@ -426,12 +428,12 @@ export function StatisticalMapWorkspace() {
         ) : (
           <>
             <div className="grid gap-3 sm:grid-cols-[1fr_10rem_7rem]">
-              <label className="text-sm">Escola
+              {own || schools.data.length === 1 ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{schools.data.find((s) => s.schoolId === sid)?.label ?? "Minha escola"}</strong></p> : <label className="text-sm">Escola
                 <select className={sel} value={sid} onChange={(e) => { setSchoolId(e.target.value); setShowConf(false); }}>
                   <option value="">Escolha a escola</option>
                   {[...schools.data].sort((a, b) => a.label.localeCompare(b.label, "pt-BR")).map((s) => <option key={s.schoolId} value={s.schoolId}>{s.label}</option>)}
                 </select>
-              </label>
+              </label>}
               <label className="text-sm">Mês
                 <select className={sel} value={month} onChange={(e) => setMonth(Number(e.target.value))}>
                   {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}

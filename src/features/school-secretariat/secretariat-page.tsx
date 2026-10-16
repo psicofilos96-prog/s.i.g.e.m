@@ -1,3 +1,4 @@
+import { useOwnSchoolId } from "@/features/authority/own-school";
 import { SECRETARIAT_TASKS } from "./secretariat-tasks";
 import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
@@ -25,6 +26,7 @@ const today = () => operationalToday();
 const errText = (e: unknown) => secretariatMessage(e instanceof Error ? e.message : String(e));
 
 export function SecretariatPage() {
+  const own = useOwnSchoolId();
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [years, setYears] = useState<YearOption[]>([]);
   const [school, setSchool] = useState(""); const [year, setYear] = useState(""); const [on, setOn] = useState(today());
@@ -37,6 +39,7 @@ export function SecretariatPage() {
       });
     readYears().then((ys) => { setYears(ys); const open = ys.filter((y) => y.state === "aberto"); if (open.length === 1) setYear(open[0]!.id); }).catch(() => setYears([]));
   }, []);
+  useEffect(() => { if (own) setSchool(own); }, [own]);
   const ready = school && year && on;
   return (
     <div className="space-y-6">
@@ -44,11 +47,11 @@ export function SecretariatPage() {
         description="Só a sua escola. Comece pelos itens em destaque." />
       <p className="text-sm"><Link to="/secretaria/modelos-de-texto" search={{ documento: undefined }} className="underline">Modelos de texto da escola (Atestado de Escolaridade)</Link></p>
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-3">
-        <label className="text-sm">Escola
+        {own || schools?.length === 1 ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{schools?.find((s) => s.id === school)?.name ?? "Minha escola"}</strong></p> : <label className="text-sm">Escola
           <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
             <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>
             {(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select></label>
+          </select></label>}
         <label className="text-sm">Ano letivo
           <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={year} onChange={(e) => setYear(e.target.value)}>
             <option value="">Escolha o ano</option>

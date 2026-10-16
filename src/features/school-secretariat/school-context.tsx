@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 import { supabase } from "@/integrations/supabase/client";
 import { readYears, type YearOption } from "@/features/year-transition/year-transition-source";
 import { yearStateLabel } from "./secretariat";
@@ -16,6 +17,8 @@ export function useSchoolContext() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [years, setYears] = useState<YearOption[]>([]);
   const [school, setSchool] = useState(""); const [year, setYear] = useState("");
+  const own = useOwnSchoolId();
+  useEffect(() => { if (own) setSchool(own); }, [own]);
   useEffect(() => {
     // Só escolas onde a conta tem a capability que as telas da Secretaria exigem; listar todas levava a "Sem permissão nesta escola".
     const allowed = (supabase.rpc as unknown as (f: string, a: object) => PromiseLike<{ data: unknown }>)("school_capability_schools", { _capability: SECRETARIAT_READ_CAPABILITY });
@@ -29,14 +32,14 @@ export function useSchoolContext() {
   }, []);
   const schoolName = schools?.find((s) => s.id === school)?.name ?? "";
   const yearLabel = years.find((y) => y.id === year)?.label ?? "";
-  return { schools, years, school, setSchool, year, setYear, schoolName, yearLabel };
+  return { schools, years, school, setSchool, year, setYear, schoolName, yearLabel, own };
 }
 
 export function SchoolContextPicker({ ctx }: { ctx: ReturnType<typeof useSchoolContext> }) {
   const sel = "mt-1 block w-full rounded-md border border-input bg-background p-2";
   return (
     <section aria-label="Escola e ano" className="grid gap-3 sm:grid-cols-2">
-      {ctx.schools && ctx.schools.length === 1 ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{ctx.schoolName}</strong></p> : (
+      {ctx.own || (ctx.schools && ctx.schools.length === 1) ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{ctx.schoolName || "Minha escola"}</strong></p> : (
         <label className="text-sm">Escola
           <select className={sel} value={ctx.school} onChange={(e) => ctx.setSchool(e.target.value)}>
             <option value="">{ctx.schools === null ? "Carregando…" : "Escolha a escola"}</option>
