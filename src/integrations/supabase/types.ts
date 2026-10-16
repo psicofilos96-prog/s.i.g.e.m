@@ -39210,6 +39210,10 @@ export type Database = {
       }
       acv_trash: { Args: { _key: string; _node: string }; Returns: string }
       acv_upload_slot_ok: { Args: { _name: string }; Returns: boolean }
+      add_days_by_kind: {
+        Args: { _days: number; _from: string; _kind: string }
+        Returns: string
+      }
       admin_account_overview: {
         Args: never
         Returns: {

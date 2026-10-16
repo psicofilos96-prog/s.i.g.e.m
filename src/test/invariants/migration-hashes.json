@@ -587,5 +587,6 @@
  "drizzle/migrations/0536_sector_parameter_defaults.sql": "b5e50a9d090e9645dd9a0ac579fbc1ef71505d597346e86f59c8d1fe3e17a5b2",
  "drizzle/migrations/0537_meal_stock_parameters.sql": "f88bc1394febcfcf49383ae938b83508ec6f03cabc80dac20c3d4cc51cd2ce66",
  "drizzle/migrations/0538_infrequency_threshold_parameter.sql": "6c196f80adb67bc676555ff023d3514c6a86acc17bfd3da07e486fe484a65bc5",
- "drizzle/migrations/0539_protocol_deadline_parameter.sql": "808141f69ca93e570d2e8b0c26d2eea6216e69ecaac909976ba5df24e1b130af"
+ "drizzle/migrations/0539_protocol_deadline_parameter.sql": "808141f69ca93e570d2e8b0c26d2eea6216e69ecaac909976ba5df24e1b130af",
+ "drizzle/migrations/0540_protocol_deadline_business_days.sql": "b60c349eb883a0a97fe00fefe7a78bcefc3f6276b1f11349e9555acaf0b2466b"
 }

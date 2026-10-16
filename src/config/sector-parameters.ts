@@ -59,9 +59,17 @@ export const SECTOR_PARAMETERS: Record<string, readonly SectorParameter[]> = {
   protocolos: [
     {
       key: "protocolos.prazo-padrao", group: "Prazos", label: "Prazo padrão dos processos",
-      help: "Dias corridos, contados da abertura, para concluir um processo cuja classificação não tem prazo próprio aprovado.",
+      help: "Dias, contados da abertura, para concluir um processo cujo tipo não tem prazo próprio aprovado.",
       usedIn: [{ label: "Documentos — Pesquisa de processos", href: "/sigem-documentos" }],
       readBy: "search_admin_cases_with_due", input: { kind: "dias" }, undefinedEffect: "",
+    },
+    {
+      key: "protocolos.tipo-de-contagem", group: "Prazos", label: "Como contar os dias do prazo",
+      help: "Dias úteis contam de segunda a sexta. Vale para o prazo padrão; um tipo de processo com prazo próprio usa a contagem dele.",
+      usedIn: [{ label: "Documentos — Pesquisa de processos", href: "/sigem-documentos" }],
+      readBy: "search_admin_cases_with_due",
+      input: { kind: "escolha", options: [{ value: "uteis", label: "Dias úteis (segunda a sexta)" }, { value: "corridos", label: "Dias corridos" }] },
+      undefinedEffect: "",
     },
   ],
   frequencia: [
