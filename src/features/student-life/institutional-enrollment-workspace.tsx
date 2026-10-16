@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/sigem/patterns";
  */
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState, type ReactNode } from "react";
+import { NETWORK_SCHOOLS, PRIVATE_SCHOOLS } from "@/config/private-schools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "@/features/authority/session-authority";
@@ -157,6 +158,18 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
   const [value, setValue] = useState("");
   const [found, setFound] = useState<{ student_id: string; display_name: string }[]>([]);
   const [year, setYear] = useState("");
+  const [entry, setEntry] = useState<"" | "aluno-novo" | "transferencia-recebida">("");
+  const [origin, setOrigin] = useState("");
+  const [otherName, setOtherName] = useState("");
+  const originOk = entry === "aluno-novo" || (entry === "transferencia-recebida" && origin !== "" && (origin !== "outra" || otherName.trim() !== ""));
+  const constitute = async (studentId: string) => {
+    const id = newId("insc");
+    await constituteCycleEnrollment({ id, studentId, schoolId: school, academicYearId: year, openedOn: validOn });
+    const [okind, inep] = origin === "outra" ? ["outra", null] : origin.split(":");
+    const name = origin === "outra" ? otherName.trim() : [...NETWORK_SCHOOLS, ...PRIVATE_SCHOOLS].find((x) => x.inep === inep)?.name ?? null;
+    const r = await supabase.rpc("record_enrollment_entry_origin", { _enrollment: id, _entry_kind: entry, _origin_kind: entry === "aluno-novo" ? null : okind, _origin_inep: entry === "aluno-novo" ? null : inep, _origin_name: entry === "aluno-novo" ? null : name } as never);
+    if (r.error) throw new Error("Matrícula feita, mas a forma de ingresso não foi gravada. Tente registrar de novo.");
+  };
   const [ending, setEnding] = useState<Record<string, { date: string; status: string }>>({});
   return (
     <Card>
@@ -208,10 +221,26 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
               </select>
             )}
             <p className="text-xs text-muted-foreground">Oferta educacional: não registrada — não há definição homologada de qual eixo a representa.</p>
+            <fieldset className="space-y-2">
+              <legend className="text-sm font-medium">Forma de ingresso</legend>
+              <div className="flex flex-wrap gap-4 text-sm">
+                <label className="flex items-center gap-1.5"><input type="radio" name="entry" checked={entry === "aluno-novo"} onChange={() => setEntry("aluno-novo")} /> Aluno novo (primeira matrícula da vida)</label>
+                <label className="flex items-center gap-1.5"><input type="radio" name="entry" checked={entry === "transferencia-recebida"} onChange={() => setEntry("transferencia-recebida")} /> Transferência (veio de outra escola)</label>
+              </div>
+              {entry === "transferencia-recebida" && (
+                <div className="flex flex-wrap gap-2">
+                  <select aria-label="Escola de origem" className="h-9 max-w-full rounded-md border border-input bg-background px-2 text-sm" value={origin} onChange={(e) => setOrigin(e.target.value)}>
+                    <option value="">Escola de origem…</option>
+                    <optgroup label="Rede municipal">{NETWORK_SCHOOLS.map((x) => <option key={x.inep} value={`rede:${x.inep}`}>{x.name} ({x.inep})</option>)}</optgroup>
+                    <optgroup label="Escolas privadas">{PRIVATE_SCHOOLS.map((x) => <option key={x.inep} value={`privada:${x.inep}`}>{x.name} ({x.inep})</option>)}</optgroup>
+                    <option value="outra">Outra</option>
+                  </select>
+                  {origin === "outra" && <Input aria-label="Nome da escola de origem" className="w-72" placeholder="Nome da escola" value={otherName} maxLength={200} onChange={(e) => setOtherName(e.target.value)} />}
+                </div>
+              )}
+            </fieldset>
             {found.map((s) => (
-              <Button key={s.student_id} size="sm" disabled={!year} onClick={() => run(() => constituteCycleEnrollment({
-                id: newId("insc"), studentId: s.student_id, schoolId: school, academicYearId: year, openedOn: validOn,
-              }), "Inscrição constituída.")}>Inscrever {s.display_name} em {fmt(validOn)}</Button>
+              <Button key={s.student_id} size="sm" disabled={!year || !originOk} onClick={() => run(() => constitute(s.student_id), "Inscrição constituída.")}>Inscrever {s.display_name} em {fmt(validOn)}</Button>
             ))}
           </div>
         )}
