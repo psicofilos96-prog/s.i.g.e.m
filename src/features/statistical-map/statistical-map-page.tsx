@@ -146,6 +146,8 @@ async function exportMap(v: MapView, c: { schoolId: string; year: number; month:
 }
 
 import { PrintChoice, printOpts } from "./map-print-choice";
+import { buildFromSnapshot } from "./map-official-model";
+import { downloadOfficialMapPdf } from "./map-pdf";
 function openMapDocument(v: MapView, c: { year: number; month: number }, versionId?: string) {
   const ver = versionId ? v.versions.find((x) => x.id === versionId) : v.versions.find((x) => !x.superseded);
   const useOfficial = !!ver && (versionId || v.status.id === "oficializado");

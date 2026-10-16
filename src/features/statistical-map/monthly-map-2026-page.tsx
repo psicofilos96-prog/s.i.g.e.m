@@ -15,7 +15,8 @@ import {
 } from "./monthly-map-2026";
 import { EXPECTED_MONTHS, IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
 import { CATEGORY_LABEL, NETWORK_FILTERS, type NetworkFilter, NETWORK_FILTER_LABEL, classifySchool, declaredOccurrences, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
-import { renderDeclaredMapDocument } from "./declared-map-document";
+import { buildFromDeclared } from "./map-official-model";
+import { downloadOfficialMapPdf } from "./map-pdf";
 import { PrintChoice, printOpts } from "./map-print-choice";
 import { NETWORK_BRANDING } from "@/features/reports/report-registry";
 import { institution } from "@/config/institution";
