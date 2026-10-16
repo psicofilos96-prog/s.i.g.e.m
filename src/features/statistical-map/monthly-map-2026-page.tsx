@@ -21,6 +21,7 @@ import { PrintChoice, printOpts } from "./map-print-choice";
 import { NETWORK_BRANDING } from "@/features/reports/report-registry";
 import { institution } from "@/config/institution";
 import type { ReportDefinition } from "@/features/reports/report-engine";
+import { useOwnSchoolId } from "@/features/authority/own-school";
 
 type Rpc = (f: string, a?: Record<string, unknown>) => Promise<{ data: unknown; error: { message: string } | null }>;
 const rpc = ((fn: string, args?: object) => (supabase as unknown as { rpc: (f: string, a?: object) => unknown }).rpc(fn, args)) as unknown as Rpc;
@@ -52,7 +53,9 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
   const nowMonth = new Date().getFullYear() === 2026 ? new Date().getMonth() + 1 : 12;
   const [month, setMonth] = useState(Math.max(1, nowMonth - 1));
   const [cmp, setCmp] = useState(Math.max(1, nowMonth - 2));
-  const [school, setSchool] = useState<string>("");
+  const own = useOwnSchoolId();
+  const [pickedSchool, setSchool] = useState<string>("");
+  const school = own ?? pickedSchool;
   const [q, setQ] = useState("");
   const [reason, setReason] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
