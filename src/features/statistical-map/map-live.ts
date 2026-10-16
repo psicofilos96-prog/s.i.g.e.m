@@ -6,7 +6,7 @@
 import { buildFromDeclared, type MovementRow, type OfficialMapDoc, type PersonRow, type VisitRow } from "./map-official-model";
 
 export type LiveClass = { class_id: string; class_name: string | null; stage_label: string | null; shift_label: string | null; students: number | null };
-export type LiveMovement = { grp: string; student_name: string | null; census_id: string | null; kind: string | null; happened_on: string | null; class_label: string | null };
+export type LiveMovement = { grp: string; student_name: string | null; census_id: string | null; kind: string | null; happened_on: string | null; class_label: string | null; late?: boolean };
 export type LiveStaff = { source: string; person_key: string; full_name: string | null; registration: string | null; cargo: string | null; funcao: string | null; grupo: string | null; situacao: string | null; classes: string | null; observacao: string | null };
 export type LiveVisit = { visitor_kind_id: string | null; declared_identification: string | null; visited_on: string };
 export type LiveMapData = {
@@ -14,6 +14,8 @@ export type LiveMapData = {
   identification: Record<string, string | null>;
   classes: LiveClass[]; previousTotal: number | null; movements: LiveMovement[]; staff: LiveStaff[]; visits: LiveVisit[];
   failed: string[];
+  /** Momento do congelamento deste mês (null = mês aberto, segue os registros). */
+  frozenAt?: string | null; previousFrozenAt?: string | null; canFreeze?: boolean;
 };
 
 const norm = (s: unknown) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ").trim();
@@ -79,10 +81,15 @@ export function peopleRows(staff: readonly LiveStaff[]): PersonRow[] {
   return rows.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name)).map(({ category, cells }) => ({ category, cells }));
 }
 
+/** Movimentação ocorrida no mês anterior, registrada depois do congelamento dele. */
+export const lateNote = (m: Pick<LiveMovement, "happened_on">) => `Ocorrida em ${br(m.happened_on)}, registrada após o congelamento do mapa de ${m.happened_on ? m.happened_on.slice(5, 7) + "/" + m.happened_on.slice(0, 4) : "—"}`;
+
 export function movementRows(ms: readonly LiveMovement[]): MovementRow[] {
   return ms.filter((m) => ["A", "B", "C", "D"].includes(m.grp)).map((m) => ({
     group: m.grp as MovementRow["group"],
-    cells: m.grp === "A" ? [t(m.student_name), t(m.census_id), t(m.kind), br(m.happened_on), t(m.class_label), "—"] : [t(m.student_name), t(m.census_id), br(m.happened_on), t(m.class_label), t(m.kind)],
+    cells: m.grp === "A"
+      ? [t(m.student_name), t(m.census_id), t(m.kind), br(m.happened_on), t(m.class_label), m.late ? lateNote(m) : "—"]
+      : [t(m.student_name), t(m.census_id), br(m.happened_on), t(m.class_label), m.late ? `${t(m.kind)} — ${lateNote(m)}` : t(m.kind)],
   }));
 }
 
@@ -107,13 +114,14 @@ export function buildLiveDoc(d: LiveMapData, o: { headerLines: readonly string[]
   const sum = (k: "turno1" | "turno2" | "turno3" | "integral") => { const v = classes.map((c) => c[k]).filter((x): x is number => x !== null); return v.length ? v.reduce((a, b) => a + b, 0) : null; };
   const total = classes.length ? classes.reduce((a, c) => a + (c.alunos ?? 0), 0) : null;
   const cnt = (g: string) => d.movements.filter((m) => m.grp === g).length;
+  const tin = d.movements.filter((m) => m.grp === "A" && /^Transfer/i.test(m.kind ?? "")).length;
   const integral = sum("integral");
   const doc = buildFromDeclared({
     headerLines: o.headerLines, schoolName: d.schoolName, inep: d.inep, year: d.year, month: d.month, identification: d.identification,
-    movement: { previous_month_enrollment: d.previousTotal, transfers_in: null, new_students: cnt("A"), transfers_out: cnt("B"), dropouts: cnt("C"), withdrawn_cancelled: cnt("D"), total_ii: total, declared_classes: classes.length || null },
+    movement: { previous_month_enrollment: d.previousTotal, transfers_in: tin, new_students: cnt("A") - tin, transfers_out: cnt("B"), dropouts: cnt("C"), withdrawn_cancelled: cnt("D"), total_ii: total, declared_classes: classes.length || null },
     shifts: { turno1: sum("turno1"), turno2: sum("turno2"), turno3: sum("turno3"), integral, parcial: total !== null ? total - (integral ?? 0) : null, total },
     classes, projects: [], movements: movementRows(d.movements), people: peopleRows(d.staff), visits: visitRows(d.visits),
     signatures: o.signatures, generatedAt: o.generatedAt,
   });
-  return { ...doc, statusTag: `Mapa do SIGEM · registros até ${br(d.referenceDate)}`, footerNote: "Montado a partir dos registros da escola no SIGEM. Assinaturas manuais." };
+  return { ...doc, statusTag: d.frozenAt ? `Mapa do SIGEM · movimentações congeladas em ${new Date(d.frozenAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}` : `Mapa do SIGEM · registros até ${br(d.referenceDate)}`, footerNote: "Montado a partir dos registros da escola no SIGEM. Assinaturas manuais." };
 }

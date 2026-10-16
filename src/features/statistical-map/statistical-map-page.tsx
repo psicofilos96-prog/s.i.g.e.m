@@ -150,7 +150,7 @@ import { PrintChoice, printOpts } from "./map-print-choice";
 import { buildFromSnapshot } from "./map-official-model";
 import { downloadOfficialMapPdf } from "./map-pdf";
 import { buildLiveDoc } from "./map-live";
-import { getLiveMapData } from "./map-live.functions";
+import { freezeLiveMap, getLiveMapData } from "./map-live.functions";
 import { MapSectionView } from "./map-doc-view";
 import { Checkbox } from "@/components/ui/checkbox";
 function openMapDocument(v: MapView, c: { year: number; month: number }, versionId?: string) {
@@ -358,16 +358,23 @@ function LiveDocument({ competence, conference }: { competence: { schoolId: stri
   const [cover, setCover] = useState(true);
   const live = useQuery({ queryKey: ["map-live", competence.schoolId, competence.year, competence.month], queryFn: () => getLive({ data: competence }) });
   const doc = live.data ? buildLiveDoc(live.data, { headerLines: NETWORK_BRANDING.headerLines, signatures: ["Responsável pelo estabelecimento de ensino", "Responsável pelo preenchimento"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) }) : null;
+  const qcl = useQueryClient();
+  const doFreeze = useServerFn(freezeLiveMap);
+  const freeze = useMutation({ mutationFn: () => doFreeze({ data: competence }), onSuccess: () => qcl.invalidateQueries({ queryKey: ["map-live", competence.schoolId, competence.year, competence.month] }) });
+  const askFreeze = () => { if (window.confirm(`Congelar as movimentações de ${MONTHS[competence.month - 1]} de ${competence.year}?\n\nO mapa deste mês não muda mais. O que a escola registrar depois entra no mês seguinte, com observação. Isso não pode ser desfeito.`)) freeze.mutate(); };
   const pdf = () => doc && void downloadOfficialMapPdf(doc, `mapa-estatistico-${competence.year}-${String(competence.month).padStart(2, "0")}.pdf`, { cover, emblemUrl: institution.emblemUrl });
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-lg font-semibold">{live.data?.schoolName ?? "…"}</p>
-          <p className="text-sm text-muted-foreground">{MONTHS[competence.month - 1]} de {competence.year}{live.data ? ` · atualizado com os registros da escola até ${fmtDate(live.data.referenceDate)}` : ""}</p>
+          <p className="text-sm text-muted-foreground">{MONTHS[competence.month - 1]} de {competence.year}{live.data ? (live.data.frozenAt ? ` · movimentações congeladas em ${formatDateTime(live.data.frozenAt)}` : ` · atualizado com os registros da escola até ${fmtDate(live.data.referenceDate)}`) : ""}</p>
+          {freeze.isError && <p className="text-sm text-destructive">{(freeze.error as Error).message}</p>}
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-1.5 text-sm"><Checkbox checked={cover} onCheckedChange={(v) => setCover(v === true)} /> Com capa</label>
+          {live.data?.canFreeze && !live.data.frozenAt && <Button variant="outline" disabled={freeze.isPending} onClick={askFreeze}>{freeze.isPending ? "Congelando…" : "Congelar movimentação"}</Button>}
+          {live.data?.frozenAt && <span className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">Congelado</span>}
           <Button disabled={!doc} onClick={pdf}>Baixar PDF</Button>
         </div>
       </div>

@@ -30936,6 +30936,47 @@ export type Database = {
           },
         ]
       }
+      school_enrollment_entry_origins: {
+        Row: {
+          created_at: string
+          enrollment_id: string
+          entry_kind: string
+          id: string
+          origin_kind: string | null
+          origin_school_inep: string | null
+          origin_school_name: string | null
+          recorded_by: string
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id: string
+          entry_kind: string
+          id?: string
+          origin_kind?: string | null
+          origin_school_inep?: string | null
+          origin_school_name?: string | null
+          recorded_by: string
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string
+          entry_kind?: string
+          id?: string
+          origin_kind?: string | null
+          origin_school_inep?: string | null
+          origin_school_name?: string | null
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_enrollment_entry_origins_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_enrollment_start_declarations: {
         Row: {
           author_engagement: string
@@ -33444,6 +33485,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      statistical_map_freezes: {
+        Row: {
+          frozen_at: string
+          frozen_by: string
+          id: string
+          month: number
+          note: string | null
+          school_id: string
+          year: number
+        }
+        Insert: {
+          frozen_at?: string
+          frozen_by: string
+          id?: string
+          month: number
+          note?: string | null
+          school_id: string
+          year: number
+        }
+        Update: {
+          frozen_at?: string
+          frozen_by?: string
+          id?: string
+          month?: number
+          note?: string | null
+          school_id?: string
+          year?: number
+        }
+        Relationships: []
       }
       statistical_map_versions: {
         Row: {
@@ -42826,6 +42897,24 @@ export type Database = {
           user_id: string
         }[]
       }
+      freeze_statistical_map: {
+        Args: { _month: number; _note?: string; _school: string; _year: number }
+        Returns: {
+          frozen_at: string
+          frozen_by: string
+          id: string
+          month: number
+          note: string | null
+          school_id: string
+          year: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "statistical_map_freezes"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       functional_grant: {
         Args: { _school: string }
         Returns: Record<string, unknown>
@@ -43874,6 +43963,16 @@ export type Database = {
           students: number
         }[]
       }
+      map_live_classes_known: {
+        Args: { _known_at: string; _on: string; _school: string }
+        Returns: {
+          class_id: string
+          class_name: string
+          shift_label: string
+          stage_label: string
+          students: number
+        }[]
+      }
       map_live_movements: {
         Args: { _from: string; _school: string; _to: string }
         Returns: {
@@ -43882,6 +43981,24 @@ export type Database = {
           grp: string
           happened_on: string
           kind: string
+          student_name: string
+        }[]
+      }
+      map_live_movements_known: {
+        Args: {
+          _after: string
+          _from: string
+          _school: string
+          _to: string
+          _until: string
+        }
+        Returns: {
+          census_id: string
+          class_label: string
+          grp: string
+          happened_on: string
+          kind: string
+          recorded_at: string
           student_name: string
         }[]
       }
@@ -47363,6 +47480,16 @@ export type Database = {
           _type_version: number
         }
         Returns: number
+      }
+      record_enrollment_entry_origin: {
+        Args: {
+          _enrollment: string
+          _entry_kind: string
+          _origin_inep: string
+          _origin_kind: string
+          _origin_name: string
+        }
+        Returns: string
       }
       record_family_communication_receipt: {
         Args: { _kind: string; _student: string; _version: string }

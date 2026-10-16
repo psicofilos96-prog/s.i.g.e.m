@@ -32,3 +32,26 @@ describe("Mapa vivo", () => {
     expect(text(d, "III")).toContain("38");
   });
 });
+
+import { movementRows as mr, lateNote } from "./map-live";
+describe("congelamento do mapa", () => {
+  it("matrícula de 29/05 registrada após congelar maio entra em junho com observação", () => {
+    const rows = mr([{ grp: "A", student_name: "Ana", census_id: null, kind: "Novo", happened_on: "2027-05-29", class_label: "100", late: true }]);
+    expect(rows[0]!.cells[5]).toBe("Ocorrida em 29/05/2027, registrada após o congelamento do mapa de 05/2027");
+    expect(lateNote({ happened_on: "2027-05-29" })).toContain("05/2027");
+  });
+  it("movimentação normal não leva observação", () => {
+    expect(mr([{ grp: "A", student_name: "Ana", census_id: null, kind: "Novo", happened_on: "2027-06-02", class_label: "100" }])[0]!.cells[5]).toBe("—");
+  });
+});
+
+describe("forma de ingresso no Mapa", () => {
+  it("transferência recebida não conta como aluno novo", () => {
+    const d = { ...base, movements: [
+      { grp: "A", student_name: "A", census_id: null, kind: "Transferência recebida — E. M. Chorão", happened_on: "2027-03-10", class_label: "100" },
+      { grp: "A", student_name: "B", census_id: null, kind: "Aluno novo", happened_on: "2027-03-11", class_label: "100" },
+    ] };
+    const doc = buildLiveDoc(d, { headerLines: [], signatures: [], generatedAt: "x" });
+    expect(JSON.stringify(doc)).toContain("E. M. Chorão");
+  });
+});

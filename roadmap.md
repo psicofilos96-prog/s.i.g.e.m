@@ -34,3 +34,5 @@
 - [x] Mapa vivo: tela e PDF montados dos registros da escola (turmas, entradas/saídas, pessoal A–K, visitas) para todas as escolas e meses
 - [ ] Mapa: etapa das turmas sem etapa no cadastro; cargo dos professores sem matrícula ligada; nomes de turmas do mapa declarado 2026
 - [ ] Mapa: tela própria de Conferência (hoje as pendências seguem na tela de gestão)
+- [x] Mapa: CIECE congela as movimentações do mês; registros posteriores entram no mês seguinte com observação
+- [x] Matrícula: forma de ingresso (aluno novo × transferência, escola de origem da rede/privada/outra)
