@@ -9,5 +9,7 @@ export const institution = {
   emblemUrl: brasao.url as string,
   locality: "Itaperuna · RJ",
   governmentName: "Prefeitura de Itaperuna",
+  /** Nome por extenso usado no cabeçalho de documentos impressos. */
+  documentGovernmentName: "Prefeitura Municipal de Itaperuna",
   departmentName: "Secretaria Municipal de Educação",
 } as const;
