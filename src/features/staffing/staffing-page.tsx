@@ -7,6 +7,8 @@ import { PageHeader, EmptyState } from "@/components/sigem/patterns";
 import { FactValue } from "@/components/sigem/states";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { listSchools } from "@/features/onboarding/onboarding-source";
+import { useOwnSchoolId } from "@/features/authority/own-school";
+import { OwnSchoolName } from "@/features/authority/own-school-field";
 import { STAFFING_FORMULA, personLoads, projectClass, reconciles, scenarioTeachersNeeded, totals, type ClassResult } from "./staffing-model";
 import { loadCurricula, loadScheduleRows, loadStaffingInputs } from "./staffing-source";
 import { NECESSIDADE_PROFESSOR, TOTAL_AULAS_OFERTADAS, needRows, offeredRows } from "./teacher-need-reports";
@@ -19,7 +21,9 @@ const h = (m: number | null) => (m == null ? null : `${Math.floor(m / 60)}h${Str
 
 export function StaffingPage() {
   const a = useSessionAuthority(); const uid = a.status === "signed-in" ? a.user.id : null;
-  const [schoolId, setSchoolId] = useState<string | null>(null);
+  const own = useOwnSchoolId();
+  const [picked, setSchoolId] = useState<string | null>(null);
+  const schoolId = own ?? picked;
   const [open, setOpen] = useState<string | null>(null);
   const [perTeacher, setPerTeacher] = useState("");
   const today = operationalToday();
@@ -43,10 +47,10 @@ export function StaffingPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Quadro docente" description="Aulas ofertadas, cobertura por regência e necessidade derivada da organização real. Nada aqui contrata, remove ou decide." />
-      <label className="text-sm">Escola{" "}
+      {own ? <OwnSchoolName schoolId={own} /> : <label className="text-sm">Escola{" "}
         <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={schoolId ?? ""} onChange={(e) => setSchoolId(e.target.value || null)}>
           <option value="">Selecione</option>{(schools.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select></label>
+        </select></label>}
       {!schoolId ? <EmptyState title="Escolha uma escola" description="A projeção é calculada na hora a partir da grade e das regências." />
         : data.isLoading ? <p role="status">Calculando…</p>
         : !d ? <EmptyState title="Turmas não puderam ser lidas" description="Sem leitura, nenhum número é mostrado." />
