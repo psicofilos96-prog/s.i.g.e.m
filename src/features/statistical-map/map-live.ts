@@ -102,7 +102,7 @@ export function visitRows(vs: readonly LiveVisit[]): VisitRow[] {
 export function buildLiveDoc(d: LiveMapData, o: { headerLines: readonly string[]; signatures: readonly string[]; generatedAt: string }): OfficialMapDoc {
   const classes = d.classes.map((c) => {
     const k = shiftKey(c.shift_label); const n = c.students;
-    return { modalidade: modalityOf(c.stage_label), etapa: c.stage_label, turma: c.class_name, alunos: n, turno1: k === "turno1" ? n : null, turno2: k === "turno2" ? n : null, turno3: k === "turno3" ? n : null, integral: k === "integral" ? n : null };
+    return { modalidade: modalityOf(c.stage_label ?? c.class_name), etapa: c.stage_label, turma: c.class_name, alunos: n, turno1: k === "turno1" ? n : null, turno2: k === "turno2" ? n : null, turno3: k === "turno3" ? n : null, integral: k === "integral" ? n : null };
   }).sort((a, b) => (a.modalidade ?? "").localeCompare(b.modalidade ?? "") || (a.etapa ?? "").localeCompare(b.etapa ?? "", "pt-BR", { numeric: true }) || (a.turma ?? "").localeCompare(b.turma ?? "", "pt-BR", { numeric: true }));
   const sum = (k: "turno1" | "turno2" | "turno3" | "integral") => { const v = classes.map((c) => c[k]).filter((x): x is number => x !== null); return v.length ? v.reduce((a, b) => a + b, 0) : null; };
   const total = classes.length ? classes.reduce((a, c) => a + (c.alunos ?? 0), 0) : null;
