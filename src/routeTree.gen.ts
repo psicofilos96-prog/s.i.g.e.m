@@ -149,6 +149,7 @@ import { Route as InclusaoNeiRouteImport } from './routes/inclusao_.nei'
 import { Route as LaboratorioCieceRouteImport } from './routes/laboratorio.ciece'
 import { Route as LaboratorioFolhaFinalRouteImport } from './routes/laboratorio.folha-final'
 import { Route as LaboratorioRecuperacaoRouteImport } from './routes/laboratorio.recuperacao'
+import { Route as MatriculasIndexRouteImport } from './routes/matriculas.index'
 import { Route as MatriculasNovaRouteImport } from './routes/matriculas.nova'
 import { Route as MatriculasInscricoesRouteImport } from './routes/matriculas_.inscricoes'
 import { Route as MatriculasOperacaoRouteImport } from './routes/matriculas_.operacao'
@@ -1001,6 +1002,11 @@ const LaboratorioRecuperacaoRoute = LaboratorioRecuperacaoRouteImport.update({
   id: '/laboratorio/recuperacao',
   path: '/laboratorio/recuperacao',
   getParentRoute: () => rootRouteImport,
+} as any)
+const MatriculasIndexRoute = MatriculasIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => MatriculasRoute,
 } as any)
 const MatriculasNovaRoute = MatriculasNovaRouteImport.update({
   id: '/nova',
@@ -2009,6 +2015,7 @@ export interface FileRoutesByFullPath {
   '/diario/': typeof DiarioIndexRoute
   '/enturmacoes/': typeof EnturmacoesIndexRoute
   '/horarios/': typeof HorariosIndexRoute
+  '/matriculas/': typeof MatriculasIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
   '/publico/': typeof PublicoIndexRoute
@@ -2174,7 +2181,6 @@ export interface FileRoutesByTo {
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/mapa-mensal-2026': typeof MapaMensal2026Route
-  '/matriculas': typeof MatriculasRouteWithChildren
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
   '/numeros': typeof NumerosRoute
@@ -2282,6 +2288,7 @@ export interface FileRoutesByTo {
   '/diario': typeof DiarioIndexRoute
   '/enturmacoes': typeof EnturmacoesIndexRoute
   '/horarios': typeof HorariosIndexRoute
+  '/matriculas': typeof MatriculasIndexRoute
   '/matrizes-curriculares': typeof MatrizesCurricularesIndexRoute
   '/profissionais': typeof ProfissionaisIndexRoute
   '/publico': typeof PublicoIndexRoute
@@ -2554,6 +2561,7 @@ export interface FileRoutesById {
   '/diario/': typeof DiarioIndexRoute
   '/enturmacoes/': typeof EnturmacoesIndexRoute
   '/horarios/': typeof HorariosIndexRoute
+  '/matriculas/': typeof MatriculasIndexRoute
   '/matrizes-curriculares/': typeof MatrizesCurricularesIndexRoute
   '/profissionais/': typeof ProfissionaisIndexRoute
   '/publico/': typeof PublicoIndexRoute
@@ -2844,6 +2852,7 @@ export interface FileRouteTypes {
     | '/diario/'
     | '/enturmacoes/'
     | '/horarios/'
+    | '/matriculas/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
     | '/publico/'
@@ -3009,7 +3018,6 @@ export interface FileRouteTypes {
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
     | '/mapa-mensal-2026'
-    | '/matriculas'
     | '/mediador'
     | '/meus-diarios'
     | '/numeros'
@@ -3117,6 +3125,7 @@ export interface FileRouteTypes {
     | '/diario'
     | '/enturmacoes'
     | '/horarios'
+    | '/matriculas'
     | '/matrizes-curriculares'
     | '/profissionais'
     | '/publico'
@@ -3388,6 +3397,7 @@ export interface FileRouteTypes {
     | '/diario/'
     | '/enturmacoes/'
     | '/horarios/'
+    | '/matriculas/'
     | '/matrizes-curriculares/'
     | '/profissionais/'
     | '/publico/'
@@ -4644,6 +4654,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/laboratorio/recuperacao'
       preLoaderRoute: typeof LaboratorioRecuperacaoRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/matriculas/': {
+      id: '/matriculas/'
+      path: '/'
+      fullPath: '/matriculas/'
+      preLoaderRoute: typeof MatriculasIndexRouteImport
+      parentRoute: typeof MatriculasRoute
     }
     '/matriculas/nova': {
       id: '/matriculas/nova'
@@ -6027,10 +6044,12 @@ const HorariosRouteWithChildren = HorariosRoute._addFileChildren(
 
 interface MatriculasRouteChildren {
   MatriculasNovaRoute: typeof MatriculasNovaRoute
+  MatriculasIndexRoute: typeof MatriculasIndexRoute
 }
 
 const MatriculasRouteChildren: MatriculasRouteChildren = {
   MatriculasNovaRoute: MatriculasNovaRoute,
+  MatriculasIndexRoute: MatriculasIndexRoute,
 }
 
 const MatriculasRouteWithChildren = MatriculasRoute._addFileChildren(
