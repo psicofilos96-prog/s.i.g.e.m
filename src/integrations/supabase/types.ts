@@ -42636,6 +42636,20 @@ export type Database = {
         }
         Returns: Json
       }
+      enrollment_draft_complete_with_origin: {
+        Args: {
+          _class: string
+          _declared_on: string
+          _draft: string
+          _entry_kind: string
+          _expected: number
+          _origin_inep: string
+          _origin_kind: string
+          _origin_name: string
+          _year: string
+        }
+        Returns: Json
+      }
       enrollment_draft_save: {
         Args: {
           _cpf: string

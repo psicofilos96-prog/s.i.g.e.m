@@ -593,5 +593,9 @@
  "drizzle/migrations/0542_school_db_observation_new_student_origin.sql": "bf4f6f92f44928316662f9229fa40c53c312630e4eb2beb756e851f683963ebb",
  "drizzle/migrations/0543_non_servant_professional_id.sql": "5e677133616b0ce28627c6ff77176605df22958f4faf76976c6b46c5d7c0286a",
  "drizzle/migrations/0544_non_servant_professional_id_fix.sql": "d592f9b43bd77e4cff8f4b63af61c51874242f07c45fa989681f8669347a62f8",
- "drizzle/migrations/0545_map_live_readers.sql": "7d590bd8edcda41c03e728a322acab74a0193037d72c4cb9931e92d9b8f3b5fe"
+ "drizzle/migrations/0545_map_live_readers.sql": "7d590bd8edcda41c03e728a322acab74a0193037d72c4cb9931e92d9b8f3b5fe",
+ "drizzle/migrations/0546_map_movement_freeze.sql": "d1ed16a5e536599d13c48e01163158a94fb170061574b55e3972d026a3c99743",
+ "drizzle/migrations/0547_map_freeze_ciece_capability.sql": "9beb279a7a96cb4b2a16af37f0f19fea40111d5a2f3178830efb6a5af1107a32",
+ "drizzle/migrations/0548_enrollment_entry_origin.sql": "65e1d7b4f4b4ea1118012689c25b997a41cf44f76c1d0637827942849e032592",
+ "drizzle/migrations/0549_enrollment_complete_with_origin.sql": "b57b7e4dcdaace75fe9d3802334eb850c0ca7eaea0d1d098367427594dcd46c2"
 }
