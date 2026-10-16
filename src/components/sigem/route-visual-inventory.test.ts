@@ -43,6 +43,7 @@ export function classifyRoutes() {
     const f = join("src/routes", b);
     const s = readFileSync(f, "utf8");
     if (s.includes("<Outlet") && !/<(div|main|section|h1)/.test(s)) out[b] = "LAYOUT";
+    else if (/throw redirect\(/.test(s)) out[b] = "EXCECAO";
     else if (EXCEPTION.test(b)) out[b] = "EXCECAO";
     else out[b] = NEW.test(scan(f, 3, new Set())) ? "NOVA" : "ANTIGA";
   }
