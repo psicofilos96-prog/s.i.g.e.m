@@ -39,11 +39,11 @@ function Inbox() {
 
 function Search() {
   const [term, setTerm] = useState("");
-  const [rows, setRows] = useState<{ case_id: string; case_number: string; subject: string }[] | null>(null);
+  const [rows, setRows] = useState<{ case_id: string; case_number: string; subject: string; due_on: string | null }[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   async function go(e: React.FormEvent) {
     e.preventDefault(); setErr(null);
-    const { data, error } = await supabase.rpc("search_admin_cases", { _term: sanitizeSearchTerm(term), _classification: "", _year: null as unknown as number });
+    const { data, error } = await supabase.rpc("search_admin_cases_with_due", { _term: sanitizeSearchTerm(term), _classification: "", _year: null as unknown as number });
     if (error) setErr("Pesquisa indisponível."); else setRows(data ?? []);
   }
   return (
@@ -56,7 +56,7 @@ function Search() {
       <p className="text-xs text-muted-foreground">Só aparecem processos que você pode ler; anexos e dados sensíveis nunca entram na pesquisa.</p>
       {err && <p role="alert" className="text-destructive">{err}</p>}
       {rows && (rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum resultado.</p> :
-        <ul className="space-y-1 text-sm">{rows.map((r) => <li key={r.case_id}><span className="font-medium">{r.case_number}</span> — {r.subject}</li>)}</ul>)}
+        <ul className="space-y-1 text-sm">{rows.map((r) => <li key={r.case_id}><span className="font-medium">{r.case_number}</span> — {r.subject}{r.due_on && <span className="text-muted-foreground"> · prazo {r.due_on.split("-").reverse().join("/")}</span>}</li>)}</ul>)}
     </div>
   );
 }

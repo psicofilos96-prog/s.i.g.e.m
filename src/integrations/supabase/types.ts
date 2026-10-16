@@ -50824,6 +50824,19 @@ export type Database = {
           unit_id: string
         }[]
       }
+      search_admin_cases_with_due: {
+        Args: { _classification: string; _term: string; _year: number }
+        Returns: {
+          case_id: string
+          case_number: string
+          classification_code: string
+          due_on: string
+          due_source: string
+          opened_at: string
+          subject: string
+          unit_id: string
+        }[]
+      }
       sec_actor: {
         Args: never
         Returns: {

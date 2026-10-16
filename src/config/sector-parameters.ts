@@ -56,6 +56,14 @@ export const SECTOR_PARAMETERS: Record<string, readonly SectorParameter[]> = {
       undefinedEffect: "",
     },
   ],
+  protocolos: [
+    {
+      key: "protocolos.prazo-padrao", group: "Prazos", label: "Prazo padrão dos processos",
+      help: "Dias corridos, contados da abertura, para concluir um processo cuja classificação não tem prazo próprio aprovado.",
+      usedIn: [{ label: "Documentos — Pesquisa de processos", href: "/sigem-documentos" }],
+      readBy: "search_admin_cases_with_due", input: { kind: "dias" }, undefinedEffect: "",
+    },
+  ],
   frequencia: [
     {
       key: "frequencia.limite-infrequencia", group: "Infrequência", label: "Limite de presença para alerta",
