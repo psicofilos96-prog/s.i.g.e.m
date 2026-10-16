@@ -1,3 +1,5 @@
+import { useOwnSchoolId } from "@/features/authority/own-school";
+import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { PasswordChangeGate } from "@/features/authority/password-change-gate";
 import { useQuery } from "@tanstack/react-query";
 import { ConnectionBanner } from "./connection-banner";
@@ -707,7 +709,9 @@ function InstitutionalContextBadge() {
     queryKey: ["b468-installation-state"], retry: false,
     queryFn: async () => { const r = await supabase.from("sigem_installation_state").select("state").maybeSingle(); if (r.error) throw r.error; return r.data?.state ?? null; },
   });
-  const text = q.error ? "Rede municipal · estado da instalação indisponível"
+  const own = useOwnSchoolId();
+  const ownName = useQuery({ queryKey: ["own-school-name", own], enabled: !!own, staleTime: 600_000, queryFn: () => readCurrentSchoolNames([own!]) });
+  const text = own ? (ownName.data?.get(own) ?? "Minha escola") : q.error ? "Rede municipal · estado da instalação indisponível"
     : q.isLoading ? "Rede municipal"
     : q.data === "instalado" ? "Rede municipal" : q.data === "nao-instalado" ? "Rede municipal · SIGEM não instalado" : "Rede municipal · estado não reconhecido";
   return (

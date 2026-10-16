@@ -10,6 +10,7 @@ import { operationalToday } from "@/lib/academic-date";
  * O banco é a autoridade final; a tela só reflete capacidades.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { compareClasses, readStageRanks } from "./class-stage-order";
 import type { EffectiveCapability } from "@/features/authority/session-authority";
 import {
   CLASS_PERIOD_ORGANIZATION_CAPABILITY,
@@ -133,6 +134,17 @@ export async function listInstitutionalClassesPage(q: ClassTemporalQuery & { fro
   let b = supabase.rpc("classes_with_period_link_at", args, { count: "exact" });
   if (q.term) b = b.ilike("record->0->>name", q.term);
   if (q.schoolId) b = b.eq("school_id", q.schoolId);
+  if (q.schoolId) {
+    // Uma escola: lê todas as turmas dela e ordena por etapa (Infantil → Fund. I → Fund. II → EJA → AEE → sem etapa).
+    if (q.signal) b = b.abortSignal(q.signal);
+    const { data, error, count } = await b.order("class_id");
+    if (error) return { data: null, error, count: null };
+    const rows = await summarizeClassRows(data ?? []);
+    const ranks = await readStageRanks(supabase as unknown as { from: (t: string) => any }, rows.map((r) => r.classId));
+    const nameOf = (r: InstitutionalClassSummary) => (r.record.kind === "one" ? r.record.value.name : "");
+    rows.sort((a, c) => compareClasses({ name: nameOf(a), stageRank: ranks.get(a.classId) }, { name: nameOf(c), stageRank: ranks.get(c.classId) }));
+    return { data: rows.slice(q.from, q.to + 1), error: null, count };
+  }
   b = b.order("class_id").range(q.from, q.to);
   if (q.signal) b = b.abortSignal(q.signal);
   const { data, error, count } = await b;
