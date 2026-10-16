@@ -187,14 +187,12 @@ const DECLARED_COLS = "projects,school_id,inep_declared,year,month,source_file,s
 const VERDICT: Record<string, string> = { coincide: "Coincide", diverge: "Diverge", indisponivel: "Sem dado para comparar", "referencia-nao-apurada": "Sem veredito: o mês do SIGEM não está apurado" };
 
 function printDeclared(d: DeclaredMap, schoolName: string, inep: string | null, month: number) {
-  const html = renderDeclaredMapDocument({
-    headerLines: NETWORK_BRANDING.headerLines, schoolName, inep, year: 2026, month, movement: d, shifts: d.shifts as never,
-    classes: d.classes as never, projects: ((d as unknown as { projects?: unknown[] }).projects ?? []) as never, issues: d.consistency_issues ?? [], sourceFile: d.source_file,
-    model: printOpts.model, cover: printOpts.cover, emblemUrl: institution.emblemUrl,
+  const doc = buildFromDeclared({
+    headerLines: [...NETWORK_BRANDING.headerLines], schoolName, inep, year: 2026, month, movement: d, shifts: d.shifts as never,
+    classes: d.classes as never, projects: ((d as unknown as { projects?: unknown[] }).projects ?? []) as never,
     signatures: ["Responsável pelo estabelecimento de ensino", "Responsável pelo preenchimento"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
   });
-  const w = window.open("", "_blank"); if (!w) return;
-  w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 400);
+  void downloadOfficialMapPdf(doc, `mapa-estatistico-${inep ?? "escola"}-2026-${String(month).padStart(2, "0")}.pdf`, { cover: printOpts.cover, emblemUrl: institution.emblemUrl });
 }
 
 function DeclaredPanel({ schoolId, month, sigem, registryInep, schoolName }: { schoolId: string; month: number; registryInep: string | null; schoolName: string; sigem: { distinct_students: number | null; classes_with_students: number | null; status: string } }) {

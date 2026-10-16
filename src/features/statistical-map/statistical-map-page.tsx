@@ -152,15 +152,12 @@ function openMapDocument(v: MapView, c: { year: number; month: number }, version
   const snapshot = useOfficial ? ver!.snapshot : v.snapshot;
   const nameCell = snapshot.cells.find((x) => /nome/.test(x.cellId) && x.state === "disponivel");
   const wf = projectWorkflow(v.opened, v.workflowEvents, v.versions.length);
-  const html = renderMapDocument({
-    headerLines: NETWORK_BRANDING.headerLines, schoolName: nameCell ? String(nameCell.value) : "Unidade escolar", snapshot,
-    statusLabel: STAGE_LABEL[useOfficial ? "aprovado" : wf.stage], revision: useOfficial ? ver!.version : null,
-    signatures: ["Secretaria Escolar", "Direção da Unidade", "Estatística (CIECE)"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
-    model: printOpts.model, cover: printOpts.cover, emblemUrl: institution.emblemUrl,
+  void wf;
+  const doc = buildFromSnapshot(snapshot, {
+    headerLines: NETWORK_BRANDING.headerLines, schoolName: nameCell ? String(nameCell.value) : "Unidade escolar", official: !!useOfficial, revision: useOfficial ? ver!.version : null,
+    signatures: ["Secretaria Escolar", "Direção da Unidade", "Setor de Informação e Estatística"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
   });
-  const w = window.open("", "_blank"); if (!w) return;
-  w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
-  void c;
+  void downloadOfficialMapPdf(doc, `mapa-estatistico-${c.year}-${String(c.month).padStart(2, "0")}.pdf`, { cover: printOpts.cover, emblemUrl: institution.emblemUrl });
 }
 
 function MapBody({ v, competence, onChange }: { v: MapView; competence: { schoolId: string; year: number; month: number }; onChange: (v: MapView) => void }) {
