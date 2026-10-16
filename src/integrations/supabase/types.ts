@@ -52040,6 +52040,10 @@ export type Database = {
         Args: { _payload: Json; _source_hash: string }
         Returns: Json
       }
+      technical_import_school_db_new_students_2026: {
+        Args: { _payload: Json; _source_hash: string }
+        Returns: string
+      }
       temporal_field_unknown: {
         Args: { _field: string; _id: string; _table: string }
         Returns: boolean

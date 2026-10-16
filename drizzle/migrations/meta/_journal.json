@@ -3788,6 +3788,20 @@
       "when": 1792142473195,
       "tag": "0540_protocol_deadline_business_days",
       "breakpoints": true
+    },
+    {
+      "idx": 541,
+      "version": "7",
+      "when": 1792156328070,
+      "tag": "0541_school_db_new_students_2026",
+      "breakpoints": true
+    },
+    {
+      "idx": 542,
+      "version": "7",
+      "when": 1792156785345,
+      "tag": "0542_school_db_observation_new_student_origin",
+      "breakpoints": true
     }
   ]
 }

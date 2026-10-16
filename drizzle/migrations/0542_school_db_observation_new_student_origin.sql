@@ -1,0 +1,2 @@
+ALTER TABLE public.student_registration_observations DROP CONSTRAINT student_registration_observations_matched_by_check;
+ALTER TABLE public.student_registration_observations ADD CONSTRAINT student_registration_observations_matched_by_check CHECK (matched_by IN ('inep-pessoa-exato','novo-cadastro-planilha-escola'));
