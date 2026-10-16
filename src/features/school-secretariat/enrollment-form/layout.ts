@@ -168,8 +168,8 @@ export function layoutEnrollmentForm(data: EnrollmentFormData, opt: FormOptions,
 
   const h = d.health ?? {};
   const sec6: Section = { n: 6, title: "INFORMAÇÕES DE SAÚDE", icon: "heart", blocks: [
-    row([choice("Possui alergia alimentar?", 0.4, ["Não", "Sim"], yn(h.foodAllergy)), text("Qual?", 0.34, h.foodAllergyWhich), choice("Possui diabetes?", 0.26, ["Não", "Sim"], yn(h.diabetes))]),
-    row([choice("Possui outros tipos de alergia?", 0.4, ["Não", "Sim"], yn(h.otherAllergy)), text("Quais?", 0.34, h.otherAllergyWhich), choice("Laudo médico?", 0.26, ["Não", "Sim"], yn(h.medicalReport))]),
+    row([choice("Possui alergia alimentar?", 0.38, ["Não", "Sim"], yn(h.foodAllergy)), text("Qual?", 0.31, h.foodAllergyWhich), choice("Possui diabetes?", 0.31, ["Não", "Sim"], yn(h.diabetes))]),
+    row([choice("Possui outros tipos de alergia?", 0.38, ["Não", "Sim"], yn(h.otherAllergy)), text("Quais?", 0.31, h.otherAllergyWhich), choice("Laudo médico?", 0.31, ["Não", "Sim"], yn(h.medicalReport))]),
     ...writeLines("Observações (ex.: contato de emergência, informações relevantes, medida protetiva, entre outras):", h.notes, 3),
   ] };
 
@@ -191,7 +191,7 @@ export function layoutEnrollmentForm(data: EnrollmentFormData, opt: FormOptions,
     { h: sigH, draw: (y) => [
       { k: "text", x: IX, y: y + 3.6, s: "Assinatura do Responsável Legal:", size: LBL, color: C.label },
       { k: "line", x1: IX, y1: y + sigH - 1.5, x2: IX + IW * 0.52, y2: y + sigH - 1.5, stroke: C.text, lw: 0.25 },
-      { k: "text", x: IX + IW * 0.58, y: y + sigH - 2.2, s: "Itaperuna, ______ de ____________________ de 20______.", size: LBL + 0.4, color: C.text },
+      { k: "text", x: IX + IW, y: y + sigH - 2.2, s: "Itaperuna, ______ de ___________________ de 20_____.", size: LBL + 0.4, color: C.text, align: "right" },
     ] },
     ...legal.map((ln): Block => ({ h: 3.6, draw: (y) => [{ k: "text", x: IX, y: y + 2.9, s: ln, size: LBL, color: C.label }] })),
     { h: sigH + 3, draw: (y) => [
@@ -390,7 +390,7 @@ function fullHeader(out: Prim[], d: EnrollmentFormData, blank: boolean, hasPhoto
   out.push({ k: "rect", x: m, y: ry, w: bandW, h: 7.4, fill: C.panel, stroke: C.border, lw: 0.25, r: 1.4 });
   const p1 = "Ilmo(a) Senhor(a), eu, abaixo-assinado, venho ", p2 = "REQUERER matrícula", p3 = " nesta Unidade Escolar.";
   let tx = m + 3;
-  out.push({ k: "text", x: tx, y: ry + 4.9, s: p1, size: 8.6, color: C.text }); tx += measure(p1, 8.6, false);
+  out.push({ k: "text", x: tx, y: ry + 4.9, s: p1, size: 8.6, color: C.text }); tx += measure(p1, 8.6, false) + 0.9;
   out.push({ k: "text", x: tx, y: ry + 4.9, s: p2, size: 8.6, bold: true, color: C.text }); tx += measure(p2, 8.6, true);
   out.push({ k: "text", x: tx, y: ry + 4.9, s: p3, size: 8.6, color: C.text });
   // repetente / ex-aluno / ID Censo
