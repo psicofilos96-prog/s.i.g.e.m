@@ -328,17 +328,20 @@ function StepReview({ p, ident, missing, go }: { p: WizardPayload; ident: Ident;
 
 function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: React.MutableRefObject<number>; auto: Auto; p: WizardPayload; ready: boolean; onDone: (sid: string) => void }) {
   const [busy, setBusy] = useState(false); const [err, setErr] = useState(""); const [confirm, setConfirm] = useState(false);
+  const [origin, setOrigin] = useState<EntryOrigin>(emptyEntryOrigin);
   return (
-    <div className="text-right">
+    <div className="space-y-3 text-right">
+      <EntryOriginField value={origin} onChange={setOrigin} />
       {confirm ? <p className="mb-2 text-sm">Isto cria a matrícula oficial e coloca o aluno na turma <strong>{p.turma?.nome}</strong>. Confirmar?</p> : null}
       {confirm ? <Button variant="outline" className="mr-2" disabled={busy} onClick={() => setConfirm(false)}>Revisar de novo</Button> : null}
-      <Button disabled={!ready || busy} onClick={async () => {
+      <Button disabled={!ready || busy || !entryOriginOk(origin)} onClick={async () => {
         if (!confirm) { setConfirm(true); return; }
         setBusy(true); setErr("");
         try {
           await auto.flush();
           const r = await completeDraft({ draft, expected: seq.current, year: p.matricula!.ano!, on: p.matricula!.data!, classId: p.turma!.id! });
           if (p.foto?.path) await bindPhoto(draft).catch(() => null);
+          await recordEntryOrigin(r.enrollment_id, origin).catch(() => null);
           onDone(r.student_id);
         } catch (e) { setErr(wizardMessage(e)); setConfirm(false); } finally { setBusy(false); }
       }}>{busy ? "Concluindo…" : confirm ? "Sim, concluir matrícula" : "Concluir matrícula"}</Button>
