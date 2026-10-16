@@ -1,4 +1,4 @@
-import { EntryOriginField, emptyEntryOrigin, entryOriginOk, recordEntryOrigin, type EntryOrigin } from "./entry-origin-field";
+import { EntryOriginField, emptyEntryOrigin, entryOriginOk, entryOriginArgs, type EntryOrigin } from "./entry-origin-field";
 import { RecoveryRetryButton } from "@/components/sigem/recovery-retry-button";
 import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -340,9 +340,8 @@ function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: 
         setBusy(true); setErr("");
         try {
           await auto.flush();
-          const r = await completeDraft({ draft, expected: seq.current, year: p.matricula!.ano!, on: p.matricula!.data!, classId: p.turma!.id! });
+          const r = await completeDraft({ draft, expected: seq.current, year: p.matricula!.ano!, on: p.matricula!.data!, classId: p.turma!.id!, origin: entryOriginArgs(origin) });
           if (p.foto?.path) await bindPhoto(draft).catch(() => null);
-          await recordEntryOrigin(r.enrollment_id, origin).catch(() => null);
           onDone(r.student_id);
         } catch (e) { setErr(wizardMessage(e)); setConfirm(false); } finally { setBusy(false); }
       }}>{busy ? "Concluindo…" : confirm ? "Sim, concluir matrícula" : "Concluir matrícula"}</Button>

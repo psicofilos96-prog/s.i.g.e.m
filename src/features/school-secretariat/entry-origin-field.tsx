@@ -9,6 +9,13 @@ export const emptyEntryOrigin: EntryOrigin = { entry: "", origin: "", otherName:
 export const entryOriginOk = (v: EntryOrigin) =>
   v.entry === "aluno-novo" || (v.entry === "transferencia-recebida" && v.origin !== "" && (v.origin !== "outra" || v.otherName.trim() !== ""));
 
+export function entryOriginArgs(v: EntryOrigin) {
+  const novo = v.entry === "aluno-novo";
+  const [okind, inep] = v.origin === "outra" ? ["outra", null] : v.origin.split(":");
+  const name = v.origin === "outra" ? v.otherName.trim() : [...NETWORK_SCHOOLS, ...PRIVATE_SCHOOLS].find((x) => x.inep === inep)?.name ?? null;
+  return { entryKind: v.entry, originKind: novo ? null : okind ?? null, originInep: novo ? null : inep ?? null, originName: novo ? null : name };
+}
+
 export async function recordEntryOrigin(enrollmentId: string, v: EntryOrigin) {
   const novo = v.entry === "aluno-novo";
   const [okind, inep] = v.origin === "outra" ? ["outra", null] : v.origin.split(":");

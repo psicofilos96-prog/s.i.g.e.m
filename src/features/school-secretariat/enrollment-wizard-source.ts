@@ -41,9 +41,11 @@ export async function classOptions(school: string, year: string, on: string): Pr
     capacity: (r["capacity"] as number | null) ?? null, occupancy: (r["occupancy"] as number) ?? 0 }));
 }
 
-export const completeDraft = (a: { draft: string; expected: number; year: string; on: string; classId: string }) =>
-  rpc<{ student_id: string; enrollment_id: string; episode_id: string | null; student_created: boolean }>("enrollment_draft_complete", {
+/** Conclusão e forma de ingresso numa só transação: sem forma de ingresso, nada é gravado. */
+export const completeDraft = (a: { draft: string; expected: number; year: string; on: string; classId: string; origin: { entryKind: string; originKind: string | null; originInep: string | null; originName: string | null } }) =>
+  rpc<{ student_id: string; enrollment_id: string; episode_id: string | null; student_created: boolean }>("enrollment_draft_complete_with_origin", {
     _draft: a.draft, _expected: a.expected, _year: a.year, _declared_on: a.on, _class: a.classId,
+    _entry_kind: a.origin.entryKind, _origin_kind: a.origin.originKind, _origin_inep: a.origin.originInep, _origin_name: a.origin.originName,
   });
 
 const BUCKET = "fotos-estudantes";
