@@ -5,7 +5,7 @@ import { callRpc } from "@/lib/rpc-call";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSessionAuthority } from "@/features/authority/session-authority";
-import { SECTOR_PARAMETERS, formatParameterValue, parameterError, type SectorParameter } from "@/config/sector-parameters";
+import { EXISTING_PARAMETER_SCREENS, SECTOR_PARAMETERS, formatParameterValue, parameterError, type SectorParameter } from "@/config/sector-parameters";
 
 interface Version { key: string; version: number; value: unknown; reason: string; recorded_at: string }
 
@@ -40,6 +40,8 @@ export function SectorParametersPanel({ sector, id = "parametros" }: { sector: s
           </ul>
         </div>
       ))}
+      {(EXISTING_PARAMETER_SCREENS[sector] ?? []).length > 0 && <div className="space-y-1"><h3 className="text-sm font-semibold text-muted-foreground">Outros parâmetros</h3>
+        <ul className="flex flex-wrap gap-2 text-sm">{EXISTING_PARAMETER_SCREENS[sector]!.map((l) => <li key={l.href}><a href={l.href} className="block rounded-full border px-3 py-1.5 hover:bg-accent">{l.label}</a></li>)}</ul></div>}
     </section>
   );
 }

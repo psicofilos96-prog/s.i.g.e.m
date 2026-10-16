@@ -10,4 +10,4 @@
 - [x] Diário — campo "Recursos utilizados" (gravado com histórico)
 - [ ] Diário — lançamento inline de chamada/conteúdo/notas
 
-- [ ] Parâmetros por setor: onda 2 (atalhos Matrículas/Avaliação/Mapa) e onda 3 (demais setores); estoque mínimo e saldo do pedido na Alimentação
+- [ ] Parâmetros por setor: atalhos de Matrículas/Avaliação nas telas desses setores; onda 3 (capacidade máxima de turma, prazo de protocolos, limiar de infrequência, carga contratual) com padrão editável

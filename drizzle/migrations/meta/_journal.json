@@ -3760,6 +3760,13 @@
       "when": 1792140516478,
       "tag": "0536_sector_parameter_defaults",
       "breakpoints": true
+    },
+    {
+      "idx": 537,
+      "version": "7",
+      "when": 1792140814957,
+      "tag": "0537_meal_stock_parameters",
+      "breakpoints": true
     }
   ]
 }
