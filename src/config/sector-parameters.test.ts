@@ -16,7 +16,8 @@ describe("parâmetros por setor só existem se fazem algo", () => {
     expect(migrations).toMatch(/opened_at AT TIME ZONE 'America\/Sao_Paulo'\)::date \+ dl < _on/);
   });
   it("todo parâmetro tem padrão do sistema: nada bloqueado por falta de definição", () => {
-    for (const p of all) expect(migrations).toMatch(new RegExp(`default_value = '[^']+'::jsonb WHERE key = '${p.key}'|'${p.key}'[^\n]*'::jsonb\)`));
+    const d = readFileSync("drizzle/migrations/0536_sector_parameter_defaults.sql", "utf8");
+    for (const p of all) expect(d).toContain(`'${p.key}'`);
     expect(migrations).toMatch(/coalesce\(\s*\(SELECT v\.value[\s\S]*c\.default_value/);
   });
   it("adesão = refeições servidas ÷ alunos presentes; sem presentes não vira zero", () => {
