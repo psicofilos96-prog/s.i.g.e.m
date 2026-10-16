@@ -16,3 +16,4 @@
 - [x] Registrar os lotes de mapas estatísticos enviados como referência histórica de 2026, sem vigência operacional antes de 2027
 - [x] Registrar/conferir o lote de 10 mapas estatísticos reenviados em 2026, mantendo idempotência e sem duplicar registros
 - [x] Registrar/conferir novo lote de 10 mapas estatísticos de 2026, mantendo idempotência e sem duplicar registros
+- [x] Registrar/conferir novo lote de 10 mapas estatísticos rurais de 2026, mantendo idempotência e sem duplicar registros
