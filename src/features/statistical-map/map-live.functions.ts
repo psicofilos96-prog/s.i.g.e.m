@@ -19,7 +19,7 @@ export const getLiveMapData = createServerFn({ method: "POST" })
     const prevFrom = `${py}-${String(pm).padStart(2, "0")}-01`;
     const [fz, can] = await Promise.all([
       db.from("statistical_map_freezes").select("year, month, frozen_at").eq("school_id", data.schoolId).or(`and(year.eq.${data.year},month.eq.${data.month}),and(year.eq.${py},month.eq.${pm})`),
-      db.rpc("has_school_capability", { _capability: "oficializar-mapa-estatistico", _school: data.schoolId }),
+      db.rpc("has_school_capability", { _capability: "manter-regra-de-competencia-do-mapa", _school: data.schoolId }),
     ]);
     const fzRows = (fz.data ?? []) as any[];
     const cut: string | null = fzRows.find((r) => r.year === data.year && r.month === data.month)?.frozen_at ?? null;
