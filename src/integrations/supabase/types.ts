@@ -43864,6 +43864,42 @@ export type Database = {
         }
         Returns: string
       }
+      map_live_classes: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          class_id: string
+          class_name: string
+          shift_label: string
+          stage_label: string
+          students: number
+        }[]
+      }
+      map_live_movements: {
+        Args: { _from: string; _school: string; _to: string }
+        Returns: {
+          census_id: string
+          class_label: string
+          grp: string
+          happened_on: string
+          kind: string
+          student_name: string
+        }[]
+      }
+      map_live_staff: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          cargo: string
+          classes: string
+          full_name: string
+          funcao: string
+          grupo: string
+          observacao: string
+          person_key: string
+          registration: string
+          situacao: string
+          source: string
+        }[]
+      }
       map_mediation_projection_at: {
         Args: { _on: string; _school: string }
         Returns: {
