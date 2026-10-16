@@ -70,7 +70,8 @@ describe("Ficha de Matrícula — modelo de impressão", () => {
     const notes = "Observação de saúde muito extensa registrada pela escola. ".repeat(200);
     const big = layoutEnrollmentForm({ ...filled(), health: { notes } }, opts(), measure);
     expect(allTexts(big).some((t) => t.includes("INFORMAÇÕES DE SAÚDE (continuação)"))).toBe(true);
-    expect(allTexts(big).join(" ").replace(/\s+/g, "")).toContain(notes.replace(/\s+/g, ""));
+    const values = big.pages.flatMap((p) => p.prims.filter((x): x is Extract<Prim, { k: "text" }> => x.k === "text" && x.size === 8.8).map((x) => x.s)).join(" ");
+    expect(values.replace(/\s+/g, "")).toContain(notes.replace(/\s+/g, ""));
     assertInside(big); assertSectionsStack(big);
   });
   it("nunca escreve texto técnico nem 'não informado'", () => {
