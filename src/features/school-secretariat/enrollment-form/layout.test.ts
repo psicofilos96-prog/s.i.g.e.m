@@ -66,8 +66,12 @@ describe("Ficha de Matrícula — modelo de impressão", () => {
     const huge = "Rua muito comprida ".repeat(40);
     const l = layoutEnrollmentForm({ ...filled({ address: huge }), father: { address: huge }, guardian: { address: huge } }, opts(), measure);
     expect(l.pages.length).toBeGreaterThan(2);
-    expect(allTexts(l).some((t) => t.includes("(continuação)"))).toBe(true);
     assertInside(l); assertSectionsStack(l);
+    const notes = "Observação de saúde muito extensa registrada pela escola. ".repeat(80);
+    const big = layoutEnrollmentForm({ ...filled(), health: { notes } }, opts(), measure);
+    expect(allTexts(big).some((t) => t.includes("INFORMAÇÕES DE SAÚDE (continuação)"))).toBe(true);
+    expect(allTexts(big).join(" ").replace(/\s+/g, "")).toContain(notes.replace(/\s+/g, ""));
+    assertInside(big); assertSectionsStack(big);
   });
   it("nunca escreve texto técnico nem 'não informado'", () => {
     const html = printHtml(layoutEnrollmentForm({ header, student: {} }, opts({ renewal: true }), measure), {}, "t");

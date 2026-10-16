@@ -61,7 +61,7 @@ export function wrap(text: string, maxW: number, size: number, bold: boolean, me
 export function layoutEnrollmentForm(data: EnrollmentFormData, opt: FormOptions, measure: Measure, hasPhoto = false): Layout {
   const blank = opt.mode === "branco";
   const d: EnrollmentFormData = blank ? { header: data.header, yearLabel: data.yearLabel ?? null, student: {} } : data;
-  const RH = blank ? 6.6 : 5.4; // altura da linha de campo (branco = espaço para escrever à mão)
+  const RH = blank ? 6.4 : 5.0; // altura da linha de campo (branco = espaço para escrever à mão)
   const IX = PAGE.m + 3, IW = CW - 6; // área interna das seções
   const v = (s: string | null | undefined) => (blank ? "" : clean(s));
 
@@ -279,11 +279,11 @@ export function layoutEnrollmentForm(data: EnrollmentFormData, opt: FormOptions,
     y = first ? fullHeader(cur.prims, d, blank, hasPhoto, measure) : compactHeader(cur.prims, d, blank, measure);
     curIsSpill = spill;
   };
-  const BAND = 7.4, PADT = 2.2, PADB = 2.2, GAP = 3.2;
+  const BAND = 6.8, PADT = 1.6, PADB = 1.6, GAP = 2.6;
   const area = (top: number) => BOTTOM - top;
   groups.forEach((g, gi) => {
     if (gi === 0) newPage(true, false);
-    else if (!curIsSpill) newPage(false, false);
+    else if (!(gi === 1 && curIsSpill)) newPage(false, false);
     for (const sec of g) {
       let blocks = sec.blocks; let cont = false;
       while (blocks.length) {
@@ -345,11 +345,11 @@ function drawSection(out: Prim[], sec: Section, blocks: Block[], y: number, cont
   out.push({ k: "rect", x: PAGE.m, y, w: CW, h: bottom - y, fill: C.white, stroke: C.border, lw: 0.3, r: 1.6 });
   out.push({ k: "rect", x: PAGE.m, y, w: CW, h: BAND, fill: C.band, r: 1.6 });
   if (sec.n != null) {
-    out.push({ k: "circle", cx: PAGE.m + 4.4, cy: y + BAND / 2, r: 3.3, fill: C.navy });
+    out.push({ k: "circle", cx: PAGE.m + 4.4, cy: y + BAND / 2, r: 3.0, fill: C.navy });
     out.push({ k: "text", x: PAGE.m + 4.4, y: y + BAND / 2 + 1.25, s: String(sec.n), size: 9.5, bold: true, color: C.white, align: "center" });
   }
-  out.push(...icon(sec.icon, PAGE.m + 9.6, y + 2.1));
-  out.push({ k: "text", x: PAGE.m + 17.5, y: y + 5.1, s: sec.title + (cont ? " (continuação)" : ""), size: 10.2, bold: true, color: C.navy });
+  out.push(...icon(sec.icon, PAGE.m + 9.6, y + 1.8));
+  out.push({ k: "text", x: PAGE.m + 17.5, y: y + 4.8, s: sec.title + (cont ? " (continuação)" : ""), size: 10.2, bold: true, color: C.navy });
   let yy = y + BAND + PADT;
   for (const b of blocks) { out.push(...b.draw(yy)); yy += b.h; }
   return bottom;
@@ -372,7 +372,7 @@ function fullHeader(out: Prim[], d: EnrollmentFormData, blank: boolean, hasPhoto
   if (contact) line(contact, 8.2, false, C.text, 3.6);
   const top = Math.max(m + 26, y - 1.5);
   // faixa do título
-  const bandW = CW - 34;
+  const bandW = CW - 31;
   out.push({ k: "rect", x: m, y: top, w: bandW, h: 11, fill: C.blue, r: 1.8 });
   out.push({ k: "text", x: m + 6, y: top + 7.9, s: "FICHA DE MATRÍCULA", size: 17.5, bold: true, color: C.white });
   const pillW = 50, px = m + bandW - pillW - 3;
@@ -381,10 +381,10 @@ function fullHeader(out: Prim[], d: EnrollmentFormData, blank: boolean, hasPhoto
   out.push({ k: "line", x1: px + 20, y1: top + 7.2, x2: px + pillW - 2.5, y2: top + 7.2, stroke: C.border, lw: 0.25 });
   if (clean(d.yearLabel)) out.push({ k: "text", x: px + 21, y: top + 6.7, s: clean(d.yearLabel), size: 9.4, bold: true, color: C.navy });
   // foto 3x4
-  const fx = m + CW - 30, fy = top;
-  out.push({ k: "rect", x: fx, y: fy, w: 30, h: 40, fill: C.white, stroke: C.border, lw: 0.35, r: 1.2, dash: true });
-  if (hasPhoto && !blank) out.push({ k: "image", x: fx + 0.6, y: fy + 0.6, w: 28.8, h: 38.8, img: "photo" });
-  else { out.push({ k: "text", x: fx + 15, y: fy + 19, s: "FOTO", size: 8, color: C.label, align: "center" }); out.push({ k: "text", x: fx + 15, y: fy + 23, s: "3X4", size: 8, color: C.label, align: "center" }); }
+  const PW = 27, PH = 36; const fx = m + CW - PW, fy = top;
+  out.push({ k: "rect", x: fx, y: fy, w: PW, h: PH, fill: C.white, stroke: C.border, lw: 0.35, r: 1.2, dash: true });
+  if (hasPhoto && !blank) out.push({ k: "image", x: fx + 0.6, y: fy + 0.6, w: PW - 1.2, h: PH - 1.2, img: "photo" });
+  else { out.push({ k: "text", x: fx + PW / 2, y: fy + 17, s: "FOTO", size: 8, color: C.label, align: "center" }); out.push({ k: "text", x: fx + PW / 2, y: fy + 21, s: "3X4", size: 8, color: C.label, align: "center" }); }
   // requerimento
   const ry = top + 13;
   out.push({ k: "rect", x: m, y: ry, w: bandW, h: 7.4, fill: C.panel, stroke: C.border, lw: 0.25, r: 1.4 });
@@ -404,7 +404,7 @@ function fullHeader(out: Prim[], d: EnrollmentFormData, blank: boolean, hasPhoto
   lab("ID Censo:");
   out.push({ k: "line", x1: x, y1: yy + 0.7, x2: m + bandW, y2: yy + 0.7, stroke: C.border, lw: 0.25 });
   if (!blank && clean(s.censusId)) out.push({ k: "text", x: x + 1, y: yy, s: clean(s.censusId), size: 8.8, color: C.navy });
-  return Math.max(fy + 40, yy + 2) + 3;
+  return Math.max(fy + PH, yy + 2) + 2.6;
 }
 
 function compactHeader(out: Prim[], d: EnrollmentFormData, blank: boolean, measure: Measure): number {
