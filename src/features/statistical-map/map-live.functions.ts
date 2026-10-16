@@ -15,17 +15,27 @@ export const getLiveMapData = createServerFn({ method: "POST" })
     const from = `${data.year}-${String(data.month).padStart(2, "0")}-01`;
     const to = iso(new Date(Date.UTC(data.year, data.month, 0)));
     const prev = iso(new Date(Date.UTC(data.year, data.month - 1, 0)));
-    const [cls, pcls, mv, st, vis, ver, ids] = await Promise.all([
-      db.rpc("map_live_classes", { _school: data.schoolId, _on: to }),
-      db.rpc("map_live_classes", { _school: data.schoolId, _on: prev }),
-      db.rpc("map_live_movements", { _school: data.schoolId, _from: from, _to: to }),
+    const py = data.month === 1 ? data.year - 1 : data.year; const pm = data.month === 1 ? 12 : data.month - 1;
+    const prevFrom = `${py}-${String(pm).padStart(2, "0")}-01`;
+    const [fz, can] = await Promise.all([
+      db.from("statistical_map_freezes").select("year, month, frozen_at").eq("school_id", data.schoolId).or(`and(year.eq.${data.year},month.eq.${data.month}),and(year.eq.${py},month.eq.${pm})`),
+      db.rpc("has_school_capability", { _capability: "oficializar-mapa-estatistico", _school: data.schoolId }),
+    ]);
+    const fzRows = (fz.data ?? []) as any[];
+    const cut: string | null = fzRows.find((r) => r.year === data.year && r.month === data.month)?.frozen_at ?? null;
+    const prevCut: string | null = fzRows.find((r) => r.year === py && r.month === pm)?.frozen_at ?? null;
+    const [cls, pcls, mv, late, st, vis, ver, ids] = await Promise.all([
+      cut ? db.rpc("map_live_classes_known", { _school: data.schoolId, _on: to, _known_at: cut }) : db.rpc("map_live_classes", { _school: data.schoolId, _on: to }),
+      prevCut ? db.rpc("map_live_classes_known", { _school: data.schoolId, _on: prev, _known_at: prevCut }) : db.rpc("map_live_classes", { _school: data.schoolId, _on: prev }),
+      db.rpc("map_live_movements_known", { _school: data.schoolId, _from: from, _to: to, _after: null, _until: cut }),
+      prevCut ? db.rpc("map_live_movements_known", { _school: data.schoolId, _from: prevFrom, _to: prev, _after: prevCut, _until: cut }) : Promise.resolve({ data: [] }),
       db.rpc("map_live_staff", { _school: data.schoolId, _on: to }),
       db.from("institutional_visit_records").select("id, supersedes_id, visitor_kind_id, declared_identification, visited_on, annulled").eq("school_id", data.schoolId).gte("visited_on", from).lte("visited_on", to),
       db.from("institutional_school_record_versions").select("version_number, official_name, address, district, location_kind, phone, institutional_email, own_building, hard_access, classroom_count").eq("school_id", data.schoolId).order("version_number", { ascending: false }).limit(1),
       db.from("institutional_school_identifiers").select("identifier_kind, value").eq("school_id", data.schoolId),
     ]);
     const failed: string[] = [];
-    for (const [k, r] of Object.entries({ turmas: cls, movimentacoes: mv, pessoal: st, visitas: vis, cadastro: ver })) if ((r as any).error) failed.push(k);
+    for (const [k, r] of Object.entries({ turmas: cls, movimentacoes: mv, tardias: late as any, pessoal: st, visitas: vis, cadastro: ver })) if ((r as any).error) failed.push(k);
     const v = ((ver.data ?? []) as any[])[0] ?? {};
     const inep = ((ids.data ?? []) as any[]).find((x) => /inep/i.test(x.identifier_kind))?.value ?? (data.schoolId.startsWith("inep-") ? data.schoolId.slice(5) : null);
     const yn = (b: unknown) => (b === true ? "Sim" : b === false ? "Não" : null);
@@ -41,8 +51,19 @@ export const getLiveMapData = createServerFn({ method: "POST" })
         "Nº de salas de aula": v.classroom_count != null ? String(v.classroom_count) : null, "Telefone de contato": v.phone ?? null },
       classes: (cls.data ?? []) as any[],
       previousTotal: pcls.error || !pc.length ? null : pc.reduce((a, c) => a + (c.students ?? 0), 0),
-      movements: (mv.data ?? []) as any[], staff,
+      movements: [...((mv.data ?? []) as any[]), ...((late.data ?? []) as any[]).map((m) => ({ ...m, late: true }))], staff,
+      frozenAt: cut, canFreeze: can.data === true, previousFrozenAt: prevCut,
       visits: visRows.filter((x) => !superseded.has(x.id) && !x.annulled).map((x) => ({ visitor_kind_id: x.visitor_kind_id, declared_identification: x.declared_identification, visited_on: x.visited_on })),
       failed,
     };
+  });
+
+/** Congela as movimentações do mês: o que for registrado depois entra no mês seguinte, com observação. */
+export const freezeLiveMap = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => Input.extend({ note: z.string().max(500).optional() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: r, error } = await (context.supabase as any).rpc("freeze_statistical_map", { _school: data.schoolId, _year: data.year, _month: data.month, _note: data.note ?? null });
+    if (error) throw new Error(/capacidade/.test(error.message) ? "Seu acesso não permite congelar o mapa desta escola." : "Não foi possível congelar agora.");
+    return { frozenAt: (r as any).frozen_at as string };
   });
