@@ -117,7 +117,7 @@ export function renderMapDocument(d: MapDocumentInput): string {
 <div class="cv-mid"><h1>MAPA ESTATÍSTICO</h1><p class="cv-sub">DA UNIDADE ESCOLAR</p><p class="cv-school">${esc(d.schoolName)}</p><p class="cv-comp">${esc(COMP)}</p></div>
 <div class="cv-wave"></div><p class="cv-foot">Sistema Integrado de Gestão Educacional Municipal</p></div>` : "";
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Mapa Estatístico ${esc(comp)}</title><style>
-@page{size:A4 landscape;margin:12mm 12mm 14mm;@bottom-left{content:"${footLabel.replace(/"/g, "'")}";font:7.5pt sans-serif;color:#556}@bottom-right{content:"Página " counter(page) " de " counter(pages);font:7.5pt sans-serif;color:#556}}
+@page{size:A4 landscape;margin:12mm 12mm 14mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:7.5pt sans-serif;color:#556}@bottom-left{content:"${footLabel.replace(/"/g, "'")}";font:7.5pt sans-serif;color:#556}}
 ${cover ? "@page :first{margin:0;@bottom-left{content:none}@bottom-right{content:none}}" : ""}
 *{box-sizing:border-box}body{font:${premium ? "9pt/1.4" : "8.5pt/1.3"} "Source Sans 3","Inter",Arial,sans-serif;color:${P.ink};margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .cover{width:297mm;height:210mm;position:relative;overflow:hidden;break-after:page;background:linear-gradient(160deg,${P.light} 0%,#fff 45%,${P.light} 100%);padding:16mm 18mm}

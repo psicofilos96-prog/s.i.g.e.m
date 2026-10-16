@@ -23,7 +23,6 @@ import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, returnStatisticalMap, adjustMapCell, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
 import { institution } from "@/config/institution";
-import type { MapDocumentModel } from "./map-structures";
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
 import { MONTH_NAMES_LOWER } from "@/lib/format-ptbr";
 
@@ -146,8 +145,7 @@ async function exportMap(v: MapView, c: { schoolId: string; year: number; month:
   else download(`mapa-${key}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));
 }
 
-type PrintOpts = { model: MapDocumentModel; cover: boolean };
-let printOpts: PrintOpts = { model: "premium", cover: true };
+import { PrintChoice, printOpts } from "./map-print-choice";
 function openMapDocument(v: MapView, c: { year: number; month: number }, versionId?: string) {
   const ver = versionId ? v.versions.find((x) => x.id === versionId) : v.versions.find((x) => !x.superseded);
   const useOfficial = !!ver && (versionId || v.status.id === "oficializado");
@@ -163,21 +161,6 @@ function openMapDocument(v: MapView, c: { year: number; month: number }, version
   const w = window.open("", "_blank"); if (!w) return;
   w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
   void c;
-}
-
-function PrintChoice() {
-  const [o, setO] = useState<PrintOpts>(printOpts);
-  const upd = (n: PrintOpts) => { printOpts = n; setO(n); };
-  return (
-    <div className="flex flex-wrap items-center gap-2 text-sm">
-      <label className="flex items-center gap-1">Modelo
-        <select aria-label="Modelo de impressão" className="rounded-md border border-input bg-background px-2 py-1" value={o.model} onChange={(e) => upd({ ...o, model: e.target.value as MapDocumentModel })}>
-          <option value="premium">Institucional</option><option value="administrativo">Administrativo (econômico)</option>
-        </select>
-      </label>
-      {o.model === "premium" && <label className="flex items-center gap-1"><input type="checkbox" checked={o.cover} onChange={(e) => upd({ ...o, cover: e.target.checked })} /> Capa</label>}
-    </div>
-  );
 }
 
 function MapBody({ v, competence, onChange }: { v: MapView; competence: { schoolId: string; year: number; month: number }; onChange: (v: MapView) => void }) {
