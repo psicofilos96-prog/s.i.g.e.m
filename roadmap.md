@@ -30,3 +30,6 @@
 - [x] Etapa 2 (mapa declarado 2026): tabelas da Seção III por etapa × turno (1º/2º/3º/integral) e Seção II em grade por ano
 - [ ] Etapa 3: Seção IV em quatro grupos A–D com nome/ID/data e Seção V por categorias A–K
 - [ ] Etapa 4: editor de aparência salvo (fonte, cores, margens) e fotos oficiais da capa (aguardam envio)
+- [x] Reconstrução do Mapa: PDF direto A4 deitado com paginação física real, estrutura I–VI fiel (A–D, A–K, visitas), sem estados técnicos
+- [ ] Mapa: preencher Identificação, IV (nomes), V (pessoal A–K) e VI com dados do SIGEM; nomes das turmas do mapa declarado (leitor da planilha não guardou)
+- [ ] Mapa: tela própria de Conferência (hoje as pendências seguem na tela de gestão)

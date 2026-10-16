@@ -15,7 +15,8 @@ import {
 } from "./monthly-map-2026";
 import { EXPECTED_MONTHS, IDENTITY_NOTICE, SECTION_LABEL, STATE_LABEL, compareDeclared, declaredCoverage, projectAll, projectDeclared, type DeclaredMap } from "./declared-monthly-map";
 import { CATEGORY_LABEL, NETWORK_FILTERS, type NetworkFilter, NETWORK_FILTER_LABEL, classifySchool, declaredOccurrences, matchesNetwork, networkLabel, type SchoolClassification } from "./declared-inconsistencies";
-import { renderDeclaredMapDocument } from "./declared-map-document";
+import { buildFromDeclared } from "./map-official-model";
+import { downloadOfficialMapPdf } from "./map-pdf";
 import { PrintChoice, printOpts } from "./map-print-choice";
 import { NETWORK_BRANDING } from "@/features/reports/report-registry";
 import { institution } from "@/config/institution";
@@ -187,14 +188,12 @@ const DECLARED_COLS = "projects,school_id,inep_declared,year,month,source_file,s
 const VERDICT: Record<string, string> = { coincide: "Coincide", diverge: "Diverge", indisponivel: "Sem dado para comparar", "referencia-nao-apurada": "Sem veredito: o mês do SIGEM não está apurado" };
 
 function printDeclared(d: DeclaredMap, schoolName: string, inep: string | null, month: number) {
-  const html = renderDeclaredMapDocument({
-    headerLines: NETWORK_BRANDING.headerLines, schoolName, inep, year: 2026, month, movement: d, shifts: d.shifts as never,
-    classes: d.classes as never, projects: ((d as unknown as { projects?: unknown[] }).projects ?? []) as never, issues: d.consistency_issues ?? [], sourceFile: d.source_file,
-    model: printOpts.model, cover: printOpts.cover, emblemUrl: institution.emblemUrl,
+  const doc = buildFromDeclared({
+    headerLines: [...NETWORK_BRANDING.headerLines], schoolName, inep, year: 2026, month, movement: d, shifts: d.shifts as never,
+    classes: d.classes as never, projects: ((d as unknown as { projects?: unknown[] }).projects ?? []) as never,
     signatures: ["Responsável pelo estabelecimento de ensino", "Responsável pelo preenchimento"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
   });
-  const w = window.open("", "_blank"); if (!w) return;
-  w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 400);
+  void downloadOfficialMapPdf(doc, `mapa-estatistico-${inep ?? "escola"}-2026-${String(month).padStart(2, "0")}.pdf`, { cover: printOpts.cover, emblemUrl: institution.emblemUrl });
 }
 
 function DeclaredPanel({ schoolId, month, sigem, registryInep, schoolName }: { schoolId: string; month: number; registryInep: string | null; schoolName: string; sigem: { distinct_students: number | null; classes_with_students: number | null; status: string } }) {
@@ -219,7 +218,7 @@ function DeclaredPanel({ schoolId, month, sigem, registryInep, schoolName }: { s
         const p = projectDeclared(d, registryInep, prevs.length === 1 ? prevs[0] : null);
         return (
           <div key={d.source_sheet + d.source_file} className="space-y-2 text-sm">
-            <div className="flex flex-wrap items-center gap-2"><PrintChoice /><Button size="sm" onClick={() => printDeclared(d, schoolName, registryInep ?? d.inep_declared ?? null, month)}>PDF do mapa (A4 deitado)</Button></div>
+            <div className="flex flex-wrap items-center gap-2"><PrintChoice /><Button size="sm" onClick={() => printDeclared(d, schoolName, registryInep ?? d.inep_declared ?? null, month)}>Baixar PDF do mapa</Button></div>
             <p><strong>{STATE_LABEL[p.state]}</strong> · Seção I {SECTION_LABEL[p.section_i]} · Seção II {SECTION_LABEL[p.section_ii]} · Seção III {SECTION_LABEL[p.section_iii]}</p>
             {p.identity !== "confirmada" && <div role="alert" className="rounded border border-border bg-muted/40 p-2"><strong>Identidade não confirmada.</strong> {IDENTITY_NOTICE} (planilha: {p.inep_declared ?? "sem INEP"}; cadastro: {registryInep ?? "não informado"})</div>}
             <p hidden data-provenance className="text-muted-foreground">Fonte: planilha "{d.source_file}", aba {d.source_sheet}.</p>
