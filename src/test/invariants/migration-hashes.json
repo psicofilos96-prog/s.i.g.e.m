@@ -582,5 +582,6 @@
  "drizzle/migrations/0531_locate_professional_by_name.sql": "9d29f74f6f8e6a1e0a4ebf12ec75d70d7efb1de97a22738a2c36fb3c0d32f3ae",
  "drizzle/migrations/0532_perf_capability_rows_filtered.sql": "42f1beb2674a03ae258ce375b11e7f82e2d349255f6100fc1c98f7fdaedfd6ee",
  "drizzle/migrations/0533_lesson_resources.sql": "60d6e7fc0c4f59d264bca2fcaa1bc368980da4fde873965d9d1b6a72a125a6f8",
- "drizzle/migrations/0534_ciece_teaching_assignment.sql": "fd4e0836677ced93c82acf81d36d600207a2e1fbcaa7613431767970b853aff5"
+ "drizzle/migrations/0534_ciece_teaching_assignment.sql": "fd4e0836677ced93c82acf81d36d600207a2e1fbcaa7613431767970b853aff5",
+ "drizzle/migrations/0535_sector_parameters.sql": "c95190862ab0261fa74a03d2bcce9fb77c8043dec09cf9d477700f95e33ef335"
 }

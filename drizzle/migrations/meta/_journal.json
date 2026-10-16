@@ -3746,6 +3746,13 @@
       "when": 1792111905198,
       "tag": "0534_ciece_teaching_assignment",
       "breakpoints": true
+    },
+    {
+      "idx": 535,
+      "version": "7",
+      "when": 1792139919657,
+      "tag": "0535_sector_parameters",
+      "breakpoints": true
     }
   ]
 }

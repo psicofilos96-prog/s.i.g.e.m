@@ -31584,6 +31584,71 @@ export type Database = {
         }
         Relationships: []
       }
+      sector_parameter_catalog: {
+        Row: {
+          allowed: Json | null
+          capability_id: string
+          key: string
+          sector: string
+          value_kind: string
+        }
+        Insert: {
+          allowed?: Json | null
+          capability_id: string
+          key: string
+          sector: string
+          value_kind: string
+        }
+        Update: {
+          allowed?: Json | null
+          capability_id?: string
+          key?: string
+          sector?: string
+          value_kind?: string
+        }
+        Relationships: []
+      }
+      sector_parameter_versions: {
+        Row: {
+          author_engagement: string | null
+          author_user_id: string
+          id: string
+          key: string
+          reason: string
+          recorded_at: string
+          value: Json
+          version: number
+        }
+        Insert: {
+          author_engagement?: string | null
+          author_user_id: string
+          id?: string
+          key: string
+          reason: string
+          recorded_at?: string
+          value: Json
+          version: number
+        }
+        Update: {
+          author_engagement?: string | null
+          author_user_id?: string
+          id?: string
+          key?: string
+          reason?: string
+          recorded_at?: string
+          value?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sector_parameter_versions_key_fkey"
+            columns: ["key"]
+            isOneToOne: false
+            referencedRelation: "sector_parameter_catalog"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       sector_station_rule_versions: {
         Row: {
           decision_ref: string
@@ -49033,6 +49098,15 @@ export type Database = {
         }
         Returns: string
       }
+      record_sector_parameter: {
+        Args: {
+          _expected_version: number
+          _key: string
+          _reason: string
+          _value: Json
+        }
+        Returns: number
+      }
       record_shared_plan_copy: {
         Args: { _new_plan: string; _source_version: string }
         Returns: string
@@ -50927,6 +51001,7 @@ export type Database = {
         Args: { _capability: string; _on: string; _school: string }
         Returns: boolean
       }
+      sector_parameter_value: { Args: { _key: string }; Returns: Json }
       sector_password_record: {
         Args: { p_by: string; p_user: string }
         Returns: boolean
