@@ -1,3 +1,4 @@
+import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
 import { EntryOriginField, emptyEntryOrigin, entryOriginOk, entryOriginArgs, type EntryOrigin } from "./entry-origin-field";
 import { RecoveryRetryButton } from "@/components/sigem/recovery-retry-button";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -376,7 +377,7 @@ function Done({ school, studentId, name, onAgain }: { school: string; studentId:
       </div>
       <p className="text-sm">Ficha escolar atualizada:</p>
       <ul className="list-disc pl-5 text-sm">{(life ?? []).map((l, i) => <li key={i}>{l.label}</li>)}</ul>
-      <div className="flex gap-2"><Button onClick={onAgain}>Nova matrícula</Button><Button variant="outline" asChild><Link to="/secretaria">Ir para a Secretaria</Link></Button></div>
+      <div className="flex gap-2"><Button onClick={onAgain}>Nova matrícula</Button><Button variant="outline" asChild><Link to="/secretaria">Ir para a Secretaria</Link></Button><EnrollmentFormDialog kind="preenchida" studentId={studentId} trigger={<Button variant="outline">Imprimir Ficha de Matrícula</Button>} /></div>
     </section>
   );
 }

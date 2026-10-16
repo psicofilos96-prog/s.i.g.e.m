@@ -1,3 +1,4 @@
+import { EnrollmentFormDialog } from "@/features/school-secretariat/enrollment-form/enrollment-form-dialog";
 import { humanizeForScreen } from "@/config/technical-codes";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +29,7 @@ export function StudentRecordPage({ id }: { id: string }) {
     <div className="space-y-6">
       <RegistryHero eyebrow="Ficha escolar · 2026" title={r.name}
         lede={`Código ${r.identifier ?? NI}. ${r.enrollments.length} matrícula(s) escolar(es) e ${allClasses.length} vínculo(s) com turma visíveis para a sua conta.`}
-        actions={<><Button asChild size="sm" variant="outline"><Link to="/alunos">Voltar aos alunos</Link></Button><Button asChild size="sm" variant="ghost"><Link to="/ficha-longitudinal/$id" params={{ id: r.id }}>Ficha longitudinal</Link></Button></>} />
+        actions={<><Button asChild size="sm" variant="outline"><Link to="/alunos">Voltar aos alunos</Link></Button><Button asChild size="sm" variant="ghost"><Link to="/ficha-longitudinal/$id" params={{ id: r.id }}>Ficha longitudinal</Link></Button><EnrollmentFormDialog kind="preenchida" studentId={r.id} trigger={<Button size="sm">Imprimir Ficha de Matrícula</Button>} /></>} />
 
       {r.enrollments.length === 0 && <RegistryEmpty title="Nenhuma matrícula visível" description="Não há matrícula escolar deste aluno no seu escopo." />}
 

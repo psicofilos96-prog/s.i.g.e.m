@@ -52,6 +52,7 @@ function FormPreview(props: Props) {
   const [images, setImages] = useState<Images>({});
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const key = props.kind === "preenchida" ? `p|${props.studentId}` : `b|${props.schoolId ?? ""}|${props.yearLabel ?? ""}`;
 
   useEffect(() => {
     let alive = true;
@@ -73,7 +74,7 @@ function FormPreview(props: Props) {
       } catch { if (alive) setErr("Não foi possível ler os dados da ficha. Tente de novo."); }
     })();
     return () => { alive = false; };
-  }, [props]);
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const measure = useMemo(() => createMeasure(), []);
   const layout: Layout | null = useMemo(() => data ? layoutEnrollmentForm(data, { mode, specialEdAnnex: annex && canSpecial, renewal }, measure, !!images.photo) : null, [data, mode, annex, canSpecial, renewal, measure, images.photo]);
