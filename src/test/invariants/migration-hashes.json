@@ -588,5 +588,10 @@
  "drizzle/migrations/0537_meal_stock_parameters.sql": "f88bc1394febcfcf49383ae938b83508ec6f03cabc80dac20c3d4cc51cd2ce66",
  "drizzle/migrations/0538_infrequency_threshold_parameter.sql": "6c196f80adb67bc676555ff023d3514c6a86acc17bfd3da07e486fe484a65bc5",
  "drizzle/migrations/0539_protocol_deadline_parameter.sql": "808141f69ca93e570d2e8b0c26d2eea6216e69ecaac909976ba5df24e1b130af",
- "drizzle/migrations/0540_protocol_deadline_business_days.sql": "b60c349eb883a0a97fe00fefe7a78bcefc3f6276b1f11349e9555acaf0b2466b"
+ "drizzle/migrations/0540_protocol_deadline_business_days.sql": "b60c349eb883a0a97fe00fefe7a78bcefc3f6276b1f11349e9555acaf0b2466b",
+ "drizzle/migrations/0541_school_db_new_students_2026.sql": "2be48d593633a2994ad41a6a340a54225bb1b0512eddeb31ab0f82ae29b642ff",
+ "drizzle/migrations/0542_school_db_observation_new_student_origin.sql": "bf4f6f92f44928316662f9229fa40c53c312630e4eb2beb756e851f683963ebb",
+ "drizzle/migrations/0543_non_servant_professional_id.sql": "5e677133616b0ce28627c6ff77176605df22958f4faf76976c6b46c5d7c0286a",
+ "drizzle/migrations/0544_non_servant_professional_id_fix.sql": "d592f9b43bd77e4cff8f4b63af61c51874242f07c45fa989681f8669347a62f8",
+ "drizzle/migrations/0545_map_live_readers.sql": "7d590bd8edcda41c03e728a322acab74a0193037d72c4cb9931e92d9b8f3b5fe"
 }
