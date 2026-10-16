@@ -16,6 +16,8 @@ import { GESTAO_ESCOLAR } from "@/features/reports/report-registry";
 import { STATE_LABEL, buildPanel, dossierPrintHtml, managementRows, type Block, type BlockState, type Pending } from "./management-panel";
 import { readManagementInputs } from "./management-source";
 import { CensusDeclaredStaff } from "@/features/professionals/census-declared-staff";
+import { useOwnSchoolId } from "@/features/authority/own-school";
+import { OwnSchoolName } from "@/features/authority/own-school-field";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();

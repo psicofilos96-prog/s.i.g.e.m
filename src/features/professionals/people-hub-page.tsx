@@ -24,7 +24,9 @@ const COVER_TONE = { integral: "border-primary/40", parcial: "border-accent", au
 export function PeopleHubPage() {
   const a = useSessionAuthority();
   const uid = a.status === "signed-in" ? a.user.id : null;
-  const [school, setSchool] = useState("");
+  const own = useOwnSchoolId();
+  const [picked, setSchool] = useState("");
+  const school = own ?? picked;
   const [tab, setTab] = useState<Tab>("painel");
   const on = operationalToday();
   const schools = useQuery({ queryKey: ["ph-schools", uid], enabled: !!uid, queryFn: peopleSchools });
@@ -47,10 +49,10 @@ export function PeopleHubPage() {
     <div className="space-y-6">
       <PageHeader eyebrow="Gestão de Pessoas" title="Pessoal, lotação e atribuição de aulas" description="Projeção do registro funcional e da grade oficial, lida com a sua conta. Nada aqui grava, aprova ou formaliza; ausência de dado nunca vira zero." />
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-        <label className="min-w-0 text-sm">Escola
+        {own ? <OwnSchoolName schoolId={own} /> : <label className="min-w-0 text-sm">Escola
           <select className="mt-1 block min-h-11 w-full rounded-md border bg-background px-2" value={school} onChange={(e) => setSchool(e.target.value)}>
             <option value="">Selecione</option>{schools.data.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select></label>
+          </select></label>}
         <p className="text-xs text-muted-foreground">Data de referência: {on}</p>
       </div>
       {payroll}
