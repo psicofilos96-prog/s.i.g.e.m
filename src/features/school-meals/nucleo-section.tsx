@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useLatestRequest } from "@/lib/latest-request";
 import { OffsetPager } from "@/components/sigem/list-pager";
 import { callRpc } from "@/lib/rpc-call";
@@ -21,7 +22,7 @@ function Card({ i }: { i: Indicator }) {
     <a href={`#${i.anchor}`} className="block min-w-0 rounded-lg border bg-card p-3 text-card-foreground transition-colors hover:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring">
       <p className="text-xs text-muted-foreground">{i.label}</p>
       <p className="mt-1 text-2xl font-semibold tabular-nums">{n ? i.value : <span className="text-base font-medium">{STATE_TEXT[i.state]}</span>}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{i.reason ?? i.help}</p>
+      <p className="mt-1 text-xs text-muted-foreground">{humanizeForScreen(i.reason ?? i.help)}</p>
     </a>
   );
 }
@@ -65,7 +66,7 @@ export function NucleoHome({ names }: { names: Map<string, string> }) {
         <p className="text-muted-foreground">Apenas aponta; nenhuma correção é automática.</p>
         {!quality ? <p className="text-muted-foreground">Não disponível para esta conta.</p> : (
           <ul className="grid gap-2 sm:grid-cols-2">{Object.keys(QUALITY_LABELS).map((k) => { const c = classify(quality.find((q) => q.key === k));
-            return <li key={k} className="rounded border p-2"><span className="font-medium">{QUALITY_LABELS[k]}</span>: {c.state === "AVAILABLE" || c.state === "ZERO" ? c.value : STATE_TEXT[c.state]}{c.reason && <span className="block text-xs text-muted-foreground">{c.reason}</span>}</li>; })}</ul>)}
+            return <li key={k} className="rounded border p-2"><span className="font-medium">{QUALITY_LABELS[k]}</span>: {c.state === "AVAILABLE" || c.state === "ZERO" ? c.value : STATE_TEXT[c.state]}{c.reason && <span className="block text-xs text-muted-foreground">{humanizeForScreen(c.reason)}</span>}</li>; })}</ul>)}
       </section>
       <TrailSection names={names} />
     </>
@@ -96,7 +97,7 @@ function TrailSection({ names }: { names: Map<string, string> }) {
             <thead><tr className="text-left"><th scope="col">Quando</th><th scope="col">Origem</th><th scope="col">Ato</th><th scope="col">Versão</th><th scope="col">Escola</th><th scope="col">Motivo</th></tr></thead>
             <tbody>{slice.map((r) => <tr key={`${r.source}|${r.logical_id}|${r.version}`} className="border-t">
               <td>{formatDateTime(r.recorded_at)}</td><td>{SOURCE_LABEL[r.source] ?? r.source}</td><td>{r.act}</td><td>{r.version}</td>
-              <td>{names.get(r.school_id) ?? "Escola"}</td><td>{r.reason ?? "—"}</td></tr>)}</tbody></table>
+              <td>{names.get(r.school_id) ?? "Escola"}</td><td>{humanizeForScreen(r.reason) ?? "—"}</td></tr>)}</tbody></table>
             <OffsetPager page={page} pageSize={50} total={rows.length} onPage={setPage} noun="atos">
               {rows.length} atos{rows.length >= 2000 ? " (limite de 2000; reduza o período)" : ""}</OffsetPager></div>)}
     </section>

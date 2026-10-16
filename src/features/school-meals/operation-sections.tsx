@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -68,7 +69,7 @@ export function InventorySection({ school, from, to }: { school: string; from: s
   useEffect(() => { void load(); }, [load]);
   if (denied) return null;
   if (!items) return null;
-  if (!inventoryReady(items, units)) return <section className="rounded border p-3 text-sm"><h2 className="font-semibold">Estoque</h2><p className="text-muted-foreground">{INVENTORY_CATALOG_PENDING}</p></section>;
+  if (!inventoryReady(items, units)) return <section className="rounded border p-3 text-sm"><h2 className="font-semibold">Estoque</h2><p className="text-muted-foreground">{humanizeForScreen(INVENTORY_CATALOG_PENDING)}</p></section>;
   const save = async () => {
     setMsg(null);
     try { await call("record_meal_inventory_movement", { _base_id: null, _kind: "registro", _school: school, _item: form.item, _unit: form.unit, _movement: form.kind, _quantity: Number(form.qty), _on: form.on, _note: null, _reason: null }); await load(); setMsg("Registrado."); }

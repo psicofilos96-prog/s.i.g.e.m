@@ -9,6 +9,7 @@ import {
   Search,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { humanizeForScreen } from "@/config/technical-codes";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -164,7 +165,7 @@ export function EmptyState({
         <Icon className="size-5" />
       </div>
       <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
+      <p className="mt-1 max-w-sm text-sm text-muted-foreground">{humanizeForScreen(description)}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
@@ -188,7 +189,7 @@ export function StatePanel({
       </span>
       <div className="min-w-0">
         <h3 className="text-sm font-semibold">{title}</h3>
-        <p className="mt-1 text-xs leading-relaxed opacity-80">{description}</p>
+        <p className="mt-1 text-xs leading-relaxed opacity-80">{humanizeForScreen(description)}</p>
         {action && <div className="mt-3">{action}</div>}
       </div>
     </div>
@@ -197,5 +198,5 @@ export function StatePanel({
 
 /** Aviso neutro em caixa (ausência/indisponibilidade explicada em texto). */
 export function NoteBox({ children }: { children: ReactNode }) {
-  return <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">{children}</p>;
+  return <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">{typeof children === "string" ? humanizeForScreen(children) : children}</p>;
 }
