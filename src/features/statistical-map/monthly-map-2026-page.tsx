@@ -107,11 +107,11 @@ export function MonthlyMap2026Page({ mode = "escola" }: { mode?: "escola" | "red
           <select className="ml-2 rounded border border-input bg-background px-2 py-1" value={cmp} onChange={(e) => setCmp(Number(e.target.value))}>
             {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}/2026</option>)}
           </select></label>
-        <label className="text-sm">Escola
+        {!own && <label className="text-sm">Escola
           <select className="ml-2 max-w-xs rounded border border-input bg-background px-2 py-1" value={school} onChange={(e) => setSchool(e.target.value)}>
             <option value="">{mode === "rede" ? "Rede (todas visíveis)" : "Todas visíveis"}</option>
             {(cur.data?.rows ?? []).map((r) => <option key={r.school_id} value={r.school_id}>{r.school_name} · {r.inep}</option>)}
-          </select></label>
+          </select></label>}
         <label className="text-sm">Rede
           <select className="ml-2 rounded border border-input bg-background px-2 py-1" value={rede} onChange={(e) => setRede(e.target.value)} disabled={!clsQ.data}>
             <option value="">Todas</option>
