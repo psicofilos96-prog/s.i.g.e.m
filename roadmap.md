@@ -14,3 +14,4 @@
 - [x] Registrar jornadas escolares de 2026 como base histórica das turmas, sem alterar calendário, matrículas ou grade docente
 - [x] Registrar confirmação do merge comum da PR #1 lovable-sync → main, commit 03ad07913e5f153b40893dbce215cda6ea8086c1
 - [x] Registrar os lotes de mapas estatísticos enviados como referência histórica de 2026, sem vigência operacional antes de 2027
+- [x] Registrar/conferir o lote de 10 mapas estatísticos reenviados em 2026, mantendo idempotência e sem duplicar registros
