@@ -1,3 +1,4 @@
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
@@ -361,7 +362,13 @@ function LiveDocument({ competence, conference }: { competence: { schoolId: stri
   const qcl = useQueryClient();
   const doFreeze = useServerFn(freezeLiveMap);
   const freeze = useMutation({ mutationFn: () => doFreeze({ data: competence }), onSuccess: () => qcl.invalidateQueries({ queryKey: ["map-live", competence.schoolId, competence.year, competence.month] }) });
-  const askFreeze = () => { if (window.confirm(`Congelar as movimentações de ${MONTHS[competence.month - 1]} de ${competence.year}?\n\nO mapa deste mês não muda mais. O que a escola registrar depois entra no mês seguinte, com observação. Isso não pode ser desfeito.`)) freeze.mutate(); };
+  const askFreeze = async () => {
+    const mes = `${MONTHS[competence.month - 1]} de ${competence.year}`;
+    const first = await confirmAction({ title: `Congelar o mapa de ${mes}?`, consequence: "Todas as informações do mapa deste mês deixam de mudar. O que a escola registrar depois entra no mês seguinte, com observação. Isso não pode ser desfeito.", actionLabel: "Sim, continuar", destructive: true });
+    if (!first) return;
+    const second = await confirmAction({ title: `Tem certeza? Confirme o congelamento de ${mes}.`, consequence: "Esta é a última confirmação. Depois de congelado, o mapa deste mês não pode mais ser alterado nem descongelado.", actionLabel: "Congelar definitivamente", destructive: true });
+    if (second) freeze.mutate();
+  };
   const pdf = () => doc && void downloadOfficialMapPdf(doc, `mapa-estatistico-${competence.year}-${String(competence.month).padStart(2, "0")}.pdf`, { cover, emblemUrl: institution.emblemUrl });
   return (
     <div className="space-y-4">
