@@ -2,7 +2,7 @@
  * Parâmetros por setor. Cada chave existe no catálogo do banco (`sector_parameter_catalog`) E é lida
  * por um cálculo real (`readBy`); o teste `sector-parameters.test.ts` recusa parâmetro sem consumidor.
  */
-export type ParameterKind = { kind: "dias" } | { kind: "escolha"; options: readonly { value: string; label: string }[] };
+export type ParameterKind = { kind: "dias" } | { kind: "percentual" } | { kind: "escolha"; options: readonly { value: string; label: string }[] };
 
 export interface SectorParameter {
   key: string;
@@ -56,6 +56,14 @@ export const SECTOR_PARAMETERS: Record<string, readonly SectorParameter[]> = {
       undefinedEffect: "",
     },
   ],
+  frequencia: [
+    {
+      key: "frequencia.limite-infrequencia", group: "Infrequência", label: "Limite de presença para alerta",
+      help: "Abaixo desse percentual de presença o estudante entra no alerta de infrequência e pode ter caso de busca ativa aberto. O alerta não reprova ninguém.",
+      usedIn: [{ label: "Infrequência e busca ativa", href: "/inteligencia-educacional" }],
+      readBy: "aa_infrequency_threshold", input: { kind: "percentual" }, undefinedEffect: "",
+    },
+  ],
 };
 
 /** Parâmetros que já existiam em telas próprias: aparecem como atalho, sem duplicar. */
@@ -68,12 +76,14 @@ export const EXISTING_PARAMETER_SCREENS: Record<string, readonly { label: string
 export function formatParameterValue(p: SectorParameter, v: unknown): string {
   if (v == null) return "Ainda não definido";
   if (p.input.kind === "dias") return `${String(v)} dia(s)`;
+  if (p.input.kind === "percentual") return `${String(v)}%`;
   return p.input.options.find((o) => o.value === v)?.label ?? "Opção não reconhecida";
 }
 
 const ERR: Record<string, string> = {
   "parameter:reason-required": "Escreva o motivo da alteração.",
   "parameter:days-invalid": "Informe um número inteiro de dias entre 1 e 365.",
+  "parameter:percent-invalid": "Informe um percentual entre 1 e 99.",
   "parameter:choice-invalid": "Escolha uma das opções.",
   "parameter:stale-base": "Outra pessoa alterou este parâmetro agora. Recarregue e tente de novo.",
   "parameter:sector-not-enabled": "Este setor ainda não tem parâmetros liberados.",
