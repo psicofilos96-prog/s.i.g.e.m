@@ -9,3 +9,5 @@
 - [x] Diário de Classe — novo visual (tela única, abas, semana, cartão da aula, tabela, quadros)
 - [x] Diário — campo "Recursos utilizados" (gravado com histórico)
 - [ ] Diário — lançamento inline de chamada/conteúdo/notas
+
+- [ ] Parâmetros por setor: onda 2 (atalhos Matrículas/Avaliação/Mapa) e onda 3 (demais setores); estoque mínimo e saldo do pedido na Alimentação

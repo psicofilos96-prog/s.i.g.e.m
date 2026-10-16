@@ -69,3 +69,6 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## SIGEM Simples (`src/features/simple/`)
 - O design oficial é o AppShell anterior (início em `/`, `/avancado` só redireciona); `/cadastro/*`, `/chamada` e `/numeros` sobre `sg_*` rodam dentro do AppShell e o `SimpleShell` não é montado, porque o proprietário rejeitou o tema separado. Simplificar = menos informação no mesmo visual, nunca outra aparência.
+
+## Parâmetros por setor
+- Parâmetro de setor só existe com catálogo no banco (`sector_parameter_catalog`), leitura real por função (`sector_parameter_value`) e entrada em `src/config/sector-parameters.ts` (teste recusa sem consumidor); versões append-only por `record_sector_parameter`, porque parâmetro sem efeito enganaria quem configura.
