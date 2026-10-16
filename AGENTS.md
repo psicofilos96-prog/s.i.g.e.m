@@ -11,7 +11,7 @@
 
 ## Configurabilidade Normativa (princípio transversal do SIGEM)
 
-Memórias de requisitos: `docs/sigem-memoria-fontes-historicas.md` e `docs/sigem-memoria-setorial-e-auditoria.md` — contexto histórico, não estado atual nem autorização para importar regras/dados/código antigos; preserve origem, vigência e proposta × entrega.
+Memórias de requisitos (`docs/sigem-memoria-*.md`): contexto histórico, nunca autorização para importar regras/dados/código antigos.
 
 Toda norma escolar é DADO configurado, homologado e versionado; nunca código. A cadeia é sempre:
 `fato → capacidade do motor → configuração → homologação → aplicação → resultado versionado`.
@@ -24,7 +24,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Auditoria do princípio: `src/features/assessment/normative-configurability.test.ts`.
 
 ## Regras por diretório
-Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `supabase/` e as pastas de `src/features/` que o tenham (`ls src/features/*/AGENTS.md`).
+Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/config/`, `supabase/` e as pastas de `src/features/` que o tenham (`ls src/features/*/AGENTS.md`).
 
 ## Continuidade técnica
 B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte normativa).
@@ -60,12 +60,7 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 - Cabeçalhos de segurança/no-store só via `src/lib/security-headers.ts` (middleware em `src/start.ts`), porque cabeçalho por rota é esquecido.
 
-
-
 ## Aceitação integrada
 - Aceitação entre setores só por `scripts/integration-acceptance-e2e.mjs`, porque suítes soltas deixam de rodar juntas.
 
 - Testes: `.test.ts` rodam em node e `.test.tsx` em jsdom (projetos em `vitest.config.ts`; `.ts` que precise de DOM entra em `DOM_TS_TESTS`), porque jsdom em tudo custava 70% da suíte.
-
-## SIGEM Simples (`src/features/simple/`)
-- O design oficial é o AppShell anterior (início em `/`, `/avancado` só redireciona); `/cadastro/*`, `/chamada` e `/numeros` sobre `sg_*` rodam dentro do AppShell e o `SimpleShell` não é montado, porque o proprietário rejeitou o tema separado. Simplificar = menos informação no mesmo visual, nunca outra aparência.
