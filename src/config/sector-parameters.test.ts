@@ -15,6 +15,10 @@ describe("parâmetros por setor só existem se fazem algo", () => {
   it("prazo de não conformidade conta só abertas além dos dias definidos", () => {
     expect(migrations).toMatch(/opened_at AT TIME ZONE 'America\/Sao_Paulo'\)::date \+ dl < _on/);
   });
+  it("todo parâmetro tem padrão do sistema: nada bloqueado por falta de definição", () => {
+    for (const p of all) expect(migrations).toMatch(new RegExp(`default_value = '[^']+'::jsonb WHERE key = '${p.key}'|'${p.key}'[^\n]*'::jsonb\)`));
+    expect(migrations).toMatch(/coalesce\(\s*\(SELECT v\.value[\s\S]*c\.default_value/);
+  });
   it("adesão = refeições servidas ÷ alunos presentes; sem presentes não vira zero", () => {
     expect(migrations).toMatch(/round\(meals \* 100\.0 \/ pres\)/);
     expect(migrations).toMatch(/coalesce\(pres, 0\) = 0 THEN NULL/);

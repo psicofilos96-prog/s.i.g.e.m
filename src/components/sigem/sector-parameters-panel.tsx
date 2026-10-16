@@ -19,7 +19,9 @@ export function SectorParametersPanel({ sector, id = "parametros" }: { sector: s
     queryFn: async () => {
       const r = await supabase.from("sector_parameter_versions").select("key,version,value,reason,recorded_at").in("key", params.map((p) => p.key)).order("version", { ascending: false });
       if (r.error) throw new Error(r.error.message);
-      return r.data as Version[];
+      const c = await supabase.from("sector_parameter_catalog").select("key,default_value").in("key", params.map((p) => p.key));
+      if (c.error) throw new Error(c.error.message);
+      return { versions: r.data as Version[], defaults: new Map((c.data as { key: string; default_value: unknown }[]).map((x) => [x.key, x.default_value])) };
     },
   });
   if (!params.length) return null;
@@ -34,7 +36,7 @@ export function SectorParametersPanel({ sector, id = "parametros" }: { sector: s
         <div key={g} className="space-y-2">
           <h3 className="text-sm font-semibold text-muted-foreground">{g}</h3>
           <ul className="grid gap-3 md:grid-cols-2">
-            {params.filter((p) => p.group === g).map((p) => <ParameterCard key={p.key} p={p} versions={q.data.filter((v) => v.key === p.key)} sector={sector} uid={uid} />)}
+            {params.filter((p) => p.group === g).map((p) => <ParameterCard key={p.key} p={p} versions={q.data.versions.filter((v) => v.key === p.key)} fallback={q.data.defaults.get(p.key) ?? null} sector={sector} uid={uid} />)}
           </ul>
         </div>
       ))}
@@ -42,7 +44,7 @@ export function SectorParametersPanel({ sector, id = "parametros" }: { sector: s
   );
 }
 
-function ParameterCard({ p, versions, sector, uid }: { p: SectorParameter; versions: Version[]; sector: string; uid: string | null }) {
+function ParameterCard({ p, versions, sector, uid, fallback }: { p: SectorParameter; versions: Version[]; sector: string; uid: string | null; fallback: unknown }) {
   const qc = useQueryClient();
   const cur = versions[0] ?? null;
   const [editing, setEditing] = useState(false);
@@ -64,8 +66,8 @@ function ParameterCard({ p, versions, sector, uid }: { p: SectorParameter; versi
   return (
     <li className="space-y-2 rounded-md border bg-card p-3">
       <div><p className="font-medium">{p.label}</p><p className="text-xs text-muted-foreground">{p.help}</p></div>
-      <p className="text-lg font-semibold">{formatParameterValue(p, cur?.value ?? null)}</p>
-      {!cur && <p className="text-xs text-muted-foreground">Enquanto não for definido, {p.undefinedEffect}</p>}
+      <p className="text-lg font-semibold">{formatParameterValue(p, cur?.value ?? fallback)}</p>
+      {!cur && <p className="text-xs text-muted-foreground">Padrão do sistema — já funciona; altere quando quiser.</p>}
       {cur && <p className="text-xs text-muted-foreground">Alterado em {new Date(cur.recorded_at).toLocaleString("pt-BR")} — {cur.reason}</p>}
       <p className="text-xs">Usado em: {p.usedIn.map((u, i) => <a key={i} href={u.href} className="text-primary underline">{u.label}</a>)}</p>
       {editing ? (
@@ -80,7 +82,7 @@ function ParameterCard({ p, versions, sector, uid }: { p: SectorParameter; versi
         </div>
       ) : (
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => { setEditing(true); setValue(cur?.value != null ? String(cur.value) : ""); }}>Alterar</Button>
+          <Button size="sm" variant="outline" onClick={() => { setEditing(true); setValue(String(cur?.value ?? fallback ?? "")); }}>Alterar</Button>
           {versions.length > 0 && <Button size="sm" variant="ghost" onClick={() => setHistory((h) => !h)}>{history ? "Ocultar histórico" : "Ver histórico"}</Button>}
         </div>
       )}
