@@ -218,7 +218,7 @@ function DeclaredPanel({ schoolId, month, sigem, registryInep, schoolName }: { s
         const p = projectDeclared(d, registryInep, prevs.length === 1 ? prevs[0] : null);
         return (
           <div key={d.source_sheet + d.source_file} className="space-y-2 text-sm">
-            <div className="flex flex-wrap items-center gap-2"><PrintChoice /><Button size="sm" onClick={() => printDeclared(d, schoolName, registryInep ?? d.inep_declared ?? null, month)}>PDF do mapa (A4 deitado)</Button></div>
+            <div className="flex flex-wrap items-center gap-2"><PrintChoice /><Button size="sm" onClick={() => printDeclared(d, schoolName, registryInep ?? d.inep_declared ?? null, month)}>Baixar PDF do mapa</Button></div>
             <p><strong>{STATE_LABEL[p.state]}</strong> · Seção I {SECTION_LABEL[p.section_i]} · Seção II {SECTION_LABEL[p.section_ii]} · Seção III {SECTION_LABEL[p.section_iii]}</p>
             {p.identity !== "confirmada" && <div role="alert" className="rounded border border-border bg-muted/40 p-2"><strong>Identidade não confirmada.</strong> {IDENTITY_NOTICE} (planilha: {p.inep_declared ?? "sem INEP"}; cadastro: {registryInep ?? "não informado"})</div>}
             <p hidden data-provenance className="text-muted-foreground">Fonte: planilha "{d.source_file}", aba {d.source_sheet}.</p>

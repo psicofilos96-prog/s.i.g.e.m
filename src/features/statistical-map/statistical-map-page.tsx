@@ -18,7 +18,7 @@ import { runReport, toCsv as reportCsv, toXlsx } from "@/features/reports/report
 import { type CellState, type MapCell } from "./map-domain";
 import { snapshotReasonText } from "./map-domain";
 import { SchoolCompositionStructure } from "@/features/classes/class-composition-views";
-import { STAGE_LABEL, STAGE_NEXT_STEP, cellValueText, groupByStructure, originBadge, projectWorkflow, renderMapDocument } from "./map-structures";
+import { STAGE_LABEL, STAGE_NEXT_STEP, cellValueText, groupByStructure, originBadge, projectWorkflow } from "./map-structures";
 import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, returnStatisticalMap, adjustMapCell, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
@@ -229,7 +229,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
         <Button variant="outline" onClick={() => exportMap(v, competence, "csv")}>CSV</Button>
         <Button variant="outline" onClick={() => exportMap(v, competence, "xlsx")}>XLSX</Button>
         <PrintChoice />
-        <Button onClick={() => openMapDocument(v, competence)}>PDF oficial</Button>
+        <Button onClick={() => openMapDocument(v, competence)}>Baixar PDF do mapa</Button>
       </div>
       <header className="hidden text-center print:block">
         {NETWORK_BRANDING.headerLines.map((l) => <p key={l} className="text-sm font-semibold uppercase">{l}</p>)}
