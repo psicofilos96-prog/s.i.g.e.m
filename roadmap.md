@@ -18,3 +18,6 @@
 - [x] Registrar/conferir novo lote de 10 mapas estatísticos de 2026, mantendo idempotência e sem duplicar registros
 - [x] Registrar/conferir novo lote de 10 mapas estatísticos rurais de 2026, mantendo idempotência e sem duplicar registros
 - [x] Registrar/conferir lote de 5 mapas estatísticos de 2026, mantendo idempotência e sem duplicar registros
+
+- [ ] Enturmar 35 alunos novos de 2026 com turma ambígua (aba "Para decidir" de proposta-enturmacao-alunos-novos-2026.xlsx) — aguarda decisão do proprietário
+- [ ] 21 nomes parecidos e 18 sem nascimento — aguarda decisão
