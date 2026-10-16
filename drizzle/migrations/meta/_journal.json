@@ -3767,6 +3767,13 @@
       "when": 1792140814957,
       "tag": "0537_meal_stock_parameters",
       "breakpoints": true
+    },
+    {
+      "idx": 538,
+      "version": "7",
+      "when": 1792141319231,
+      "tag": "0538_infrequency_threshold_parameter",
+      "breakpoints": true
     }
   ]
 }

@@ -16,7 +16,7 @@ export type AttendanceResult = {
 export const ALERT_THRESHOLD_PCT = 75;
 
 /** `mode`: "periodo" usa só o período; "acumulado" soma 1..período. Período incompleto ⇒ não apurado. */
-export function attendanceAt(rows: AttendanceRow[], period: number, mode: "periodo" | "acumulado"): AttendanceResult[] {
+export function attendanceAt(rows: AttendanceRow[], period: number, mode: "periodo" | "acumulado", threshold: number = ALERT_THRESHOLD_PCT): AttendanceResult[] {
   const key = (r: AttendanceRow) => `${r.enrollmentId}|${r.classId}`;
   const groups = new Map<string, AttendanceRow[]>();
   for (const r of rows) if (mode === "periodo" ? r.period === period : r.period <= period) { const k = key(r); groups.set(k, [...(groups.get(k) ?? []), r]); }
@@ -32,7 +32,7 @@ export function attendanceAt(rows: AttendanceRow[], period: number, mode: "perio
     if (planned <= 0) return { ...base, planned, attended, absences: null, presencePct: null, status: "nao-apurado" as const, reason: "Sem horas previstas" };
     if (attended > planned) return { ...base, planned, attended, absences: null, presencePct: null, status: "nao-apurado" as const, reason: "Frequentadas maior que previstas" };
     const pct = (attended / planned) * 100;
-    return { ...base, planned, attended, absences: planned - attended, presencePct: pct, status: pct < ALERT_THRESHOLD_PCT ? "alerta" as const : "sem-alerta" as const, reason: null };
+    return { ...base, planned, attended, absences: planned - attended, presencePct: pct, status: pct < threshold ? "alerta" as const : "sem-alerta" as const, reason: null };
   });
 }
 
