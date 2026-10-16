@@ -24,3 +24,9 @@
 
 - [ ] 43 professores da rede sem login (22 nome parecido na folha, 21 fora da folha) — deixado para depois pelo proprietário
 - [ ] Disciplina de cada professor nas turmas — a fazer
+
+## Mapa Estatístico — especificação SIGEM 2.0 (16/10/2026)
+- [x] Etapa 1: impressão A4 paisagem azul/branco, capa opcional, modelos Institucional/Administrativo, rodapé "Página X de Y", assinaturas manuais
+- [ ] Etapa 2: tabelas da Seção III por etapa × turno (1º/2º/3º/integral) e Seção II em grade por ano
+- [ ] Etapa 3: Seção IV em quatro grupos A–D com nome/ID/data e Seção V por categorias A–K
+- [ ] Etapa 4: editor de aparência salvo (fonte, cores, margens) e fotos oficiais da capa (aguardam envio)

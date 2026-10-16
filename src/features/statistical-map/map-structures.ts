@@ -78,7 +78,7 @@ export function canOpenNext(previousStage: WorkflowStage | null, ruleRequiresPre
   return previousStage === "aprovado";
 }
 
-// ---------------- Documento oficial A4 (gerador dedicado, não captura de tela) ----------------
+// ---------------- Documento oficial A4 paisagem (gerador dedicado, não captura de tela) ----------------
 
 const esc = (s: unknown) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]!);
 const MONTHS = MONTH_NAMES_LOWER;
@@ -88,37 +88,64 @@ function cellValue(c: MapCell): string {
   return ({ ausente: "Sem registro", indeterminado: "Indeterminado", "nao-aplicavel": "Não se aplica", "sem-regra": "Sem regra homologada", "sem-fonte": "Sem fonte no SIGEM" } as Record<string, string>)[c.state] ?? "Não disponível";
 }
 
+export type MapDocumentModel = "premium" | "administrativo";
 export type MapDocumentInput = {
   headerLines: readonly string[]; schoolName: string; snapshot: MapSnapshot;
   statusLabel: string; revision: number | null; signatures: readonly string[]; generatedAt: string;
+  /** Modelo visual; ambos mostram exatamente os mesmos dados. Padrão: premium. */
+  model?: MapDocumentModel; cover?: boolean; emblemUrl?: string | null;
 };
 
-/** HTML autocontido A4 retrato; mesma entrada (snapshot da revisão) ⇒ mesmo documento. */
+const PALETTE = { navy: "#0f2a52", mid: "#1f5fa8", light: "#e8f0fa", gray: "#f5f7fa", line: "#c9d6e8", gold: "#b8932f", ink: "#14213d" };
+
+/** HTML autocontido A4 paisagem; mesma entrada (snapshot da revisão) ⇒ mesmo documento. */
 export function renderMapDocument(d: MapDocumentInput): string {
   const s = d.snapshot; const comp = `${MONTHS[s.competence.month - 1] ?? s.competence.month}/${s.competence.year}`;
+  const model: MapDocumentModel = d.model ?? "premium"; const premium = model === "premium";
+  const cover = premium && d.cover !== false;
+  const P = PALETTE; const COMP = comp.toUpperCase();
+  const emblem = d.emblemUrl && /^https:\/\//.test(d.emblemUrl) ? `<img class="emb" src="${esc(d.emblemUrl)}" alt="Brasão">` : "";
+  const runHead = `<div class="rh">${emblem}<div class="rh-l">${d.headerLines.map((l) => `<p>${esc(l)}</p>`).join("")}</div><div class="rh-r"><strong>MAPA ESTATÍSTICO</strong><span>${esc(COMP)}</span></div></div>`;
   const sections = groupByStructure(s.cells).map((g) => `
-    <section><h2>${g.id} — ${esc(g.title)}</h2>${g.cells.length === 0 ? `<p class="empty">Nenhum dado com fonte no SIGEM para esta estrutura.</p>` : `
+    <section><h2><span>${g.id} — ${esc(g.title.toUpperCase())}</span></h2>${g.cells.length === 0 ? `<p class="empty">Nenhum dado com fonte no SIGEM para esta estrutura.</p>` : `
     <table><thead><tr><th>Item</th><th class="n">Valor</th><th>Origem</th></tr></thead><tbody>${g.cells.map((c) => `
-      <tr><td>${esc(c.label)}${c.groups?.length ? `<ul>${c.groups.map((x) => `<li>${esc(x.key ?? "(sem valor)")}: ${esc(x.value ?? "—")}</li>`).join("")}</ul>` : ""}</td><td class="n">${esc(cellValue(c))}${c.adjustment ? `<br><small>Calculado pelo SIGEM: ${esc(c.adjustment.calculated ?? "—")}</small>` : ""}</td><td>${esc(originBadge(c))}${c.adjustment ? `<br><small>Motivo: ${esc(c.adjustment.reason)}</small>` : ""}</td></tr>`).join("")}
+      <tr><td>${esc(c.label)}${c.groups?.length ? `<table class="sub"><tbody>${c.groups.map((x) => `<tr><td>${esc(x.key ?? "(sem valor)")}</td><td class="n">${esc(x.value ?? "—")}</td></tr>`).join("")}</tbody></table>` : ""}</td><td class="n">${esc(cellValue(c))}${c.adjustment ? `<br><small>Calculado pelo SIGEM: ${esc(c.adjustment.calculated ?? "—")}</small>` : ""}</td><td>${esc(originBadge(c))}${c.adjustment ? `<br><small>Motivo: ${esc(c.adjustment.reason)}</small>` : ""}</td></tr>`).join("")}
     </tbody></table>`}</section>`).join("");
   const obs = s.declarations.observations.trim();
+  const footLabel = `${esc(d.schoolName)} · ${esc(comp)} · SIGEM`;
+  const coverHtml = cover ? `<div class="cover">${emblem ? `<div class="cv-emb">${emblem}</div>` : ""}<div class="cv-org">${d.headerLines.map((l) => `<p>${esc(l)}</p>`).join("")}</div>
+<div class="cv-mid"><h1>MAPA ESTATÍSTICO</h1><p class="cv-sub">DA UNIDADE ESCOLAR</p><p class="cv-school">${esc(d.schoolName)}</p><p class="cv-comp">${esc(COMP)}</p></div>
+<div class="cv-wave"></div><p class="cv-foot">Sistema Integrado de Gestão Educacional Municipal</p></div>` : "";
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Mapa Estatístico ${esc(comp)}</title><style>
-@page{size:A4 portrait;margin:14mm 12mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}*{box-sizing:border-box}body{font:10pt/1.35 Georgia,"Times New Roman",serif;color:#111;margin:0}
-header{text-align:center;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:8px}header p{margin:0;font-size:9pt;text-transform:uppercase;letter-spacing:.03em}
-h1{font-size:14pt;margin:6px 0 2px}dl{display:grid;grid-template-columns:1fr 1fr;gap:2px 12px;margin:6px 0 10px;font-size:9pt}dt{font-weight:bold;display:inline}dd{display:inline;margin:0}
-h2{font-size:11pt;margin:10px 0 4px;border-bottom:1px solid #999;break-after:avoid}section{break-inside:auto}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9pt}
-thead{display:table-header-group}th,td{border:1px solid #888;padding:3px 5px;vertical-align:top;overflow-wrap:anywhere}th{background:#eee;text-align:left}td.n,th.n{text-align:right;width:28%}
-th:last-child,td:last-child{width:26%}tr{break-inside:avoid}ul{margin:2px 0 0 14px;padding:0}.empty{font-style:italic;color:#444}
-.sig{display:grid;grid-template-columns:repeat(${Math.max(1, Math.min(3, d.signatures.length))},1fr);gap:24px;margin-top:36px;break-inside:avoid}.sig div{border-top:1px solid #111;text-align:center;padding-top:3px;font-size:9pt}
-footer{margin-top:12px;font-size:8pt;color:#333}</style></head><body>
-<header>${d.headerLines.map((l) => `<p>${esc(l)}</p>`).join("")}<h1>MAPA ESTATÍSTICO — ${esc(comp.toUpperCase())}</h1></header>
-<dl><div><dt>Unidade: </dt><dd>${esc(d.schoolName)}</dd></div><div><dt>Competência: </dt><dd>${esc(comp)}</dd></div>
-<div><dt>Situação: </dt><dd>${esc(d.statusLabel)}</dd></div><div><dt>Revisão: </dt><dd>${d.revision ? esc(d.revision) : "sem revisão aprovada"}</dd></div>
-<div><dt>Data de referência: </dt><dd>${esc(s.snapshotDate ?? "não definida")}</dd></div><div><dt>Regra: </dt><dd>${s.rule ? `versão ${esc(s.rule.version)}` : "sem regra homologada"}</dd></div></dl>
+@page{size:A4 landscape;margin:12mm 12mm 14mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:7.5pt sans-serif;color:#556}@bottom-left{content:"${footLabel.replace(/"/g, "'")}";font:7.5pt sans-serif;color:#556}}
+${cover ? "@page :first{margin:0;@bottom-left{content:none}@bottom-right{content:none}}" : ""}
+*{box-sizing:border-box}body{font:${premium ? "9pt/1.4" : "8.5pt/1.3"} "Source Sans 3","Inter",Arial,sans-serif;color:${P.ink};margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.cover{width:297mm;height:210mm;position:relative;overflow:hidden;break-after:page;background:linear-gradient(160deg,${P.light} 0%,#fff 45%,${P.light} 100%);padding:16mm 18mm}
+.cv-emb .emb{height:22mm}.cv-org{position:absolute;top:16mm;left:${emblem ? "46mm" : "18mm"}}.cv-org p{margin:0;font-weight:700;color:${P.navy};font-size:10pt;text-transform:uppercase}
+.cv-mid{position:absolute;top:62mm;left:0;right:0;text-align:center}.cv-mid h1{font-size:40pt;letter-spacing:.02em;color:${P.navy};margin:0}.cv-sub{font-size:16pt;color:${P.mid};margin:2mm 0 8mm}
+.cv-school{font-size:15pt;font-weight:700;margin:0 0 5mm}.cv-comp{display:inline-block;background:${P.mid};color:#fff;font-size:15pt;padding:2mm 12mm;border-radius:6mm;margin:0}
+.cv-wave{position:absolute;left:-10%;right:-10%;bottom:-28mm;height:62mm;border-radius:50% 50% 0 0;background:linear-gradient(90deg,${P.navy},${P.mid});border-top:1.2mm solid ${P.gold}}
+.cv-foot{position:absolute;bottom:9mm;right:18mm;margin:0;color:#fff;font-size:9pt;letter-spacing:.06em;text-transform:uppercase}
+.rh{display:flex;align-items:center;gap:4mm;border-bottom:${premium ? `0.6mm solid ${P.mid}` : "0.3mm solid #888"};padding-bottom:2mm;margin-bottom:4mm}.rh .emb{height:11mm}
+.rh-l p{margin:0;font-size:7.5pt;font-weight:700;text-transform:uppercase;color:${P.navy}}.rh-r{margin-left:auto;text-align:right;color:${P.mid}}.rh-r strong{display:block;font-size:10pt;color:${P.navy}}.rh-r span{font-size:8.5pt}
+dl{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5mm 6mm;margin:0 0 4mm;font-size:8.5pt;background:${premium ? P.gray : "transparent"};border:0.2mm solid ${P.line};border-radius:${premium ? "2mm" : "0"};padding:2.5mm 4mm}
+dt{font-weight:700;display:inline;color:${P.navy}}dd{display:inline;margin:0}
+h2{font-size:11.5pt;margin:5mm 0 2mm;break-after:avoid}h2 span{display:block;${premium ? `background:linear-gradient(90deg,${P.navy},${P.mid});color:#fff;padding:1.6mm 4mm;border-radius:1.5mm;border-left:1.2mm solid ${P.gold}` : `border-bottom:0.3mm solid #666;padding-bottom:1mm`}}
+section{break-inside:auto}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:8.5pt}
+thead{display:table-header-group}th,td{border:0.2mm solid ${P.line};padding:1.4mm 2.2mm;vertical-align:top;overflow-wrap:anywhere}th{background:${premium ? P.light : "#eee"};color:${P.navy};text-align:left;font-weight:700}
+tbody tr:nth-child(even)>td{background:${premium ? "#fafcff" : "transparent"}}td.n,th.n{text-align:right;width:22%}th:last-child,td:last-child{width:24%}tr{break-inside:avoid}
+table.sub{margin-top:1mm;font-size:8pt}table.sub td{border:0;border-top:0.15mm dotted ${P.line};padding:.6mm 1mm;background:transparent!important}table.sub td.n{width:30%}
+.empty{font-style:italic;color:#556}.obs{border:0.2mm solid ${P.line};border-radius:1.5mm;padding:2.5mm 4mm;min-height:14mm}
+.final{break-inside:avoid}.sig{display:grid;grid-template-columns:repeat(${Math.max(1, Math.min(3, d.signatures.length))},1fr);gap:12mm;margin-top:16mm}.sig div{border-top:0.3mm solid ${P.ink};text-align:center;padding-top:1.5mm;font-size:8.5pt}
+.date{margin-top:8mm;font-size:8.5pt}footer{margin-top:5mm;font-size:7.5pt;color:#556}</style></head><body>
+${coverHtml}${runHead}
+<dl><div><dt>Unidade: </dt><dd>${esc(d.schoolName)}</dd></div><div><dt>Competência: </dt><dd>${esc(comp)}</dd></div><div><dt>Situação: </dt><dd>${esc(d.statusLabel)}</dd></div>
+<div><dt>Revisão: </dt><dd>${d.revision ? esc(d.revision) : "sem revisão aprovada"}</dd></div><div><dt>Data de referência: </dt><dd>${esc(s.snapshotDate ?? "não definida")}</dd></div><div><dt>Regra: </dt><dd>${s.rule ? `versão ${esc(s.rule.version)}` : "sem regra homologada"}</dd></div></dl>
 ${sections}
-<section><h2>Observações da escola</h2><p>${obs ? esc(obs) : '<span class="empty">Sem observações.</span>'}</p></section>
-<div class="sig">${d.signatures.map((x) => `<div>${esc(x)}</div>`).join("")}</div>
-<footer>Documento gerado pelo SIGEM em ${esc(d.generatedAt)} a partir da fotografia ${d.revision ? "aprovada" : "dinâmica (não oficial)"} desta competência.</footer>
+<section class="final"><h2><span>OBSERVAÇÕES DA ESCOLA</span></h2><div class="obs">${obs ? esc(obs) : '<span class="empty">Sem observações.</span>'}</div>
+<p class="date">Data de entrega: ____/____/________</p>
+<div class="sig">${d.signatures.map((x) => `<div>${esc(x)}</div>`).join("")}</div></section>
+<footer>Documento gerado pelo SIGEM em ${esc(d.generatedAt)} a partir da fotografia ${d.revision ? "aprovada" : "dinâmica (não oficial)"} desta competência. Assinaturas são manuais; o SIGEM não insere assinatura digital.</footer>
 </body></html>`;
 }
 

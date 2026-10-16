@@ -22,6 +22,7 @@ import { STAGE_LABEL, STAGE_NEXT_STEP, cellValueText, groupByStructure, originBa
 import {
   conferStatisticalMap, getStatisticalMap, listMapSchools, officializeStatisticalMap, openMapCorrectionFn, openStatisticalMap, returnStatisticalMap, adjustMapCell, saveMapObservations, type MapView,
 } from "./statistical-map.functions";
+import { institution } from "@/config/institution";
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
 import { MONTH_NAMES_LOWER } from "@/lib/format-ptbr";
 
@@ -144,6 +145,7 @@ async function exportMap(v: MapView, c: { schoolId: string; year: number; month:
   else download(`mapa-${key}.xlsx`, new Blob([await toXlsx(result, branding, meta)]));
 }
 
+import { PrintChoice, printOpts } from "./map-print-choice";
 function openMapDocument(v: MapView, c: { year: number; month: number }, versionId?: string) {
   const ver = versionId ? v.versions.find((x) => x.id === versionId) : v.versions.find((x) => !x.superseded);
   const useOfficial = !!ver && (versionId || v.status.id === "oficializado");
@@ -154,6 +156,7 @@ function openMapDocument(v: MapView, c: { year: number; month: number }, version
     headerLines: NETWORK_BRANDING.headerLines, schoolName: nameCell ? String(nameCell.value) : "Unidade escolar", snapshot,
     statusLabel: STAGE_LABEL[useOfficial ? "aprovado" : wf.stage], revision: useOfficial ? ver!.version : null,
     signatures: ["Secretaria Escolar", "Direção da Unidade", "Estatística (CIECE)"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+    model: printOpts.model, cover: printOpts.cover, emblemUrl: institution.emblemUrl,
   });
   const w = window.open("", "_blank"); if (!w) return;
   w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
@@ -226,6 +229,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
       <div className="flex flex-wrap gap-2 print:hidden">
         <Button variant="outline" onClick={() => exportMap(v, competence, "csv")}>CSV</Button>
         <Button variant="outline" onClick={() => exportMap(v, competence, "xlsx")}>XLSX</Button>
+        <PrintChoice />
         <Button onClick={() => openMapDocument(v, competence)}>PDF oficial</Button>
       </div>
       <header className="hidden text-center print:block">
