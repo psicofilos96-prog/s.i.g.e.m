@@ -82,7 +82,7 @@ export function peopleRows(staff: readonly LiveStaff[]): PersonRow[] {
 }
 
 /** Movimentação ocorrida no mês anterior, registrada depois do congelamento dele. */
-export const lateNote = (m: Pick<LiveMovement, "happened_on">) => `Ocorrida em ${br(m.happened_on)}, registrada após o congelamento do mapa de ${m.happened_on ? m.happened_on.slice(5, 7) + "/" + m.happened_on.slice(0, 4) : "—"}`;
+export const lateNote = (m: Pick<LiveMovement, "happened_on">) => `Ocorrida em ${br(m.happened_on)}, registrada após o fechamento do mapa de ${m.happened_on ? m.happened_on.slice(5, 7) + "/" + m.happened_on.slice(0, 4) : "—"}`;
 
 export function movementRows(ms: readonly LiveMovement[]): MovementRow[] {
   return ms.filter((m) => ["A", "B", "C", "D"].includes(m.grp)).map((m) => ({

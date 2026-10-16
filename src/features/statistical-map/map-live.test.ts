@@ -37,7 +37,7 @@ import { movementRows as mr, lateNote } from "./map-live";
 describe("congelamento do mapa", () => {
   it("matrícula de 29/05 registrada após congelar maio entra em junho com observação", () => {
     const rows = mr([{ grp: "A", student_name: "Ana", census_id: null, kind: "Novo", happened_on: "2027-05-29", class_label: "100", late: true }]);
-    expect(rows[0]!.cells[5]).toBe("Ocorrida em 29/05/2027, registrada após o congelamento do mapa de 05/2027");
+    expect(rows[0]!.cells[5]).toBe("Ocorrida em 29/05/2027, registrada após o fechamento do mapa de 05/2027");
     expect(lateNote({ happened_on: "2027-05-29" })).toContain("05/2027");
   });
   it("movimentação normal não leva observação", () => {
