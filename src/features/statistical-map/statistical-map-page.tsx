@@ -148,6 +148,9 @@ async function exportMap(v: MapView, c: { schoolId: string; year: number; month:
 import { PrintChoice, printOpts } from "./map-print-choice";
 import { buildFromSnapshot } from "./map-official-model";
 import { downloadOfficialMapPdf } from "./map-pdf";
+import { buildLiveDoc } from "./map-live";
+import { getLiveMapData } from "./map-live.functions";
+import { MapSectionView } from "./map-doc-view";
 function openMapDocument(v: MapView, c: { year: number; month: number }, versionId?: string) {
   const ver = versionId ? v.versions.find((x) => x.id === versionId) : v.versions.find((x) => !x.superseded);
   const useOfficial = !!ver && (versionId || v.status.id === "oficializado");
@@ -345,54 +348,102 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
   );
 }
 
+const SECTION_TABS = [["I", "Identificação"], ["II", "Movimentação"], ["III", "Matrícula"], ["IV", "Entradas e saídas"], ["V", "Pessoal"], ["VI", "Visitas"]] as const;
+
+function LiveDocument({ competence, conference }: { competence: { schoolId: string; year: number; month: number }; conference: React.ReactNode }) {
+  const getLive = useServerFn(getLiveMapData);
+  const [tab, setTab] = useState<string>("I");
+  const [cover, setCover] = useState(true);
+  const live = useQuery({ queryKey: ["map-live", competence.schoolId, competence.year, competence.month], queryFn: () => getLive({ data: competence }) });
+  const doc = live.data ? buildLiveDoc(live.data, { headerLines: NETWORK_BRANDING.headerLines, signatures: ["Responsável pelo estabelecimento de ensino", "Responsável pelo preenchimento"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) }) : null;
+  const pdf = () => doc && void downloadOfficialMapPdf(doc, `mapa-estatistico-${competence.year}-${String(competence.month).padStart(2, "0")}.pdf`, { cover, emblemUrl: institution.emblemUrl });
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-lg font-semibold">{live.data?.schoolName ?? "…"}</p>
+          <p className="text-sm text-muted-foreground">{MONTHS[competence.month - 1]} de {competence.year}{live.data ? ` · atualizado com os registros da escola até ${fmtDate(live.data.referenceDate)}` : ""}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5 text-sm"><input type="checkbox" checked={cover} onChange={(e) => setCover(e.target.checked)} /> Com capa</label>
+          <Button disabled={!doc} onClick={pdf}>Baixar PDF</Button>
+        </div>
+      </div>
+      <div role="tablist" aria-label="Seções do Mapa" className="flex gap-1 overflow-x-auto border-b border-border">
+        {[...SECTION_TABS, ["conf", "Conferência e envio"] as const].map(([id, label]) => (
+          <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+            className={cn("shrink-0 border-b-2 px-3 py-2 text-sm whitespace-nowrap", tab === id ? "border-primary font-semibold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground")}>
+            {id !== "conf" && <span className="mr-1 text-xs">{id}</span>}{label}
+          </button>
+        ))}
+      </div>
+      {tab === "conf" ? conference
+        : live.isPending ? <SkeletonState label="Montando o mapa" />
+        : live.isError || !doc ? <StatePanel tone="danger" title="Mapa indisponível" description="Não foi possível ler os registros da escola agora. Tente novamente." />
+        : (
+          <>
+            {live.data!.failed.length > 0 && <p className="text-sm text-muted-foreground">Parte dos registros não pôde ser lida com o seu acesso; esses campos aparecem com —.</p>}
+            <MapSectionView doc={doc} sectionId={tab} />
+          </>
+        )}
+    </div>
+  );
+}
+
 export function StatisticalMapWorkspace() {
   const list = useServerFn(listMapSchools);
   const get = useServerFn(getStatisticalMap);
   const qc = useQueryClient();
   const [schoolId, setSchoolId] = useState<string>("");
-  const [year, setYear] = useState<number | null>(null);
-  const [month, setMonth] = useState<number | null>(null);
+  const today = operationalToday();
+  const [year, setYear] = useState<number>(Number(today.slice(0, 4)));
+  const [month, setMonth] = useState<number>(Number(today.slice(5, 7)));
   const schools = useQuery({ queryKey: ["map-schools"], queryFn: () => list() });
-  // Escola, ano e competência são escolhas explícitas: nenhum default mistura 2026 e 2027.
   const sid = schoolId;
-  const ready = !!sid && year != null && month != null;
-  const competence = { schoolId: sid, year: year ?? 0, month: month ?? 1 };
+  const ready = !!sid;
+  const competence = { schoolId: sid, year, month };
   const key = ["statistical-map", sid, year, month];
-  const map = useQuery({ queryKey: key, enabled: ready, queryFn: () => get({ data: competence }) });
-  const years = Array.from({ length: 5 }, (_, i) => Number(operationalToday().slice(0, 4)) - 3 + i);
+  const [showConf, setShowConf] = useState(false);
+  const map = useQuery({ queryKey: key, enabled: ready && showConf, queryFn: () => get({ data: competence }) });
+  const years = Array.from({ length: 4 }, (_, i) => Number(today.slice(0, 4)) - 2 + i);
+  const sel = "mt-1 w-full rounded-md border border-input bg-background px-2 py-2 text-sm";
+  const conference = !showConf ? (
+    <div className="rounded-lg border border-border p-4 text-sm">
+      <p>Aqui a escola envia o mapa para a Estatística, que confere, devolve ou aprova.</p>
+      <Button className="mt-3" variant="outline" onClick={() => setShowConf(true)}>Abrir conferência</Button>
+    </div>
+  ) : map.isPending ? <SkeletonState label="Carregando a conferência" />
+    : map.isError ? <StatePanel tone="danger" title="Conferência indisponível" description="Tente novamente." />
+    : <MapBody key={key.join("|") + map.data.fingerprint} v={map.data} competence={competence} onChange={(nv) => qc.setQueryData(key, nv)} />;
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-4 p-4">
-      <PageHeader title="Mapa Estatístico" description="O SIGEM preenche a partir dos registros oficiais; a escola confere e oficializa." />
+    <div className="mx-auto w-full max-w-6xl space-y-5 p-4">
+      <PageHeader title="Mapa Estatístico" description="Preenchido sozinho com o que a escola registra: alunos, turmas, entradas e saídas, pessoal e visitas." />
       {schools.isPending ? <SkeletonState label="Carregando" />
         : !schools.data?.length ? (
-          <StatePanel tone="neutral" title="Nenhuma escola disponível" description="Sua atuação vigente não inclui autorização para consultar o Mapa Estatístico de nenhuma escola." />
+          <StatePanel tone="neutral" title="Nenhuma escola disponível" description="Seu acesso não inclui o Mapa Estatístico de nenhuma escola." />
         ) : (
           <>
-            <div className="flex flex-wrap items-end gap-3 rounded-lg border border-border bg-card p-3">
-              <label className="flex min-w-0 flex-1 flex-col text-sm">Escola
-                <select className="mt-1 w-full rounded-md border border-input bg-background p-2" value={sid} onChange={(e) => setSchoolId(e.target.value)}>
+            <div className="grid gap-3 sm:grid-cols-[1fr_10rem_7rem]">
+              <label className="text-sm">Escola
+                <select className={sel} value={sid} onChange={(e) => { setSchoolId(e.target.value); setShowConf(false); }}>
                   <option value="">Escolha a escola</option>
-                  {schools.data.map((s) => <option key={s.schoolId} value={s.schoolId}>{s.label}</option>)}
+                  {[...schools.data].sort((a, b) => a.label.localeCompare(b.label, "pt-BR")).map((s) => <option key={s.schoolId} value={s.schoolId}>{s.label}</option>)}
                 </select>
               </label>
-              <label className="flex flex-col text-sm">Mês
-                <select className="mt-1 rounded-md border border-input bg-background p-2" value={month ?? ""} onChange={(e) => setMonth(e.target.value ? Number(e.target.value) : null)}>
-                  <option value="">Escolha</option>
+              <label className="text-sm">Mês
+                <select className={sel} value={month} onChange={(e) => setMonth(Number(e.target.value))}>
                   {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
                 </select>
               </label>
-              <label className="flex flex-col text-sm">Ano
-                <select className="mt-1 rounded-md border border-input bg-background p-2" value={year ?? ""} onChange={(e) => setYear(e.target.value ? Number(e.target.value) : null)}>
-                  <option value="">Escolha</option>
+              <label className="text-sm">Ano
+                <select className={sel} value={year} onChange={(e) => setYear(Number(e.target.value))}>
                   {years.map((y) => <option key={y} value={y}>{y}</option>)}
                 </select>
               </label>
             </div>
-            {!ready ? <p className="text-sm text-muted-foreground">Escolha escola, mês e ano para montar o Mapa.</p>
-              : map.isPending ? <p className="text-sm text-muted-foreground">Montando a fotografia…</p>
-              : map.isError ? <StatePanel tone="danger" title="Mapa indisponível" description="Não foi possível montar o Mapa agora. Tente novamente." />
-              : <MapBody key={key.join("|") + map.data.fingerprint} v={map.data} competence={competence} onChange={(nv) => qc.setQueryData(key, nv)} />}
+            {!ready ? <p className="text-sm text-muted-foreground">Escolha a escola para ver o mapa.</p>
+              : <LiveDocument key={`${sid}|${year}|${month}`} competence={competence} conference={conference} />}
           </>
         )}
     </div>
