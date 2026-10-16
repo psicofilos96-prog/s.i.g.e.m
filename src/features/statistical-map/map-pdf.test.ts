@@ -29,7 +29,7 @@ describe("PDF do Mapa — paginação física A4 paisagem", () => {
     const r = renderOfficialMapPdf(src(3), { cover: false });
     const all = r.text.join(" ");
     expect(all).not.toMatch(/Indeterminado|Origem|Sem regra homologada|Sem fonte no SIGEM/);
-    const row = buildFromDeclared({ ...({} as never), headerLines: [], schoolName: "E", inep: null, year: 2026, month: 8, movement: { previous_month_enrollment: null, transfers_in: null, new_students: null, transfers_out: null, dropouts: null, withdrawn_cancelled: null, total_ii: null }, shifts: null, classes: [], projects: [], signatures: [], generatedAt: "x" })
+    const row = buildFromDeclared({ headerLines: [], schoolName: "E", inep: null, year: 2026, month: 8, movement: { previous_month_enrollment: null, transfers_in: null, new_students: null, transfers_out: null, dropouts: null, withdrawn_cancelled: null, total_ii: null }, shifts: null, classes: [], projects: [], signatures: [], generatedAt: "x" })
       .sections[1]!.blocks[0] as { rows: { cells: string[] }[] };
     expect(row.rows[0]!.cells.slice(1).every((c) => c === "—")).toBe(true);
   });

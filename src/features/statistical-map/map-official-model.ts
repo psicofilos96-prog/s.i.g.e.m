@@ -8,11 +8,11 @@ import type { MapCell, MapSnapshot } from "./map-domain";
 import { groupByStructure } from "./map-structures";
 
 export const MISSING = "—";
-export type Col = { label: string; w: number; align?: "left" | "center" | "right" };
-export type Row = { cells: string[]; style?: "sub" | "total" };
+export type Col = { label: string; w: number; align?: "left" | "center" | "right" | undefined };
+export type Row = { cells: string[]; style?: "sub" | "total" | undefined };
 export type Block =
   | { kind: "fields"; pairs: [string, string][] }
-  | { kind: "table"; caption?: string; subtitle?: string; groups?: { label: string; span: number }[]; cols: Col[]; rows: Row[]; empty?: string }
+  | { kind: "table"; caption?: string | undefined; subtitle?: string | undefined; groups?: { label: string; span: number }[] | undefined; cols: Col[]; rows: Row[]; empty?: string | undefined }
   | { kind: "note"; text: string };
 export type Section = { id: string; title: string; blocks: Block[] };
 export type OfficialMapDoc = {
@@ -171,7 +171,7 @@ export function buildFromDeclared(src: DeclaredSource): OfficialMapDoc {
 export function buildFromSnapshot(s: MapSnapshot, o: { headerLines: readonly string[]; schoolName: string; official: boolean; revision: number | null; signatures: readonly string[]; generatedAt: string }): OfficialMapDoc {
   const comp = `${MONTH_NAMES_LOWER[s.competence.month - 1] ?? s.competence.month}/${s.competence.year}`;
   const val = (c: MapCell) => (c.state === "disponivel" && c.value !== null && c.value !== undefined ? `${typeof c.value === "number" ? c.value.toLocaleString("pt-BR") : String(c.value)}${c.unit ? ` ${c.unit}` : ""}` : MISSING);
-  const g = new Map(groupByStructure(s.cells).map((x) => [x.id, x.cells] as const));
+  const g = new Map<string, readonly MapCell[]>(groupByStructure(s.cells).map((x) => [x.id, x.cells] as const));
   const indicator = (cells: readonly MapCell[], caption?: string): Block => ({ kind: "table", caption, cols: [{ label: "Indicador", w: 70 }, { label: "Quantidade", w: 30, align: "right" }], rows: cells.filter((c) => !c.groups?.length).map((c) => ({ cells: [c.label, val(c)] })), empty: "Sem dado apurado nesta competência." });
   const classCells = (g.get("III") ?? []).filter((c) => c.groups?.length);
   const classRows: Row[] = classCells.flatMap((c) => (c.groups ?? []).map((x) => ({ cells: [txt(x.key), show(num(Number(x.value)))] })));

@@ -19,7 +19,7 @@ export const pdfSafe = (s: string) => s.replace(/[\u2212\u2013]/g, "-").replace(
   .replace(/[^\u0000-\u00ff\u2014\u2022\u2026]/g, "");
 
 export type Box = { page: number; x: number; y: number; w: number; h: number; kind: string };
-export type RenderOpts = { cover?: boolean; emblem?: { dataUrl: string; w: number; h: number } | null };
+export type RenderOpts = { cover?: boolean | undefined; emblem?: { dataUrl: string; w: number; h: number } | null | undefined };
 
 export function renderOfficialMapPdf(d: OfficialMapDoc, o: RenderOpts = {}): { pdf: jsPDF; boxes: Box[]; pages: number; text: string[] } {
   const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4", compress: true });
@@ -78,7 +78,7 @@ export function renderOfficialMapPdf(d: OfficialMapDoc, o: RenderOpts = {}): { p
   const measure = (cells: string[], ws: number[], pt: number, bold: boolean) => { font(pt, bold ? "bold" : "normal"); return cells.map((c, i) => wrap(c, ws[i]! - 2 * PAD)); };
   const rowH = (lines: string[][], pt: number) => Math.max(...lines.map((l) => Math.max(1, l.length))) * lh(pt) + 2 * PAD;
 
-  const drawRow = (lines: string[][], ws: number[], cols: Col[], h: number, style: { fill?: readonly number[]; pt: number; bold?: boolean; italic?: boolean; color?: readonly number[] }) => {
+  const drawRow = (lines: string[][], ws: number[], cols: Col[], h: number, style: { fill?: readonly number[] | undefined; pt: number; bold?: boolean | undefined; italic?: boolean | undefined; color?: readonly number[] | undefined }) => {
     let x = LEFT;
     for (let i = 0; i < ws.length; i++) {
       if (style.fill) { rgb(style.fill, "fill"); pdf.rect(x, y, ws[i]!, h, "F"); }
