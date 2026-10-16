@@ -30,3 +30,4 @@
 - [x] Etapa 2 (mapa declarado 2026): tabelas da Seção III por etapa × turno (1º/2º/3º/integral) e Seção II em grade por ano
 - [ ] Etapa 3: Seção IV em quatro grupos A–D com nome/ID/data e Seção V por categorias A–K
 - [ ] Etapa 4: editor de aparência salvo (fonte, cores, margens) e fotos oficiais da capa (aguardam envio)
+- [ ] Reconstrução do Mapa (plano aprovado com ressalvas): PDF direto A4 deitado com paginação física real, campos I–VI fiéis ao original (A–D, A–K, visitas), Conferência separada do documento
