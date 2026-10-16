@@ -3774,6 +3774,13 @@
       "when": 1792141319231,
       "tag": "0538_infrequency_threshold_parameter",
       "breakpoints": true
+    },
+    {
+      "idx": 539,
+      "version": "7",
+      "when": 1792142123104,
+      "tag": "0539_protocol_deadline_parameter",
+      "breakpoints": true
     }
   ]
 }
