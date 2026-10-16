@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useAssessmentNormativeSource, normativeSessionArgs } from "./assessment-normative-sources";
 import { useSessionAuthority as useSessionAuthorityNorms } from "@/features/authority/session-authority";
 import { useCloudPeriodFacts } from "./assessment-period-sources";
@@ -97,7 +98,7 @@ export function CycleConsolidationPage({
   const state = norms.state;
   const rules = norms.rules;
   if (referenceDate.kind === "invalid")
-    return <StatePanel tone="warning" title="Consolidação indisponível" description={referenceDate.reason} />;
+    return <StatePanel tone="warning" title="Consolidação indisponível" description={humanizeForScreen(referenceDate.reason)} />;
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
   const item = context.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });
@@ -120,7 +121,7 @@ export function CycleConsolidationPage({
   const curriculumRef = curriculumRefOf(item.record);
   const cycleResolution = resolveCyclesForOrigin(cloud ? "institucional" : "laboratorio", { configuration, structure });
   if (cycleResolution.kind === "unavailable")
-    return <StatePanel tone="warning" title="Consolidação indisponível" description={cycleResolution.reason} />;
+    return <StatePanel tone="warning" title="Consolidação indisponível" description={humanizeForScreen(cycleResolution.reason)} />;
   const cycles = cycleResolution.cycles;
   const snapshot = cloud ? { instruments: cloudFacts.instruments } : instruments.snapshot();
   const closingRecords = cloud ? cloudFacts.closings : closings.allRecords();
@@ -364,7 +365,7 @@ export function FinalRecoveryRow({
               <span className="font-medium">Situação:</span> {view.label}
             </p>
             {view.status !== "applied-with-effect" && view.status !== "applied-without-effect" ? (
-              <p className="text-xs text-muted-foreground">{view.reason}</p>
+              <p className="text-xs text-muted-foreground">{humanizeForScreen(view.reason)}</p>
             ) : null}
             {view.explanation.state === "protected" ? (
               <p className="text-xs text-muted-foreground">

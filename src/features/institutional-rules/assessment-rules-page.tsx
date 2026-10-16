@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /**
  * NAVRULES.1 — tela real das regras de Avaliação (somente leitura sobre o reader do banco).
  * Não cria nem homologa: quem tem a capacidade é levado à tela de Regras institucionais (writers).
@@ -51,7 +52,7 @@ export function AssessmentRulesRealPage() {
                   <span>{stateLabel(v.state)}</span>
                   <span className="text-muted-foreground">Vigência: {day(v.validFrom) ?? "não informada"} a {day(v.validUntil) ?? "sem fim"}</span>
                 </div>
-                <p className="mt-1 text-muted-foreground">Motivo: {v.reason}</p>
+                <p className="mt-1 text-muted-foreground">Motivo: {humanizeForScreen(v.reason)}</p>
                 <p className="text-muted-foreground">Registrada em {new Date(v.recordedAt).toLocaleString("pt-BR")}{v.homologatedAt ? ` · homologada em ${new Date(v.homologatedAt).toLocaleString("pt-BR")}` : ""}</p>
                 <dl className="mt-2 grid gap-1 sm:grid-cols-[14rem_1fr]">
                   {readablePayload(v.payload).map((f) => (<div key={f.label} className="contents"><dt className="font-medium">{f.label}</dt><dd className="break-words">{f.value}</dd></div>))}

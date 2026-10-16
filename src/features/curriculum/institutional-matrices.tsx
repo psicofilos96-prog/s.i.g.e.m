@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { NoteBox } from "@/components/sigem/patterns";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -221,7 +222,7 @@ export function InstitutionalMatrixDetail({ id }: { id: string }) {
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {h.officialName} · desde {formatAcademicDate(h.validFrom)}{h.validUntil ? ` até ${formatAcademicDate(h.validUntil)}` : ""}{h.actRef ? ` · referência documental ${h.actRef}` : ""}
-                    {h.reason ? ` · motivo: ${h.reason}` : ""} · registrada em {formatDateTime(h.recordedAt)}
+                    {h.reason ? ` · motivo: ${humanizeForScreen(h.reason)}` : ""} · registrada em {formatDateTime(h.recordedAt)}
                   </p>
                   <div className="mt-2"><HomologationPanel kind="matrix" versionId={h.versionId} title={`Homologação da versão ${h.version}`} /></div>
                 </li>

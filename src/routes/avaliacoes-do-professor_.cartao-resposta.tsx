@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHeader } from "@/components/sigem/patterns";
 import { useMemo, useState } from "react";
@@ -52,14 +53,14 @@ function Page() {
     const code = jsQR(rgba, c.width, c.height)?.data ?? null;
     setQrRead(code);
     const r = rectify(layout, { width: c.width, height: c.height, data: gray });
-    if (!r.ok) { setMessage(`Foto não lida: ${r.reason}. Fotografe o cartão inteiro, com os quatro quadrados visíveis.`); return; }
+    if (!r.ok) { setMessage(`Foto não lida: ${humanizeForScreen(r.reason)}. Fotografe o cartão inteiro, com os quatro quadrados visíveis.`); return; }
     setReads(readCard(layout, r.image));
   };
 
   const confirm = () => {
     if (!reads) return;
     const r = confirmReading(reads, decisions, true);
-    setMessage(r.ok ? `Leitura conferida: ${Object.values(r.answers).filter(Boolean).length} respostas. Esta área é só de teste do cartão avulso; para gravar, use "Corrigir prova aprovada pela OP" abaixo.` : `Não aceito: ${r.reason}`);
+    setMessage(r.ok ? `Leitura conferida: ${Object.values(r.answers).filter(Boolean).length} respostas. Esta área é só de teste do cartão avulso; para gravar, use "Corrigir prova aprovada pela OP" abaixo.` : `Não aceito: ${humanizeForScreen(r.reason)}`);
   };
 
   return (

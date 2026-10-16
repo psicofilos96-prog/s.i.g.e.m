@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { teachingAssignments, teachingClass, teachingPersonId, teachingPersonName, useInstitutionalTeaching } from "@/features/diary/institutional-teaching";
 import { isDiaryCloud } from "@/features/diary/diary-persistence-mode";
 import { useSessionAuthority } from "@/features/authority/session-authority";
@@ -106,7 +107,7 @@ function ApplicableRulePanel({ classId }: { classId: string }) {
         <StatePanel
           tone="warning"
           title="Não existe regra avaliativa homologada aplicável a esta turma."
-          description={`${resolution.reason} Enquanto isso, nenhum resultado é calculado: a consolidação permanece bloqueada.`}
+          description={`${humanizeForScreen(resolution.reason)} Enquanto isso, nenhum resultado é calculado: a consolidação permanece bloqueada.`}
         />
         <p className="mt-2 text-xs text-muted-foreground">
           As regras avaliativas são definidas exclusivamente pela Supervisão de Ensino. Professores
@@ -352,7 +353,7 @@ export function AssessmentStructureView({
       <StatePanel
         tone={state.kind === "erro" ? "danger" : "neutral"}
         title={copy.label}
-        description={`${state.reason} Nenhuma estrutura avaliativa é presumida para ${institutional ? (institutional.stageId || "esta turma") : classStageLabel(classId)}.`}
+        description={`${humanizeForScreen(state.reason)} Nenhuma estrutura avaliativa é presumida para ${institutional ? (institutional.stageId || "esta turma") : classStageLabel(classId)}.`}
       />
     );
   const { configuration, year, structure, issues, missing, pendingRules, homologated } = state;
@@ -524,8 +525,8 @@ export function AssessmentStructureView({
         className="border-t border-border/70 pt-4 text-sm text-muted-foreground"
         aria-label="Acesso"
       >
-        <p>{permissions.configure.reason}</p>
-        <p>{permissions.homologate.reason}</p>
+        <p>{humanizeForScreen(permissions.configure.reason)}</p>
+        <p>{humanizeForScreen(permissions.homologate.reason)}</p>
       </section>
     </div>
   );

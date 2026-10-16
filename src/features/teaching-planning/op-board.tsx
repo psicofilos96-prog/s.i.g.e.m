@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /** LOTE 8 — Quadro Permanente da OP por etapa (rede): versões append-only via `record_op_permanent_board_version`; etapa é texto aberto. */
 import { PageHeader } from "@/components/sigem/patterns";
 import { LoadingState } from "@/components/sigem/states";
@@ -54,7 +55,7 @@ export function OpBoardPage() {
           <label className="block text-sm">Título <input aria-label="Título" className="ml-1 w-full rounded border border-input bg-background p-1" value={d.title} onChange={(e) => setD({ ...d, title: e.target.value })} /></label>
           {d.sections.map((s, i) => (<div key={i} className="space-y-1"><input aria-label={`Seção ${i + 1}`} placeholder="Título da seção" className="w-full rounded border border-input bg-background p-1 text-sm" value={s.heading} onChange={(e) => setD({ ...d, sections: d.sections.map((x, j) => (j === i ? { ...x, heading: e.target.value } : x)) })} /><textarea aria-label={`Texto da seção ${i + 1}`} rows={4} className="w-full rounded border border-input bg-background p-1 text-sm" value={s.body} onChange={(e) => setD({ ...d, sections: d.sections.map((x, j) => (j === i ? { ...x, body: e.target.value } : x)) })} /></div>))}
           <Button size="sm" variant="outline" onClick={() => setD({ ...d, sections: [...d.sections, { heading: "", body: "" }] })}>Adicionar seção</Button>
-          {d.head && <label className="block text-sm">Motivo da nova versão <input aria-label="Motivo" className="ml-1 w-full rounded border border-input bg-background p-1" value={d.reason} onChange={(e) => setD({ ...d, reason: e.target.value })} /></label>}
+          {d.head && <label className="block text-sm">Motivo da nova versão <input aria-label="Motivo" className="ml-1 w-full rounded border border-input bg-background p-1" value={humanizeForScreen(d.reason)} onChange={(e) => setD({ ...d, reason: e.target.value })} /></label>}
           <div className="flex gap-2"><Button onClick={save} disabled={!d.stage.trim() || !d.title.trim()}>Gravar versão</Button><Button variant="ghost" onClick={() => setD(null)}>Cancelar</Button></div>
         </section>)}
       {msg && <p role="status" className="text-sm text-foreground">{msg}</p>}

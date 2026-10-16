@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { callRpc } from "@/lib/rpc-call";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -53,7 +54,7 @@ export function ClinicalSection({ school, student, onLoaded }: { school: string;
               <Button size="sm" variant="outline" onClick={() => void amend(r, "encerramento")}>Encerrar</Button>
               {r.version > 1 && <Button size="sm" variant="ghost" onClick={() => setHist(hist === r.logical_id ? null : r.logical_id)}>Histórico</Button>}
             </div>
-            {hist === r.logical_id && <ol className="mt-1 text-xs">{clinicalHistory(rows, r.logical_id).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {formatDateTime(h.recorded_at)}{h.reason ? ` · motivo: ${h.reason}` : ""}</li>)}</ol>}
+            {hist === r.logical_id && <ol className="mt-1 text-xs">{clinicalHistory(rows, r.logical_id).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {formatDateTime(h.recorded_at)}{h.reason ? ` · motivo: ${humanizeForScreen(h.reason)}` : ""}</li>)}</ol>}
           </li>))}</ul>
       )}
       {rows !== null && <NewClinical school={school} student={student} onDone={() => void read(purpose || "Conferência após registro")} />}

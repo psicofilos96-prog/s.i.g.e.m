@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useAssessmentNormativeSource, normativeSessionArgs } from "./assessment-normative-sources";
 import { teachingClass } from "@/features/diary/institutional-teaching";
 /**
@@ -169,7 +170,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
   if (!klass) return <StatePanel tone="danger" title="Turma não encontrada" description="Esta turma não está disponível para você." />;
   const applicability = assessmentDeskApplicability(klass);
   if (!applicability.applicable)
-    return <div className="space-y-6">{header}<StatePanel tone="info" title="Avaliação do período não se aplica" description={applicability.reason} /></div>;
+    return <div className="space-y-6">{header}<StatePanel tone="info" title="Avaliação do período não se aplica" description={humanizeForScreen(applicability.reason)} /></div>;
   if (cloud && !canRead)
     return <div className="space-y-6">{header}<StatePanel tone="warning" title="Consulta não autorizada" description="Sua atuação vigente não concede, pela política homologada, consulta aos resultados desta turma neste período." /></div>;
   if (cloud && !cloudFacts.ready)

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { allowedItems } from "./master-form-model";
 import { callRpc } from "@/lib/rpc-call";
 import { knownLabel } from "@/config/ui-vocabulary";
@@ -147,7 +148,7 @@ function SchoolOrder({ school, competence, order, items: allItems, units, pubs, 
       <p>Situação: {order ? knownLabel(ORDER_STATUS_LABEL, order.status) : "sem pedido"}{order ? ` · janela fecha em ${new Date(order.window_closes_at).toLocaleString("pt-BR", { timeZone: order.window_time_zone })} (${order.window_time_zone})` : ""}</p>
       {pubs.length > 0 && <label className="block max-w-sm">Quem a escola atende<select className={field} disabled={!editable} value={publico} onChange={(e) => choosePublico(e.target.value)}><option value="">escolha</option>{pubs.map((p) => <option key={p.logical_id} value={p.logical_id}>{String(p.payload["rotulo"] ?? "público")}</option>)}</select>
         <span className="text-xs text-muted-foreground">Os itens que esse público não recebe nem aparecem na lista.</span></label>}
-      {order?.reason && <p className="text-muted-foreground">Motivo registrado: {order.reason}</p>}
+      {order?.reason && <p className="text-muted-foreground">Motivo registrado: {humanizeForScreen(order.reason)}</p>}
       {lines.map((l, i) => (
         <div key={i} className="grid gap-2 sm:grid-cols-4">
           <label>Item<select className={field} disabled={!editable} value={l.item_ref} onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, item_ref: e.target.value } : x)))}>{items.map((it) => <option key={it.logical_id} value={it.logical_id}>{String(it.payload["nome"])}</option>)}</select></label>

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -150,7 +151,7 @@ function Builder() {
             {joinsAvail.map((j) => <option key={j.id} value={j.id}>{cat.sources[j.from]?.label} → {cat.sources[j.to]?.label} ({j.card})</option>)}
           </select></label>}
         {gaps.length > 0 && <div className="rounded border border-border bg-muted/40 p-2 text-xs" aria-label="Ligações inexistentes"><p className="font-semibold">Ligações que não existem nos dados (o resto do gerador funciona):</p>
-          <ul className="list-disc pl-4">{gaps.map((g) => <li key={g.from + g.to}>{cat.sources[g.from]?.label} × {cat.sources[g.to]?.label}: {g.reason}</li>)}</ul></div>}
+          <ul className="list-disc pl-4">{gaps.map((g) => <li key={g.from + g.to}>{cat.sources[g.from]?.label} × {cat.sources[g.to]?.label}: {humanizeForScreen(g.reason)}</li>)}</ul></div>}
         {spec.source && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={spec.includeSensitive} onChange={(e) => setSpec((s) => ({ ...s, includeSensitive: e.target.checked }))} />
           Incluir dados pessoais (nomes, nascimento, matrícula) — só o que sua conta já pode ler; o QR público nunca mostra esses dados.</label>}
       </section>

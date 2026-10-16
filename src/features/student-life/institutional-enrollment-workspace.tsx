@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
@@ -433,7 +434,7 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
         {fix && (
           <div className="flex flex-wrap gap-2 rounded-md border border-border p-2">
             <DateInput aria-label="Nova data de efeito" value={fix.date} onChange={(e) => setFix({ ...fix, date: e.target.value })} />
-            <Input aria-label="Motivo da retificação" className="w-64" placeholder="Motivo da retificação" value={fix.reason} onChange={(e) => setFix({ ...fix, reason: e.target.value })} />
+            <Input aria-label="Motivo da retificação" className="w-64" placeholder="Motivo da retificação" value={humanizeForScreen(fix.reason)} onChange={(e) => setFix({ ...fix, reason: e.target.value })} />
             <Button size="sm" disabled={!fix.date || !fix.reason.trim() || !typeOf(fix.row.movement_type_id)} onClick={() => run(() => recordStudentMovement({
               logicalId: fix.row.logical_id, baseVersionId: fix.row.id, studentId: fix.row.student_id, enrollmentId: fix.row.enrollment_id,
               type: typeOf(fix.row.movement_type_id)!, effectiveOn: fix.date,

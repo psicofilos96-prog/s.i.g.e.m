@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { operationalToday } from "@/lib/academic-date";
 import { userErrorText } from "@/lib/observability/governed-errors";
@@ -83,7 +84,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
             <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold">{b.title}</h2><span className="text-xs text-muted-foreground">{STATE_LABEL[b.state]}</span></div>
             <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? "—"}</p>
             <p className="text-xs">{b.detail}</p>
-            {b.reason && <p className="text-xs text-muted-foreground">{b.reason}</p>}
+            {b.reason && <p className="text-xs text-muted-foreground">{humanizeForScreen(b.reason)}</p>}
             {k && !b.supportsKnownAt && <p className="text-xs text-muted-foreground">Esta fonte não reproduz “conhecido até”.</p>}
           </Link>))}
       </section>

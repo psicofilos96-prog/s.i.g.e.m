@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
@@ -96,7 +97,7 @@ function SchoolView({ perspective, school, validOn, knownAt }: { perspective: "o
                 <li key={kind} className="rounded-lg border border-l-4 border-l-warning bg-card p-4">
                   <p className="font-semibold">{q.title} <span className="font-normal text-muted-foreground">· {items.length}</span></p>
                   <dl className="mt-1 grid gap-1 text-sm sm:grid-cols-[8rem_1fr]">
-                    <dt className="text-muted-foreground">Motivo</dt><dd>{q.reason}</dd>
+                    <dt className="text-muted-foreground">Motivo</dt><dd>{humanizeForScreen(q.reason)}</dd>
                     <dt className="text-muted-foreground">Prazo</dt><dd>{deadlineText(q.deadline)}</dd>
                     <dt className="text-muted-foreground">Próxima ação</dt><dd className="font-medium">{q.next}</dd>
                   </dl>
@@ -212,7 +213,7 @@ function Records({ school, subject, knownAt, onBack, mode }: { mode: "acompanhar
             </li>))}</ul>}
       {history && <div className="rounded border p-2 text-xs" role="region" aria-label="Histórico do registro">
         <div className="flex justify-between"><strong>Histórico</strong><Button size="sm" variant="ghost" onClick={() => setHistory(null)}>Fechar</Button></div>
-        <ol>{history.items.sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {formatDateTime(h.recorded_at)}{h.reason ? ` · motivo: ${h.reason}` : ""} — {h.body}</li>)}</ol></div>}
+        <ol>{history.items.sort((a, b) => a.version - b.version).map((h) => <li key={h.id}>v{h.version} · {h.event_kind} · {formatDateTime(h.recorded_at)}{h.reason ? ` · motivo: ${humanizeForScreen(h.reason)}` : ""} — {h.body}</li>)}</ol></div>}
       {!err && mode === "acompanhar" && (
         <div className="space-y-2 rounded border p-3 text-sm">
           <h3 className="font-medium">Novo registro</h3>

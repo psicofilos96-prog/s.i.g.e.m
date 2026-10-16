@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
 import { AttendanceCalendarNoticePanel } from "@/features/calendar/institutional-calendar-notices";
@@ -483,7 +484,7 @@ function AttendanceWorkspace({
             {excluded.map((item) => (
               <li key={item.id}>
                 <span className="font-medium text-foreground">{item.name}</span> ·{" "}
-                <span className="text-muted-foreground">{item.reason}</span>
+                <span className="text-muted-foreground">{humanizeForScreen(item.reason)}</span>
               </li>
             ))}
           </ul>

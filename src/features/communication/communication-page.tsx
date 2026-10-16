@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { callRpc } from "@/lib/rpc-call";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
@@ -107,7 +108,7 @@ function Editor({ school, classes, base, onDone }: { school: string; classes: { 
         {f.audience === "familias-da-turma" && <label>Turma<select className={field} value={f.cls} onChange={(e) => setF({ ...f, cls: e.target.value })}><option value="">Escolha…</option>{classes.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select></label>}
       </div>
       <label className="flex items-center gap-2"><input type="checkbox" checked={f.ack} onChange={(e) => setF({ ...f, ack: e.target.checked })} /> Pedir que o responsável declare ciência</label>
-      {base && <label className="block">Motivo da alteração (obrigatório)<input className={field} value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} /></label>}
+      {base && <label className="block">Motivo da alteração (obrigatório)<input className={field} value={humanizeForScreen(f.reason)} onChange={(e) => setF({ ...f, reason: e.target.value })} /></label>}
       <p className="text-xs text-muted-foreground">Os destinatários são calculados na leitura: responsáveis com autorização vigente para comunicados e, na turma, educandos enturmados na data da publicação.</p>
       <Button disabled={!f.title.trim() || !f.body.trim() || (f.audience === "familias-da-turma" && !f.cls) || (!!base && !f.reason.trim())} onClick={() => void save()}>Salvar rascunho</Button>
       {err && <p role="alert">{err}</p>}
@@ -120,7 +121,7 @@ function History({ id }: { id: string }) {
   return (
     <details onToggle={(e) => { if ((e.target as HTMLDetailsElement).open && !h) void call<Hist[]>("school_communication_history", { _communication: id }).then(setH, () => setH([])); }}>
       <summary className="cursor-pointer text-xs underline">Histórico</summary>
-      {h && <ul className="mt-1 text-xs">{h.map((x, i) => <li key={i}>{formatDateTime(x.recorded_at)} · {x.entry_kind === "versao" ? `versão ${x.number}: ${x.detail}` : `${x.entry_kind} (${x.detail})`}{x.reason ? ` — ${x.reason}` : ""}</li>)}</ul>}
+      {h && <ul className="mt-1 text-xs">{h.map((x, i) => <li key={i}>{formatDateTime(x.recorded_at)} · {x.entry_kind === "versao" ? `versão ${x.number}: ${x.detail}` : `${x.entry_kind} (${x.detail})`}{x.reason ? ` — ${humanizeForScreen(x.reason)}` : ""}</li>)}</ul>}
     </details>
   );
 }

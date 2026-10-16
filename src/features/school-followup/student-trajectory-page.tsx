@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday, civilDateOf } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState } from "react";
@@ -46,7 +47,7 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
       </section>
 
       {q.isLoading && <SkeletonState label="Carregando a ficha" />}
-      {t?.result === "unavailable" && <EmptyState title="Ficha indisponível agora" description={t.reason} />}
+      {t?.result === "unavailable" && <EmptyState title="Ficha indisponível agora" description={humanizeForScreen(t.reason)} />}
       {t?.result === "access-denied" && (
         <EmptyState title="Ficha não disponível para você" description="Não há registros deste aluno que sua atuação permita consultar nesta data." />
       )}

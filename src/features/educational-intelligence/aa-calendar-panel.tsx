@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,7 @@ function ItemDetail({ v, caps, onDone }: { v: CalView; caps: { manter: boolean; 
       <div className="space-y-1">
         <h4 className="font-semibold">Histórico</h4>
         <ul className="space-y-1 text-xs">{v.history.map((h) => (
-          <li key={h.id}>v{h.version} · {h.event_kind} · {h.date_text}{h.responsible ? ` · resp.: ${h.responsible}` : ""}{h.reason ? ` · motivo: ${h.reason}` : ""} · {h.executor_label ? `carga técnica (linha ${h.source_line} da fonte)` : "registrado por pessoa"}</li>))}
+          <li key={h.id}>v{h.version} · {h.event_kind} · {h.date_text}{h.responsible ? ` · resp.: ${h.responsible}` : ""}{h.reason ? ` · motivo: ${humanizeForScreen(h.reason)}` : ""} · {h.executor_label ? `carga técnica (linha ${h.source_line} da fonte)` : "registrado por pessoa"}</li>))}
           {v.statuses.map((s) => <li key={s.seq}>Situação {s.seq}: {STATE_LABEL[s.state]}{s.evidence ? ` · evidência: ${s.evidence}` : ""} · {new Date(s.recorded_at).toLocaleString("pt-BR")}</li>)}
         </ul>
       </div>

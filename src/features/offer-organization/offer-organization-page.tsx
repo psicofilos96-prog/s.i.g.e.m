@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
 /**
  * Frente V — "Organização da oferta" da turma: jornada, grade semanal, atribuições docentes,
@@ -391,7 +392,7 @@ function SubstitutionsTab({ c, on, knownAt, canEdit }: TabProps) {
               return (
                 <li key={x.substitutionId} className="rounded border border-border p-2">
                   <span className="font-medium">{tit?.label ?? "Elemento sem rótulo declarado"}</span> — substituição de {formatAcademicDate(x.from)} a {formatAcademicDate(x.until)}
-                  <p className="text-muted-foreground">Motivo: {x.reason}</p>
+                  <p className="text-muted-foreground">Motivo: {humanizeForScreen(x.reason)}</p>
                 </li>);
             })}
           </ul>)}

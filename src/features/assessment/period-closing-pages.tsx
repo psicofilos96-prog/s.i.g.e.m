@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { diaryClassCalendar, useComposedCalendarRefresh } from "@/features/diary/diary-calendar";
 import { diaryReference } from "@/features/diary/diary-session-state";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
@@ -133,7 +134,7 @@ function PeriodClosingBody({ classId, search, authority }: { classId: string; se
   const rules = norms.rules;
   const state = norms.state;
   if (referenceDate.kind === "invalid")
-    return <StatePanel tone="warning" title="Fechamento indisponível" description={referenceDate.reason} />;
+    return <StatePanel tone="warning" title="Fechamento indisponível" description={humanizeForScreen(referenceDate.reason)} />;
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, referenceDate.date);
   const item = context.assignments.find((a) => a.classId === classId);
   const classSearch = diarySearch(search, { professor: context.professionalId, turma: classId });

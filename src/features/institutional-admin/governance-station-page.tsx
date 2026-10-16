@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -66,7 +67,7 @@ export function GovernanceStationPage() {
           <label className="text-sm">Escola (código, opcional)<input className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)} /></label>
           <label className="text-sm">Em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
         </div>
-        {explanation && <p role="status" className="mt-2 text-sm"><strong>{explanation.allowed ? "Pode" : "Não pode"}</strong> — {explanation.reason}</p>}
+        {explanation && <p role="status" className="mt-2 text-sm"><strong>{explanation.allowed ? "Pode" : "Não pode"}</strong> — {humanizeForScreen(explanation.reason)}</p>}
       </section>
 
       <section><h2 className="mb-2 font-medium text-foreground">Quem exerce cada ato</h2>

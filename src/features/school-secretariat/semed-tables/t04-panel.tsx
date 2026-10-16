@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -88,7 +89,7 @@ export function T04Panel({ school, year, network, canFill, editable, draft, setD
         </div>
       )}
       <div><h4 className="mb-1 text-xs font-semibold">Distorção série × idade (% da linha com idade ≥ a idade de distorção da regra)</h4><DistortionChart rows={rows} /></div>
-      {adjs.length > 0 && <details className="text-xs"><summary>Ajustes registrados ({adjs.length})</summary><ol>{adjs.map((a, i) => <li key={i}>{new Date(a.created_at).toLocaleString("pt-BR")} · {a.cell_key}: {a.computed_value ?? "—"} → {a.value ?? "—"} · {a.reason}</li>)}</ol></details>}
+      {adjs.length > 0 && <details className="text-xs"><summary>Ajustes registrados ({adjs.length})</summary><ol>{adjs.map((a, i) => <li key={i}>{new Date(a.created_at).toLocaleString("pt-BR")} · {a.cell_key}: {a.computed_value ?? "—"} → {a.value ?? "—"} · {humanizeForScreen(a.reason)}</li>)}</ol></details>}
       {network && (
         <details className="rounded border p-2 text-xs"><summary className="cursor-pointer font-medium">Registrar nova versão da regra (rede)</summary>
           <div className="mt-2 grid gap-2 sm:grid-cols-2">

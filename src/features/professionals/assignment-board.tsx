@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -91,7 +92,7 @@ export function AssignmentBoard({ lines, proposals, candidatesFor, labels, canPr
           {intent && (
             <div className="space-y-1">
               <Button disabled={!submit.enabled} onClick={async () => { if (onPropose) { await onPropose(intent); setMessage("Proposta enviada para análise. Ela ainda não é atribuição."); setIntent(null); } }}>Enviar como proposta</Button>
-              {submit.reason && <p className="text-sm text-muted-foreground">{submit.reason}</p>}
+              {submit.reason && <p className="text-sm text-muted-foreground">{humanizeForScreen(submit.reason)}</p>}
               <p className="text-sm text-muted-foreground">A atribuição só vale depois de análise, validação por outra pessoa competente e ato formal.</p>
             </div>
           )}

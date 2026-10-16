@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -62,7 +63,7 @@ export function ClassRosterPanel({ classId }: { classId: string }) {
                     <td className="py-1"><Link to="/alunos/$id" params={{ id: e.studentId }} className="font-medium hover:underline">{e.studentName ?? "Nome não informado"}</Link>
                       {e.otherActiveClasses > 0 && <span className="ml-2 text-xs text-muted-foreground">também em {e.otherActiveClasses} outra(s) turma(s)</span>}</td>
                     <td>{e.bond === "aee" ? "AEE" : "Regular"}</td>
-                    <td>{e.situation.kind === "vigente" ? "Vigente" : `Encerrado em ${formatAcademicDate(e.situation.on)}${e.situation.reason ? ` · ${e.situation.reason}` : ""}`}</td>
+                    <td>{e.situation.kind === "vigente" ? "Vigente" : `Encerrado em ${formatAcademicDate(e.situation.on)}${e.situation.reason ? ` · ${humanizeForScreen(e.situation.reason)}` : ""}`}</td>
                     <td>{e.validFrom ? formatAcademicDate(e.validFrom) : "não informado"}</td>
                   </tr>
                 ))}

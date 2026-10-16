@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { callRpc } from "@/lib/rpc-call";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { operationalToday } from "@/lib/academic-date";
@@ -108,7 +109,7 @@ function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m
         <label>Temperatura (se aplicável)<input type="number" className={field} value={f.temperature} onChange={set("temperature")} /></label></div>}
       {step === 2 && <div className="space-y-2">
         <label className="block">Observações<input className={field} value={f.note} onChange={set("note")} /></label>
-        {confirmed && <label className="block">Motivo da retificação<input className={field} value={f.reason} onChange={set("reason")} /></label>}
+        {confirmed && <label className="block">Motivo da retificação<input className={field} value={humanizeForScreen(f.reason)} onChange={set("reason")} /></label>}
         {issues.map((i) => <p key={i} className="text-destructive">{i}</p>)}</div>}
       {err && <p role="status">{err}</p>}
       <div className="flex flex-wrap gap-2">

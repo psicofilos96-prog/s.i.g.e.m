@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useLatestRequest } from "@/lib/latest-request";
 import { OffsetPager } from "@/components/sigem/list-pager";
 import { callRpc } from "@/lib/rpc-call";
@@ -66,7 +67,7 @@ export function ReportingCenter({ names, network, defaultSchool }: { names: Map<
                     const text = c.state === "AVAILABLE" || c.state === "ZERO" ? (c.state === "ZERO" ? "Nenhum" : String(c.value)) : STATE_TEXT[c.state];
                     return (
                       <li key={r.key} className="flex items-baseline justify-between gap-2">
-                        <span className="min-w-0">{KEY_LABEL[r.key] ?? r.key}{c.reason && <span className="block text-xs text-muted-foreground">{c.reason}</span>}</span>
+                        <span className="min-w-0">{KEY_LABEL[r.key] ?? r.key}{c.reason && <span className="block text-xs text-muted-foreground">{humanizeForScreen(c.reason)}</span>}</span>
                         {f && c.state !== "ZERO" ? <button type="button" className="shrink-0 rounded px-1 font-semibold tabular-nums underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
                           aria-label={`Ver registros: ${KEY_LABEL[r.key] ?? r.key}`} onClick={() => setDrill({ dataset: ds, key: r.key, filters: f })}>{text}</button>
                           : <span className="shrink-0 font-semibold tabular-nums">{text}</span>}
@@ -78,7 +79,7 @@ export function ReportingCenter({ names, network, defaultSchool }: { names: Map<
           <div className="rounded-lg border p-3">
             <h3 className="font-medium">Regras e fontes pendentes</h3>
             <p className="text-xs text-muted-foreground">Ainda sem número: falta a regra de cálculo.</p>
-            <ul className="mt-1 grid gap-1 sm:grid-cols-2">{blocked.map((b) => <li key={b.key}><span className="font-medium">{KEY_LABEL[b.key] ?? b.key}</span>: Bloqueado <span className="block text-xs text-muted-foreground">{b.reason}</span></li>)}</ul>
+            <ul className="mt-1 grid gap-1 sm:grid-cols-2">{blocked.map((b) => <li key={b.key}><span className="font-medium">{KEY_LABEL[b.key] ?? b.key}</span>: Bloqueado <span className="block text-xs text-muted-foreground">{humanizeForScreen(b.reason)}</span></li>)}</ul>
           </div>
         </>)}
       {drill && <DrillPanel drill={drill} school={school} from={from} to={to} names={names} onClose={() => setDrill(null)} />}

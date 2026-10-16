@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /**
  * CADASTRAR ALUNO — piloto do padrão de interação do SIGEM 2.0 (13UX · Rodada 4).
  *
@@ -332,7 +333,7 @@ export function PersonWorkspacePage({
                 ) : null}
               </div>
               <InstitutionalDetails summary="Ver por que apareceu aqui">
-                <p>{match.reason}</p>
+                <p>{humanizeForScreen(match.reason)}</p>
                 <p className="mt-1">
                   Identificador SIGEM {match.person.identifiers.sigemId} · identificador externo{" "}
                   {maskIdentifier(match.person.identifiers.educationalExternalId)}

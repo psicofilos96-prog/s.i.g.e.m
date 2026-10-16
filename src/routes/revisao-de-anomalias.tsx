@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -52,7 +53,7 @@ function Page() {
           <section key={s.id} className="space-y-2 rounded-lg border border-border bg-card p-4">
             <h2 className="font-semibold">{s.title}</h2>
             <p className="text-xs text-muted-foreground">População: {s.population}.</p>
-            {o.state === "nao-verificavel" ? <p className="text-sm">Não verificável: {o.reason}</p> : (
+            {o.state === "nao-verificavel" ? <p className="text-sm">Não verificável: {humanizeForScreen(o.reason)}</p> : (
               <p className="text-sm text-muted-foreground">{o.evaluated} pontos avaliados; {o.skippedSmall} ignorados por grupo pequeno; {o.missing} sem dado.</p>
             )}
             {o.state === "verificado" && signals.length === 0 && <p className="text-sm">Nada para revisar.</p>}

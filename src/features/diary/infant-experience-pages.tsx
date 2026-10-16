@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { isDiaryCloud } from "./diary-persistence-mode";
 import { newLogicalId, registerInfantExperienceInCloud } from "./diary-cloud";
@@ -423,7 +424,7 @@ function IndividualObservations({
           <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
             {unavailable.map((item) => (
               <li key={item.id}>
-                <strong>{item.name}:</strong> {item.reason}
+                <strong>{item.name}:</strong> {humanizeForScreen(item.reason)}
               </li>
             ))}
           </ul>

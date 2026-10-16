@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { DateInput } from "@/components/sigem/date-input";
@@ -196,7 +197,7 @@ export function JourneyAgenda({ search, date }: { search: DiarySearch; date: str
           </p>
           {calendar?.kind === "indeterminado" ? (
             <p className="text-xs text-muted-foreground" data-testid="agenda-calendar-notice">
-              {calendar.reason} Nenhuma aula é prevista nem ausência é gerada a partir da grade.
+              {humanizeForScreen(calendar.reason)} Nenhuma aula é prevista nem ausência é gerada a partir da grade.
             </p>
           ) : null}
         </div>

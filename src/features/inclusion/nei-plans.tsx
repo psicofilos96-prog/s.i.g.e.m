@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { LoadingState } from "@/components/sigem/states";
 import { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
@@ -88,7 +89,7 @@ function PlanCard({ p, role, onSaved, studentName }: { p: Plan; role: "gestao" |
         <Button size="sm" variant="outline" onClick={() => setOpen(!open)}>{open ? "Fechar" : "Abrir"}</Button>
         <Button size="sm" variant="outline" onClick={() => planPdf(p, shown, studentName)}>PDF da v{shown.version}</Button></div>
       {open ? <div className="space-y-2">
-        <label className="text-xs">Versão exibida no PDF/histórico <select className={input + " w-auto"} value={viewV} onChange={(e) => setViewV(Number(e.target.value))}>{p.versions.map((v) => <option key={v.id} value={v.version}>v{v.version} · {STATUS_LABEL[v.status]}{v.reason ? ` · ${v.reason}` : ""}</option>)}</select></label>
+        <label className="text-xs">Versão exibida no PDF/histórico <select className={input + " w-auto"} value={viewV} onChange={(e) => setViewV(Number(e.target.value))}>{p.versions.map((v) => <option key={v.id} value={v.version}>v{v.version} · {STATUS_LABEL[v.status]}{v.reason ? ` · ${humanizeForScreen(v.reason)}` : ""}</option>)}</select></label>
         {PLAN_FIELDS.map((f) => <label key={f.key} className="block text-xs font-medium">{f.label}<textarea className={input} rows={2} disabled={!can} value={c[f.key]} onChange={(e) => setC({ ...c, [f.key]: e.target.value })} /></label>)}
         <div className="space-y-1"><p className="text-xs font-medium">Metas</p>
           {c.metas.map((m, i) => <div key={i} className="flex gap-1">

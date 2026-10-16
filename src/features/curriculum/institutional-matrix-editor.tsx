@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 /**
  * B4.1.3 — Editor institucional de versões da matriz curricular.
@@ -113,7 +114,7 @@ export function MatrixVersionEditor({ initial, onDone, onCancel }: {
         {d.mode !== "constituicao" && (
           <div className="space-y-1 sm:col-span-2">
             <Label htmlFor="m-reason">Motivo da nova versão</Label>
-            <Textarea id="m-reason" value={d.reason} onChange={(e) => set({ reason: e.target.value })} />
+            <Textarea id="m-reason" value={humanizeForScreen(d.reason)} onChange={(e) => set({ reason: e.target.value })} />
             <FieldError field="reason" />
             <FieldError field="base" />
           </div>

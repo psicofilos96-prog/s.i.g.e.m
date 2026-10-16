@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -107,7 +108,7 @@ export function MediatorCentralPage({ studentId }: { studentId: string }) {
           <label className="block text-sm font-medium text-foreground" htmlFor="med-note">Observação objetiva (opcional)</label>
           <textarea id="med-note" value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} rows={3}
             className="w-full rounded-md border border-input bg-background p-3 text-base text-foreground placeholder:text-muted-foreground" placeholder="O que foi feito, sem diagnóstico" />
-          <ul className="space-y-1 text-sm text-muted-foreground" role="status">{problems.map((p) => <li key={p}>{p}</li>)}<li>{submit.reason}</li></ul>
+          <ul className="space-y-1 text-sm text-muted-foreground" role="status">{problems.map((p) => <li key={p}>{p}</li>)}<li>{humanizeForScreen(submit.reason)}</li></ul>
           <button type="button" disabled className="min-h-11 w-full rounded-md border border-border text-sm text-muted-foreground">Registrar (indisponível)</button>
           <Link to="/inclusao/nei/apoio" className="flex min-h-11 items-center justify-center rounded-md border border-border bg-card text-sm font-medium text-foreground">Solicitar orientação ao NEI</Link>
         </section>

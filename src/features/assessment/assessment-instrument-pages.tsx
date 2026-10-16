@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { presentState } from "@/config/state-presentation";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { useClassConfigurationState } from "@/features/assessment/assessment-normative-sources";
@@ -452,7 +453,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
                 <OfficialityNote source={period.source} />
               </p>
             ) : (
-              <p className="text-destructive">{period.reason}</p>
+              <p className="text-destructive">{humanizeForScreen(period.reason)}</p>
             )
           ) : (
             <p className="text-muted-foreground">O período é definido automaticamente pela data.</p>

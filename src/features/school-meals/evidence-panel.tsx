@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -53,7 +54,7 @@ export function EvidencePanel({ kind, target, canWrite }: { kind: EvidenceTarget
       {rows === null ? <SkeletonState label="Carregando" /> : rows.length === 0 ? <p className="text-muted-foreground">Nenhuma evidência anexada.</p> : (
         <ul className="divide-y">{rows.map((e) => (
           <li key={e.id} className={`flex flex-wrap items-center justify-between gap-2 py-1 ${e.is_head ? "" : "text-muted-foreground"}`}>
-            <span>v{e.version} · {EVIDENCE_EVENT_LABEL[e.event_kind]} · {e.label ?? "sem título"} · {e.media_type ?? "—"} · {kb(e.size_bytes)} · {formatDateTime(e.recorded_at)}{e.reason ? ` · motivo: ${e.reason}` : ""}</span>
+            <span>v{e.version} · {EVIDENCE_EVENT_LABEL[e.event_kind]} · {e.label ?? "sem título"} · {e.media_type ?? "—"} · {kb(e.size_bytes)} · {formatDateTime(e.recorded_at)}{e.reason ? ` · motivo: ${humanizeForScreen(e.reason)}` : ""}</span>
             <span className="flex gap-1">
               {e.readable && <Button size="sm" variant="outline" onClick={() => void view(e)}>Ver</Button>}
               {canWrite && e.is_head && e.event_kind !== "revogacao" && <>

@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 /** Tecnologia L03 — painel operacional. Nada é lido antes da sessão; leitura pela RLS do usuário; não grava. */
 import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
@@ -81,7 +82,7 @@ function Dashboard() {
           {p.status === "ok" ? (Object.keys(p.values).length ? (
             <dl className="mt-2 grid grid-cols-2 gap-1 text-sm">{Object.entries(p.values).map(([k, n]) => (<div key={k} className="flex justify-between gap-2"><dt className="text-muted-foreground">{k}</dt><dd className="font-semibold">{n}</dd></div>))}</dl>
           ) : <p className="mt-2 text-sm text-muted-foreground">Nenhum registro visível.</p>)
-            : <p role="status" className="mt-2 text-sm text-muted-foreground">Indisponível: {p.reason}</p>}
+            : <p role="status" className="mt-2 text-sm text-muted-foreground">Indisponível: {humanizeForScreen(p.reason)}</p>}
           <p hidden data-provenance className="mt-2 text-xs text-muted-foreground">Fonte: {p.source}</p>
         </section>))}</div>
     </div>

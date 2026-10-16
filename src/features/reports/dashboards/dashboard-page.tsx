@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { DateInput } from "@/components/sigem/date-input";
 import { LoadingState } from "@/components/sigem/states";
 /**
@@ -254,7 +255,7 @@ function WidgetEditor({ cat, initial, onSave, onCancel }: { cat: Catalog; initia
             {spec.joins.length ? <span className="text-xs text-muted-foreground">Cruzado com: {spec.joins.map((id) => cat.sources[cat.joins.find((j) => j.id === id)!.to]?.label).join(", ")}
               <button type="button" className="ml-2 underline" onClick={() => set({ joins: [], groupBy: [], measures: [], columns: [] })}>desfazer</button></span> : null}
           </div>
-          {gapsFor(cat, spec).length ? <ul className="text-xs text-muted-foreground">{gapsFor(cat, spec).map((g, i) => <li key={i}>Sem ligação {g.from} × {g.to}: {g.reason}</li>)}</ul> : null}
+          {gapsFor(cat, spec).length ? <ul className="text-xs text-muted-foreground">{gapsFor(cat, spec).map((g, i) => <li key={i}>Sem ligação {g.from} × {g.to}: {humanizeForScreen(g.reason)}</li>)}</ul> : null}
           {raw ? (
             <div className="flex flex-wrap gap-2">
               <label className="text-sm">Valor numérico

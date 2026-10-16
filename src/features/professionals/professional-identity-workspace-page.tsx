@@ -1,3 +1,4 @@
+import { humanizeForScreen } from "@/config/technical-codes";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
@@ -272,7 +273,7 @@ export function ProfessionalIdentityWorkspacePage({
                                 Nascimento {result.person.birthDate} · CPF{" "}
                                 {maskCpf(result.person.cpf)}
                               </p>
-                              <p className="mt-1 text-xs text-muted-foreground">{result.reason}</p>
+                              <p className="mt-1 text-xs text-muted-foreground">{humanizeForScreen(result.reason)}</p>
                               <div className="mt-2 flex gap-2">
                                 <Button
                                   size="sm"
