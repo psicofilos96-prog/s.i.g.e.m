@@ -54,7 +54,7 @@ export function KitchenStation() {
       {schools === null && !err ? <SkeletonState label="Carregando" />
         : schools && schools.length === 0 ? <StatePanel tone="warning" title="Sem atuação de cozinha" description="Sua atuação não inclui registro de execução da alimentação em nenhuma escola nesta data." />
         : (<>
-          {schools && schools.length > 1 && {!own && <label className="block">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}}
+          {!own && schools && schools.length > 1 && <label className="block">Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Escolha…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
           {err && <StatePanel tone="warning" title="Não disponível" description={err} />}
           {school && day && <KitchenDayView school={school} day={day} slots={slots} docs={docs} onDone={load} today={today} />}
         </>)}
