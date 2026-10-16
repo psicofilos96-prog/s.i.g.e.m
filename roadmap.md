@@ -38,5 +38,5 @@
 - [x] Matrícula: forma de ingresso (aluno novo × transferência, escola de origem da rede/privada/outra)
 
 ## Conta de escola sem seletor de escola (16/10/2026)
-- [ ] Contas de Secretaria/Direção/Orientação: nenhuma tela pede para escolher a escola; dados sempre só da própria escola (Quadro docente, Turmas e demais)
-- [ ] Turmas: lista "demorou demais" na conta da Secretaria
+- [x] Contas de Secretaria/Direção/Orientação: nenhuma tela pede para escolher a escola; dados sempre só da própria escola (Quadro docente, Turmas e demais)
+- [x] Turmas: lista "demorou demais" na conta da Secretaria
