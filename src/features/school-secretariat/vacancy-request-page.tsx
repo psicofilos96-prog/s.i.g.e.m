@@ -128,7 +128,7 @@ function RequestCard({ r, position, onChanged, schoolName }: { r: VacancyRequest
           <label className="text-sm sm:col-span-2">{act === "cancelar" || act === "voltar-a-fila" ? "Motivo" : "Observação (opcional)"}
             <Input className="mt-1" value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} /></label>
           <div className="sm:col-span-3"><Button size="sm" disabled={busy} onClick={send}>Confirmar: {ACTION_LABEL[act]}</Button></div>
-          {err && <p className="text-sm text-destructive sm:col-span-3">{err}</p>}
+          {err && <p role="alert" className="text-sm text-destructive sm:col-span-3">{err}</p>}
         </div>
       )}
     </li>
@@ -170,7 +170,7 @@ function NewRequestForm({ year, onDone }: { year: string; onDone: () => void }) 
       <label className="text-sm">Nome do responsável<Input className="mt-1" value={f.guardian} onChange={set("guardian")} /></label>
       <label className="text-sm">Telefone (com DDD)<Input className="mt-1" inputMode="numeric" value={f.phone} onChange={set("phone")} /></label>
       <label className="text-sm sm:col-span-2">Observação<Input className="mt-1" value={f.note} onChange={set("note")} maxLength={500} /></label>
-      {err && <p className="text-sm text-destructive sm:col-span-2">{err}</p>}
+      {err && <p role="alert" className="text-sm text-destructive sm:col-span-2">{err}</p>}
       <div className="sm:col-span-2"><Button disabled={!ok || busy} onClick={save}>Registrar pedido</Button></div>
     </section>
   );

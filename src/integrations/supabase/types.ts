@@ -34658,6 +34658,98 @@ export type Database = {
           },
         ]
       }
+      student_protection_access_log: {
+        Row: {
+          accessed_at: string
+          accessed_by: string
+          id: string
+          measure_id: string | null
+          school_id: string
+          student_id: string
+          what: string
+        }
+        Insert: {
+          accessed_at?: string
+          accessed_by: string
+          id?: string
+          measure_id?: string | null
+          school_id: string
+          student_id: string
+          what: string
+        }
+        Update: {
+          accessed_at?: string
+          accessed_by?: string
+          id?: string
+          measure_id?: string | null
+          school_id?: string
+          student_id?: string
+          what?: string
+        }
+        Relationships: []
+      }
+      student_protection_events: {
+        Row: {
+          action: string
+          document_path: string | null
+          id: string
+          kind: string
+          measure_id: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          restricted_person: string | null
+          school_id: string
+          seq: number
+          student_id: string
+          summary: string | null
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          action: string
+          document_path?: string | null
+          id?: string
+          kind: string
+          measure_id: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          restricted_person?: string | null
+          school_id: string
+          seq: number
+          student_id: string
+          summary?: string | null
+          valid_from: string
+          valid_until?: string | null
+        }
+        Update: {
+          action?: string
+          document_path?: string | null
+          id?: string
+          kind?: string
+          measure_id?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          restricted_person?: string | null
+          school_id?: string
+          seq?: number
+          student_id?: string
+          summary?: string | null
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_protection_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_registration_events: {
         Row: {
           author_person_id: string
@@ -51704,6 +51796,23 @@ export type Database = {
         }
         Returns: string
       }
+      secretariat_record_protection: {
+        Args: {
+          _action: string
+          _document: string
+          _expected_seq: number
+          _from: string
+          _kind: string
+          _measure: string
+          _person: string
+          _reason: string
+          _school: string
+          _student: string
+          _summary: string
+          _until: string
+        }
+        Returns: string
+      }
       secretariat_record_renewal_term: {
         Args: {
           _address: string
@@ -52330,6 +52439,33 @@ export type Database = {
       student_photo_current: {
         Args: { _school: string; _student: string }
         Returns: string
+      }
+      student_protection_alerts: {
+        Args: { _school: string; _student: string }
+        Returns: {
+          active: boolean
+          kind: string
+          measure_id: string
+          restricted_person: string
+          seq: number
+          valid_from: string
+          valid_until: string
+        }[]
+      }
+      student_protection_detail: {
+        Args: { _measure: string; _school: string }
+        Returns: {
+          action: string
+          document_path: string
+          kind: string
+          reason: string
+          recorded_at: string
+          restricted_person: string
+          seq: number
+          summary: string
+          valid_from: string
+          valid_until: string
+        }[]
       }
       student_registration_observations_for: {
         Args: { _student: string }
