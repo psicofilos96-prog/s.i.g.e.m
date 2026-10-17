@@ -51954,6 +51954,18 @@ export type Database = {
           student_name: string
         }[]
       }
+      secretariat_own_student_listing: {
+        Args: never
+        Returns: {
+          birth_date: string
+          class_id: string
+          class_label: string
+          has_cpf: boolean
+          student_id: string
+          student_name: string
+          vaccination: string
+        }[]
+      }
       secretariat_own_vacancy_requests: {
         Args: { _year: string }
         Returns: {
