@@ -1,5 +1,5 @@
 import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
-import { DeathRecordPanel, ReceiveTransferPanel, RenewalBatchPanel, TransferDeclarationButton } from "./movement-panels";
+import { DeathRecordPanel, ReceiveTransferPanel, RenewalBatchPanel, TransferDeclarationButton, VaccinationPanel } from "./movement-panels";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { SECRETARIAT_TASKS } from "./secretariat-tasks";
 import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date";
@@ -239,6 +239,7 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
       <p className="text-xs text-muted-foreground">Na transferência, a matrícula aqui é encerrada e a história do aluno fica guardada.</p>
       {current ? <Actions school={school} year={year} enrollment={current.ref_id} episode={episode} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
       {rows ? <DeathRecordPanel enrollment={current?.ref_id ?? null} student={student.id} onDone={() => { void load(); onChanged(); }} /> : null}
+      {rows ? <VaccinationPanel school={school} student={student.id} /> : null}
       {rows ? <DocumentPendenciesPanel school={school} student={student.id} enrollment={current?.ref_id ?? null} on={on} /> : null}
     </section>
   );
