@@ -51393,6 +51393,18 @@ export type Database = {
         Args: { _on: string; _school: string; _year: string }
         Returns: Json
       }
+      secretariat_own_student_documents_report: {
+        Args: never
+        Returns: {
+          birth_date: string
+          cpf_required: boolean
+          has_certificate: boolean
+          has_cpf: boolean
+          school_id: string
+          student_id: string
+          student_name: string
+        }[]
+      }
       secretariat_pending_at: {
         Args: { _on: string; _school: string; _year: string }
         Returns: {
@@ -51458,6 +51470,17 @@ export type Database = {
           cpf_required_from: string
           has_certificate: boolean
           has_cpf: boolean
+        }[]
+      }
+      secretariat_student_documents_report: {
+        Args: { _school: string }
+        Returns: {
+          birth_date: string
+          cpf_required: boolean
+          has_certificate: boolean
+          has_cpf: boolean
+          student_id: string
+          student_name: string
         }[]
       }
       secretariat_teaching_candidates: {

@@ -14,7 +14,7 @@
 - [ ] 8. Ofícios escolares oficiais com numeração canônica
 - [ ] 9. Listagens de alunos personalizáveis
 - [ ] 10. Atendimento domiciliar/hospitalar integrado
-- [ ] 11. Relatórios: CPF, aniversariantes, vacinação e renovação
+- [ ] 11. Relatórios: CPF e aniversariantes prontos (relatórios rápidos, própria escola); vacinação e renovação pendentes — vacinação sem fonte registrada
 - [ ] Provar cada fluxo com sessão escolar, testes de isolamento e inspeção dos documentos
 
 - [x] 1. Voltar o design anterior (início e menu originais; tela azul desligada)

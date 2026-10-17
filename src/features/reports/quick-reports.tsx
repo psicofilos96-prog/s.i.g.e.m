@@ -17,6 +17,8 @@ import { analyze, emptySpec, toStudioHtml, toStudioXlsx } from "./report-studio"
 
 export const QUICK_REPORTS: { sourceId: string; sector: Sector; blurb: string }[] = [
   { sourceId: "gerador-panorama-escolas", sector: "secretaria", blurb: "Turmas, matrículas, alunos distintos e pessoal de cada escola, conferidos com o Censo 2026." },
+  { sourceId: "secretaria-sem-cpf", sector: "secretaria", blurb: "Alunos da sua escola nascidos desde a data de exigência que ainda não têm CPF registrado." },
+  { sourceId: "secretaria-aniversariantes", sector: "secretaria", blurb: "Alunos da sua escola que fazem aniversário neste mês, por dia." },
   { sourceId: "gerador-pessoal", sector: "dp", blurb: "Registros das planilhas de pessoal 2026 por escola e setor da SEMED. Nomes só saem se você incluir a coluna." },
 ];
 
