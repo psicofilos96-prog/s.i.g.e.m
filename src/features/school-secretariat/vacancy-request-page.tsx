@@ -16,10 +16,10 @@ import {
   VACANCY_QUEUE_REPORT, VACANCY_REQUEST_MESSAGES, type VacancyRequestAction, type VacancyRequestRow,
 } from "./vacancy-request-bank";
 
-const msg = (e: unknown) => {
+const msg = (e: unknown): string => {
   const m = e instanceof Error ? e.message : String(e);
   const k = Object.keys(VACANCY_REQUEST_MESSAGES).find((x) => m.includes(x));
-  return k ? VACANCY_REQUEST_MESSAGES[k] : "Não foi possível concluir. Tente de novo.";
+  return (k && VACANCY_REQUEST_MESSAGES[k]) || "Não foi possível concluir. Tente de novo.";
 };
 const br = (d: string | null) => (d ? d.slice(0, 10).split("-").reverse().join("/") : "—");
 const TONE = { aguardando: "info", convocada: "warning", matriculada: "success", desistiu: "neutral", "nao-compareceu": "neutral", cancelada: "neutral" } as const;
@@ -85,7 +85,7 @@ export function VacancyRequestPage() {
   );
 }
 
-function RequestCard({ r, position, onChanged }: { r: VacancyRequestRow; position?: number; onChanged: () => void }) {
+function RequestCard({ r, position, onChanged }: { r: VacancyRequestRow; position: number | undefined; onChanged: () => void }) {
   const st = requestState(r.last_action);
   const [act, setAct] = useState<VacancyRequestAction | null>(null);
   const [due, setDue] = useState(defaultDueOn(operationalToday()));
