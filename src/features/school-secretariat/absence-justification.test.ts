@@ -10,7 +10,7 @@ describe("atestados", () => {
   });
   it("atestado anulado não ampara a falta", () => {
     const list = projectJustifications([reg("a", "2026-10-05", "2026-10-07"), { ...reg("a", "2026-10-05", "2026-10-07"), act: "anular", reason: "erro de data" }]);
-    expect(list[0].voided).toBe(true);
+    expect(list[0]?.voided).toBe(true);
     expect(coveredOn(list, "2026-10-06")).toBeNull();
   });
   it("ampara só dentro do período", () => {
