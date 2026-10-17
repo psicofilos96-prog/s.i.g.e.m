@@ -1,5 +1,8 @@
 import { guardUpload, safeLabel, assertSafePath } from "@/features/privacy/upload-policy";
 import { supabase } from "@/integrations/supabase/client";
+import { callRpc } from "@/lib/rpc-call";
+import { z } from "zod";
+import { parseBoundary } from "@/lib/runtime-shape";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import type { Json } from "@/integrations/supabase/types";
 import type { ClassOption, WizardPayload } from "./enrollment-wizard-model";
@@ -15,6 +18,16 @@ export type OpenDraft = {
   draftId: string; sequence: number; step: number; payload: WizardPayload; hasCpf: boolean; cpfHint: string | null;
   inep: string | null; existingStudentId: string | null; existingStudentName: string | null; updatedAt: string; mine: boolean;
 };
+
+export const readCpfRequiredFrom = () => callRpc<string>("secretariat_cpf_required_from");
+const documentStatusSchema = z.array(z.object({ birth_date: z.string().nullable(), has_cpf: z.boolean(), has_certificate: z.boolean(), cpf_required_from: z.string() }));
+export async function readStudentDocumentStatus(school: string, student: string) {
+  const raw = await callRpc<unknown>("secretariat_student_document_status", { _school: school, _student: student });
+  const rows = parseBoundary(documentStatusSchema, raw, "secretariat-student-document-status");
+  const row = rows[0];
+  if (!row) throw new Error("secretariat:not-found");
+  return row;
+}
 
 export async function openDrafts(school: string): Promise<OpenDraft[]> {
   const rows = await rpc<Record<string, unknown>[]>("enrollment_drafts_open", { _school: school });

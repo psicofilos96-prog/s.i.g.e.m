@@ -16,7 +16,10 @@ describe("parâmetros por setor só existem se fazem algo", () => {
     expect(migrations).toMatch(/opened_at AT TIME ZONE 'America\/Sao_Paulo'\)::date \+ dl < _on/);
   });
   it("todo parâmetro tem padrão do sistema: nada bloqueado por falta de definição", () => {
-    for (const p of all) expect(migrations.split("\n").some((l) => l.includes(`'${p.key}'`) && l.includes("::jsonb"))).toBe(true);
+    for (const p of all) {
+      if (p.input.kind === "data") expect(migrations).toContain("DATE '2017-12-01'");
+      else expect(migrations.split("\n").some((l) => l.includes(`'${p.key}'`) && l.includes("::jsonb"))).toBe(true);
+    }
     expect(migrations).toMatch(/coalesce\(\s*\(SELECT v\.value[\s\S]*c\.default_value/);
   });
   it("adesão = refeições servidas ÷ alunos presentes; sem presentes não vira zero", () => {

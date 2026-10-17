@@ -15,6 +15,8 @@ vi.mock("@/features/year-transition/year-transition-source", () => ({
 vi.mock("./secretariat-source", () => ({ readSchoolLife: async () => [{ kind: "vinculo-anual" }, { kind: "turma" }] }));
 vi.mock("./secretariat", () => ({ lifeKindLabel: (k: string) => (k === "turma" ? "Turma" : "Matrícula no ano") }));
 vi.mock("./enrollment-wizard-source", () => ({
+  readCpfRequiredFrom: async () => "2017-12-01",
+  readStudentDocumentStatus: async () => ({ birth_date: "2017-12-01", has_cpf: true, has_certificate: false, cpf_required_from: "2017-12-01" }),
   openDrafts: async () => (db.seq ? [{ draftId: "d-1", sequence: db.seq, step: db.step, payload: db.payload, hasCpf: true, cpfHint: "25", inep: null, existingStudentId: null, existingStudentName: null, updatedAt: "2027-02-01T10:00:00Z", mine: true }] : []),
   saveDraft: async (a: { expected: number; step: number; payload: Record<string, unknown> }) => {
     if (a.expected !== db.seq) throw new Error("P0001: draft:stale-head");
@@ -43,6 +45,7 @@ describe("matrícula guiada — tela", () => {
     expect(screen.getByRole("navigation", { name: "Seções da matrícula" })).toBeTruthy();
     expect(screen.getByText(/Faltam 5 informações obrigatórias/)).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Nome completo"), { target: { value: "E2E Aluno" } });
+    fireEvent.change(screen.getByLabelText("Data de nascimento"), { target: { value: "2017-12-01" } });
     // foto: arquivo falso recusado pelo conteúdo, JPEG real aceito
     const file = screen.getByLabelText("Adicionar foto") as HTMLInputElement;
     fireEvent.change(file, { target: { files: [fake()] } });

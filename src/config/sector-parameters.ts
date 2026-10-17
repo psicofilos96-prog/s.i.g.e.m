@@ -2,7 +2,8 @@
  * Parâmetros por setor. Cada chave existe no catálogo do banco (`sector_parameter_catalog`) E é lida
  * por um cálculo real (`readBy`); o teste `sector-parameters.test.ts` recusa parâmetro sem consumidor.
  */
-export type ParameterKind = { kind: "dias" } | { kind: "percentual" } | { kind: "escolha"; options: readonly { value: string; label: string }[] };
+import { formatAcademicDate } from "@/lib/academic-date";
+export type ParameterKind = { kind: "dias" } | { kind: "percentual" } | { kind: "data" } | { kind: "escolha"; options: readonly { value: string; label: string }[] };
 
 export interface SectorParameter {
   key: string;
@@ -17,6 +18,9 @@ export interface SectorParameter {
 }
 
 export const SECTOR_PARAMETERS: Record<string, readonly SectorParameter[]> = {
+  secretaria: [{ key: "secretaria.cpf-obrigatorio-desde", group: "Identificação", label: "CPF obrigatório para nascidos desde",
+    help: "A partir desta data, inclusive, CPF obrigatório. Para os anteriores, aceita certidão como alternativa. Alterar não modifica matrículas já registradas.",
+    usedIn: [{ label: "Nova matrícula", href: "/matriculas/nova" }], readBy: "secretariat_cpf_required_from", input: { kind: "data" }, undefinedEffect: "" }],
   alimentacao: [
     {
       key: "alimentacao.prazo-nao-conformidade", group: "Prazos", label: "Prazo para resolver não conformidade",
@@ -93,10 +97,12 @@ export function formatParameterValue(p: SectorParameter, v: unknown): string {
   if (v == null) return "Ainda não definido";
   if (p.input.kind === "dias") return `${String(v)} dia(s)`;
   if (p.input.kind === "percentual") return `${String(v)}%`;
+  if (p.input.kind === "data") return formatAcademicDate(String(v));
   return p.input.options.find((o) => o.value === v)?.label ?? "Opção não reconhecida";
 }
 
 const ERR: Record<string, string> = {
+  "parameter:date-invalid": "Informe uma data válida.",
   "parameter:reason-required": "Escreva o motivo da alteração.",
   "parameter:days-invalid": "Informe um número inteiro de dias entre 1 e 365.",
   "parameter:percent-invalid": "Informe um percentual entre 1 e 99.",
