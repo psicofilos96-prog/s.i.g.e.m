@@ -51306,6 +51306,7 @@ export type Database = {
         }
         Returns: string
       }
+      secretariat_cpf_required_from: { Args: never; Returns: string }
       secretariat_create_class: {
         Args: {
           _capacity: number
@@ -51346,6 +51347,10 @@ export type Database = {
           _start_on: string
         }
         Returns: Json
+      }
+      secretariat_document_problem: {
+        Args: { _birth: string; _has_certificate: boolean; _has_cpf: boolean }
+        Returns: string
       }
       secretariat_emit_transfer_declaration: {
         Args: { _enrollment: string }
@@ -51445,6 +51450,15 @@ export type Database = {
           _image: boolean
         }
         Returns: string
+      }
+      secretariat_student_document_status: {
+        Args: { _school: string; _student: string }
+        Returns: {
+          birth_date: string
+          cpf_required_from: string
+          has_certificate: boolean
+          has_cpf: boolean
+        }[]
       }
       secretariat_teaching_candidates: {
         Args: { _on: string; _school: string }
