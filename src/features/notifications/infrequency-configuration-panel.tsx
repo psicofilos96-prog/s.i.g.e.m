@@ -7,13 +7,13 @@ import { callRpc } from "@/lib/rpc-call";
 import { canConfigureInfrequency, configurationMessage, readInfrequencyConfiguration, type InfrequencyConfiguration } from "./infrequency-configuration";
 export function InfrequencyConfigurationPanel() {
   const authority = useSessionAuthority();
-  const allowed = authority.status === "signed-in" && canConfigureInfrequency(authority.capabilities);
+  const allowed = authority.status === "signed-in" && canConfigureInfrequency(authority.capabilities, authority.principal?.scope === "school");
   const uid = authority.status === "signed-in" ? authority.user.id : null;
   const query = useQuery({
     queryKey: ["infrequency-configuration", uid], enabled: allowed,
     queryFn: async () => readInfrequencyConfiguration(await callRpc("infrequency_notification_configuration")), retry: false,
   });
-  if (!allowed) return null;
+  if (!allowed || (query.isError && configurationMessage(query.error).startsWith("Sua conta"))) return null;
   return <section className="space-y-3" aria-labelledby="infrequency-communication-title">
     <h3 id="infrequency-communication-title" className="font-semibold">Avisos de infrequência</h3>
     {query.isPending ? <p role="status">Carregando aviso…</p> : query.isError ? <div role="alert"><p>{configurationMessage(query.error)}</p><Button variant="outline" onClick={() => void query.refetch()}>Tentar novamente</Button></div>
