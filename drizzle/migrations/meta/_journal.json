@@ -3900,6 +3900,13 @@
       "when": 1792257731350,
       "tag": "0556_secretariat_student_consents",
       "breakpoints": true
+    },
+    {
+      "idx": 557,
+      "version": "7",
+      "when": 1792258492163,
+      "tag": "0557_secretariat_protective_measures",
+      "breakpoints": true
     }
   ]
 }
