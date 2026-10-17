@@ -65,6 +65,15 @@ const MSG: [RegExp, string][] = [
   [/class-full/, "A turma está lotada: a capacidade informada já foi atingida. Escolha outra turma."],
   [/destination-invalid/, "Escola de destino inválida."],
   [/correction-reason-required/, "Informe o motivo."],
+  [/student:deceased/, "Este aluno tem óbito registrado: nenhuma matrícula, transferência ou renovação é possível."],
+  [/death:certificate-required/, "Informe o número da certidão de óbito."],
+  [/death:already-recorded/, "O óbito deste aluno já foi registrado."],
+  [/death:use-death-form/, "Use o formulário de registro de óbito."],
+  [/transfer:already-here/, "O aluno já está matriculado nesta escola neste ano."],
+  [/transfer:no-history/, "Este aluno não tem matrícula anterior na rede. Use a Nova matrícula."],
+  [/declaration:not-transferred/, "A declaração só é emitida depois de registrar a saída como Transferência."],
+  [/enrollment:capability-missing|lookup:capability-missing/, "Sua conta não tem permissão de matrícula nesta escola."],
+  [/active-elsewhere/, "O aluno está ativo em outra escola: use Receber transferência."],
 ];
 export function secretariatMessage(raw: string): string {
   return MSG.find(([r]) => r.test(raw))?.[1] ?? "Não foi possível concluir. Nada foi gravado.";
