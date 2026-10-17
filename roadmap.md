@@ -11,6 +11,7 @@
 - [ ] 5. Atestados médicos integrados à frequência
 - [ ] 6. Notificação automatizada de infrequência pelo canal canônico
 - [x] 7. Monitoramento vacinal: ficha do aluno registra em dia/pendente (prazo 30 dias), histórico append-only, testado
+- [ ] Prazo vacinal em Parâmetros: padrão 30 dias, novas declarações usam o valor vigente sem alterar prazos já registrados; verificar com sessão escolar
 - [ ] 8. Ofícios escolares oficiais com numeração canônica
 - [ ] 9. Listagens de alunos personalizáveis
 - [ ] 10. Atendimento domiciliar/hospitalar integrado

@@ -3963,6 +3963,13 @@
       "when": 1792263573493,
       "tag": "0565_diary_justified_by_class",
       "breakpoints": true
+    },
+    {
+      "idx": 566,
+      "version": "7",
+      "when": 1792264933392,
+      "tag": "0566_vaccination_configurable_deadline",
+      "breakpoints": true
     }
   ]
 }
