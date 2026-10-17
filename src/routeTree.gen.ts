@@ -174,6 +174,7 @@ import { Route as RelatoriosPaineisRouteImport } from './routes/relatorios_.pain
 import { Route as RelatoriosPersonalizadoRouteImport } from './routes/relatorios_.personalizado'
 import { Route as RelatoriosSetoresRouteImport } from './routes/relatorios_.setores'
 import { Route as SecretariaFilaDeVagasRouteImport } from './routes/secretaria_.fila-de-vagas'
+import { Route as SecretariaInfrequenciaRouteImport } from './routes/secretaria_.infrequencia'
 import { Route as SecretariaLivroMatriculaRouteImport } from './routes/secretaria_.livro-matricula'
 import { Route as SecretariaModelosDeTextoRouteImport } from './routes/secretaria_.modelos-de-texto'
 import { Route as SecretariaServicosRouteImport } from './routes/secretaria_.servicos'
@@ -1134,6 +1135,11 @@ const SecretariaFilaDeVagasRoute = SecretariaFilaDeVagasRouteImport.update({
   path: '/secretaria/fila-de-vagas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecretariaInfrequenciaRoute = SecretariaInfrequenciaRouteImport.update({
+  id: '/secretaria_/infrequencia',
+  path: '/secretaria/infrequencia',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SecretariaLivroMatriculaRoute =
   SecretariaLivroMatriculaRouteImport.update({
     id: '/secretaria_/livro-matricula',
@@ -1996,6 +2002,7 @@ export interface FileRoutesByFullPath {
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios/setores': typeof RelatoriosSetoresRoute
   '/secretaria/fila-de-vagas': typeof SecretariaFilaDeVagasRoute
+  '/secretaria/infrequencia': typeof SecretariaInfrequenciaRoute
   '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria/servicos': typeof SecretariaServicosRoute
@@ -2270,6 +2277,7 @@ export interface FileRoutesByTo {
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios/setores': typeof RelatoriosSetoresRoute
   '/secretaria/fila-de-vagas': typeof SecretariaFilaDeVagasRoute
+  '/secretaria/infrequencia': typeof SecretariaInfrequenciaRoute
   '/secretaria/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria/servicos': typeof SecretariaServicosRoute
@@ -2544,6 +2552,7 @@ export interface FileRoutesById {
   '/relatorios_/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios_/setores': typeof RelatoriosSetoresRoute
   '/secretaria_/fila-de-vagas': typeof SecretariaFilaDeVagasRoute
+  '/secretaria_/infrequencia': typeof SecretariaInfrequenciaRoute
   '/secretaria_/livro-matricula': typeof SecretariaLivroMatriculaRoute
   '/secretaria_/modelos-de-texto': typeof SecretariaModelosDeTextoRoute
   '/secretaria_/servicos': typeof SecretariaServicosRoute
@@ -2836,6 +2845,7 @@ export interface FileRouteTypes {
     | '/relatorios/personalizado'
     | '/relatorios/setores'
     | '/secretaria/fila-de-vagas'
+    | '/secretaria/infrequencia'
     | '/secretaria/livro-matricula'
     | '/secretaria/modelos-de-texto'
     | '/secretaria/servicos'
@@ -3110,6 +3120,7 @@ export interface FileRouteTypes {
     | '/relatorios/personalizado'
     | '/relatorios/setores'
     | '/secretaria/fila-de-vagas'
+    | '/secretaria/infrequencia'
     | '/secretaria/livro-matricula'
     | '/secretaria/modelos-de-texto'
     | '/secretaria/servicos'
@@ -3383,6 +3394,7 @@ export interface FileRouteTypes {
     | '/relatorios_/personalizado'
     | '/relatorios_/setores'
     | '/secretaria_/fila-de-vagas'
+    | '/secretaria_/infrequencia'
     | '/secretaria_/livro-matricula'
     | '/secretaria_/modelos-de-texto'
     | '/secretaria_/servicos'
@@ -3652,6 +3664,7 @@ export interface RootRouteChildren {
   RelatoriosPersonalizadoRoute: typeof RelatoriosPersonalizadoRoute
   RelatoriosSetoresRoute: typeof RelatoriosSetoresRoute
   SecretariaFilaDeVagasRoute: typeof SecretariaFilaDeVagasRoute
+  SecretariaInfrequenciaRoute: typeof SecretariaInfrequenciaRoute
   SecretariaLivroMatriculaRoute: typeof SecretariaLivroMatriculaRoute
   SecretariaModelosDeTextoRoute: typeof SecretariaModelosDeTextoRoute
   SecretariaServicosRoute: typeof SecretariaServicosRoute
@@ -4841,6 +4854,13 @@ declare module '@tanstack/react-router' {
       path: '/secretaria/fila-de-vagas'
       fullPath: '/secretaria/fila-de-vagas'
       preLoaderRoute: typeof SecretariaFilaDeVagasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secretaria_/infrequencia': {
+      id: '/secretaria_/infrequencia'
+      path: '/secretaria/infrequencia'
+      fullPath: '/secretaria/infrequencia'
+      preLoaderRoute: typeof SecretariaInfrequenciaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/secretaria_/livro-matricula': {
@@ -6515,6 +6535,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosPersonalizadoRoute: RelatoriosPersonalizadoRoute,
   RelatoriosSetoresRoute: RelatoriosSetoresRoute,
   SecretariaFilaDeVagasRoute: SecretariaFilaDeVagasRoute,
+  SecretariaInfrequenciaRoute: SecretariaInfrequenciaRoute,
   SecretariaLivroMatriculaRoute: SecretariaLivroMatriculaRoute,
   SecretariaModelosDeTextoRoute: SecretariaModelosDeTextoRoute,
   SecretariaServicosRoute: SecretariaServicosRoute,
