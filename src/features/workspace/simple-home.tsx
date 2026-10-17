@@ -29,6 +29,7 @@ export function SimpleHome({ userId, authority }: { userId: string; authority: S
         <h1 className="font-display text-3xl sm:text-4xl">{greeting(now.getHours())}{name ? `, ${name}` : ""}</h1>
         <p className="mt-1 text-lg text-muted-foreground">{today.charAt(0).toUpperCase() + today.slice(1)}</p>
       </header>
+      {authority.status === "signed-in" && authority.principal?.scope === "school" && authority.principal.schoolId ? <SchoolNoticeBoard schoolId={authority.principal.schoolId} /> : null}
 
       <section aria-label="O que você quer fazer">
         {primary.length === 0 ? (
