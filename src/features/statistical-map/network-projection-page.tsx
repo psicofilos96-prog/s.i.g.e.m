@@ -17,6 +17,11 @@ import {
   type Measure, type MonthWindow, type SchoolProjection,
 } from "./network-projection";
 import { MONTH_NAMES } from "@/lib/format-ptbr";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { classifySchool, type SchoolClassification } from "./declared-inconsistencies";
+import { NETWORK_CATEGORIES, NETWORK_CATEGORY_LABEL, inCategory, type NetworkCategory } from "@/features/ciece/network-categories";
+import { NetworkConsolidation } from "./network-consolidation";
 
 type Result = { window: MonthWindow; scope: string; schools: SchoolProjection[]; authorized: boolean; coverage: null | { official: string[]; unreadable: boolean } };
 
@@ -40,6 +45,17 @@ export function NetworkProjectionPage() {
   const [knownAt, setKnownAt] = useState("");
   const [district, setDistrict] = useState("");
   const [school, setSchool] = useState("");
+  const [category, setCategory] = useState<NetworkCategory>("todas");
+  const cls = useQuery({
+    queryKey: ["classificacao-escolas-cadastro"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("institutional_school_record_versions").select("school_id,version_number,location_kind,administrative_dependency").order("version_number", { ascending: false }).range(0, 4999);
+      if (error) throw new Error(error.message);
+      const m = new Map<string, SchoolClassification>();
+      for (const r of data ?? []) if (!m.has(r.school_id)) m.set(r.school_id, classifySchool(r));
+      return m;
+    },
+  });
   const [situation, setSituation] = useState<"" | "oficial" | "aguardando">("");
   const [res, setRes] = useState<Result | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -58,7 +74,10 @@ export function NetworkProjectionPage() {
   const districts = useMemo(() => [...new Set((res?.schools ?? []).map((s) => s.district).filter((d): d is string => !!d))].sort(), [res]);
   const official = new Set(res?.coverage?.official ?? []);
   const isOfficial = (id: string) => official.has(id);
-  const shown = (res?.schools ?? []).filter((s) => (!district || s.district === district) && (!school || s.schoolId === school)
+  const inCat = (id: string) => inCategory(cls.data?.get(id), category);
+  const catSchools = (res?.schools ?? []).filter((s) => inCat(s.schoolId));
+  const catCount = (c: NetworkCategory) => (res?.schools ?? []).filter((s) => inCategory(cls.data?.get(s.schoolId), c)).length;
+  const shown = (res?.schools ?? []).filter((s) => inCat(s.schoolId) && (!district || s.district === district) && (!school || s.schoolId === school)
     && (!situation || (situation === "oficial") === isOfficial(s.schoolId)));
   const total = res?.schools.length ?? 0;
   const done = (res?.schools ?? []).filter((s) => isOfficial(s.schoolId)).length;
@@ -115,6 +134,12 @@ export function NetworkProjectionPage() {
               </div>
             </section>
           ) : null}
+          <div className="flex flex-wrap gap-2 print:hidden" role="group" aria-label="Categoria da rede">
+            {NETWORK_CATEGORIES.map((c) => (
+              <Button key={c} size="sm" variant={category === c ? "default" : "outline"} aria-pressed={category === c} onClick={() => setCategory(c)}>
+                {NETWORK_CATEGORY_LABEL[c]} ({catCount(c)})</Button>))}
+          </div>
+          <NetworkConsolidation window={res.window} category={category} schools={catSchools} />
           <div className="flex flex-wrap items-end gap-3 print:hidden">
             {districts.length ? (
               <label className="text-sm">Distrito

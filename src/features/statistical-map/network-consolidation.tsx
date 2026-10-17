@@ -64,7 +64,7 @@ export function NetworkConsolidation({ window: w, category, schools }: { window:
         <div className="mt-3 space-y-2">
           {last && <textarea aria-label="Motivo da nova homologação" placeholder="Motivo da nova homologação (obrigatório)" className="min-h-16 w-full rounded-md border border-input bg-background p-2 text-sm" value={reason} onChange={(e) => setReason(e.target.value)} />}
           <Button disabled={run.isPending || !fp.data || (!!last && reason.trim().length < 3)}
-            onClick={async () => { if (await confirmAction({ title: "Homologar consolidação?", description: `Os totais de ${NETWORK_CATEGORY_LABEL[category].toLowerCase()} deste mês ficarão registrados como homologados pelo CIECE.`, confirmLabel: "Homologar" })) run.mutate(); }}>
+            onClick={async () => { if (await confirmAction({ title: "Homologar consolidação?", consequence: `Os totais de ${NETWORK_CATEGORY_LABEL[category].toLowerCase()} deste mês ficarão registrados como homologados pelo CIECE.`, actionLabel: "Homologar" })) run.mutate(); }}>
             Homologar consolidação
           </Button>
         </div>
