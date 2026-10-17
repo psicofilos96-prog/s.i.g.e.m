@@ -23470,6 +23470,110 @@ export type Database = {
           },
         ]
       }
+      network_consolidation_homologations: {
+        Row: {
+          audience: string
+          fingerprint: string
+          homologated_at: string
+          homologated_by: string
+          id: string
+          month: number
+          reason: string | null
+          revision: number
+          school_count: number
+          totals: Json
+          year: number
+        }
+        Insert: {
+          audience: string
+          fingerprint: string
+          homologated_at?: string
+          homologated_by: string
+          id?: string
+          month: number
+          reason?: string | null
+          revision: number
+          school_count: number
+          totals: Json
+          year: number
+        }
+        Update: {
+          audience?: string
+          fingerprint?: string
+          homologated_at?: string
+          homologated_by?: string
+          id?: string
+          month?: number
+          reason?: string | null
+          revision?: number
+          school_count?: number
+          totals?: Json
+          year?: number
+        }
+        Relationships: []
+      }
+      network_notice_withdrawals: {
+        Row: {
+          notice_id: string
+          reason: string
+          withdrawn_at: string
+          withdrawn_by: string
+        }
+        Insert: {
+          notice_id: string
+          reason: string
+          withdrawn_at?: string
+          withdrawn_by: string
+        }
+        Update: {
+          notice_id?: string
+          reason?: string
+          withdrawn_at?: string
+          withdrawn_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "network_notice_withdrawals_notice_id_fkey"
+            columns: ["notice_id"]
+            isOneToOne: true
+            referencedRelation: "network_notices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      network_notices: {
+        Row: {
+          audience: string
+          body: string
+          id: string
+          idempotency_key: string
+          image_path: string | null
+          published_at: string
+          published_by: string
+          title: string
+        }
+        Insert: {
+          audience: string
+          body: string
+          id?: string
+          idempotency_key: string
+          image_path?: string | null
+          published_at?: string
+          published_by: string
+          title: string
+        }
+        Update: {
+          audience?: string
+          body?: string
+          id?: string
+          idempotency_key?: string
+          image_path?: string | null
+          published_at?: string
+          published_by?: string
+          title?: string
+        }
+        Relationships: []
+      }
       notification_deliveries: {
         Row: {
           channel: string
@@ -44004,6 +44108,37 @@ export type Database = {
         }
         Returns: Json
       }
+      homologate_network_consolidation: {
+        Args: {
+          _audience: string
+          _expected_revision: number
+          _fingerprint: string
+          _month: number
+          _reason: string
+          _school_count: number
+          _totals: Json
+          _year: number
+        }
+        Returns: {
+          audience: string
+          fingerprint: string
+          homologated_at: string
+          homologated_by: string
+          id: string
+          month: number
+          reason: string | null
+          revision: number
+          school_count: number
+          totals: Json
+          year: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "network_consolidation_homologations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       homologate_position_matrix_correspondence_version: {
         Args: {
           _act_ref: string
@@ -46762,6 +46897,31 @@ export type Database = {
           _url: string
         }
         Returns: string
+      }
+      publish_network_notice: {
+        Args: {
+          _audience: string
+          _body: string
+          _image_path: string
+          _key: string
+          _title: string
+        }
+        Returns: {
+          audience: string
+          body: string
+          id: string
+          idempotency_key: string
+          image_path: string | null
+          published_at: string
+          published_by: string
+          title: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "network_notices"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       r5_capabilities: { Args: never; Returns: string[] }
       r5_network_grant: { Args: { _capability: string }; Returns: string }
@@ -53554,6 +53714,10 @@ export type Database = {
       }
       withdraw_dev_role_track: {
         Args: { _reason: string; _target: string }
+        Returns: undefined
+      }
+      withdraw_network_notice: {
+        Args: { _notice: string; _reason: string }
         Returns: undefined
       }
       workflow_can_read: {
