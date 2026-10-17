@@ -15,11 +15,13 @@
 - [x] Motor vacinal: teste transacional com 45 dias confirmou novo prazo e preservação do anterior; revertido, padrão permanece 30. Alteração pelo formulário do Administrador ainda não exercitada.
 - [x] Proteção na Família implementada: indicação/retirada explícitas na ficha, aviso genérico sem teor/documento; testes SQL com papel authenticated provaram destinatário, não destinatário, concorrência, IDOR e tabela inacessível; fixtures revertidas.
 - [ ] Proteção na Família ponta a ponta no navegador — não há vínculo de responsável na base (0 autorizações); não fabricar autorização humana. Demais fluxos recentes seguem com verificação pendente.
-- [ ] 8. Ofícios escolares oficiais com numeração canônica
-- [ ] 9. Listagens de alunos personalizáveis
-- [ ] 10. Atendimento domiciliar/hospitalar integrado
+- [x] 8. Ofícios: emissão com sec.99999901, leitura na lista, PDF A4 de 5 páginas inspecionado e cancelamento com motivo; documento explicitamente sintético e sem assinatura humana.
+- [x] 9. Listagens: conta da escola de teste leu 3 alunos e baixou PDF/Excel; PDF inspecionado. Paginação da tela substitui corte de 300 e leitura paginada recusa total truncado.
+- [x] 10. Atendimento domiciliar/hospitalar: abertura, atividade e encerramento pela ficha de TESTE CPF C no navegador; histórico lido na tela e no banco, sem diagnóstico real.
 - [x] 11. Relatórios: sem CPF, aniversariantes, vacinação pendente e renovação pendente 2026→2027 (própria escola)
 - [ ] Provar cada fluxo com sessão escolar, testes de isolamento e inspeção dos documentos
+- [x] Revisão atual: infrequência voltou a abrir na Secretaria; Ofícios/atendimento/avisos não apresentam erro como lista vazia (3 regressões, 8 testes focados PASS); PDF/Excel e fluxos de teste conferidos; build OK.
+- [ ] Infrequência: emissão com chamada sintética e prova numérica da agregação ainda pendentes; notificações automáticas pelo canal canônico não implementadas. Abertura da consulta autenticada provada.
 
 - [x] 1. Voltar o design anterior (início e menu originais; tela azul desligada)
 - [x] 2. Início por setor (até 6 cartões) e menu enxuto

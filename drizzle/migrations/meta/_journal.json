@@ -3977,6 +3977,13 @@
       "when": 1792269375278,
       "tag": "0567_family_protection_explicit_recipients",
       "breakpoints": true
+    },
+    {
+      "idx": 568,
+      "version": "7",
+      "when": 1792270467303,
+      "tag": "0568_infrequency_school_access_and_attendance_count",
+      "breakpoints": true
     }
   ]
 }
