@@ -11,7 +11,9 @@
 - [ ] 5. Atestados médicos integrados à frequência
 - [ ] 6. Notificação automatizada de infrequência pelo canal canônico
 - [x] 7. Monitoramento vacinal: ficha do aluno registra em dia/pendente (prazo 30 dias), histórico append-only, testado
-- [ ] Prazo vacinal em Parâmetros: padrão 30 dias, novas declarações usam o valor vigente sem alterar prazos já registrados; verificar com sessão escolar
+- [x] Prazo vacinal em Parâmetros: padrão 30 dias; writer usa o valor vigente e preserva prazos antigos. 8 testes passaram; admin abriu o valor e edição; Secretaria registrou pendência em TESTE CPF C com prazo 16/11/2026 no navegador.
+- [ ] Verificar alteração efetiva do prazo: não foi mudado o parâmetro global para testar; Secretaria e Supervisão continuam sem acesso à rota geral de Parâmetros pelas permissões atuais. Não ampliadas nesta etapa.
+- [ ] Proteção judicial no acesso da Família e verificação dos demais fluxos recentes: continuam pendentes, fora da etapa do prazo vacinal.
 - [ ] 8. Ofícios escolares oficiais com numeração canônica
 - [ ] 9. Listagens de alunos personalizáveis
 - [ ] 10. Atendimento domiciliar/hospitalar integrado
