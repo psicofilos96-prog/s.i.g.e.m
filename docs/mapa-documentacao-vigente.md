@@ -21,6 +21,7 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - Canônicos finais por tema: verificação `rotina-de-verificacao.md`; segurança `seguranca-verificacao-final-nsec4.md`; schema `integridade-schema-final-ndb4.md`; arquivos `storage-arquivos-privados.md`; importações `importacoes-nimport2.md`; testes `matriz-fluxo-teste.md`; operação `prontidao-operacional-recuperacao.md`; dados `auditoria-dados-oficiais-ndata3.md`; desempenho `performance-escala-sigem.md`.
 
 ## Índice por módulo
+- Secretaria — complementação CPF: `secretaria-complementacao-cpf.md` (Registro de lote; implementação e limites de verificação).
 - Índice técnico único por domínio (vigente, lotes, pendências, histórico): `indice-tecnico-documentacao.md`.
 - Arquitetura e regras: `sigem-documentacao-canonica.md`, `invariantes-do-sigem.md`, `mapa-contratos-db-ndb2.md`, `security-definer-function-inventory.md`.
 - Verificação e release: `rotina-de-verificacao.md`, `prontidao-operacional-recuperacao.md`, `engenharia-de-release.md`, `matriz-fluxo-teste.md`, `test-harness-institucional.md`.
