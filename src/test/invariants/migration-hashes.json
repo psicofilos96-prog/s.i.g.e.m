@@ -602,5 +602,6 @@
  "drizzle/migrations/0551_secretariat_birth_document_rule.sql": "aec1db1732fc61d43a4b297272cfc41e4d87ddde6fe40d4358f8afc24004aad4",
  "drizzle/migrations/0552_secretariat_student_documents_report.sql": "7a75c6261156b1e1cadbf6a20efde701aee3618d4ec1b52eab037aa2164506e2",
  "drizzle/migrations/0553_secretariat_own_school_documents_report.sql": "c63312703838ff5b560811eaf2105712100ff624722c1bde75b603cfd7791539",
- "drizzle/migrations/0554_secretariat_vaccination_and_renewal_reports.sql": "866b3d647b073757938cf7c8295b63260e25ddda6cf67b5a3e0a0944bde92697"
+ "drizzle/migrations/0554_secretariat_vaccination_and_renewal_reports.sql": "866b3d647b073757938cf7c8295b63260e25ddda6cf67b5a3e0a0944bde92697",
+ "drizzle/migrations/0555_secretariat_vacancy_request_bank.sql": "a2d412dfcaef69852f6004a62ce1c7603cb4ffe03d82ca1562c2f2b7898bea0c"
 }
