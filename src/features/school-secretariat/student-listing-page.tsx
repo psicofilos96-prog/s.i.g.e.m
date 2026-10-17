@@ -6,7 +6,7 @@ import { downloadBlob, runReport, toPdfFile, toXlsx } from "@/features/reports/r
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/sigem/patterns";
-import { compareClassLabels } from "./class-order-shim";
+import { compareClasses } from "@/features/classes/class-stage-order";
 import { filterListing, LISTING_COLUMNS, listingReport, listingRows, type ListingColumn, type ListingRow } from "./student-listing";
 
 const MONTHS = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
@@ -22,7 +22,7 @@ export function StudentListingPage() {
   const classes = useMemo(() => {
     const m = new Map<string, string>();
     for (const r of rows ?? []) if (r.class_id) m.set(r.class_id, r.class_label ?? r.class_id);
-    return [...m].sort((a, b) => compareClassLabels(a[1], b[1]));
+    return [...m].sort((a, b) => compareClasses({ name: a[1] }, { name: b[1] }));
   }, [rows]);
   const shown = useMemo(() => filterListing(rows ?? [], f), [rows, f]);
   const toggle = (c: ListingColumn) => setCols((x) => (x.includes(c) ? x.filter((y) => y !== c) : [...x, c]));
