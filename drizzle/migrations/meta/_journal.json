@@ -3984,6 +3984,13 @@
       "when": 1792270467303,
       "tag": "0568_infrequency_school_access_and_attendance_count",
       "breakpoints": true
+    },
+    {
+      "idx": 569,
+      "version": "7",
+      "when": 1792271257424,
+      "tag": "0569_infrequency_notice_canonical_delivery",
+      "breakpoints": true
     }
   ]
 }
