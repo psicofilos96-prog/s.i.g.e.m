@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { callRpc } from "@/lib/rpc-call";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/sigem/patterns";
+import { readPages } from "@/lib/list-paging";
 import { LETTER_MESSAGES, officialLetterPdf, type OfficialLetter } from "./official-letter";
 
 const msgOf = (e: unknown) => {
@@ -20,38 +21,43 @@ const empty = { recipient: "", subject: "", body: "", signer: "", role: "" };
 /** Ofícios da escola: número anual automático, PDF A4, cancelamento com motivo (nunca apagado). */
 export function OfficialLettersPage() {
   const own = useOwnSchoolId();
-  const nameQ = useQuery({ queryKey: ["own-school-name", own], queryFn: () => readCurrentSchoolNames([own!]), enabled: !!own, staleTime: 600_000 });
+  const nameQ = useQuery({ queryKey: ["own-school-name", own], queryFn: () => readCurrentSchoolNames(own ? [own] : []), enabled: !!own, staleTime: 600_000 });
   const school = (own && nameQ.data?.get(own)) || "Escola";
-  const [list, setList] = useState<OfficialLetter[] | null>(null);
+
   const [f, setF] = useState(empty);
   const [idem, setIdem] = useState(() => crypto.randomUUID());
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  async function load() {
-    if (!own) return;
-    const [l, c] = await Promise.all([
-      supabase.from("school_official_letters").select("id,code,recipient,subject,body,signer,signer_role,recorded_at").eq("school_id", own).order("year", { ascending: false }).order("seq", { ascending: false }),
-      supabase.from("school_official_letter_cancellations").select("letter_id,reason").eq("school_id", own),
-    ]);
-    const cx = new Map((c.data ?? []).map((x) => [x.letter_id, x.reason]));
-    setList((l.data ?? []).map((x) => ({ ...x, cancelled: cx.get(x.id) ?? null })));
-  }
-  useEffect(() => { void load(); }, [own]); // eslint-disable-line react-hooks/exhaustive-deps
+  const listQ = useQuery({
+    queryKey: ["secretariat-letters", own], enabled: !!own, retry: false, gcTime: 0, refetchOnWindowFocus: false,
+    queryFn: async () => {
+      if (!own) throw new Error("letter:capability-missing");
+      const [l, c] = await Promise.all([
+        readPages((from, to) => supabase.from("school_official_letters").select("id,code,recipient,subject,body,signer,signer_role,recorded_at").eq("school_id", own).order("year", { ascending: false }).order("seq", { ascending: false }).order("id").range(from, to).abortSignal(AbortSignal.timeout(15000)), 10000),
+        readPages((from, to) => supabase.from("school_official_letter_cancellations").select("letter_id,reason").eq("school_id", own).order("letter_id").range(from, to).abortSignal(AbortSignal.timeout(15000)), 10000),
+      ]);
+      if (l.error || c.error) throw new Error(l.error?.message ?? c.error?.message);
+      if (l.truncated || c.truncated) throw new Error("A lista excedeu o limite de consulta. Procure a administração.");
+      const cx = new Map((c.data ?? []).map((x) => [x.letter_id, x.reason]));
+      return (l.data ?? []).map((x) => ({ ...x, cancelled: cx.get(x.id) ?? null }));
+    },
+  });
+  const list = listQ.data;
   const pdf = async (l: OfficialLetter) => {
-    const a = document.createElement("a"); a.href = URL.createObjectURL(await officialLetterPdf(l, school)); a.download = `${l.code.replace(/[^\w]+/g, "-")}.pdf`; a.click();
+    const a = document.createElement("a"); a.href = URL.createObjectURL(await officialLetterPdf(l, school)); a.download = `${l.code.replace(/[^\w]+/g, "-")}.pdf`; a.click(); URL.revokeObjectURL(a.href);
   };
   const issue = async () => {
     setMsg(null); setBusy(true);
     try {
       await callRpc("secretariat_issue_letter", { _recipient: f.recipient, _subject: f.subject, _body: f.body, _signer: f.signer, _signer_role: f.role || null, _idem: idem });
-      setF(empty); setIdem(crypto.randomUUID()); setOpen(false); await load();
+      setF(empty); setIdem(crypto.randomUUID()); setOpen(false); await listQ.refetch();
     } catch (e) { setMsg(msgOf(e)); } finally { setBusy(false); }
   };
   const cancel = async (l: OfficialLetter) => {
     const reason = window.prompt(`Por que cancelar o ${l.code}? (o número continua registrado)`);
     if (!reason) return;
-    try { await callRpc("secretariat_cancel_letter", { _letter: l.id, _reason: reason }); await load(); } catch (e) { setMsg(msgOf(e)); }
+    try { await callRpc("secretariat_cancel_letter", { _letter: l.id, _reason: reason }); await listQ.refetch(); } catch (e) { setMsg(msgOf(e)); }
   };
   const set = (k: keyof typeof empty) => (e: { target: { value: string } }) => setF((x) => ({ ...x, [k]: e.target.value }));
   const ready = f.recipient.trim().length >= 3 && f.subject.trim().length >= 3 && f.body.trim().length >= 10 && f.signer.trim().length >= 3;
@@ -69,7 +75,7 @@ export function OfficialLettersPage() {
           <div className="sm:col-span-2"><Button disabled={!ready || busy} onClick={() => void issue()}>Emitir ofício</Button></div>
         </div>)}
       {msg && <p role="status" className="text-sm text-destructive">{msg}</p>}
-      {list === null ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {listQ.isError ? <p role="alert" className="text-sm text-destructive">Não foi possível consultar os ofícios. Tente novamente.</p> : !list ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : list.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ofício emitido.</p>
         : <ul className="space-y-2">{list.map((l) => (
           <li key={l.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-card p-3 text-sm">

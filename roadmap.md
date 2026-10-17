@@ -20,6 +20,7 @@
 - [ ] 10. Atendimento domiciliar/hospitalar integrado
 - [x] 11. Relatórios: sem CPF, aniversariantes, vacinação pendente e renovação pendente 2026→2027 (própria escola)
 - [ ] Provar cada fluxo com sessão escolar, testes de isolamento e inspeção dos documentos
+- [ ] Revisão atual: corrigir falha real de acesso à infrequência, impedir erro como lista vazia, verificar PDF/Excel de listagens e Ofícios/atendimento na escola de teste.
 
 - [x] 1. Voltar o design anterior (início e menu originais; tela azul desligada)
 - [x] 2. Início por setor (até 6 cartões) e menu enxuto

@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { readPages } from "@/lib/list-paging";
 import { supabase } from "@/integrations/supabase/client";
 import { callRpc } from "@/lib/rpc-call";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDateNumeric } from "@/lib/academic-date";
-import { CARE_KINDS, CARE_MESSAGES, careKindLabel, projectCare, type CareEpisode, type CareEvent } from "./home-hospital-care";
+import { CARE_KINDS, CARE_MESSAGES, careKindLabel, projectCare, type CareEvent } from "./home-hospital-care";
 
 const d = (s: string) => formatAcademicDateNumeric(s as never);
 const msgOf = (e: unknown) => {
@@ -17,23 +19,30 @@ const blank = { kind: "", on: "", end: "", place: "", prof: "", note: "" };
 
 /** Atendimento domiciliar/hospitalar na ficha do aluno: abrir, registrar atividades e encerrar. Nada é apagado. */
 export function HomeHospitalCarePanel({ school, student }: { school: string; student: string }) {
-  const [list, setList] = useState<CareEpisode[] | null>(null);
+
   const [form, setForm] = useState<{ mode: "abrir" | "registrar" | "encerrar"; care: string | null } | null>(null);
   const [f, setF] = useState(blank);
   const [msg, setMsg] = useState<string | null>(null);
-  async function load() {
-    const { data, error } = await supabase.from("student_home_hospital_care_events")
-      .select("care_id,act,care_kind,occurred_on,expected_end,place,professional,note,recorded_at").eq("school_id", school).eq("student_id", student);
-    setList(error ? [] : projectCare((data ?? []) as CareEvent[]));
-  }
-  useEffect(() => { void load(); }, [school, student]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!list) return null;
+  const listQ = useQuery({
+    queryKey: ["school-home-hospital-care", school, student], retry: false, gcTime: 0, refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const result = await readPages((from, to) => supabase.from("student_home_hospital_care_events")
+        .select("care_id,act,care_kind,occurred_on,expected_end,place,professional,note,recorded_at").eq("school_id", school).eq("student_id", student)
+        .order("recorded_at").order("id").range(from, to).abortSignal(AbortSignal.timeout(15000)), 10000);
+      if (result.error) throw new Error(result.error.message);
+      if (result.truncated) throw new Error("Histórico excedeu o limite de consulta.");
+      return projectCare((result.data ?? []) as CareEvent[]);
+    },
+  });
+  if (listQ.isError) return <p role="alert" className="text-sm text-destructive">Não foi possível consultar o atendimento domiciliar / hospitalar. Tente novamente.</p>;
+  const list = listQ.data;
+  if (!list) return <p className="text-sm text-muted-foreground">Consultando atendimento domiciliar / hospitalar…</p>;
   const set = (k: keyof typeof blank) => (e: { target: { value: string } }) => setF((x) => ({ ...x, [k]: e.target.value }));
   const save = async () => {
     if (!form) return; setMsg(null);
     try {
       await callRpc("secretariat_home_hospital_care_act", { _school: school, _student: student, _care: form.care, _act: form.mode, _kind: f.kind || null, _on: f.on, _expected_end: f.end || null, _place: f.place || null, _professional: f.prof || null, _note: f.note });
-      setForm(null); setF(blank); void load();
+      setForm(null); setF(blank); void listQ.refetch();
     } catch (e) { setMsg(msgOf(e)); }
   };
   const open = (mode: "abrir" | "registrar" | "encerrar", care: string | null) => { setF(blank); setForm({ mode, care }); };
