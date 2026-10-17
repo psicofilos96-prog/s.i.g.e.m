@@ -1,4 +1,5 @@
 import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
+import { ConsentPanel } from "./consent-panel";
 import { DeathRecordPanel, ReceiveTransferPanel, RenewalBatchPanel, TransferDeclarationButton, VaccinationPanel } from "./movement-panels";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { SECRETARIAT_TASKS } from "./secretariat-tasks";
@@ -240,6 +241,7 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
       {current ? <Actions school={school} year={year} enrollment={current.ref_id} episode={episode} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
       {rows ? <DeathRecordPanel enrollment={current?.ref_id ?? null} student={student.id} onDone={() => { void load(); onChanged(); }} /> : null}
       {rows ? <VaccinationPanel school={school} student={student.id} /> : null}
+      {rows ? <ConsentPanel school={school} student={student.id} studentName={student.name} /> : null}
       {rows ? <DocumentPendenciesPanel school={school} student={student.id} enrollment={current?.ref_id ?? null} on={on} /> : null}
     </section>
   );
