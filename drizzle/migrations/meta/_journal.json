@@ -4012,6 +4012,20 @@
       "when": 1792275376223,
       "tag": "0572_ciece_network_notices_and_consolidation",
       "breakpoints": true
+    },
+    {
+      "idx": 573,
+      "version": "7",
+      "when": 1792279570916,
+      "tag": "0573_cycle_enrollments_at_declared_start",
+      "breakpoints": true
+    },
+    {
+      "idx": 574,
+      "version": "7",
+      "when": 1792279994858,
+      "tag": "0574_cycle_enrollments_at_declared_start_fast",
+      "breakpoints": true
     }
   ]
 }
