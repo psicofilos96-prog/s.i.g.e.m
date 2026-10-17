@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { callRpc } from "@/lib/rpc-call";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
@@ -196,5 +198,38 @@ export function RenewalBatchPanel({ school }: { school: string }) {
       </>) : null}
       {msg ? <p role="status">{msg}</p> : null}
     </section>
+  );
+}
+
+type VaccRow = { sequence: number; status: string; declared_on: string; due_on: string | null };
+/** Situação vacinal: comprovante em dia ou pendente (prazo de 30 dias a partir da declaração). */
+export function VaccinationPanel({ school, student }: { school: string; student: string }) {
+  const [cur, setCur] = useState<VaccRow | null | undefined>(undefined);
+  const [date, setDate] = useState(""); const [note, setNote] = useState(""); const [msg, setMsg] = useState<string | null>(null);
+  async function load() {
+    const { data, error } = await supabase.from("student_vaccination_status_events").select("sequence,status,declared_on,due_on").eq("school_id", school).eq("student_id", student).order("sequence", { ascending: false }).limit(1);
+    setCur(error ? null : ((data?.[0] as VaccRow | undefined) ?? null));
+  }
+  useEffect(() => { void load(); }, [school, student]); // eslint-disable-line react-hooks/exhaustive-deps
+  async function save(status: "em-dia" | "pendente") {
+    setMsg(null);
+    try {
+      await callRpc("secretariat_record_vaccination", { _school: school, _student: student, _status: status, _declared_on: date, _note: note || null, _expected_sequence: cur?.sequence ?? 0 });
+      setNote(""); await load(); setMsg("Situação vacinal registrada.");
+    } catch (e) { setMsg(errText(e)); }
+  }
+  if (cur === undefined) return null;
+  const overdue = cur?.status === "pendente" && cur.due_on && cur.due_on < new Date().toISOString().slice(0, 10);
+  return (
+    <details className="rounded-md border border-border p-3 text-sm">
+      <summary className="cursor-pointer font-medium">Vacinação — {cur ? (cur.status === "em-dia" ? `em dia (desde ${d(cur.declared_on)})` : `pendente, prazo até ${d(cur.due_on)}${overdue ? " — vencido" : ""}`) : "ainda não registrada"}</summary>
+      <div className="mt-2 flex flex-wrap items-end gap-2">
+        <label>Data<DateInput value={date} onChange={(e) => setDate(e.target.value)} /></label>
+        <label className="grow">Observação<Input value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} /></label>
+        <Button disabled={!date} onClick={() => void save("em-dia")}>Comprovante entregue</Button>
+        <Button variant="outline" disabled={!date} onClick={() => void save("pendente")}>Pendente (30 dias)</Button>
+      </div>
+      {msg ? <p role="status" className="mt-2">{msg}</p> : null}
+    </details>
   );
 }

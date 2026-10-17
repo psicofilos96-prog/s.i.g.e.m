@@ -3879,6 +3879,13 @@
       "when": 1792250579453,
       "tag": "0553_secretariat_own_school_documents_report",
       "breakpoints": true
+    },
+    {
+      "idx": 554,
+      "version": "7",
+      "when": 1792251488165,
+      "tag": "0554_secretariat_vaccination_and_renewal_reports",
+      "breakpoints": true
     }
   ]
 }
