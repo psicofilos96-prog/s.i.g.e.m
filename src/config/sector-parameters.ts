@@ -20,7 +20,11 @@ export interface SectorParameter {
 export const SECTOR_PARAMETERS: Record<string, readonly SectorParameter[]> = {
   secretaria: [{ key: "secretaria.cpf-obrigatorio-desde", group: "Identificação", label: "CPF obrigatório para nascidos desde",
     help: "A partir desta data, inclusive, CPF obrigatório. Para os anteriores, aceita certidão como alternativa. Alterar não modifica matrículas já registradas.",
-    usedIn: [{ label: "Nova matrícula", href: "/matriculas/nova" }], readBy: "secretariat_cpf_required_from", input: { kind: "data" }, undefinedEffect: "" }],
+    usedIn: [{ label: "Nova matrícula", href: "/matriculas/nova" }], readBy: "secretariat_cpf_required_from", input: { kind: "data" }, undefinedEffect: "" },
+    { key: "secretaria.prazo-vacinacao", group: "Prazos", label: "Prazo para entregar comprovante de vacinação",
+      help: "Dias corridos a partir da declaração de pendência. Alterar vale para novos registros; os prazos já registrados permanecem iguais.",
+      usedIn: [{ label: "Ficha do aluno", href: "/secretaria" }, { label: "Relatório de vacinação pendente", href: "/relatorios" }],
+      readBy: "secretariat_vaccination_deadline_days", input: { kind: "dias" }, undefinedEffect: "" }],
   alimentacao: [
     {
       key: "alimentacao.prazo-nao-conformidade", group: "Prazos", label: "Prazo para resolver não conformidade",
