@@ -32,6 +32,7 @@ export async function infrequencyNoticePdf(r: InfrequencyRow, from: string, to: 
 }
 
 export const INFREQUENCY_MESSAGES: Record<string, string> = {
+  "infrequencia:forbidden": "Sua conta não pode consultar a frequência nesta escola.",
   "infrequency:capability-missing": "Sua conta não pode emitir avisos nesta escola.",
   "infrequency:period-invalid": "Confira as datas do período.",
   "infrequency:not-below-threshold": "Este aluno não está abaixo da frequência mínima no período.",
