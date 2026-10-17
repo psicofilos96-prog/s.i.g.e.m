@@ -613,5 +613,6 @@
  "drizzle/migrations/0562_secretariat_student_listing.sql": "2a65d519cac7349a16cdd3e331548e50709c084cc4ea1f84fd30f7489dcd4fbd",
  "drizzle/migrations/0563_secretariat_home_hospital_care.sql": "16bbe66acdffcdc00c2ed1899e9ffd4d125220e15587ad6c06b024d73293309f",
  "drizzle/migrations/0564_class_absence_justifications_reader.sql": "4261f0a2178d02dbc6a13196e45996eb047fa71b29a2298e5e50c1c30d43cadc",
- "drizzle/migrations/0565_diary_justified_by_class.sql": "f37874fadc0005e2bfa204507b2470078b47667516545bff3f9c7c2ce8ee4cbc"
+ "drizzle/migrations/0565_diary_justified_by_class.sql": "f37874fadc0005e2bfa204507b2470078b47667516545bff3f9c7c2ce8ee4cbc",
+ "drizzle/migrations/0566_vaccination_configurable_deadline.sql": "7b5e93a943a81a33f907baf4561c671dbe4e6fa94ec6db3071e7672372cb854b"
 }
