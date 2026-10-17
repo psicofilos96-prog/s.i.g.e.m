@@ -1,4 +1,7 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useOwnSchoolId } from "@/features/authority/own-school";
+import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { supabase } from "@/integrations/supabase/client";
 import { callRpc } from "@/lib/rpc-call";
 import { Button } from "@/components/ui/button";
@@ -19,7 +22,9 @@ export function InfrequencyPage() {
   const [from, setFrom] = useState(monthStart());
   const [to, setTo] = useState(today());
   const [rows, setRows] = useState<InfrequencyRow[] | null>(null);
-  const [school, setSchool] = useState("Escola");
+  const own = useOwnSchoolId();
+  const nameQ = useQuery({ queryKey: ["own-school-name", own], queryFn: () => readCurrentSchoolNames([own!]), enabled: !!own, staleTime: 600_000 });
+  const school = (own && nameQ.data?.get(own)) || "Escola";
   const [msg, setMsg] = useState<string | null>(null);
   async function load() {
     setRows(null); setMsg(null);
@@ -29,11 +34,6 @@ export function InfrequencyPage() {
   }
   useEffect(() => {
     void load();
-    void supabase.rpc("secretariat_own_school_id").then(async ({ data }) => {
-      if (!data) return;
-      const r = await supabase.from("institutional_schools").select("name").eq("id", data).maybeSingle();
-      if (r.data?.name) setSchool(r.data.name);
-    });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const notify = async (r: InfrequencyRow) => {
     setMsg(null);
