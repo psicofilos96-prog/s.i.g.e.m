@@ -42,6 +42,7 @@
 - [x] Turmas: lista "demorou demais" na conta da Secretaria
 
 ## Ficha de Matrícula — impressão A4 (16/10/2026)
+- [ ] Verificar câmera, transferência, declaração, óbito e rematrícula na Secretaria com sessão autorizada; entregar PDFs de exemplo
 - [x] Modelo preenchido e em branco, PDF direto, impressão, anexo de Educação Especial e Controle de Renovação
 - [ ] Homologação visual — aguarda conferência do proprietário nos PDFs de exemplo
 - [ ] Campos sem fonte no SIGEM (ver docs/ficha-matricula-impressao.md) — aguarda decisão
