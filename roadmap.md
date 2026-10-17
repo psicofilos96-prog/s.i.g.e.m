@@ -4,17 +4,17 @@
 - [x] Registrar os anexos reenviados como referências de termos e ofícios, sem importar pessoas ou atos (modelos já abrangidos pelo plano)
 - [x] Conferir o segundo lote de modelos: Educação Especial, justificativa de faltas, pré-matrícula, retirada de aluno, atas, ofícios e Bolsa Família; aproveitar estruturas sem importar fatos pessoais
 - [x] 1a. CPF obrigatório desde 01/12/2017 e certidão para anteriores: validação no formulário e no banco, parâmetro versionado, 21 testes e seis limites com sessão escolar
-- [ ] 1b. Provar conclusão completa, transferência e renovação com nova exigência — falta fixture descartável apta pela porta institucional; nenhuma matrícula real usada
+- [x] 1b. Conclusão completa provada com sec.99999901 (escola de teste): 6 limites (2018 sem CPF recusa; 2016 sem certidão recusa; 2016 com certidão, 2018 com CPF e 30/11/2017 com certidão aceitos; 01/12/2017 só com certidão recusa). Alunos de teste: "TESTE CPF …"
 - [ ] 2. Solicitação de vagas integrada à fila oficial existente
 - [ ] 3. Termos legais e consentimentos no cadastro, a partir dos modelos enviados
 - [ ] 4. Medidas protetivas/restrição de retirada e documentos judiciais privados
 - [ ] 5. Atestados médicos integrados à frequência
 - [ ] 6. Notificação automatizada de infrequência pelo canal canônico
-- [ ] 7. Monitoramento vacinal com prazo de 30 dias
+- [x] 7. Monitoramento vacinal: ficha do aluno registra em dia/pendente (prazo 30 dias), histórico append-only, testado
 - [ ] 8. Ofícios escolares oficiais com numeração canônica
 - [ ] 9. Listagens de alunos personalizáveis
 - [ ] 10. Atendimento domiciliar/hospitalar integrado
-- [ ] 11. Relatórios: CPF e aniversariantes prontos (relatórios rápidos, própria escola); vacinação e renovação pendentes — vacinação sem fonte registrada
+- [x] 11. Relatórios: sem CPF, aniversariantes, vacinação pendente e renovação pendente 2026→2027 (própria escola)
 - [ ] Provar cada fluxo com sessão escolar, testes de isolamento e inspeção dos documentos
 
 - [x] 1. Voltar o design anterior (início e menu originais; tela azul desligada)

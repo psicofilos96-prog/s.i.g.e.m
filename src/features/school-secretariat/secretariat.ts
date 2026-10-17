@@ -52,6 +52,9 @@ export const yearStateLabel = (s: string | null) => (s ? YEAR_STATE_LABEL[s] ?? 
 
 const MSG: [RegExp, string][] = [
   [/session-required/, "Entre com sua conta institucional."],
+  [/vaccination:stale-base/, "A situação vacinal mudou enquanto você editava. Abra a ficha de novo."],
+  [/vaccination:date-invalid/, "Informe uma data que não seja futura."],
+  [/vaccination:capability-missing/, "Sua conta não pode registrar vacinação nesta escola."],
   [/not-authorized|not-found/, "Sem permissão nesta escola ou registro não encontrado."],
   [/natural-person-required/, "A operação exige conta ligada a uma pessoa natural."],
   [/year-not-open/, "O ano letivo não está aberto para operação; 2026 é histórico e 2027 depende do ato de abertura."],
