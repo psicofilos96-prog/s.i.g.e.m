@@ -3921,6 +3921,13 @@
       "when": 1792261710810,
       "tag": "0559_absence_justification_attachments",
       "breakpoints": true
+    },
+    {
+      "idx": 560,
+      "version": "7",
+      "when": 1792261955044,
+      "tag": "0560_secretariat_infrequency_notices",
+      "breakpoints": true
     }
   ]
 }
