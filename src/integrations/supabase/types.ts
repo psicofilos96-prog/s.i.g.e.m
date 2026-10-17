@@ -34201,6 +34201,59 @@ export type Database = {
           },
         ]
       }
+      student_consent_events: {
+        Row: {
+          decision: string
+          declared_on: string
+          guardian_name: string
+          id: string
+          note: string | null
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          sequence: number
+          student_id: string
+          term_key: string
+          term_version: number
+        }
+        Insert: {
+          decision: string
+          declared_on: string
+          guardian_name: string
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          sequence: number
+          student_id: string
+          term_key: string
+          term_version: number
+        }
+        Update: {
+          decision?: string
+          declared_on?: string
+          guardian_name?: string
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          sequence?: number
+          student_id?: string
+          term_key?: string
+          term_version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_consent_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_death_corrections: {
         Row: {
           certificate_number: string
@@ -51616,6 +51669,20 @@ export type Database = {
           _year: string
         }
         Returns: Json
+      }
+      secretariat_record_consent: {
+        Args: {
+          _decision: string
+          _declared_on: string
+          _expected_sequence: number
+          _guardian: string
+          _note: string
+          _school: string
+          _student: string
+          _term: string
+          _version: number
+        }
+        Returns: number
       }
       secretariat_record_death: {
         Args: {
