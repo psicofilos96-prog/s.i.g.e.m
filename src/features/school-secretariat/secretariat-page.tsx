@@ -1,4 +1,5 @@
 import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
+import { DeathRecordPanel, ReceiveTransferPanel, RenewalBatchPanel, TransferDeclarationButton } from "./movement-panels";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { SECRETARIAT_TASKS } from "./secretariat-tasks";
 import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date";
@@ -133,6 +134,8 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
           <Link className="underline" to="/turmas">Turmas</Link> · <Link className="underline" to="/mapa-estatistico">Mapa do mês</Link> · <Link className="underline" to="/secretaria/servicos">Serviços da escola</Link></p>
       </section>
       <Lookup school={school} year={year} onFound={setStudent} />
+      <ReceiveTransferPanel school={school} year={year} on={on} />
+      <RenewalBatchPanel school={school} />
       <details className="rounded-2xl border border-border bg-card p-4">
         <summary className="cursor-pointer font-semibold">Ver números da escola</summary>
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
@@ -235,6 +238,7 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
             </li>))}</ol>}
       <p className="text-xs text-muted-foreground">Na transferência, a matrícula aqui é encerrada e a história do aluno fica guardada.</p>
       {current ? <Actions school={school} year={year} enrollment={current.ref_id} episode={episode} on={on} onDone={() => { void load(); onChanged(); }} /> : null}
+      {rows ? <DeathRecordPanel enrollment={current?.ref_id ?? null} student={student.id} onDone={() => { void load(); onChanged(); }} /> : null}
       {rows ? <DocumentPendenciesPanel school={school} student={student.id} enrollment={current?.ref_id ?? null} on={on} /> : null}
     </section>
   );
@@ -244,7 +248,7 @@ function Actions({ school, year, enrollment, episode, on, onDone }: { school: st
   const [classId, setClassId] = useState(""); const [classes, setClasses] = useState<ClassOption[] | null>(null);
   useEffect(() => { listInstitutionalClasses({ validOn: on }).then((l) => setClasses(eligibleClassOptions(l, school, year)), () => setClasses([])); }, [school, year, on]); const [from, setFrom] = useState(on); const [reason, setReason] = useState("");
   const [types, setTypes] = useState<{ id: string; version: number; label: string }[] | null>(null);
-  const [type, setType] = useState(""); const [dest, setDest] = useState(""); const [msg, setMsg] = useState<string | null>(null);
+  const [type, setType] = useState(""); const [dest, setDest] = useState(""); const [msg, setMsg] = useState<string | null>(null); const [transferred, setTransferred] = useState<string | null>(null);
   useEffect(() => { readMovementTypes().then(setTypes); }, []);
   async function run(f: () => Promise<unknown>, ok: string) {
     setMsg(null);
@@ -276,7 +280,8 @@ function Actions({ school, year, enrollment, episode, on, onDone }: { school: st
             <select aria-label="Tipo" className="w-full rounded-md border border-input bg-background p-2" value={type} onChange={(e) => setType(e.target.value)}>
               <option value="">Escolha o tipo de saída</option>{types.map((x) => <option key={`${x.id}@${x.version}`} value={`${x.id}@${x.version}`}>{x.label}</option>)}</select>
             <Input aria-label="Escola de destino" placeholder="Escola de destino (opcional)" value={dest} onChange={(e) => setDest(e.target.value)} />
-            <Button size="sm" variant="destructive" disabled={!t || !reason.trim()} onClick={() => t && run(() => recordExit({ enrollment, effectiveOn: from, movementType: t.id, typeVersion: t.version, destinationSchool: dest.trim() || null, reason: reason.trim() }), "Saída registrada; a origem foi preservada.")}>Registrar saída</Button>
+            <Button size="sm" variant="destructive" disabled={!t || !reason.trim()} onClick={() => t && run(async () => { await recordExit({ enrollment, effectiveOn: from, movementType: t.id, typeVersion: t.version, destinationSchool: dest.trim() || null, reason: reason.trim() }); if (t.id === "transferencia") setTransferred(enrollment); }, "Saída registrada; a origem foi preservada.")}>Registrar saída</Button>
+            {transferred ? <TransferDeclarationButton enrollment={transferred} /> : null}
           </>}
       </fieldset>
       <label className="text-sm sm:col-span-2">Motivo (obrigatório na saída e no remanejamento)<Input value={reason} onChange={(e) => setReason(e.target.value)} /></label>

@@ -33,5 +33,6 @@ export const recordExit =  (a: { enrollment: string; effectiveOn: string; moveme
 export async function readMovementTypes(): Promise<{ id: string; version: number; label: string }[]> {
   const { data, error } = await supabase.from("movement_type_definitions").select("id,version,label,status").eq("status", "homologada");
   if (error) return [];
-  return (data ?? []) as { id: string; version: number; label: string }[];
+  // Falecimento só pelo formulário de óbito (certidão + bloqueio definitivo).
+  return ((data ?? []) as { id: string; version: number; label: string }[]).filter((t) => t.id !== "falecimento");
 }
