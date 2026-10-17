@@ -70,7 +70,7 @@ function MeasureItem({ school, student, a, onDone }: { school: string; student: 
       {detail && <ol className="mt-2 space-y-1 text-xs">{detail.map((x) => (
         <li key={x.seq}>{x.action} em {formatAcademicDateNumeric(x.recorded_at.slice(0, 10) as never)}{x.summary ? ` — ${x.summary}` : ""}{x.reason ? ` (motivo: ${x.reason})` : ""}
           {x.document_path && <Button size="sm" variant="link" onClick={() => void doc(x.document_path!)}>Abrir documento</Button>}</li>))}</ol>}
-      {err && <p className="text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-destructive">{err}</p>}
     </li>
   );
 }
@@ -105,7 +105,7 @@ function MeasureForm({ school, student, onDone }: { school: string; student: str
       <label>Vale até (opcional)<DateInput value={until} onChange={(e) => setUntil(e.target.value)} /></label>
       <label className="sm:col-span-2">Resumo da decisão (sigiloso)<Input className="mt-1" value={summary} maxLength={1000} onChange={(e) => setSummary(e.target.value)} /></label>
       <label className="sm:col-span-2">Mandado ou decisão judicial (PDF ou foto)<input className="mt-1 block" type="file" accept="application/pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
-      {err && <p className="text-destructive sm:col-span-2">{err}</p>}
+      {err && <p role="alert" className="text-destructive sm:col-span-2">{err}</p>}
       <div className="sm:col-span-2"><Button size="sm" disabled={busy || !from || (kind === "impedimento-de-retirada" && person.trim().length < 3)} onClick={() => void save()}>Salvar medida</Button></div>
     </div>
   );
