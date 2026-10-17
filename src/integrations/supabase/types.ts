@@ -35025,6 +35025,50 @@ export type Database = {
           },
         ]
       }
+      student_protection_recipient_events: {
+        Row: {
+          action: string
+          authorization_logical_id: string
+          id: string
+          measure_id: string
+          protection_seq: number
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          seq: number
+        }
+        Insert: {
+          action: string
+          authorization_logical_id: string
+          id?: string
+          measure_id: string
+          protection_seq: number
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          seq: number
+        }
+        Update: {
+          action?: string
+          authorization_logical_id?: string
+          id?: string
+          measure_id?: string
+          protection_seq?: number
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_protection_recipient_eve_measure_id_protection_seq_fkey"
+            columns: ["measure_id", "protection_seq"]
+            isOneToOne: false
+            referencedRelation: "student_protection_events"
+            referencedColumns: ["measure_id", "seq"]
+          },
+        ]
+      }
       student_registration_events: {
         Row: {
           author_person_id: string
@@ -43658,6 +43702,7 @@ export type Database = {
           version: number
         }[]
       }
+      family_protection_notice: { Args: { _student: string }; Returns: boolean }
       family_published_menus: {
         Args: { _on: string; _student: string }
         Returns: {
@@ -49867,6 +49912,19 @@ export type Database = {
         }
         Returns: string
       }
+      record_protection_recipient: {
+        Args: {
+          _action: string
+          _authorization: string
+          _expected_protection_seq: number
+          _expected_seq: number
+          _measure: string
+          _reason: string
+          _school: string
+          _student: string
+        }
+        Returns: undefined
+      }
       record_protocol_event: {
         Args: {
           _event_type: string
@@ -51678,6 +51736,15 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      school_protection_recipients: {
+        Args: { _measure: string; _school: string; _student: string }
+        Returns: {
+          authorization_id: string
+          guardian_name: string
+          indicated: boolean
+          sequence: number
+        }[]
       }
       school_record_version_core: {
         Args: {
