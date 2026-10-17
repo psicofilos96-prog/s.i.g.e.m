@@ -13,6 +13,7 @@ import { withIssuance, type IssuedCard } from "./card-issuance";
 import { cardPhotoUrl, readFamilyCards } from "./card-issuance-source";
 import { readCardLayout } from "./card-layout";
 import { FamilyHealth } from "./family-health-panel";
+import { ProtectionNoticePanel } from "./protection-notice-panel";
 
 export function FamilyPortalPage({ requested }: { requested: string | undefined }) {
   const navigate = useNavigate();
@@ -48,6 +49,8 @@ function Summary({ studentId, student }: { studentId: string; student: FamilyStu
   const visible = FAMILY_SECTIONS.filter((k) => sectionState(s, k).kind !== "nao-autorizada");
   return (
     <div className="space-y-6">
+      {student && s.sections.includes("matricula") && (
+        <ProtectionNoticePanel studentId={studentId} />)}
       {student && s.sections.includes("matricula") && (
         <section aria-labelledby="cart" className="space-y-2">
           <h2 id="cart" className="text-lg font-semibold">Carteirinha</h2>
