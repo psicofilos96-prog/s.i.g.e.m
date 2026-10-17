@@ -51,5 +51,8 @@ export const JUSTIFICATION_MESSAGES: Record<string, string> = {
   "justification:not-a-student": "Este aluno não tem matrícula nesta escola.",
   "justification:duplicate": "Este documento já foi registrado.",
   "justification:reason-required": "Explique o motivo da anulação.",
+  "justification:path-invalid": "Arquivo em local inválido.",
+  "justification:file-missing": "O arquivo não chegou. Envie de novo.",
+  "justification:not-found": "Atestado não encontrado.",
   "justification:already-void": "Este registro já foi anulado.",
 };

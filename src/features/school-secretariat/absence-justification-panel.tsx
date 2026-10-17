@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDateNumeric } from "@/lib/academic-date";
+import { checkUpload } from "@/features/privacy/file-guard";
 import { JUSTIFICATION_KINDS, JUSTIFICATION_MESSAGES, kindLabel, projectJustifications, type Justification, type JustificationEvent } from "./absence-justification";
 
 const d = (s: string) => formatAcademicDateNumeric(s as never);
@@ -20,7 +21,12 @@ export function AbsenceJustificationPanel({ school, student }: { school: string;
   const [open, setOpen] = useState(false);
   const [f, setF] = useState({ kind: "", starts: "", ends: "", issuer: "", registry: "", by: "", on: "", note: "" });
   const [msg, setMsg] = useState<string | null>(null);
+  const [files, setFiles] = useState<Record<string, string[]>>({});
   async function load() {
+    const att = await supabase.from("student_absence_justification_attachments").select("justification_id,object_path").eq("school_id", school);
+    const m: Record<string, string[]> = {};
+    for (const a of att.data ?? []) (m[a.justification_id] ??= []).push(a.object_path);
+    setFiles(m);
     const { data, error } = await supabase.from("student_absence_justification_events")
       .select("justification_id,act,doc_kind,starts_on,ends_on,issuer_name,issuer_registry,delivered_by,delivered_on,reason,recorded_at")
       .eq("school_id", school).eq("student_id", student);
@@ -42,6 +48,23 @@ export function AbsenceJustificationPanel({ school, student }: { school: string;
     try { await callRpc("secretariat_void_absence_justification", { _justification: j.id, _reason: reason }); void load(); }
     catch (e) { setMsg(msgOf(e)); }
   };
+  const attach = async (j: Justification, file: File) => {
+    setMsg(null);
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const c = checkUpload(bytes, file.type, ["image/jpeg", "image/png", "image/webp", "application/pdf"], 10 * 1024 * 1024);
+    if (!c.ok) { setMsg(c.reason === "grande-demais" ? "O arquivo passa de 10 MB." : "Envie uma foto (JPG, PNG) ou um PDF."); return; }
+    const ext = c.mime === "application/pdf" ? "pdf" : c.mime.split("/")[1];
+    const path = `${school}/${j.id}/${crypto.randomUUID()}.${ext}`;
+    const up = await supabase.storage.from("atestados").upload(path, bytes, { contentType: c.mime });
+    if (up.error) { setMsg("Não foi possível enviar o arquivo. Tente de novo."); return; }
+    try { await callRpc("secretariat_attach_absence_justification", { _justification: j.id, _path: path, _mime: c.mime }); void load(); }
+    catch (e) { setMsg(msgOf(e)); }
+  };
+  const view = async (path: string) => {
+    const { data } = await supabase.storage.from("atestados").createSignedUrl(path, 120);
+    if (data?.signedUrl) window.open(data.signedUrl, "_blank", "noopener");
+    else setMsg("Não foi possível abrir o arquivo.");
+  };
   const ready = f.kind && f.starts && f.ends && f.on && f.issuer.trim().length >= 3;
   return (
     <details className="rounded-md border border-border p-3 text-sm">
@@ -55,6 +78,11 @@ export function AbsenceJustificationPanel({ school, student }: { school: string;
               {!j.voided && <Button size="sm" variant="outline" onClick={() => void voidIt(j)}>Anular</Button>}
             </div>
             {j.voided && <p className="no-underline">Anulado: {j.voidReason}</p>}
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              {(files[j.id] ?? []).map((p, i) => <Button key={p} size="sm" variant="ghost" onClick={() => void view(p)}>Ver arquivo {i + 1}</Button>)}
+              {!j.voided && <label className="cursor-pointer text-primary underline-offset-4 hover:underline">Anexar foto ou PDF
+                <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" capture="environment" className="sr-only" onChange={(e) => { const fl = e.target.files?.[0]; e.target.value = ""; if (fl) void attach(j, fl); }} /></label>}
+            </div>
           </li>))}</ul>
         <Button size="sm" onClick={() => setOpen((v) => !v)}>{open ? "Fechar" : "Registrar atestado"}</Button>
         {open && (
