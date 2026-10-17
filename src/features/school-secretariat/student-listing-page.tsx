@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { callRpc } from "@/lib/rpc-call";
 import { operationalToday } from "@/lib/academic-date";
 import { institution } from "@/config/institution";
 import { downloadBlob, runReport, toPdfFile, toXlsx } from "@/features/reports/report-engine";
@@ -27,7 +26,7 @@ export function StudentListingPage() {
     if (!own) return;
     let active = true;
     setRows(null); setErr(null);
-    void readPages((from, to) => supabase.rpc("secretariat_own_student_listing", {}).order("student_name").order("student_id").range(from, to).abortSignal(AbortSignal.timeout(15000)), 20000)
+    void readPages((from, to) => supabase.rpc("secretariat_own_student_listing").order("student_name").order("student_id").range(from, to).abortSignal(AbortSignal.timeout(15000)), 20000)
       .then((r) => { if (!active) return; if (r.error || r.truncated) { setErr("Não foi possível consultar a lista completa. Tente novamente."); return; } setRows((r.data ?? []) as ListingRow[]); });
     return () => { active = false; };
   }, [own]);
