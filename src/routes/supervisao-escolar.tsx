@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
 import { EmptyState } from "@/components/sigem/patterns";
 import { SupervisionPage } from "@/features/school-supervision/supervision-page";
-import { InfrequencyConfigurationPanel } from "@/features/notifications/infrequency-configuration-panel";
 
 export const Route = createFileRoute("/supervisao-escolar")({
   head: () => ({
@@ -19,5 +18,5 @@ export const Route = createFileRoute("/supervisao-escolar")({
 });
 
 function Page() {
-  return <ClassRouteGate institutional={() => <div className="space-y-8"><SupervisionPage /><InfrequencyConfigurationPanel /></div>} laboratory={() => <EmptyState title="Entre para acessar" description="A estação da Supervisão só existe com login institucional." />} />;
+  return <ClassRouteGate institutional={() => <SupervisionPage />} laboratory={() => <EmptyState title="Entre para acessar" description="A estação da Supervisão só existe com login institucional." />} />;
 }
