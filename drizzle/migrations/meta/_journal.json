@@ -3914,6 +3914,13 @@
       "when": 1792260599232,
       "tag": "0558_secretariat_medical_certificates",
       "breakpoints": true
+    },
+    {
+      "idx": 559,
+      "version": "7",
+      "when": 1792261710810,
+      "tag": "0559_absence_justification_attachments",
+      "breakpoints": true
     }
   ]
 }

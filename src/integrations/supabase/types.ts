@@ -33836,6 +33836,36 @@ export type Database = {
           },
         ]
       }
+      student_absence_justification_attachments: {
+        Row: {
+          id: string
+          justification_id: string
+          mime: string
+          object_path: string
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+        }
+        Insert: {
+          id?: string
+          justification_id: string
+          mime: string
+          object_path: string
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+        }
+        Update: {
+          id?: string
+          justification_id?: string
+          mime?: string
+          object_path?: string
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+        }
+        Relationships: []
+      }
       student_absence_justification_events: {
         Row: {
           act: string
@@ -51633,6 +51663,10 @@ export type Database = {
           label: string
           matrix_version_id: string
         }[]
+      }
+      secretariat_attach_absence_justification: {
+        Args: { _justification: string; _mime: string; _path: string }
+        Returns: string
       }
       secretariat_class_vacancies_at: {
         Args: { _on: string; _school: string; _year: string }
