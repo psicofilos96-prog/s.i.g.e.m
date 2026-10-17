@@ -3907,6 +3907,13 @@
       "when": 1792258492163,
       "tag": "0557_secretariat_protective_measures",
       "breakpoints": true
+    },
+    {
+      "idx": 558,
+      "version": "7",
+      "when": 1792260599232,
+      "tag": "0558_secretariat_medical_certificates",
+      "breakpoints": true
     }
   ]
 }
