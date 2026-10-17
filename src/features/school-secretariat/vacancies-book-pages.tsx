@@ -66,7 +66,7 @@ export function VacanciesPage() {
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-muted-foreground">Lista de espera e solicitações de vaga ainda não existem: a rede não definiu critério de prioridade.</p>
+            <p className="text-sm"><Link to="/secretaria/fila-de-vagas" className="text-primary underline">Ver a fila de vagas da escola</Link></p>
           </>
         )}
     </div>

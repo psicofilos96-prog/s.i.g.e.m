@@ -4,7 +4,7 @@
  */
 export type SecretariatTask = {
   id: string; title: string; hint: string;
-  target: { kind: "route"; to: "/matriculas/nova" | "/documentos-escolares" | "/preparacao-ano" | "/secretaria/vagas" | "/secretaria/livro-matricula" | "/secretaria/tabelas-semed" | "/educacenso" | "/docserv" } | { kind: "find-student" };
+  target: { kind: "route"; to: "/matriculas/nova" | "/documentos-escolares" | "/preparacao-ano" | "/secretaria/vagas" | "/secretaria/fila-de-vagas" | "/secretaria/livro-matricula" | "/secretaria/tabelas-semed" | "/educacenso" | "/docserv" } | { kind: "find-student" };
 };
 
 export const SECRETARIAT_TASKS: readonly SecretariatTask[] = [
@@ -15,6 +15,7 @@ export const SECRETARIAT_TASKS: readonly SecretariatTask[] = [
   { id: "renovar", title: "Renovar matrícula", hint: "Decida quem continua no próximo ano.", target: { kind: "route", to: "/preparacao-ano" } },
   { id: "documento", title: "Emitir documento", hint: "Declaração e outros documentos.", target: { kind: "route", to: "/documentos-escolares" } },
   { id: "vagas", title: "Ver vagas", hint: "Lugares livres em cada turma.", target: { kind: "route", to: "/secretaria/vagas" } },
+  { id: "fila-vagas", title: "Fila de vagas", hint: "Pedidos de vaga e convocação.", target: { kind: "route", to: "/secretaria/fila-de-vagas" } },
   { id: "livro", title: "Livro de Matrícula", hint: "Lista das matrículas do ano.", target: { kind: "route", to: "/secretaria/livro-matricula" } },
   { id: "tabelas-semed", title: "Tabelas SEMED", hint: "Tabelas 04, 06, 09, 10 e 11 do ano.", target: { kind: "route", to: "/secretaria/tabelas-semed" } },
   { id: "docserv", title: "Documentos dos servidores", hint: "Antecedentes dos servidores da escola.", target: { kind: "route", to: "/docserv" } },

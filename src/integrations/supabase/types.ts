@@ -31672,6 +31672,101 @@ export type Database = {
         }
         Relationships: []
       }
+      school_vacancy_request_events: {
+        Row: {
+          action: string
+          due_on: string | null
+          id: string
+          note: string | null
+          recorded_at: string
+          recorded_by: string
+          request_id: string
+          seq: number
+        }
+        Insert: {
+          action: string
+          due_on?: string | null
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by: string
+          request_id: string
+          seq: number
+        }
+        Update: {
+          action?: string
+          due_on?: string | null
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          request_id?: string
+          seq?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_vacancy_request_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "school_vacancy_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_vacancy_requests: {
+        Row: {
+          desired_shift: string | null
+          desired_stage: string
+          guardian_name: string
+          guardian_phone: string | null
+          id: string
+          idempotency_key: string
+          note: string | null
+          protocol_code: string
+          protocol_seq: number
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          student_birth_date: string
+          student_name: string
+          year_label: string
+        }
+        Insert: {
+          desired_shift?: string | null
+          desired_stage: string
+          guardian_name: string
+          guardian_phone?: string | null
+          id?: string
+          idempotency_key: string
+          note?: string | null
+          protocol_code: string
+          protocol_seq: number
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          student_birth_date: string
+          student_name: string
+          year_label: string
+        }
+        Update: {
+          desired_shift?: string | null
+          desired_stage?: string
+          guardian_name?: string
+          guardian_phone?: string | null
+          id?: string
+          idempotency_key?: string
+          note?: string | null
+          protocol_code?: string
+          protocol_seq?: number
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          student_birth_date?: string
+          student_name?: string
+          year_label?: string
+        }
+        Relationships: []
+      }
       sector_parameter_catalog: {
         Row: {
           allowed: Json | null
@@ -51461,6 +51556,27 @@ export type Database = {
           student_name: string
         }[]
       }
+      secretariat_own_vacancy_requests: {
+        Args: { _year: string }
+        Returns: {
+          desired_shift: string
+          desired_stage: string
+          due_on: string
+          guardian_name: string
+          guardian_phone: string
+          id: string
+          last_action: string
+          last_at: string
+          last_note: string
+          last_seq: number
+          note: string
+          protocol_code: string
+          protocol_seq: number
+          recorded_at: string
+          student_birth_date: string
+          student_name: string
+        }[]
+      }
       secretariat_own_vaccination_report: {
         Args: never
         Returns: {
@@ -51541,6 +51657,23 @@ export type Database = {
         }
         Returns: string
       }
+      secretariat_register_vacancy_request: {
+        Args: {
+          _birth: string
+          _guardian_name: string
+          _key: string
+          _note: string
+          _phone: string
+          _shift: string
+          _stage: string
+          _student_name: string
+          _year: string
+        }
+        Returns: {
+          id: string
+          protocol_code: string
+        }[]
+      }
       secretariat_student_document_status: {
         Args: { _school: string; _student: string }
         Returns: {
@@ -51570,6 +51703,16 @@ export type Database = {
           person_name: string
           position_label: string
         }[]
+      }
+      secretariat_vacancy_request_act: {
+        Args: {
+          _action: string
+          _due: string
+          _expected_seq: number
+          _note: string
+          _request: string
+        }
+        Returns: number
       }
       sector_admin_coverage_issues: {
         Args: never

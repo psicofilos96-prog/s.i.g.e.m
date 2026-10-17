@@ -3886,6 +3886,13 @@
       "when": 1792251488165,
       "tag": "0554_secretariat_vaccination_and_renewal_reports",
       "breakpoints": true
+    },
+    {
+      "idx": 555,
+      "version": "7",
+      "when": 1792254157521,
+      "tag": "0555_secretariat_vacancy_request_bank",
+      "breakpoints": true
     }
   ]
 }
