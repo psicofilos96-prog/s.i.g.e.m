@@ -298,6 +298,27 @@ function SECRETARIA_DOC_SOURCES(): BuilderSource[] {
       load: once(async () => { const now = new Date(); const m = String(now.getMonth() + 1).padStart(2, "0");
         return (await read()).filter((x) => x.birth_date?.slice(5, 7) === m).sort((a, b) => (a.birth_date ?? "").slice(8).localeCompare((b.birth_date ?? "").slice(8)))
           .map((x) => ({ day: (x.birth_date ?? "").slice(8, 10), student_name: x.student_name, age: now.getFullYear() - Number((x.birth_date ?? "0").slice(0, 4)) })); }) },
+    { id: "secretaria-vacinacao-pendente", title: "Alunos com vacinação pendente (30 dias)", sectors: ["secretaria"],
+      definition: { id: "secretaria-vacinacao-pendente", version: 1, title: "Alunos com vacinação pendente (30 dias)", description: "Alunos da sua escola cuja última situação vacinal registrada é pendente, com o prazo de 30 dias.", source: "secretariat_own_vaccination_report", params: [],
+        columns: [C("student_name", "Aluno"), C("declared_on", "Pendência registrada em"), C("due_on", "Prazo"), C("late", "Prazo vencido")], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000 },
+      methodology: "Última situação vacinal registrada pela Secretaria na ficha do aluno; prazo = data registrada + 30 dias. Aluno sem registro não entra.",
+      acl: "Somente a própria escola, com permissão de matrícula.", period: false, pageSize: 5000, filterable: ["late"],
+      load: once(async () => {
+        const r = await (supabase.rpc as unknown as (f: string) => Promise<{ data: { student_name: string; status: string; declared_on: string; due_on: string | null }[] | null; error: unknown }>)("secretariat_own_vaccination_report");
+        if (r.error) fail(); const today = new Date().toISOString().slice(0, 10);
+        return (r.data ?? []).filter((x) => x.status === "pendente").sort((a, b) => (a.due_on ?? "").localeCompare(b.due_on ?? ""))
+          .map((x) => ({ student_name: x.student_name, declared_on: br(x.declared_on), due_on: br(x.due_on), late: x.due_on && x.due_on < today ? "Sim" : "Não" }));
+      }) },
+    { id: "secretaria-renovacao-pendente", title: "Alunos pendentes de renovação (2026 → 2027)", sectors: ["secretaria"],
+      definition: { id: "secretaria-renovacao-pendente", version: 1, title: "Alunos pendentes de renovação (2026 → 2027)", description: "Alunos matriculados na sua escola em 2026 sem renovação registrada para 2027.", source: "secretariat_own_renewal_pending", params: [],
+        columns: [C("student_name", "Aluno"), C("situation", "Situação")], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000 },
+      methodology: "Candidatos da rematrícula 2026→2027 da escola; entra quem não tem decisão registrada ou foi marcado como não renovou.",
+      acl: "Somente a própria escola, com permissão de matrícula.", period: false, pageSize: 5000, filterable: ["situation"],
+      load: once(async () => {
+        const r = await (supabase.rpc as unknown as (f: string, a: Record<string, string>) => Promise<{ data: { student_name: string; decision: string | null }[] | null; error: unknown }>)("secretariat_own_renewal_pending", { _from_label: "2026", _to_label: "2027" });
+        if (r.error) fail();
+        return (r.data ?? []).map((x) => ({ student_name: x.student_name, situation: x.decision === "nao-renovou" ? "Não renovou" : "Sem decisão" }));
+      }) },
   ];
 }
 function LOTE11_SOURCES(): BuilderSource[] {
