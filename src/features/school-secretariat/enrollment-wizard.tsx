@@ -115,7 +115,7 @@ function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: 
   const edit = (f: (x: WizardPayload) => WizardPayload) => { const n = f(pRef.current); pRef.current = n; setP(n); auto.change(n); };
   const go = async (n: number) => { stepRef.current = n; setStep(n); auto.change(pRef.current); await auto.flush(); };
   const identity = { existingStudentId: ident.existingStudentId, hasCpf: ident.hasCpf || !!official?.has_cpf, inep: ident.inep,
-    birthDate: official?.birth_date, certificate: official?.has_certificate ? "Registrada" : p.documentos?.certidao, cpfRequiredFrom: cutoff };
+    birthDate: official?.birth_date ?? null, certificate: official?.has_certificate ? "Registrada" : p.documentos?.certidao ?? null, cpfRequiredFrom: cutoff };
   const missing = missingByStep(p, identity);
   const fp = fieldProblems(p, identity);
   const [done, setDone] = useState<{ studentId: string; name: string } | null>(null);

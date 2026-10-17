@@ -1,8 +1,10 @@
 # Roadmap — SIGEM simples no design original
 
 ## Secretaria — complementação solicitada em 17/10/2026
+- [x] Registrar os anexos reenviados como referências de termos e ofícios, sem importar pessoas ou atos (modelos já abrangidos pelo plano)
 - [x] Conferir o segundo lote de modelos: Educação Especial, justificativa de faltas, pré-matrícula, retirada de aluno, atas, ofícios e Bolsa Família; aproveitar estruturas sem importar fatos pessoais
-- [ ] 1. CPF obrigatório para nascidos desde 01/12/2017; certidão alternativa só para anteriores; validar no formulário e no banco
+- [x] 1a. CPF obrigatório desde 01/12/2017 e certidão para anteriores: validação no formulário e no banco, parâmetro versionado, 21 testes e seis limites com sessão escolar
+- [ ] 1b. Provar conclusão completa, transferência e renovação com nova exigência — falta fixture descartável apta pela porta institucional; nenhuma matrícula real usada
 - [ ] 2. Solicitação de vagas integrada à fila oficial existente
 - [ ] 3. Termos legais e consentimentos no cadastro, a partir dos modelos enviados
 - [ ] 4. Medidas protetivas/restrição de retirada e documentos judiciais privados
