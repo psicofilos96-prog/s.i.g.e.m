@@ -15,6 +15,9 @@ import {
   ALLOWED, defaultDueOn, isOpen, queuePositions, queueReportRows, requestState, SHIFT_OPTIONS, STAGE_OPTIONS, STATE_LABEL,
   VACANCY_QUEUE_REPORT, VACANCY_REQUEST_MESSAGES, type VacancyRequestAction, type VacancyRequestRow,
 } from "./vacancy-request-bank";
+import { vacancyReceiptPdf } from "./vacancy-request-receipt";
+import { useQuery } from "@tanstack/react-query";
+import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 
 const msg = (e: unknown): string => {
   const m = e instanceof Error ? e.message : String(e);
@@ -34,6 +37,8 @@ export function VacancyRequestPage() {
   const [rows, setRows] = useState<VacancyRequestRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const nameQ = useQuery({ queryKey: ["own-school-name", school], queryFn: () => readCurrentSchoolNames([school!]), enabled: !!school, staleTime: 600_000 });
+  const schoolName = (school && nameQ.data?.get(school)) || "Escola";
   const [filter, setFilter] = useState<"abertos" | "todos">("abertos");
   const load = () => { setRows(null); setErr(null); callRpc<VacancyRequestRow[]>("secretariat_own_vacancy_requests", { _year: year }).then((r) => setRows(r ?? []), (e) => setErr(msg(e))); };
   useEffect(() => { if (school) load(); }, [school, year]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -78,14 +83,14 @@ export function VacancyRequestPage() {
         : shown.length === 0 ? <EmptyState title="Nenhum pedido" description="Use “Novo pedido” para registrar quem procura vaga." />
         : (
           <ul className="space-y-3">
-            {shown.map((r) => <RequestCard key={r.id} r={r} position={pos.get(r.id)} onChanged={load} />)}
+            {shown.map((r) => <RequestCard key={r.id} r={r} position={pos.get(r.id)} onChanged={load} schoolName={schoolName} />)}
           </ul>
         )}
     </div>
   );
 }
 
-function RequestCard({ r, position, onChanged }: { r: VacancyRequestRow; position: number | undefined; onChanged: () => void }) {
+function RequestCard({ r, position, onChanged, schoolName }: { r: VacancyRequestRow; position: number | undefined; onChanged: () => void; schoolName: string }) {
   const st = requestState(r.last_action);
   const [act, setAct] = useState<VacancyRequestAction | null>(null);
   const [due, setDue] = useState(defaultDueOn(operationalToday()));
@@ -106,7 +111,10 @@ function RequestCard({ r, position, onChanged }: { r: VacancyRequestRow; positio
           {st === "convocada" && r.due_on && <p className="text-sm">Comparecer até <strong>{br(r.due_on)}</strong></p>}
           {r.last_note && <p className="text-xs text-muted-foreground">Obs.: {r.last_note}</p>}
         </div>
-        <StatusBadge tone={TONE[st]}>{STATE_LABEL[st]}</StatusBadge>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="ghost" onClick={async () => downloadBlob(`comprovante-${r.protocol_code}.pdf`, await vacancyReceiptPdf(r, schoolName))}>Comprovante</Button>
+          <StatusBadge tone={TONE[st]}>{STATE_LABEL[st]}</StatusBadge>
+        </div>
       </div>
       {ALLOWED[st].length > 0 && (
         <div className="mt-3 flex flex-wrap gap-2">
@@ -143,7 +151,7 @@ function NewRequestForm({ year, onDone }: { year: string; onDone: () => void }) 
   };
   if (done !== null) return (
     <StatePanel tone="success" title={`Pedido registrado — protocolo ${done}`}
-      description="Informe o número ao responsável. Pedido não é matrícula nem garante vaga."
+      description="Baixe o comprovante no pedido, na fila, e entregue ao responsável. Pedido não é matrícula nem garante vaga."
       action={<Button onClick={onDone}>Voltar à fila</Button>} />
   );
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });

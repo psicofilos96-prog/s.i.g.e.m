@@ -5,7 +5,7 @@
 - [x] Conferir o segundo lote de modelos: Educação Especial, justificativa de faltas, pré-matrícula, retirada de aluno, atas, ofícios e Bolsa Família; aproveitar estruturas sem importar fatos pessoais
 - [x] 1a. CPF obrigatório desde 01/12/2017 e certidão para anteriores: validação no formulário e no banco, parâmetro versionado, 21 testes e seis limites com sessão escolar
 - [x] 1b. Conclusão completa provada com sec.99999901 (escola de teste): 6 limites (2018 sem CPF recusa; 2016 sem certidão recusa; 2016 com certidão, 2018 com CPF e 30/11/2017 com certidão aceitos; 01/12/2017 só com certidão recusa). Alunos de teste: "TESTE CPF …"
-- [x] 2. Fila de vagas da escola (/secretaria/fila-de-vagas): pedido com protocolo SV-ano-nº, ordem de protocolo por etapa (padrão do sistema), convocar com prazo (padrão 5 dias), matriculado/não compareceu/desistiu/cancelar/voltar à fila; testado com sec.99999901 (pedido "TESTE FILA ALUNO UM")
+- [x] 2. Fila de vagas da escola (/secretaria/fila-de-vagas): pedido com protocolo SV-ano-nº, ordem de protocolo por etapa (padrão do sistema), convocar com prazo (padrão 5 dias), matriculado/não compareceu/desistiu/cancelar/voltar à fila; testado com sec.99999901 (pedido "TESTE FILA ALUNO UM"); comprovante A4 em PDF por pedido
 - [ ] 3. Termos legais e consentimentos no cadastro, a partir dos modelos enviados
 - [ ] 4. Medidas protetivas/restrição de retirada e documentos judiciais privados
 - [ ] 5. Atestados médicos integrados à frequência
