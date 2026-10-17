@@ -53,8 +53,10 @@ export function ReceiveTransferPanel({ school, year, on }: { school: string; yea
         if (name.trim().split(/\s+/).length < 2 || !birth) { setMsg("Informe nome completo E data de nascimento."); return; }
         const r = (await locateStudentByName(school, name.trim(), birth)).filter((m) => m.birth_date === birth);
         if (r.length !== 1) { setMsg(r.length ? "Mais de um aluno com esse nome e nascimento. Use o CPF." : "Nenhum aluno com esse nome e nascimento."); return; }
-        setStudent({ id: r[0]!.student_id, name: r[0]!.display_name });
-        setHist(await readTransferHistory(school, r[0]!.student_id));
+        const match = r[0];
+        if (!match) return;
+        setStudent({ id: match.student_id, name: match.display_name });
+        setHist(await readTransferHistory(school, match.student_id));
       }
     } catch (e) { setMsg(errText(e)); }
   }
@@ -109,9 +111,10 @@ export function DeathRecordPanel({ enrollment, student, onDone }: { enrollment: 
   if (rec) return <p className="rounded-md border border-destructive/40 p-3 text-sm">Óbito registrado em {d(rec.died_on)} — certidão {rec.certificate_number}. Matrícula bloqueada definitivamente.</p>;
   if (!enrollment) return null;
   async function save() {
+    if (!enrollment) return;
     if (!(await confirmAction({ title: "Registrar óbito", consequence: "A matrícula será encerrada e o aluno ficará bloqueado para sempre. Isso não pode ser desfeito.", actionLabel: "Continuar", destructive: true }))) return;
     if (!(await confirmAction({ title: "Tem certeza?", consequence: `Confirme a certidão ${cert.trim()} e a data ${d(date)}.`, actionLabel: "Registrar óbito", destructive: true }))) return;
-    try { await recordDeath({ enrollment: enrollment!, certificate: cert.trim(), diedOn: date, note }); setRec(await readDeath(student)); onDone(); }
+    try { await recordDeath({ enrollment, certificate: cert.trim(), diedOn: date, note }); setRec(await readDeath(student)); onDone(); }
     catch (e) { setMsg(errText(e)); }
   }
   return (
@@ -135,7 +138,6 @@ export function RenewalBatchPanel({ school }: { school: string }) {
   const [sel, setSel] = useState<Set<string>>(new Set()); const [msg, setMsg] = useState<string | null>(null); const [busy, setBusy] = useState(false);
   useEffect(() => { readYears().then(setYears, () => setYears([])); }, []);
   async function load() {
-    setMsg(null);
     try { const r = (await readCandidates(school, from, to)) as unknown as RenewalCandidate[]; setRows(r); setFp(renewalFingerprint(r)); setSel(new Set(groupRenewal(r).prontos.map((x) => x.student_id))); }
     catch (e) { setMsg(errText(e)); }
   }
@@ -143,6 +145,8 @@ export function RenewalBatchPanel({ school }: { school: string }) {
     if (!rows) return;
     if (!(await confirmAction({ title: "Confirmar rematrícula", consequence: `${sel.size} aluno(s) serão renovados para o novo ano, sem turma.`, actionLabel: "Renovar" }))) return;
     setBusy(true);
+    setMsg(null);
+    try {
     const fresh = (await readCandidates(school, from, to)) as unknown as RenewalCandidate[];
     if (renewalFingerprint(fresh) !== fp) { setBusy(false); setRows(fresh); setFp(renewalFingerprint(fresh)); setMsg("A lista mudou desde a prévia. Confira de novo e confirme."); return; }
     const ok: string[] = []; const bad: string[] = [];
@@ -151,13 +155,20 @@ export function RenewalBatchPanel({ school }: { school: string }) {
       catch (e) { bad.push(`${r.display_name}: ${errText(e)}`); }
     }
     setBusy(false); setMsg(`Renovados: ${ok.length}. Recusados: ${bad.length}.${bad.length ? " " + bad.join("; ") : ""}`); await load();
+    } catch (e) { setMsg(errText(e)); } finally { setBusy(false); }
   }
   async function terms() {
     if (!rows) return;
+    setBusy(true); setMsg(null);
+    try {
     const done = groupRenewal(rows).renovados; const yl = years.find((y) => y.id === to)?.label ?? null;
     const h = await loadSchoolHeader(school).catch(() => null);
-    for (const r of done) if (r.resulting_enrollment_id) await recordRenewalTerm({ enrollment: r.resulting_enrollment_id, grade: null, image: null, address: null }).catch(() => null);
+    for (const r of done) {
+      if (!r.resulting_enrollment_id) throw new Error("Não foi encontrada a matrícula renovada. Confira a lista novamente.");
+      await recordRenewalTerm({ enrollment: r.resulting_enrollment_id, grade: null, image: null, address: null });
+    }
     downloadBlob(renewalTermPdf(h?.school ?? null, done.map((r) => ({ studentName: r.display_name, yearLabel: yl, grade: null, image: null, address: null }))), `termos-renovacao-${yl ?? to}.pdf`);
+    } catch (e) { setMsg(errText(e)); } finally { setBusy(false); }
   }
   const g = rows ? groupRenewal(rows) : null;
   const yearSel = (v: string, set: (s: string) => void, label: string) => (
@@ -180,7 +191,7 @@ export function RenewalBatchPanel({ school }: { school: string }) {
         </ul>
         <div className="flex flex-wrap gap-2">
           <Button disabled={!sel.size || busy} onClick={() => void confirm()}>Confirmar rematrícula ({sel.size})</Button>
-          <Button variant="outline" disabled={!g.renovados.length} onClick={() => void terms()}>Baixar Termos de Renovação ({g.renovados.length})</Button>
+          <Button variant="outline" disabled={!g.renovados.length || busy} onClick={() => void terms()}>Baixar Termos de Renovação ({g.renovados.length})</Button>
         </div>
       </>) : null}
       {msg ? <p role="status">{msg}</p> : null}
