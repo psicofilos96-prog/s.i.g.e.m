@@ -13,8 +13,8 @@ import { readYears, locateStudent, locateStudentByName, type StudentNameMatch, t
 import { readSchoolLife } from "./secretariat-source";
 import { lifeKindLabel } from "./secretariat";
 import { WIZARD_STEPS, canComplete, fieldProblems, missingByStep, photoPath, photoProblem, seatLabel, sniffImage, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
-import { abandonDraft, bindPhoto, classOptions, completeDraft, currentStudentPhoto, openDrafts, photoUrl, removePhoto, saveDraft, uploadPhoto, type OpenDraft } from "./enrollment-wizard-source";
-import { formatDateTime } from "@/lib/academic-date";
+import { abandonDraft, bindPhoto, classOptions, completeDraft, currentStudentPhoto, openDrafts, photoUrl, readCpfRequiredFrom, readStudentDocumentStatus, removePhoto, saveDraft, uploadPhoto, type OpenDraft } from "./enrollment-wizard-source";
+import { formatAcademicDate, formatDateTime } from "@/lib/academic-date";
 
 /** N5.2.1 — Cadastrar aluno → Matricular → Enturmar → Revisar → Concluir, numa só tela retomável. */
 export function EnrollmentWizard() {
@@ -42,11 +42,12 @@ export function EnrollmentWizard() {
 }
 
 function DraftPicker({ school }: { school: string }) {
+  const [cutoff, setCutoff] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<OpenDraft[] | null>(null); const [err, setErr] = useState("");
   const [current, setCurrent] = useState<OpenDraft | null>(null);
-  const load = () => openDrafts(school).then(setDrafts, (e) => setErr(wizardMessage(e)));
+  const load = () => Promise.all([openDrafts(school), readCpfRequiredFrom()]).then(([ds, date]) => { setDrafts(ds); setCutoff(date); }, (e) => setErr(wizardMessage(e)));
   useEffect(() => { void load(); }, [school]);
-  if (current) return <Wizard school={school} initial={current} onExit={() => { setCurrent(null); void load(); }} />;
+  if (current && cutoff) return <Wizard school={school} initial={current} cutoff={cutoff} onExit={() => { setCurrent(null); void load(); }} />;
   if (err) return <p role="alert" className="text-destructive">{err}</p>;
   if (!drafts) return <SkeletonState label="Carregando rascunhos" />;
   const fresh = (): OpenDraft => ({ draftId: crypto.randomUUID(), sequence: 0, step: 1, payload: {}, hasCpf: false, cpfHint: null, inep: null,
@@ -90,10 +91,17 @@ function Field({ label, value, onChange, type = "text", hint, error }: { label: 
 
 const STATUS: Record<AutosaveStatus, string> = { ocioso: "", pendente: "Alterações não salvas…", salvando: "Salvando…", salvo: "Salvo", erro: "Não foi possível salvar o rascunho", "sem-conexao": "Sem conexão — o rascunho será salvo quando a conexão voltar" };
 
-function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraft; onExit: () => void }) {
+function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: OpenDraft; cutoff: string; onExit: () => void }) {
   const [step, setStep] = useState(initial.step);
   const [p, setP] = useState<WizardPayload>(initial.payload);
   const [ident, setIdent] = useState({ existingStudentId: initial.existingStudentId, existingName: initial.existingStudentName, hasCpf: initial.hasCpf, cpfHint: initial.cpfHint, inep: initial.inep });
+  const [official, setOfficial] = useState<{ birth_date: string | null; has_cpf: boolean; has_certificate: boolean } | null>(null);
+  const [officialError, setOfficialError] = useState("");
+  useEffect(() => {
+    let active = true; setOfficial(null); setOfficialError("");
+    if (ident.existingStudentId) readStudentDocumentStatus(school, ident.existingStudentId).then((r) => { if (active) setOfficial(r); }, (e) => { if (active) setOfficialError(wizardMessage(e)); });
+    return () => { active = false; };
+  }, [school, ident.existingStudentId]);
   const seq = useRef(initial.sequence); const stepRef = useRef(step);
   const [status, setStatus] = useState<AutosaveStatus>("ocioso"); const [saveErr, setSaveErr] = useState("");
   const auto = useMemo(() => createAutosave<WizardPayload>({
@@ -106,7 +114,8 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
   const pRef = useRef(p);
   const edit = (f: (x: WizardPayload) => WizardPayload) => { const n = f(pRef.current); pRef.current = n; setP(n); auto.change(n); };
   const go = async (n: number) => { stepRef.current = n; setStep(n); auto.change(pRef.current); await auto.flush(); };
-  const identity = { existingStudentId: ident.existingStudentId, hasCpf: ident.hasCpf, inep: ident.inep };
+  const identity = { existingStudentId: ident.existingStudentId, hasCpf: ident.hasCpf || !!official?.has_cpf, inep: ident.inep,
+    birthDate: official?.birth_date, certificate: official?.has_certificate ? "Registrada" : p.documentos?.certidao, cpfRequiredFrom: cutoff };
   const missing = missingByStep(p, identity);
   const fp = fieldProblems(p, identity);
   const [done, setDone] = useState<{ studentId: string; name: string } | null>(null);
@@ -134,14 +143,17 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
       {WIZARD_STEPS.filter((s) => s.n < 8).map((s) => (
         <div key={s.n} id={`wz-sec-${s.n}`} className="scroll-mt-40 space-y-3 rounded-lg border bg-card p-4">
           <h2 className="text-lg font-semibold">{s.title}</h2>
-          {s.n === 1 ? <StepStudent fp={fp} school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} /> : null}
+          {s.n === 1 ? <><p className="text-sm text-muted-foreground">Nascidos desde {formatAcademicDate(cutoff)}, inclusive: CPF obrigatório. Antes dessa data: CPF ou certidão de nascimento.</p>
+            {officialError ? <p role="alert" className="text-sm text-destructive">{officialError}</p> : null}
+            <StepStudent fp={fp} school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} officialBirth={official?.birth_date ?? null} />
+          </> : null}
           {s.n === 2 ? <StepGuardians p={p} edit={edit} /> : null}
           {s.n === 3 ? (<div className="grid gap-3 sm:grid-cols-2">
             {(["logradouro", "numero", "bairro", "cidade", "cep"] as const).map((k) => (
               <Field key={k} label={{ logradouro: "Rua/Logradouro", numero: "Número", bairro: "Bairro", cidade: "Cidade", cep: "CEP" }[k]} value={p.endereco?.[k] ?? ""} onChange={(v) => edit((x) => ({ ...x, endereco: { ...x.endereco, [k]: v } }))} />))}
           </div>) : null}
           {s.n === 4 ? (<div className="space-y-3">
-            <Field label="Certidão de nascimento (número/matrícula)" value={p.documentos?.certidao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, certidao: v } }))} />
+            <Field label="Certidão de nascimento (número/matrícula)" error={fp["documentos.certidao"]} value={p.documentos?.certidao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, certidao: v } }))} />
             <Field label="Observações sobre documentos entregues" value={p.documentos?.observacao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, observacao: v } }))} />
             <p className="text-xs text-muted-foreground">Foto 3×4 e anexos: envio pela ficha do aluno após concluir.</p>
           </div>) : null}
@@ -160,7 +172,7 @@ function Wizard({ school, initial, onExit }: { school: string; initial: OpenDraf
           <Button variant="ghost" onClick={async () => { await auto.flush(); onExit(); }}>Sair e continuar depois</Button>
           <Discard draft={initial.draftId} seq={seq} auto={auto} onDone={onExit} photo={p.foto?.path} />
         </div>
-        <Complete draft={initial.draftId} seq={seq} auto={auto} p={p} ready={canComplete(p, identity)} onDone={(sid) => setDone({ studentId: sid, name: ident.existingName ?? p.aluno?.nome ?? "" })} />
+        <Complete draft={initial.draftId} seq={seq} auto={auto} p={p} ready={canComplete(p, identity) && (!ident.existingStudentId || !!official) && !officialError} onDone={(sid) => setDone({ studentId: sid, name: ident.existingName ?? p.aluno?.nome ?? "" })} />
       </div>
     </section>
   );
@@ -170,7 +182,7 @@ type Auto = ReturnType<typeof createAutosave<WizardPayload>>;
 type Edit = (f: (x: WizardPayload) => WizardPayload) => void;
 type Ident = { existingStudentId: string | null; existingName: string | null; hasCpf: boolean; cpfHint: string | null; inep: string | null };
 
-function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef, auto }: { fp: FP; school: string; draft: string; p: WizardPayload; edit: Edit; ident: Ident; setIdent: (i: Ident) => void; seq: React.MutableRefObject<number>; stepRef: React.MutableRefObject<number>; auto: Auto }) {
+function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef, auto, officialBirth }: { fp: FP; school: string; draft: string; p: WizardPayload; edit: Edit; ident: Ident; setIdent: (i: Ident) => void; seq: React.MutableRefObject<number>; stepRef: React.MutableRefObject<number>; auto: Auto; officialBirth: string | null }) {
   const [cpf, setCpf] = useState(""); const [inep, setInep] = useState(ident.inep ?? ""); const [msg, setMsg] = useState(""); const [busy, setBusy] = useState(false);
   const [found, setFound] = useState<{ id: string; name: string; activeHere: boolean } | null>(null);
   const year = p.matricula?.ano ?? "";
@@ -192,23 +204,22 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
       await auto.flush();
       const digits = cpf.replace(/\D/g, "");
       seq.current = await saveDraft({ draft, school, expected: seq.current, step: stepRef.current, payload: p,
-        cpf: existing ? null : digits || null, inep: existing ? null : inep.trim() || null, existingStudent: existing });
+        cpf: digits || null, inep: inep.trim() || null, existingStudent: existing ?? ident.existingStudentId });
       setIdent(existing ? { ...ident, existingStudentId: existing, existingName: found?.name ?? null }
         : { ...ident, hasCpf: ident.hasCpf || !!digits, cpfHint: digits ? digits.slice(-2) : ident.cpfHint, inep: inep.trim() || ident.inep });
       setCpf(""); setMsg(existing ? "Cadastro existente selecionado." : "Documento guardado com segurança.");
     } catch (e) { setMsg(wizardMessage(e)); } finally { setBusy(false); }
   }
-  if (ident.existingStudentId) return <p>Aluno já cadastrado: <strong>{ident.existingName ?? "selecionado"}</strong>. Os dados pessoais seguem a ficha existente.</p>;
   return (
     <div className="space-y-3">
-      <NameSearch school={school} busy={busy} onPick={async (m) => {
+      {ident.existingStudentId ? <p>Aluno já cadastrado: <strong>{ident.existingName ?? "selecionado"}</strong>. {officialBirth ? `Nascimento: ${formatAcademicDate(officialBirth)}.` : "Complete o nascimento abaixo."}</p> : <NameSearch school={school} busy={busy} onPick={async (m) => {
         // Aluno só dos cadastros da rede: os dados preenchem a ficha e a matrícula cria o cadastro oficial.
         if (m.student_id.startsWith("sg:")) { setFound(null); setMsg("Dados do cadastro da rede preenchidos. Confira e continue."); }
         else setFound({ id: m.student_id, name: m.display_name, activeHere: false });
         edit((x) => ({ ...x, aluno: { ...x.aluno, nome: m.display_name, ...(m.birth_date ? { nascimento: m.birth_date } : {}) },
           responsaveis: x.responsaveis?.length ? x.responsaveis : [m.mother_name ? { nome: m.mother_name, parentesco: "Mãe", telefone: m.phones[0] ?? "" } : null, m.father_name ? { nome: m.father_name, parentesco: "Pai", telefone: m.phones[1] ?? "" } : null].filter(Boolean) as NonNullable<WizardPayload["responsaveis"]> }));
-      }} />
-      <details className="rounded-md border p-3">
+      }} />}
+      <details open={!!fp.identificacao} className="rounded-md border p-3">
         <summary className="cursor-pointer text-sm">Buscar por CPF ou INEP</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={cpf} onChange={setCpf} error={(cpf.trim() && !validCpf(cpf) ? "CPF inválido: confira os 11 dígitos." : undefined) ?? fp.identificacao} />
@@ -227,9 +238,9 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
       ) : null}
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
       <PhotoField school={school} draft={draft} p={p} edit={edit} auto={auto} />
-      <Field label="Nome completo" error={fp["aluno.nome"]} value={p.aluno?.nome ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nome: v } }))} />
+      {!ident.existingStudentId ? <Field label="Nome completo" error={fp["aluno.nome"]} value={p.aluno?.nome ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nome: v } }))} /> : null}
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Data de nascimento" type="date" value={p.aluno?.nascimento ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nascimento: v } }))} />
+        {!officialBirth ? <Field label="Data de nascimento" error={fp["aluno.nascimento"]} type="date" value={p.aluno?.nascimento ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nascimento: v } }))} /> : null}
         <Field label="Nome social (se houver)" value={p.aluno?.nomeSocial ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nomeSocial: v } }))} />
       </div>
     </div>
@@ -342,7 +353,9 @@ function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: 
         setBusy(true); setErr("");
         try {
           await auto.flush();
-          const r = await completeDraft({ draft, expected: seq.current, year: p.matricula!.ano!, on: p.matricula!.data!, classId: p.turma!.id!, origin: entryOriginArgs(origin) });
+          const year = p.matricula?.ano; const on = p.matricula?.data; const classId = p.turma?.id;
+          if (!year || !on || !classId) { setConfirm(false); return; }
+          const r = await completeDraft({ draft, expected: seq.current, year, on, classId, origin: entryOriginArgs(origin) });
           if (p.foto?.path) await bindPhoto(draft).catch(() => null);
           onDone(r.student_id);
         } catch (e) { setErr(wizardMessage(e)); setConfirm(false); } finally { setBusy(false); }
