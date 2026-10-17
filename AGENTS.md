@@ -24,7 +24,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Auditoria do princípio: `src/features/assessment/normative-configurability.test.ts`.
 
 ## Regras por diretório
-- Family notices require explicit recipients. Infrequency uses canonical ledgers and issued PDF counts, never assumed delivery; see sector AGENTS.md.
+- Family notices use explicit recipients; infrequency configuration in Parameters versions canonical rules atomically, never assumes delivery; see sector AGENTS.md.
 - Enrollment uses a shared validator and trigger; browser uses the same cutoff, so alternate writers cannot bypass it.
 - Vaccination deadlines are calculated by the canonical writer using the current sector parameter and stored in each immutable event; reports read that stored date, because later parameter changes must not rewrite previously declared deadlines.
 Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/config/`, `supabase/` e as pastas de `src/features/` que o tenham (`ls src/features/*/AGENTS.md`).
