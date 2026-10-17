@@ -52263,6 +52263,7 @@ export type Database = {
         }
         Returns: number
       }
+      secretariat_vaccination_deadline_days: { Args: never; Returns: number }
       secretariat_void_absence_justification: {
         Args: { _justification: string; _reason: string }
         Returns: undefined
