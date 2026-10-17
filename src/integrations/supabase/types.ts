@@ -31328,6 +31328,53 @@ export type Database = {
           },
         ]
       }
+      school_infrequency_notices: {
+        Row: {
+          absent: number
+          id: string
+          period_from: string
+          period_to: string
+          present: number
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          student_id: string
+          threshold: number
+        }
+        Insert: {
+          absent: number
+          id?: string
+          period_from: string
+          period_to: string
+          present: number
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          student_id: string
+          threshold: number
+        }
+        Update: {
+          absent?: number
+          id?: string
+          period_from?: string
+          period_to?: string
+          present?: number
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          student_id?: string
+          threshold?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_infrequency_notices_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_pedagogical_records: {
         Row: {
           author_engagement: string
@@ -51776,6 +51823,18 @@ export type Database = {
         Args: { _on: string; _school: string; _year: string }
         Returns: Json
       }
+      secretariat_own_infrequency: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          absent: number
+          last_notice: string
+          present: number
+          rate: number
+          student_id: string
+          student_name: string
+          threshold: number
+        }[]
+      }
       secretariat_own_renewal_pending: {
         Args: { _from_label: string; _to_label: string }
         Returns: {
@@ -51905,6 +51964,10 @@ export type Database = {
           _reason: string
           _type_version: number
         }
+        Returns: string
+      }
+      secretariat_record_infrequency_notice: {
+        Args: { _from: string; _student: string; _to: string }
         Returns: string
       }
       secretariat_record_protection: {
