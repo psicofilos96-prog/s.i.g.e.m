@@ -47,7 +47,7 @@ export const STATION_HOME: Record<SectorStation, string> = {
 
 export const STATION_ROUTES: Record<SectorStation, readonly string[]> = {
   ciece: ["/ciece", "/secretaria/tabelas-semed", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026", "/mapa-estatistico", "/mapa-estatistico-rede", "/qualidade-dos-dados", "/revisao-de-anomalias", "/paineis", "/relatorios", "/numeros", "/integracoes", "/central-de-integracoes", "/importacoes", "/unidades", "/base-de-conhecimento", "/censo-escolar", "/educacenso", "/alunos", "/turmas", "/docserv"],
-  supervisao: ["/supervisao-escolar", "/relatorios", "/numeros", "/unidades", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026"],
+  supervisao: ["/supervisao-escolar", "/relatorios", "/numeros", "/unidades", "/mapa-censo-2026", "/mapa-mensal-2026", "/consolidado-2026", "/parametros"],
   alimentacao: ["/alimentacao-escolar", "/unidades", "/relatorios", "/numeros"],
   avaliacao: ["/avaliacao-desempenho", "/acompanhamento-avaliacao", "/paineis", "/relatorios", "/numeros", "/alunos", "/turmas"],
   secretaria_escolar: ["/secretaria", "/matriculas", "/transferencias", "/carteirinhas", "/autorizacoes-familia", "/transporte-escolar", "/comunicacao-escolar", "/profissionais", "/quadro-docente", "/gestao-escolar", "/relatorios", "/numeros", "/alunos", "/turmas", "/enturmacoes", "/mapa-censo-2026", "/mapa-mensal-2026", "/mapa-estatistico", "/documentos-escolares", "/horarios", "/educacenso", "/docserv"],
