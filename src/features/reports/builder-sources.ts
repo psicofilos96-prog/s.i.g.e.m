@@ -272,7 +272,34 @@ const CROSS_SOURCES: BuilderSource[] = [
       return { rows: ((r.data ?? []) as Raw[]).map((x) => ({ place: v(x["school_name_source"] ?? x["sector"]), cargo: v(x["cargo"]), funcao: v(x["funcao"]), vinculo: v(x["vinculo"]), grupo: v(x["grupo"]), situacao: v(x["situacao"]), name: v(x["full_name"]), source: v(x["source_file"]), reference: v(x["reference_period"]) })), total: r.count ?? null };
     } },
   ...LOTE11_SOURCES(),
+  ...SECRETARIA_DOC_SOURCES(),
 ];
+type DocRow = { school_id: string; student_id: string; student_name: string | null; birth_date: string | null; has_cpf: boolean; has_certificate: boolean; cpf_required: boolean | null };
+function SECRETARIA_DOC_SOURCES(): BuilderSource[] {
+  const read = async (): Promise<DocRow[]> => {
+    const r = await (supabase.rpc as unknown as (f: string) => Promise<{ data: DocRow[] | null; error: unknown }>)("secretariat_own_student_documents_report");
+    if (r.error) fail();
+    return r.data ?? [];
+  };
+  const br = (d: string | null) => (d ? `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}` : null);
+  const once = (fn: () => Promise<Record<string, CellValue>[]>) => async ({ offset }: { offset: number }) => { if (offset > 0) return { rows: [], total: null }; const rows = await fn(); return { rows, total: rows.length }; };
+  return [
+    { id: "secretaria-sem-cpf", title: "Alunos sem CPF (nascidos desde a data de exigência)", sectors: ["secretaria"],
+      definition: { id: "secretaria-sem-cpf", version: 1, title: "Alunos sem CPF (nascidos desde a data de exigência)", description: "Alunos com matrícula ativa na sua escola, nascidos a partir da data configurada em Parâmetros, sem CPF registrado.", source: "secretariat_own_student_documents_report", params: [],
+        columns: [C("student_name", "Aluno"), C("birth_date", "Nascimento"), C("certificate", "Certidão registrada")], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000 },
+      methodology: "Matrícula ativa hoje na escola da conta; nascimento do cadastro do aluno; CPF conta só quando registrado no cadastro oficial. Aluno sem nascimento registrado não entra (não é possível aplicar a regra).",
+      acl: "Somente a própria escola, com permissão de matrícula.", period: false, pageSize: 5000, filterable: ["certificate"],
+      load: once(async () => (await read()).filter((x) => x.cpf_required === true && !x.has_cpf).map((x) => ({ student_name: x.student_name, birth_date: br(x.birth_date), certificate: x.has_certificate ? "Sim" : "Não" }))) },
+    { id: "secretaria-aniversariantes", title: "Aniversariantes do mês", sectors: ["secretaria"],
+      definition: { id: "secretaria-aniversariantes", version: 1, title: "Aniversariantes do mês", description: "Alunos com matrícula ativa na sua escola que fazem aniversário no mês corrente.", source: "secretariat_own_student_documents_report", params: [],
+        columns: [C("day", "Dia"), C("student_name", "Aluno"), C("age", "Idade a completar", "number")], formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000 },
+      methodology: "Mês corrente da data de geração; idade = ano atual menos ano de nascimento. Alunos sem nascimento registrado não aparecem.",
+      acl: "Somente a própria escola, com permissão de matrícula.", period: false, pageSize: 5000, filterable: [],
+      load: once(async () => { const now = new Date(); const m = String(now.getMonth() + 1).padStart(2, "0");
+        return (await read()).filter((x) => x.birth_date?.slice(5, 7) === m).sort((a, b) => (a.birth_date ?? "").slice(8).localeCompare((b.birth_date ?? "").slice(8)))
+          .map((x) => ({ day: (x.birth_date ?? "").slice(8, 10), student_name: x.student_name, age: now.getFullYear() - Number((x.birth_date ?? "0").slice(0, 4)) })); }) },
+  ];
+}
 function LOTE11_SOURCES(): BuilderSource[] {
   const names = async () => {
     const sv = await readAll<{ school_id: string; official_name: string | null; version_number: number }>((a, b) => supabase.from("institutional_school_record_versions").select("school_id, official_name, version_number").order("school_id").order("version_number", { ascending: false }).range(a, b));
