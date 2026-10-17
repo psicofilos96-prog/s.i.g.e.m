@@ -1,3 +1,4 @@
+import { supabase } from "@/integrations/supabase/client";
 import { humanizeForScreen } from "@/config/technical-codes";
 import { confirmAction } from "@/components/sigem/confirm-action";
 import { teachingClass, teachingUnitName, teachingAssignments, teachingPersonName } from "@/features/diary/institutional-teaching";
@@ -275,6 +276,7 @@ function AttendanceWorkspace({
     enableBeforeUnload: dirty,
   });
 
+  const justified = useJustifiedOnDay(entry.classId, students.map((i) => i.student.id), entry.date);
   const people = useMemo<readonly SpeedRosterPerson[]>(
     () =>
       students.map((item, index) => ({
@@ -282,9 +284,11 @@ function AttendanceWorkspace({
         order: index + 1,
         name: item.student.personName,
         code: item.student.sigemId,
-        ...(recentlyAllocated(item, entry.date) ? { detail: "Recém-enturmado" } : {}),
+        ...(justified.has(item.student.id)
+          ? { detail: `Com ${justified.get(item.student.id)} neste dia` }
+          : recentlyAllocated(item, entry.date) ? { detail: "Recém-enturmado" } : {}),
       })),
-    [entry.date, students],
+    [entry.date, students, justified],
   );
 
   const activeIndex = slots.findIndex((slot) => slot.key === activeSlot);
@@ -917,4 +921,23 @@ export function FrequencyPage({ search }: { search: AttendanceHistorySearch }) {
       <p className={cn("text-xs text-muted-foreground")}>{ATTENDANCE_LOCAL_NOTE}</p>
     </div>
   );
+}
+
+const JUSTIFIED_LABEL: Record<string, string> = {
+  "atestado-medico": "atestado médico", "atestado-odontologico": "atestado odontológico",
+  "declaracao-comparecimento": "declaração de comparecimento", "outro-amparo-legal": "justificativa legal",
+};
+/** Atestados registrados pela Secretaria que cobrem o dia da aula. Só informa: a marcação continua Presente/Ausente. */
+function useJustifiedOnDay(classId: string, ids: readonly string[], day: string): Map<string, string> {
+  const [map, setMap] = useState<Map<string, string>>(new Map());
+  const key = ids.join(",");
+  useEffect(() => {
+    let alive = true;
+    if (!classId || ids.length === 0) { setMap(new Map()); return; }
+    void supabase.rpc("diary_justified_in_class", { _class: classId, _students: [...ids], _on: day }).then(({ data }) => {
+      if (alive) setMap(new Map((data ?? []).map((r) => [r.student_id, JUSTIFIED_LABEL[r.doc_kind] ?? "justificativa"])));
+    }, () => undefined);
+    return () => { alive = false; };
+  }, [classId, key, day]); // eslint-disable-line react-hooks/exhaustive-deps
+  return map;
 }

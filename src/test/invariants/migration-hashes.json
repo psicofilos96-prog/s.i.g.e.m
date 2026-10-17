@@ -605,5 +605,13 @@
  "drizzle/migrations/0554_secretariat_vaccination_and_renewal_reports.sql": "866b3d647b073757938cf7c8295b63260e25ddda6cf67b5a3e0a0944bde92697",
  "drizzle/migrations/0555_secretariat_vacancy_request_bank.sql": "a2d412dfcaef69852f6004a62ce1c7603cb4ffe03d82ca1562c2f2b7898bea0c",
  "drizzle/migrations/0556_secretariat_student_consents.sql": "5f07faec164c6bf30636e75537e20eb8e59ef54ac841c121d924019f22c98b2c",
- "drizzle/migrations/0557_secretariat_protective_measures.sql": "7c9ad31281595e1d70f4c97bf14519c01b8f49601cf8b35bdcc60ad2f727b469"
+ "drizzle/migrations/0557_secretariat_protective_measures.sql": "7c9ad31281595e1d70f4c97bf14519c01b8f49601cf8b35bdcc60ad2f727b469",
+ "drizzle/migrations/0558_secretariat_medical_certificates.sql": "5d9c05cd3f417f9e6696a35c3baa1bf8040081431d2cb34dd201fa4c82a06a31",
+ "drizzle/migrations/0559_absence_justification_attachments.sql": "eaba8d3908324878292191638c4cf0f90c2d6f5f916a105ce9242f830118413c",
+ "drizzle/migrations/0560_secretariat_infrequency_notices.sql": "184ced9f08bd6b21a654a2068029a0be66c2fa6b6c821462dad694947b0f3ec4",
+ "drizzle/migrations/0561_school_official_letters.sql": "145341c84276883b74d96f2bfbc090c02894f388eb7f2aa81cdd715b661a619e",
+ "drizzle/migrations/0562_secretariat_student_listing.sql": "2a65d519cac7349a16cdd3e331548e50709c084cc4ea1f84fd30f7489dcd4fbd",
+ "drizzle/migrations/0563_secretariat_home_hospital_care.sql": "16bbe66acdffcdc00c2ed1899e9ffd4d125220e15587ad6c06b024d73293309f",
+ "drizzle/migrations/0564_class_absence_justifications_reader.sql": "4261f0a2178d02dbc6a13196e45996eb047fa71b29a2298e5e50c1c30d43cadc",
+ "drizzle/migrations/0565_diary_justified_by_class.sql": "f37874fadc0005e2bfa204507b2470078b47667516545bff3f9c7c2ce8ee4cbc"
 }

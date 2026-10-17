@@ -3949,6 +3949,20 @@
       "when": 1792263241571,
       "tag": "0563_secretariat_home_hospital_care",
       "breakpoints": true
+    },
+    {
+      "idx": 564,
+      "version": "7",
+      "when": 1792263495581,
+      "tag": "0564_class_absence_justifications_reader",
+      "breakpoints": true
+    },
+    {
+      "idx": 565,
+      "version": "7",
+      "when": 1792263573493,
+      "tag": "0565_diary_justified_by_class",
+      "breakpoints": true
     }
   ]
 }
