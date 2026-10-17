@@ -33836,6 +33836,68 @@ export type Database = {
           },
         ]
       }
+      student_absence_justification_events: {
+        Row: {
+          act: string
+          delivered_by: string | null
+          delivered_on: string | null
+          doc_kind: string | null
+          ends_on: string | null
+          id: string
+          issuer_name: string | null
+          issuer_registry: string | null
+          justification_id: string
+          reason: string | null
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          starts_on: string | null
+          student_id: string
+        }
+        Insert: {
+          act: string
+          delivered_by?: string | null
+          delivered_on?: string | null
+          doc_kind?: string | null
+          ends_on?: string | null
+          id?: string
+          issuer_name?: string | null
+          issuer_registry?: string | null
+          justification_id: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          starts_on?: string | null
+          student_id: string
+        }
+        Update: {
+          act?: string
+          delivered_by?: string | null
+          delivered_on?: string | null
+          doc_kind?: string | null
+          ends_on?: string | null
+          id?: string
+          issuer_name?: string | null
+          issuer_registry?: string | null
+          justification_id?: string
+          reason?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          starts_on?: string | null
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_absence_justification_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_attendance_occurrences: {
         Row: {
           annulled: boolean
@@ -51762,6 +51824,21 @@ export type Database = {
         }
         Returns: Json
       }
+      secretariat_record_absence_justification: {
+        Args: {
+          _delivered_by: string
+          _delivered_on: string
+          _ends: string
+          _issuer: string
+          _kind: string
+          _note: string
+          _registry: string
+          _school: string
+          _starts: string
+          _student: string
+        }
+        Returns: string
+      }
       secretariat_record_consent: {
         Args: {
           _decision: string
@@ -51889,6 +51966,10 @@ export type Database = {
           _request: string
         }
         Returns: number
+      }
+      secretariat_void_absence_justification: {
+        Args: { _justification: string; _reason: string }
+        Returns: undefined
       }
       sector_admin_coverage_issues: {
         Args: never
