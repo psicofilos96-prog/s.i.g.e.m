@@ -51460,6 +51460,17 @@ export type Database = {
           has_cpf: boolean
         }[]
       }
+      secretariat_student_documents_report: {
+        Args: { _school: string }
+        Returns: {
+          birth_date: string
+          cpf_required: boolean
+          has_certificate: boolean
+          has_cpf: boolean
+          student_id: string
+          student_name: string
+        }[]
+      }
       secretariat_teaching_candidates: {
         Args: { _on: string; _school: string }
         Returns: {
