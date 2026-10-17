@@ -616,5 +616,6 @@
  "drizzle/migrations/0565_diary_justified_by_class.sql": "f37874fadc0005e2bfa204507b2470078b47667516545bff3f9c7c2ce8ee4cbc",
  "drizzle/migrations/0566_vaccination_configurable_deadline.sql": "7b5e93a943a81a33f907baf4561c671dbe4e6fa94ec6db3071e7672372cb854b",
  "drizzle/migrations/0567_family_protection_explicit_recipients.sql": "7ccb8326dd03e34febf5bd7a53e3db9360b46865f228a731270651c4e6219ae1",
- "drizzle/migrations/0568_infrequency_school_access_and_attendance_count.sql": "68ae7e8cfcce3bc93af818195b94c01a79c479ffda3dcd501627475f1ce3eeb7"
+ "drizzle/migrations/0568_infrequency_school_access_and_attendance_count.sql": "68ae7e8cfcce3bc93af818195b94c01a79c479ffda3dcd501627475f1ce3eeb7",
+ "drizzle/migrations/0569_infrequency_notice_canonical_delivery.sql": "7d1efb798d9ba3c2f0b07cd5670ff41f9e7bc204f56db5e7ae5230f57c2e0853"
 }
