@@ -3991,6 +3991,13 @@
       "when": 1792271257424,
       "tag": "0569_infrequency_notice_canonical_delivery",
       "breakpoints": true
+    },
+    {
+      "idx": 570,
+      "version": "7",
+      "when": 1792271637712,
+      "tag": "0570_infrequency_notification_configuration",
+      "breakpoints": true
     }
   ]
 }
