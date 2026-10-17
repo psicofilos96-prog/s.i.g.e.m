@@ -42,7 +42,9 @@
 - [x] Turmas: lista "demorou demais" na conta da Secretaria
 
 ## Ficha de Matrícula — impressão A4 (16/10/2026)
-- [ ] Verificar câmera, transferência, declaração, óbito e rematrícula na Secretaria com sessão autorizada; entregar PDFs de exemplo
+- [x] Conferir com sec.33001987 a abertura da Secretaria, prévia da rematrícula (541), busca com campos obrigatórios e câmera simulada 3x4; entregar PDFs sintéticos inspecionados
+- [ ] Concluir transferência, salvamento de foto e renovação no navegador — falta fixture descartável com identidade exata e transição apta; não usar os 541 alunos reais
+- [ ] Provar óbito com gravação e bloqueio — falta ambiente/fixture com descarte documentado; registro é irreversível e cleanup atual não o remove
 - [x] Modelo preenchido e em branco, PDF direto, impressão, anexo de Educação Especial e Controle de Renovação
 - [ ] Homologação visual — aguarda conferência do proprietário nos PDFs de exemplo
 - [ ] Campos sem fonte no SIGEM (ver docs/ficha-matricula-impressao.md) — aguarda decisão
