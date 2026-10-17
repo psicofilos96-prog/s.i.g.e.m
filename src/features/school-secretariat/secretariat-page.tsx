@@ -1,6 +1,7 @@
 import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
 import { ConsentPanel } from "./consent-panel";
 import { AbsenceJustificationPanel } from "./absence-justification-panel";
+import { HomeHospitalCarePanel } from "./home-hospital-care-panel";
 import { ProtectionPanel } from "./protection-panel";
 import { DeathRecordPanel, ReceiveTransferPanel, RenewalBatchPanel, TransferDeclarationButton, VaccinationPanel } from "./movement-panels";
 import { useOwnSchoolId } from "@/features/authority/own-school";
@@ -246,6 +247,7 @@ function SchoolLife({ school, year, on, student, onChanged }: { school: string; 
       {rows ? <VaccinationPanel school={school} student={student.id} /> : null}
       {rows ? <ConsentPanel school={school} student={student.id} studentName={student.name} /> : null}
       {rows ? <AbsenceJustificationPanel school={school} student={student.id} /> : null}
+      {rows ? <HomeHospitalCarePanel school={school} student={student.id} /> : null}
       {rows ? <DocumentPendenciesPanel school={school} student={student.id} enrollment={current?.ref_id ?? null} on={on} /> : null}
     </section>
   );
