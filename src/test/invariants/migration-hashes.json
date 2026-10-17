@@ -598,5 +598,6 @@
  "drizzle/migrations/0547_map_freeze_ciece_capability.sql": "9beb279a7a96cb4b2a16af37f0f19fea40111d5a2f3178830efb6a5af1107a32",
  "drizzle/migrations/0548_enrollment_entry_origin.sql": "65e1d7b4f4b4ea1118012689c25b997a41cf44f76c1d0637827942849e032592",
  "drizzle/migrations/0549_enrollment_complete_with_origin.sql": "b57b7e4dcdaace75fe9d3802334eb850c0ca7eaea0d1d098367427594dcd46c2",
- "drizzle/migrations/0550_secretariat_transfer_death_renewal.sql": "009e8272b417d3a78375b5b0740f4b1f66d92b037e6e155e65c692c0ca59996b"
+ "drizzle/migrations/0550_secretariat_transfer_death_renewal.sql": "009e8272b417d3a78375b5b0740f4b1f66d92b037e6e155e65c692c0ca59996b",
+ "drizzle/migrations/0551_secretariat_birth_document_rule.sql": "aec1db1732fc61d43a4b297272cfc41e4d87ddde6fe40d4358f8afc24004aad4"
 }
