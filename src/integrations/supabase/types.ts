@@ -42453,6 +42453,15 @@ export type Database = {
         Args: { _assignment: string; _on: string; _substitution: string }
         Returns: Record<string, unknown>
       }
+      diary_justified_students: {
+        Args: { _on: string; _school: string; _students: string[] }
+        Returns: {
+          doc_kind: string
+          ends_on: string
+          starts_on: string
+          student_id: string
+        }[]
+      }
       diary_period_at: {
         Args: { _class: string; _known_at: string; _on: string }
         Returns: string
