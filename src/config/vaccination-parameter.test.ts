@@ -14,7 +14,7 @@ describe("prazo vacinal configurável sem reescrever fatos", () => {
     expect(migration).not.toMatch(/UPDATE\s+public\.student_vaccination_status_events/i);
   });
   it("declara consumidor real do prazo em Parâmetros da Secretaria", () => {
-    const parameter = SECTOR_PARAMETERS.secretaria?.find((p) => p.key === "secretaria.prazo-vacinacao");
+    const parameter = SECTOR_PARAMETERS["secretaria"]?.find((p) => p.key === "secretaria.prazo-vacinacao");
     expect(parameter?.readBy).toBe("secretariat_vaccination_deadline_days");
     expect(parameter?.input).toEqual({ kind: "dias" });
   });
