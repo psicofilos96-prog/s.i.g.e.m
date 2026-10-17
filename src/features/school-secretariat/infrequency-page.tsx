@@ -1,15 +1,16 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { supabase } from "@/integrations/supabase/client";
-import { callRpc } from "@/lib/rpc-call";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { operationalToday } from "@/lib/academic-date";
 import { parseBoundary, z } from "@/lib/runtime-shape";
 import { INFREQUENCY_MESSAGES, infrequencyNoticePdf, type InfrequencyRow } from "./infrequency-notice";
+
+import { DELIVERY_MESSAGES, issuedNoticeRow, readIssuedNotice } from "./infrequency-delivery";
 
 const today = () => operationalToday();
 const monthStart = () => `${today().slice(0, 7)}-01`;
@@ -28,6 +29,8 @@ export function InfrequencyPage() {
   const nameQ = useQuery({ queryKey: ["own-school-name", own], queryFn: () => readCurrentSchoolNames(own ? [own] : []), enabled: !!own, staleTime: 600_000 });
   const school = (own && nameQ.data?.get(own)) || "Escola";
   const [msg, setMsg] = useState<string | null>(null);
+  const issuing = useRef(false);
+  const [busyStudent, setBusyStudent] = useState<string | null>(null);
   const rowsQ = useQuery({
     queryKey: ["secretariat-infrequency", own, period.from, period.to], enabled: !!own,
     retry: false, gcTime: 0, refetchOnWindowFocus: false,
@@ -39,13 +42,22 @@ export function InfrequencyPage() {
   });
   const rows = rowsQ.data;
   const notify = async (r: InfrequencyRow) => {
-    setMsg(null);
+    if (issuing.current) return;
+    issuing.current = true; setBusyStudent(r.student_id); setMsg(null);
     try {
-      await callRpc("secretariat_record_infrequency_notice", { _student: r.student_id, _from: period.from, _to: period.to });
-      const blob = await infrequencyNoticePdf(r, period.from, period.to, school);
-      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `aviso-infrequencia-${r.student_name}.pdf`; a.click(); URL.revokeObjectURL(a.href);
+      const { data, error } = await supabase.rpc("secretariat_issue_infrequency_notice", { _student: r.student_id, _from: period.from, _to: period.to }).abortSignal(AbortSignal.timeout(15000));
+      if (error) throw new Error(error.message);
+      const issued = readIssuedNotice(data);
+      setMsg(DELIVERY_MESSAGES[issued.delivery_status]);
+      try {
+        const blob = await infrequencyNoticePdf(issuedNoticeRow(r, issued), issued.period_from, issued.period_to, school);
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `aviso-infrequencia-${r.student_name}.pdf`; a.click(); URL.revokeObjectURL(a.href);
+      } catch {
+        setMsg(`${DELIVERY_MESSAGES[issued.delivery_status]} Não foi possível baixar o PDF. Tente emitir novamente; o mesmo aviso será recuperado hoje.`);
+      }
       void rowsQ.refetch();
     } catch (e) { setMsg(msgOf(e)); }
+    finally { issuing.current = false; setBusyStudent(null); }
   };
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-6">
@@ -55,13 +67,13 @@ export function InfrequencyPage() {
         <label>Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} /></label>
         <Button disabled={!own || rowsQ.isFetching} onClick={() => { setMsg(null); if (period.from === from && period.to === to) void rowsQ.refetch(); else setPeriod({ from, to }); }}>Atualizar</Button>
       </div>
-      {msg && <p role="status" className="text-sm text-destructive">{msg}</p>}
+      {msg && <p role="status" className="text-sm text-foreground">{msg}</p>}
       {rowsQ.isError ? <p role="alert" className="text-sm text-destructive">{msgOf(rowsQ.error)}</p> : !rows ? <p className="text-sm text-muted-foreground">Carregando…</p>
         : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum aluno abaixo da frequência mínima neste período.</p>
         : <ul className="space-y-2">{rows.map((r) => (
           <li key={r.student_id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-card p-3 text-sm">
             <span><b>{r.student_name}</b> · {String(r.rate).replace(".", ",")}% ({r.absent} faltas, {r.present} presenças){r.last_notice ? ` · último aviso em ${r.last_notice.split("-").reverse().join("/")}` : ""}</span>
-            <Button size="sm" onClick={() => void notify(r)}>Emitir aviso</Button>
+            <Button size="sm" disabled={busyStudent !== null || rowsQ.isFetching} onClick={() => void notify(r)}>{busyStudent === r.student_id ? "Emitindo…" : "Emitir aviso"}</Button>
           </li>))}</ul>}
       <p className="text-xs text-muted-foreground">Cada aviso emitido fica registrado com data e autor. O texto é modelo do sistema até a rede adotar o oficial.</p>
     </div>

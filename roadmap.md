@@ -10,6 +10,8 @@
 - [x] 4. Proteção judicial na ficha: impedimento de retirada/medida protetiva/guarda, alerta "NÃO ENTREGAR a…", teor e mandado sigilosos com registro de cada abertura, encerramento com motivo; testado com sec.99999901. Falta: aplicar o alerta à Família e a futuras telas de retirada
 - [ ] 5. Atestados médicos integrados à frequência
 - [ ] 6. Notificação automatizada de infrequência pelo canal canônico
+- [x] Continuação: emissão ligada à comunicação canônica (0569), reutilização do aviso no mesmo dia/período, PDF usa contagens emitidas; 8 testes PASS, consulta autenticada e atualização sem erros na escola de teste.
+- [ ] Entrega digital de infrequência ponta a ponta: nenhum modelo/regra de destinatários e nenhum responsável autorizado na base; não fabricar configuração/autoria/vínculo. Não há envio externo nem varredura automática. Emissão/retentativa com chamada sintética ainda precisa de prova integrada.
 - [x] 7. Monitoramento vacinal: ficha do aluno registra em dia/pendente (prazo 30 dias), histórico append-only, testado
 - [x] Prazo vacinal em Parâmetros: padrão 30 dias; writer usa o valor vigente e preserva prazos antigos. 8 testes passaram; admin abriu o valor e edição; Secretaria registrou pendência em TESTE CPF C com prazo 16/11/2026 no navegador.
 - [x] Motor vacinal: teste transacional com 45 dias confirmou novo prazo e preservação do anterior; revertido, padrão permanece 30. Alteração pelo formulário do Administrador ainda não exercitada.
@@ -21,7 +23,7 @@
 - [x] 11. Relatórios: sem CPF, aniversariantes, vacinação pendente e renovação pendente 2026→2027 (própria escola)
 - [ ] Provar cada fluxo com sessão escolar, testes de isolamento e inspeção dos documentos
 - [x] Revisão atual: infrequência voltou a abrir na Secretaria; Ofícios/atendimento/avisos não apresentam erro como lista vazia (3 regressões, 8 testes focados PASS); PDF/Excel e fluxos de teste conferidos; build OK.
-- [ ] Infrequência: emissão com chamada sintética e prova numérica da agregação ainda pendentes; notificações automáticas pelo canal canônico não implementadas. Abertura da consulta autenticada provada.
+- [ ] Infrequência: emissão com chamada sintética e prova numérica da agregação ainda pendentes; integração canônica implementada na ação de emitir, automação em segundo plano não implementada. Abertura da consulta autenticada provada.
 
 - [x] 1. Voltar o design anterior (início e menu originais; tela azul desligada)
 - [x] 2. Início por setor (até 6 cartões) e menu enxuto

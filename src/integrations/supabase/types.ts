@@ -52059,6 +52059,10 @@ export type Database = {
         }
         Returns: string
       }
+      secretariat_issue_infrequency_notice: {
+        Args: { _from: string; _student: string; _to: string }
+        Returns: Json
+      }
       secretariat_issue_letter: {
         Args: {
           _body: string
