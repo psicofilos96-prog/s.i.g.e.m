@@ -34618,6 +34618,62 @@ export type Database = {
           },
         ]
       }
+      student_home_hospital_care_events: {
+        Row: {
+          act: string
+          care_id: string
+          care_kind: string | null
+          expected_end: string | null
+          id: string
+          note: string | null
+          occurred_on: string
+          place: string | null
+          professional: string | null
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          act: string
+          care_id: string
+          care_kind?: string | null
+          expected_end?: string | null
+          id?: string
+          note?: string | null
+          occurred_on: string
+          place?: string | null
+          professional?: string | null
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          act?: string
+          care_id?: string
+          care_kind?: string | null
+          expected_end?: string | null
+          id?: string
+          note?: string | null
+          occurred_on?: string
+          place?: string | null
+          professional?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_home_hospital_care_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_identity_versions: {
         Row: {
           birth_date: string | null
@@ -51902,6 +51958,21 @@ export type Database = {
           student_id: string
           student_name: string
         }[]
+      }
+      secretariat_home_hospital_care_act: {
+        Args: {
+          _act: string
+          _care: string
+          _expected_end: string
+          _kind: string
+          _note: string
+          _on: string
+          _place: string
+          _professional: string
+          _school: string
+          _student: string
+        }
+        Returns: string
       }
       secretariat_issue_letter: {
         Args: {
