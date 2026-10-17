@@ -58,7 +58,7 @@ function ParameterCard({ p, versions, sector, uid, fallback }: { p: SectorParame
   const save = async () => {
     setBusy(true); setMsg(null);
     try {
-      const v = p.input.kind === "escolha" ? value : Number(value);
+      const v = p.input.kind === "escolha" || p.input.kind === "data" ? value : Number(value);
       await callRpc("record_sector_parameter", { _key: p.key, _value: v, _reason: reason, _expected_version: cur?.version ?? 0 });
       setEditing(false); setReason(""); setMsg("Salvo.");
       await qc.invalidateQueries({ queryKey: ["sector-params", uid, sector] });
@@ -76,6 +76,8 @@ function ParameterCard({ p, versions, sector, uid, fallback }: { p: SectorParame
         <div className="space-y-2">
           {p.input.kind === "dias"
             ? <Input type="number" min={1} max={365} inputMode="numeric" aria-label="Dias" value={value} onChange={(e) => setValue(e.target.value)} />
+            : p.input.kind === "data"
+            ? <Input type="date" aria-label="Data de nascimento inicial" value={value} onChange={(e) => setValue(e.target.value)} />
             : p.input.kind === "percentual"
             ? <Input type="number" min={1} max={99} inputMode="numeric" aria-label="Percentual" value={value} onChange={(e) => setValue(e.target.value)} />
             : <select aria-label="Opção" className="block min-h-9 w-full rounded-md border border-border bg-background px-2 text-sm" value={value} onChange={(e) => setValue(e.target.value)}>
