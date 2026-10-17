@@ -619,5 +619,8 @@
  "drizzle/migrations/0568_infrequency_school_access_and_attendance_count.sql": "68ae7e8cfcce3bc93af818195b94c01a79c479ffda3dcd501627475f1ce3eeb7",
  "drizzle/migrations/0569_infrequency_notice_canonical_delivery.sql": "7d1efb798d9ba3c2f0b07cd5670ff41f9e7bc204f56db5e7ae5230f57c2e0853",
  "drizzle/migrations/0570_infrequency_notification_configuration.sql": "5fdd8c6c6e475e2ebd64f226a3e229bd22d2fe69e911ceb624e8c1f2b6804766",
- "drizzle/migrations/0571_notif_grant_admin_station.sql": "56f76390f679b1f450e4d201f03a76a9077444e3eab47894d6e27e95b77d843f"
+ "drizzle/migrations/0571_notif_grant_admin_station.sql": "56f76390f679b1f450e4d201f03a76a9077444e3eab47894d6e27e95b77d843f",
+ "drizzle/migrations/0572_ciece_network_notices_and_consolidation.sql": "b37b8a347023117cec5fce0edd2a4c182ee2f5568d640ee437d7c7cfd3d37d0e",
+ "drizzle/migrations/0573_cycle_enrollments_at_declared_start.sql": "34ec9a34b368ec26871f21331e71ea4378f6082cc93e1ca710ed57b10a2ac1b5",
+ "drizzle/migrations/0574_cycle_enrollments_at_declared_start_fast.sql": "7f8e7c7b465d277fc1259cdb84d20d6de804f4aa1b042845820a9847944213e5"
 }
