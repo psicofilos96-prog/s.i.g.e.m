@@ -1,4 +1,5 @@
 import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
+import { PhotoCapture } from "@/features/family-portal/photo-capture";
 import { EntryOriginField, emptyEntryOrigin, entryOriginOk, entryOriginArgs, type EntryOrigin } from "./entry-origin-field";
 import { RecoveryRetryButton } from "@/components/sigem/recovery-retry-button";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -383,7 +384,7 @@ function Done({ school, studentId, name, onAgain }: { school: string; studentId:
 }
 
 function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: string; p: WizardPayload; edit: Edit; auto: Auto }) {
-  const [url, setUrl] = useState<string | null>(null); const [err, setErr] = useState(""); const [busy, setBusy] = useState(false);
+  const [url, setUrl] = useState<string | null>(null); const [err, setErr] = useState(""); const [busy, setBusy] = useState(false); const [live, setLive] = useState(false);
   const path = p.foto?.path;
   useEffect(() => { if (path) photoUrl(path).then(setUrl, () => setUrl(null)); else setUrl(null); }, [path]);
   async function pick(f: File | undefined) {
@@ -414,15 +415,17 @@ function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: s
             {path ? "Trocar foto" : "Adicionar foto"}
             <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={busy} onChange={(e) => void pick(e.target.files?.[0])} />
           </label>
-          <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm sm:hidden">
-            Tirar foto
-            <input type="file" accept="image/*" capture="user" className="sr-only" disabled={busy} onChange={(e) => void pick(e.target.files?.[0])} />
-          </label>
+          <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => setLive((v) => !v)}>{live ? "Fechar câmera" : "Tirar foto com a câmera"}</Button>
           {path ? <Button variant="ghost" size="sm" disabled={busy} onClick={() => void clear()}>Remover</Button> : null}
         </div>
         {busy ? <p className="text-xs text-muted-foreground">Enviando…</p> : null}
         {err ? <p role="alert" className="text-xs text-destructive">{err}</p> : null}
       </div>
+      {live ? (
+        <div className="w-full">
+          <PhotoCapture busy={busy} onConfirm={(b) => { setLive(false); void pick(new File([b], "foto-3x4.jpg", { type: "image/jpeg" })); }} />
+        </div>
+      ) : null}
     </div>
   );
 }
