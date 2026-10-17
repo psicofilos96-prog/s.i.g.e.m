@@ -16,7 +16,8 @@ import {
   VACANCY_QUEUE_REPORT, VACANCY_REQUEST_MESSAGES, type VacancyRequestAction, type VacancyRequestRow,
 } from "./vacancy-request-bank";
 import { vacancyReceiptPdf } from "./vacancy-request-receipt";
-import { OwnSchoolLabel } from "./vacancy-school-label";
+import { useQuery } from "@tanstack/react-query";
+import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 
 const msg = (e: unknown): string => {
   const m = e instanceof Error ? e.message : String(e);
@@ -36,7 +37,8 @@ export function VacancyRequestPage() {
   const [rows, setRows] = useState<VacancyRequestRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [schoolName, setSchoolName] = useState("Escola");
+  const nameQ = useQuery({ queryKey: ["own-school-name", school], queryFn: () => readCurrentSchoolNames([school!]), enabled: !!school, staleTime: 600_000 });
+  const schoolName = (school && nameQ.data?.get(school)) || "Escola";
   const [filter, setFilter] = useState<"abertos" | "todos">("abertos");
   const load = () => { setRows(null); setErr(null); callRpc<VacancyRequestRow[]>("secretariat_own_vacancy_requests", { _year: year }).then((r) => setRows(r ?? []), (e) => setErr(msg(e))); };
   useEffect(() => { if (school) load(); }, [school, year]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -76,7 +78,6 @@ export function VacancyRequestPage() {
       </div>
       <p className="text-xs text-muted-foreground">Ordem: data e hora do protocolo, separada por etapa — <strong>Padrão do sistema</strong>.</p>
       {showForm && <NewRequestForm year={year} onDone={() => { setShowForm(false); load(); }} />}
-      <OwnSchoolLabel schoolId={school} onName={setSchoolName} />
       {err ? <StatePanel tone="danger" title="Não foi possível ler a fila" description={err} />
         : rows === null ? <SkeletonState label="Carregando" />
         : shown.length === 0 ? <EmptyState title="Nenhum pedido" description="Use “Novo pedido” para registrar quem procura vaga." />
