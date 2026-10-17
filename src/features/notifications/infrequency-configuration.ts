@@ -8,8 +8,9 @@ export const infrequencyConfigurationSchema = z.object({
 });
 export type InfrequencyConfiguration = z.infer<typeof infrequencyConfigurationSchema>;
 export const readInfrequencyConfiguration = (data: unknown) => parseBoundary(infrequencyConfigurationSchema, data, "infrequency-configuration");
-export function canConfigureInfrequency(capabilities: readonly { capabilityId: string; schoolId: string | null }[]) {
-  return capabilities.some((c) => c.capabilityId === "manter-comunicacao-institucional" && c.schoolId === null);
+/** Concessão de rede chega à tela expandida por escola; conta de escola nunca configura. O banco revalida. */
+export function canConfigureInfrequency(capabilities: readonly { capabilityId: string; schoolId: string | null }[], schoolScoped = false) {
+  return !schoolScoped && capabilities.some((c) => c.capabilityId === "manter-comunicacao-institucional");
 }
 export function configurationMessage(error: unknown) {
   const message = error instanceof Error ? error.message : "";
