@@ -42,9 +42,10 @@ export function VacancyRequestPage() {
   const shown = useMemo(() => (rows ?? []).filter((r) => filter === "todos" || isOpen(requestState(r.last_action))), [rows, filter]);
   const exportFile = async (kind: "pdf" | "xlsx") => {
     const rep = runReport(VACANCY_QUEUE_REPORT, { params: {} }, queueReportRows(shown));
-    if (kind === "xlsx") return downloadBlob(`fila-de-vagas-${year}.xlsx`, await toXlsx(rep));
-    downloadBlob(`fila-de-vagas-${year}.pdf`, await toPdfFile(rep, { headerLines: [institution.governmentName, institution.departmentName], title: "Fila de solicitações de vaga" },
-      [`Ano ${year}`, "Ordem de protocolo (padrão do sistema). Pedido não é matrícula nem promessa de vaga."]));
+    const brand = { headerLines: [institution.governmentName, institution.departmentName], title: "Fila de solicitações de vaga" };
+    const meta = [`Ano ${year}`, "Ordem de protocolo (padrão do sistema). Pedido não é matrícula nem promessa de vaga."];
+    if (kind === "xlsx") return downloadBlob(`fila-de-vagas-${year}.xlsx`, new Blob([await toXlsx(rep, brand, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+    downloadBlob(`fila-de-vagas-${year}.pdf`, await toPdfFile(rep, brand, meta));
   };
 
   if (!school) return <EmptyState title="Entre com a conta da Secretaria da escola" description="A fila de vagas é sempre da própria escola." />;
