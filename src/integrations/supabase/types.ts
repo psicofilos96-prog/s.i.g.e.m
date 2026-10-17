@@ -34781,6 +34781,53 @@ export type Database = {
           },
         ]
       }
+      student_vaccination_status_events: {
+        Row: {
+          declared_on: string
+          due_on: string | null
+          id: string
+          note: string | null
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          sequence: number
+          status: string
+          student_id: string
+        }
+        Insert: {
+          declared_on: string
+          due_on?: string | null
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          sequence: number
+          status: string
+          student_id: string
+        }
+        Update: {
+          declared_on?: string
+          due_on?: string | null
+          id?: string
+          note?: string | null
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          sequence?: number
+          status?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_vaccination_status_events_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       studio_emission_events: {
         Row: {
           actor_id: string
@@ -51393,6 +51440,15 @@ export type Database = {
         Args: { _on: string; _school: string; _year: string }
         Returns: Json
       }
+      secretariat_own_renewal_pending: {
+        Args: { _from_label: string; _to_label: string }
+        Returns: {
+          decision: string
+          student_id: string
+          student_name: string
+        }[]
+      }
+      secretariat_own_school_id: { Args: never; Returns: string }
       secretariat_own_student_documents_report: {
         Args: never
         Returns: {
@@ -51401,6 +51457,17 @@ export type Database = {
           has_certificate: boolean
           has_cpf: boolean
           school_id: string
+          student_id: string
+          student_name: string
+        }[]
+      }
+      secretariat_own_vaccination_report: {
+        Args: never
+        Returns: {
+          declared_on: string
+          due_on: string
+          sequence: number
+          status: string
           student_id: string
           student_name: string
         }[]
@@ -51460,6 +51527,17 @@ export type Database = {
           _enrollment: string
           _grade: string
           _image: boolean
+        }
+        Returns: string
+      }
+      secretariat_record_vaccination: {
+        Args: {
+          _declared_on: string
+          _expected_sequence: number
+          _note: string
+          _school: string
+          _status: string
+          _student: string
         }
         Returns: string
       }
