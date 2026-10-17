@@ -30218,6 +30218,53 @@ export type Database = {
         }
         Relationships: []
       }
+      renewal_term_records: {
+        Row: {
+          address_change: string | null
+          created_at: string
+          enrollment_id: string
+          grade_label: string | null
+          id: string
+          image_consent: boolean | null
+          recorded_by: string
+          school_id: string
+          student_id: string
+          year_label: string | null
+        }
+        Insert: {
+          address_change?: string | null
+          created_at?: string
+          enrollment_id: string
+          grade_label?: string | null
+          id?: string
+          image_consent?: boolean | null
+          recorded_by: string
+          school_id: string
+          student_id: string
+          year_label?: string | null
+        }
+        Update: {
+          address_change?: string | null
+          created_at?: string
+          enrollment_id?: string
+          grade_label?: string | null
+          id?: string
+          image_consent?: boolean | null
+          recorded_by?: string
+          school_id?: string
+          student_id?: string
+          year_label?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "renewal_term_records_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       report_custom_runs: {
         Row: {
           actor_id: string
@@ -34055,6 +34102,101 @@ export type Database = {
             columns: ["technical_operation_id"]
             isOneToOne: false
             referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_death_corrections: {
+        Row: {
+          certificate_number: string
+          created_at: string
+          death_id: string
+          died_on: string
+          id: string
+          reason: string
+          recorded_by: string
+        }
+        Insert: {
+          certificate_number: string
+          created_at?: string
+          death_id: string
+          died_on: string
+          id?: string
+          reason: string
+          recorded_by: string
+        }
+        Update: {
+          certificate_number?: string
+          created_at?: string
+          death_id?: string
+          died_on?: string
+          id?: string
+          reason?: string
+          recorded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_death_corrections_death_id_fkey"
+            columns: ["death_id"]
+            isOneToOne: false
+            referencedRelation: "student_death_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_death_records: {
+        Row: {
+          certificate_number: string
+          created_at: string
+          died_on: string
+          enrollment_id: string
+          id: string
+          note: string | null
+          recorded_by: string
+          recorded_by_person_id: string | null
+          recorded_by_principal_id: string | null
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          certificate_number: string
+          created_at?: string
+          died_on: string
+          enrollment_id: string
+          id?: string
+          note?: string | null
+          recorded_by: string
+          recorded_by_person_id?: string | null
+          recorded_by_principal_id?: string | null
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          certificate_number?: string
+          created_at?: string
+          died_on?: string
+          enrollment_id?: string
+          id?: string
+          note?: string | null
+          recorded_by?: string
+          recorded_by_person_id?: string | null
+          recorded_by_principal_id?: string | null
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_death_records_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_death_records_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_students"
             referencedColumns: ["id"]
           },
         ]
@@ -38403,6 +38545,89 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      transfer_declarations: {
+        Row: {
+          created_at: string
+          enrollment_id: string
+          facts: Json
+          id: string
+          issue_year: number
+          issued_on: string
+          number: number
+          recorded_by: string
+          school_id: string
+          student_id: string
+          valid_until: string
+          validity_days: number
+        }
+        Insert: {
+          created_at?: string
+          enrollment_id: string
+          facts: Json
+          id?: string
+          issue_year: number
+          issued_on: string
+          number: number
+          recorded_by: string
+          school_id: string
+          student_id: string
+          valid_until: string
+          validity_days: number
+        }
+        Update: {
+          created_at?: string
+          enrollment_id?: string
+          facts?: Json
+          id?: string
+          issue_year?: number
+          issued_on?: string
+          number?: number
+          recorded_by?: string
+          school_id?: string
+          student_id?: string
+          valid_until?: string
+          validity_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfer_declarations_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: true
+            referencedRelation: "school_enrollments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transfer_receptions: {
+        Row: {
+          created_at: string
+          destination_school_id: string
+          idempotency_key: string
+          origin_enrollment_id: string | null
+          recorded_by: string
+          result: Json
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination_school_id: string
+          idempotency_key: string
+          origin_enrollment_id?: string | null
+          recorded_by: string
+          result: Json
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          destination_school_id?: string
+          idempotency_key?: string
+          origin_enrollment_id?: string | null
+          recorded_by?: string
+          result?: Json
+          student_id?: string
+        }
+        Relationships: []
       }
       user_person_links: {
         Row: {
@@ -51072,6 +51297,15 @@ export type Database = {
           vacancy_state: string
         }[]
       }
+      secretariat_correct_death: {
+        Args: {
+          _certificate: string
+          _death: string
+          _died_on: string
+          _reason: string
+        }
+        Returns: string
+      }
       secretariat_create_class: {
         Args: {
           _capacity: number
@@ -51111,6 +51345,10 @@ export type Database = {
           _source_ref: string
           _start_on: string
         }
+        Returns: Json
+      }
+      secretariat_emit_transfer_declaration: {
+        Args: { _enrollment: string }
         Returns: Json
       }
       secretariat_end_class_episode: {
@@ -51168,6 +51406,26 @@ export type Database = {
         }
         Returns: string
       }
+      secretariat_receive_transfer: {
+        Args: {
+          _class: string
+          _dest_school: string
+          _idem: string
+          _on: string
+          _student: string
+          _year: string
+        }
+        Returns: Json
+      }
+      secretariat_record_death: {
+        Args: {
+          _certificate: string
+          _died_on: string
+          _enrollment: string
+          _note: string
+        }
+        Returns: string
+      }
       secretariat_record_exit: {
         Args: {
           _destination_school: string
@@ -51176,6 +51434,15 @@ export type Database = {
           _movement_type: string
           _reason: string
           _type_version: number
+        }
+        Returns: string
+      }
+      secretariat_record_renewal_term: {
+        Args: {
+          _address: string
+          _enrollment: string
+          _grade: string
+          _image: boolean
         }
         Returns: string
       }
@@ -51653,6 +51920,17 @@ export type Database = {
           student_id: string
         }[]
       }
+      student_death_current: {
+        Args: { _student: string }
+        Returns: {
+          certificate_number: string
+          corrected: boolean
+          death_id: string
+          died_on: string
+          note: string
+          recorded_at: string
+        }[]
+      }
       student_document_emissions: {
         Args: { _school_id: string; _student_id: string }
         Returns: {
@@ -51694,6 +51972,7 @@ export type Database = {
         Args: { _cap: string; _student: string }
         Returns: string
       }
+      student_is_deceased: { Args: { _student: string }; Returns: boolean }
       student_movements_known: {
         Args: { _known_at?: string; _school: string }
         Returns: {
@@ -51776,6 +52055,19 @@ export type Database = {
           _year?: string
         }
         Returns: Json
+      }
+      student_transfer_history: {
+        Args: { _school: string; _student: string }
+        Returns: {
+          classes: string
+          ended_on: string
+          ending: string
+          enrollment_id: string
+          opened_on: string
+          school_id: string
+          school_name: string
+          year_label: string
+        }[]
       }
       studio_can: { Args: { _what: string }; Returns: boolean }
       studio_emit: {
