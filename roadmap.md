@@ -10,6 +10,7 @@
 - [x] 4. Proteção judicial na ficha: impedimento de retirada/medida protetiva/guarda, alerta "NÃO ENTREGAR a…", teor e mandado sigilosos com registro de cada abertura, encerramento com motivo; testado com sec.99999901. Falta: aplicar o alerta à Família e a futuras telas de retirada
 - [ ] 5. Atestados médicos integrados à frequência
 - [ ] 6. Notificação automatizada de infrequência pelo canal canônico
+- [ ] Continuação atual: configuração versionada dos avisos em Parâmetros, texto editável e responsável autorizado na seção frequência; sem criar vínculos ou alegar envio externo.
 - [x] Continuação: emissão ligada à comunicação canônica (0569), reutilização do aviso no mesmo dia/período, PDF usa contagens emitidas; 8 testes PASS, consulta autenticada e atualização sem erros na escola de teste.
 - [ ] Entrega digital de infrequência ponta a ponta: nenhum modelo/regra de destinatários e nenhum responsável autorizado na base; não fabricar configuração/autoria/vínculo. Não há envio externo nem varredura automática. Emissão/retentativa com chamada sintética ainda precisa de prova integrada.
 - [x] 7. Monitoramento vacinal: ficha do aluno registra em dia/pendente (prazo 30 dias), histórico append-only, testado

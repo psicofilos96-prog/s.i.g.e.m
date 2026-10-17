@@ -44269,6 +44269,7 @@ export type Database = {
           school_id: string
         }[]
       }
+      infrequency_notification_configuration: { Args: never; Returns: Json }
       inst_assessment_result_history: {
         Args: { _logical_id: string }
         Returns: {
@@ -48612,6 +48613,17 @@ export type Database = {
           _term: string
         }
         Returns: string
+      }
+      record_infrequency_notification_configuration: {
+        Args: {
+          _body: string
+          _enabled: boolean
+          _reason: string
+          _rule_base: string
+          _template_base: string
+          _title: string
+        }
+        Returns: Json
       }
       record_inst_assessment: {
         Args: {

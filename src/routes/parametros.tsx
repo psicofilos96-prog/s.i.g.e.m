@@ -3,6 +3,7 @@ import { PageHeader } from "@/components/sigem/patterns";
 import { SectorParametersPanel } from "@/components/sigem/sector-parameters-panel";
 import { EXISTING_PARAMETER_SCREENS, SECTOR_PARAMETERS } from "@/config/sector-parameters";
 import { brand } from "@/config/branding";
+import { InfrequencyConfigurationPanel } from "@/features/notifications/infrequency-configuration-panel";
 
 const title = `Parâmetros — ${brand.name}`;
 const description = "Prazos, fórmulas e limites de cada setor, num só lugar. Altere quando quiser; o histórico fica guardado.";
@@ -33,6 +34,7 @@ function ParametersHub() {
           {(SECTOR_PARAMETERS[s] ?? []).length > 0
             ? <SectorParametersPanel sector={s} id={`parametros-${s}`} />
             : <ul className="flex flex-wrap gap-2 text-sm">{EXISTING_PARAMETER_SCREENS[s]!.map((l) => <li key={l.href}><a href={l.href} className="block rounded-full border px-3 py-1.5 hover:bg-accent">{l.label}</a></li>)}</ul>}
+          {s === "frequencia" && <InfrequencyConfigurationPanel />}
         </section>
       ))}
     </div>
