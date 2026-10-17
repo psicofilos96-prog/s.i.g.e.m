@@ -1,5 +1,20 @@
 # Roadmap — SIGEM simples no design original
 
+## Secretaria — complementação solicitada em 17/10/2026
+- [x] Conferir o segundo lote de modelos: Educação Especial, justificativa de faltas, pré-matrícula, retirada de aluno, atas, ofícios e Bolsa Família; aproveitar estruturas sem importar fatos pessoais
+- [ ] 1. CPF obrigatório para nascidos desde 01/12/2017; certidão alternativa só para anteriores; validar no formulário e no banco
+- [ ] 2. Solicitação de vagas integrada à fila oficial existente
+- [ ] 3. Termos legais e consentimentos no cadastro, a partir dos modelos enviados
+- [ ] 4. Medidas protetivas/restrição de retirada e documentos judiciais privados
+- [ ] 5. Atestados médicos integrados à frequência
+- [ ] 6. Notificação automatizada de infrequência pelo canal canônico
+- [ ] 7. Monitoramento vacinal com prazo de 30 dias
+- [ ] 8. Ofícios escolares oficiais com numeração canônica
+- [ ] 9. Listagens de alunos personalizáveis
+- [ ] 10. Atendimento domiciliar/hospitalar integrado
+- [ ] 11. Relatórios: CPF, aniversariantes, vacinação e renovação
+- [ ] Provar cada fluxo com sessão escolar, testes de isolamento e inspeção dos documentos
+
 - [x] 1. Voltar o design anterior (início e menu originais; tela azul desligada)
 - [x] 2. Início por setor (até 6 cartões) e menu enxuto
 - [ ] 3. Tirar travas e textos técnicos, setor por setor (Secretaria, Direção, Professor, Supervisão, CIECE, Orientação, NEI, Alimentação, DP, Família)
