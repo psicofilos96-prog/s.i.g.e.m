@@ -7,6 +7,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDateNumeric } from "@/lib/academic-date";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { PROTECTION_KIND_LABEL, PROTECTION_MESSAGES, protectionDocPath, type ProtectionAlert, type ProtectionKind } from "./protection-model";
+import { ProtectionRecipients } from "./protection-recipients";
 
 const msgOf = (e: unknown): string => {
   const m = e instanceof Error ? e.message : String(e);
@@ -69,7 +70,8 @@ function MeasureItem({ school, student, a, onDone }: { school: string; student: 
       </div>
       {detail && <ol className="mt-2 space-y-1 text-xs">{detail.map((x) => (
         <li key={x.seq}>{x.action} em {formatAcademicDateNumeric(x.recorded_at.slice(0, 10) as never)}{x.summary ? ` — ${x.summary}` : ""}{x.reason ? ` (motivo: ${x.reason})` : ""}
-          {x.document_path && <Button size="sm" variant="link" onClick={() => void doc(x.document_path!)}>Abrir documento</Button>}</li>))}</ol>}
+          {x.document_path && <Button size="sm" variant="link" onClick={() => { if (x.document_path) void doc(x.document_path); }}>Abrir documento</Button>}</li>))}</ol>}
+      {a.active && <ProtectionRecipients school={school} student={student} measure={a.measure_id} protectionSeq={a.seq} />}
       {err && <p role="alert" className="text-destructive">{err}</p>}
     </li>
   );

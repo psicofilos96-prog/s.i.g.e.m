@@ -3970,6 +3970,13 @@
       "when": 1792264933392,
       "tag": "0566_vaccination_configurable_deadline",
       "breakpoints": true
+    },
+    {
+      "idx": 567,
+      "version": "7",
+      "when": 1792269375278,
+      "tag": "0567_family_protection_explicit_recipients",
+      "breakpoints": true
     }
   ]
 }

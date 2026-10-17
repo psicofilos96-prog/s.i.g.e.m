@@ -12,8 +12,9 @@
 - [ ] 6. Notificação automatizada de infrequência pelo canal canônico
 - [x] 7. Monitoramento vacinal: ficha do aluno registra em dia/pendente (prazo 30 dias), histórico append-only, testado
 - [x] Prazo vacinal em Parâmetros: padrão 30 dias; writer usa o valor vigente e preserva prazos antigos. 8 testes passaram; admin abriu o valor e edição; Secretaria registrou pendência em TESTE CPF C com prazo 16/11/2026 no navegador.
-- [ ] Verificar alteração efetiva do prazo: não foi mudado o parâmetro global para testar; Secretaria e Supervisão continuam sem acesso à rota geral de Parâmetros pelas permissões atuais. Não ampliadas nesta etapa.
-- [ ] Proteção judicial no acesso da Família e verificação dos demais fluxos recentes: continuam pendentes, fora da etapa do prazo vacinal.
+- [x] Motor vacinal: teste transacional com 45 dias confirmou novo prazo e preservação do anterior; revertido, padrão permanece 30. Alteração pelo formulário do Administrador ainda não exercitada.
+- [x] Proteção na Família implementada: indicação/retirada explícitas na ficha, aviso genérico sem teor/documento; testes SQL com papel authenticated provaram destinatário, não destinatário, concorrência, IDOR e tabela inacessível; fixtures revertidas.
+- [ ] Proteção na Família ponta a ponta no navegador — não há vínculo de responsável na base (0 autorizações); não fabricar autorização humana. Demais fluxos recentes seguem com verificação pendente.
 - [ ] 8. Ofícios escolares oficiais com numeração canônica
 - [ ] 9. Listagens de alunos personalizáveis
 - [ ] 10. Atendimento domiciliar/hospitalar integrado

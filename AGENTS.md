@@ -24,6 +24,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Auditoria do princípio: `src/features/assessment/normative-configurability.test.ts`.
 
 ## Regras por diretório
+- Family notices: explicit recipients; see Family AGENTS.md.
 - Enrollment document eligibility is enforced by a shared database validator and a new-enrollment trigger; browser checks use the same versioned cutoff, because alternate enrollment writers must not bypass document requirements.
 - Vaccination deadlines are calculated by the canonical writer using the current sector parameter and stored in each immutable event; reports read that stored date, because later parameter changes must not rewrite previously declared deadlines.
 Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/config/`, `supabase/` e as pastas de `src/features/` que o tenham (`ls src/features/*/AGENTS.md`).
