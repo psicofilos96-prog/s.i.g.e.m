@@ -24,6 +24,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Auditoria do princípio: `src/features/assessment/normative-configurability.test.ts`.
 
 ## Regras por diretório
+- Enrollment document eligibility is enforced by a shared database validator and a new-enrollment trigger; browser checks use the same versioned cutoff, because alternate enrollment writers must not bypass document requirements.
 Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/config/`, `supabase/` e as pastas de `src/features/` que o tenham (`ls src/features/*/AGENTS.md`).
 
 ## Continuidade técnica
