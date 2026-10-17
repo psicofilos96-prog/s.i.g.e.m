@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatePanel } from "@/components/sigem/patterns";
-import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/signed-url";
+import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { classifySchool } from "@/features/statistical-map/declared-inconsistencies";
 import { NETWORK_CATEGORIES, NETWORK_CATEGORY_LABEL, noticeReachesSchool, type NetworkCategory } from "./network-categories";
 

@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatePanel } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
+import { NetworkNoticeComposer } from "../network-notices";
 
 const LABEL: Record<string, string> = { escolas: "Escolas", "estudantes-unicos": "Estudantes únicos", matriculas: "Matrículas", turmas: "Turmas", professores: "Professores", servidores: "Vínculos funcionais", pendencias: "Pendências" };
 const GRADE: Record<string, string> = { "erro-confirmado": "Erro confirmado", provavel: "Provável", alerta: "Alerta", pendencia: "Pendência", "nao-aplicavel": "Não aplicável" };
@@ -68,6 +69,7 @@ export function CieceCentral({ pathAllowed }: { pathAllowed: (p: string) => bool
           <TabsTrigger value="mapa">Mapa</TabsTrigger>
           <TabsTrigger value="inconsistencias">Inconsistências ({d.findings.length})</TabsTrigger>
           <TabsTrigger value="censo">Fluxo censitário</TabsTrigger>
+          <TabsTrigger value="avisos">Avisos da rede</TabsTrigger>
           <TabsTrigger value="acoes">Ações rápidas</TabsTrigger>
         </TabsList>
 
@@ -117,6 +119,8 @@ export function CieceCentral({ pathAllowed }: { pathAllowed: (p: string) => bool
             </>
           )}
         </TabsContent>
+
+        <TabsContent value="avisos"><NetworkNoticeComposer /></TabsContent>
 
         <TabsContent value="acoes">
           {actions.length === 0 ? <StatePanel tone="neutral" title="Nenhuma ação disponível" description="Seu acesso não abre as telas relacionadas." /> : (

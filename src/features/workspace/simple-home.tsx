@@ -6,6 +6,7 @@ import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { STATION_ROUTES } from "@/features/authority/station-navigation";
 import type { SessionAuthority } from "@/features/authority/session-authority";
 import { HomeTodayPanel } from "./home-today";
+import { SchoolNoticeBoard } from "@/features/ciece/network-notices";
 
 function sectorOf(a: SessionAuthority) {
   const pr = (a as { principal?: { station: keyof typeof STATION_ROUTES } | null }).principal;
