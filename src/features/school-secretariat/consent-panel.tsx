@@ -8,6 +8,8 @@ import { formatAcademicDateNumeric } from "@/lib/academic-date";
 import { downloadBlob } from "@/features/reports/report-engine";
 import { CONSENT_MESSAGES, CONSENT_TERMS, currentConsents, DECISION_LABEL, type ConsentDecision, type ConsentRow, type ConsentTerm } from "./consent-terms";
 import { consentTermPdf } from "./consent-term-pdf";
+import { useQuery } from "@tanstack/react-query";
+import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 
 const msgOf = (e: unknown): string => {
   const m = e instanceof Error ? e.message : String(e);
@@ -17,7 +19,9 @@ const msgOf = (e: unknown): string => {
 const d = (s: string) => formatAcademicDateNumeric(s as never);
 
 /** Termos do cadastro na ficha do aluno: imprimir para assinar e registrar a resposta real do responsável. */
-export function ConsentPanel({ school, student, studentName, schoolName }: { school: string; student: string; studentName: string; schoolName: string }) {
+export function ConsentPanel({ school, student, studentName }: { school: string; student: string; studentName: string }) {
+  const nameQ = useQuery({ queryKey: ["own-school-name", school], queryFn: () => readCurrentSchoolNames([school]), staleTime: 600_000 });
+  const schoolName = nameQ.data?.get(school) ?? "Escola";
   const [rows, setRows] = useState<ConsentRow[] | null>(null);
   async function load() {
     const { data, error } = await supabase.from("student_consent_events").select("term_key,term_version,sequence,decision,guardian_name,declared_on")
