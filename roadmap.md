@@ -7,7 +7,7 @@
 - [x] 1b. Conclusão completa provada com sec.99999901 (escola de teste): 6 limites (2018 sem CPF recusa; 2016 sem certidão recusa; 2016 com certidão, 2018 com CPF e 30/11/2017 com certidão aceitos; 01/12/2017 só com certidão recusa). Alunos de teste: "TESTE CPF …"
 - [x] 2. Fila de vagas da escola (/secretaria/fila-de-vagas): pedido com protocolo SV-ano-nº, ordem de protocolo por etapa (padrão do sistema), convocar com prazo (padrão 5 dias), matriculado/não compareceu/desistiu/cancelar/voltar à fila; testado com sec.99999901 (pedido "TESTE FILA ALUNO UM"); comprovante A4 em PDF por pedido
 - [x] 3. Termos na ficha do aluno (uso de imagem, ciência de faltas, saída desacompanhada): texto versionado, PDF A4 para assinar, resposta real do responsável com histórico; testado com sec.99999901 (outra escola recusada)
-- [ ] 4. Medidas protetivas/restrição de retirada e documentos judiciais privados
+- [x] 4. Proteção judicial na ficha: impedimento de retirada/medida protetiva/guarda, alerta "NÃO ENTREGAR a…", teor e mandado sigilosos com registro de cada abertura, encerramento com motivo; testado com sec.99999901. Falta: aplicar o alerta à Família e a futuras telas de retirada
 - [ ] 5. Atestados médicos integrados à frequência
 - [ ] 6. Notificação automatizada de infrequência pelo canal canônico
 - [x] 7. Monitoramento vacinal: ficha do aluno registra em dia/pendente (prazo 30 dias), histórico append-only, testado
