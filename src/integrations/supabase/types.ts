@@ -31375,6 +31375,86 @@ export type Database = {
           },
         ]
       }
+      school_official_letter_cancellations: {
+        Row: {
+          letter_id: string
+          reason: string
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+        }
+        Insert: {
+          letter_id: string
+          reason: string
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+        }
+        Update: {
+          letter_id?: string
+          reason?: string
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_official_letter_cancellations_letter_id_fkey"
+            columns: ["letter_id"]
+            isOneToOne: true
+            referencedRelation: "school_official_letters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_official_letters: {
+        Row: {
+          body: string
+          code: string
+          id: string
+          idempotency_key: string
+          recipient: string
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+          seq: number
+          signer: string
+          signer_role: string | null
+          subject: string
+          year: number
+        }
+        Insert: {
+          body: string
+          code: string
+          id?: string
+          idempotency_key: string
+          recipient: string
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+          seq: number
+          signer: string
+          signer_role?: string | null
+          subject: string
+          year: number
+        }
+        Update: {
+          body?: string
+          code?: string
+          id?: string
+          idempotency_key?: string
+          recipient?: string
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+          seq?: number
+          signer?: string
+          signer_role?: string | null
+          subject?: string
+          year?: number
+        }
+        Relationships: []
+      }
       school_pedagogical_records: {
         Row: {
           author_engagement: string
@@ -51715,6 +51795,10 @@ export type Database = {
         Args: { _justification: string; _mime: string; _path: string }
         Returns: string
       }
+      secretariat_cancel_letter: {
+        Args: { _letter: string; _reason: string }
+        Returns: undefined
+      }
       secretariat_class_vacancies_at: {
         Args: { _on: string; _school: string; _year: string }
         Returns: {
@@ -51817,6 +51901,20 @@ export type Database = {
           start_source: string
           student_id: string
           student_name: string
+        }[]
+      }
+      secretariat_issue_letter: {
+        Args: {
+          _body: string
+          _idem: string
+          _recipient: string
+          _signer: string
+          _signer_role: string
+          _subject: string
+        }
+        Returns: {
+          code: string
+          letter_id: string
         }[]
       }
       secretariat_overview_at: {
