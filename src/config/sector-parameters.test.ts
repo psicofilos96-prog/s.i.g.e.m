@@ -27,7 +27,9 @@ describe("parâmetros por setor só existem se fazem algo", () => {
     expect(migrations).toMatch(/coalesce\(pres, 0\) = 0 THEN NULL/);
   });
   it("sem valor mostra 'Ainda não definido'", () => {
-    expect(formatParameterValue(all[0]!, null)).toBe("Ainda não definido");
-    expect(formatParameterValue(all[0]!, 5)).toBe("5 dia(s)");
+    const days = all.find((p) => p.input.kind === "dias");
+    if (!days) throw new Error("missing-days-parameter");
+    expect(formatParameterValue(days, null)).toBe("Ainda não definido");
+    expect(formatParameterValue(days, 5)).toBe("5 dia(s)");
   });
 });
