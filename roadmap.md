@@ -58,7 +58,7 @@
 - [ ] 21 nomes parecidos e 18 sem nascimento — aguarda decisão
 
 - [ ] 43 professores da rede sem login (22 nome parecido na folha, 21 fora da folha) — deixado para depois pelo proprietário
-- [ ] Disciplina de cada professor nas turmas — a fazer
+- [x] Disciplina de cada professor nas turmas (parcial, 18/10/2026): catálogo de 10 componentes criado; 255 atuações com disciplina única gravadas a partir da planilha oficial 5º/9º ano (ago/2026); 162 com mais de uma disciplina possível e demais fora do escopo da planilha ficaram sem disciplina
 
 ## Mapa Estatístico — especificação SIGEM 2.0 (16/10/2026)
 - [x] Etapa 1: impressão A4 paisagem azul/branco, capa opcional, modelos Institucional/Administrativo, rodapé "Página X de Y", assinaturas manuais
