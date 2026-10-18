@@ -14,8 +14,9 @@ Situação atual: Registro de lote (2026-10-09).
 ### Segunda redução (18/10/2026, mesma sessão CIECE)
 
 - Nomes de turmas: 9 lotes de `classes_at_batch` (~9,2 s) substituídos pelo leitor em conjunto `class_names_for_schools` (0577/0578), SECURITY INVOKER, uma chamada para as 704 turmas: **0,8 s**, 701 nomes resolvidos, mesma semântica temporal de `class_at` (ambiguidade = inconsistente, nunca nome inventado).
-- Medição de ponta a ponta no navegador: **22,13 s → 13,79 s** (acumulado desde 80,77 s). Totais, filtros, detalhamento e CSV inalterados; 10 testes focados e build OK.
-- Gargalo restante medido: a leitura compacta das fontes das 56 escolas (~7,6 s no banco, já em lotes paralelos) e as consultas de cadastro/permissões (~3 s). Próximo passo com evidência: reduzir o custo por escola dos leitores canônicos de matrícula/alocação, sem mudar RLS nem semântica.
+- Medição de ponta a ponta no navegador: **22,13 s → 13,79 s → 11,76 s** (acumulado desde 80,77 s). Totais, filtros, detalhamento e CSV inalterados; 10 testes focados e build OK.
+- Tentativa medida e revertida (0579/0580 → 0581): reescrever a leitura compacta em conjunto único ficou **mais lenta** sob as verificações de permissão por linha (8 escolas estouravam o tempo limite; os leitores canônicos por escola levam ~1 s cada). A equivalência de valores foi provada antes da reversão (5 escolas, 4 fontes, linha a linha). A leitura compacta segue sobre os leitores canônicos por escola, em lotes paralelos.
+- Gargalo restante medido: o custo por linha das verificações de permissão (RLS) nas tabelas de matrícula/alocação — o custo bruto sem permissões é ~150 ms. Reduzi-lo exige revisar as políticas dessas tabelas, o que é mudança de segurança e fica para decisão explícita.
 
 ## Causa raiz (medida, não estimada)
 As regras de acesso (e o leitor temporal de turmas) chamavam, **para cada linha**, funções que
