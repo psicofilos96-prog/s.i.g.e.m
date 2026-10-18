@@ -48,26 +48,29 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
       db.from("institutional_school_record_versions").select("id, school_id, version_number, supersedes_version_id, official_name, address, district, location_kind, active, valid_from, originating_act_ref, phone, institutional_email, own_building, hard_access, classroom_count").in("school_id", ids),
     ]);
     const units = unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []);
-    const t = { _valid_on: w.referenceDate, _known_at: w.knownAt };
-    const schools = await inBatches(ids, 14, async (id): Promise<SchoolProjection> => {
+    // Uma única chamada em lote para a rede inteira (antes: 5 RPCs × 56 escolas, >90s).
+    const [srcRows, clsRows] = await Promise.all([
+      rows<{ school_id: string; enrollments: any[]; participations: any[]; allocations: any[]; movements: any[] }>(
+        db.rpc("network_projection_sources", { _schools: ids, _valid_on: w.referenceDate, _known_at: w.knownAt }),
+      ),
+      rows<{ id: string; school_id: string }>(db.from("institutional_classes").select("id, school_id").in("school_id", ids)),
+    ]);
+    const bySchool = new Map((srcRows ?? []).map((r) => [r.school_id, r]));
+    const clsBySchool = new Map<string, string[]>();
+    for (const c of clsRows ?? []) clsBySchool.set(c.school_id, [...(clsBySchool.get(c.school_id) ?? []), c.id]);
+    const allClsIds = (clsRows ?? []).map((c) => c.id);
+    const allNames = clsRows == null ? null : await classNamesAt(db, allClsIds, { validOn: w.referenceDate, knownAt: w.knownAt });
+    const schools = ids.map((id): SchoolProjection => {
       const unit = units.find((u) => u.schoolId === id);
       const ver = unit ? schoolVersionAt(unit, w.referenceDate) : null;
       const dims = unit ? projectSchoolDimensions(units, id, w.referenceDate) : null;
-      const [enrollments, participations, allocations, movements, clsIds] = await Promise.all([
-        rows<any>(db.rpc("cycle_enrollments_at", { _school: id, ...t })),
-        rows<any>(db.rpc("cycle_participations_at", { _school: id, ...t })),
-        // Histórico (validOn nulo) para enxergar entradas e saídas dentro do mês.
-        rows<any>(db.rpc("class_allocations_at", { _school: id, _class: null, _valid_on: null, _known_at: w.knownAt })),
-        rows<any>(db.rpc("student_movements_known", { _school: id, _known_at: w.knownAt })),
-        rows<{ id: string }>(db.from("institutional_classes").select("id").eq("school_id", id)),
-      ]);
-      const names = clsIds == null ? null : await classNamesAt(db, clsIds.map((c) => c.id), { validOn: w.referenceDate, knownAt: w.knownAt });
-      const classes = clsIds == null || !names ? null : clsIds.map((c) => { const o = names.get(c.id); return { id: c.id, name: o?.kind === "ok" ? o.name : null }; });
+      const r = bySchool.get(id);
+      const clsIds = clsBySchool.get(id) ?? [];
+      const classes = clsRows == null || !allNames ? null : clsIds.map((cid) => { const o = allNames.get(cid); return { id: cid, name: o?.kind === "ok" ? o.name : null }; });
       const src: SchoolSources = {
         schoolId: id, schoolName: ver?.officialName ?? null, district: dims?.schoolDistrict.value ?? null,
-        enrollments, participations,
-        allocations,
-        movements, classes,
+        enrollments: r?.enrollments ?? null, participations: r?.participations ?? null,
+        allocations: r?.allocations ?? null, movements: r?.movements ?? null, classes,
       };
       return projectSchool(src, w);
     });
@@ -83,10 +86,3 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
     }
     return { window: w, scope: network ? "rede" : "escola", schools, authorized: true, coverage };
   });
-
-/** Processa em lotes pequenos: 55 escolas × 6 leituras simultâneas saturavam o banco e a tela ficava presa. */
-async function inBatches<T, R>(items: T[], size: number, fn: (x: T) => Promise<R>): Promise<R[]> {
-  const out: R[] = [];
-  for (let i = 0; i < items.length; i += size) out.push(...(await Promise.all(items.slice(i, i + size).map(fn))));
-  return out;
-}
