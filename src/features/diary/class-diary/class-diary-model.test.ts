@@ -29,3 +29,22 @@ describe("Diário de Classe — projeções", () => {
     expect(bnccCodes(undefined)).toEqual([]);
   });
 });
+
+import { fillPendingAsPresent, inlinePending, nextInlineMark, toggleInlineMark } from "./class-diary-model";
+describe("chamada direta na tabela", () => {
+  it("ciclo vazio → Presente → Ausente → vazio", () => {
+    expect(nextInlineMark(undefined)).toBe("Presente");
+    expect(nextInlineMark("Presente")).toBe("Ausente");
+    expect(nextInlineMark("Ausente")).toBeUndefined();
+  });
+  it("conta pendências por aula × estudante e não presume presença", () => {
+    let d = toggleInlineMark({}, "b1", "a");
+    expect(inlinePending(d, ["b1", "b2"], ["a", "b"])).toBe(3);
+    d = toggleInlineMark(d, "b1", "b"); d = toggleInlineMark(d, "b1", "b");
+    expect(d["b1"]).toEqual({ a: "Presente", b: "Ausente" });
+  });
+  it("marcar pendentes como presentes não altera quem já foi marcado", () => {
+    const d = fillPendingAsPresent({ b1: { a: "Ausente" } }, ["b1"], ["a", "b"]);
+    expect(d["b1"]).toEqual({ a: "Ausente", b: "Presente" });
+  });
+});

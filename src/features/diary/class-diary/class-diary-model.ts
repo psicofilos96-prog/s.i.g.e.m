@@ -83,3 +83,28 @@ export function bnccCodes(text: string | undefined): string[] {
   if (!text) return [];
   return [...new Set(text.toUpperCase().match(/\bE[FIM]\d{2}[A-Z]{2}\d{2,3}\b/g) ?? [])];
 }
+
+/** Marcação direta na tabela: vazio → Presente → Ausente → vazio. Nada é presumido. */
+export function nextInlineMark(current: AttendanceMark | undefined): AttendanceMark | undefined {
+  return current === undefined ? "Presente" : current === "Presente" ? "Ausente" : undefined;
+}
+
+/** Alterna a marca de um estudante numa aula, devolvendo novo rascunho (imutável). */
+export function toggleInlineMark(draft: AttendanceMarks, slotKey: string, studentId: string): AttendanceMarks {
+  const slot = { ...(draft[slotKey] ?? {}) };
+  const next = nextInlineMark(slot[studentId]);
+  if (next === undefined) delete slot[studentId]; else slot[studentId] = next;
+  return { ...draft, [slotKey]: slot };
+}
+
+/** Quantas marcações faltam para concluir (todas as aulas × todos os estudantes). */
+export function inlinePending(draft: AttendanceMarks, slotKeys: readonly string[], studentIds: readonly string[]): number {
+  return slotKeys.reduce((n, k) => n + studentIds.filter((id) => !draft[k]?.[id]).length, 0);
+}
+
+/** Ato explícito do professor: só os não marcados viram Presente; marcados não mudam. */
+export function fillPendingAsPresent(draft: AttendanceMarks, slotKeys: readonly string[], studentIds: readonly string[]): AttendanceMarks {
+  const out: AttendanceMarks = { ...draft };
+  for (const k of slotKeys) { const s = { ...(out[k] ?? {}) }; for (const id of studentIds) if (!s[id]) s[id] = "Presente"; out[k] = s; }
+  return out;
+}
