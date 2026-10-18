@@ -4026,6 +4026,13 @@
       "when": 1792279994858,
       "tag": "0574_cycle_enrollments_at_declared_start_fast",
       "breakpoints": true
+    },
+    {
+      "idx": 575,
+      "version": "7",
+      "when": 1792295743017,
+      "tag": "0575_network_projection_batch_reader",
+      "breakpoints": true
     }
   ]
 }

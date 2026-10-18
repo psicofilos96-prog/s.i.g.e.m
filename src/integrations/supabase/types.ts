@@ -46312,6 +46312,16 @@ export type Database = {
         }
         Returns: Json
       }
+      network_projection_sources: {
+        Args: { _known_at?: string; _schools: string[]; _valid_on?: string }
+        Returns: {
+          allocations: Json
+          enrollments: Json
+          movements: Json
+          participations: Json
+          school_id: string
+        }[]
+      }
       normalize_functional_registration: {
         Args: { _r: string }
         Returns: string
