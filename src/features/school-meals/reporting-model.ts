@@ -88,7 +88,7 @@ export const REPORTING_REPORTS: Record<Dataset, ReportDefinition> = {
     [C("number", "Número"), C("issued", "Emitido em", "date"), C("status", "Situação"), C("sha256", "SHA-256")]),
   movimentos: def("movimentos", "Movimentos de estoque: entradas, consumo observado, perdas, devoluções e ajustes", "Ledger canônico por data; lote/validade só quando informados. Quantidades de unidades diferentes não são somadas.",
     [C("date", "Data", "date"), C("class", "Classe"), C("item", "Item"), C("unit", "Unidade"), C("quantity", "Quantidade", "number"), C("direction", "Sentido"), C("lot", "Lote"), C("expires", "Validade", "date"), C("reason", "Motivo")]),
-  inventarios: def("inventarios", "Inventário físico × saldo calculado", "Última versão de cada contagem; divergência por linha conforme o writer.",
+  inventarios: def("inventarios", "Inventário físico × saldo calculado", "Última versão de cada contagem; divergência mostrada por linha.",
     [C("counted", "Contada em", "date"), C("status", "Situação"), C("lines", "Linhas (físico/diferença)"), C("version", "Versão", "number")]),
   execucoes: def("execucoes", "Execução: planejado × executado e refeições servidas", "Refeições servidas e alunos presentes são medidas separadas. Sem adesão.",
     [C("date", "Data", "date"), C("slot", "Refeição"), C("followed", "Planejado × executado"), C("deviation", "Desvio"), C("meals", "Refeições servidas", "number"), C("basis", "Base da contagem"), C("students", "Alunos presentes", "number")]),

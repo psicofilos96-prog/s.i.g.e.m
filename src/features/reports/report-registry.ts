@@ -97,7 +97,7 @@ export const GESTAO_ESCOLAR: ReportDefinition = {
 
 export const SUPERVISAO_ACOMPANHAMENTO: ReportDefinition = {
   id: "acompanhamento-supervisao-escolar", version: 1, title: "Acompanhamento da Supervisão Escolar",
-  description: "Registros vigentes (cabeça de cada cadeia) da Supervisão para uma escola, como o reader os devolve à sessão; sem identificação de pessoas.",
+  description: "Registros vigentes (cabeça de cada cadeia) da Supervisão para uma escola; sem identificação de pessoas.",
   source: "school_supervision_records_at",
   params: [{ id: "school", label: "Escola", type: "text", required: true, maxLength: 120 }, { id: "knownAt", label: "Conhecido até", type: "datetime", required: false }],
   columns: [
