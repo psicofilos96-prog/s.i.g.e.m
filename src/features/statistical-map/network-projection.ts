@@ -17,10 +17,10 @@ export type SchoolSources = {
   schoolId: string;
   schoolName: string | null;
   district: string | null;
-  enrollments: CycleEnrollmentAtRow[] | null;
-  participations: CycleParticipationRow[] | null;
-  allocations: ClassAllocationAtRow[] | null;
-  movements: MovementRow[] | null;
+  enrollments: Pick<CycleEnrollmentAtRow, "id" | "student_id" | "opened_on" | "ended_on">[] | null;
+  participations: Pick<CycleParticipationRow, "id" | "version" | "valid_from" | "valid_until" | "annulled">[] | null;
+  allocations: Pick<ClassAllocationAtRow, "id" | "student_id" | "class_id" | "valid_from" | "ended_on">[] | null;
+  movements: Pick<MovementRow, "id" | "version" | "movement_type_id" | "effective_on" | "school_scope_ids">[] | null;
   classes: { id: string; name: string | null }[] | null;
 };
 
@@ -48,17 +48,17 @@ export type SchoolProjection = {
   classRows: ClassProjection[] | null;
 };
 
-const enrRef = (r: CycleEnrollmentAtRow) => `school_enrollments:${r.id}`;
-const parRef = (r: CycleParticipationRow) => `cycle_participations:${r.id}@${r.version}`;
-const allRef = (r: ClassAllocationAtRow) => `class_enrollment_episodes:${r.id}`;
-const movRef = (r: MovementRow) => `student_movement_events:${r.id}@${r.version}`;
+const enrRef = (r: NonNullable<SchoolSources["enrollments"]>[number]) => `school_enrollments:${r.id}`;
+const parRef = (r: NonNullable<SchoolSources["participations"]>[number]) => `cycle_participations:${r.id}@${r.version}`;
+const allRef = (r: NonNullable<SchoolSources["allocations"]>[number]) => `class_enrollment_episodes:${r.id}`;
+const movRef = (r: NonNullable<SchoolSources["movements"]>[number]) => `student_movement_events:${r.id}@${r.version}`;
 
 export function projectSchool(s: SchoolSources, w: MonthWindow): SchoolProjection {
   const at = w.referenceDate;
   // Linhas *_at já vêm vigentes na data de referência; o encerramento até a data ainda é verificado aqui.
-  const enrActive = (r: CycleEnrollmentAtRow) => r.ended_on == null || r.ended_on >= at;
-  const allActive = (r: ClassAllocationAtRow) => r.valid_from <= at && (r.ended_on == null || r.ended_on >= at);
-  const parActive = (r: CycleParticipationRow) => !r.annulled && r.valid_from <= at && (r.valid_until == null || r.valid_until >= at);
+  const enrActive = (r: NonNullable<SchoolSources["enrollments"]>[number]) => r.ended_on == null || r.ended_on >= at;
+  const allActive = (r: NonNullable<SchoolSources["allocations"]>[number]) => r.valid_from <= at && (r.ended_on == null || r.ended_on >= at);
+  const parActive = (r: NonNullable<SchoolSources["participations"]>[number]) => !r.annulled && r.valid_from <= at && (r.valid_until == null || r.valid_until >= at);
   const enrollments = measure(s.enrollments, enrActive, enrRef);
   const allocated = measure(s.allocations, allActive, allRef);
   const students = s.enrollments == null ? unavailable
@@ -70,7 +70,7 @@ export function projectSchool(s: SchoolSources, w: MonthWindow): SchoolProjectio
   })();
   const movsIn = s.movements == null ? null : s.movements.filter((m) => inWin(m.effective_on, w) && m.school_scope_ids.includes(s.schoolId));
   const classRows = s.classes == null || s.allocations == null ? null : s.classes.map((c) => {
-    const rows = s.allocations!.filter((a) => a.class_id === c.id);
+    const rows = (s.allocations ?? []).filter((a) => a.class_id === c.id);
     return {
       classId: c.id, className: c.name,
       allocated: avail(rows.filter(allActive).map(allRef)),

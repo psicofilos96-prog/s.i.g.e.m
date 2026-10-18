@@ -27,7 +27,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Family notices use explicit recipients; infrequency configuration in Parameters versions canonical rules atomically, never assumes delivery; see sector AGENTS.md.
 - Enrollment uses a shared validator and trigger; browser uses the same cutoff, so alternate writers cannot bypass it.
 - Vaccination deadlines are calculated by the canonical writer using the current sector parameter and stored in each immutable event; reports read that stored date, because later parameter changes must not rewrite previously declared deadlines.
-Regras detalhadas vivem no `AGENTS.md` de cada diretório: `src/components/sigem/`, `src/config/`, `supabase/` e as pastas de `src/features/` que o tenham (`ls src/features/*/AGENTS.md`).
+Read nested AGENTS.md before changes. Network transport rules: src/features/statistical-map/AGENTS.md.
 
 ## Continuidade técnica
 B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte normativa).
