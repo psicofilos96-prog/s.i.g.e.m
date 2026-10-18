@@ -187,7 +187,7 @@ function SignedInBuilder({ user }: { user: NonNullable<ReturnType<typeof useSess
           <div>
             <p className="mb-2 text-sm font-medium">Assuntos</p>
             <ul className="grid gap-2 md:grid-cols-2">
-              {sources.map((s) => <li key={s.id} className="rounded-md border border-border p-3 text-sm">
+              {sources.filter((s) => !s.unavailable).map((s) => <li key={s.id} className="rounded-md border border-border p-3 text-sm">
                 <p className="font-medium">{s.title}</p>
                 {s.unavailable ? <p className="text-muted-foreground">Indisponível: {s.unavailable}</p>
                   : <><p className="text-muted-foreground">{s.methodology}</p><Button size="sm" className="mt-2" onClick={() => { pick(s.id); setStep(1); }}>Escolher</Button></>}
@@ -402,10 +402,10 @@ function PacksPanel({ sector, onSector, onOpen }: { sector: PackSector; onSector
   const ready = SECTOR_PACKS.filter((p) => !p.blockedBy).length;
   return <section aria-label="Pacotes por setor" className="space-y-2">
     <div className="flex flex-wrap items-end justify-between gap-2">
-      <div><p className="text-sm font-medium">Pacotes prontos por setor</p><p className="text-xs text-muted-foreground">{SECTOR_PACKS.length} pacotes · {ready} disponíveis. Abrir um pacote cria uma cópia editável; o pacote original não muda.</p></div>
+      <div><p className="text-sm font-medium">Pacotes prontos por setor</p><p className="text-xs text-muted-foreground">{ready} pacotes prontos. Abrir um pacote cria uma cópia editável; o pacote original não muda.</p></div>
       <label className="flex flex-col gap-1 text-sm">Setor do pacote<select className={sel} value={sector} onChange={(e) => onSector(e.target.value as PackSector)}>{(Object.keys(PACK_SECTOR_LABEL) as PackSector[]).map((s) => <option key={s} value={s}>{PACK_SECTOR_LABEL[s]} ({packsFor(s).length})</option>)}</select></label>
     </div>
-    <ul className="grid gap-2 md:grid-cols-2">{list.map((p) => <li key={p.id} className="rounded-md border border-border p-3 text-sm">
+    <ul className="grid gap-2 md:grid-cols-2">{list.filter((p) => !p.blockedBy).map((p) => <li key={p.id} className="rounded-md border border-border p-3 text-sm">
       <p className="font-medium">{p.title} <span className={`ml-1 rounded px-1 text-xs ${p.blockedBy ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"}`}>{p.blockedBy ? "Indisponível" : "Disponível"}</span></p>
       <p className="text-xs text-muted-foreground">{p.blockedBy ? `Motivo: ${p.blockedBy}` : packDescription(p, sourceById(p.sourceId)?.title ?? null)}</p>
       {!p.blockedBy && <Button size="sm" className="mt-2" onClick={() => onOpen(p.id)}>Abrir no assistente</Button>}

@@ -60,9 +60,9 @@ export function ReportsCatalogPage() {
           <select className={sel} value={f.availability} onChange={(e) => setF({ ...f, availability: e.target.value as CatalogFilter["availability"] })}><option value="">Todas</option><option value="disponivel">Disponível</option><option value="indisponivel">Indisponível</option></select>
         </label>
       </div>
-      <p className="text-sm text-muted-foreground" role="status">{list.length} de {CATALOG.length} relatórios</p>
+      <p className="text-sm text-muted-foreground" role="status">{list.filter((r) => r.available).length} relatórios</p>
       <ul className="grid gap-4 md:grid-cols-2">
-        {list.map((r) => (
+        {list.filter((r) => r.available).map((r) => (
           <li key={r.id} className="space-y-2 rounded-xl border border-border bg-card p-5 shadow-sm">
             <h3 className="font-display text-lg font-semibold">{r.title} <span className="text-xs text-muted-foreground">v{r.version}</span></h3>
             <p className="text-xs text-muted-foreground">{r.domain} · escopo {SCOPE[r.scope]} · {NATURE_LABEL[r.nature]}</p>
