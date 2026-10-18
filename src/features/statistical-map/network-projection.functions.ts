@@ -52,7 +52,16 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
     const units = unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []);
     // Uma única chamada em lote para a rede inteira (antes: 5 RPCs × 56 escolas, >90s).
     const [sourceResult, classResult] = await Promise.all([
-      db.rpc("network_projection_compact_sources", { _schools: ids, _valid_on: w.referenceDate, _known_at: w.knownAt }),
+      (async () => {
+        const sources: ReturnType<typeof parseNetworkSources> = [];
+        for (let offset = 0; offset < ids.length; offset += 16) {
+          const chunks = [ids.slice(offset, offset + 8), ids.slice(offset + 8, offset + 16)].filter((chunk) => chunk.length);
+          const results = await Promise.all(chunks.map((chunk) => db.rpc("network_projection_compact_sources", { _schools: chunk, _valid_on: w.referenceDate, _known_at: w.knownAt })));
+          if (results.some((result) => result.error)) return { data: null, error: true };
+          for (const result of results) sources.push(...parseNetworkSources(result.data ?? []));
+        }
+        return { data: sources, error: null };
+      })(),
       (async () => {
         const classes = await rows<{ id: string; school_id: string }>(db.from("institutional_classes").select("id, school_id").in("school_id", ids));
         if (classes == null) return { classes: null, names: null };
@@ -61,8 +70,8 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
         const names: { class_id: string; name: string }[] = [];
         // O lote inteiro de 704 turmas excedia o limite do banco. No máximo
         // quatro lotes pequenos em voo, além da consulta de matrículas.
-        for (let offset = 0; offset < classIds.length; offset += 320) {
-          const chunks = Array.from({ length: 4 }, (_, n) => classIds.slice(offset + n * 80, offset + (n + 1) * 80)).filter((chunk) => chunk.length);
+        for (let offset = 0; offset < classIds.length; offset += 160) {
+          const chunks = Array.from({ length: 2 }, (_, n) => classIds.slice(offset + n * 80, offset + (n + 1) * 80)).filter((chunk) => chunk.length);
           const results = await Promise.all(chunks.map((chunk) => rows<{ class_id: string; name: string }>(db.rpc("classes_at_batch", { _class_ids: chunk, _valid_on: w.referenceDate, _known_at: w.knownAt }))));
           if (results.some((result) => result == null)) return { classes, names: null };
           for (const result of results) names.push(...(result ?? []));
