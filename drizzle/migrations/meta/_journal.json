@@ -4061,6 +4061,13 @@
       "when": 1792325502881,
       "tag": "0579_network_projection_compact_set_based",
       "breakpoints": true
+    },
+    {
+      "idx": 580,
+      "version": "7",
+      "when": 1792325626669,
+      "tag": "0580_network_projection_compact_grouped",
+      "breakpoints": true
     }
   ]
 }
