@@ -70,7 +70,7 @@
 - [x] Reconstrução do Mapa: PDF direto A4 deitado com paginação física real, estrutura I–VI fiel (A–D, A–K, visitas), sem estados técnicos
 - [x] Mapa vivo: tela e PDF montados dos registros da escola (turmas, entradas/saídas, pessoal A–K, visitas) para todas as escolas e meses
 - [ ] Mapa: etapa das turmas sem etapa no cadastro; cargo dos professores sem matrícula ligada; nomes de turmas do mapa declarado 2026
-- [ ] Mapa: tela própria de Conferência (hoje as pendências seguem na tela de gestão)
+- [x] Mapa: Conferência em aba própria do Mapa da escola (já existente)
 - [x] Mapa: CIECE congela as movimentações do mês; registros posteriores entram no mês seguinte com observação
 - [x] Matrícula: forma de ingresso (aluno novo × transferência, escola de origem da rede/privada/outra)
 
