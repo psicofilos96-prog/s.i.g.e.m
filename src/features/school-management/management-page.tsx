@@ -83,7 +83,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Blocos marcados com “conhecido até” reproduzem o que estava registrado naquele momento; os demais mostram o estado atual da fonte." />}
       <section aria-label="Blocos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {res.blocks.map((b) => (
+        {res.blocks.filter((b) => b.state !== "UNAVAILABLE").map((b) => (
           <Link key={b.id} to={b.link as "/secretaria"} className={`rounded-lg border bg-card p-4 space-y-1 hover:bg-accent ${TONE[b.state]}`}>
             <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold">{b.title}</h2><span className="text-xs text-muted-foreground">{STATE_LABEL[b.state]}</span></div>
             <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? "—"}</p>

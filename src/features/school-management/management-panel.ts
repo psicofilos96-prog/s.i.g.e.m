@@ -9,7 +9,7 @@ export type Block = Readonly<{
 export type Pending = Readonly<{ id: string; kind: "fato-ausente" | "ambiguidade" | "conferencia" | "bloqueio-normativo" | "fonte-indisponivel"; text: string; link: string; source: string }>;
 
 export const STATE_LABEL: Record<BlockState, string> = {
-  AVAILABLE: "Disponível", ZERO: "Zero registrado", UNKNOWN: "Desconhecido", UNAVAILABLE: "Não disponível para você", BLOCKED: "Bloqueado",
+  AVAILABLE: "Disponível", ZERO: "Zero registrado", UNKNOWN: "Desconhecido", UNAVAILABLE: "Não disponível para você", BLOCKED: "Consulte no módulo próprio",
 };
 
 /** Recusa de autorização é "não disponível" (sem revelar existência); demais falhas são "desconhecido". */
@@ -18,7 +18,7 @@ export function classifyError(msg: string): "UNAVAILABLE" | "UNKNOWN" {
 }
 const failed = (b: Omit<Block, "state" | "value" | "detail" | "reason">, error: string): Block => {
   const st = classifyError(error);
-  return { ...b, state: st, value: null, detail: st === "UNAVAILABLE" ? "Sua atuação não alcança esta fonte nesta escola." : "A fonte não pôde ser lida agora.", reason: st === "UNKNOWN" ? "Falha de leitura; nada foi presumido." : "Sem capability vigente para esta leitura." };
+  return { ...b, state: st, value: null, detail: st === "UNAVAILABLE" ? "Sua atuação não alcança esta fonte nesta escola." : "A fonte não pôde ser lida agora.", reason: st === "UNKNOWN" ? "Falha de leitura; nada foi presumido." : "Esta informação não faz parte do seu acesso." };
 };
 /** Reader que sinaliza recusa por linha (result_kind) em vez de erro. */
 function rowDenied(rows: readonly { result_kind?: string | null }[]): string | null {
