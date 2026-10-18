@@ -53,7 +53,7 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
       rows<{ school_id: string; enrollments: any[]; participations: any[]; allocations: any[]; movements: any[] }>(
         db.rpc("network_projection_sources", { _schools: ids, _valid_on: w.referenceDate, _known_at: w.knownAt }),
       ),
-      rows<{ id: string; school_id: string }>(db.from("institutional_classes").select("id, school_id").in("id", ids.length ? undefined as never : []).in("school_id", ids)),
+      rows<{ id: string; school_id: string }>(db.from("institutional_classes").select("id, school_id").in("school_id", ids)),
     ]);
     const bySchool = new Map((srcRows ?? []).map((r) => [r.school_id, r]));
     const clsBySchool = new Map<string, string[]>();
