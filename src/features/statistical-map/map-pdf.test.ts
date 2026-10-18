@@ -33,11 +33,11 @@ describe("PDF do Mapa — paginação física A4 paisagem", () => {
       .sections[1]!.blocks[0] as { rows: { cells: string[] }[] };
     expect(row.rows[0]!.cells.slice(1).every((c) => c === "—")).toBe(true);
   });
-  it("seções fiéis ao modelo: IV em A–D, V em A–K, VI visitas", () => {
+  it("seções fiéis ao modelo: IV em A–E, V em A–K, VI visitas", () => {
     const d = src(1);
     expect(d.sections.map((s) => s.id)).toEqual(["I", "II", "III", "IV", "V", "VI"]);
     expect(PEOPLE_CATEGORIES.map((c) => c.id).join("")).toBe("ABCDEFGHIJK");
-    expect((d.sections[3]!.blocks as { caption?: string }[]).map((b) => b.caption?.[0])).toEqual(["A", "B", "C", "D"]);
+    expect((d.sections[3]!.blocks as { caption?: string }[]).map((b) => b.caption?.[0])).toEqual(["A", "B", "C", "D", "E"]);
   });
   it("etapa só cai em coluna reconhecida", () => {
     expect(etapaColumn("MATERNAL II")).toBe(0); expect(etapaColumn("2º PERÍODO")).toBe(1); expect(etapaColumn("9º ANO")).toBe(10);
