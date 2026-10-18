@@ -4040,6 +4040,20 @@
       "when": 1792323150410,
       "tag": "0576_network_projection_compact_reader",
       "breakpoints": true
+    },
+    {
+      "idx": 577,
+      "version": "7",
+      "when": 1792324997545,
+      "tag": "0577_class_names_for_schools_reader",
+      "breakpoints": true
+    },
+    {
+      "idx": 578,
+      "version": "7",
+      "when": 1792325110785,
+      "tag": "0578_class_names_for_schools_use_definer_helper",
+      "breakpoints": true
     }
   ]
 }
