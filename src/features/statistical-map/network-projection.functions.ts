@@ -58,9 +58,16 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
         if (classes == null) return { classes: null, names: null };
         const classIds = classes.map((c) => c.id);
         if (!classIds.length) return { classes, names: groupClassRows([], []) };
-        const names = await rows<{ class_id: string; name: string }>(db.rpc("classes_at_batch", { _class_ids: classIds, _valid_on: w.referenceDate, _known_at: w.knownAt }));
-        // Falha do lote fica explícita, sem centenas de consultas individuais.
-        return { classes, names: names == null ? null : groupClassRows(classIds, names) };
+        const names: { class_id: string; name: string }[] = [];
+        // O lote inteiro de 704 turmas excedia o limite do banco. No máximo
+        // quatro lotes pequenos em voo, além da consulta de matrículas.
+        for (let offset = 0; offset < classIds.length; offset += 320) {
+          const chunks = Array.from({ length: 4 }, (_, n) => classIds.slice(offset + n * 80, offset + (n + 1) * 80)).filter((chunk) => chunk.length);
+          const results = await Promise.all(chunks.map((chunk) => rows<{ class_id: string; name: string }>(db.rpc("classes_at_batch", { _class_ids: chunk, _valid_on: w.referenceDate, _known_at: w.knownAt }))));
+          if (results.some((result) => result == null)) return { classes, names: null };
+          for (const result of results) names.push(...(result ?? []));
+        }
+        return { classes, names: groupClassRows(classIds, names) };
       })(),
     ]);
     const srcRows = sourceResult.error ? null : parseNetworkSources(sourceResult.data ?? []);
