@@ -83,3 +83,6 @@
 - [x] Modelo preenchido e em branco, PDF direto, impressão, anexo de Educação Especial e Controle de Renovação
 - [ ] Homologação visual — aguarda conferência do proprietário nos PDFs de exemplo
 - [ ] Campos sem fonte no SIGEM (ver docs/ficha-matricula-impressao.md) — aguarda decisão
+
+## Mapa da rede — permissão uma vez por consulta (18/10/2026)
+- [x] Leitura em lote com verificação de capacidade única (0582): equivalência provada em 8 escolas × 4 fontes; fronteira negativa com conta de escola OK; Mapa da rede em 5,9 s (era 81 s)
