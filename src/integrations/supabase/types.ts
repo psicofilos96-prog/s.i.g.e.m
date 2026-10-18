@@ -39256,33 +39256,6 @@ export type Database = {
           },
         ]
       }
-      tmp_teacher_disc_import: {
-        Row: {
-          cargo: string | null
-          escola: string | null
-          professor: string | null
-          serie: string | null
-          turmas: string | null
-          vinculo: string | null
-        }
-        Insert: {
-          cargo?: string | null
-          escola?: string | null
-          professor?: string | null
-          serie?: string | null
-          turmas?: string | null
-          vinculo?: string | null
-        }
-        Update: {
-          cargo?: string | null
-          escola?: string | null
-          professor?: string | null
-          serie?: string | null
-          turmas?: string | null
-          vinculo?: string | null
-        }
-        Relationships: []
-      }
       transfer_declarations: {
         Row: {
           created_at: string
