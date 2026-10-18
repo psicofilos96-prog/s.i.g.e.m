@@ -4,7 +4,8 @@
 - [x] Reduzir os dados transportados sem alterar leitores canônicos, valores ou permissões
 - [x] Executar nomes de turmas em paralelo, em lotes limitados, sem consultas individuais
 - [x] Conferir totais, filtros, detalhamento e CSV com sessão CIECE; 80,77 s → 22,13 s no navegador local
-- [ ] Reduzir ainda mais a consulta da rede — cerca de 22 s ainda não é abertura instantânea; nenhuma homologação automática
+- [x] Nomes de turmas em leitura única em conjunto (`class_names_for_schools`, 0577/0578): 9,2 s → 0,8 s; página 22,13 s → 13,79 s
+- [ ] Reduzir o custo por escola dos leitores canônicos de matrícula/alocação (~7,6 s para 56 escolas) — sem relaxar autorização; nenhuma homologação automática
 
 ## Secretaria — complementação solicitada em 17/10/2026
 - [x] Registrar os anexos reenviados como referências de termos e ofícios, sem importar pessoas ou atos (modelos já abrangidos pelo plano)
