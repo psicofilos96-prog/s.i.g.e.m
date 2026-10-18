@@ -39,7 +39,7 @@ export function MapRuleAdmin() {
   return (
     <section aria-labelledby="rules" className="space-y-3 rounded-lg border border-border bg-card p-4 print:hidden">
       <h2 id="rules" className="text-base font-semibold">Regras de competência do Mapa</h2>
-      <p className="text-sm text-muted-foreground">Sem regra homologada que cubra a escola no mês, a competência aguarda regra e não pode ser oficializada. Regra homologada não se edita: mudança de critério é nova versão, com vigência própria, e Mapas oficiais mantêm a regra e a data usadas. Duas regras distintas cobrindo a mesma escola e mês bloqueiam por ambiguidade.</p>
+      <p className="text-sm text-muted-foreground">Cada mudança de critério vira uma nova versão, com data de início própria. Mapas já fechados continuam com a regra que usaram.</p>
       {!rules.data ? <SkeletonState label="Carregando" />
         : !rules.data.readable ? <p className="text-sm text-muted-foreground">Sem acesso às regras.</p>
         : !rules.data.rows.length ? <p className="text-sm">Nenhuma regra registrada.</p>
