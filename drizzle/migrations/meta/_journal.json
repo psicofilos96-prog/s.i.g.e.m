@@ -4068,6 +4068,13 @@
       "when": 1792325626669,
       "tag": "0580_network_projection_compact_grouped",
       "breakpoints": true
+    },
+    {
+      "idx": 581,
+      "version": "7",
+      "when": 1792325747242,
+      "tag": "0581_network_projection_compact_restore_per_school",
+      "breakpoints": true
     }
   ]
 }
