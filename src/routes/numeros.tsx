@@ -1,14 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ReportsPage } from "@/features/simple/reports-page";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
+// Um cadastro só: contagens rápidas saem do gerador oficial, lido com o acesso da conta.
 export const Route = createFileRoute("/numeros")({
-  head: () => ({ meta: [
-    { title: "Relatórios — SIGEM" },
-    { name: "description", content: "Relatórios, gráficos e exportação em Excel e PDF." },
-    { property: "og:title", content: "Relatórios — SIGEM" },
-    { property: "og:description", content: "Relatórios, gráficos e exportação em Excel e PDF." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
-  component: ReportsPage,
+  beforeLoad: () => { throw redirect({ to: "/relatorios/personalizado", replace: true }); },
 });
