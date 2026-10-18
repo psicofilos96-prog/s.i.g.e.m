@@ -37,7 +37,8 @@
 
 - [x] 1. Voltar o design anterior (início e menu originais; tela azul desligada)
 - [x] 2. Início por setor (até 6 cartões) e menu enxuto
-- [ ] 3. Tirar travas e textos técnicos, setor por setor ([x] Secretaria e [x] Direção e [x] Orientação, [x] Supervisão, [x] CIECE e [x] Inclusão conferidas no navegador; Professor aguarda conta com senha já trocada; Direção, Professor, Supervisão, CIECE, Orientação, NEI, Alimentação, DP, Família)
+- [ ] 3. Tirar travas e textos técnicos, setor por setor ([x] Secretaria, [x] Direção, [x] Orientação, [x] Supervisão, [x] CIECE, [x] Inclusão, [x] Alimentação; DP: páginas Departamento Pessoal/Gestão de Pessoas conferidas pelo Administrador, sem conta própria de DP encontrada; Professor e Família aguardam conta apta, sem troca de senha real)
+- [x] Alimentação: reabertura após correções confirmou ausência dos avisos indisponíveis de saldo/conversão, sem erros; DP: escola de teste selecionada e painel com seis turmas conferido; 27 testes focados passaram. Conferência de abertura e leitura, sem atos oficiais de teste.
 - [x] 4. Unificar cadastros: /cadastro/*, /chamada e /numeros levam às telas oficiais; dados das planilhas preservados
 - [ ] 5. Conferir cada setor no navegador
 
