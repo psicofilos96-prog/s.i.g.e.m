@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { exportRows, monthWindow, networkTotal, projectSchool, reconciles, toCsv, MEASURE_KEYS, type SchoolSources } from "./network-projection";
+import { parseNetworkSources } from "./network-source-boundary";
 
 const w = monthWindow(2027, 3);
 const enr = (id: string, student: string, opened: string, ended: string | null = null) => ({
@@ -14,11 +15,22 @@ const src = (o: Partial<SchoolSources> = {}): SchoolSources => ({
   schoolId: "e1", schoolName: "Escola 1", district: null, participations: [],
   enrollments: [enr("m1", "a1", "2027-02-01"), enr("m2", "a2", "2027-03-10"), enr("m3", "a3", "2027-02-01", "2027-03-15")],
   allocations: [alloc("t1", "a1", "c1", "2027-02-01"), alloc("t2", "a3", "c1", "2027-02-01", "2027-03-15"), alloc("t3", "a3", "c2", "2027-03-16")],
-  movements: [{ id: "mv", logical_id: "mv", version: 1, student_id: "a3", enrollment_id: "m3", movement_type_id: "transferencia", effective_on: "2027-03-15", school_scope_ids: ["e1", "e2"] }],
+  movements: [{ id: "mv", version: 1, movement_type_id: "transferencia", effective_on: "2027-03-15", school_scope_ids: ["e1", "e2"] }],
   classes: [{ id: "c1", name: "1A" }, { id: "c2", name: "1B" }], ...o,
 });
 
 describe("projeção mensal da rede", () => {
+  it("transporte compacto preserva todos os valores e referências da projeção completa", () => {
+    const full = src();
+    const compact = parseNetworkSources([{ school_id: full.schoolId, enrollments: full.enrollments, participations: full.participations, allocations: full.allocations, movements: full.movements }])[0];
+    expect(compact).toBeDefined();
+    if (!compact) throw new Error("Missing compact source");
+    expect(projectSchool({ ...full, ...compact }, w)).toEqual(projectSchool(full, w));
+    expect(JSON.stringify(compact).length).toBeLessThan(JSON.stringify(full).length);
+  });
+  it("fonte compacta inválida é recusada, nunca transformada em zero", () => {
+    expect(() => parseNetworkSources([{ school_id: "e1", enrollments: null, participations: [], allocations: [], movements: [] }])).toThrow("shape:invalid");
+  });
   it("totais reconciliam até os registros de origem", () => {
     const p = projectSchool(src(), w);
     for (const k of MEASURE_KEYS) expect(reconciles(p[k])).toBe(true);
