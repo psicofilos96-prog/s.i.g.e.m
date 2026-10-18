@@ -1,5 +1,11 @@
 # Roadmap — SIGEM simples no design original
 
+## CIECE — velocidade do Mapa da rede (18/10/2026)
+- [x] Reduzir os dados transportados sem alterar leitores canônicos, valores ou permissões
+- [x] Executar nomes de turmas em paralelo, em lotes limitados, sem consultas individuais
+- [x] Conferir totais, filtros, detalhamento e CSV com sessão CIECE; 80,77 s → 22,13 s no navegador local
+- [ ] Reduzir ainda mais a consulta da rede — cerca de 22 s ainda não é abertura instantânea; nenhuma homologação automática
+
 ## Secretaria — complementação solicitada em 17/10/2026
 - [x] Registrar os anexos reenviados como referências de termos e ofícios, sem importar pessoas ou atos (modelos já abrangidos pelo plano)
 - [x] Conferir o segundo lote de modelos: Educação Especial, justificativa de faltas, pré-matrícula, retirada de aluno, atas, ofícios e Bolsa Família; aproveitar estruturas sem importar fatos pessoais

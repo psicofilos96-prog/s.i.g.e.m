@@ -9,9 +9,10 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { unitsFromRows, schoolVersionAt } from "@/features/schools/school-registry";
 import { projectSchoolDimensions } from "@/features/ciece/school-dimensions";
 import { MAP_CAPABILITIES } from "./map-domain";
-import { readerArgs } from "@/features/classes/class-offering-shift-projection";
-import { classNamesAt } from "@/features/classes/class-names-batch";
+import { groupClassRows } from "@/features/classes/class-names-batch";
 import { monthWindow, projectSchool, type SchoolProjection, type SchoolSources } from "./network-projection";
+
+import { parseNetworkSources } from "./network-source-boundary";
 
 type Db = { from: (t: string) => any; rpc: (f: string, a?: unknown) => any };
 
@@ -39,7 +40,8 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
     const network = consult.some((g) => g.scope_level === "rede");
     let ids = [...new Set(consult.filter((g) => g.scope_level === "escola" && g.school_id).map((g) => g.school_id as string))];
     if (network) ids = [...new Set([...ids, ...(((await db.from("institutional_schools").select("id")).data ?? []) as any[]).map((s) => s.id as string)])];
-    if (data.schoolIds?.length) ids = ids.filter((i) => data.schoolIds!.includes(i));
+    const requestedIds = data.schoolIds;
+    if (requestedIds?.length) ids = ids.filter((i) => requestedIds.includes(i));
     if (!ids.length) return { window: w, scope: network ? "rede" : "escola", schools: [] as SchoolProjection[], authorized: consult.length > 0, coverage: null as null | { official: string[]; unreadable: boolean } };
 
     const [s, i, v] = await Promise.all([
@@ -49,17 +51,40 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
     ]);
     const units = unitsFromRows(s.data ?? [], i.data ?? [], v.data ?? []);
     // Uma única chamada em lote para a rede inteira (antes: 5 RPCs × 56 escolas, >90s).
-    const [srcRows, clsRows] = await Promise.all([
-      rows<{ school_id: string; enrollments: any[]; participations: any[]; allocations: any[]; movements: any[] }>(
-        db.rpc("network_projection_sources", { _schools: ids, _valid_on: w.referenceDate, _known_at: w.knownAt }),
-      ),
-      rows<{ id: string; school_id: string }>(db.from("institutional_classes").select("id, school_id").in("school_id", ids)),
+    const [sourceResult, classResult] = await Promise.all([
+      (async () => {
+        const sources: ReturnType<typeof parseNetworkSources> = [];
+        for (let offset = 0; offset < ids.length; offset += 16) {
+          const chunks = [ids.slice(offset, offset + 8), ids.slice(offset + 8, offset + 16)].filter((chunk) => chunk.length);
+          const results = await Promise.all(chunks.map((chunk) => db.rpc("network_projection_compact_sources", { _schools: chunk, _valid_on: w.referenceDate, _known_at: w.knownAt })));
+          if (results.some((result) => result.error)) return { data: null, error: true };
+          for (const result of results) sources.push(...parseNetworkSources(result.data ?? []));
+        }
+        return { data: sources, error: null };
+      })(),
+      (async () => {
+        const classes = await rows<{ id: string; school_id: string }>(db.from("institutional_classes").select("id, school_id").in("school_id", ids));
+        if (classes == null) return { classes: null, names: null };
+        const classIds = classes.map((c) => c.id);
+        if (!classIds.length) return { classes, names: groupClassRows([], []) };
+        const names: { class_id: string; name: string }[] = [];
+        // O lote inteiro de 704 turmas excedia o limite do banco. No máximo
+        // quatro lotes pequenos em voo, além da consulta de matrículas.
+        for (let offset = 0; offset < classIds.length; offset += 160) {
+          const chunks = Array.from({ length: 2 }, (_, n) => classIds.slice(offset + n * 80, offset + (n + 1) * 80)).filter((chunk) => chunk.length);
+          const results = await Promise.all(chunks.map((chunk) => rows<{ class_id: string; name: string }>(db.rpc("classes_at_batch", { _class_ids: chunk, _valid_on: w.referenceDate, _known_at: w.knownAt }))));
+          if (results.some((result) => result == null)) return { classes, names: null };
+          for (const result of results) names.push(...(result ?? []));
+        }
+        return { classes, names: groupClassRows(classIds, names) };
+      })(),
     ]);
+    const srcRows = sourceResult.error ? null : parseNetworkSources(sourceResult.data ?? []);
+    const clsRows = classResult.classes;
     const bySchool = new Map((srcRows ?? []).map((r) => [r.school_id, r]));
     const clsBySchool = new Map<string, string[]>();
     for (const c of clsRows ?? []) clsBySchool.set(c.school_id, [...(clsBySchool.get(c.school_id) ?? []), c.id]);
-    const allClsIds = (clsRows ?? []).map((c) => c.id);
-    const allNames = clsRows == null ? null : await classNamesAt(db, allClsIds, { validOn: w.referenceDate, knownAt: w.knownAt });
+    const allNames = classResult.names;
     const schools = ids.map((id): SchoolProjection => {
       const unit = units.find((u) => u.schoolId === id);
       const ver = unit ? schoolVersionAt(unit, w.referenceDate) : null;

@@ -622,5 +622,7 @@
  "drizzle/migrations/0571_notif_grant_admin_station.sql": "56f76390f679b1f450e4d201f03a76a9077444e3eab47894d6e27e95b77d843f",
  "drizzle/migrations/0572_ciece_network_notices_and_consolidation.sql": "b37b8a347023117cec5fce0edd2a4c182ee2f5568d640ee437d7c7cfd3d37d0e",
  "drizzle/migrations/0573_cycle_enrollments_at_declared_start.sql": "34ec9a34b368ec26871f21331e71ea4378f6082cc93e1ca710ed57b10a2ac1b5",
- "drizzle/migrations/0574_cycle_enrollments_at_declared_start_fast.sql": "7f8e7c7b465d277fc1259cdb84d20d6de804f4aa1b042845820a9847944213e5"
+ "drizzle/migrations/0574_cycle_enrollments_at_declared_start_fast.sql": "7f8e7c7b465d277fc1259cdb84d20d6de804f4aa1b042845820a9847944213e5",
+ "drizzle/migrations/0575_network_projection_batch_reader.sql": "27908ad9c3c61c7051e8136ae0af07badb52d243fb95a7c7fb0d8b4d7d1617e2",
+ "drizzle/migrations/0576_network_projection_compact_reader.sql": "1421420e3d9cbb01ce731c99fe3685024ab5ed1b9998dac53c9eb4a1cec8c397"
 }

@@ -4033,6 +4033,13 @@
       "when": 1792295743017,
       "tag": "0575_network_projection_batch_reader",
       "breakpoints": true
+    },
+    {
+      "idx": 576,
+      "version": "7",
+      "when": 1792323150410,
+      "tag": "0576_network_projection_compact_reader",
+      "breakpoints": true
     }
   ]
 }
