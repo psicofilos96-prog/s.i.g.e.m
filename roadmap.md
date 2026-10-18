@@ -6,7 +6,7 @@
 - [x] Conferir totais, filtros, detalhamento e CSV com sessão CIECE; 80,77 s → 22,13 s no navegador local
 - [x] Nomes de turmas em leitura única em conjunto (`class_names_for_schools`, 0577/0578): 9,2 s → 0,8 s; página 22,13 s → 11,76 s
 - [x] Tentativa de leitura em conjunto único medida e revertida (0579–0581): mais lenta sob as permissões por linha; equivalência provada antes de reverter
-- [ ] Reduzir o custo por linha das verificações de permissão nas tabelas de matrícula/alocação — é mudança de segurança, depende de decisão explícita do proprietário
+- [x] Permissão verificada uma vez por consulta (0582, decisão do proprietário em 18/10/2026): equivalência e fronteira provadas; página 11,8 s → 5,9 s
 
 ## Secretaria — complementação solicitada em 17/10/2026
 - [x] Registrar os anexos reenviados como referências de termos e ofícios, sem importar pessoas ou atos (modelos já abrangidos pelo plano)
