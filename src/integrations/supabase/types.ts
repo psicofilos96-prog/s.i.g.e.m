@@ -43575,6 +43575,13 @@ export type Database = {
         Args: { _enrollment: string }
         Returns: string
       }
+      enrollment_declared_starts_for_school: {
+        Args: { _known_at: string; _school: string }
+        Returns: {
+          enrollment_id: string
+          start_on: string
+        }[]
+      }
       enrollment_draft_abandon: {
         Args: { _draft: string; _expected: number; _reason: string }
         Returns: number
