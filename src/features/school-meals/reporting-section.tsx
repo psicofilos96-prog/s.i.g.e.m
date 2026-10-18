@@ -20,7 +20,7 @@ const call = callRpc;
 interface Row { total: number; school_id: string; row_data: Record<string, unknown> }
 interface Drill { dataset: Dataset; key: string; filters: Filters }
 
-const STATE_TEXT = { AVAILABLE: "", ZERO: "Nenhum", UNKNOWN: "Não informado", UNAVAILABLE: "Indisponível", BLOCKED: "Bloqueado" } as const;
+const STATE_TEXT = { AVAILABLE: "", ZERO: "Nenhum", UNKNOWN: "Não informado", UNAVAILABLE: "Indisponível", BLOCKED: "A definir em Parâmetros" } as const;
 const field = "mt-1 block w-full rounded border bg-background p-2";
 
 function save(name: string, blob: Blob) { const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name; a.click(); }
@@ -46,7 +46,7 @@ export function ReportingCenter({ names, network, defaultSchool }: { names: Map<
     <section id="central-relatorios" aria-labelledby="rc" className="scroll-mt-4 space-y-4 rounded-lg border p-4 text-sm">
       <div>
         <h2 id="rc" className="text-lg font-semibold">Central e relatórios</h2>
-        <p className="text-muted-foreground">Contagens de fatos registrados. "Nenhum" é zero lido; "Não informado" e "Bloqueado" nunca viram zero. Toque num número para ver os registros que o explicam.</p>
+        <p className="text-muted-foreground">Contagens de fatos registrados. "Nenhum" quer dizer zero registrado. Toque num número para ver os registros que o explicam.</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">
         <label>Escola<select className={field} value={school} onChange={(e) => setSchool(e.target.value)}>
@@ -63,7 +63,7 @@ export function ReportingCenter({ names, network, defaultSchool }: { names: Map<
               <div key={ds} className="min-w-0 rounded-lg border bg-card p-3 text-card-foreground">
                 <h3 className="font-medium">{DATASETS[ds]}</h3>
                 <ul className="mt-2 space-y-1">
-                  {(by.get(ds) ?? []).map((r) => { const c = classifyRep(r); const f = drillFilter(ds, r.key);
+                  {(by.get(ds) ?? []).filter((r) => classifyRep(r).state !== "BLOCKED").map((r) => { const c = classifyRep(r); const f = drillFilter(ds, r.key);
                     const text = c.state === "AVAILABLE" || c.state === "ZERO" ? (c.state === "ZERO" ? "Nenhum" : String(c.value)) : STATE_TEXT[c.state];
                     return (
                       <li key={r.key} className="flex items-baseline justify-between gap-2">

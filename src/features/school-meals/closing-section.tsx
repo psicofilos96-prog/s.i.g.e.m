@@ -10,7 +10,7 @@ import { formatDateTime, operationalToday, shiftMonthKey, operationalMonthKey } 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = callRpc;
 interface Closing { id: string; competence: string; version: number; closing_on: string; manifest_sha256: string; recorded_at: string; reason: string | null; movement_ids: string[] }
-const STATE_TEXT = { AVAILABLE: "Registrado", ZERO: "Nenhum (zero registrado)", PENDING: "Pendente", UNKNOWN: "Desconhecido", BLOCKED: "Bloqueado" } as const;
+const STATE_TEXT = { AVAILABLE: "Registrado", ZERO: "Nenhum (zero registrado)", PENDING: "Pendente", UNKNOWN: "Desconhecido", BLOCKED: "A definir em Parâmetros" } as const;
 const prevMonth = () => shiftMonthKey(operationalMonthKey(), -1);
 
 /** Checklist da competência: só lê fatos. Fechar não apaga nem impede retificação; reemissão é nova versão com motivo. */
