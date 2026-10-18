@@ -86,10 +86,3 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
     }
     return { window: w, scope: network ? "rede" : "escola", schools, authorized: true, coverage };
   });
-
-/** Processa em lotes pequenos: 55 escolas × 6 leituras simultâneas saturavam o banco e a tela ficava presa. */
-async function inBatches<T, R>(items: T[], size: number, fn: (x: T) => Promise<R>): Promise<R[]> {
-  const out: R[] = [];
-  for (let i = 0; i < items.length; i += size) out.push(...(await Promise.all(items.slice(i, i + size).map(fn))));
-  return out;
-}
