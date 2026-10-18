@@ -41664,6 +41664,14 @@ export type Database = {
           version: number
         }[]
       }
+      class_names_for_schools: {
+        Args: { _known_at?: string; _schools: string[]; _valid_on: string }
+        Returns: {
+          class_id: string
+          name: string
+          state: string
+        }[]
+      }
       class_occupancy_at: {
         Args: { _class: string; _known_at?: string; _valid_on: string }
         Returns: number

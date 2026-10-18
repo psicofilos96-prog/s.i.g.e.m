@@ -624,5 +624,7 @@
  "drizzle/migrations/0573_cycle_enrollments_at_declared_start.sql": "34ec9a34b368ec26871f21331e71ea4378f6082cc93e1ca710ed57b10a2ac1b5",
  "drizzle/migrations/0574_cycle_enrollments_at_declared_start_fast.sql": "7f8e7c7b465d277fc1259cdb84d20d6de804f4aa1b042845820a9847944213e5",
  "drizzle/migrations/0575_network_projection_batch_reader.sql": "27908ad9c3c61c7051e8136ae0af07badb52d243fb95a7c7fb0d8b4d7d1617e2",
- "drizzle/migrations/0576_network_projection_compact_reader.sql": "1421420e3d9cbb01ce731c99fe3685024ab5ed1b9998dac53c9eb4a1cec8c397"
+ "drizzle/migrations/0576_network_projection_compact_reader.sql": "1421420e3d9cbb01ce731c99fe3685024ab5ed1b9998dac53c9eb4a1cec8c397",
+ "drizzle/migrations/0577_class_names_for_schools_reader.sql": "31f172631ccbafe4f0ee06fe252d11b80fc17826e897cbef559384dfadced0f5",
+ "drizzle/migrations/0578_class_names_for_schools_use_definer_helper.sql": "3bc51fdc2e33c4e135c087c9e16419db3295f599422fba3632273791975ad319"
 }

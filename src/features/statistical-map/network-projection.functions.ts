@@ -67,16 +67,18 @@ export const getNetworkProjection = createServerFn({ method: "POST" })
         if (classes == null) return { classes: null, names: null };
         const classIds = classes.map((c) => c.id);
         if (!classIds.length) return { classes, names: groupClassRows([], []) };
-        const names: { class_id: string; name: string }[] = [];
-        // O lote inteiro de 704 turmas excedia o limite do banco. No máximo
-        // quatro lotes pequenos em voo, além da consulta de matrículas.
-        for (let offset = 0; offset < classIds.length; offset += 160) {
-          const chunks = Array.from({ length: 2 }, (_, n) => classIds.slice(offset + n * 80, offset + (n + 1) * 80)).filter((chunk) => chunk.length);
-          const results = await Promise.all(chunks.map((chunk) => rows<{ class_id: string; name: string }>(db.rpc("classes_at_batch", { _class_ids: chunk, _valid_on: w.referenceDate, _known_at: w.knownAt }))));
-          if (results.some((result) => result == null)) return { classes, names: null };
-          for (const result of results) names.push(...(result ?? []));
-        }
-        return { classes, names: groupClassRows(classIds, names) };
+        // Leitor em conjunto (0577): uma chamada para todas as turmas das escolas,
+        // com a mesma semântica temporal de class_at. Substitui 9 lotes de classes_at_batch (~9s).
+        const nameRows = await rows<{ class_id: string; name: string | null; state: string }>(db.rpc("class_names_for_schools", { _schools: ids, _valid_on: w.referenceDate, _known_at: w.knownAt }));
+        if (nameRows == null) return { classes, names: null };
+        const byClass = new Map<string, { class_id: string; name: string | null; state: string }[]>();
+        for (const r of nameRows) byClass.set(r.class_id, [...(byClass.get(r.class_id) ?? []), r]);
+        const names = new Map(classIds.map((cid) => {
+          const rs = byClass.get(cid) ?? [];
+          const ok = rs.find((r) => r.state === "ok" && r.name != null);
+          return [cid, ok ? { kind: "ok" as const, name: ok.name! } : rs.some((r) => r.state === "inconsistente") ? { kind: "inconsistente" as const } : { kind: "ausente" as const }];
+        }));
+        return { classes, names };
       })(),
     ]);
     const srcRows = sourceResult.error ? null : parseNetworkSources(sourceResult.data ?? []);
