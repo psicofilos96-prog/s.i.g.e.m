@@ -105,7 +105,7 @@ function SchoolView({ school, on, knownAt }: { school: string; on: string; known
           <details className="mt-2 text-sm"><summary className="cursor-pointer font-medium">Linha do tempo funcional</summary>
             <ol className="mt-2 space-y-1 border-l pl-3">{functionalTimeline(p).map((e, i) => <li key={i}><span className="text-muted-foreground">{e.date ? br(e.date) : "sem data registrada"}</span> — {e.label}</li>)}</ol>
           </details>
-          <p className="text-sm"><strong>Atuação no SIGEM</strong> {p.engagements.length ? p.engagements.map((e) => `${e.engagement_kind_id} (${e.scope_level ?? "escopo não informado"})`).join("; ") : (src?.engagementEndings === null ? "situação da atuação não confirmada (encerramentos não legíveis)" : "nenhuma atuação vigente — sem permissão no sistema por esta escola")}</p>
+          <p className="text-sm"><strong>Atuação no SIGEM</strong> {p.engagements.length ? p.engagements.map((e) => `${e.engagement_kind_id} (${e.scope_level ?? "escopo não informado"})`).join("; ") : (src?.engagementEndings === null ? "Não foi possível confirmar a situação da atuação." : "Nenhuma atuação vigente registrada nesta escola.")}</p>
         </li>
       ))}
     </ul>
