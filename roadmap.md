@@ -43,7 +43,8 @@
 
 - [x] Diário de Classe — novo visual (tela única, abas, semana, cartão da aula, tabela, quadros)
 - [x] Diário — campo "Recursos utilizados" (gravado com histórico)
-- [ ] Diário — lançamento inline de chamada/conteúdo/notas
+- [x] Diário — chamada direta na tabela (mesma gravação oficial da tela de chamada); conteúdo e notas seguem nas telas próprias
+- [ ] Diário — provar a chamada direta com conta de professor e aula registrada
 
 - [ ] Parâmetros por setor: atalhos de Matrículas/Avaliação nas telas desses setores; onda 3 (capacidade máxima de turma, prazo de protocolos, limiar de infrequência, carga contratual) com padrão editável
 - [x] Registrar jornadas escolares de 2026 como base histórica das turmas, sem alterar calendário, matrículas ou grade docente
