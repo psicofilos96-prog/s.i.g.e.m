@@ -46321,7 +46321,7 @@ export type Database = {
         Returns: Json
       }
       network_projection_compact_sources: {
-        Args: { _known_at?: string; _schools: string[]; _valid_on?: string }
+        Args: { _known_at: string; _schools: string[]; _valid_on: string }
         Returns: {
           allocations: Json
           enrollments: Json
