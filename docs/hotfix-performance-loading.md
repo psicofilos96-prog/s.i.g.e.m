@@ -2,6 +2,15 @@
 
 Situação atual: Registro de lote (2026-10-09).
 
+## Continuação CIECE — Mapa da rede (18/10/2026)
+
+- Medição autenticada no navegador local, conta CIECE, outubro/2026, 56 escolas: **80,77 s antes → 22,40 s e 22,13 s depois**, do clique em Consultar à tabela. Não é benchmark da versão publicada.
+- Transporte compacto (0576) conserva somente os campos usados pelo mesmo `projectSchool`, sobre os leitores canônicos INVOKER e com validação em execução; nenhuma permissão ou fato foi alterado.
+- O lote de 704 nomes excedia o statement timeout: agora são lotes de 80 turmas, dois simultâneos. Fontes escolares usam lotes de oito escolas, dois simultâneos; no máximo quatro consultas em voo. Erro nunca vira zero nem dispara centenas de chamadas individuais.
+- Prova na tela: 10.135 alunos/matrículas vigentes, 10.525 alocações, 94 matrículas sem turma e 704 turmas. Filtro Conveniadas mostra 15 escolas; detalhe de uma escola mostrou 73 referências e turmas; CSV baixado. Escola de teste permanece incluída em Urbanas (28).
+- Dez testes focados passaram, incluindo equivalência integral entre fonte completa e compacta e recusa de shape inválido; build OK. Nenhuma homologação foi gravada.
+- Pendência de desempenho: cerca de 22 segundos ainda não é abertura instantânea; é necessário continuar reduzindo o custo dos leitores canônicos, sem relaxar autorização.
+
 ## Causa raiz (medida, não estimada)
 As regras de acesso (e o leitor temporal de turmas) chamavam, **para cada linha**, funções que
 recalculam `effective_capabilities()` — que já cruza atuações × regras × 698 turmas. Custo
