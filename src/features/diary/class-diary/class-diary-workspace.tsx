@@ -8,9 +8,11 @@ import { AbsenceState } from "@/components/sigem/states";
 import { cn } from "@/lib/utils";
 import { diaryContext, DEFAULT_DIARY_PROFESSIONAL_ID, studentsForClassOn, diaryToday, type DiarySearch } from "../diary-data";
 import { dailyAgenda, findLessonEntry, useLocalLessonRecords, type AgendaItem } from "../lesson-records";
-import { attendanceSlots, attendanceStore, useLocalAttendance } from "../attendance";
+import { attendanceSlots, attendanceStore, useLocalAttendance, type AttendanceMarks } from "../attendance";
+import { recordAttendanceInCloud } from "../diary-cloud";
+import { isDiaryCloud } from "../diary-persistence-mode";
 import {
-  CLASS_DIARY_TABS, bnccCodes, dayChipLabel, dayResume, initials, resolveTab, share, weekDays, weekRangeLabel,
+  CLASS_DIARY_TABS, bnccCodes, fillPendingAsPresent, inlinePending, toggleInlineMark, dayChipLabel, dayResume, initials, resolveTab, share, weekDays, weekRangeLabel,
   type ClassDiaryTab,
 } from "./class-diary-model";
 import { LessonResources } from "./lesson-resources";
@@ -72,6 +74,10 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
   const [query, setQuery] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(0);
+  // Rascunho da chamada direta: só nesta aba, por aula; nunca vai ao banco antes de concluir.
+  const [draft, setDraft] = useState<Record<string, AttendanceMarks>>({});
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const set = (changes: { [K in keyof ClassDiarySearch]?: string | undefined }) =>
     void navigate({
@@ -116,6 +122,27 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
   const records = Object.fromEntries(entryIds.map((id) => [id, attendanceStore.get(id)]));
 
   const students = classId ? studentsForClassOn(classId, date) : [];
+  const studentIds = students.map((s) => s.student.id);
+  const editableIds = entryIds.filter((id) => records[id]?.concluded !== true);
+  const draftOf = (id: string): AttendanceMarks => draft[id] ?? records[id]?.marks ?? {};
+  const pendingTotal = editableIds.reduce((n, id) => n + inlinePending(draftOf(id), slots.filter((x) => x.entryId === id).map((x) => x.key), studentIds), 0);
+  const toggle = (id: string, key: string, sid: string) => { setFeedback(null); setDraft((d) => ({ ...d, [id]: toggleInlineMark(d[id] ?? records[id]?.marks ?? {}, key, sid) })); };
+  const fillPending = () => setDraft((d) => Object.fromEntries([...Object.entries(d), ...editableIds.map((id) => [id, fillPendingAsPresent(draftOf(id), slots.filter((x) => x.entryId === id).map((x) => x.key), studentIds)])]));
+  const conclude = async () => {
+    setSaving(true); setFeedback(null);
+    try {
+      for (const id of editableIds) {
+        const marks = draftOf(id);
+        if (isDiaryCloud()) {
+          // Mesmo caminho oficial da tela de chamada: grava a versão da chamada no banco.
+          const saved = await recordAttendanceInCloud(id, marks);
+          if (!saved.ok) { setFeedback(saved.message); return; }
+        } else attendanceStore.save(id, marks, true);
+      }
+      setDraft({});
+      setFeedback(isDiaryCloud() ? "Chamada registrada." : "Chamada concluída nesta aba (demonstração).");
+    } finally { setSaving(false); }
+  };
   const filtered = students.filter((s) => s.student.personName.toLowerCase().includes(query.trim().toLowerCase()));
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const current = Math.min(page, pages - 1);
@@ -292,12 +319,18 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
                         </span>
                       </td>
                       {slots.length ? slots.map((sl) => {
-                        const mark = records[sl.entryId]?.marks[sl.key]?.[s.student.id];
+                        const editable = editableIds.includes(sl.entryId);
+                        const mark = editable ? draftOf(sl.entryId)[sl.key]?.[s.student.id] : records[sl.entryId]?.marks[sl.key]?.[s.student.id];
+                        const icon = mark === "Presente" ? <CheckCircle2 className="mx-auto size-5 text-dp-ok" aria-hidden="true" />
+                          : mark === "Ausente" ? <XCircle className="mx-auto size-5 text-dp-bad" aria-hidden="true" />
+                          : <span className="text-dp-muted" aria-hidden="true">—</span>;
                         return (
-                          <td key={`${sl.entryId}-${sl.key}`} className="border-l border-dp-line px-2 py-2 text-center">
-                            {mark === "Presente" ? <CheckCircle2 className="mx-auto size-5 text-dp-ok" aria-label="Presente" />
-                              : mark === "Ausente" ? <XCircle className="mx-auto size-5 text-dp-bad" aria-label="Ausente" />
-                              : <span className="text-dp-muted" title="Não registrada">—</span>}
+                          <td key={`${sl.entryId}-${sl.key}`} className="border-l border-dp-line px-2 py-1 text-center">
+                            {editable ? (
+                              <button type="button" onClick={() => toggle(sl.entryId, sl.key, s.student.id)} disabled={saving}
+                                aria-label={`${s.student.personName}, ${sl.label}: ${mark ?? "não marcada"}. Tocar para mudar`}
+                                className="grid size-9 w-full place-items-center rounded-md hover:bg-dp-select focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dp-action">{icon}</button>
+                            ) : <span aria-label={mark ?? "Não registrada"}>{icon}</span>}
                           </td>
                         );
                       }) : <td className="border-l border-dp-line px-2 py-2 text-center text-dp-muted">—</td>}
@@ -316,6 +349,17 @@ export function ClassDiaryWorkspace({ search }: { search: ClassDiarySearch }) {
               {!students.length ? <div className="p-6"><AbsenceState kind="nenhum-registro" title="Nenhum estudante nesta turma na data" compact /></div>
                 : !filtered.length ? <div className="p-6"><AbsenceState kind="nenhum-resultado" compact /></div> : null}
             </div>
+            {editableIds.length && students.length ? (
+              <div className="flex flex-wrap items-center gap-2 border-t border-dp-line bg-dp-surface-2/60 p-3 text-sm" aria-live="polite">
+                <span>{pendingTotal ? `Faltam ${pendingTotal} marcação(ões). Toque na célula: presente, ausente ou limpar.` : "Todos marcados."}</span>
+                {feedback ? <span className="font-medium">{feedback}</span> : null}
+                <div className="ml-auto flex gap-2">
+                  {pendingTotal ? <button type="button" onClick={fillPending} disabled={saving} className="h-9 rounded-lg border border-dp-line bg-card px-3 hover:bg-dp-select">Marcar pendentes como presentes</button> : null}
+                  <button type="button" onClick={() => void conclude()} disabled={saving || pendingTotal > 0}
+                    className="h-9 rounded-lg bg-dp-action px-3 font-medium text-primary-foreground hover:bg-dp-action-hover disabled:opacity-50">{saving ? "Gravando…" : "Concluir chamada"}</button>
+                </div>
+              </div>
+            ) : feedback ? <p className="border-t border-dp-line p-3 text-sm font-medium" aria-live="polite">{feedback}</p> : null}
             <div className="flex items-center gap-3 border-t border-dp-line p-3 text-sm text-dp-ink-2">
               <select aria-label="Estudantes por página" value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(0); }} className="h-9 rounded-lg border border-dp-line bg-card px-2">
                 {[10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
