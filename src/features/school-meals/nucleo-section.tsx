@@ -14,7 +14,7 @@ type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unkno
 const call = callRpc;
 interface Trail { source: string; logical_id: string; version: number; act: string; school_id: string; reason: string | null; recorded_at: string }
 
-const STATE_TEXT: Record<Indicator["state"], string> = { AVAILABLE: "", ZERO: "Nenhum", UNKNOWN: "Não disponível", UNAVAILABLE: "Indisponível", BLOCKED: "Bloqueado" };
+const STATE_TEXT: Record<Indicator["state"], string> = { AVAILABLE: "", ZERO: "Nenhum", UNKNOWN: "Não disponível", UNAVAILABLE: "Indisponível", BLOCKED: "A definir em Parâmetros" };
 
 function Card({ i }: { i: Indicator }) {
   const n = i.state === "AVAILABLE" || i.state === "ZERO";
@@ -49,7 +49,7 @@ export function NucleoHome({ names }: { names: Map<string, string> }) {
       <section id="visao-geral" aria-labelledby="ng" className="scroll-mt-4 space-y-4 rounded-lg border p-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
           <div className="min-w-0"><h2 id="ng" className="text-lg font-semibold">O que precisa de ação agora</h2>
-            <p className="text-sm text-muted-foreground">Contagens lidas da rede na hora. "Nenhum" é zero lido; "Não disponível" e "Bloqueado" nunca viram zero.</p></div>
+            <p className="text-sm text-muted-foreground">Contagens lidas da rede na hora. "Nenhum" quer dizer zero registrado.</p></div>
           <label className="text-sm">Competência<input className="mt-1 block w-28 rounded border bg-background p-2" value={competence} onChange={(e) => setCompetence(e.target.value)} placeholder="AAAA-MM" /></label>
         </div>
         {err && <StatePanel tone="warning" title="Visão da rede não disponível" description={err} />}
