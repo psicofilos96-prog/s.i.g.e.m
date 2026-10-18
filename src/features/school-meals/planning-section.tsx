@@ -59,7 +59,7 @@ export function PlanningSection({ schools = [] }: { schools?: { id: string; name
         ))}
       </div>
       <div role="tabpanel" className="space-y-2">
-        {current.blocker && <StatePanel tone="warning" title="Conteúdo bloqueado" description={current.blocker} />}
+        {current.blocker && <StatePanel tone="warning" title="Informação necessária" description={mealMessage(current.blocker)} />}
         {err ? <StatePanel tone="warning" title="Não disponível" description={err} />
           : !rows ? <SkeletonState label="Carregando" />
           : tab === "pendencias" ? <Pending rows={rows} stagings={stagings} />

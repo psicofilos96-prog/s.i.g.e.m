@@ -49,23 +49,23 @@ export function NucleoHome({ names }: { names: Map<string, string> }) {
       <section id="visao-geral" aria-labelledby="ng" className="scroll-mt-4 space-y-4 rounded-lg border p-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
           <div className="min-w-0"><h2 id="ng" className="text-lg font-semibold">O que precisa de ação agora</h2>
-            <p className="text-sm text-muted-foreground">Contagens lidas da rede na hora. "Nenhum" quer dizer zero registrado.</p></div>
+            <p className="text-sm text-muted-foreground">Situação atual da rede. "Nenhum" quer dizer zero registrado.</p></div>
           <label className="text-sm">Competência<input className="mt-1 block w-28 rounded border bg-background p-2" value={competence} onChange={(e) => setCompetence(e.target.value)} placeholder="AAAA-MM" /></label>
         </div>
         {err && <StatePanel tone="warning" title="Visão da rede não disponível" description={err} />}
         <div>
           <h3 className="text-sm font-medium">Fila de trabalho</h3>
           {!rows ? <p className="text-sm text-muted-foreground">{err ? "—" : "Carregando…"}</p> : queue.length === 0
-            ? <p className="text-sm text-muted-foreground">Nada aguardando ação nas contagens lidas.</p>
+            ? <p className="text-sm text-muted-foreground">Nenhuma pendência nos registros consultados.</p>
             : <ol className="mt-1 space-y-1 text-sm">{queue.map((q) => <li key={q.key}><a className="underline" href={`#${q.anchor}`}>{q.label}: {q.value}</a></li>)}</ol>}
         </div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{ind.map((i) => <Card key={i.key} i={i} />)}</div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{ind.filter((i) => i.state !== "BLOCKED" && i.state !== "UNAVAILABLE").map((i) => <Card key={i.key} i={i} />)}</div>
       </section>
       <section id="qualidade" aria-labelledby="nq" className="scroll-mt-4 space-y-2 rounded-lg border p-4 text-sm">
         <h2 id="nq" className="text-lg font-semibold">Qualidade dos dados</h2>
         <p className="text-muted-foreground">Apenas aponta; nenhuma correção é automática.</p>
         {!quality ? <p className="text-muted-foreground">Não disponível para esta conta.</p> : (
-          <ul className="grid gap-2 sm:grid-cols-2">{Object.keys(QUALITY_LABELS).map((k) => { const c = classify(quality.find((q) => q.key === k));
+          <ul className="grid gap-2 sm:grid-cols-2">{Object.keys(QUALITY_LABELS).filter((k) => { const state = classify(quality.find((q) => q.key === k)).state; return state !== "BLOCKED" && state !== "UNAVAILABLE"; }).map((k) => { const c = classify(quality.find((q) => q.key === k));
             return <li key={k} className="rounded border p-2"><span className="font-medium">{QUALITY_LABELS[k]}</span>: {c.state === "AVAILABLE" || c.state === "ZERO" ? c.value : STATE_TEXT[c.state]}{c.reason && <span className="block text-xs text-muted-foreground">{humanizeForScreen(c.reason)}</span>}</li>; })}</ul>)}
       </section>
       <TrailSection names={names} />
@@ -85,7 +85,7 @@ function TrailSection({ names }: { names: Map<string, string> }) {
   return (
     <section id="trilha" aria-labelledby="nt" className="scroll-mt-4 space-y-2 rounded-lg border p-4 text-sm">
       <h2 id="nt" className="text-lg font-semibold">Trilha</h2>
-      <p className="text-muted-foreground">Só atos de pessoa natural registrada. Correções aparecem como nova versão, nunca apagam a anterior.</p>
+      <p className="text-muted-foreground">Histórico dos registros e das correções, sem apagar versões anteriores.</p>
       <div className="flex flex-wrap gap-3">
         <label>De<DateInput value={from} onChange={(e) => setFrom(e.target.value)} /></label>
         <label>Até<DateInput value={to} onChange={(e) => setTo(e.target.value)} /></label>

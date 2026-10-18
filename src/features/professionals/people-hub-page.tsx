@@ -49,7 +49,7 @@ export function PeopleHubPage() {
   const dash = dashboard("institucional", picture, classes.data ?? null);
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Gestão de Pessoas" title="Pessoal, lotação e atribuição de aulas" description="Projeção do registro funcional e da grade oficial, lida com a sua conta. Nada aqui grava, aprova ou formaliza; ausência de dado nunca vira zero." />
+      <PageHeader eyebrow="Gestão de Pessoas" title="Pessoal, lotação e atribuição de aulas" description="Consulte vínculos, lotações e aulas atribuídas nos registros oficiais." />
       <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
         {own ? <OwnSchoolName schoolId={own} /> : <label className="min-w-0 text-sm">Escola
           <select className="mt-1 block min-h-11 w-full rounded-md border bg-background px-2" value={school} onChange={(e) => setSchool(e.target.value)}>
@@ -171,7 +171,7 @@ function Coverage({ loading, data }: { loading: boolean; data: ReturnType<typeof
 
 function Assignments() {
   return (
-    <StatePanel title="Atribuições" description="O quadro visual de propostas ainda não está ligado a um registro institucional; nenhuma atribuição é exibida para não parecer oficial. Atribuições vigentes aparecem em Cobertura (regência registrada)." />
+    <StatePanel title="Atribuições" description="Consulte as aulas com professor atribuído na aba Cobertura. Para registrar ou conferir atribuições, abra o Quadro docente." />
   );
 }
 
