@@ -4054,6 +4054,13 @@
       "when": 1792325110785,
       "tag": "0578_class_names_for_schools_use_definer_helper",
       "breakpoints": true
+    },
+    {
+      "idx": 579,
+      "version": "7",
+      "when": 1792325502881,
+      "tag": "0579_network_projection_compact_set_based",
+      "breakpoints": true
     }
   ]
 }
