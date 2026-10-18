@@ -77,9 +77,9 @@ export function ReportingCenter({ names, network, defaultSchool }: { names: Map<
               </div>))}
           </div>
           <div className="rounded-lg border p-3">
-            <h3 className="font-medium">Regras e fontes pendentes</h3>
+            <h3 className="font-medium">Indicadores que ainda dependem de definição</h3>
             <p className="text-xs text-muted-foreground">Ainda sem número: falta a regra de cálculo.</p>
-            <ul className="mt-1 grid gap-1 sm:grid-cols-2">{blocked.map((b) => <li key={b.key}><span className="font-medium">{KEY_LABEL[b.key] ?? b.key}</span>: Bloqueado <span className="block text-xs text-muted-foreground">{humanizeForScreen(b.reason)}</span></li>)}</ul>
+            <ul className="mt-1 grid gap-1 sm:grid-cols-2">{blocked.map((b) => <li key={b.key}><span className="font-medium">{KEY_LABEL[b.key] ?? b.key}</span>: a definir em Parâmetros <span className="block text-xs text-muted-foreground">{humanizeForScreen(b.reason)}</span></li>)}</ul>
           </div>
         </>)}
       {drill && <DrillPanel drill={drill} school={school} from={from} to={to} names={names} onClose={() => setDrill(null)} />}
