@@ -55,3 +55,11 @@ describe("forma de ingresso no Mapa", () => {
     expect(JSON.stringify(doc)).toContain("E. M. Chorão");
   });
 });
+
+import { movementRows as _mr } from "./map-live";
+describe("Seção IV — Remanejados", () => {
+  it("remanejado vai ao grupo E e não a B–D", () => {
+    const r = _mr([{ grp: "R", student_name: "Ana", census_id: null, kind: "Remanejado", happened_on: "2026-09-10", class_label: "5A", late: false } as never]);
+    expect(r).toHaveLength(1); expect(r[0]!.group).toBe("E");
+  });
+});
