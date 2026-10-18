@@ -64,12 +64,12 @@ export const PEOPLE_CATEGORIES = PEOPLE.map((p) => ({ ...p, cols: p.cols.length 
 
 /** Pessoa já lida da fonte da escola, por categoria A–K. Uma linha por pessoa na categoria (não por vínculo). */
 export type PersonRow = { category: string; cells: string[] };
-export type MovementRow = { group: "A" | "B" | "C" | "D"; cells: string[] };
+export type MovementRow = { group: "A" | "B" | "C" | "D" | "E"; cells: string[] };
 export type VisitRow = { cargo: string; nome: string; datas: string[] };
 
 function sectionIV(rows: readonly MovementRow[]): Section {
   const base = (tipo: boolean): Col[] => [{ label: "Nº", w: 4, align: "center" }, { label: "Nome", w: 26 }, { label: "ID Censo", w: 11 }, ...(tipo ? [{ label: "Tipo", w: 10 } as Col] : []), { label: "Data", w: 9, align: "center" }, { label: "Escolaridade", w: 12 }, { label: "Observações", w: tipo ? 28 : 38 }];
-  const g = [["A", "Alunos recebidos", true], ["B", "Alunos transferidos", false], ["C", "Alunos evadidos", false], ["D", "Matrículas desistentes / canceladas", false]] as const;
+  const g = [["A", "Alunos recebidos", true], ["B", "Alunos transferidos", false], ["C", "Alunos evadidos", false], ["D", "Matrículas desistentes / canceladas", false], ["E", "Remanejados", false]] as const;
   return { id: "IV", title: "IV — Relação de Entrada e Saída de Alunos", blocks: g.map(([id, t, tipo]) => ({
     kind: "table" as const, caption: `${id} — ${t}`, cols: base(tipo), empty: EMPTY_LIST,
     rows: rows.filter((r) => r.group === id).map((r, i) => ({ cells: [String(i + 1), ...r.cells] })),

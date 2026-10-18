@@ -85,8 +85,9 @@ export function peopleRows(staff: readonly LiveStaff[]): PersonRow[] {
 export const lateNote = (m: Pick<LiveMovement, "happened_on">) => `Ocorrida em ${br(m.happened_on)}, registrada após o fechamento do mapa de ${m.happened_on ? m.happened_on.slice(5, 7) + "/" + m.happened_on.slice(0, 4) : "—"}`;
 
 export function movementRows(ms: readonly LiveMovement[]): MovementRow[] {
-  return ms.filter((m) => ["A", "B", "C", "D"].includes(m.grp)).map((m) => ({
-    group: m.grp as MovementRow["group"],
+  // Remanejado ("R" na fonte) tem grupamento próprio (E) e nunca entra em B–D.
+  return ms.filter((m) => ["A", "B", "C", "D", "R"].includes(m.grp)).map((m) => ({
+    group: (m.grp === "R" ? "E" : m.grp) as MovementRow["group"],
     cells: m.grp === "A"
       ? [t(m.student_name), t(m.census_id), t(m.kind), br(m.happened_on), t(m.class_label), m.late ? lateNote(m) : "—"]
       : [t(m.student_name), t(m.census_id), br(m.happened_on), t(m.class_label), m.late ? `${t(m.kind)} — ${lateNote(m)}` : t(m.kind)],

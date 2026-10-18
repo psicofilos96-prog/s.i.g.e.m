@@ -24,7 +24,9 @@ describe("Mapa vivo", () => {
   });
   it("remanejado não entra em A–D e escola sem turma mostra —, não zero", () => {
     const d = buildLiveDoc({ ...base, movements: [{ grp: "R", student_name: "Rui", census_id: null, kind: "Remanejamento", happened_on: "2027-03-02", class_label: "101" }] }, o);
-    expect(text(d, "IV")).not.toContain("Rui");
+    const iv = d.sections.find((x) => x.id === "IV")!.blocks as { caption?: string; rows?: { cells: string[] }[] }[];
+    expect(iv.slice(0, 4).flatMap((b) => b.rows ?? []).some((r) => r.cells.includes("Rui"))).toBe(false);
+    expect(iv[4]!.caption).toBe("E — Remanejados"); expect(iv[4]!.rows![0]!.cells).toContain("Rui");
     expect(text(d, "II")).toContain("—");
   });
   it("matrícula por turno soma os alunos das turmas", () => {
@@ -53,5 +55,13 @@ describe("forma de ingresso no Mapa", () => {
     ] };
     const doc = buildLiveDoc(d, { headerLines: [], signatures: [], generatedAt: "x" });
     expect(JSON.stringify(doc)).toContain("E. M. Chorão");
+  });
+});
+
+import { movementRows as _mr } from "./map-live";
+describe("Seção IV — Remanejados", () => {
+  it("remanejado vai ao grupo E e não a B–D", () => {
+    const r = _mr([{ grp: "R", student_name: "Ana", census_id: null, kind: "Remanejado", happened_on: "2026-09-10", class_label: "5A", late: false } as never]);
+    expect(r).toHaveLength(1); expect(r[0]!.group).toBe("E");
   });
 });
