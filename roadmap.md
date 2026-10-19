@@ -92,7 +92,7 @@
 - [x] Leitura em lote com verificação de capacidade única (0582): equivalência provada em 8 escolas × 4 fontes; fronteira negativa com conta de escola OK; Mapa da rede em 5,9 s (era 81 s)
 
 ## Login do professor (19/10/2026)
-- [x] Continuação: correção oficial antes do cartão avulso; consultas por conta/sessão/versão com prazo e retentativa, gabaritos em paralelo limitado e descarte da conferência ao trocar prova/versão. Testes e conferência operacional listados abaixo.
+- [x] Continuação: correção oficial antes do cartão avulso; consultas por conta/sessão/versão com prazo e retentativa, gabaritos em paralelo limitado e descarte da conferência ao trocar prova/versão. 18 testes passaram; build OK; navegador confirmou o portão de troca de senha, sem expor a correção. Gravação real ainda não verificada.
 - [x] Pendências: consultas isoladas por conta/sessão, prazo de 15 segundos, resposta validada, erro explícito e nova tentativa; ausência não vira zero.
 - [x] Corrigir montagem antecipada durante verificação da senha inicial: falha fechada, limite de 15 segundos e confirmação por conta.
 - [ ] Continuação solicitada: integrar acompanhamento dos alunos ao início, proteger consultas por sessão e conferir estados de falha sem apresentar ausência de dados como zero
