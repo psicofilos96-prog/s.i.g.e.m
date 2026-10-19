@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
 import { monthBounds } from "@/lib/academic-date";
 import { institution } from "@/config/institution";
@@ -9,7 +9,9 @@ import { REFEICOES_PNAE, servedMealsRows, servedMealsTotals, type ExecRow } from
 const field = "mt-1 block w-full rounded border bg-background p-2";
 
 /** Relatório PNAE de apoio por escola e mês (PDF A4 / XLSX). */
-export function ServedMealsPanel({ school, schoolName, slots }: { school: string; schoolName: string; slots: { value_id: string; label: string }[] }) {
+export function ServedMealsPanel({ school, schoolName }: { school: string; schoolName: string }) {
+  const [slots, setSlots] = useState<{ value_id: string; label: string }[]>([]);
+  useEffect(() => { callRpc<{ value_id: string; label: string }[]>("meal_catalog_values", { _scheme: "refeicao-escolar" }).then((r) => setSlots(r ?? []), () => setSlots([])); }, []);
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const [msg, setMsg] = useState<string | null>(null);
   const run = async (fmt: "pdf" | "xlsx") => {
