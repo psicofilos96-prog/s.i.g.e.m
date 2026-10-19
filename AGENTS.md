@@ -68,5 +68,3 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 - Testes: `.test.ts` rodam em node e `.test.tsx` em jsdom (projetos em `vitest.config.ts`; `.ts` que precise de DOM entra em `DOM_TS_TESTS`), porque jsdom em tudo custava 70% da suíte.
 
-## CPF
-- Validação, máscara e mensagens de CPF só por `src/lib/cpf.ts` (campo `CpfInput`); o banco revalida com `technical_cpf_valid` e guarda só HMAC único por pessoa, porque cópias da regra divergiam e CPF em claro violaria a LGPD. Auditoria só lê (`cpf_integrity_audit`, em /diagnostico).
