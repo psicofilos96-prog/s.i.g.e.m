@@ -12,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { STATION_LABEL, type SectorPrincipal } from "./station-navigation";
+import { withListTimeout } from "@/lib/server-page";
 
 type CapRow = {
   capability_id: string; engagement_id: string; policy_id: string | null; policy_version: number | null;
@@ -86,6 +87,7 @@ function applyUser(user: User | null) {
 function startOrigin() {
   let alive = true;
   let eventSeen = false;
+  const controller = new AbortController();
   const { data } = supabase.auth.onAuthStateChange((event, session) => {
     if (!alive) return;
     // B4.10.0b.1 — INITIAL_SESSION é o próprio bootstrap do SDK: ele o emite com null também quando a
@@ -93,9 +95,10 @@ function startOrigin() {
     if (event === "INITIAL_SESSION") return;
     eventSeen = true;
     applyUser(session?.user ?? null);
+    controller.abort();
   });
   Promise.resolve()
-    .then(() => supabase.auth.getSession())
+    .then(() => withListTimeout(controller.signal, () => supabase.auth.getSession()))
     .then(
       ({ data: s, error }) => {
         if (!alive || eventSeen) return;
@@ -109,6 +112,7 @@ function startOrigin() {
     );
   return () => {
     alive = false;
+    controller.abort();
     data.subscription.unsubscribe();
   };
 }
@@ -150,11 +154,12 @@ export function useSessionAuthority(): SessionAuthority {
     // NPERF.2: cache por sessão. A chave é conta + revisão da sessão (muda em login/logout/troca de
     // usuário), então nunca cruza usuários; a garantia continua no banco (RLS/writers).
     staleTime: 5 * 60_000,
-    queryFn: async () => {
+    queryFn: ({ signal }) => withListTimeout(signal, async () => {
+      if (!user) throw new Error("Não foi possível confirmar sua sessão.");
       // PERF: vínculo, ator e capacidades são leituras independentes — em paralelo, não em cascata.
       // Vínculo PRÓPRIO, explícito por user.id: administradores podem ler outras linhas.
       const [linkRes, actorRes, capsRes] = await Promise.all([
-        supabase.from("user_person_links").select("person_id").eq("user_id", user!.id).limit(2),
+        supabase.from("user_person_links").select("person_id").eq("user_id", user.id).limit(2),
         supabase.rpc("current_actor"),
         readAllEffectiveCapabilities(supabase),
       ]);
@@ -187,7 +192,7 @@ export function useSessionAuthority(): SessionAuthority {
         principal,
         capabilities: mapCaps(capsRes.data as CapRow[] | null),
       };
-    },
+    }),
   });
   if (loading) return sessionError ? { status: "loading", error: sessionError } : { status: "loading" };
   if (!user) return { status: "signed-out" };

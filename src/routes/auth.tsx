@@ -16,6 +16,8 @@ import brasao from "@/assets/brasao-borda.png.asset.json";
 import sigemLogo from "@/assets/logo-sigem-white.png.asset.json";
 import { DateInput } from "@/components/sigem/date-input";
 import { parseAcademicDate } from "@/lib/academic-date";
+import { useSessionUser } from "@/features/authority/session-authority";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -28,10 +30,13 @@ export const Route = createFileRoute("/auth")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  validateSearch: (s: Record<string, unknown>): { redirect?: string; motivo?: "expirada" } => ({
-    ...(safeRedirect(s["redirect"]) ? { redirect: safeRedirect(s["redirect"])! } : {}),
-    ...(s["motivo"] === "expirada" ? { motivo: "expirada" as const } : {}),
-  }),
+  validateSearch: (s: Record<string, unknown>): { redirect?: string; motivo?: "expirada" } => {
+    const redirect = safeRedirect(s["redirect"]);
+    return {
+      ...(redirect ? { redirect } : {}),
+      ...(s["motivo"] === "expirada" ? { motivo: "expirada" as const } : {}),
+    };
+  },
   component: AuthPage,
 });
 
@@ -55,12 +60,13 @@ function AuthPage() {
   const [first, setFirst] = useState(false);
   // NLOGIN.2: estado da sessão — conferindo, já conectado (redireciona) ou sem sessão (formulário).
   const [session, setSession] = useState<"checking" | "signed-in" | "signed-out">("checking");
+  const sessionUser = useSessionUser();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) { setSession("signed-in"); go(); } else setSession("signed-out");
-    }, () => setSession("signed-out"));
-  }, [router, target]);
+    if (sessionUser.loading) { setSession("checking"); return; }
+    if (sessionUser.user) { setSession("signed-in"); router.history.replace(target); }
+    else setSession("signed-out");
+  }, [router, target, sessionUser.loading, sessionUser.user]);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -101,7 +107,12 @@ function AuthPage() {
           {search.motivo === "expirada" && (
             <p role="status" className="mt-4 rounded-xl border border-login-ink/20 bg-login-ink/10 p-3 text-sm">Sua sessão terminou. Entre de novo para continuar de onde parou.</p>
           )}
-          {first && session === "signed-out" ? null : session !== "signed-out" ? (
+          {sessionUser.error ? (
+            <div role="alert" className="mt-8 space-y-3 text-sm text-login-ink">
+              <p>Não foi possível conferir seu acesso. Tente novamente.</p>
+              <Button variant="outline" onClick={() => window.location.reload()}>Tentar novamente</Button>
+            </div>
+          ) : first && session === "signed-out" ? null : session !== "signed-out" ? (
             <p role="status" aria-live="polite" className="mt-8 flex items-center gap-2 text-sm text-login-ink/80">
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
               {session === "checking" ? "Conferindo se você já está conectado…" : "Você já está conectado. Abrindo o SIGEM…"}
