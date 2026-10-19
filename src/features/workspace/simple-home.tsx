@@ -7,6 +7,7 @@ import { STATION_ROUTES } from "@/features/authority/station-navigation";
 import type { SessionAuthority } from "@/features/authority/session-authority";
 import { HomeTodayPanel } from "./home-today";
 import { PersonNoticeBoard, SchoolNoticeBoard } from "@/features/ciece/network-notices";
+import { MyPendingWorkCard } from "@/features/teacher-review/my-pending-card";
 
 function sectorOf(a: SessionAuthority) {
   const pr = (a as { principal?: { station: keyof typeof STATION_ROUTES } | null }).principal;
@@ -30,6 +31,7 @@ export function SimpleHome({ userId, authority }: { userId: string; authority: S
         <p className="mt-1 text-lg text-muted-foreground">{today.charAt(0).toUpperCase() + today.slice(1)}</p>
       </header>
       {authority.status === "signed-in" && authority.principal?.scope === "school" && authority.principal.schoolId ? <SchoolNoticeBoard schoolId={authority.principal.schoolId} /> : authority.status === "signed-in" && !authority.principal && authority.person ? <PersonNoticeBoard personId={authority.person.id} /> : null}
+      {authority.status === "signed-in" && !authority.principal && authority.person ? <MyPendingWorkCard /> : null}
 
       <section aria-label="O que você quer fazer">
         {primary.length === 0 ? (
