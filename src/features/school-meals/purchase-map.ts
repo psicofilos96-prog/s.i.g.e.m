@@ -93,3 +93,49 @@ export const MAPA_DISTRIBUICAO: ReportDefinition = {
   ],
   formats: ["xlsx", "pdf"], reproducible: true, syncRowLimit: 5000,
 };
+
+/** Linha programada de entrega (subconjunto de meal_deliveries_at). */
+export interface ScheduledDelivery { school_id: string; item_ref: string; unidade_ref: string; contrato_ref: string | null; quantity: number; expected_on: string; action?: string }
+
+/**
+ * Mapa por entrega: numera 1ª, 2ª, … entrega por escola × item × contrato pela data programada.
+ * Usa só programações registradas; nada é dividido ou presumido (sem programação, não há linha).
+ */
+export function deliveryWaveRows(ds: ScheduledDelivery[], ctx: { items: Named[]; units: Named[]; contracts: Named[]; suppliers: Named[]; schools: Map<string, string> }): Record<string, CellValue>[] {
+  const find = (l: Named[], id: string | null) => (id ? l.find((x) => x.logical_id === id) : undefined);
+  const live = ds.filter((d) => d.action !== "cancelamento");
+  const groups = new Map<string, ScheduledDelivery[]>();
+  for (const d of live) { const k = `${d.school_id}|${d.item_ref}|${d.contrato_ref ?? ""}`; groups.set(k, [...(groups.get(k) ?? []), d]); }
+  const out: Record<string, CellValue>[] = [];
+  for (const g of groups.values()) {
+    g.sort((a, b) => a.expected_on.localeCompare(b.expected_on));
+    g.forEach((d, i) => {
+      const ct = find(ctx.contracts, d.contrato_ref);
+      const sup = find(ctx.suppliers, txt(ct?.payload["fornecedor_ref"]));
+      const qty = Number(d.quantity);
+      out.push({
+        supplier: txt(sup?.payload["nome"]) ?? MISSING,
+        contract: ct ? `${txt(ct.payload["natureza"]) ?? ""} ${txt(ct.payload["numero"]) ?? ""}`.trim() || MISSING : MISSING,
+        wave: `${i + 1}ª entrega`, date: d.expected_on.split("-").reverse().join("/"),
+        school: ctx.schools.get(d.school_id) ?? d.school_id,
+        item: txt(find(ctx.items, d.item_ref)?.payload["nome"]) ?? "item não identificado",
+        unit: txt(find(ctx.units, d.unidade_ref)?.payload["simbolo"]) ?? txt(find(ctx.units, d.unidade_ref)?.payload["nome"]) ?? "unidade não identificada",
+        quantity: Number.isFinite(qty) ? qty : null,
+      });
+    });
+  }
+  return out.sort((a, b) => String(a["supplier"]).localeCompare(String(b["supplier"]), "pt-BR") || String(a["wave"]).localeCompare(String(b["wave"]), "pt-BR", { numeric: true }) || String(a["school"]).localeCompare(String(b["school"]), "pt-BR") || String(a["item"]).localeCompare(String(b["item"]), "pt-BR"));
+}
+
+export const MAPA_ENTREGAS: ReportDefinition = {
+  id: "mapa-entregas-fornecedor", version: 1, title: "Mapa de entregas por fornecedor — 1ª, 2ª… entrega",
+  description: "Somente entregas programadas registradas, numeradas pela data prevista por escola e item. Não é ordem de compra nem empenho.",
+  source: "meal_deliveries_at", params: [{ id: "competence", label: "Competência (AAAA-MM)", type: "text", required: true, maxLength: 7 }],
+  columns: [
+    { id: "supplier", label: "Fornecedor", kind: "text" }, { id: "contract", label: "Contrato/ata", kind: "text" },
+    { id: "wave", label: "Entrega", kind: "text" }, { id: "date", label: "Data prevista", kind: "text" },
+    { id: "school", label: "Escola", kind: "text" }, { id: "item", label: "Item", kind: "text" },
+    { id: "unit", label: "Unidade", kind: "text" }, { id: "quantity", label: "Quantidade", kind: "number" },
+  ],
+  formats: ["xlsx", "pdf"], reproducible: true, syncRowLimit: 5000,
+};
