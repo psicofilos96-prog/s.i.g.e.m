@@ -82,7 +82,7 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
       if (draft.sharedSource && !draft.planId) await recordSharedCopy(v.plan_id, draft.sharedSource).catch(() => undefined);
       setDraft(fromVersion(v)); setDirty(false);
       if (!silent) setMsg({ tone: "ok", text: st === "publicado" ? "Compartilhado. Nova versão registrada." : "Salvo como nova versão." });
-    } catch (e) { setMsg({ tone: "err", text: planMessage((e as Error).message) }); if (silent) setDirty(false); }
+    } catch (e) { setMsg({ tone: "err", text: planMessage((e as Error).message) }); }
     finally { saving.current = false; }
   }
   // Autosave seguro: só rascunho existente, após 4s parado, com cabeça esperada (conflito vira aviso, nunca sobrescreve).
@@ -182,6 +182,7 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
               <label className="block text-sm">Período oficial (opcional)
                 {!assignment ? <span className="block text-muted-foreground">{draft.periodId ?? "Sem período"}</span>
                   : periods.isLoading ? <span className="block" role="status">Carregando…</span>
+                  : periods.isError ? <span role="alert" className="block text-destructive">Não foi possível ler os períodos. <Button size="sm" variant="outline" onClick={() => { void periods.refetch(); }}>Tentar novamente</Button></span>
                   : (periods.data ?? []).length === 0 ? <span className="block text-muted-foreground">A turma não tem períodos oficiais vigentes nesta data; o plano pode ser salvo sem período.</span>
                   : <select className="mt-1 w-full rounded border bg-background p-2" disabled={readOnly} value={draft.periodId ?? ""} onChange={(e) => { const p = periods.data!.find((x) => x.period_id === e.target.value); edit({ periodId: p?.period_id ?? null, ...(p && !draft.coversFrom ? { coversFrom: p.starts_on, coversUntil: p.ends_on } : {}) }); }}>
                       <option value="">Sem período (plano anual/sequência)</option>
@@ -201,6 +202,8 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
               <fieldset className="space-y-1">
                 <legend className="text-sm font-medium">Elementos da matriz desta regência</legend>
                 {!assignment ? <p className="text-sm text-muted-foreground">{draft.itemKeys.join(", ") || "Nenhum"} (registrado na versão)</p>
+                  : matrixVersion.isError || items.isError ? <div role="alert" className="text-sm text-destructive">Não foi possível ler a matriz. <Button size="sm" variant="outline" onClick={() => { if (matrixVersion.isError) void matrixVersion.refetch(); if (items.isError) void items.refetch(); }}>Tentar novamente</Button></div>
+                  : matrixVersion.isSuccess && !matrixVersion.data ? <p className="text-sm text-muted-foreground">Matriz não identificada para esta atribuição.</p>
                   : !items.data ? <SkeletonState label="Carregando" />
                   : items.data.length === 0 ? <p className="text-sm text-muted-foreground">A matriz não tem itens registrados.</p>
                   : items.data.map((it) => <label key={it.item_key} className="flex items-center gap-2 text-sm"><input type="checkbox" disabled={readOnly} checked={draft.itemKeys.includes(it.item_key)} onChange={() => edit({ itemKeys: draft.itemKeys.includes(it.item_key) ? draft.itemKeys.filter((k) => k !== it.item_key) : [...draft.itemKeys, it.item_key] })} />{it.component_label_snapshot ?? it.item_key}</label>)}
