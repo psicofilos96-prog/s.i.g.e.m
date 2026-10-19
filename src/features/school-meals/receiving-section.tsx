@@ -73,24 +73,56 @@ export function ReceivingSection({ school, network, names }: { school: string; n
   );
 }
 
+type CheckItem = { id: string; texto?: string; pergunta?: string; obrigatorio?: boolean };
+const localNow = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
+const sha256Hex = async (f: File) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", await f.arrayBuffer()))].map((b) => b.toString(16).padStart(2, "0")).join("");
+
 function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m: string) => Promise<void>; onCancel: () => void }) {
   const confirmed = row.receipt_status === "confirmado" || row.receipt_status === "retificado";
   const [step, setStep] = useState(0);
-  const [f, setF] = useState({ delivered: row.delivered_qty ?? row.quantity, accepted: row.accepted_qty ?? row.quantity, lot: "", expires: "", brand: "", condition: "", temperature: "", note: "", reason: "" });
+  const [f, setF] = useState({ delivered: row.delivered_qty ?? row.quantity, accepted: row.accepted_qty ?? row.quantity, lot: "", expires: "", brand: "", condition: "", temperature: "", note: "", reason: "", receivedAt: localNow(), nfNumber: "", nfDate: "", rejectMotive: "" });
   const [logical, setLogical] = useState(row.receipt_logical_id); const [version, setVersion] = useState(row.receipt_version);
   const [err, setErr] = useState<string | null>(null);
+  const [checks, setChecks] = useState<CheckItem[] | null>(null); const [answers, setAnswers] = useState<Record<string, boolean>>({});
+  const [nfFile, setNfFile] = useState<File | null>(null);
+  const day = f.receivedAt.slice(0, 10);
+  useEffect(() => {
+    void (async () => {
+      try {
+        const r = await call<{ payload: Record<string, unknown> }[]>("meal_master_at", { _kind: "checklist-de-recebimento", _on: day, _known_at: null, _include_drafts: false });
+        const m = (r ?? []).find((x) => String(x.payload["item_ref"]) === row.item_ref);
+        setChecks(Array.isArray(m?.payload["itens"]) ? (m!.payload["itens"] as CheckItem[]) : []);
+      } catch { setChecks([]); }
+    })();
+  }, [day, row.item_ref]);
   const rejected = f.delivered - f.accepted;
-  const issues = validateReceipt({ delivered: f.delivered, accepted: f.accepted, rejected, temperature: f.temperature === "" ? null : Number(f.temperature), checklist: {} }, null);
+  const issues = [
+    ...validateReceipt({ delivered: f.delivered, accepted: f.accepted, rejected, temperature: f.temperature === "" ? null : Number(f.temperature), checklist: answers }, null),
+    ...(new Date(f.receivedAt) > new Date() ? ["A data do recebimento não pode ser no futuro."] : []),
+    ...(!confirmed && (!f.nfNumber.trim() || !nfFile) ? ["Informe o número da nota fiscal e anexe o arquivo."] : []),
+    ...(checks ?? []).filter((c) => c.obrigatorio && answers[c.id] === undefined).map((c) => `Responda: ${c.texto ?? c.pergunta ?? c.id}.`),
+    ...(rejected > 0 && f.rejectMotive.trim().length < 3 ? ["Descreva o motivo da recusa."] : []),
+  ];
   const send = async (action: "rascunho" | "confirmacao" | "retificacao") => {
     setErr(null);
     try {
+      let fiscal: string | null = null;
+      if (action === "confirmacao" && nfFile) {
+        fiscal = await call<string>("record_meal_fiscal_document", { _logical: null, _expected_version: null, _status: "recebido", _school: row.school_id, _schedule: row.schedule_logical_id,
+          _number: f.nfNumber.trim(), _issuer: null, _issued_on: f.nfDate || null, _sha256: await sha256Hex(nfFile), _storage_ref: null, _reason: null });
+      }
       const id = await call<string>("record_meal_receipt", {
-        _logical: logical, _expected_version: version, _action: action, _schedule: row.schedule_logical_id, _received_at: new Date().toISOString(), _tz: TZ,
+        _logical: logical, _expected_version: version, _action: action, _schedule: row.schedule_logical_id, _received_at: new Date(f.receivedAt).toISOString(), _tz: TZ,
         _delivered: f.delivered, _accepted: f.accepted, _rejected: rejected, _lot: f.lot, _expires: f.expires || null, _brand: f.brand, _spec: null,
-        _condition: f.condition, _temperature: f.temperature === "" ? null : Number(f.temperature), _checklist: {}, _fiscal: null, _evidence: [], _note: f.note, _reason: f.reason || null,
+        _condition: f.condition, _temperature: f.temperature === "" ? null : Number(f.temperature), _checklist: answers, _fiscal: fiscal, _evidence: [], _note: f.note, _reason: f.reason || null,
       });
-      if (action === "rascunho") { setLogical(id); setVersion((version ?? 0) + 1); setErr("Rascunho salvo."); }
-      else await onDone(action === "confirmacao" ? `Recebimento confirmado: ${f.accepted} aceito(s) entram no estoque.` : "Retificação registrada.");
+      if (action === "rascunho") { setLogical(id); setVersion((version ?? 0) + 1); setErr("Rascunho salvo."); return; }
+      let extra = "";
+      if (rejected > 0) {
+        try { await call("record_meal_nonconformity", { _logical: null, _expected_version: null, _status: "aberta", _receipt: id, _motive: f.rejectMotive.trim(), _returned: rejected, _evidence: [], _deadline_rule: null, _note: f.note || null, _reason: null }); extra = " Não conformidade aberta para o item recusado; anexe as fotos na aba Não conformidades."; }
+        catch (e) { extra = ` A não conformidade não foi aberta: ${receivingMessage((e as Error).message)}`; }
+      }
+      await onDone((action === "confirmacao" ? `Recebimento confirmado: ${f.accepted} aceito(s) entram no estoque.` : "Retificação registrada.") + extra);
     } catch (e) { setErr(receivingMessage((e as Error).message)); }
   };
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.type === "number" ? Number(e.target.value) : e.target.value });
@@ -98,15 +130,31 @@ function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m
     <div role="dialog" aria-label="Conferir entrega" className="space-y-2 rounded border p-3">
       <p className="font-medium">Passo {step + 1} de 3 · esperado: {row.quantity}{row.expected_brand ? ` · marca aprovada ${row.expected_brand}` : " · marca aprovada não informada"}</p>
       {step === 0 && <div className="grid gap-2 sm:grid-cols-2">
+        <label>Data e hora em que chegou<input type="datetime-local" className={field} max={localNow()} value={f.receivedAt} onChange={set("receivedAt")} /></label>
         <label>Quantidade entregue<input type="number" min={0} className={field} value={f.delivered} onChange={set("delivered")} /></label>
         <label>Quantidade aceita<input type="number" min={0} className={field} value={f.accepted} onChange={set("accepted")} /></label>
-        <p>Rejeitado: {rejected}</p></div>}
+        <p>Recusado: {rejected}</p>
+        {rejected > 0 && <label className="sm:col-span-2">Motivo da recusa<input className={field} value={f.rejectMotive} onChange={set("rejectMotive")} placeholder="ex.: embalagem violada, produto vencido" /></label>}
+        {!confirmed && <>
+          <label>Número da nota fiscal<input className={field} value={f.nfNumber} onChange={set("nfNumber")} /></label>
+          <label>Data de emissão<DateInput className={field} value={f.nfDate} onChange={(e) => setF({ ...f, nfDate: e.target.value })} /></label>
+          <label className="sm:col-span-2">Arquivo da nota (PDF ou foto)<input type="file" accept="application/pdf,image/*" capture="environment" className={field} onChange={(e) => setNfFile(e.target.files?.[0] ?? null)} /></label>
+        </>}</div>}
       {step === 1 && <div className="grid gap-2 sm:grid-cols-2">
         <label>Lote<input className={field} value={f.lot} onChange={set("lot")} /></label>
         <label>Validade<DateInput className={field} value={f.expires} onChange={set("expires")} /></label>
         <label>Marca observada<input className={field} value={f.brand} onChange={set("brand")} /></label>
         <label>Embalagem/condição<input className={field} value={f.condition} onChange={set("condition")} /></label>
-        <label>Temperatura (se aplicável)<input type="number" className={field} value={f.temperature} onChange={set("temperature")} /></label></div>}
+        <label>Temperatura (se aplicável)<input type="number" className={field} value={f.temperature} onChange={set("temperature")} /></label>
+        <div className="sm:col-span-2 space-y-1">
+          <p className="font-medium">Checklist de recebimento</p>
+          {checks === null ? <p className="text-muted-foreground">…</p>
+            : checks.length === 0 ? <p className="text-muted-foreground">Nenhum checklist aprovado para este item. Cadastre em Planejamento.</p>
+            : checks.map((c) => <div key={c.id} className="flex flex-wrap items-center gap-3">
+                <span>{c.texto ?? c.pergunta ?? c.id}{c.obrigatorio ? " *" : ""}</span>
+                <label><input type="radio" checked={answers[c.id] === true} onChange={() => setAnswers({ ...answers, [c.id]: true })} /> Conforme</label>
+                <label><input type="radio" checked={answers[c.id] === false} onChange={() => setAnswers({ ...answers, [c.id]: false })} /> Não conforme</label></div>)}
+        </div></div>}
       {step === 2 && <div className="space-y-2">
         <label className="block">Observações<input className={field} value={f.note} onChange={set("note")} /></label>
         {confirmed && <label className="block">Motivo da retificação<input className={field} value={humanizeForScreen(f.reason)} onChange={set("reason")} /></label>}
