@@ -7,6 +7,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { withListTimeout } from "@/lib/server-page";
 import { LoginsInventorySection } from "./logins-inventory-section";
 import { CapabilityMatrixSection } from "./capability-matrix-section";
 import {
@@ -19,38 +21,45 @@ const today = () => operationalToday();
 /** Central de usuários, atuações, capacidades e políticas. Todas as gravações passam por RPC. */
 export function AccessCenterPage() {
   const authority = useSessionAuthority();
+  if (authority.status === "loading") return <Shell>{authority.error ? <p role="alert">Não foi possível conferir seu acesso. Recarregue a página para tentar novamente.</p> : <SkeletonState label="Conferindo seu acesso" />}</Shell>;
+  if (!pathAllowed(authority, "/central-de-acessos")) return <Shell><p role="alert">Sua conta não tem permissão para abrir a Central de acessos.</p></Shell>;
+  return <AuthorizedAccessCenterPage key={sessionContextKey(authority)} />;
+}
+
+function AuthorizedAccessCenterPage() {
+  const authority = useSessionAuthority();
   const held = new Set(authority.status === "signed-in" ? authority.capabilities.filter((c) => c.policyId).map((c) => c.capabilityId) : []);
   const key = sessionContextKey(authority);
   const enabled = authority.status === "signed-in";
   const qc = useQueryClient();
   const refresh = () => qc.invalidateQueries({ queryKey: ["access-center"] });
 
-  const people = useQuery({ queryKey: ["access-center", "people", key], enabled, queryFn: async () => {
+  const people = useQuery({ queryKey: ["access-center", "people", key], enabled, retry: false, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
     const [p, e, end] = await Promise.all([
-      supabase.from("institutional_persons").select("id, display_name, actor_nature, institutional_identifier").order("display_name"),
-      supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, position_label_snapshot"),
-      supabase.from("engagement_endings").select("engagement_id, ended_on"),
+      supabase.from("institutional_persons").select("id, display_name, actor_nature, institutional_identifier").order("display_name").abortSignal(s),
+      supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, position_label_snapshot").abortSignal(s),
+      supabase.from("engagement_endings").select("engagement_id, ended_on").abortSignal(s),
     ]);
     if (p.error || e.error || end.error) throw p.error ?? e.error ?? end.error;
     return { persons: p.data, engagements: e.data, endings: end.data };
-  } });
-  const accounts = useQuery({ queryKey: ["access-center", "accounts", key], enabled: enabled && held.has("manter-contas-institucionais"), queryFn: async () => {
-    const { data, error } = await supabase.rpc("admin_account_overview"); if (error) throw error; return data ?? [];
-  } });
-  const policies = useQuery({ queryKey: ["access-center", "policies", key], enabled, queryFn: async () => {
+  }) });
+  const accounts = useQuery({ queryKey: ["access-center", "accounts", key], enabled: enabled && held.has("manter-contas-institucionais"), retry: false, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+    const { data, error } = await supabase.rpc("admin_account_overview").abortSignal(s); if (error) throw error; return data ?? [];
+  }) });
+  const policies = useQuery({ queryKey: ["access-center", "policies", key], enabled, retry: false, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
     const [v, r] = await Promise.all([
-      supabase.from("capability_policies").select("id, logical_policy_id, version, status, supersedes_version_id, valid_from, valid_until, homologation_origin, homologated_at, homologated_by, created_at, created_by").order("version"),
-      supabase.from("capability_policy_rules").select("policy_id, engagement_kind_id, capability_id, scope_dimensions"),
+      supabase.from("capability_policies").select("id, logical_policy_id, version, status, supersedes_version_id, valid_from, valid_until, homologation_origin, homologated_at, homologated_by, created_at, created_by").order("version").abortSignal(s),
+      supabase.from("capability_policy_rules").select("policy_id, engagement_kind_id, capability_id, scope_dimensions").abortSignal(s),
     ]);
     if (v.error || r.error) throw v.error ?? r.error;
     const rules = new Map<string, PolicyRule[]>();
     for (const x of r.data) rules.set(x.policy_id, [...(rules.get(x.policy_id) ?? []), { engagement_kind_id: x.engagement_kind_id, capability_id: x.capability_id, scope_dimensions: x.scope_dimensions }]);
     return { versions: v.data as PolicyVersion[], rules };
-  } });
+  }) });
 
   if (authority.status === "signed-out") return <Shell><p className="text-muted-foreground">Entre com a sua conta institucional para continuar.</p></Shell>;
   if (authority.status !== "signed-in") return <Shell><SkeletonState label="Carregando a sua atuação" /></Shell>;
-  if (![...held].some((c) => c.startsWith("manter-") && c.endsWith("-institucionais") || c.endsWith("politica-de-capacidades")))
+  if (!pathAllowed(authority, "/central-de-acessos"))
     return <Shell><p className="text-muted-foreground">Esta central exige capacidade administrativa de rede na política vigente. Cargo ou função não concede acesso.</p></Shell>;
 
   return (

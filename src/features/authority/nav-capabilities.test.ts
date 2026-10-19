@@ -18,6 +18,13 @@ describe("NPERM.3 — menu × rota × capacidade", () => {
     expect(pathAllowed({ status: "signed-in", capabilities: [cap("registrar-aula"), cap("consultar-supervisao-da-propria-escola")] }, "/gestao-escolar")).toBe(true);
     expect(pathAllowed({ status: "signed-in", capabilities: [] }, "/gestao-escolar")).toBe(false);
   });
+  it("professor não abre consultas administrativas; competência explícita preserva cada área", () => {
+    const teacher = { status: "signed-in" as const, capabilities: [cap("registrar-aula"), cap("consultar-estudantes-da-turma")] };
+    for (const path of ["/central-de-acessos", "/central-de-acessos/detalhe", "/estacao-administrativa"]) expect(pathAllowed(teacher, path)).toBe(false);
+    expect(pathAllowed({ status: "signed-in", capabilities: [cap("manter-contas-institucionais")] }, "/central-de-acessos")).toBe(true);
+    expect(pathAllowed({ status: "signed-in", capabilities: [cap("manter-contas-institucionais")] }, "/estacao-administrativa")).toBe(false);
+    expect(pathAllowed({ status: "signed-in", capabilities: [cap("registrar-politica-de-capacidades")] }, "/estacao-administrativa")).toBe(true);
+  });
   it("Publicações só aparece com a capacidade de publicar", () => {
     expect(navItemAllowed("/publicacoes", [])).toBe(false);
     expect(navItemAllowed("/publicacoes", [cap("outra")])).toBe(false);

@@ -1,4 +1,5 @@
 ## B1 — Identidade, acesso e instalação (`src/features/institutional-admin/`)
+- Access Center and Governance Station mount readers only after pathAllowed; session-keyed reads have bounded waits and discard late responses, because refusing after querying still exposes an unauthorized workload.
 - Instalação é ato único: `install_sigem` exige estado `nao-instalado` (singleton travado, irreversível por trigger) + conta designada em `sigem_installer_designation` + ato; o critério é o estado, nunca "não há política", para que ausência futura não reabra o bootstrap.
 - Contas nascem só por `createInstitutionalAccount` (capacidade verificada no banco antes e no vínculo; conta desfeita se o vínculo falhar); senha provisória nunca é gravada; troca obrigatória é projeção de `account_credential_events`.
 - Pessoas/atuações/política só por `register_person`, `record_engagement`/`end_engagement`, `register_capability_policy_draft`/`homologate_capability_policy`, cada uma exigindo capacidade de rede, porque a tela nunca é garantia.
