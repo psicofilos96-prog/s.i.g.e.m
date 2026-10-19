@@ -34,7 +34,11 @@ export type LessonRow = { lesson_version_id: string; logical_record_id: string; 
   eligible_student_ids: string[] | null; reference_item_ids: string[]; reference_edition_ids: string[] };
 export const readLessons = async (d: Pick<MyDiary, "assignment_id" | "substitution_id">): Promise<unknown[]> => {
   // Generated RPC arguments omit SQL nullability; preserve the canonical null (titular).
-  const lessonRpc = supabase.rpc as unknown as (name: "my_diary_lessons", args: Record<string, unknown>) => ReturnType<typeof supabase.rpc>;
+  type LessonQuery = PromiseLike<{ data: unknown[] | null; error: { message: string } | null }> & {
+    order: (column: string, options: { ascending: boolean }) => LessonQuery;
+    range: (from: number, to: number) => LessonQuery;
+  };
+  const lessonRpc = supabase.rpc as unknown as (name: "my_diary_lessons", args: Record<string, unknown>) => LessonQuery;
   const paged = await readPages<unknown>((from, to) =>
     lessonRpc("my_diary_lessons", { _assignment: d.assignment_id, _substitution: d.substitution_id })
       .order("lesson_date", { ascending: false }).order("logical_record_id", { ascending: true }).range(from, to), 20_000);

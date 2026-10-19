@@ -12,6 +12,7 @@ export type ReportScope = "rede" | "escola" | "pessoa" | "conta";
 export type CatalogMeta = Readonly<{ domain: string; scope: ReportScope; nature: ReportNature; route: string; acl: string }>;
 
 const META: Record<string, CatalogMeta> = {
+  "registro-aulas-docente": { domain: "Diário do professor", scope: "pessoa", nature: "dinamico", route: "/meus-diarios", acl: "my_diary_lessons da regência/substituição autorizada pela sessão; cópia de consulta sem notas, frequência individual ou homologação." },
   "mapa-estatistico-rede": { domain: "Mapa Estatístico", scope: "rede", nature: "snapshot", route: "/mapa-estatistico-rede", acl: "Leitura do Mapa da rede pela sessão; versão oficializada exporta o snapshot imutável." },
   "mapa-estatistico-escola": { domain: "Mapa Estatístico", scope: "escola", nature: "snapshot", route: "/mapa-estatistico", acl: "Leitura do Mapa da própria unidade pela sessão; versão oficializada exporta o snapshot imutável." },
   "inclusao-relatorio-pedagogico-minimizado": { domain: "Educação inclusiva", scope: "escola", nature: "dinamico", route: "/inclusao", acl: "Capability de inclusão com escopo; dados minimizados." },
