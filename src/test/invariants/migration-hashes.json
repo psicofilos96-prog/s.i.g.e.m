@@ -647,5 +647,6 @@
  "drizzle/migrations/0596_meal_special_diet_requests.sql": "8c8b9197f1e310519edc41b671dcb1becc7f10f245bc50b80d6fcc029277bb63",
  "drizzle/migrations/0597_meal_special_diet_student_search.sql": "6503e250bddbe7cc5409fc723296c0ad4d9021c7ed62d5135dc2a805b8655da1",
  "drizzle/migrations/0598_meal_receipt_requires_fiscal_document.sql": "8c21e9f6560fb32a4ed66b61c82ebd0e449bbba7eddcadb6c15839969a2cad54",
- "drizzle/migrations/0599_meal_stock_transfer_acceptance.sql": "9110bd345bd5acf88769f8f284e907b7068e456ec74602e63ef281375347caf3"
+ "drizzle/migrations/0599_meal_stock_transfer_acceptance.sql": "9110bd345bd5acf88769f8f284e907b7068e456ec74602e63ef281375347caf3",
+ "drizzle/migrations/0600_meal_master_contracted_price.sql": "8c27ccf7c9cf9f219b1092e8c247b9d1f469bbc0698e2e64a69f5df9f6ffe538"
 }

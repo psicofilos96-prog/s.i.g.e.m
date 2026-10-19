@@ -7,7 +7,7 @@ export interface MasterRow {
 }
 
 export const PLANNING_TABS: { id: string; label: string; kinds: string[]; blocker?: string }[] = [
-  { id: "catalogos", label: "Catálogos", kinds: ["item-alimentar", "unidade-de-medida", "apresentacao-embalagem", "especificacao-tecnica", "fornecedor", "referencia-contratual", "marca-aprovada", "programacao-de-entrega", "publico-de-atendimento"] },
+  { id: "catalogos", label: "Catálogos", kinds: ["item-alimentar", "unidade-de-medida", "apresentacao-embalagem", "especificacao-tecnica", "fornecedor", "referencia-contratual", "marca-aprovada", "preco-contratado", "programacao-de-entrega", "publico-de-atendimento"] },
   { id: "cardapios", label: "Cardápios", kinds: ["cardapio-planejado"], blocker: "Aguardando o cardápio anual da nutricionista para carregar." },
   { id: "fichas", label: "Fichas Técnicas", kinds: ["receita-ficha-tecnica"], blocker: "Aguardando o cardápio anual da nutricionista para carregar." },
   { id: "parametros", label: "Parâmetros", kinds: ["parametro-per-capita", "fator-de-conversao", "regra-de-elegibilidade-item"] },
@@ -23,7 +23,7 @@ export const KIND_LABEL: Record<string, string> = {
   "parametro-per-capita": "Per capita/porção", "regra-de-elegibilidade-item": "Elegibilidade/restrição de item",
   "necessidade-alimentar-especial": "Necessidade alimentar especial", "receita-ficha-tecnica": "Receita/ficha técnica",
   "cardapio-planejado": "Cardápio planejado", fornecedor: "Fornecedor", "referencia-contratual": "Processo/ata/contrato/empenho",
-  "marca-aprovada": "Marca aprovada", "programacao-de-entrega": "Programação de entrega", "designacao-inspetor": "Designação de inspetor",
+  "marca-aprovada": "Marca aprovada", "preco-contratado": "Preço contratado por item", "programacao-de-entrega": "Programação de entrega", "designacao-inspetor": "Designação de inspetor",
   "treinamento-inspetor": "Treinamento de inspetor", "documento-tecnico": "Documento técnico",
 };
 

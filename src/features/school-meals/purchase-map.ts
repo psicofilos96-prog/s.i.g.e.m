@@ -43,14 +43,15 @@ export const MAPA_COMPRAS: ReportDefinition = {
  * Mapa de Distribuição por Fornecedor: uma linha por escola × item, com preço unitário só quando a
  * referência contratual homologada traz `precos[item_ref]`; sem preço o valor fica "não informado", nunca zero.
  */
-export function distributionMapRows(cons: ConsRow[], ctx: { items: Named[]; units: Named[]; contracts: Named[]; suppliers: Named[]; schools: Map<string, string> }): Record<string, CellValue>[] {
+export function distributionMapRows(cons: ConsRow[], ctx: { items: Named[]; units: Named[]; contracts: Named[]; suppliers: Named[]; schools: Map<string, string>; prices?: Named[] }): Record<string, CellValue>[] {
   const find = (l: Named[], id: string | null) => (id ? l.find((x) => x.logical_id === id) : undefined);
   const out: Record<string, CellValue>[] = [];
   for (const c of cons) {
     const ct = find(ctx.contracts, c.contrato_ref);
     const sup = find(ctx.suppliers, txt(ct?.payload["fornecedor_ref"]));
     const prices = ct?.payload["precos"] as Record<string, unknown> | undefined;
-    const p = prices && typeof prices[c.item_ref] === "number" && Number.isFinite(prices[c.item_ref]) ? (prices[c.item_ref] as number) : null;
+    const homologated = (ctx.prices ?? []).find((x) => x.payload["contrato_ref"] === c.contrato_ref && x.payload["item_ref"] === c.item_ref)?.payload["preco_unitario"];
+    const p = typeof homologated === "number" && Number.isFinite(homologated) ? homologated : prices && typeof prices[c.item_ref] === "number" && Number.isFinite(prices[c.item_ref]) ? (prices[c.item_ref] as number) : null;
     const item = txt(find(ctx.items, c.item_ref)?.payload["nome"]) ?? "item não identificado";
     const unit = txt(find(ctx.units, c.unidade_ref)?.payload["simbolo"]) ?? txt(find(ctx.units, c.unidade_ref)?.payload["nome"]) ?? "unidade não identificada";
     for (const [s, q] of Object.entries(c.by_school)) {

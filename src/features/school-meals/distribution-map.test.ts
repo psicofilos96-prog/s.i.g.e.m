@@ -21,3 +21,10 @@ describe("Mapa de distribuição por fornecedor", () => {
     expect(distributionTotals(rows)).toEqual([{ supplier: "Fornecedor A", total: 165, complete: false }]);
   });
 });
+
+describe("preço contratado por item (homologado)", () => {
+  it("prevalece e preenche item sem preço", () => {
+    const rows = distributionMapRows(cons, { ...ctx, prices: [{ logical_id: "p", payload: { contrato_ref: "c", item_ref: "i2", preco_unitario: 8 } }] });
+    expect(rows.find((r) => r["item"] === "Feijão")?.["value"]).toBe(32);
+  });
+});
