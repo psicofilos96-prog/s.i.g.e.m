@@ -45970,6 +45970,14 @@ export type Database = {
           title: string
         }[]
       }
+      my_teacher_work_pending: {
+        Args: never
+        Returns: {
+          ajuste_solicitado: number
+          em_analise: number
+          subject_kind: string
+        }[]
+      }
       my_teaching_assignments_at: {
         Args: { _known_at: string; _on: string }
         Returns: {
