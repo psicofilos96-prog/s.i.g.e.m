@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
 import { DEFAULT_MEASURES, DEFAULT_SEVERITIES, draftProblems, occurrenceNumber, threads, type OccurrenceRow, type Party } from "./occurrences";
 import { occurrencePdf } from "./occurrences-pdf";
+import { loadSchoolLogo } from "./school-logo-data";
 import { OccurrenceAttachments, useOccurrenceAttachments } from "./occurrence-attachments";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2 text-sm";
@@ -47,7 +48,7 @@ export function OccurrencesPanel({ school, schoolName }: { school: string; schoo
             {t.addenda.map((a) => <div key={a.id} className="ml-3 border-l pl-3"><p className="text-xs font-semibold">Adendo {occurrenceNumber(a)} · {dt(a.created_at)}</p><p className="whitespace-pre-wrap">{a.narrative}</p></div>)}
             <OccurrenceAttachments school={school} occurrenceId={t.original.id} items={att.isError ? null : att.data ?? []} canWrite={canWrite} queryKey={attKey} />
             <div className="flex flex-wrap gap-2 pt-1">
-              <Button size="sm" variant="outline" onClick={() => downloadBlob(`ocorrencia-${occurrenceNumber(t.original).replace("/", "-")}.pdf`, occurrencePdf(t, schoolName))}>PDF A4</Button>
+              <Button size="sm" variant="outline" onClick={async () => downloadBlob(`ocorrencia-${occurrenceNumber(t.original).replace("/", "-")}.pdf`, occurrencePdf(t, schoolName, await loadSchoolLogo(school)))}>PDF A4</Button>
               {canWrite && <Button size="sm" variant="outline" onClick={() => setForm({ addendumOf: t.original.id })}>Registrar adendo</Button>}
             </div>
           </li>))}</ul>}
