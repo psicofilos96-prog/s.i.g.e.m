@@ -93,6 +93,9 @@ export const LABELS_STATE = "LABEL_TEMPLATE — NOT_CONFIGURED";
 export function opsMessage(raw: string): string {
   const m: Record<string, string> = {
     "meal:competence-not-ended": "O mês ainda não terminou: o fechamento só é aceito depois do último dia.",
+    "meal:transfer-already-answered": "Este remanejamento já foi respondido.",
+    "meal:transfer-cancel-own-only": "Só quem propôs pode cancelar.",
+    "meal:transfer-exceeds-balance": "A quantidade é maior que o saldo da escola de origem.",
     "meal:transfer-policy-pending": "Transferência bloqueada: não há política homologada que a permita.",
     "meal:count-final": "Esta contagem já foi aprovada ou anulada.",
     "meal:approver-must-differ": "A aprovação deve ser feita por outra pessoa.",
