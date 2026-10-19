@@ -31634,6 +31634,42 @@ export type Database = {
           },
         ]
       }
+      school_logo_versions: {
+        Row: {
+          created_at: string
+          id: string
+          mime_type: string
+          object_path: string
+          recorded_by_user: string
+          school_id: string
+          sha256: string
+          size_bytes: number
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mime_type: string
+          object_path: string
+          recorded_by_user: string
+          school_id: string
+          sha256: string
+          size_bytes: number
+          version: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mime_type?: string
+          object_path?: string
+          recorded_by_user?: string
+          school_id?: string
+          sha256?: string
+          size_bytes?: number
+          version?: number
+        }
+        Relationships: []
+      }
       school_official_letter_cancellations: {
         Row: {
           letter_id: string
@@ -42901,6 +42937,16 @@ export type Database = {
         }
         Returns: string
       }
+      direcao_record_school_logo: {
+        Args: {
+          _mime: string
+          _path: string
+          _school: string
+          _sha256: string
+          _size: number
+        }
+        Returns: number
+      }
       dispatch_admin_case: {
         Args: {
           _case_id: string
@@ -52123,6 +52169,14 @@ export type Database = {
           _value: Json
         }
         Returns: string
+      }
+      school_logo_at: {
+        Args: { _school: string }
+        Returns: {
+          created_at: string
+          object_path: string
+          version: number
+        }[]
       }
       school_occurrences_at: {
         Args: { _school: string }
