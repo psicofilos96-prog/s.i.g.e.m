@@ -18,25 +18,38 @@ import { SiaPrintView, HeadersTab, RichText } from "./sia-print";
 import { blankOptions, itemProblems, OPTION_COUNT, parseEntries, validWeight, weightSummary } from "./sia-editor";
 import { headersOf, savePrintSettings } from "./authoring-source";
 import { itemKey, itemMedia, mediaUrl, saveInstrument, saveItem, schoolsOfAssignments, uploadItemMedia, visibleInstruments, visibleItems } from "./authoring-source";
+import { sessionContextKey, useSessionAuthority } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { withListTimeout } from "@/lib/server-page";
 
 const today = () => operationalToday();
 const input = "w-full rounded border border-input bg-background p-2 text-sm";
 type Tab = "itens" | "instrumentos" | "cabecalhos";
 
 export function AuthoringPage() {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading") return authority.error
+    ? <StatePanel tone="danger" title="Não foi possível conferir seu acesso" description="Tente novamente." action={<Button onClick={() => window.location.reload()}>Tentar novamente</Button>} />
+    : <SkeletonState label="Conferindo seu acesso" />;
+  if (authority.status !== "signed-in" || !pathAllowed(authority, "/avaliacoes-do-professor")) return <StatePanel tone="neutral" title="Acesso não disponível" description="Entre com uma conta autorizada para abrir esta página." />;
+  const readKey = sessionContextKey(authority);
+  return <AuthorizedAuthoringPage key={readKey} uid={authority.user.id} readKey={readKey} />;
+}
+
+function AuthorizedAuthoringPage({ uid, readKey }: { uid: string; readKey: string | null }) {
   const qc = useQueryClient();
-  const [uid, setUid] = useState<string | null>(null);
-  useEffect(() => { supabase.auth.getUser().then(({ data }) => setUid(data.user?.id ?? null)); }, []);
-  const assignments = useQuery({ queryKey: ["ta-assign"], queryFn: () => myAssignments(today()) });
-  const schools = useQuery({ queryKey: ["ta-schools", assignments.data?.length], enabled: !!assignments.data, queryFn: () => schoolsOfAssignments([...new Set(assignments.data!.map((a) => a.class_id))]) });
-  const items = useQuery({ queryKey: ["ta-items"], queryFn: visibleItems });
-  const instruments = useQuery({ queryKey: ["ta-ins"], queryFn: visibleInstruments });
-  const catalog = useQuery({ queryKey: ["ref-catalog"], queryFn: readCatalog });
+  const assignments = useQuery({ queryKey: ["ta-assign", readKey], retry: false, queryFn: ({ signal }) => withListTimeout(signal, () => myAssignments(today())) });
+  const classIds = [...new Set((assignments.data ?? []).map((a) => a.class_id))].sort();
+  const schools = useQuery({ queryKey: ["ta-schools", readKey, classIds], enabled: !!assignments.data, retry: false, queryFn: ({ signal }) => withListTimeout(signal, () => schoolsOfAssignments(classIds)) });
+  const items = useQuery({ queryKey: ["ta-items", readKey], retry: false, queryFn: ({ signal }) => withListTimeout(signal, visibleItems) });
+  const instruments = useQuery({ queryKey: ["ta-ins", readKey], retry: false, queryFn: ({ signal }) => withListTimeout(signal, visibleInstruments) });
+  const catalog = useQuery({ queryKey: ["ref-catalog", readKey], retry: false, queryFn: ({ signal }) => withListTimeout(signal, readCatalog) });
   const [tab, setTab] = useState<Tab>("itens");
   const [msg, setMsg] = useState<{ err: boolean; text: string } | null>(null);
   const run = async (f: () => Promise<unknown>, ok: string) => { try { await f(); await Promise.all([qc.invalidateQueries({ queryKey: ["ta-items"] }), qc.invalidateQueries({ queryKey: ["ta-ins"] })]); setMsg({ err: false, text: ok }); return true; } catch (e) { setMsg({ err: true, text: authoringMessage((e as Error).message) }); return false; } };
 
-  if (assignments.isError || items.isError || instruments.isError) return <StatePanel tone="danger" title="Não foi possível abrir" description="Tente novamente em instantes." />;
+  const reads = [assignments, schools, items, instruments, catalog];
+  if (reads.some((q) => q.isError)) return <StatePanel tone="danger" title="Não foi possível abrir as avaliações" description="A consulta não foi concluída. Tente novamente." action={<Button onClick={() => { for (const q of reads) if (q.isError) void q.refetch(); }}>Tentar novamente</Button>} />;
   if (!assignments.data || !items.data || !instruments.data) return <SkeletonState label="Carregando" />;
   const schoolIds = [...new Set((schools.data ?? []).map((s) => s.school_id))];
   return (
@@ -47,8 +60,8 @@ export function AuthoringPage() {
         {(["itens", "instrumentos", "cabecalhos"] as Tab[]).map((t) => <Button key={t} role="tab" aria-selected={tab === t} variant={tab === t ? "default" : "outline"} onClick={() => setTab(t)}>{t === "itens" ? "Banco de itens" : t === "instrumentos" ? "Provas" : "Cabeçalhos"}</Button>)}
       </div>
       {assignments.data.length === 0 && <EmptyState title="Nenhuma regência vigente" description="Sem regência vigente você só pode ler o que já criou." />}
-      {tab === "itens" ? <ItemsTab items={items.data} uid={uid} schoolIds={schoolIds} catalog={catalog.data} run={run} />
-        : tab === "instrumentos" ? <InstrumentsTab instruments={instruments.data} items={items.data} uid={uid} assignments={assignments.data} schoolIds={schoolIds} run={run} />
+      {tab === "itens" ? <ItemsTab items={items.data} uid={uid} readKey={readKey} schoolIds={schoolIds} catalog={catalog.data} run={run} />
+        : tab === "instrumentos" ? <InstrumentsTab instruments={instruments.data} items={items.data} uid={uid} readKey={readKey} assignments={assignments.data} schoolIds={schoolIds} run={run} />
         : <HeadersTab schoolIds={schoolIds} />}
     </div>
   );
@@ -57,7 +70,7 @@ export function AuthoringPage() {
 type Run = (f: () => Promise<unknown>, ok: string) => Promise<boolean>;
 type ItemDraft = { itemId: string | null; head: string | null; typeId: string; stem: string; options: ItemOption[]; refIds: string[]; schoolId: string; visibility: "pessoal" | "compartilhado"; keyShared: boolean; answer: string; criteria: string; copiedFrom: string | null };
 
-function ItemsTab({ items, uid, schoolIds, catalog, run }: { items: ItemVersion[]; uid: string | null; schoolIds: string[]; catalog: Awaited<ReturnType<typeof readCatalog>> | undefined; run: Run }) {
+function ItemsTab({ items, uid, readKey, schoolIds, catalog, run }: { items: ItemVersion[]; uid: string | null; readKey: string | null; schoolIds: string[]; catalog: Awaited<ReturnType<typeof readCatalog>> | undefined; run: Run }) {
   const hs = heads(items);
   const [d, setD] = useState<ItemDraft | null>(null);
   const known = useMemo(() => new Set((catalog?.items ?? []).map((i) => i.id)), [catalog]);
@@ -113,7 +126,7 @@ function ItemsTab({ items, uid, schoolIds, catalog, run }: { items: ItemVersion[
               {schoolIds.length > 1 && <label>Escola <select className="rounded border border-input bg-background p-2" value={d.schoolId} disabled={readOnly} onChange={(e) => setD({ ...d, schoolId: e.target.value })}>{schoolIds.map((s) => <option key={s} value={s}>{s}</option>)}</select></label>}
               <label>Visibilidade <select className="rounded border border-input bg-background p-2" value={d.visibility} disabled={readOnly} onChange={(e) => setD({ ...d, visibility: e.target.value as ItemDraft["visibility"] })}><option value="pessoal">Só eu</option><option value="compartilhado">Banco compartilhado da escola</option></select></label>
             </div>
-            {d.itemId && !readOnly && uid && <ItemMedia itemId={d.itemId} uid={uid} />}
+            {d.itemId && !readOnly && uid && <ItemMedia itemId={d.itemId} uid={uid} readKey={readKey} />}
             {!readOnly && <div className="flex gap-2"><Button onClick={() => save("rascunho")} disabled={!d.stem.trim()}>Salvar rascunho</Button><Button variant="outline" onClick={() => save("publicado")} disabled={itemProblems(d.typeId, d.stem, d.options, d.answer).length > 0}>Publicar</Button></div>}
             {!readOnly && itemProblems(d.typeId, d.stem, d.options, d.answer).length > 0 && <ul aria-label="Pendências para publicar" className="text-xs text-muted-foreground">{itemProblems(d.typeId, d.stem, d.options, d.answer).map((x) => <li key={x}>{x}</li>)}</ul>}
           </div>)}
@@ -122,12 +135,13 @@ function ItemsTab({ items, uid, schoolIds, catalog, run }: { items: ItemVersion[
   );
 }
 
-function ItemMedia({ itemId, uid }: { itemId: string; uid: string }) {
-  const q = useQuery({ queryKey: ["ta-media", itemId], queryFn: () => itemMedia(itemId) });
+function ItemMedia({ itemId, uid, readKey }: { itemId: string; uid: string; readKey: string | null }) {
+  const q = useQuery({ queryKey: ["ta-media", readKey, itemId], retry: false, queryFn: ({ signal }) => withListTimeout(signal, () => itemMedia(itemId)) });
   const [err, setErr] = useState<string | null>(null);
   return (
     <fieldset className="space-y-1"><legend className="text-sm font-medium">Imagens/PDF (privados)</legend>
       {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
+      {q.isError && <p role="alert">Não foi possível consultar os anexos. <Button size="sm" variant="outline" onClick={() => void q.refetch()}>Tentar novamente</Button></p>}
       <ul className="text-sm">{(q.data ?? []).map((m) => <li key={m.id}><button type="button" className="underline" onClick={async () => window.open(await mediaUrl(m.object_path), "_blank", "noopener")}>{m.label}</button></li>)}</ul>
       <input type="file" accept="image/png,image/jpeg,image/webp,application/pdf" aria-label="Adicionar mídia" className="text-sm" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { await uploadItemMedia(uid, itemId, f); setErr(null); q.refetch(); } catch (x) { const m = (x as Error).message; setErr(m === "media-type" ? "Formato não aceito (PNG, JPEG, WEBP ou PDF)." : m === "media-size" ? "Arquivo acima de 10 MB." : authoringMessage(m)); } e.target.value = ""; }} />
     </fieldset>
@@ -136,8 +150,8 @@ function ItemMedia({ itemId, uid }: { itemId: string; uid: string }) {
 
 type InsDraft = { instrumentId: string | null; head: string | null; assignmentId: string; title: string; instructions: string; itemIds: string[]; weights: Record<string, string>; label: string; headerId: string; randomize: boolean; seed: string; shuffleOptions: boolean; resultsId: string };
 
-function InstrumentsTab({ instruments, items, uid, assignments, schoolIds, run }: { instruments: InstrumentVersion[]; items: ItemVersion[]; uid: string | null; assignments: { assignment_id: string; class_id: string; component_label_snapshot: string }[]; schoolIds: string[]; run: Run }) {
-  const headers = useQuery({ queryKey: ["sia-headers", schoolIds.join()], queryFn: () => headersOf(schoolIds) });
+function InstrumentsTab({ instruments, items, uid, readKey, assignments, schoolIds, run }: { instruments: InstrumentVersion[]; items: ItemVersion[]; uid: string | null; readKey: string | null; assignments: { assignment_id: string; class_id: string; component_label_snapshot: string }[]; schoolIds: string[]; run: Run }) {
+  const headers = useQuery({ queryKey: ["sia-headers", readKey, schoolIds.join()], retry: false, queryFn: ({ signal }) => withListTimeout(signal, () => headersOf(schoolIds)) });
   const hs = heads(instruments);
   const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
   const published = heads(items).filter((i) => i.status === "publicado");
@@ -155,6 +169,7 @@ function InstrumentsTab({ instruments, items, uid, assignments, schoolIds, run }
   }, status === "publicado" ? "Instrumento publicado e congelado." : "Rascunho salvo.");
 
   if (printing) return <SiaPrintView ins={printing} items={byId} uid={uid} onClose={() => setPrinting(null)} />;
+  if (headers.isError) return <StatePanel tone="danger" title="Não foi possível consultar os cabeçalhos" description="Tente novamente." action={<Button onClick={() => void headers.refetch()}>Tentar novamente</Button>} />;
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
       <aside className="space-y-2">

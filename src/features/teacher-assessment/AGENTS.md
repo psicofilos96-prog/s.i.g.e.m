@@ -1,4 +1,5 @@
 ## Avaliações do professor (`src/features/teacher-assessment/`, migration 0079)
+- Authoring mounts its workspace only after effective authority/pathAllowed, keys reads by session and uses bounded waits with explicit recovery, because login alone is not confirmation and failed reads must not look like empty collections.
 - Item e instrumento são cadeias append-only gravadas só por `record_assessment_item_version`/`record_teacher_instrument_version` (regência vigente, cabeça esperada, autor único); instrumento publicado é congelado e alterar exige cópia, porque prova aplicada não pode mudar.
 - Gabarito/critério vive em `assessment_item_keys`, legível só pelo autor ou por compartilhamento explícito (`key_shared`), porque enunciado e resposta juntos vazariam.
 - Tipos de item vêm de registro aberto; nenhum peso, escala ou fórmula é definido aqui — resultado continua na Pauta (ligação opcional por `results_instrument_id`), porque segunda regra de nota divergiria.
