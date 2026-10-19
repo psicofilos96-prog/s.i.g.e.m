@@ -92,6 +92,7 @@
 - [x] Leitura em lote com verificação de capacidade única (0582): equivalência provada em 8 escolas × 4 fontes; fronteira negativa com conta de escola OK; Mapa da rede em 5,9 s (era 81 s)
 
 ## Login do professor (19/10/2026)
+- [x] Resumo diário: aulas registradas × horários previstos × vínculos explícitos, sem consulta adicional; fontes não lidas indisponíveis. 37 testes PASS, build OK; navegador confirmou portão de senha e zero consultas antecipadas. Carga do período e conferência real continuam pendentes.
 - [x] Continuação: PDF retenta com mesma identidade/bytes/hash em memória; download confirmado reutiliza emissão, clique duplo e resposta após desmontagem recusados. Testes passaram; emissão real continua aguardando conta docente apta.
 - [x] Continuação: mediação vigente consulta só após autoridade pessoal e espelho aceitos; conta/revisão/contexto isolados, resposta validada, prazo de 15 s, erro e retentativa. 32 testes focados PASS; navegador em /diario preserva troca de senha e zero consultas antes dela, build OK. Mediação positiva no navegador aguarda conta apta.
 - [x] Continuação atual: PDF A4 de registro de aulas por regência, motor comum e emissão com hash exato antes do download; sem notas/chamada/assinatura presumida. Leitura em páginas ordenadas recusa truncamento; 52 testes PASS. PDF sintético de 3 páginas inspecionado, início/fim preservados; navegador preserva portão de senha. Emissão real aguarda conta docente apta.

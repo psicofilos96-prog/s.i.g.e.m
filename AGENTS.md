@@ -26,9 +26,9 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 ## Regras por diretório
 - Family notices use explicit recipients; infrequency configuration in Parameters versions canonical rules atomically, never assumes delivery; see sector AGENTS.md.
 - Enrollment uses a shared validator and trigger; browser uses the same cutoff, so alternate writers cannot bypass it.
-- Vaccination deadlines are calculated by the canonical writer using the current sector parameter and stored in each immutable event; reports read that stored date, because later parameter changes must not rewrite previously declared deadlines.
+- Vaccination writer stores the current parameter's deadline in each immutable event; reports read that date, because later parameters must not rewrite declared deadlines.
 Read nested AGENTS.md; statistical-map covers transport.
-- Password/pending/correction/planning/teacher-diary reads: deadlines, session keys, fail closed; version changes discard stale review.
+- Teacher counts reuse authorized reads/distinct units; password/pending/correction/planning/diary reads use deadlines/session keys; stale reviews fail closed.
 
 ## Continuidade técnica
 B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte normativa).
