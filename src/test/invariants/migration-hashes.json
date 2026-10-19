@@ -638,5 +638,6 @@
  "drizzle/migrations/0587_direcao_occurrence_attachments.sql": "126e9f62f871e288fccf568cc103ec303bc88c380ac04f37feabad7cb0d29cce",
  "drizzle/migrations/0588_direcao_occurrence_staff.sql": "014fb12ad8ad14a139f74924c9c599a1108e48255e361d614a740bd717cee9da",
  "drizzle/migrations/0589_direcao_school_logo.sql": "9a4a47bd162ae9929ce10cefd087cf1f8425b586e764733e166a0b2e7b0d98f2",
- "drizzle/migrations/0590_direcao_school_notices.sql": "438ea0466e700bb54c7f506707784178f9fce6d560697f6b3af86f63a3bb4cd1"
+ "drizzle/migrations/0590_direcao_school_notices.sql": "438ea0466e700bb54c7f506707784178f9fce6d560697f6b3af86f63a3bb4cd1",
+ "drizzle/migrations/0591_direcao_school_risk_limits.sql": "5b59bff9515f10c2a39f683c02a22748a40fac6daa580904cbe2f6c964532a16"
 }
