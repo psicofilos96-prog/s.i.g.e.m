@@ -80,7 +80,10 @@ function SelectedCorrection({ sel, items, uid, revision, qc }: { sel: import("./
   const [msg, setMsg] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const ready = approved && keys.isSuccess && students.isSuccess && done.isSuccess && !!fp && !!vm?.ok && !!proj?.ok && proj.p.missing.length === 0;
-  useEffect(() => { if (photo) return () => URL.revokeObjectURL(photo); }, [photo]);
+  useEffect(() => {
+    if (!photo) return undefined;
+    return () => URL.revokeObjectURL(photo);
+  }, [photo]);
   const changeLetter = (value: string) => {
     setLetter(value); setReads(null); setDec({}); setChecked(false); setFile(null); setPhoto(null); setQr(""); setMsg(null); setLaunch(false); setReason(""); setFp("");
   };
