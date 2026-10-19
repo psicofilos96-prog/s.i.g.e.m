@@ -16,6 +16,8 @@ import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from ".
 import { operationalToday } from "@/lib/academic-date";
 import { OrderWindowForm, ScheduleForm } from "./network-operations";
 import { institution } from "@/config/institution";
+import { CYCLE_TYPE, type CyclePayload } from "./menu-cycle";
+import { menuIngredientsMissing, menuIngredientsOfMonth } from "./planned-consumption";
 
 /** LOTE 9 — teto calculado pelo banco (mesma função que congela a avaliação no ato). */
 async function evaluate(school: string, lines: OrderLine[]) {
@@ -186,6 +188,7 @@ function SchoolOrder({ school, competence, order, items: allItems, units, pubs, 
           <label>Base dos dias<input className={field} disabled={!editable} value={l.dias_base ?? ""} placeholder="ex.: calendário do ano" onChange={(e) => setLines(lines.map((x, j) => (j === i ? { ...x, dias_base: e.target.value || undefined } : x)))} /></label>
         </div>
       ))}
+      <MenuCheck competence={competence} itemNames={lines.map((l) => String(items.find((it) => it.logical_id === l.item_ref)?.payload["nome"] ?? ""))} />
       <CeilingPanel school={school} lines={lines} />
       {editable && (
         <div className="flex flex-wrap gap-2">
@@ -251,5 +254,30 @@ function NetworkQueue({ orders, names, act, itemLabel, contracts, onDone }: { or
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Confere o pedido contra o cardápio homologado do mês. Só aponta ingrediente sem item; nunca calcula quantidade. */
+function MenuCheck({ competence, itemNames }: { competence: string; itemNames: string[] }) {
+  const [cycles, setCycles] = useState<CyclePayload[] | null>(null);
+  const [mod, setMod] = useState("");
+  useEffect(() => { setMod(localStorage.getItem("sigem.cozinha.modalidade") ?? ""); }, []);
+  useEffect(() => {
+    if (!/^\d{4}-\d{2}$/.test(competence)) return;
+    callRpc<{ payload: CyclePayload }[]>("meal_master_at", { _kind: "cardapio-planejado", _on: `${competence}-01`, _known_at: null, _include_drafts: false })
+      .then((r) => setCycles((r ?? []).map((x) => x.payload).filter((p) => p?.tipo === CYCLE_TYPE)), () => setCycles([]));
+  }, [competence]);
+  if (!cycles) return null;
+  const mods = [...new Set(cycles.map((c) => c.modalidade))];
+  if (mods.length === 0) return <p className="text-muted-foreground">Cardápio do mês: não há cardápio aprovado para comparar.</p>;
+  const ing = mod ? menuIngredientsOfMonth(cycles, mod, competence) : [];
+  const missing = menuIngredientsMissing(ing, itemNames.filter(Boolean));
+  return (
+    <div className="rounded border p-2">
+      <label className="block max-w-xs">Cardápio do mês — modalidade<select className={field} value={mod} onChange={(e) => { setMod(e.target.value); localStorage.setItem("sigem.cozinha.modalidade", e.target.value); }}><option value="">escolha</option>{mods.map((m) => <option key={m}>{m}</option>)}</select></label>
+      {mod && (ing.length === 0 ? <p className="text-muted-foreground">Nenhum ingrediente previsto neste mês.</p>
+        : missing.length === 0 ? <p>Todos os ingredientes do cardápio do mês estão no pedido.</p>
+        : <p>Ingredientes do cardápio sem item no pedido: {missing.join(", ")}. Confira antes de submeter (o sistema não calcula a quantidade).</p>)}
+    </div>
   );
 }
