@@ -4,7 +4,7 @@
  */
 export type SecretariatTask = {
   id: string; title: string; hint: string;
-  target: { kind: "route"; to: "/matriculas/nova" | "/documentos-escolares" | "/preparacao-ano" | "/secretaria/vagas" | "/secretaria/fila-de-vagas" | "/secretaria/infrequencia" | "/secretaria/oficios" | "/secretaria/listagens" | "/secretaria/livro-matricula" | "/secretaria/tabelas-semed" | "/educacenso" | "/docserv" } | { kind: "find-student" };
+  target: { kind: "route"; to: "/matriculas/nova" | "/documentos-escolares" | "/preparacao-ano" | "/secretaria/vagas" | "/secretaria/fila-de-vagas" | "/secretaria/infrequencia" | "/secretaria/oficios" | "/secretaria/alimentacao-especial" | "/secretaria/listagens" | "/secretaria/livro-matricula" | "/secretaria/tabelas-semed" | "/educacenso" | "/docserv" } | { kind: "find-student" };
 };
 
 export const SECRETARIAT_TASKS: readonly SecretariatTask[] = [
@@ -18,6 +18,7 @@ export const SECRETARIAT_TASKS: readonly SecretariatTask[] = [
   { id: "fila-vagas", title: "Fila de vagas", hint: "Pedidos de vaga e convocação.", target: { kind: "route", to: "/secretaria/fila-de-vagas" } },
   { id: "infrequencia", title: "Aviso de infrequência", hint: "Alunos abaixo da frequência mínima.", target: { kind: "route", to: "/secretaria/infrequencia" } },
   { id: "oficios", title: "Ofícios", hint: "Ofícios numerados da escola.", target: { kind: "route", to: "/secretaria/oficios" } },
+  { id: "alimentacao-especial", title: "Alimentação especial", hint: "Enviar laudo à nutricionista.", target: { kind: "route", to: "/secretaria/alimentacao-especial" } },
   { id: "listagens", title: "Listagens de alunos", hint: "Listas com colunas à escolha.", target: { kind: "route", to: "/secretaria/listagens" } },
   { id: "livro", title: "Livro de Matrícula", hint: "Lista das matrículas do ano.", target: { kind: "route", to: "/secretaria/livro-matricula" } },
   { id: "tabelas-semed", title: "Tabelas SEMED", hint: "Tabelas 04, 06, 09, 10 e 11 do ano.", target: { kind: "route", to: "/secretaria/tabelas-semed" } },

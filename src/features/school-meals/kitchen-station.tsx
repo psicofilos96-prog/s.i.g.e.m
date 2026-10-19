@@ -10,6 +10,7 @@ import { useOwnSchoolId } from "@/features/authority/own-school";
 import { MENU_REASONS, adhesion, diaryProblems, grossTotal, pvpsOrder, type Compliance, type Counts } from "./kitchen-diary";
 import { WaterFiltersPanel } from "./water-filters-panel";
 import { MenuOfDay } from "./menu-of-day";
+import { SpecialDietKitchenList } from "./special-diet";
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = callRpc;
 const db = supabase as unknown as { from: (t: string) => any };
@@ -73,6 +74,7 @@ function KitchenDayView({ school, day, slots, docs, onDone, today }: { school: s
   return (<div className="space-y-4">
     <StatePanel tone="info" title="Dia operacional" description={CALENDAR_UNRESOLVED} />
     <MenuOfDay today={today} />
+    {school && <SpecialDietKitchenList school={school} today={today} />}
     <Card title="Refeições de hoje">
       {slots.length === 0 ? <p className="text-muted-foreground">Nenhuma refeição cadastrada.</p> : (
         <ul className="space-y-2">{slots.map((s) => { const e = day.executions.find((x) => x.slot === s.value_id); return (

@@ -22255,6 +22255,114 @@ export type Database = {
           },
         ]
       }
+      meal_special_diet_decisions: {
+        Row: {
+          decided_at: string
+          decided_by: string
+          decided_by_principal_id: string
+          handling_note: string | null
+          menu_condition: string | null
+          outcome: string
+          reason: string
+          request_id: string
+          valid_until: string | null
+        }
+        Insert: {
+          decided_at?: string
+          decided_by: string
+          decided_by_principal_id: string
+          handling_note?: string | null
+          menu_condition?: string | null
+          outcome: string
+          reason: string
+          request_id: string
+          valid_until?: string | null
+        }
+        Update: {
+          decided_at?: string
+          decided_by?: string
+          decided_by_principal_id?: string
+          handling_note?: string | null
+          menu_condition?: string | null
+          outcome?: string
+          reason?: string
+          request_id?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_special_diet_decisions_decided_by_principal_id_fkey"
+            columns: ["decided_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_special_diet_decisions_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: true
+            referencedRelation: "meal_special_diet_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_special_diet_requests: {
+        Row: {
+          id: string
+          idempotency_key: string
+          need: string
+          report_path: string
+          report_sha256: string
+          report_until: string | null
+          requested_at: string
+          requested_by: string
+          requested_by_principal_id: string
+          school_id: string
+          student_id: string
+        }
+        Insert: {
+          id?: string
+          idempotency_key: string
+          need: string
+          report_path: string
+          report_sha256: string
+          report_until?: string | null
+          requested_at?: string
+          requested_by: string
+          requested_by_principal_id: string
+          school_id: string
+          student_id: string
+        }
+        Update: {
+          id?: string
+          idempotency_key?: string
+          need?: string
+          report_path?: string
+          report_sha256?: string
+          report_until?: string | null
+          requested_at?: string
+          requested_by?: string
+          requested_by_principal_id?: string
+          school_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_special_diet_requests_requested_by_principal_id_fkey"
+            columns: ["requested_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_special_diet_requests_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_stock_closings: {
         Row: {
           author_engagement: string | null
@@ -42897,6 +43005,17 @@ export type Database = {
         Args: { _decision: string; _reason: string; _review: string }
         Returns: string
       }
+      decide_meal_special_diet: {
+        Args: {
+          _condition: string
+          _note: string
+          _outcome: string
+          _reason: string
+          _request: string
+          _until: string
+        }
+        Returns: undefined
+      }
       decide_ops_supply_adjustment: {
         Args: {
           _adj: string
@@ -46289,6 +46408,39 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      meal_special_diet_kitchen_list: {
+        Args: { _on: string; _school: string }
+        Returns: {
+          class_label: string
+          handling_note: string
+          menu_condition: string
+          student_name: string
+        }[]
+      }
+      meal_special_diet_student_search: {
+        Args: { _q: string; _school: string }
+        Returns: {
+          student_id: string
+          student_name: string
+        }[]
+      }
+      meal_special_diets_at: {
+        Args: { _school: string }
+        Returns: {
+          decided_at: string
+          handling_note: string
+          menu_condition: string
+          need: string
+          outcome: string
+          report_path: string
+          report_until: string
+          request_id: string
+          requested_at: string
+          school_id: string
+          student_name: string
+          valid_until: string
+        }[]
+      }
       meal_stock_alerts_at: {
         Args: { _expiry_window_days: number; _on: string; _school: string }
         Returns: {
@@ -46486,6 +46638,11 @@ export type Database = {
           valid_from: string
           version: number
         }[]
+      }
+      msd_can_read: { Args: { _school: string }; Returns: boolean }
+      msd_principal: {
+        Args: { _school: string; _station: string }
+        Returns: string
       }
       my_diaries_at: {
         Args: { _known_at: string; _on: string }
@@ -52155,6 +52312,18 @@ export type Database = {
       }
       request_dev_result_review: {
         Args: { _grounds: string; _result: string }
+        Returns: string
+      }
+      request_meal_special_diet: {
+        Args: {
+          _key: string
+          _need: string
+          _path: string
+          _school: string
+          _sha256: string
+          _student: string
+          _until: string
+        }
         Returns: string
       }
       request_ops_asset_transfer: {

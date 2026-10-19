@@ -173,6 +173,7 @@ import { Route as RegrasDeSituacaoRegraIdRouteImport } from './routes/regras-de-
 import { Route as RelatoriosPaineisRouteImport } from './routes/relatorios_.paineis'
 import { Route as RelatoriosPersonalizadoRouteImport } from './routes/relatorios_.personalizado'
 import { Route as RelatoriosSetoresRouteImport } from './routes/relatorios_.setores'
+import { Route as SecretariaAlimentacaoEspecialRouteImport } from './routes/secretaria_.alimentacao-especial'
 import { Route as SecretariaFilaDeVagasRouteImport } from './routes/secretaria_.fila-de-vagas'
 import { Route as SecretariaInfrequenciaRouteImport } from './routes/secretaria_.infrequencia'
 import { Route as SecretariaListagensRouteImport } from './routes/secretaria_.listagens'
@@ -1132,6 +1133,12 @@ const RelatoriosSetoresRoute = RelatoriosSetoresRouteImport.update({
   path: '/relatorios/setores',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SecretariaAlimentacaoEspecialRoute =
+  SecretariaAlimentacaoEspecialRouteImport.update({
+    id: '/secretaria_/alimentacao-especial',
+    path: '/secretaria/alimentacao-especial',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SecretariaFilaDeVagasRoute = SecretariaFilaDeVagasRouteImport.update({
   id: '/secretaria_/fila-de-vagas',
   path: '/secretaria/fila-de-vagas',
@@ -2013,6 +2020,7 @@ export interface FileRoutesByFullPath {
   '/relatorios/paineis': typeof RelatoriosPaineisRoute
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios/setores': typeof RelatoriosSetoresRoute
+  '/secretaria/alimentacao-especial': typeof SecretariaAlimentacaoEspecialRoute
   '/secretaria/fila-de-vagas': typeof SecretariaFilaDeVagasRoute
   '/secretaria/infrequencia': typeof SecretariaInfrequenciaRoute
   '/secretaria/listagens': typeof SecretariaListagensRoute
@@ -2290,6 +2298,7 @@ export interface FileRoutesByTo {
   '/relatorios/paineis': typeof RelatoriosPaineisRoute
   '/relatorios/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios/setores': typeof RelatoriosSetoresRoute
+  '/secretaria/alimentacao-especial': typeof SecretariaAlimentacaoEspecialRoute
   '/secretaria/fila-de-vagas': typeof SecretariaFilaDeVagasRoute
   '/secretaria/infrequencia': typeof SecretariaInfrequenciaRoute
   '/secretaria/listagens': typeof SecretariaListagensRoute
@@ -2567,6 +2576,7 @@ export interface FileRoutesById {
   '/relatorios_/paineis': typeof RelatoriosPaineisRoute
   '/relatorios_/personalizado': typeof RelatoriosPersonalizadoRoute
   '/relatorios_/setores': typeof RelatoriosSetoresRoute
+  '/secretaria_/alimentacao-especial': typeof SecretariaAlimentacaoEspecialRoute
   '/secretaria_/fila-de-vagas': typeof SecretariaFilaDeVagasRoute
   '/secretaria_/infrequencia': typeof SecretariaInfrequenciaRoute
   '/secretaria_/listagens': typeof SecretariaListagensRoute
@@ -2862,6 +2872,7 @@ export interface FileRouteTypes {
     | '/relatorios/paineis'
     | '/relatorios/personalizado'
     | '/relatorios/setores'
+    | '/secretaria/alimentacao-especial'
     | '/secretaria/fila-de-vagas'
     | '/secretaria/infrequencia'
     | '/secretaria/listagens'
@@ -3139,6 +3150,7 @@ export interface FileRouteTypes {
     | '/relatorios/paineis'
     | '/relatorios/personalizado'
     | '/relatorios/setores'
+    | '/secretaria/alimentacao-especial'
     | '/secretaria/fila-de-vagas'
     | '/secretaria/infrequencia'
     | '/secretaria/listagens'
@@ -3415,6 +3427,7 @@ export interface FileRouteTypes {
     | '/relatorios_/paineis'
     | '/relatorios_/personalizado'
     | '/relatorios_/setores'
+    | '/secretaria_/alimentacao-especial'
     | '/secretaria_/fila-de-vagas'
     | '/secretaria_/infrequencia'
     | '/secretaria_/listagens'
@@ -3687,6 +3700,7 @@ export interface RootRouteChildren {
   RelatoriosPaineisRoute: typeof RelatoriosPaineisRoute
   RelatoriosPersonalizadoRoute: typeof RelatoriosPersonalizadoRoute
   RelatoriosSetoresRoute: typeof RelatoriosSetoresRoute
+  SecretariaAlimentacaoEspecialRoute: typeof SecretariaAlimentacaoEspecialRoute
   SecretariaFilaDeVagasRoute: typeof SecretariaFilaDeVagasRoute
   SecretariaInfrequenciaRoute: typeof SecretariaInfrequenciaRoute
   SecretariaListagensRoute: typeof SecretariaListagensRoute
@@ -4873,6 +4887,13 @@ declare module '@tanstack/react-router' {
       path: '/relatorios/setores'
       fullPath: '/relatorios/setores'
       preLoaderRoute: typeof RelatoriosSetoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/secretaria_/alimentacao-especial': {
+      id: '/secretaria_/alimentacao-especial'
+      path: '/secretaria/alimentacao-especial'
+      fullPath: '/secretaria/alimentacao-especial'
+      preLoaderRoute: typeof SecretariaAlimentacaoEspecialRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/secretaria_/fila-de-vagas': {
@@ -6574,6 +6595,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosPaineisRoute: RelatoriosPaineisRoute,
   RelatoriosPersonalizadoRoute: RelatoriosPersonalizadoRoute,
   RelatoriosSetoresRoute: RelatoriosSetoresRoute,
+  SecretariaAlimentacaoEspecialRoute: SecretariaAlimentacaoEspecialRoute,
   SecretariaFilaDeVagasRoute: SecretariaFilaDeVagasRoute,
   SecretariaInfrequenciaRoute: SecretariaInfrequenciaRoute,
   SecretariaListagensRoute: SecretariaListagensRoute,

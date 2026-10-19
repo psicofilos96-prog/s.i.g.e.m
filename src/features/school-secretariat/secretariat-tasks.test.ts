@@ -3,7 +3,7 @@ import { SECRETARIAT_TASKS } from "./secretariat-tasks";
 
 describe("NSEC.UX — tarefas da Secretaria", () => {
   it("cobre as jornadas pedidas, uma vez cada", () => {
-    expect(SECRETARIAT_TASKS.map((t) => t.id)).toEqual(["matricular", "achar", "trocar-turma", "transferir", "renovar", "documento", "vagas", "fila-vagas", "infrequencia", "oficios", "listagens", "livro", "tabelas-semed", "docserv", "educacenso"]);
+    expect(SECRETARIAT_TASKS.map((t) => t.id)).toEqual(["matricular", "achar", "trocar-turma", "transferir", "renovar", "documento", "vagas", "fila-vagas", "infrequencia", "oficios", "alimentacao-especial", "listagens", "livro", "tabelas-semed", "docserv", "educacenso"]);
   });
   it("linguagem curta e sem jargão técnico", () => {
     for (const t of SECRETARIAT_TASKS) {
