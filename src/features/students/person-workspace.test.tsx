@@ -109,14 +109,14 @@ describe("Cadastrar aluno — avanço, obrigatoriedade e retorno", () => {
 
     await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
     await user.click(screen.getByRole("button", { name: /Continuar/ }));
-    await user.type(screen.getByLabelText(/^CPF/), "000.000.000-99");
+    await user.type(screen.getByLabelText(/^CPF/), "000.000.001-91");
     await user.click(screen.getByRole("button", { name: /Voltar/ }));
 
     expect(screen.getByLabelText("Nome completo")).toHaveValue(
       "Pessoa Fictícia Nova Demonstrativa",
     );
     await user.click(screen.getByRole("button", { name: /Continuar/ }));
-    expect(screen.getByLabelText(/^CPF/)).toHaveValue("000.000.000-99");
+    expect(screen.getByLabelText(/^CPF/)).toHaveValue("000.000.001-91");
   });
 
   it("avisa que o preenchimento é descartado ao sair, sem prometer salvamento", async () => {
@@ -159,13 +159,13 @@ describe("Cadastrar aluno — conferência e conclusão", () => {
 
     await fillBasics(user, "Pessoa Fictícia Nova Demonstrativa", "10/10/2015");
     await user.click(screen.getByRole("button", { name: /Continuar/ }));
-    await user.type(screen.getByLabelText(/^CPF/), "000.000.000-99");
+    await user.type(screen.getByLabelText(/^CPF/), "000.000.001-91");
     await user.click(screen.getByRole("button", { name: /Continuar/ }));
     await user.click(screen.getByRole("button", { name: /Continuar/ }));
 
     expect(await screen.findByRole("heading", { name: "Documentos", level: 2 })).toBeVisible();
-    expect(screen.getByText("••• 99")).toBeInTheDocument();
-    expect(screen.queryByText("000.000.000-99")).not.toBeInTheDocument();
+    expect(screen.getByText("••• 91")).toBeInTheDocument();
+    expect(screen.queryByText("000.000.001-91")).not.toBeInTheDocument();
     expect(screen.getAllByRole("button", { name: /Editar/ }).length).toBe(3);
   });
 
