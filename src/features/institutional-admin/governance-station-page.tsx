@@ -11,12 +11,22 @@ import { explainAccess, GOVERNANCE_REVIEW_PENDING, type EngagementRow } from "./
 import { filterEvents, type AuditEvent } from "@/features/audit/audit-model";
 import { loadAll } from "@/features/audit/audit-page";
 import { DateInput } from "@/components/sigem/date-input";
+import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { withListTimeout } from "@/lib/server-page";
 
 const ADMIN_MODULES = new Set(["Contas", "Políticas de acesso"]);
 const today = () => operationalToday();
 
 /** Somente leitura: regras chegam pela RLS da sessão; recusa/erro ⇒ nada é afirmado; explicar nunca concede. */
 export function GovernanceStationPage() {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading") return authority.error ? <p role="alert">Não foi possível conferir seu acesso. Recarregue a página para tentar novamente.</p> : <SkeletonState label="Conferindo seu acesso" />;
+  if (!pathAllowed(authority, "/estacao-administrativa")) return <p role="alert">Sua conta não tem permissão para abrir a Estação administrativa.</p>;
+  return <AuthorizedGovernanceStationPage key={sessionContextKey(authority)} />;
+}
+
+function AuthorizedGovernanceStationPage() {
   const [policy, setPolicy] = useState<PolicyVersion | null | undefined>(undefined);
   const [rules, setRules] = useState<PolicyRule[] | null>(null);
   const [engs, setEngs] = useState<EngagementRow[]>([]);
@@ -25,15 +35,20 @@ export function GovernanceStationPage() {
   const [cap, setCap] = useState(""); const [school, setSchool] = useState(""); const [on, setOn] = useState(today());
   const [q, setQ] = useState("");
   useEffect(() => {
-    void (async () => {
-      const { data: pols, error: e1 } = await supabase.from("capability_policies").select("*");
+    let active = true;
+    const controller = new AbortController();
+    void withListTimeout(controller.signal, async (signal) => {
+      const { data: pols, error: e1 } = await supabase.from("capability_policies").select("*").abortSignal(signal);
+      if (!active || signal.aborted) return;
       if (e1) { setError("Política não legível com esta sessão."); return; }
       const v = effectiveVersion((pols ?? []) as unknown as PolicyVersion[], today());
       setPolicy(v);
       if (!v) { setRules([]); return; }
-      const { data, error: e2 } = await supabase.from("capability_policy_rules").select("engagement_kind_id,capability_id,scope_dimensions").eq("policy_id", v.id);
+      const { data, error: e2 } = await supabase.from("capability_policy_rules").select("engagement_kind_id,capability_id,scope_dimensions").eq("policy_id", v.id).abortSignal(signal);
+      if (!active || signal.aborted) return;
       if (e2) setError("Regras não legíveis com esta sessão."); else setRules((data ?? []) as PolicyRule[]);
       const { data: u } = await supabase.auth.getUser();
+      if (!active || signal.aborted) return;
       if (u.user) {
         const { data: links } = await supabase.from("user_person_links" as never).select("person_id").eq("user_id", u.user.id);
         const ids = ((links ?? []) as { person_id: string }[]).map((l) => l.person_id);
@@ -42,8 +57,10 @@ export function GovernanceStationPage() {
           setEngs((e ?? []) as EngagementRow[]);
         }
       }
-      setEvents((await loadAll()).filter((x) => ADMIN_MODULES.has(x.module)));
-    })();
+      const loadedEvents = await loadAll();
+      if (active && !signal.aborted) setEvents(loadedEvents.filter((x) => ADMIN_MODULES.has(x.module)));
+    }).catch(() => { if (active) { setError("Não foi possível concluir a consulta. Recarregue a página para tentar novamente."); setEvents([]); } });
+    return () => { active = false; controller.abort(); };
   }, []);
   const matrix = rules ? governanceMatrix(rules) : null;
   const caps = useMemo(() => [...new Set((rules ?? []).map((r) => r.capability_id))].sort(), [rules]);

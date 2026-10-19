@@ -30,6 +30,9 @@ export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>
   "/horarios": ["consultar-organizacao-da-oferta"],
   "/importacoes": ["gerir-importacao-de-dados"],
   "/documentos-escolares": ["consultar-documento-escolar", "emitir-documento-escolar"],
+  // Administrative capabilities already declared by sigem_administrative_capabilities (0051).
+  "/central-de-acessos": ["manter-pessoas-institucionais", "manter-contas-institucionais", "manter-atuacoes-institucionais", "registrar-politica-de-capacidades", "homologar-politica-de-capacidades"],
+  "/estacao-administrativa": ["registrar-politica-de-capacidades", "homologar-politica-de-capacidades"],
   // publications-admin-page.tsx: sem a capacidade ⇒ "Sem permissão para publicar".
   "/publicacoes": ["publicar-conteudo-publico"],
   // NPERM.4 — integration-page/institutional-page: integration_require_admin() recusa a tela
