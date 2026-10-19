@@ -107,6 +107,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       </section>
       <OccurrencesPanel school={school} schoolName={schoolName} />
       <SchoolNoticesPanel school={school} year={year} on={on} />
+      <RiskLimitsPanel school={school} />
       <SchoolLogoPanel school={school} />
       <CensusDeclaredStaff school={school} />
       <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação operacional (CSV)</Button>
