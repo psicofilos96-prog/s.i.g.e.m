@@ -22393,6 +22393,56 @@ export type Database = {
           },
         ]
       }
+      meal_water_filter_changes: {
+        Row: {
+          changed_on: string
+          equipment: string
+          equipment_kind: string
+          grant_ref: string | null
+          id: string
+          idempotency_key: string
+          note: string | null
+          period_months: number
+          recorded_at: string
+          recorded_by: string
+          school_id: string
+        }
+        Insert: {
+          changed_on: string
+          equipment: string
+          equipment_kind: string
+          grant_ref?: string | null
+          id?: string
+          idempotency_key: string
+          note?: string | null
+          period_months: number
+          recorded_at?: string
+          recorded_by: string
+          school_id: string
+        }
+        Update: {
+          changed_on?: string
+          equipment?: string
+          equipment_kind?: string
+          grant_ref?: string | null
+          id?: string
+          idempotency_key?: string
+          note?: string | null
+          period_months?: number
+          recorded_at?: string
+          recorded_by?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_water_filter_changes_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       monthly_map_2026_closures: {
         Row: {
           created_at: string
@@ -46366,6 +46416,18 @@ export type Database = {
         Args: { _scheme: string; _value: string }
         Returns: boolean
       }
+      meal_water_filters_at: {
+        Args: { _school: string }
+        Returns: {
+          changed_on: string
+          equipment: string
+          equipment_kind: string
+          history: number
+          next_on: string
+          note: string
+          period_months: number
+        }[]
+      }
       monthly_map_2026_live: {
         Args: { _month: number }
         Returns: {
@@ -49880,6 +49942,18 @@ export type Database = {
           _to_school: string
           _tz: string
           _unit: string
+        }
+        Returns: string
+      }
+      record_meal_water_filter_change: {
+        Args: {
+          _equipment: string
+          _key: string
+          _kind: string
+          _months: number
+          _note: string
+          _on: string
+          _school: string
         }
         Returns: string
       }
