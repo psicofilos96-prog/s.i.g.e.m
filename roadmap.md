@@ -92,8 +92,10 @@
 - [x] Leitura em lote com verificação de capacidade única (0582): equivalência provada em 8 escolas × 4 fontes; fronteira negativa com conta de escola OK; Mapa da rede em 5,9 s (era 81 s)
 
 ## Login do professor (19/10/2026)
+- [ ] Continuação solicitada: integrar acompanhamento dos alunos ao início, proteger consultas por sessão e conferir estados de falha sem apresentar ausência de dados como zero
 - [x] CPF centralizado em todo o sistema + conferência em Diagnóstico
 - [x] Mural de avisos da rede na tela inicial do professor (escolas das atuações vigentes)
+- [x] Pendências próprias de planos/provas com a OP e aulas registradas sem chamada nos últimos 14 dias
 - [ ] Painel: chamada do dia pendente, alunos em risco, pendências SIPE/SIA
 - [ ] Contagem aulas dadas × carga prevista; Diário em PDF A4
 - [ ] Pauta AV1/AV2/IV/PA e consolidado da turma (média: regra ainda sem lugar, aguarda decisão)
