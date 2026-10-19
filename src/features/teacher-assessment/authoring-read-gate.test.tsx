@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const state = vi.hoisted(() => ({ authority: { status: "loading" } as Record<string, unknown>, assignments: vi.fn(), items: vi.fn(), instruments: vi.fn(), schools: vi.fn(), catalog: vi.fn() }));
-vi.mock("@/features/authority/session-authority", () => ({ useSessionAuthority: () => state.authority, sessionContextKey: () => state.authority.key }));
+vi.mock("@/features/authority/session-authority", () => ({ useSessionAuthority: () => state.authority, sessionContextKey: () => state.authority["key"] }));
 vi.mock("@/features/teaching-planning/planning-source", () => ({ myAssignments: state.assignments }));
 vi.mock("@/features/curricular-reference/reference-source", () => ({ readCatalog: state.catalog }));
 vi.mock("./authoring-source", () => ({ visibleItems: state.items, visibleInstruments: state.instruments, schoolsOfAssignments: state.schools }));
