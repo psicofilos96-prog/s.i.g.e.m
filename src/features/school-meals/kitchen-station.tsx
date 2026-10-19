@@ -8,6 +8,7 @@ import { ADHESION_BLOCK, CALENDAR_UNRESOLVED, THEORETICAL_DEBIT_BLOCK, execution
 import { LABELS_STATE, MANUAL_CLASSES, MOVEMENT_CLASS_LABEL, expiresWithin, expiryText, lotText, opsMessage, type KitchenDay } from "./operations-l3-model";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 
+import { WaterFiltersPanel } from "./water-filters-panel";
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = callRpc;
 const db = supabase as unknown as { from: (t: string) => any };
@@ -90,6 +91,7 @@ function KitchenDayView({ school, day, slots, docs, onDone, today }: { school: s
       <p className="text-muted-foreground">{THEORETICAL_DEBIT_BLOCK}: só sai do estoque o consumo que você registrar.</p>
     </Card>
     <QuickConsumption school={school} stock={day.stock} today={today} onDone={onDone} />
+    <WaterFiltersPanel school={school} today={today} />
     <Card title="Checklist e documentos">
       <p>Registros operacionais de hoje: {day.operational_records}. Checklists só existem sobre modelo operacional homologado.</p>
       {docs === null ? <p className="text-muted-foreground">Documentos técnicos não disponíveis para sua conta.</p> : docs.length === 0 ? <p className="text-muted-foreground">Nenhum POP ou cartilha cadastrado.</p>
