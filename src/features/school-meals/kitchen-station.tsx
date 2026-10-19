@@ -5,10 +5,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { ADHESION_BLOCK, CALENDAR_UNRESOLVED, THEORETICAL_DEBIT_BLOCK, executionMessage } from "./execution-model";
-import { LABELS_STATE, MANUAL_CLASSES, MOVEMENT_CLASS_LABEL, expiresWithin, expiryText, lotText, opsMessage, type KitchenDay } from "./operations-l3-model";
+import { MANUAL_CLASSES, MOVEMENT_CLASS_LABEL, expiresWithin, expiryText, lotText, opsMessage, type KitchenDay } from "./operations-l3-model";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { MENU_REASONS, adhesion, diaryProblems, grossTotal, pvpsOrder, type Compliance, type Counts } from "./kitchen-diary";
 import { WaterFiltersPanel } from "./water-filters-panel";
+import { LabelsPanel } from "./labels-panel";
 import { MenuOfDay, usePlannedMenu } from "./menu-of-day";
 import { SpecialDietKitchenList } from "./special-diet";
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
@@ -96,11 +97,11 @@ function KitchenDayView({ school, day, slots, docs, onDone, today }: { school: s
     </Card>
     <QuickConsumption school={school} stock={day.stock} today={today} onDone={onDone} />
     <WaterFiltersPanel school={school} today={today} />
+    {day && <LabelsPanel school={school} today={today} stock={day.stock} />}
     <Card title="Checklist e documentos">
       <p>Registros operacionais de hoje: {day.operational_records}. Checklists só existem sobre modelo operacional homologado.</p>
       {docs === null ? <p className="text-muted-foreground">Documentos técnicos não disponíveis para sua conta.</p> : docs.length === 0 ? <p className="text-muted-foreground">Nenhum POP ou cartilha cadastrado.</p>
         : <ul className="list-disc pl-5">{docs.map((d, i) => <li key={i}>{d.title}</li>)}</ul>}
-      <p className="text-muted-foreground">Etiquetas: {LABELS_STATE} — sem modelo aprovado, nenhuma etiqueta é impressa.</p>
     </Card>
   </div>);
 }
