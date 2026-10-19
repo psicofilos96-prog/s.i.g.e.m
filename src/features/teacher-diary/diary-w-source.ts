@@ -3,6 +3,7 @@
  * e grava só por `record_lesson_version_v2`/`record_attendance_version_v2`. Grade = esperado; aula = fato registrado.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { readPages } from "@/lib/list-paging";
 
 type Rpc = (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, args) => (supabase.rpc as unknown as Rpc)(fn, args);
@@ -31,8 +32,20 @@ export type LessonRow = { lesson_version_id: string; logical_record_id: string; 
   facts: { content?: string; observation?: string }; schedule_block_ids: string[]; period_id: string | null; recorded_as: "titular" | "substituto";
   attendance_version_id: string | null; attendance_version_number: number | null; marks: Record<string, Record<string, Mark>> | null;
   eligible_student_ids: string[] | null; reference_item_ids: string[]; reference_edition_ids: string[] };
-export const readLessons = (d: Pick<MyDiary, "assignment_id" | "substitution_id">) =>
-  call<LessonRow[]>("my_diary_lessons", { _assignment: d.assignment_id, _substitution: d.substitution_id });
+export const readLessons = async (d: Pick<MyDiary, "assignment_id" | "substitution_id">): Promise<unknown[]> => {
+  // Generated RPC arguments omit SQL nullability; preserve the canonical null (titular).
+  type LessonQuery = PromiseLike<{ data: unknown[] | null; error: { message: string } | null }> & {
+    order: (column: string, options: { ascending: boolean }) => LessonQuery;
+    range: (from: number, to: number) => LessonQuery;
+  };
+  const lessonRpc = supabase.rpc as unknown as (name: "my_diary_lessons", args: Record<string, unknown>) => LessonQuery;
+  const paged = await readPages<unknown>((from, to) =>
+    lessonRpc("my_diary_lessons", { _assignment: d.assignment_id, _substitution: d.substitution_id })
+      .order("lesson_date", { ascending: false }).order("logical_record_id", { ascending: true }).range(from, to), 20_000);
+  if (paged.error) throw new Error(paged.error.message);
+  if (paged.truncated) throw new Error("diary-lessons-incomplete");
+  return paged.data ?? [];
+};
 
 export const recordLesson = (a: { logical: string; diary: MyDiary; date: string; base: string | null; content: string; observation: string;
   blocks: string[]; references: string[]; justification: string | null; changed: string[] }) =>

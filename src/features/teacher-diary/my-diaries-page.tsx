@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { useDiarySave } from "./use-diary-save";
+import { LessonReportButton } from "./lesson-report-button";
 import { readDiariesSafely, readSlotsSafely, readLessonsSafely, readRosterSafely, readDiaryWithDeadline } from "./diary-read";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -101,7 +102,10 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
       {operational && !editing && <LessonForm key={`new-lesson-${savedRevision}`} diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
       {operational && editing && <LessonForm key={editing.lesson_version_id} diary={diary} on={editing.lesson_date} slots={slots ?? []} catalog={catalog} base={editing} onSaved={saved} onCancel={() => setEditing(null)} />}
       <div>
-        <h2 className="font-semibold">Aulas ministradas (registradas)</h2>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h2 className="font-semibold">Aulas ministradas (registradas)</h2>
+          <LessonReportButton key={`${key(diary)}|${lessonsQuery.dataUpdatedAt}`} diary={diary} lessons={lessonsQuery.isFetching ? null : lessons} />
+        </div>
         {lessonsQuery.isError ? <ReadFailure title="Não foi possível ler as aulas registradas" retry={() => void lessonsQuery.refetch()} /> : !lessons ? <SkeletonState label="Carregando" /> : ordered.length === 0 ? <p className="text-sm">Nenhuma aula registrada.</p> : (
           <ul className="divide-y text-sm">{ordered.map((l) => (
             <li key={l.lesson_version_id} className="space-y-1 py-2">

@@ -1,5 +1,6 @@
 - `my-diaries-page` mounts after confirmed authority and natural-person linkage; `diary-read` validates responses with deadlines and account/revision keys, because stale responses must not cross sessions or appear as empty data.
 - Diary writes use `use-diary-save`: single in-flight attempt, bounded wait, UUID confirmation and frozen writer/payload on uncertain retry; errors preserve the form and unmounted sessions ignore responses, because uncertainty must not create duplicate facts or false success.
+- Lesson PDF uses the registered `lesson-report` definition and shared report engine on fully paged authorized lessons, records the exact file hash before download and discards unmounted context results; it is a consultation copy, not the complete or homologated Diary, because unavailable grades/attendance cannot be invented.
 
 ## Perfil Docente SIGEM 2.0 (Lote 01 — `teacher-architecture.ts`)
 - Mapa das 34 seções → rota/módulo/tabela/lacuna vive só em `teacher-architecture.ts` e o teste exige que tudo citado exista, porque matriz manual em documento fica stale e esconderia cadastro paralelo.
