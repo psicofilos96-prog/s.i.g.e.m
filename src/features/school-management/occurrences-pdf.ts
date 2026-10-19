@@ -1,14 +1,16 @@
 import { jsPDF } from "jspdf";
 import { institution } from "@/config/institution";
 import { occurrenceNumber, type OccurrenceThread } from "./occurrences";
+import type { LogoImage } from "./school-logo-data";
 
 const dt = (s: string) => new Date(s).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
 
 /** Folha A4 da ocorrência com adendos e campos de assinatura; quebra página sem cortar texto. */
-export function occurrencePdf(t: OccurrenceThread, schoolName: string): Blob {
+export function occurrencePdf(t: OccurrenceThread, schoolName: string, logo: LogoImage | null = null): Blob {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   let y = 0;
   const head = () => {
+    if (logo) { try { doc.addImage(logo.dataUrl, logo.format, 15, 10, 18, 18); } catch { /* logo ilegível: segue sem logo */ } }
     doc.setFont("helvetica", "bold"); doc.setFontSize(10);
     doc.text(institution.documentGovernmentName.toUpperCase(), 105, 16, { align: "center" });
     doc.setFont("helvetica", "normal"); doc.text(institution.departmentName, 105, 21, { align: "center" });
