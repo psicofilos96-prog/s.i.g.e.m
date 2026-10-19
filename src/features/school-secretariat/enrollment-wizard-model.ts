@@ -1,3 +1,4 @@
+import { isValidCpf } from "@/lib/cpf";
 /**
  * N5.2.1 — modelo puro da matrícula guiada. O rascunho é só ficha de trabalho; nada aqui é matrícula oficial.
  * CPF nunca entra no payload: vai uma vez ao banco, que guarda só HMAC + dois últimos dígitos.
@@ -70,13 +71,7 @@ export function fieldProblems(p: WizardPayload, id: Identity, cpfDraft = ""): Pa
 export const canComplete = (p: WizardPayload, id: Identity) =>
   Object.values(missingByStep(p, id)).every((l) => l.length === 0);
 
-/** Valida CPF pelos dígitos verificadores; não consulta nada. */
-export function validCpf(raw: string): boolean {
-  const d = raw.replace(/\D/g, "");
-  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
-  const dv = (len: number) => { let s = 0; for (let i = 0; i < len; i++) s += Number(d[i]) * (len + 1 - i); const r = (s * 10) % 11; return r === 10 ? 0 : r; };
-  return dv(9) === Number(d[9]) && dv(10) === Number(d[10]);
-}
+export const validCpf = isValidCpf;
 
 export type ClassOption = { id: string; name: string; shift: string | null; capacity: number | null; occupancy: number };
 
