@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MyPendingWorkCard } from "./my-pending-card";
 const state = vi.hoisted(() => ({ authority: { status: "signed-in", user: { id: "a" }, sessionRevision: 1, person: { id: "p" }, principal: null } as any, work: vi.fn(), attendance: vi.fn() }));
@@ -24,7 +24,7 @@ describe("pending card read states", () => {
     expect(screen.queryByText("private detail")).toBeNull();
     await screen.findByText("3 aulas registradas nos últimos 14 dias sem chamada");
     fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
-    await vi.waitFor(() => expect(screen.queryByRole("alert")).toBeNull());
+    await act(async () => { await vi.waitFor(() => expect(screen.queryByRole("alert")).toBeNull()); });
     expect(state.work).toHaveBeenCalledTimes(2); expect(state.attendance).toHaveBeenCalledTimes(1);
   });
   it("does not keep the previous account's results during a new read", async () => {
