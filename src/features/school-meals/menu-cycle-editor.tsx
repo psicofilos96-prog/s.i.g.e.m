@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
 import { Button } from "@/components/ui/button";
-import { mealMessage } from "./planning-model";
+import { mealMessage } from "./meals-model";
 import { CONDITIONS, CYCLE_TYPE, MODALITIES, WEEKDAYS, cycleProblems, splitIngredients, type Cell, type CyclePayload, type WeekRange } from "./menu-cycle";
 
 const field = "block w-full rounded border bg-background p-1 text-sm";
