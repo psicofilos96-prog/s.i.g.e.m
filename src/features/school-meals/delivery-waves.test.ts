@@ -15,3 +15,21 @@ describe("Mapa por entrega", () => {
     expect(r[0]?.["supplier"]).toBe("não informado");
   });
 });
+
+import { contractBalanceRows } from "./purchase-map";
+describe("Saldo dos contratos", () => {
+  const c = { items: [], contracts: [], suppliers: [] };
+  const sd = (q: number, action = "programacao") => ({ school_id: "s", item_ref: "i", unidade_ref: "u", contrato_ref: "c", quantity: q, expected_on: "2027-03-01", action });
+  it("saldo = contratado − programado não cancelado", () => {
+    const r = contractBalanceRows([{ logical_id: "p", payload: { contrato_ref: "c", item_ref: "i", quantidade_contratada: 100 } }], [sd(30), sd(50, "cancelamento")], c);
+    expect(r[0]?.["balance"]).toBe(70);
+  });
+  it("sem quantidade contratada o saldo não vira zero", () => {
+    const r = contractBalanceRows([{ logical_id: "p", payload: { contrato_ref: "c", item_ref: "i" } }], [sd(30)], c);
+    expect(r[0]?.["balance"]).toBeNull();
+  });
+  it("marca programado acima do contratado", () => {
+    const r = contractBalanceRows([{ logical_id: "p", payload: { contrato_ref: "c", item_ref: "i", quantidade_contratada: 10 } }], [sd(30)], c);
+    expect(r[0]?.["status"]).toBe("programado acima do contratado");
+  });
+});

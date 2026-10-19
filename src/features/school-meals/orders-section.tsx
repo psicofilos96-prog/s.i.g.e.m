@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { runReport, toCsv, toPrintableHtml, toXlsx, fingerprint } from "@/features/reports/report-engine";
-import { MAPA_COMPRAS, MAPA_DISTRIBUICAO, MAPA_ENTREGAS, deliveryWaveRows, type ScheduledDelivery, distributionMapRows, distributionTotals, purchaseMapRows } from "./purchase-map";
+import { MAPA_COMPRAS, MAPA_DISTRIBUICAO, MAPA_ENTREGAS, SALDO_CONTRATOS, contractBalanceRows, deliveryWaveRows, type ScheduledDelivery, distributionMapRows, distributionTotals, purchaseMapRows } from "./purchase-map";
 import { mealMessage } from "./meals-model";
 import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from "./ceiling-explain";
 import { operationalToday } from "@/lib/academic-date";
@@ -92,11 +92,11 @@ export function OrdersSection({ school, network, names }: { school: string; netw
       total: c.total, schools: Object.entries(c.by_school).map(([s, q]) => `${names.get(s) ?? s}: ${q}`).join("; ") }));
     download(`consolidado-${competence}.csv`, toCsv(runReport(CONSOLIDADO_ALIMENTACAO, { params: { competence } }, rows), { headerLines: ["SIGEM"], title: CONSOLIDADO_ALIMENTACAO.title }, [`Competência: ${competence}`, "Não é ordem de compra."]));
   }
-  async function exportPurchaseMap(fmt: "pdf" | "xlsx", kind: "compras" | "distribuicao" | "entregas" = "compras") {
+  async function exportPurchaseMap(fmt: "pdf" | "xlsx", kind: "compras" | "distribuicao" | "entregas" | "saldo" = "compras") {
     const prices = await call<Named[]>("meal_master_at", { _kind: "preco-contratado", _on: null, _known_at: null, _include_drafts: false }).catch(() => [] as Named[]);
     const ctx = { items, units, contracts, suppliers, schools: names, prices };
     const base = (cons ?? []).map((c) => ({ ...c, total: Number(c.total) }));
-    const def = kind === "compras" ? MAPA_COMPRAS : kind === "entregas" ? MAPA_ENTREGAS : MAPA_DISTRIBUICAO;
+    const def = kind === "compras" ? MAPA_COMPRAS : kind === "entregas" ? MAPA_ENTREGAS : kind === "saldo" ? SALDO_CONTRATOS : MAPA_DISTRIBUICAO;
     let rows;
     if (kind === "entregas") {
       const [y, m] = competence.split("-").map(Number);
@@ -105,6 +105,11 @@ export function OrdersSection({ school, network, names }: { school: string; netw
       try { rows = deliveryWaveRows(await call<ScheduledDelivery[]>("meal_deliveries_at", { _school: null, _from: `${competence}-01`, _to: last, _as_of: last, _known_at: null }), ctx); }
       catch (e) { setMsg(`Não foi possível ler as entregas programadas: ${(e as Error).message}`); return; }
       if (rows.length === 0) { setMsg("Nenhuma entrega programada nesta competência."); return; }
+    } else if (kind === "saldo") {
+      const y = competence.slice(0, 4);
+      try { rows = contractBalanceRows(prices, await call<ScheduledDelivery[]>("meal_deliveries_at", { _school: null, _from: `${y}-01-01`, _to: `${y}-12-31`, _as_of: `${y}-12-31`, _known_at: null }), ctx); }
+      catch (e) { setMsg(`Não foi possível ler as entregas programadas: ${(e as Error).message}`); return; }
+      if (rows.length === 0) { setMsg("Nenhum preço de contrato homologado."); return; }
     } else rows = kind === "compras" ? purchaseMapRows(base, ctx) : distributionMapRows(base, ctx);
     const result = runReport(def, { params: { competence } }, rows);
     const logo = new URL(institution.emblemUrl, window.location.href).href;
@@ -143,6 +148,8 @@ export function OrdersSection({ school, network, names }: { school: string; netw
             <Button variant="outline" onClick={() => void exportPurchaseMap("xlsx", "distribuicao")}>Mapa de distribuição (XLSX)</Button>
             <Button variant="outline" onClick={() => void exportPurchaseMap("pdf", "entregas")}>Mapa por entrega — 1ª/2ª (PDF A4)</Button>
             <Button variant="outline" onClick={() => void exportPurchaseMap("xlsx", "entregas")}>Mapa por entrega (XLSX)</Button>
+            <Button variant="outline" onClick={() => void exportPurchaseMap("pdf", "saldo")}>Saldo dos contratos (PDF A4)</Button>
+            <Button variant="outline" onClick={() => void exportPurchaseMap("xlsx", "saldo")}>Saldo dos contratos (XLSX)</Button>
           </div>}
         </div>
       )}
