@@ -160,3 +160,30 @@ export function NetworkNoticeComposer() {
     </div>
   );
 }
+
+/** Mural do professor: avisos que alcançam qualquer escola onde a pessoa tem atuação vigente. */
+export function PersonNoticeBoard({ personId }: { personId: string }) {
+  const notices = useNotices();
+  const cls = useQuery({
+    queryKey: ["classificacao-escolas-pessoa", personId],
+    queryFn: async () => {
+      const today = new Date().toISOString().slice(0, 10);
+      const { data: eng } = await supabase.from("institutional_engagements").select("school_id,valid_from,valid_until").eq("person_id", personId).not("school_id", "is", null);
+      const ids = [...new Set((eng ?? []).filter((e) => e.valid_from <= today && (!e.valid_until || e.valid_until >= today)).map((e) => e.school_id as string))];
+      if (!ids.length) return [];
+      const { data } = await supabase.from("institutional_school_record_versions").select("school_id,location_kind,administrative_dependency,version_number").in("school_id", ids).order("version_number", { ascending: false });
+      const latest = new Map<string, (typeof data extends (infer R)[] | null ? R : never)>();
+      for (const r of data ?? []) if (!latest.has(r.school_id)) latest.set(r.school_id, r);
+      return [...latest.values()].map((r) => classifySchool(r));
+    },
+  });
+  if (!notices.data || !cls.data || !cls.data.length) return null;
+  const mine = notices.data.filter((n) => cls.data.some((c) => noticeReachesSchool(n.audience, c))).slice(0, 5);
+  if (!mine.length) return null;
+  return (
+    <section aria-labelledby="mural-pessoa" className="space-y-3">
+      <h2 id="mural-pessoa" className="font-display text-xl">Avisos da rede</h2>
+      <ul className="space-y-3">{mine.map((n) => <NoticeCard key={n.id} n={n} />)}</ul>
+    </section>
+  );
+}
