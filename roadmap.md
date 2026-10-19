@@ -1,6 +1,14 @@
 # Roadmap — SIGEM simples no design original
 
+## Acesso docente indevido (19/10/2026)
+- [ ] Reproduzir com a sessão docente, corrigir oferta de Gestão Escolar e áreas de outros setores no menu, início e acesso direto; respeitar capacidades reais e testar sem conceder permissões.
+
+## Mensagens para o usuário (19/10/2026)
+- [ ] Retirar o “Itaperuna” repetido sobre a imagem no topo da dashboard, preservando a identificação nos outros lugares.
+- [ ] Retirar códigos técnicos expostos como ADHESION_METRIC / BLOCKED_BY_HOMOLOGATED_RULE em todo o sistema; manter explicações humanas e ações de recuperação, sem ocultar falhas ou presumir dados.
+
 ## Continuação por perfil — Supervisão primeiro (19/10/2026)
+- [ ] Painel da rede em consulta: escolas autorizadas, busca e abertura do detalhe; números somente da reconciliação canônica, sem consultas por escola ou estimativas.
 - [x] Consultas da Supervisão por autoridade/sessão, limite de 15 s, nova tentativa e falha sem lista vazia; controles por pessoa/capacidade/escola. 59 testes PASS, build OK; Administrador carregou 56 escolas, selecionou escola de teste/2026 e abriu situação sem espera indefinida; acompanhamento recusado pelo reader com mensagem e retentativa.
 - [ ] Acompanhamento positivo e gravação no navegador: conta administrativa não tem leitura efetiva na escola consultada; depende de conta com capacidade e autoria humana aptas, sem conceder permissão para teste.
 - [ ] Visitas, instrumentos e expedientes oficiais: dependem da implementação dos escritores canônicos e da autoridade efetiva; não simular aprovação ou autoria.

@@ -102,7 +102,7 @@ function NetworkIntelligence() {
           </section>
           <section aria-labelledby="bloqueios-ind" className="space-y-2 rounded-lg border border-border p-4">
             <h3 id="bloqueios-ind" className="font-medium">Bloqueados por fonte ou parâmetro ausente</h3>
-            <ul className="space-y-1 text-sm">{ANALYTICS_BLOCKS.map((b) => <li key={b.code} data-state="BLOCKED"><strong>{b.label}</strong> ({b.code}): {humanizeForScreen(b.reason)}</li>)}</ul>
+            <ul className="space-y-1 text-sm">{ANALYTICS_BLOCKS.map((b) => <li key={b.code} data-state="BLOCKED"><strong>{b.label}</strong>: {humanizeForScreen(b.reason)}</li>)}</ul>
           </section>
         </>
       )}

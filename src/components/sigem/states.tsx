@@ -15,6 +15,7 @@ import {
 import { StatusBadge, StatePanel, EmptyState } from "./patterns";
 import { RecoveryRetryButton } from "./recovery-retry-button";
 import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
+import { noticeText } from "./notice-text";
 
 /** Estados de ciclo de vida de um registro versionado. Rótulo é apresentação; o estado vem do dado. */
 export type VersionState = "rascunho" | "em-revisao" | "efetivo" | "revogado" | "historico";
@@ -142,7 +143,7 @@ export function WarningNote({ children }: { children: ReactNode }) {
   return (
     <p className="flex items-start gap-1.5 text-xs text-warning-foreground">
       <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-      <span>{children}</span>
+      <span>{noticeText(children)}</span>
     </p>
   );
 }
