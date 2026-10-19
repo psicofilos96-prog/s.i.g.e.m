@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pendingLines } from "./my-pending-card";
+import { attendanceLines, pendingLines } from "./my-pending-card";
 
 describe("pendências do docente com a OP", () => {
   it("ajuste pedido aparece antes e conta singular/plural", () => {
@@ -10,5 +10,9 @@ describe("pendências do docente com a OP", () => {
   });
   it("sem pendência não gera aviso", () => {
     expect(pendingLines([{ subject_kind: "instrumento", em_analise: 0, ajuste_solicitado: 0 }])).toEqual([]);
+  });
+  it("aula sem chamada vira pendência; zero não aparece", () => {
+    expect(attendanceLines(3)).toEqual(["3 aulas registradas nos últimos 14 dias sem chamada"]);
+    expect(attendanceLines(0)).toEqual([]);
   });
 });

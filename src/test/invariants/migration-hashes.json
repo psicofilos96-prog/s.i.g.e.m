@@ -632,5 +632,6 @@
  "drizzle/migrations/0581_network_projection_compact_restore_per_school.sql": "d67161bce77dfa8fe3a57ee0c0c0a73c587fc533a3e9339159dd19c08204776a",
  "drizzle/migrations/0582_network_projection_compact_definer.sql": "1b96376b30ac6e1ca1b1dbeec42c5aba3600a5107d3505d879b2ff028200ae18",
  "drizzle/migrations/0583_cpf_integrity_audit.sql": "d9e3177ac1467c1ef3e127ebaacb408ca014b4bb8aa9a26a92151ab39752bd7c",
- "drizzle/migrations/0584_my_teacher_work_pending.sql": "1e538e3557f2846a0963dc4568a5c86d5b89506ff5c457bae3b934596749e844"
+ "drizzle/migrations/0584_my_teacher_work_pending.sql": "1e538e3557f2846a0963dc4568a5c86d5b89506ff5c457bae3b934596749e844",
+ "drizzle/migrations/0585_my_lessons_without_attendance.sql": "a8951dfcf8dae7c728eab17aa8329c85f692bf7a1f1e8a67ff104dfc4fda8ac8"
 }

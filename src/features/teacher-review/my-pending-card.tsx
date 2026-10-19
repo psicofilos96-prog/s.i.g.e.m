@@ -15,6 +15,10 @@ export function pendingLines(rows: readonly Row[]): string[] {
   return out;
 }
 
+export function attendanceLines(n: number): string[] {
+  return n > 0 ? [`${n} ${n === 1 ? "aula registrada" : "aulas registradas"} nos últimos 14 dias sem chamada`] : [];
+}
+
 /** Aviso do docente sobre planos e provas enviados à OP. Sem pendência, não aparece. */
 export function MyPendingWorkCard() {
   const q = useQuery({
@@ -26,11 +30,20 @@ export function MyPendingWorkCard() {
     },
     staleTime: 60_000,
   });
-  const lines = q.data ? pendingLines(q.data) : [];
+  const a = useQuery({
+    queryKey: ["my-lessons-without-attendance"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("my_lessons_without_attendance", { _days: 14 });
+      if (error) throw error;
+      return Number(data ?? 0);
+    },
+    staleTime: 60_000,
+  });
+  const lines = [...attendanceLines(a.data ?? 0), ...(q.data ? pendingLines(q.data) : [])];
   if (lines.length === 0) return null;
   return (
-    <section aria-label="Pendências com a Orientação" className="rounded-2xl border bg-card p-5">
-      <h2 className="text-lg font-semibold">Com a Orientação</h2>
+    <section aria-label="Suas pendências" className="rounded-2xl border bg-card p-5">
+      <h2 className="text-lg font-semibold">Suas pendências</h2>
       <ul className="mt-2 space-y-1 text-base">{lines.map((l) => <li key={l}>{l}</li>)}</ul>
       <Link to="/meus-diarios" className="mt-3 inline-block text-primary underline">Abrir meus diários</Link>
     </section>

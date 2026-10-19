@@ -45956,6 +45956,10 @@ export type Database = {
           starts_at: string
         }[]
       }
+      my_lessons_without_attendance: {
+        Args: { _days?: number }
+        Returns: number
+      }
       my_notifications: {
         Args: { _before: string; _limit: number }
         Returns: {
