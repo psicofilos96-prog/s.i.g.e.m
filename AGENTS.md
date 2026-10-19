@@ -28,7 +28,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Enrollment uses a shared validator and trigger; browser uses the same cutoff, so alternate writers cannot bypass it.
 - Vaccination deadlines are calculated by the canonical writer using the current sector parameter and stored in each immutable event; reports read that stored date, because later parameter changes must not rewrite previously declared deadlines.
 Read nested AGENTS.md; statistical-map covers transport.
-- Password gate mounts only after account-scoped clearance; errors/timeouts block, because early mounting starts domain reads.
+- Password gate and pending-source use account-scoped, timed, validated reads; fail closed to prevent early reads and false zeroes.
 
 ## Continuidade técnica
 B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte normativa).
