@@ -4187,6 +4187,13 @@
       "when": 1792431559948,
       "tag": "0597_meal_special_diet_student_search",
       "breakpoints": true
+    },
+    {
+      "idx": 598,
+      "version": "7",
+      "when": 1792432175066,
+      "tag": "0598_meal_receipt_requires_fiscal_document",
+      "breakpoints": true
     }
   ]
 }
