@@ -12,6 +12,7 @@ import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { KitchensSection, MenuPublications, InventorySection, NetworkOverview } from "./operation-sections";
 import { PlanningSection } from "./planning-section";
+import { MenuCycleEditor } from "./menu-cycle-editor";
 import { OrdersSection } from "./orders-section";
 import { ReceivingSection } from "./receiving-section";
 import { StockSection } from "./stock-section";
@@ -85,7 +86,7 @@ export function SchoolMealsPage() {
             <nav aria-label="Seções da alimentação escolar" className="sticky top-0 z-10 -mx-1 overflow-x-auto bg-background/95 px-1 py-2"><ul className="flex gap-2 text-sm">{NAV.map(([id, l]) => <li key={id} className="shrink-0"><a href={`#${id}`} className="block rounded-full border px-3 py-1.5 hover:bg-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring">{l}</a></li>)}</ul></nav>
             {(canPlan || canReviewOrders || canNetwork) && <NucleoHome names={new Map(schools.map((x) => [x.id, x.name]))} />}
             {canPlan && <SectorParametersPanel sector="alimentacao" />}
-            <div id="planejamento" className="scroll-mt-16">{canPlan && <PlanningSection schools={schools} />}</div>
+            <div id="planejamento" className="scroll-mt-16">{canPlan && <PlanningSection schools={schools} />}{canPlan && <MenuCycleEditor />}</div>
             <div id="pedidos" className="scroll-mt-16" /><div id="autorizacoes" /><div id="consolidacao" />{(canReviewOrders || school) && <OrdersSection key={`o|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <div id="entregas" className="scroll-mt-16" /><div id="nao-conformidades" /><div id="documentos" />{(canReviewOrders || school) && <ReceivingSection key={`r|${school}`} school={school} network={canReviewOrders} names={new Map(schools.map((x) => [x.id, x.name]))} />}
             <div id="estoque" className="scroll-mt-16" />{school && <StockSection key={`s|${school}`} school={school} />}
