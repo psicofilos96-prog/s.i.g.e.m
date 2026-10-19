@@ -22,6 +22,7 @@ import { ACTIONS, NATURE_LABEL, NATURE_ORDER, classifyPending, recordStateLine, 
 import { readCatalog, readSupervisionRecords, recordSupervision } from "./supervision-source";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { journeyState, filterRecords } from "./supervision-journey";
+import { SupervisionNetworkPanel } from "./supervision-network-panel";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();
@@ -39,6 +40,7 @@ function SupervisionWorkspace({ sessionKey }: { sessionKey: string }) {
   const schools = context.data?.schools ?? [];
   const years = context.data?.years ?? [];
   const [f, setF] = useState({ school: "", year: "", on: today(), knownAt: "" });
+  const [view, setView] = useState("escola");
   const ready = f.school && f.year && f.on;
   return (
     <div className="space-y-6">
@@ -46,6 +48,12 @@ function SupervisionWorkspace({ sessionKey }: { sessionKey: string }) {
         description="Escolha a escola e veja o que depende de você. Não há ranking." />
       <SupervisionHome />
       {context.isError && <ReadFailure title="Não foi possível carregar escolas e anos" retry={() => void context.refetch()} />}
+      <Tabs value={view} onValueChange={setView}>
+        <TabsList><TabsTrigger value="rede">Rede</TabsTrigger><TabsTrigger value="escola">Escola</TabsTrigger></TabsList>
+        <TabsContent value="rede" className="mt-4">
+          {context.isPending ? <p role="status">Carregando escolas…</p> : context.isSuccess && <SupervisionNetworkPanel schools={schools} sessionKey={sessionKey} openSchool={(school) => { setF({ ...f, school }); setView("escola"); }} />}
+        </TabsContent>
+        <TabsContent value="escola" className="mt-4 space-y-6">
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
         <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
           <option value="">{context.isPending ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
@@ -58,6 +66,8 @@ function SupervisionWorkspace({ sessionKey }: { sessionKey: string }) {
       </section>
       {ready && context.isSuccess ? <Station key={JSON.stringify(f)} {...f} sessionKey={sessionKey} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
         : <EmptyState title="Escolha a escola para começar" description="Escolha escola, ano e data acima. O que você não alcança aparece como “Não disponível”." />}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
