@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { useDiarySave } from "./use-diary-save";
 import { LessonReportButton } from "./lesson-report-button";
+import { LessonDaySummaryPanel } from "./lesson-day-summary-panel";
 import { readDiariesSafely, readSlotsSafely, readLessonsSafely, readRosterSafely, readDiaryWithDeadline } from "./diary-read";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -90,6 +91,7 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
   const saved = (m: string) => { setMsg(m); setEditing(null); setSavedRevision((revision) => revision + 1); void lessonsQuery.refetch(); };
   return (
     <section className="space-y-4 rounded-lg border bg-card p-4" aria-label="Diário selecionado">
+      <LessonDaySummaryPanel on={on} lessons={lessonsQuery.isFetching ? null : lessons} slots={slotsQuery.isFetching ? null : slots} />
       <div>
         <h2 className="font-semibold">Aulas previstas em {on} (grade)</h2>
         <p className="text-xs text-muted-foreground">Previsão não é aula dada: nada vira ministrado sem o seu registro.</p>

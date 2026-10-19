@@ -1,3 +1,4 @@
+- Daily counts reuse authorized lesson/slot reads, separating records from distinct usable blocks and explicit links; unread sources stay unknown, because counts cannot invent workload or missed classes.
 - `my-diaries-page` mounts after confirmed authority and natural-person linkage; `diary-read` validates responses with deadlines and account/revision keys, because stale responses must not cross sessions or appear as empty data.
 - Teaching support reads the canonical flags only with confirmed personal authority and accepted institutional mirror; account/revision/context keys, boundary validation and deadline/retry distinguish unread data from absence without exposing clinical plans.
 - Diary writes use `use-diary-save`: single in-flight attempt, bounded wait, UUID confirmation and frozen writer/payload on uncertain retry; errors preserve the form and unmounted sessions ignore responses, because uncertainty must not create duplicate facts or false success.
