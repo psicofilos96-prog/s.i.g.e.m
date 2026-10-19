@@ -7,7 +7,7 @@ import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { ADHESION_BLOCK, CALENDAR_UNRESOLVED, THEORETICAL_DEBIT_BLOCK, executionMessage } from "./execution-model";
 import { LABELS_STATE, MANUAL_CLASSES, MOVEMENT_CLASS_LABEL, expiresWithin, expiryText, lotText, opsMessage, type KitchenDay } from "./operations-l3-model";
 import { useOwnSchoolId } from "@/features/authority/own-school";
-
+import { MENU_REASONS, adhesion, diaryProblems, grossTotal, pvpsOrder, type Compliance, type Counts } from "./kitchen-diary";
 import { WaterFiltersPanel } from "./water-filters-panel";
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = callRpc;
