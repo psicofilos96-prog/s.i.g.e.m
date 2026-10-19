@@ -14,6 +14,7 @@ import { TRANSPORTE_ROTAS } from "@/features/school-transport/transport-model";
 import { INFRAESTRUTURA_COBERTURA } from "@/features/schools/infrastructure-network-queue";
 import { REPORTING_REPORTS } from "@/features/school-meals/reporting-model";
 import type { Branding, CellValue, ReportDefinition } from "./report-engine";
+import { TEACHER_LESSON_REPORT } from "@/features/teacher-diary/lesson-report";
 import { HEADER_LINES, MAP_TITLE, MEASURE_KEYS, MEASURE_LABEL, networkTotal, type SchoolProjection } from "@/features/statistical-map/network-projection";
 
 export const NETWORK_BRANDING: Branding = { headerLines: HEADER_LINES, title: MAP_TITLE };
@@ -111,6 +112,7 @@ export const SUPERVISAO_ACOMPANHAMENTO: ReportDefinition = {
 };
 
 export const REPORTS: readonly ReportDefinition[] = [
+  TEACHER_LESSON_REPORT,
   MAPA_ESTATISTICO,
   MAPA_ESTATISTICO_ESCOLA,
   INCLUSAO_MINIMIZADO,
