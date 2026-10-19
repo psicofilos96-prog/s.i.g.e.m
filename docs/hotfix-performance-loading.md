@@ -2,6 +2,14 @@
 
 Situação atual: Registro de lote (2026-10-09).
 
+## Confirmação de sessão e autoridade (19/10/2026)
+
+- Antes: `getSession` e a consulta compartilhada de autoridade não tinham prazo de encerramento; uma promessa sem resposta mantinha a tela incerta indefinidamente.
+- Depois: ambas encerram em 15 s com erro recuperável, sem assumir sessão ausente nem publicar respostas tardias. A entrada reutiliza a mesma origem da sessão; não há uma segunda leitura independente que declare saída em caso de falha.
+- Prova automatizada: 36 testes focados passaram, incluindo sessão parada, concessões paradas, resposta tardia, recuperação e recusa docente.
+- Prova no navegador local com sessão docente real: retenção artificial de `effective_capability_grants` exibiu “Não foi possível confirmar seu acesso” e “Tentar novamente”; somente vínculo, ator, concessões e alcance foram consultados. Removida a retenção, o botão reabriu “Minhas turmas”. A recuperação da autoridade foi provada, não a conclusão de todas as leituras internas do Diário.
+- Não houve alteração de permissões, dados escolares ou homologação. A auditoria global das rotas continua aberta; este lote não declara PERF.LOADING.1 encerrado.
+
 ## Continuação CIECE — Mapa da rede (18/10/2026)
 
 - Medição autenticada no navegador local, conta CIECE, outubro/2026, 56 escolas: **80,77 s antes → 22,40 s e 22,13 s depois**, do clique em Consultar à tabela. Não é benchmark da versão publicada.

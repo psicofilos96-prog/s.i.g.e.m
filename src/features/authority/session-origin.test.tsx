@@ -5,7 +5,7 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type Listener = (event: string, session: { user: { id: string } } | null) => void;
 const m = vi.hoisted(() => ({
@@ -40,6 +40,7 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 import { useSessionAuthority, useSessionUser, type SessionAuthority } from "./session-authority";
+import { LIST_TIMEOUT_MS } from "@/lib/server-page";
 
 function deferred<T>() {
   let resolve!: (v: T) => void;
@@ -63,6 +64,44 @@ beforeEach(() => {
   m.links.mockReset().mockImplementation(async (uid: string) => ({ data: [{ person_id: `per-${uid}` }], error: null }));
   m.person.mockReset().mockImplementation(async (pid: string) => ({ data: { id: pid, display_name: `Pessoa ${pid}` }, error: null }));
   m.caps.mockReset().mockResolvedValue({ data: [cap("c1")], error: null });
+});
+afterEach(() => vi.useRealTimers());
+
+describe("PERF.LOADING.1 — confirmação de acesso com espera limitada", () => {
+  it("bootstrap parado falha em 15 s, sem assumir saída nem aceitar resposta tardia", async () => {
+    vi.useFakeTimers();
+    const pending = deferred<ReturnType<typeof session>>();
+    m.getSession.mockReturnValue(pending.promise);
+    const { result, unmount } = renderHook(() => useSessionUser());
+    await act(async () => { await vi.advanceTimersByTimeAsync(14_999); });
+    expect(result.current.error).toBeUndefined();
+    await act(async () => { await vi.advanceTimersByTimeAsync(1); });
+    expect(LIST_TIMEOUT_MS).toBe(15_000);
+    expect(result.current).toMatchObject({ loading: true, user: null });
+    expect(result.current.error).toBeDefined();
+    await act(async () => { pending.resolve(session("late")); });
+    expect(result.current.user).toBeNull();
+    expect(m.caps).not.toHaveBeenCalled();
+    await emit("SIGNED_IN", "recovered");
+    expect(result.current).toMatchObject({ loading: false, user: { id: "recovered" } });
+    expect(result.current.error).toBeUndefined();
+    unmount();
+  });
+
+  it("permissões paradas falham em 15 s sem publicar concessões tardias", async () => {
+    vi.useFakeTimers();
+    m.getSession.mockResolvedValue(session("u-1"));
+    const pending = deferred<{ data: unknown[]; error: null }>();
+    m.caps.mockReturnValue(pending.promise);
+    const { result, unmount } = renderHook(() => useSessionAuthority(), { wrapper: wrapperWith(newClient()) });
+    await act(async () => { await vi.advanceTimersByTimeAsync(0); });
+    expect(m.caps).toHaveBeenCalledTimes(1);
+    await act(async () => { await vi.advanceTimersByTimeAsync(15_001); });
+    expect(result.current).toMatchObject({ status: "loading", error: expect.any(String) });
+    await act(async () => { pending.resolve({ data: [cap("late-cap")], error: null }); await vi.advanceTimersByTimeAsync(0); });
+    expect(result.current).toMatchObject({ status: "loading", error: expect.any(String) });
+    unmount();
+  });
 });
 
 describe("B4.10.0b — useSessionUser", () => {
