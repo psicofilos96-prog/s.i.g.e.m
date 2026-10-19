@@ -196,20 +196,36 @@ function CountView({ school, lines, counts, onDone }: { school: string; lines: L
   </div>);
 }
 
+type Proposal = { id: string; from_school: string; to_school: string; item_value_id: string; unit_value_id: string; quantity: number; note: string | null; outcome: string | null; reason: string | null; mine: boolean };
 function TransferForm({ school, lines }: { school: string; lines: Line[] }) {
   const items = [...new Set(lines.map((l) => `${l.item_value_id}|${l.unit_value_id}`))];
-  const [it, setIt] = useState(""); const [to, setTo] = useState(""); const [qty, setQty] = useState(""); const [msg, setMsg] = useState<string | null>(null); const { pending, run } = useOnce();
+  const [it, setIt] = useState(""); const [to, setTo] = useState(""); const [qty, setQty] = useState(""); const [note, setNote] = useState(""); const [msg, setMsg] = useState<string | null>(null); const { pending, run } = useOnce();
+  const [list, setList] = useState<Proposal[]>([]);
+  const load = useCallback(() => { call<Proposal[]>("meal_stock_transfers_at", { _school: school }).then(setList, () => setList([])); }, [school]);
+  useEffect(load, [load]);
   const save = () => run(async () => {
     const [item, unit] = it.split("|");
-    try { await call("record_meal_stock_transfer", { _from_school: school, _to_school: to, _item: item, _unit: unit, _quantity: Number(qty.replace(",", ".")), _on: today(), _tz: TZ, _lot: null, _expires: null, _note: null, _reason: null }); setMsg("Transferência registrada."); }
+    try { await call("propose_meal_stock_transfer", { _from_school: school, _to_school: to, _item: item, _unit: unit, _quantity: Number(qty.replace(",", ".")), _lot: null, _expires: null, _note: note || null }); setMsg("Remanejamento proposto. O estoque só muda quando a escola de destino aceitar."); load(); }
     catch (e) { setMsg(opsMessage((e as Error).message)); }
   });
-  return (<fieldset className="grid gap-2 sm:grid-cols-3"><legend className="font-medium">Transferência entre escolas</legend>
-    <p className="sm:col-span-3 text-muted-foreground">Transferências entre cozinhas dependem de regra da SEMED.</p>
+  const answer = (p: Proposal, outcome: "aceita" | "recusada" | "cancelada") => run(async () => {
+    const reason = outcome === "aceita" ? "" : await askText(outcome === "recusada" ? "Motivo da recusa" : "Motivo do cancelamento");
+    if (outcome !== "aceita" && !reason) return;
+    try { await call("answer_meal_stock_transfer", { _proposal: p.id, _outcome: outcome, _reason: reason || null, _tz: TZ }); setMsg(outcome === "aceita" ? "Recebido: entrada lançada no estoque." : "Resposta registrada."); load(); }
+    catch (e) { setMsg(opsMessage((e as Error).message)); }
+  });
+  const label = (o: string | null) => (o === "aceita" ? "aceito" : o === "recusada" ? "recusado" : o === "cancelada" ? "cancelado" : "aguardando aceite do destino");
+  return (<fieldset className="grid gap-2 sm:grid-cols-3"><legend className="font-medium">Remanejamento entre escolas</legend>
+    <p className="sm:col-span-3 text-muted-foreground">A escola de destino precisa aceitar. Só depois o estoque das duas escolas muda.</p>
     <label>Item<select className={field} value={it} onChange={(e) => setIt(e.target.value)}><option value="">Escolha…</option>{items.map((i) => <option key={i} value={i}>{i.replace("|", " · ")}</option>)}</select></label>
     <label>Escola de destino (código)<input className={field} value={to} onChange={(e) => setTo(e.target.value)} /></label>
     <label>Quantidade<input inputMode="decimal" className={field} value={qty} onChange={(e) => setQty(e.target.value)} /></label>
-    <button type="button" disabled={!it || !to || !qty || pending} onClick={save} className="rounded border px-3 py-2 disabled:opacity-50 sm:col-span-3">Solicitar transferência</button>
+    <label className="sm:col-span-3">Motivo (ex.: validade próxima)<input className={field} value={note} onChange={(e) => setNote(e.target.value)} /></label>
+    <button type="button" disabled={!it || !to || !qty || pending} onClick={save} className="rounded border px-3 py-2 disabled:opacity-50 sm:col-span-3">Propor remanejamento</button>
+    {list.length > 0 && <ul className="sm:col-span-3 divide-y">{list.map((p) => (
+      <li key={p.id} className="py-2">{p.from_school === school ? `Para ${p.to_school}` : `De ${p.from_school}`}: {p.quantity} · {p.item_value_id.replace("|", " ")} — {label(p.outcome)}{p.reason ? ` (${p.reason})` : ""}
+        {!p.outcome && p.to_school === school && <span className="ml-2 inline-flex gap-2"><button type="button" disabled={pending} className="rounded border px-2 py-1" onClick={() => answer(p, "aceita")}>Aceitar</button><button type="button" disabled={pending} className="rounded border px-2 py-1" onClick={() => answer(p, "recusada")}>Recusar</button></span>}
+        {!p.outcome && p.mine && <button type="button" disabled={pending} className="ml-2 rounded border px-2 py-1" onClick={() => answer(p, "cancelada")}>Cancelar</button>}</li>))}</ul>}
     {msg && <p role="status" className="sm:col-span-3">{msg}</p>}
   </fieldset>);
 }

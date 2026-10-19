@@ -53,7 +53,7 @@ export function SchoolLogoPanel({ school }: { school: string }) {
         onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} />
       <Button size="sm" variant="outline" disabled={busy} onClick={() => input.current?.click()}>{busy ? "Enviando…" : "Enviar nova logo"}</Button>
       <p className="text-xs text-muted-foreground">JPG, PNG ou WEBP até 2 MB. Só a Direção da escola pode enviar; a logo anterior fica guardada.</p>
-      {err && <p className="text-xs text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
     </section>
   );
 }

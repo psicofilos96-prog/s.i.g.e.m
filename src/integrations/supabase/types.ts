@@ -22501,6 +22501,104 @@ export type Database = {
           },
         ]
       }
+      meal_stock_transfer_answers: {
+        Row: {
+          answered_at: string
+          answered_by: string
+          outcome: string
+          pair_id: string | null
+          proposal_id: string
+          reason: string | null
+        }
+        Insert: {
+          answered_at?: string
+          answered_by: string
+          outcome: string
+          pair_id?: string | null
+          proposal_id: string
+          reason?: string | null
+        }
+        Update: {
+          answered_at?: string
+          answered_by?: string
+          outcome?: string
+          pair_id?: string | null
+          proposal_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_stock_transfer_answers_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: true
+            referencedRelation: "meal_stock_transfer_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meal_stock_transfer_proposals: {
+        Row: {
+          expires_on: string | null
+          from_school: string
+          id: string
+          item_value_id: string
+          lot: string | null
+          note: string | null
+          proposed_at: string
+          proposed_by: string
+          proposed_engagement: string
+          proposed_person: string
+          quantity: number
+          to_school: string
+          unit_value_id: string
+        }
+        Insert: {
+          expires_on?: string | null
+          from_school: string
+          id?: string
+          item_value_id: string
+          lot?: string | null
+          note?: string | null
+          proposed_at?: string
+          proposed_by: string
+          proposed_engagement: string
+          proposed_person: string
+          quantity: number
+          to_school: string
+          unit_value_id: string
+        }
+        Update: {
+          expires_on?: string | null
+          from_school?: string
+          id?: string
+          item_value_id?: string
+          lot?: string | null
+          note?: string | null
+          proposed_at?: string
+          proposed_by?: string
+          proposed_engagement?: string
+          proposed_person?: string
+          quantity?: number
+          to_school?: string
+          unit_value_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meal_stock_transfer_proposals_from_school_fkey"
+            columns: ["from_school"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meal_stock_transfer_proposals_to_school_fkey"
+            columns: ["to_school"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meal_water_filter_changes: {
         Row: {
           changed_on: string
@@ -40904,6 +41002,15 @@ export type Database = {
         Args: { _answers: Json; _enrollment: string; _survey: string }
         Returns: undefined
       }
+      answer_meal_stock_transfer: {
+        Args: {
+          _outcome: string
+          _proposal: string
+          _reason: string
+          _tz: string
+        }
+        Returns: string
+      }
       applicable_class_designation_policy: {
         Args: { _on: string }
         Returns: {
@@ -46564,6 +46671,23 @@ export type Database = {
         }[]
       }
       meal_stock_read_guard: { Args: { _school: string }; Returns: undefined }
+      meal_stock_transfers_at: {
+        Args: { _school: string }
+        Returns: {
+          answered_at: string
+          from_school: string
+          id: string
+          item_value_id: string
+          mine: boolean
+          note: string
+          outcome: string
+          proposed_at: string
+          quantity: number
+          reason: string
+          to_school: string
+          unit_value_id: string
+        }[]
+      }
       meal_value_ok: {
         Args: { _scheme: string; _value: string }
         Returns: boolean
@@ -47638,6 +47762,19 @@ export type Database = {
           _person: string
           _school: string
           _target_user: string
+        }
+        Returns: string
+      }
+      propose_meal_stock_transfer: {
+        Args: {
+          _expires: string
+          _from_school: string
+          _item: string
+          _lot: string
+          _note: string
+          _quantity: number
+          _to_school: string
+          _unit: string
         }
         Returns: string
       }

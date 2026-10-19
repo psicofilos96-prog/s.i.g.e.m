@@ -354,9 +354,9 @@
    "src/routes/planejamento.tsx",
    "src/routes/quadro-permanente-op.tsx"
   ],
-  "modules": 71,
-  "withTest": 36,
-  "withScreen": 39,
+  "modules": 78,
+  "withTest": 42,
+  "withScreen": 43,
   "withoutScreen": [
    "src/features/diary/attendance-correction.ts",
    "src/features/diary/attendance-temporal.ts",
@@ -379,6 +379,9 @@
    "src/features/teacher-diary/inclusion-teacher-view.ts",
    "src/features/teacher-diary/infant-portfolio.ts",
    "src/features/teacher-diary/learning-record.ts",
+   "src/features/teacher-diary/lesson-day-summary.ts",
+   "src/features/teacher-diary/lesson-report-export.ts",
+   "src/features/teacher-diary/lesson-report.ts",
    "src/features/teacher-diary/segment-profile.ts",
    "src/features/teacher-diary/teacher-agenda.ts",
    "src/features/teacher-diary/teacher-architecture.ts",
@@ -424,6 +427,7 @@
    "src/features/teacher-assessment/authoring-source.ts",
    "src/features/teacher-assessment/variant-key.ts",
    "src/features/teacher-diary/teaching-support.ts",
+   "src/features/teacher-diary/use-diary-save.ts",
    "src/features/teaching-planning/planning-model.ts",
    "src/features/teaching-planning/planning-source.ts",
    "src/features/teaching-planning/sipe-defaults.ts"

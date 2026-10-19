@@ -60,7 +60,7 @@ export function OccurrenceAttachments({ school, occurrenceId, items, canWrite, q
           onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} />
         <Button size="sm" variant="outline" disabled={busy} onClick={() => input.current?.click()}>{busy ? "Enviando…" : "Anexar arquivo"}</Button>
       </>}
-      {err && <p className="text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-destructive">{err}</p>}
     </div>
   );
 }

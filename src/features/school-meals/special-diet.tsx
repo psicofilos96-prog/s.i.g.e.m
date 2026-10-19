@@ -87,7 +87,7 @@ export function SpecialDietRequestPanel({ school }: { school: string }) {
           <Button disabled={busy || !file} onClick={() => void send()}>{busy ? "Enviando…" : "Enviar pedido"}</Button>
         </div>
       )}
-      {note && <p className="text-sm">{note}</p>}
+      {note && <p role="status" className="text-sm">{note}</p>}
       {rows && rows.length > 0 && <ul className="divide-y text-sm">{rows.map((r) => <li key={r.request_id} className="py-2"><b>{r.student_name}</b> — {r.need} · <Status r={r} /></li>)}</ul>}
     </section>
   );
@@ -125,7 +125,7 @@ export function SpecialDietReviewPanel() {
           </div>
         );
       })}
-      {err && <p className="text-sm text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
       <p className="text-sm text-muted-foreground">Decididos: {rows.length - pending.length}</p>
     </section>
   );

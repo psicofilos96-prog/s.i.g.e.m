@@ -108,7 +108,7 @@ function OccurrenceForm({ school, addendumOf, onDone, queryKey }: { school: stri
         {parties.length > 0 && <ul className="text-xs">{parties.map((p, i) => <li key={i}>{p.label} — {p.role} <button className="underline" onClick={() => setParties(parties.filter((_, j) => j !== i))}>remover</button></li>)}</ul>}
       </div>
       {problems.length > 0 && <ul className="text-xs text-muted-foreground">{problems.map((p) => <li key={p}>• {p}</li>)}</ul>}
-      {err && <p className="text-sm text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
       <div className="flex gap-2"><Button onClick={save} disabled={busy || problems.length > 0}>{busy ? "Gravando…" : "Gravar registro"}</Button>
         <Button variant="outline" onClick={onDone} disabled={busy}>Cancelar</Button></div>
     </div>
