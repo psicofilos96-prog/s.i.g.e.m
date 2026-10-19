@@ -93,6 +93,7 @@
 
 ## Login do professor (19/10/2026)
 - [ ] Continuação: retentativa do PDF com a mesma identidade e os mesmos bytes após falha/incerteza; impedir emissões duplicadas e conferir isolamento por sessão.
+- [ ] Continuação: aviso de mediação vigente com leitura apenas após sessão e espelho aceitos, prazo, erro e retentativa sem confundir falha com ausência.
 - [x] Continuação atual: PDF A4 de registro de aulas por regência, motor comum e emissão com hash exato antes do download; sem notas/chamada/assinatura presumida. Leitura em páginas ordenadas recusa truncamento; 52 testes PASS. PDF sintético de 3 páginas inspecionado, início/fim preservados; navegador preserva portão de senha. Emissão real aguarda conta docente apta.
 - [x] Continuação atual: envio de aula/chamada único com prazo de 15 s e UUID confirmado; erro preserva formulário, incerteza mantém payload/identidade para retentativa, conta desmontada ignora resposta. 30 testes PASS; navegador confirmou portão de senha e zero consultas antes dele. Gravação real aguarda troca de senha pelo titular; PDF segue pendente.
 - [x] Continuação atual: Meus diários, horários, aulas e chamada com chave conta/revisão, prazo de 15 s, resposta validada e nova tentativa; 23 testes passaram, build OK. Navegador: portão de senha preservado, zero consultas do Diário antes dele. Fluxo completo aguarda troca da senha pelo titular.
