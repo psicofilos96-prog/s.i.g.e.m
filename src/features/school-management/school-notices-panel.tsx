@@ -39,7 +39,7 @@ export function SchoolNoticesPanel({ school, year, on }: { school: string; year:
 
   const publish = async () => {
     const problems = noticeProblems({ title, body, audience, classId: classId || null, expiresOn: expiresOn || null }, today);
-    if (problems.length) { setErr(problems[0]); return; }
+    if (problems.length) { setErr(problems[0] ?? "Revise o aviso."); return; }
     setBusy(true); setErr(null); setOk(null);
     try {
       let imagePath: string | null = null;
