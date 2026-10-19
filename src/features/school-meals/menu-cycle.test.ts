@@ -19,3 +19,11 @@ describe("cardápio em 4 semanas", () => {
     expect(cycleProblems({ ...p, cronograma: [...p.cronograma, { de: "2027-02-10", ate: "2027-02-11", semana: 3 }] })).toContain("Há períodos do cronograma sobrepostos.");
   });
 });
+
+import { plannedMenuText } from "./menu-cycle";
+describe("cardápio previsto no Diário", () => {
+  const base = { competencia: "2027-03", tipo: "ciclo-4-semanas" as const, modalidade: "Integral", condicao: "Geral",
+    entradas: [{ semana: 1, dia: 0, refeicao: "Almoço", preparacao: "Arroz e feijão", ingredientes: [] }], cronograma: [{ de: "2027-03-01", ate: "2027-03-05", semana: 1 }] };
+  it("dá o texto do dia pela semana do cronograma", () => { expect(plannedMenuText([base], "Integral", "2027-03-01")).toBe("Almoço: Arroz e feijão"); });
+  it("fora do cronograma não presume", () => { expect(plannedMenuText([base], "Integral", "2027-03-08")).toBeNull(); });
+});

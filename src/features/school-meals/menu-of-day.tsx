@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
-import { CONDITIONS, CYCLE_TYPE, menuOfDay, type CyclePayload } from "./menu-cycle";
+import { CONDITIONS, CYCLE_TYPE, menuOfDay, plannedMenuText, type CyclePayload } from "./menu-cycle";
 
 const field = "mt-1 block w-full rounded-lg border bg-background p-3 text-base";
-const STORE = "sigem.cozinha.modalidade";
+export const STORE = "sigem.cozinha.modalidade";
+
+/** Cardápio previsto de hoje (mesma leitura do Cardápio do dia). */
+export function usePlannedMenu(today: string): string | null {
+  const [text, setText] = useState<string | null>(null);
+  useEffect(() => {
+    const mod = localStorage.getItem(STORE) ?? "";
+    if (!mod) return;
+    callRpc<{ payload: CyclePayload }[]>("meal_master_at", { _kind: "cardapio-planejado", _on: today, _known_at: null, _include_drafts: false })
+      .then((r) => setText(plannedMenuText((r ?? []).map((x) => x.payload).filter((p) => p?.tipo === CYCLE_TYPE), mod, today)), () => setText(null));
+  }, [today]);
+  return text;
+}
 
 /** Cardápio do Dia: só de ciclo homologado, pela semana do cronograma. Sem cronograma para hoje = não presume semana. */
 export function MenuOfDay({ today }: { today: string }) {
