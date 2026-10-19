@@ -8,6 +8,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSessionAuthority } from "@/features/authority/session-authority";
+import { useDiarySave } from "./use-diary-save";
 import { readDiariesSafely, readSlotsSafely, readLessonsSafely, readRosterSafely, readDiaryWithDeadline } from "./diary-read";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -81,10 +82,11 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
   const slots = slotsQuery.isError ? null : slotsQuery.data ?? null;
   const [msg, setMsg] = useState<string | null>(null);
   const [editing, setEditing] = useState<LessonRow | null>(null);
+  const [savedRevision, setSavedRevision] = useState(0);
   const operational = diary.year_state === "operacional";
   const readOnly = diary.year_state === "encerrado" || diary.year_state === "historico-importado";
   const ordered = useMemo(() => [...(lessons ?? [])].sort((a, b) => b.lesson_date.localeCompare(a.lesson_date)), [lessons]);
-  const saved = (m: string) => { setMsg(m); setEditing(null); void lessonsQuery.refetch(); };
+  const saved = (m: string) => { setMsg(m); setEditing(null); setSavedRevision((revision) => revision + 1); void lessonsQuery.refetch(); };
   return (
     <section className="space-y-4 rounded-lg border bg-card p-4" aria-label="Diário selecionado">
       <div>
@@ -96,8 +98,8 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
       </div>
       {readOnly && <StatePanel tone="info" title="Somente leitura" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
       {!operational && !readOnly && <StatePanel tone="warning" title="Registro de aulas indisponível" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
-      {operational && !editing && <LessonForm diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
-      {operational && editing && <LessonForm diary={diary} on={editing.lesson_date} slots={slots ?? []} catalog={catalog} base={editing} onSaved={saved} onCancel={() => setEditing(null)} />}
+      {operational && !editing && <LessonForm key={`new-lesson-${savedRevision}`} diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
+      {operational && editing && <LessonForm key={editing.lesson_version_id} diary={diary} on={editing.lesson_date} slots={slots ?? []} catalog={catalog} base={editing} onSaved={saved} onCancel={() => setEditing(null)} />}
       <div>
         <h2 className="font-semibold">Aulas ministradas (registradas)</h2>
         {lessonsQuery.isError ? <ReadFailure title="Não foi possível ler as aulas registradas" retry={() => void lessonsQuery.refetch()} /> : !lessons ? <SkeletonState label="Carregando" /> : ordered.length === 0 ? <p className="text-sm">Nenhuma aula registrada.</p> : (
@@ -124,17 +126,16 @@ function LessonForm({ diary, on, slots, catalog, base, onSaved, onCancel }: { di
   const [blocks, setBlocks] = useState<string[]>(base?.schedule_block_ids ?? []);
   const [refs, setRefs] = useState<string[]>(base?.reference_item_ids ?? []);
   const [just, setJust] = useState("");
+  const saving = useDiarySave(() => onSaved(base ? "Correção registrada como nova versão." : "Aula registrada."));
   const usable = slots.filter((s) => s.block_state === "utilizavel");
   const changed = base ? changedAspects(base, { content, observation: obs, blocks, references: refs }) : [];
-  const save = async () => {
-    try {
-      await recordLesson({ logical: base?.logical_record_id ?? `aula-${crypto.randomUUID()}`, diary, date: on, base: base?.lesson_version_id ?? null,
-        content, observation: obs, blocks, references: refs, justification: base ? just || null : null, changed });
-      onSaved(base ? "Correção registrada como nova versão." : "Aula registrada.");
-    } catch (e) { onSaved(diaryMessage((e as Error).message)); }
+  const save = () => {
+    const payload = { logical: base?.logical_record_id ?? `aula-${crypto.randomUUID()}`, diary, date: on, base: base?.lesson_version_id ?? null,
+      content, observation: obs, blocks: [...blocks], references: [...refs], justification: base ? just || null : null, changed: [...changed] };
+    void saving.submit(() => recordLesson(payload));
   };
   return (
-    <fieldset className="space-y-2 rounded border p-3"><legend className="font-semibold">{base ? `Corrigir aula de ${on} (versão ${base.version_number})` : `Registrar aula ministrada em ${on}`}</legend>
+    <div className="space-y-2"><fieldset disabled={saving.locked} className="space-y-2 rounded border p-3"><legend className="font-semibold">{base ? `Corrigir aula de ${on} (versão ${base.version_number})` : `Registrar aula ministrada em ${on}`}</legend>
       {!base && usable.length > 0 && <div className="text-sm"><span className="block">Horários da grade em que a aula ocorreu (opcional)</span>
         {usable.map((s) => <label key={s.block_id} className="mr-3"><input type="checkbox" checked={blocks.includes(s.block_id)}
           onChange={() => setBlocks(blocks.includes(s.block_id) ? blocks.filter((b) => b !== s.block_id) : [...blocks, s.block_id])} /> {s.starts_at.slice(0, 5)}–{s.ends_at.slice(0, 5)}</label>)}</div>}
@@ -147,10 +148,13 @@ function LessonForm({ diary, on, slots, catalog, base, onSaved, onCancel }: { di
         <textarea aria-label="Justificativa da correção" placeholder="Justificativa (exigida se a regra vigente pedir)" className="w-full rounded border bg-background p-2 text-sm" value={just} onChange={(e) => setJust(e.target.value)} />
       </>}
       <div className="flex gap-2">
-        <Button disabled={!content.trim() || (base && changed.length === 0)} onClick={() => void save()}>{base ? "Registrar correção" : "Registrar aula"}</Button>
+        <Button disabled={!content.trim() || (base && changed.length === 0)} onClick={save}>{saving.status === "sending" ? "Enviando…" : base ? "Registrar correção" : "Registrar aula"}</Button>
         {onCancel && <Button variant="outline" onClick={onCancel}>Cancelar</Button>}
       </div>
     </fieldset>
+    {saving.message && <p role="alert" className="text-sm">{saving.message}</p>}
+    {saving.status === "unknown" && <Button variant="outline" onClick={save}>Conferir envio novamente</Button>}
+    </div>
   );
 }
 
@@ -159,6 +163,7 @@ function Attendance({ diary, lesson, onSaved, scope }: { diary: MyDiary; lesson:
   const [marks, setMarks] = useState<Record<string, Mark>>(saved);
   const [just, setJust] = useState("");
   const [openA, setOpenA] = useState(false);
+  const saving = useDiarySave(() => onSaved(lesson.attendance_version_id ? "Correção da chamada registrada como nova versão." : "Chamada registrada."));
   const isCorrection = !!lesson.attendance_version_id;
   const rosterQuery = useQuery({ queryKey: ["teacher-diary-roster", ...scope, key(diary), lesson.lesson_date, lesson.attendance_version_id], queryFn: () => readRosterSafely(diary, lesson.lesson_date), enabled: openA, retry: false });
   if (!openA) return <Button size="sm" variant="link" onClick={() => setOpenA(true)}>{isCorrection ? "Corrigir chamada" : "Fazer chamada"}</Button>;
@@ -170,8 +175,13 @@ function Attendance({ diary, lesson, onSaved, scope }: { diary: MyDiary; lesson:
   const list = isCorrection && eligible ? roster.filter((r) => eligible.includes(r.student_id)) : roster;
   const missing = unmarkedCount(list, marks);
   const changed = Object.keys(marks).some((k) => marks[k] !== saved[k]);
+  const save = () => {
+    const snapshot = { ...marks }; const reason = isCorrection ? just || null : null;
+    void saving.submit(() => recordAttendance(lesson.logical_record_id, lesson.attendance_version_id, snapshot, reason));
+  };
   return (
     <div className="mt-2 space-y-2">
+      <fieldset disabled={saving.locked} className="space-y-2">
       <ul className="divide-y rounded border">{list.map((r) => (
         <li key={r.student_id} className="flex items-center justify-between gap-2 p-2">
           <span>{r.display_name}</span>
@@ -182,9 +192,11 @@ function Attendance({ diary, lesson, onSaved, scope }: { diary: MyDiary; lesson:
       {isCorrection && <textarea aria-label="Justificativa da correção da chamada" placeholder="Justificativa (exigida se a regra vigente pedir)" className="w-full rounded border bg-background p-2 text-sm" value={just} onChange={(e) => setJust(e.target.value)} />}
       <div className="flex flex-wrap gap-2">
         {missing > 0 && <Button size="sm" variant="outline" onClick={() => setMarks(markAll(list, "Presente", marks))}>Marcar pendentes como presentes</Button>}
-        <Button size="sm" disabled={Object.keys(marks).length === 0 || (isCorrection && !changed)} onClick={() => void recordAttendance(lesson.logical_record_id, lesson.attendance_version_id, marks, isCorrection ? just || null : null)
-          .then(() => onSaved(isCorrection ? "Correção da chamada registrada como nova versão." : "Chamada registrada.")).catch((e) => onSaved(diaryMessage((e as Error).message)))}>{isCorrection ? "Registrar correção" : "Registrar chamada"}</Button>
+        <Button size="sm" disabled={Object.keys(marks).length === 0 || (isCorrection && !changed)} onClick={save}>{saving.status === "sending" ? "Enviando…" : isCorrection ? "Registrar correção" : "Registrar chamada"}</Button>
       </div>
+      </fieldset>
+      {saving.message && <p role="alert" className="text-sm">{saving.message}</p>}
+      {saving.status === "unknown" && <Button variant="outline" onClick={save}>Conferir envio novamente</Button>}
     </div>
   );
 }

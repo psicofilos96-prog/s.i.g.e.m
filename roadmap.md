@@ -92,6 +92,7 @@
 - [x] Leitura em lote com verificação de capacidade única (0582): equivalência provada em 8 escolas × 4 fontes; fronteira negativa com conta de escola OK; Mapa da rede em 5,9 s (era 81 s)
 
 ## Login do professor (19/10/2026)
+- [x] Continuação atual: envio de aula/chamada único com prazo de 15 s e UUID confirmado; erro preserva formulário, incerteza mantém payload/identidade para retentativa, conta desmontada ignora resposta. 30 testes PASS; navegador confirmou portão de senha e zero consultas antes dele. Gravação real aguarda troca de senha pelo titular; PDF segue pendente.
 - [x] Continuação atual: Meus diários, horários, aulas e chamada com chave conta/revisão, prazo de 15 s, resposta validada e nova tentativa; 23 testes passaram, build OK. Navegador: portão de senha preservado, zero consultas do Diário antes dele. Fluxo completo aguarda troca da senha pelo titular.
 - [x] Continuação: anexos SIPE com erro/carregamento/retentativa, acesso privado e isolamento por conta; planejamento sem leitura antes da sessão. 44 testes passaram, build OK. Navegador confirmou troca de senha obrigatória; envio/abertura reais aguardam conta apta.
 - [x] Continuação: correção oficial antes do cartão avulso; consultas por conta/sessão/versão com prazo e retentativa, gabaritos em paralelo limitado e descarte da conferência ao trocar prova/versão. 18 testes passaram; build OK; navegador confirmou o portão de troca de senha, sem expor a correção. Gravação real ainda não verificada.
