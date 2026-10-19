@@ -43134,6 +43134,15 @@ export type Database = {
           student_name: string
         }[]
       }
+      direcao_vaccination_overdue: {
+        Args: { _school: string }
+        Returns: {
+          declared_on: string
+          due_on: string
+          student_id: string
+          student_name: string
+        }[]
+      }
       direcao_withdraw_school_notice: {
         Args: { _notice: string; _reason: string }
         Returns: undefined

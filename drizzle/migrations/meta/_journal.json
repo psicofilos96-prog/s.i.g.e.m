@@ -4152,6 +4152,13 @@
       "when": 1792427575124,
       "tag": "0592_direcao_students_below_frequency",
       "breakpoints": true
+    },
+    {
+      "idx": 593,
+      "version": "7",
+      "when": 1792428288834,
+      "tag": "0593_direcao_vaccination_overdue",
+      "breakpoints": true
     }
   ]
 }
