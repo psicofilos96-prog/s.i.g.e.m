@@ -72,8 +72,8 @@ export function distributionMapRows(cons: ConsRow[], ctx: { items: Named[]; unit
 export function distributionTotals(rows: Record<string, CellValue>[]): { supplier: string; total: number; complete: boolean }[] {
   const m = new Map<string, { total: number; complete: boolean }>();
   for (const r of rows) {
-    const k = String(r.supplier); const t = m.get(k) ?? { total: 0, complete: true };
-    if (typeof r.value === "number") t.total = Math.round((t.total + r.value) * 100) / 100; else t.complete = false;
+    const k = String(r["supplier"]); const t = m.get(k) ?? { total: 0, complete: true };
+    if (typeof r["value"] === "number") t.total = Math.round((t.total + r["value"]) * 100) / 100; else t.complete = false;
     m.set(k, t);
   }
   return [...m].map(([supplier, t]) => ({ supplier, ...t }));

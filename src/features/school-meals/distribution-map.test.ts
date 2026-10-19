@@ -12,10 +12,10 @@ const cons = [
 describe("Mapa de distribuição por fornecedor", () => {
   const rows = distributionMapRows(cons, ctx);
   it("uma linha por escola × item com valor = preço × quantidade", () => {
-    expect(rows.find((r) => r.school === "E.M. Dois" && r.item === "Arroz")?.value).toBe(110);
+    expect(rows.find((r) => r["school"] === "E.M. Dois" && r["item"] === "Arroz")?.["value"]).toBe(110);
   });
   it("item sem preço no contrato fica sem valor, nunca zero", () => {
-    expect(rows.find((r) => r.item === "Feijão")?.value).toBeNull();
+    expect(rows.find((r) => r["item"] === "Feijão")?.["value"]).toBeNull();
   });
   it("total por fornecedor marca incompleto quando falta preço", () => {
     expect(distributionTotals(rows)).toEqual([{ supplier: "Fornecedor A", total: 165, complete: false }]);
