@@ -1,6 +1,7 @@
 # Roadmap — SIGEM simples no design original
 
 ## Mensagens para o usuário (19/10/2026)
+- [ ] Retirar o “Itaperuna” repetido sobre a imagem no topo da dashboard, preservando a identificação nos outros lugares.
 - [ ] Retirar códigos técnicos expostos como ADHESION_METRIC / BLOCKED_BY_HOMOLOGATED_RULE em todo o sistema; manter explicações humanas e ações de recuperação, sem ocultar falhas ou presumir dados.
 
 ## Continuação por perfil — Supervisão primeiro (19/10/2026)
