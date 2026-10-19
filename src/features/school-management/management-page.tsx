@@ -22,6 +22,7 @@ import { OccurrencesPanel } from "./occurrences-panel";
 import { DirectorSummaryPanel } from "./director-summary-panel";
 import { SchoolLogoPanel } from "./school-logo";
 import { SchoolNoticesPanel } from "./school-notices-panel";
+import { RiskLimitsPanel } from "./risk-limits-panel";
 import { loadSchoolLogo } from "./school-logo-data";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
