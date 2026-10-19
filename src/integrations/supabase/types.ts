@@ -46417,6 +46417,13 @@ export type Database = {
           student_name: string
         }[]
       }
+      meal_special_diet_student_search: {
+        Args: { _q: string; _school: string }
+        Returns: {
+          student_id: string
+          student_name: string
+        }[]
+      }
       meal_special_diets_at: {
         Args: { _school: string }
         Returns: {
