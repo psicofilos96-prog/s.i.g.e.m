@@ -65,6 +65,8 @@ function OccurrenceForm({ school, addendumOf, onDone, queryKey }: { school: stri
   const [busy, setBusy] = useState(false); const [err, setErr] = useState<string | null>(null);
   const problems = draftProblems({ ...d, parties, addendumOf });
   const find = async () => { try { setHits(await callRpc("direcao_occurrence_students", { _school: school, _q: search }) ?? []); } catch (e) { setErr(userErrorText(e as Error)); } };
+  const [staffQ, setStaffQ] = useState(""); const [staffHits, setStaffHits] = useState<{ person_key: string; name: string; cargo: string | null }[]>([]);
+  const findStaff = async () => { try { setStaffHits(await callRpc("direcao_occurrence_staff", { _school: school, _q: staffQ }) ?? []); } catch (e) { setErr(userErrorText(e as Error)); } };
   const add = (p: Party) => setParties((x) => x.some((y) => y.label === p.label && y.role === p.role) ? x : [...x, p]);
   const save = async () => {
     setBusy(true); setErr(null);
@@ -94,7 +96,12 @@ function OccurrenceForm({ school, addendumOf, onDone, queryKey }: { school: stri
         {hits.length > 0 && <ul className="space-y-1">{hits.map((h) => <li key={h.student_id} className="flex gap-2 items-center">{h.name}
           <Button size="sm" variant="ghost" onClick={() => add({ kind: "estudante", ref: h.student_id, label: h.name, role: "envolvido" })}>Envolvido</Button>
           <Button size="sm" variant="ghost" onClick={() => add({ kind: "estudante", ref: h.student_id, label: h.name, role: "testemunha" })}>Testemunha</Button></li>)}</ul>}
-        <div className="flex gap-2"><input className={field} placeholder="Servidor ou outra pessoa (nome)" value={other} onChange={(e) => setOther(e.target.value)} />
+        <div className="flex gap-2"><input className={field} placeholder="Nome do servidor (mín. 3 letras)" value={staffQ} onChange={(e) => setStaffQ(e.target.value)} />
+          <Button type="button" variant="outline" className="mt-1" onClick={findStaff} disabled={staffQ.trim().length < 3}>Buscar</Button></div>
+        {staffHits.length > 0 && <ul className="space-y-1">{staffHits.map((h) => <li key={h.person_key} className="flex gap-2 items-center">{h.name}{h.cargo ? ` (${h.cargo})` : ""}
+          <Button size="sm" variant="ghost" onClick={() => add({ kind: "servidor", ref: h.person_key, label: h.name, role: "envolvido" })}>Envolvido</Button>
+          <Button size="sm" variant="ghost" onClick={() => add({ kind: "servidor", ref: h.person_key, label: h.name, role: "testemunha" })}>Testemunha</Button></li>)}</ul>}
+        <div className="flex gap-2"><input className={field} placeholder="Outra pessoa (nome)" value={other} onChange={(e) => setOther(e.target.value)} />
           <Button type="button" variant="outline" className="mt-1" disabled={!other.trim()} onClick={() => { add({ kind: "outro", ref: null, label: other.trim(), role: "envolvido" }); setOther(""); }}>Envolvido</Button>
           <Button type="button" variant="outline" className="mt-1" disabled={!other.trim()} onClick={() => { add({ kind: "outro", ref: null, label: other.trim(), role: "testemunha" }); setOther(""); }}>Testemunha</Button></div>
         {parties.length > 0 && <ul className="text-xs">{parties.map((p, i) => <li key={i}>{p.label} — {p.role} <button className="underline" onClick={() => setParties(parties.filter((_, j) => j !== i))}>remover</button></li>)}</ul>}
