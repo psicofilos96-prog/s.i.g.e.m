@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { MyDiariesPage } from "./my-diaries-page";
 const state = vi.hoisted(() => ({ authority: { status: "loading" } as any, diaries: vi.fn(), slots: vi.fn(), lessons: vi.fn(), roster: vi.fn(), catalog: vi.fn(), recordLesson: vi.fn() }));
@@ -16,6 +16,25 @@ const signedIn = (id = "a", revision = 1) => ({ status: "signed-in", user: { id 
 const diary = { role: "titular", assignment_id: "assignment", substitution_id: null, class_id: "class", school_id: "school", academic_year_id: "year", year_state: "encerrado", engagement_id: "e", matrix_id: null, item_key: null, component_id: null, component_label: "Matemática", effective_from: "2026-01-01", effective_until: null, assignment_state: "vigente" };
 afterEach(() => { cleanup(); vi.resetAllMocks(); state.authority = { status: "loading" }; });
 describe("teacher diary authority boundary", () => {
+  it("reuses the existing authorized reads for the selected date summary", async () => {
+    state.authority = signedIn(); state.diaries.mockResolvedValue([diary]); state.catalog.mockResolvedValue(null);
+    state.slots.mockResolvedValue([{ block_id: "block", block_key: "one", starts_at: "08:00", ends_at: "09:00", block_state: "utilizavel" }]);
+    state.lessons.mockResolvedValue([]);
+    mount(); fireEvent.click(await screen.findByRole("button", { name: /Matemática/ }));
+    const summary = await screen.findByLabelText("Resumo das aulas do dia");
+    await waitFor(() => expect(within(summary).queryByText("Não disponível")).toBeNull());
+    const values = [...summary.querySelectorAll("dd")].map((element) => element.textContent);
+    expect(values).toEqual(["0", "1", "0"]);
+    expect(state.lessons).toHaveBeenCalledTimes(1); expect(state.slots).toHaveBeenCalledTimes(1); expect(state.roster).not.toHaveBeenCalled();
+  });
+  it("keeps failed summary counts unknown rather than zero", async () => {
+    state.authority = signedIn(); state.diaries.mockResolvedValue([diary]); state.catalog.mockResolvedValue(null);
+    state.slots.mockResolvedValue([]); state.lessons.mockRejectedValue(new Error("denied"));
+    mount(); fireEvent.click(await screen.findByRole("button", { name: /Matemática/ }));
+    await screen.findByRole("button", { name: "Tentar novamente" });
+    const summary = screen.getByLabelText("Resumo das aulas do dia");
+    expect([...summary.querySelectorAll("dd")].map((element) => element.textContent)).toEqual(["Não disponível", "0", "Não disponível"]);
+  });
   it.each(["loading", "signed-out"])("does not read before authority (%s)", (status) => {
     state.authority = { status }; mount();
     for (const read of [state.diaries, state.catalog, state.slots, state.lessons, state.roster]) expect(read).not.toHaveBeenCalled();
