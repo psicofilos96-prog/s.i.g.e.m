@@ -139,3 +139,38 @@ export const MAPA_ENTREGAS: ReportDefinition = {
   ],
   formats: ["xlsx", "pdf"], reproducible: true, syncRowLimit: 5000,
 };
+
+/**
+ * Saldo por contrato × item: quantidade contratada só quando o preço homologado a traz; programado = soma das
+ * entregas programadas não canceladas no período lido. Sem quantidade contratada o saldo é "não informado", nunca zero.
+ */
+export function contractBalanceRows(prices: Named[], ds: ScheduledDelivery[], ctx: { items: Named[]; contracts: Named[]; suppliers: Named[] }): Record<string, CellValue>[] {
+  const find = (l: Named[], id: string | null) => (id ? l.find((x) => x.logical_id === id) : undefined);
+  return prices.map((p) => {
+    const cref = txt(p.payload["contrato_ref"]), iref = txt(p.payload["item_ref"]);
+    const ct = find(ctx.contracts, cref); const sup = find(ctx.suppliers, txt(ct?.payload["fornecedor_ref"]));
+    const q = p.payload["quantidade_contratada"]; const contracted = typeof q === "number" && Number.isFinite(q) ? q : null;
+    const scheduled = ds.filter((d) => d.action !== "cancelamento" && d.contrato_ref === cref && d.item_ref === iref).reduce((s, d) => s + (Number.isFinite(Number(d.quantity)) ? Number(d.quantity) : 0), 0);
+    return {
+      supplier: txt(sup?.payload["nome"]) ?? MISSING,
+      contract: ct ? `${txt(ct.payload["natureza"]) ?? ""} ${txt(ct.payload["numero"]) ?? ""}`.trim() || MISSING : MISSING,
+      commitment: txt(ct?.payload["empenho"]) ?? MISSING,
+      item: txt(find(ctx.items, iref)?.payload["nome"]) ?? "item não identificado",
+      contracted, scheduled, balance: contracted == null ? null : Math.round((contracted - scheduled) * 1000) / 1000,
+      status: contracted == null ? "quantidade contratada não informada" : contracted - scheduled < 0 ? "programado acima do contratado" : "dentro do contratado",
+    } satisfies Record<string, CellValue>;
+  }).sort((a, b) => a.supplier.localeCompare(b.supplier, "pt-BR") || a.contract.localeCompare(b.contract, "pt-BR") || a.item.localeCompare(b.item, "pt-BR"));
+}
+
+export const SALDO_CONTRATOS: ReportDefinition = {
+  id: "saldo-contratos-alimentacao", version: 1, title: "Saldo dos contratos — alimentação escolar",
+  description: "Quantidade contratada (do preço homologado) menos entregas programadas não canceladas no ano. Sem quantidade contratada, saldo não informado. Não substitui o controle financeiro do empenho.",
+  source: "meal_deliveries_at", params: [{ id: "competence", label: "Competência (AAAA-MM)", type: "text", required: true, maxLength: 7 }],
+  columns: [
+    { id: "supplier", label: "Fornecedor", kind: "text" }, { id: "contract", label: "Contrato/ata", kind: "text" },
+    { id: "commitment", label: "Empenho", kind: "text" }, { id: "item", label: "Item", kind: "text" },
+    { id: "contracted", label: "Contratado", kind: "number" }, { id: "scheduled", label: "Programado no ano", kind: "number" },
+    { id: "balance", label: "Saldo", kind: "number" }, { id: "status", label: "Situação", kind: "text" },
+  ],
+  formats: ["xlsx", "pdf"], reproducible: true, syncRowLimit: 5000,
+};
