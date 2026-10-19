@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
+import { supabase } from "@/integrations/supabase/client";
 import { monthBounds } from "@/lib/academic-date";
 import { institution } from "@/config/institution";
 import { runReport, toPrintableHtml, toXlsx, fingerprint } from "@/features/reports/report-engine";
@@ -11,7 +12,7 @@ const field = "mt-1 block w-full rounded border bg-background p-2";
 /** Relatório PNAE de apoio por escola e mês (PDF A4 / XLSX). */
 export function ServedMealsPanel({ school, schoolName }: { school: string; schoolName: string }) {
   const [slots, setSlots] = useState<{ value_id: string; label: string }[]>([]);
-  useEffect(() => { callRpc<{ value_id: string; label: string }[]>("meal_catalog_values", { _scheme: "refeicao-escolar" }).then((r) => setSlots(r ?? []), () => setSlots([])); }, []);
+  useEffect(() => { void supabase.from("attribute_value_definitions").select("value_id, label").eq("scheme_id", "refeicao-escolar").eq("status", "homologada").then((r) => setSlots((r.data as typeof slots) ?? [])); }, []);
   const [month, setMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const [msg, setMsg] = useState<string | null>(null);
   const run = async (fmt: "pdf" | "xlsx") => {
