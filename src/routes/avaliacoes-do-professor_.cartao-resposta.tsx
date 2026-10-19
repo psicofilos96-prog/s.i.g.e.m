@@ -9,8 +9,8 @@ import { cardLayout, cardSvg, confirmReading, opaqueToken, readCard, type Questi
 import { rectify } from "@/features/teacher-assessment/answer-card-rectify";
 import { CorrectionPanel } from "@/features/teacher-assessment/correction-panel";
 
-const title = "Cartão-resposta e conferência — SIA";
-const description = "Gera cartão-resposta com bolhas circulares e código opaco, lê imagem enquadrada e exige conferência humana antes de aceitar.";
+const title = "Correção de provas — SIGEM";
+const description = "Correção das provas do professor aprovadas pela Orientação, com cartão-resposta, imagem e conferência humana.";
 
 export const Route = createFileRoute("/avaliacoes-do-professor_/cartao-resposta")({
   head: () => ({ meta: [{ title }, { name: "description", content: description }, { property: "og:title", content: title }, { property: "og:description", content: description }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
@@ -60,15 +60,18 @@ function Page() {
   const confirm = () => {
     if (!reads) return;
     const r = confirmReading(reads, decisions, true);
-    setMessage(r.ok ? `Leitura conferida: ${Object.values(r.answers).filter(Boolean).length} respostas. Esta área é só de teste do cartão avulso; para gravar, use "Corrigir prova aprovada pela OP" abaixo.` : `Não aceito: ${humanizeForScreen(r.reason)}`);
+    setMessage(r.ok ? `Leitura conferida: ${Object.values(r.answers).filter(Boolean).length} respostas. Cartão avulso, sem gravação de correção ou nota.` : `Não aceito: ${humanizeForScreen(r.reason)}`);
   };
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-6">
       <header className="space-y-2">
-        <PageHeader title="Cartão-resposta e conferência" />
-        <p className="text-sm text-muted-foreground">Imprima o cartão, depois envie a imagem escaneada ou bem enquadrada pelos quatro quadrados pretos. Fotos inclinadas são endireitadas pelos quatro quadrados; sem eles a leitura é recusada. Toda leitura passa por conferência sua.</p>
+        <PageHeader title="Correção de provas" />
       </header>
+      <CorrectionPanel />
+      <details className="border-t border-border pt-4">
+      <summary className="cursor-pointer text-sm font-medium">Cartão avulso — sem lançamento de nota</summary>
+      <div className="mt-4 space-y-4">
       <section className="flex flex-wrap items-end gap-3">
         <label className="text-sm text-foreground">Questões <input type="number" min={1} max={50} value={questions} onChange={(e) => setQuestions(Math.min(50, Math.max(1, Number(e.target.value) || 1)))} className="ml-2 w-20 rounded border border-input bg-background px-2 py-1" /></label>
         <Button variant={opts === 4 ? "default" : "outline"} onClick={() => setOpts(4)}>4 alternativas</Button>
@@ -100,7 +103,8 @@ function Page() {
           </div>
         </section>
       )}
-      <CorrectionPanel />
+      </div>
+      </details>
     </div>
   );
 }

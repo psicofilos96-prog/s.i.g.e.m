@@ -5,43 +5,65 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import jsQR from "jsqr";
 import { Button } from "@/components/ui/button";
-import { useSessionUser } from "@/features/authority/session-authority";
+import { useSessionAuthority } from "@/features/authority/session-authority";
 import { reviewsOf, reviewState } from "@/features/teacher-review/teacher-work-review";
-import { cardLayout, confirmReading, readCard, type QuestionRead } from "./answer-card";
+import { cardLayout, readCard, type QuestionRead } from "./answer-card";
 import { rectify } from "./answer-card-rectify";
 import { heads, printFingerprint, variantProjection, VARIANT_LETTERS, type ItemVersion } from "./authoring-model";
-import { classStudents, correctionsOf, itemKey, recordCorrection, siaCorrectionMessage, uploadCardImage, visibleInstruments, visibleItems } from "./authoring-source";
+import { classStudents, correctionsOf, itemKey, siaCorrectionMessage, uploadCardImage, visibleInstruments, visibleItems } from "./authoring-source";
 import { variantMap } from "./variant-key";
 import qrcode from "qrcode-generator";
 import { cardSvg } from "./answer-card";
 import { parseQr, qrPayload, readConfidence, scoreLines, scoreSummary, toWire, type HumanDecision } from "./sia-scoring";
 import { parseEntries } from "./sia-editor";
 import { recordCorrectionV2 } from "./authoring-source";
+import { readCorrectionKeys, readCorrectionWithDeadline } from "./correction-read";
 
 export function CorrectionPanel() {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading") return <p role="status" className="text-sm text-muted-foreground">Conferindo sua sessão…</p>;
+  if (authority.status !== "signed-in") return <p className="text-sm text-muted-foreground">Entre com sua conta para corrigir provas.</p>;
+  if (authority.principal || !authority.person) return <p className="text-sm text-muted-foreground">A correção de provas está disponível na conta pessoal do professor.</p>;
+  return <CorrectionWorkspace key={`${authority.user.id}:${authority.sessionRevision}`} uid={authority.user.id} revision={authority.sessionRevision} />;
+}
+
+function ReadFailure({ label, retry }: { label: string; retry: () => void }) {
+  return <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive"><span>{label}</span><Button size="sm" variant="outline" onClick={retry}>Tentar novamente</Button></div>;
+}
+
+function CorrectionWorkspace({ uid, revision }: { uid: string; revision: number }) {
+  const [selection, setSelection] = useState("");
   const qc = useQueryClient();
-  const session = useSessionUser();
-  const uid = session.user?.id ?? null;
-  const ins = useQuery({ queryKey: ["sia8", "ins"], queryFn: visibleInstruments, enabled: !!uid });
-  const its = useQuery({ queryKey: ["sia8", "items"], queryFn: visibleItems, enabled: !!uid });
+  const ins = useQuery({ queryKey: ["sia8", uid, revision, "ins"], queryFn: () => readCorrectionWithDeadline(visibleInstruments), retry: false });
+  const its = useQuery({ queryKey: ["sia8", uid, revision, "items"], queryFn: () => readCorrectionWithDeadline(visibleItems), retry: false });
   const mine = useMemo(() => heads((ins.data ?? []).filter((v) => v.author_user_id === uid)).filter((v) => v.status === "publicado"), [ins.data, uid]);
-  const [selId, setSelId] = useState("");
-  const sel = mine.find((v) => v.id === selId) ?? null;
-  const rv = useQuery({ queryKey: ["twr", "instrumento", sel?.instrument_id], queryFn: () => reviewsOf("instrumento", sel!.instrument_id), enabled: !!sel });
-  const approved = !!sel && !!rv.data && reviewState(rv.data, sel.id) === "aprovado";
+  const sel = mine.find((v) => v.id === selection) ?? null;
+  return <section className="space-y-4" aria-label="Correção de prova aprovada">
+    <h2 className="text-lg font-semibold text-foreground">Corrigir prova aprovada pela OP</h2>
+    {ins.isPending ? <LoadingState label="Carregando suas provas…" /> : ins.error ? <ReadFailure label="Não foi possível ler suas provas." retry={() => { void ins.refetch(); }} /> : mine.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma prova publicada.</p> : <label className="block text-sm">Prova <select aria-label="Prova" className="ml-2 rounded border border-input bg-background p-1" value={selection} onChange={(e) => setSelection(e.target.value)}><option value="">Escolha…</option>{mine.map((v) => <option key={v.id} value={v.id}>{v.title} (v{v.version})</option>)}</select></label>}
+    {its.error && <ReadFailure label="Não foi possível ler as questões." retry={() => { void its.refetch(); }} />}
+    {sel && its.isPending && <LoadingState label="Carregando as questões…" />}
+    {sel && its.isSuccess && !ins.error && <SelectedCorrection key={sel.id} sel={sel} items={its.data} uid={uid} revision={revision} qc={qc} />}
+  </section>;
+}
+
+function SelectedCorrection({ sel, items, uid, revision, qc }: { sel: import("./authoring-model").InstrumentVersion; items: ItemVersion[]; uid: string; revision: number; qc: ReturnType<typeof useQueryClient> }) {
+  const scope = ["sia8", uid, revision, sel.id];
+  const rv = useQuery({ queryKey: [...scope, "review"], queryFn: () => readCorrectionWithDeadline(() => reviewsOf("instrumento", sel.instrument_id)), retry: false });
+  const approved = rv.isSuccess && reviewState(rv.data, sel.id) === "aprovado";
   const [letter, setLetter] = useState("");
-  const byId = useMemo(() => new Map<string, ItemVersion>((its.data ?? []).map((i) => [i.id, i])), [its.data]);
+  const byId = useMemo(() => new Map<string, ItemVersion>(items.map((i) => [i.id, i])), [items]);
   const vm = useMemo(() => (sel && approved ? variantMap(sel, byId, letter, true) : null), [sel, byId, letter, approved]);
   const proj = useMemo(() => (sel && approved ? variantProjection(sel, byId, letter || null, true) : null), [sel, byId, letter, approved]);
   const [fp, setFp] = useState("");
-  useEffect(() => { if (proj?.ok) printFingerprint(proj.p).then(setFp); }, [proj]);
-  const keys = useQuery({ queryKey: ["sia8", "keys", sel?.id], enabled: !!vm?.ok, queryFn: async () => {
-    const m = new Map<string, string>();
-    for (const e of vm!.ok ? vm!.map.entries : []) { const k = (await itemKey(e.itemVersionId))[0]?.answer; const v = typeof k === "string" ? k : Array.isArray(k) && k.length === 1 ? String(k[0]) : null; if (v) m.set(e.itemVersionId, v); }
-    return m;
-  } });
-  const students = useQuery({ queryKey: ["sia8", "st", sel?.class_id], enabled: !!sel, queryFn: async () => [...new Set((await classStudents(sel!.class_id)).map((s) => s.student_id))].sort() });
-  const done = useQuery({ queryKey: ["sia8", "done", sel?.id], enabled: !!sel, queryFn: () => correctionsOf(sel!.id) });
+  useEffect(() => {
+    let current = true; setFp("");
+    if (proj?.ok) void printFingerprint(proj.p).then((value) => { if (current) setFp(value); }, () => { if (current) setMsg("Não foi possível conferir a versão da prova."); });
+    return () => { current = false; };
+  }, [proj]);
+  const keys = useQuery({ queryKey: [...scope, "keys", letter], enabled: approved && !!vm?.ok, retry: false, queryFn: () => readCorrectionWithDeadline(() => readCorrectionKeys(vm?.ok ? vm.map.entries.map((e) => e.itemVersionId) : [], itemKey)) });
+  const students = useQuery({ queryKey: [...scope, "students", sel.class_id], enabled: approved, retry: false, queryFn: () => readCorrectionWithDeadline(async () => [...new Set((await classStudents(sel.class_id)).map((s) => s.student_id))].sort()) });
+  const done = useQuery({ queryKey: [...scope, "done"], enabled: approved, retry: false, queryFn: () => readCorrectionWithDeadline(() => correctionsOf(sel.id)) });
 
   const nQ = vm?.ok ? vm.map.entries.length : 0;
   const maxOpts = vm?.ok ? Math.max(...vm.map.entries.map((e) => Object.keys(e.displayToKey).length), 4) : 4;
@@ -56,6 +78,12 @@ export function CorrectionPanel() {
   const [launch, setLaunch] = useState(false);
   const [reason, setReason] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const ready = approved && keys.isSuccess && students.isSuccess && done.isSuccess && !!fp && !!vm?.ok && !!proj?.ok && proj.p.missing.length === 0;
+  useEffect(() => { if (photo) return () => URL.revokeObjectURL(photo); }, [photo]);
+  const changeLetter = (value: string) => {
+    setLetter(value); setReads(null); setDec({}); setChecked(false); setFile(null); setPhoto(null); setQr(""); setMsg(null); setLaunch(false); setReason(""); setFp("");
+  };
 
   const onFile = async (f: File) => {
     setFile(f); setReads(null); setDec({}); setChecked(false); setMsg(null);
@@ -63,9 +91,9 @@ export function CorrectionPanel() {
     const img = new Image(); img.src = url; await img.decode();
     const s = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight));
     const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * s); c.height = Math.round(img.naturalHeight * s);
-    const ctx = c.getContext("2d")!; ctx.drawImage(img, 0, 0, c.width, c.height);
+    const ctx = c.getContext("2d"); if (!ctx) { setMsg("Não foi possível abrir a imagem."); return; } ctx.drawImage(img, 0, 0, c.width, c.height);
     const rgba = ctx.getImageData(0, 0, c.width, c.height).data; const gray = new Uint8ClampedArray(c.width * c.height);
-    for (let i = 0; i < gray.length; i++) gray[i] = (rgba[i * 4]! + rgba[i * 4 + 1]! + rgba[i * 4 + 2]!) / 3;
+    for (let i = 0; i < gray.length; i++) gray[i] = ((rgba[i * 4] ?? 0) + (rgba[i * 4 + 1] ?? 0) + (rgba[i * 4 + 2] ?? 0)) / 3;
     const code = jsQR(rgba, c.width, c.height)?.data ?? ""; setQr(code);
     const pq = parseQr(code);
     if (code && (!pq || pq.instrumentVersionId !== sel?.id || pq.letter !== letter)) { setMsg(pq ? "O QR é de outra prova ou de outra versão. Escolha a prova/versão do cartão ou fotografe o cartão certo." : "QR não reconhecido como cartão desta prova."); setReads(null); return; }
@@ -76,7 +104,7 @@ export function CorrectionPanel() {
 
   const objective = useMemo(() => new Set(vm?.ok ? vm.map.entries.filter((e) => Object.keys(e.displayToKey).length > 0).map((e) => e.itemVersionId) : []), [vm]);
   const weights = useMemo(() => new Map(sel ? parseEntries(sel.items).map((e) => [e.itemVersionId, e.weight] as const) : []), [sel]);
-  const lines = vm?.ok && keys.data && reads ? scoreLines(vm.map, keys.data, reads.length ? reads : null, dec, objective) : null;
+  const lines = ready && vm?.ok && keys.data && reads ? scoreLines(vm.map, keys.data, reads.length ? reads : null, dec, objective) : null;
   const sum = lines ? scoreSummary(lines, weights) : null;
   const printCards = () => {
     if (!sel || !vm?.ok) return; const w = window.open("", "_blank"); if (!w) return;
@@ -91,32 +119,36 @@ export function CorrectionPanel() {
   const head = (done.data ?? []).find((c) => c.student_id === student && !(done.data ?? []).some((x) => x.supersedes_id === c.id)) ?? null;
 
   const save = async () => {
-    if (!sel || !uid || !file || !lines || !sum?.canSave || !checked || !student || !qr.trim()) return;
+    if (!ready || saving || !file || !lines || !sum?.canSave || !checked || !students.data?.includes(student) || !qr.trim()) return;
+    setSaving(true);
     setMsg("Gravando…");
     try {
       const img = await uploadCardImage(uid, sel.id, file);
       await recordCorrectionV2({ instrumentVersionId: sel.id, variant: letter, studentId: student, cardCode: qr.trim(), imagePath: img.path, imageSha: img.sha, fingerprint: fp, lines: toWire(lines), expectedHead: head?.id ?? null, reason: reason.trim() || null, launch: launch && sum.canLaunch });
       setMsg(`Correção gravada: ${sum.hits} acerto(s)${sum.score !== null ? `, ${String(sum.score).replace(".", ",")} de ${String(sum.max).replace(".", ",")} pontos` : ", sem nota (há questões não lidas ou sem peso)"}${launch && sum.canLaunch ? ", lançada no Diário" : ""}.`);
-      await qc.invalidateQueries({ queryKey: ["sia8", "done", sel.id] });
+      setChecked(false);
+      await qc.invalidateQueries({ queryKey: [...scope, "done"] });
     } catch (e) { setMsg(siaCorrectionMessage(e instanceof Error ? e.message : String(e))); }
+    finally { setSaving(false); }
   };
 
-  if (session.loading) return <p className="text-sm text-muted-foreground">Conferindo sua sessão…</p>;
-  if (!uid) return <p className="text-sm text-muted-foreground">Entre com sua conta para corrigir provas.</p>;
   return (
-    <section className="space-y-4 rounded border border-border p-4" aria-label="Correção de prova aprovada">
-      <h2 className="text-lg font-semibold text-foreground">Corrigir prova aprovada pela OP</h2>
-      {ins.isLoading ? <LoadingState label="Carregando suas provas…" /> : ins.error ? <p role="alert" className="text-sm text-destructive">Não foi possível ler suas provas.</p> : mine.length === 0 ? <p className="text-sm text-muted-foreground">Você não tem prova publicada. Publique uma em Avaliações do professor e envie à OP.</p> : (
-        <label className="block text-sm">Prova <select aria-label="Prova" className="ml-2 rounded border border-input bg-background p-1" value={selId} onChange={(e) => { setSelId(e.target.value); setReads(null); }}><option value="">Escolha…</option>{mine.map((v) => <option key={v.id} value={v.id}>{v.title} (v{v.version})</option>)}</select></label>)}
+    <div className="space-y-4">
+      {rv.error && <ReadFailure label="Não foi possível conferir a aprovação da OP." retry={() => { void rv.refetch(); }} />}
+      {approved && keys.error && <ReadFailure label="Não foi possível ler o gabarito." retry={() => { void keys.refetch(); }} />}
+      {approved && students.error && <ReadFailure label="Não foi possível ler os estudantes da turma." retry={() => { void students.refetch(); }} />}
+      {approved && done.error && <ReadFailure label="Não foi possível ler as correções gravadas." retry={() => { void done.refetch(); }} />}
+      {approved && (keys.isLoading || students.isLoading || done.isLoading) && <LoadingState label="Carregando os dados da correção…" />}
+      {proj?.ok && proj.p.missing.length > 0 && <p role="alert" className="text-sm text-destructive">Há questões desta versão que não puderam ser lidas. A correção não está disponível.</p>}
       {sel && rv.isLoading && <p className="text-sm text-muted-foreground">Conferindo a aprovação da OP…</p>}
       {sel && rv.data && !approved && <p role="status" className="text-sm text-muted-foreground">Esta versão não está aprovada pela OP. A correção só é possível sobre a versão aprovada.</p>}
       {sel && approved && (<>
         <div className="flex flex-wrap gap-3 text-sm">
-          <label>Versão <select aria-label="Versão da prova" className="ml-1 rounded border border-input bg-background p-1" value={letter} onChange={(e) => setLetter(e.target.value)}><option value="">Original</option>{[...VARIANT_LETTERS].map((l) => <option key={l}>{l}</option>)}</select></label>
-          <label>Estudante <select aria-label="Estudante" className="ml-1 rounded border border-input bg-background p-1" value={student} onChange={(e) => setStudent(e.target.value)}><option value="">Escolha…</option>{(students.data ?? []).map((s) => <option key={s}>{s}</option>)}</select></label>
-          <label>Imagem do cartão <input aria-label="Imagem do cartão" type="file" accept="image/png,image/jpeg,image/webp" capture="environment" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} /></label>
+          <label>Versão <select aria-label="Versão da prova" disabled={saving} className="ml-1 rounded border border-input bg-background p-1" value={letter} onChange={(e) => changeLetter(e.target.value)}><option value="">Original</option>{[...VARIANT_LETTERS].map((l) => <option key={l}>{l}</option>)}</select></label>
+          <label>Estudante <select aria-label="Estudante" disabled={!ready || saving} className="ml-1 rounded border border-input bg-background p-1" value={student} onChange={(e) => { setStudent(e.target.value); setChecked(false); setReason(""); }}><option value="">Escolha…</option>{(students.data ?? []).map((s) => <option key={s}>{s}</option>)}</select></label>
+          <label>Imagem do cartão <input aria-label="Imagem do cartão" disabled={!ready || saving} type="file" accept="image/png,image/jpeg,image/webp" capture="environment" onChange={(e) => { const image = e.target.files?.[0]; if (image) void onFile(image).catch(() => { setFile(null); setReads(null); setMsg("Não foi possível ler esta imagem. Escolha outra foto."); }); }} /></label>
         </div>
-        <Button size="sm" variant="outline" onClick={printCards} disabled={!vm?.ok || !fp}>Imprimir cartões desta versão (A4)</Button>
+        <Button size="sm" variant="outline" onClick={printCards} disabled={!ready || saving}>Imprimir cartões desta versão (A4)</Button>
         <p className="text-xs text-muted-foreground">O cartão usa o mesmo desenho que a leitura e um QR só com a versão da prova (sem dados do estudante). No celular, "Imagem do cartão" abre a câmera.</p>
         <p className="text-xs text-muted-foreground">Impressão digital da versão aprovada: <code>{fp.slice(0, 16)}…</code> · {nQ} questões · {students.data?.length === 0 ? "nenhum estudante matriculado nesta turma" : ""}</p>
         {keys.data && vm?.ok && keys.data.size < vm.map.entries.length && <p className="text-xs text-muted-foreground">{vm.map.entries.length - keys.data.size} questão(ões) sem gabarito objetivo: você decide certa/errada.</p>}
@@ -141,10 +173,10 @@ export function CorrectionPanel() {
             {head && <label className="block text-sm">Motivo da nova correção <input aria-label="Motivo" className="ml-1 w-full rounded border border-input bg-background p-1" value={reason} onChange={(e) => setReason(e.target.value)} /></label>}
             <label className="flex gap-2 text-sm"><input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} /> Conferi a imagem e cada resposta.</label>
             {sel.results_instrument_id ? <label className="flex gap-2 text-sm"><input type="checkbox" checked={launch} disabled={!sum?.canLaunch} onChange={(e) => setLaunch(e.target.checked)} /> Lançar a nota no Diário (avaliação ligada){!sum?.canLaunch ? " — indisponível: há questão não lida, sem peso ou sem decisão" : ""}</label> : <p className="text-xs text-muted-foreground">Prova sem avaliação do Diário ligada: a correção é gravada, sem lançamento de nota.</p>}
-            <Button onClick={save} disabled={!sum?.canSave || !checked || !student || !qr.trim() || !file}>Gravar correção</Button>
+            <Button onClick={save} disabled={!ready || saving || !sum?.canSave || !checked || !student || !qr.trim() || !file}>{saving ? "Gravando…" : "Gravar correção"}</Button>
           </div>
         </div>)}
-      {sel && (done.data?.length ?? 0) > 0 && (<div><h3 className="text-sm font-medium">Correções gravadas</h3><ul className="text-sm">{done.data!.map((c) => <li key={c.id}>{c.student_id} · versão {c.variant || "original"} · {c.hits}/{c.total}{(c as { score?: number | null }).score != null ? ` · ${(c as { score?: number }).score} pt` : ""}{c.supersedes_id ? " · corrigida" : ""}{c.diary_batch_act_id ? " · no Diário" : ""} · {new Date(c.recorded_at).toLocaleString("pt-BR")}</li>)}</ul></div>)}
-    </section>
+      {done.isSuccess && done.data.length > 0 && (<div><h3 className="text-sm font-medium">Correções gravadas</h3><ul className="text-sm">{done.data.map((c) => <li key={c.id}>{c.student_id} · versão {c.variant || "original"} · {c.hits}/{c.total}{(c as { score?: number | null }).score != null ? ` · ${(c as { score?: number }).score} pt` : ""}{c.supersedes_id ? " · corrigida" : ""}{c.diary_batch_act_id ? " · no Diário" : ""} · {new Date(c.recorded_at).toLocaleString("pt-BR")}</li>)}</ul></div>)}
+    </div>
   );
 }
