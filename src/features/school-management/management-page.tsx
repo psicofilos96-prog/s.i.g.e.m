@@ -25,6 +25,7 @@ import { SchoolNoticesPanel } from "./school-notices-panel";
 import { ClassCouncilPanel } from "./class-council-panel";
 import { RiskLimitsPanel } from "./risk-limits-panel";
 import { FrequencyRiskPanel } from "./frequency-risk-panel";
+import { ReclassificationPanel } from "./reclassification-panel";
 import { VaccinationOverduePanel } from "./vaccination-overdue-panel";
 import { loadSchoolLogo } from "./school-logo-data";
 
@@ -111,6 +112,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       <OccurrencesPanel school={school} schoolName={schoolName} />
       <SchoolNoticesPanel school={school} year={year} on={on} />
       <ClassCouncilPanel school={school} year={year} on={on} />
+      <ReclassificationPanel school={school} />
       <RiskLimitsPanel school={school} />
       <FrequencyRiskPanel school={school} schoolName={schoolName} today={today()} />
       <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />

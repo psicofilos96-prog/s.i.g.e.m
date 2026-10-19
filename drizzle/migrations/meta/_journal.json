@@ -4159,6 +4159,13 @@
       "when": 1792428288834,
       "tag": "0593_direcao_vaccination_overdue",
       "breakpoints": true
+    },
+    {
+      "idx": 594,
+      "version": "7",
+      "when": 1792429922433,
+      "tag": "0594_direcao_reclassification",
+      "breakpoints": true
     }
   ]
 }

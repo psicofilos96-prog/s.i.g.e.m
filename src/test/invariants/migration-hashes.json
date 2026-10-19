@@ -641,5 +641,6 @@
  "drizzle/migrations/0590_direcao_school_notices.sql": "438ea0466e700bb54c7f506707784178f9fce6d560697f6b3af86f63a3bb4cd1",
  "drizzle/migrations/0591_direcao_school_risk_limits.sql": "5b59bff9515f10c2a39f683c02a22748a40fac6daa580904cbe2f6c964532a16",
  "drizzle/migrations/0592_direcao_students_below_frequency.sql": "6855272c9ae4ba23cce9b2c6d0727d2841bf6ac2e05b70302b68ee31b45e18fb",
- "drizzle/migrations/0593_direcao_vaccination_overdue.sql": "84be5ac77c78e86a878cb7bcc62e83411b75cd75cd88bf46b8581970fb44d1b1"
+ "drizzle/migrations/0593_direcao_vaccination_overdue.sql": "84be5ac77c78e86a878cb7bcc62e83411b75cd75cd88bf46b8581970fb44d1b1",
+ "drizzle/migrations/0594_direcao_reclassification.sql": "00af0e7adb91a4bb64cdf9d8b7650f3ee73462bf3081ab1753b07b8f457727a8"
 }
