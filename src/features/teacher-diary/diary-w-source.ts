@@ -32,9 +32,11 @@ export type LessonRow = { lesson_version_id: string; logical_record_id: string; 
   facts: { content?: string; observation?: string }; schedule_block_ids: string[]; period_id: string | null; recorded_as: "titular" | "substituto";
   attendance_version_id: string | null; attendance_version_number: number | null; marks: Record<string, Record<string, Mark>> | null;
   eligible_student_ids: string[] | null; reference_item_ids: string[]; reference_edition_ids: string[] };
-export const readLessons = async (d: Pick<MyDiary, "assignment_id" | "substitution_id">): Promise<LessonRow[]> => {
-  const paged = await readPages<LessonRow>((from, to) =>
-    supabase.rpc("my_diary_lessons", { _assignment: d.assignment_id, _substitution: d.substitution_id })
+export const readLessons = async (d: Pick<MyDiary, "assignment_id" | "substitution_id">): Promise<unknown[]> => {
+  // Generated RPC arguments omit SQL nullability; preserve the canonical null (titular).
+  const lessonRpc = supabase.rpc as unknown as (name: "my_diary_lessons", args: Record<string, unknown>) => ReturnType<typeof supabase.rpc>;
+  const paged = await readPages<unknown>((from, to) =>
+    lessonRpc("my_diary_lessons", { _assignment: d.assignment_id, _substitution: d.substitution_id })
       .order("lesson_date", { ascending: false }).order("logical_record_id", { ascending: true }).range(from, to), 20_000);
   if (paged.error) throw new Error(paged.error.message);
   if (paged.truncated) throw new Error("diary-lessons-incomplete");
