@@ -1,5 +1,10 @@
 # Roadmap — SIGEM simples no design original
 
+## Continuação por perfil — Supervisão primeiro (19/10/2026)
+- [ ] Proteger leituras da Supervisão por sessão/capacidade, limitar espera e mostrar falha sem transformar em lista vazia; conferir testes e acesso no navegador.
+- [ ] Visitas, instrumentos e expedientes oficiais: dependem da implementação dos escritores canônicos e da autoridade efetiva; não simular aprovação ou autoria.
+- [ ] Família e Mediador: continuar após a proteção das consultas; vínculos reais e autoria humana não serão presumidos.
+
 ## CIECE — velocidade do Mapa da rede (18/10/2026)
 - [x] Reduzir os dados transportados sem alterar leitores canônicos, valores ou permissões
 - [x] Executar nomes de turmas em paralelo, em lotes limitados, sem consultas individuais
