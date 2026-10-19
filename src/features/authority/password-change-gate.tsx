@@ -1,5 +1,7 @@
 /** L44 — com sessão, troca de senha pendente (decidida no banco: password_change_required) bloqueia a área de trabalho até a troca. */
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionAuthority } from "./session-authority";
 import { passwordProblem } from "./password-policy";
@@ -7,16 +9,35 @@ import { passwordProblem } from "./password-policy";
 export function PasswordChangeGate({ children }: { children: ReactNode }) {
   const a = useSessionAuthority();
   const uid = a.status === "signed-in" ? a.user.id : null;
-  const [must, setMust] = useState<boolean | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  useEffect(() => {
-    if (!uid) { setMust(null); return; }
-    let alive = true;
-    void supabase.rpc("password_change_required").then(({ data, error }) => { if (alive) setMust(error ? false : !!data); });
-    return () => { alive = false; };
-  }, [uid]);
-  if (!uid || must !== true) return <>{children}</>;
+  const check = useQuery({
+    queryKey: ["password-change-gate", uid], enabled: uid !== null, retry: false,
+    queryFn: async ({ signal }) => {
+      const controller = new AbortController();
+      const abort = () => controller.abort();
+      signal.addEventListener("abort", abort, { once: true });
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        return await Promise.race([
+          (async () => {
+            const { data, error } = await supabase.rpc("password_change_required").abortSignal(controller.signal);
+            if (error || typeof data !== "boolean") throw new Error("password-check-unconfirmed");
+            return data;
+          })(),
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => { controller.abort(); reject(new Error("password-check-timeout")); }, 15_000);
+          }),
+        ]);
+      } finally { clearTimeout(timer); signal.removeEventListener("abort", abort); }
+    },
+  });
+  if (a.status === "loading" || (uid && check.isPending)) {
+    if (a.status === "loading" && a.error) return <section role="alert" className="mx-auto max-w-md space-y-4 p-6"><p>Não foi possível confirmar seu acesso.</p><Button onClick={() => window.location.reload()}>Tentar novamente</Button></section>;
+    return <p role="status" className="mx-auto max-w-md p-6 text-muted-foreground">Confirmando seu acesso…</p>;
+  }
+  if (uid && check.isError) return <section role="alert" className="mx-auto max-w-md space-y-4 p-6"><p>Não foi possível confirmar se sua senha precisa ser trocada.</p><Button onClick={() => void check.refetch()}>Tentar novamente</Button></section>;
+  if (!uid || check.data === false) return <>{children}</>;
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget); const pw = String(f.get("npw")), pw2 = String(f.get("npw2"));
@@ -33,7 +54,7 @@ export function PasswordChangeGate({ children }: { children: ReactNode }) {
     const r = await supabase.rpc("record_own_password_change");
     setBusy(false);
     if (r.error) return setErr("Senha trocada, mas o registro falhou. Recarregue a página.");
-    setMust(false);
+    await check.refetch();
   }
   return (
     <section aria-labelledby="pwgate" className="mx-auto max-w-md space-y-4 p-6">
@@ -43,7 +64,7 @@ export function PasswordChangeGate({ children }: { children: ReactNode }) {
         <label className="block text-sm">Nova senha<input name="npw" type="password" autoComplete="new-password" required className="mt-1 block min-h-11 w-full rounded-md border bg-background px-2" /></label>
         <label className="block text-sm">Repita a nova senha<input name="npw2" type="password" autoComplete="new-password" required className="mt-1 block min-h-11 w-full rounded-md border bg-background px-2" /></label>
         {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
-        <button type="submit" disabled={busy} className="min-h-11 rounded-md bg-primary px-4 text-primary-foreground">Trocar senha</button>
+        <Button type="submit" disabled={busy}>Trocar senha</Button>
       </form>
     </section>
   );
