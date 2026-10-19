@@ -65,7 +65,7 @@ export function distributionMapRows(cons: ConsRow[], ctx: { items: Named[]; unit
       });
     }
   }
-  return out.sort((a, b) => String(a.supplier).localeCompare(String(b.supplier), "pt-BR") || String(a.school).localeCompare(String(b.school), "pt-BR") || String(a.item).localeCompare(String(b.item), "pt-BR"));
+  return out.sort((a, b) => String(a["supplier"]).localeCompare(String(b["supplier"]), "pt-BR") || String(a["school"]).localeCompare(String(b["school"]), "pt-BR") || String(a["item"]).localeCompare(String(b["item"]), "pt-BR"));
 }
 
 /** Total por fornecedor só soma linhas com valor; se alguma não tem preço, o total é marcado incompleto. */
