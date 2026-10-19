@@ -93,7 +93,8 @@ export function OrdersSection({ school, network, names }: { school: string; netw
     download(`consolidado-${competence}.csv`, toCsv(runReport(CONSOLIDADO_ALIMENTACAO, { params: { competence } }, rows), { headerLines: ["SIGEM"], title: CONSOLIDADO_ALIMENTACAO.title }, [`Competência: ${competence}`, "Não é ordem de compra."]));
   }
   async function exportPurchaseMap(fmt: "pdf" | "xlsx", kind: "compras" | "distribuicao" = "compras") {
-    const ctx = { items, units, contracts, suppliers, schools: names };
+    const prices = await call<Named[]>("meal_master_at", { _kind: "preco-contratado", _on: null, _known_at: null, _include_drafts: false }).catch(() => [] as Named[]);
+    const ctx = { items, units, contracts, suppliers, schools: names, prices };
     const base = (cons ?? []).map((c) => ({ ...c, total: Number(c.total) }));
     const def = kind === "compras" ? MAPA_COMPRAS : MAPA_DISTRIBUICAO;
     const rows = kind === "compras" ? purchaseMapRows(base, ctx) : distributionMapRows(base, ctx);

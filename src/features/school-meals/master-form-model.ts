@@ -13,6 +13,12 @@ export const MASTER_FORM: Record<string, { school: boolean; fields: FieldSpec[] 
     { key: "fornecedor_ref", label: "Fornecedor", kind: "ref", refKind: "fornecedor", required: true },
     { key: "empenho", label: "Nota de empenho (opcional)", kind: "text", required: false },
   ] },
+  "preco-contratado": { school: false, fields: [
+    { key: "contrato_ref", label: "Contrato/ata", kind: "ref", refKind: "referencia-contratual", required: true },
+    { key: "item_ref", label: "Item", kind: "ref", refKind: "item-alimentar", required: true },
+    { key: "preco_unitario", label: "Preço unitário (R$)", kind: "number", required: true },
+    { key: "quantidade_contratada", label: "Quantidade contratada (opcional)", kind: "number", required: false },
+  ] },
   "publico-de-atendimento": { school: false, fields: [{ key: "rotulo", label: "Público (ex.: Creche, Educação Infantil, Fundamental, EJA, Integral)", kind: "text", required: true }] },
   "regra-de-elegibilidade-item": { school: false, fields: [
     { key: "item_ref", label: "Item", kind: "ref", refKind: "item-alimentar", required: true },
