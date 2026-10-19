@@ -9,7 +9,7 @@ import type { Catalog, SourceFile, RelationOrigin } from "./reference-engine";
 type Rpc = (fn: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const rpc: Rpc = (fn, args) => (supabase.rpc as unknown as Rpc)(fn, args);
 type From = (t: string) => { select: (c: string) => PromiseLike<{ data: unknown[] | null; error: { message: string } | null }> };
-const from = supabase.from as unknown as From;
+const from: From = (table) => (supabase.from as unknown as From)(table);
 async function call<T>(fn: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await rpc(fn, args);
   if (error) throw new Error(error.message);
