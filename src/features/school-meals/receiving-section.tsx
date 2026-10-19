@@ -10,6 +10,7 @@ import { StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { EvidencePanel } from "./evidence-panel";
+import { uploadMealEvidence } from "./evidence.functions";
 import {
   FINANCIAL_WORKFLOW_BLOCK, NONCONFORMITY_DEADLINE_BLOCK, NONCONFORMITY_LABEL, bucketOf, receivingMessage, supplierFacts, validateReceipt,
   type Bucket, type DeliveryRow, type NonconformityStatus,
@@ -110,6 +111,10 @@ function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m
       if (action === "confirmacao" && nfFile) {
         fiscal = await call<string>("record_meal_fiscal_document", { _logical: null, _expected_version: null, _status: "recebido", _school: row.school_id, _schedule: row.schedule_logical_id,
           _number: f.nfNumber.trim(), _issuer: null, _issued_on: f.nfDate || null, _sha256: await sha256Hex(nfFile), _storage_ref: null, _reason: null });
+        // Guarda o arquivo da NF no cofre privado da Alimentação, ligado ao documento fiscal.
+        const b64 = await new Promise<string>((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] ?? ""); r.onerror = no; r.readAsDataURL(nfFile); });
+        try { await uploadMealEvidence({ data: { targetKind: "documento-fiscal", targetLogicalId: fiscal, replaces: null, label: `NF ${f.nfNumber.trim()}`.slice(0, 120), mediaType: nfFile.type, base64: b64 } }); }
+        catch (e) { setErr(`O arquivo da nota não foi guardado: ${receivingMessage((e as Error).message)}. Use PDF ou imagem até 10 MB.`); return; }
       }
       const id = await call<string>("record_meal_receipt", {
         _logical: logical, _expected_version: version, _action: action, _schedule: row.schedule_logical_id, _received_at: new Date(f.receivedAt).toISOString(), _tz: TZ,
