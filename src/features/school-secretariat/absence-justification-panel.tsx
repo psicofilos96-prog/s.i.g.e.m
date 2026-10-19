@@ -4,6 +4,7 @@ import { callRpc } from "@/lib/rpc-call";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
+import { askText } from "@/components/sigem/confirm-action";
 import { formatAcademicDateNumeric } from "@/lib/academic-date";
 import { checkUpload } from "@/features/privacy/file-guard";
 import { JUSTIFICATION_KINDS, JUSTIFICATION_MESSAGES, kindLabel, projectJustifications, type Justification, type JustificationEvent } from "./absence-justification";
@@ -43,7 +44,7 @@ export function AbsenceJustificationPanel({ school, student }: { school: string;
     } catch (e) { setMsg(msgOf(e)); }
   };
   const voidIt = async (j: Justification) => {
-    const reason = window.prompt("Por que anular este atestado? (o registro continua no histórico)");
+    const reason = await askText("Por que anular este atestado? (o registro continua no histórico)");
     if (!reason) return;
     try { await callRpc("secretariat_void_absence_justification", { _justification: j.id, _reason: reason }); void load(); }
     catch (e) { setMsg(msgOf(e)); }

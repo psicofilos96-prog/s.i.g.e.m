@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { StatePanel } from "@/components/sigem/patterns";
+import { askText } from "@/components/sigem/confirm-action";
 import { SIGNED_URL_TTL_SECONDS } from "@/features/privacy/data-inventory";
 import { classifySchool } from "@/features/statistical-map/declared-inconsistencies";
 import { NETWORK_CATEGORIES, NETWORK_CATEGORY_LABEL, noticeReachesSchool, type NetworkCategory } from "./network-categories";
@@ -117,7 +118,7 @@ export function NetworkNoticeComposer() {
   });
   const withdraw = useMutation({
     mutationFn: async (id: string) => {
-      const reason = window.prompt("Motivo para retirar o aviso do mural:");
+      const reason = await askText("Motivo para retirar o aviso do mural:");
       if (!reason || reason.trim().length < 3) throw new Error("cancelado");
       const r = await supabase.rpc("withdraw_network_notice", { _notice: id, _reason: reason });
       if (r.error) throw new Error(r.error.message);

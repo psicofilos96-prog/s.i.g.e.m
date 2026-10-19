@@ -11,7 +11,7 @@ for (const d of ["supabase/migrations", "drizzle/migrations"]) {
   if (!existsSync(d)) continue;
   for (const f of readdirSync(d).filter((x) => x.endsWith(".sql")).sort()) {
     const k = `${d}/${f}`;
-    const h = createHash("sha256").update(readFileSync(k)).digest("hex");
+    const h = createHash("sha256").update(readFileSync(k, "utf8").replace(/\r\n/g, "\n")).digest("hex");
     if (!(k in manifest)) pending.push(k);
     else if (manifest[k] !== h) errors.push(`editada após congelada: ${k}`);
   }

@@ -88,7 +88,7 @@ export function ReceiveTransferPanel({ school, year, on }: { school: string; yea
         <div className="space-y-3 text-sm">
           <p className="font-medium">{student.name}</p>
           {hist.length ? (
-            <table className="w-full text-left text-xs"><thead><tr className="text-muted-foreground"><th>Escola</th><th>Ano</th><th>Turma</th><th>Início</th><th>Fim</th><th>Situação</th></tr></thead>
+            <table className="w-full text-left text-xs"><thead><tr className="text-muted-foreground"><th scope="col">Escola</th><th scope="col">Ano</th><th scope="col">Turma</th><th scope="col">Início</th><th scope="col">Fim</th><th scope="col">Situação</th></tr></thead>
               <tbody>{hist.map((h) => <tr key={h.enrollment_id} className="border-t border-border"><td>{h.school_name ?? h.school_id}</td><td>{h.year_label}</td><td>{h.classes}</td><td>{d(h.opened_on)}</td><td>{d(h.ended_on)}</td><td>{h.ending ?? "Ativa"}</td></tr>)}</tbody></table>
           ) : <p className="text-muted-foreground">Sem matrícula anterior na rede.</p>}
           <div className="flex flex-wrap items-end gap-2">

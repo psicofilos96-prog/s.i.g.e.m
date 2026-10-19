@@ -20,7 +20,7 @@ export const SECTORS = [
   ["Família", ["src/features/family-portal", "src/features/communication"]],
 ];
 
-const walk = (d) => existsSync(d) ? readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; }) : [];
+const walk = (d) => existsSync(d) ? readdirSync(d).flatMap((f) => { const p = join(d, f).replace(/\\/g, "/"); return statSync(p).isDirectory() ? walk(p) : [p]; }) : [];
 const src = walk("src").filter((p) => /\.tsx?$/.test(p) && !/\.test\./.test(p) && !p.endsWith("routeTree.gen.ts"));
 const text = new Map(src.map((p) => [p, readFileSync(p, "utf8")]));
 const routes = src.filter((p) => p.startsWith("src/routes/"));
@@ -41,7 +41,7 @@ export function buildMatrix() {
   });
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1]?.replace(/\\/g, "/").endsWith("sector-evidence-matrix.mjs")) {
   const m = buildMatrix();
   writeFileSync("docs/data/sector-evidence-matrix.json", JSON.stringify(m, null, 1) + "\n");
   for (const s of m) console.log(`${s.sector}: ${s.modules} módulos, ${s.withTest} com teste, ${s.withScreen} com tela, ${s.routes.length} rotas${s.missingDirs.length ? `, ausentes: ${s.missingDirs.join(",")}` : ""}`);

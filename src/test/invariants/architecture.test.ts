@@ -28,7 +28,7 @@ function latestFunctions() {
 describe("migrations", () => {
   it("migrations históricas são imutáveis (novas são permitidas)", () => {
     for (const [file, hash] of Object.entries(frozen as Record<string, string>)) {
-      expect(createHash("sha256").update(readFileSync(file)).digest("hex"), file).toBe(hash);
+      expect(createHash("sha256").update(readFileSync(file, "utf8").replace(/\r\n/g, "\n")).digest("hex"), file).toBe(hash);
     }
   });
   it("toda função SECURITY DEFINER vigente fixa search_path", () => {

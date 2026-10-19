@@ -639,7 +639,8 @@
   "module": "Demais módulos",
   "firstMigration": "0211_n4_3_map_return_adjustments_next_competence_mediators.sql",
   "scopes": [
-   "escola"
+   "escola",
+   "rede"
   ]
  },
  {
@@ -1123,6 +1124,7 @@
   "module": "Demais módulos",
   "firstMigration": "0119_t_map_2027_rule_writers_session.sql",
   "scopes": [
+   "escola",
    "rede"
   ]
  },
@@ -1163,7 +1165,8 @@
   "module": "Demais módulos",
   "firstMigration": "0119_t_map_2027_rule_writers_session.sql",
   "scopes": [
-   "escola"
+   "escola",
+   "rede"
   ]
  },
  {
@@ -1308,6 +1311,14 @@
   "id": "registrar-contatos-do-caso",
   "module": "Demais módulos",
   "firstMigration": "0398_perm10_contact_attempts.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "registrar-frequencia",
+  "module": "Demais módulos",
+  "firstMigration": "0564_class_absence_justifications_reader.sql",
   "scopes": [
    "escola"
   ]
@@ -1914,6 +1925,14 @@
   "id": "elaborar-planos-de-permanencia",
   "module": "Permanência",
   "firstMigration": "0400_perm12_individual_plans.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
+  "id": "emitir-notificacao",
+  "module": "Permanência",
+  "firstMigration": "0569_infrequency_notice_canonical_delivery.sql",
   "scopes": [
    "escola"
   ]

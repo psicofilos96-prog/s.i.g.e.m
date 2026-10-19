@@ -6,6 +6,6 @@ const m = JSON.parse(readFileSync(path, "utf8"));
 for (const d of ["supabase/migrations", "drizzle/migrations"])
   for (const f of readdirSync(d).filter((x) => x.endsWith(".sql")).sort()) {
     const k = `${d}/${f}`;
-    if (!(k in m)) m[k] = createHash("sha256").update(readFileSync(k)).digest("hex");
+    if (!(k in m)) m[k] = createHash("sha256").update(readFileSync(k, "utf8").replace(/\r\n/g, "\n")).digest("hex");
   }
 writeFileSync(path, JSON.stringify(m, null, 1));

@@ -17,7 +17,7 @@ function BlockView({ b }: { b: Block }) {
         <div className="overflow-x-auto rounded-md border border-border">
           <table className="w-full text-sm">
             <thead className="bg-muted/60 text-xs text-muted-foreground">
-              <tr>{b.cols.map((c, i) => <th key={i} className={cn("px-2 py-2 font-medium whitespace-nowrap", c.align === "right" ? "text-right" : c.align === "center" ? "text-center" : "text-left")}>{c.label}</th>)}</tr>
+              <tr>{b.cols.map((c, i) => <th key={i} scope="col" className={cn("px-2 py-2 font-medium whitespace-nowrap", c.align === "right" ? "text-right" : c.align === "center" ? "text-center" : "text-left")}>{c.label}</th>)}</tr>
             </thead>
             <tbody>
               {b.rows.map((r, i) => (

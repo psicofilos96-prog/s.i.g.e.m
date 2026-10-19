@@ -72,7 +72,7 @@ export function StudentListingPage() {
         <div className="overflow-x-auto rounded-md border border-border">
           <p className="p-2 text-sm text-muted-foreground">{shown.length} aluno(s)</p>
           <table className="w-full text-sm">
-            <thead><tr>{LISTING_COLUMNS.filter((c) => cols.includes(c.id)).map((c) => <th key={c.id} className="border-t border-border p-2 text-left">{c.label}</th>)}</tr></thead>
+            <thead><tr>{LISTING_COLUMNS.filter((c) => cols.includes(c.id)).map((c) => <th key={c.id} scope="col" className="border-t border-border p-2 text-left">{c.label}</th>)}</tr></thead>
             <tbody>{listingRows(shown, operationalToday()).slice(paged.from ? paged.from - 1 : 0, paged.to).map((r) => (
               <tr key={r.numero}>{LISTING_COLUMNS.filter((c) => cols.includes(c.id)).map((c) => <td key={c.id} className="border-t border-border p-2">{String(r[c.id] ?? "")}</td>)}</tr>))}</tbody>
           </table>

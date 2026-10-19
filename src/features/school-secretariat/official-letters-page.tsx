@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/sigem/patterns";
+import { askText } from "@/components/sigem/confirm-action";
 import { readPages } from "@/lib/list-paging";
 import { LETTER_MESSAGES, officialLetterPdf, type OfficialLetter } from "./official-letter";
 
@@ -55,7 +56,7 @@ export function OfficialLettersPage() {
     } catch (e) { setMsg(msgOf(e)); } finally { setBusy(false); }
   };
   const cancel = async (l: OfficialLetter) => {
-    const reason = window.prompt(`Por que cancelar o ${l.code}? (o número continua registrado)`);
+    const reason = await askText(`Por que cancelar o ${l.code}? (o número continua registrado)`);
     if (!reason) return;
     try { await callRpc("secretariat_cancel_letter", { _letter: l.id, _reason: reason }); await listQ.refetch(); } catch (e) { setMsg(msgOf(e)); }
   };
