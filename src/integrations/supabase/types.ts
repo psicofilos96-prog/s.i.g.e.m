@@ -43121,6 +43121,19 @@ export type Database = {
         }
         Returns: number
       }
+      direcao_students_below_frequency: {
+        Args: { _from: string; _school: string; _to: string }
+        Returns: {
+          absent: number
+          class_id: string
+          limit_pct: number
+          limit_version: number
+          present: number
+          rate: number
+          student_id: string
+          student_name: string
+        }[]
+      }
       direcao_withdraw_school_notice: {
         Args: { _notice: string; _reason: string }
         Returns: undefined
