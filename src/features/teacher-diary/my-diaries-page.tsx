@@ -82,10 +82,11 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
   const slots = slotsQuery.isError ? null : slotsQuery.data ?? null;
   const [msg, setMsg] = useState<string | null>(null);
   const [editing, setEditing] = useState<LessonRow | null>(null);
+  const [savedRevision, setSavedRevision] = useState(0);
   const operational = diary.year_state === "operacional";
   const readOnly = diary.year_state === "encerrado" || diary.year_state === "historico-importado";
   const ordered = useMemo(() => [...(lessons ?? [])].sort((a, b) => b.lesson_date.localeCompare(a.lesson_date)), [lessons]);
-  const saved = (m: string) => { setMsg(m); setEditing(null); void lessonsQuery.refetch(); };
+  const saved = (m: string) => { setMsg(m); setEditing(null); setSavedRevision((revision) => revision + 1); void lessonsQuery.refetch(); };
   return (
     <section className="space-y-4 rounded-lg border bg-card p-4" aria-label="Diário selecionado">
       <div>
@@ -97,7 +98,7 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
       </div>
       {readOnly && <StatePanel tone="info" title="Somente leitura" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
       {!operational && !readOnly && <StatePanel tone="warning" title="Registro de aulas indisponível" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
-      {operational && !editing && <LessonForm key="new-lesson" diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
+      {operational && !editing && <LessonForm key={`new-lesson-${savedRevision}`} diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
       {operational && editing && <LessonForm key={editing.lesson_version_id} diary={diary} on={editing.lesson_date} slots={slots ?? []} catalog={catalog} base={editing} onSaved={saved} onCancel={() => setEditing(null)} />}
       <div>
         <h2 className="font-semibold">Aulas ministradas (registradas)</h2>
