@@ -1,7 +1,7 @@
 # Roadmap — SIGEM simples no design original
 
 ## Acesso docente indevido (19/10/2026)
-- [ ] Continuação: Central de acessos e Estação administrativa só montam leitores após permissão; limitar espera e impedir respostas tardias. Provar no navegador ausência das consultas administrativas com docente.
+- [x] Continuação: Central de acessos e Estação administrativa montam leitores só após pathAllowed; espera limitada a 15 s, isolamento por sessão e descarte de respostas tardias. Docente: Central recusada e zero consultas à política/regras/atuações/encerramentos (antes: 5 consultas); testes de montagem sem sessão e docente. A leitura autorizada em conta administrativa real ainda não foi verificada: sessão própria indisponível, sem modificar permissões para teste.
 - [x] Sessão docente reproduziu o acesso indevido; portões por capacidades removem Gestão Escolar e outras estações, inclusive acesso direto. Diário continua acessível; permissões do banco não foram alteradas. Testes de regressão e navegador com a conta da imagem.
 
 ## Mensagens para o usuário (19/10/2026)

@@ -23,7 +23,7 @@ export function AccessCenterPage() {
   const authority = useSessionAuthority();
   if (authority.status === "loading") return <Shell>{authority.error ? <p role="alert">Não foi possível conferir seu acesso. Recarregue a página para tentar novamente.</p> : <SkeletonState label="Conferindo seu acesso" />}</Shell>;
   if (!pathAllowed(authority, "/central-de-acessos")) return <Shell><p role="alert">Sua conta não tem permissão para abrir a Central de acessos.</p></Shell>;
-  return <AuthorizedAccessCenterPage />;
+  return <AuthorizedAccessCenterPage key={sessionContextKey(authority)} />;
 }
 
 function AuthorizedAccessCenterPage() {

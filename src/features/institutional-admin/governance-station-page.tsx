@@ -40,20 +40,22 @@ function AuthorizedGovernanceStationPage() {
     void withListTimeout(controller.signal, async (signal) => {
       const { data: pols, error: e1 } = await supabase.from("capability_policies").select("*").abortSignal(signal);
       if (!active || signal.aborted) return;
-      if (e1) { setError("Política não legível com esta sessão."); return; }
+      if (e1) { setError("Política não legível com esta sessão."); setEvents([]); return; }
       const v = effectiveVersion((pols ?? []) as unknown as PolicyVersion[], today());
       setPolicy(v);
-      if (!v) { setRules([]); return; }
+      if (!v) { setRules([]); setEvents([]); return; }
       const { data, error: e2 } = await supabase.from("capability_policy_rules").select("engagement_kind_id,capability_id,scope_dimensions").eq("policy_id", v.id).abortSignal(signal);
       if (!active || signal.aborted) return;
       if (e2) setError("Regras não legíveis com esta sessão."); else setRules((data ?? []) as PolicyRule[]);
       const { data: u } = await supabase.auth.getUser();
       if (!active || signal.aborted) return;
       if (u.user) {
-        const { data: links } = await supabase.from("user_person_links" as never).select("person_id").eq("user_id", u.user.id);
+        const { data: links } = await supabase.from("user_person_links" as never).select("person_id").eq("user_id", u.user.id).abortSignal(signal);
+        if (!active || signal.aborted) return;
         const ids = ((links ?? []) as { person_id: string }[]).map((l) => l.person_id);
         if (ids.length) {
-          const { data: e } = await supabase.from("institutional_engagements").select("id,engagement_kind_id,scope_level,school_id,valid_from,valid_until").in("person_id", ids);
+          const { data: e } = await supabase.from("institutional_engagements").select("id,engagement_kind_id,scope_level,school_id,valid_from,valid_until").in("person_id", ids).abortSignal(signal);
+          if (!active || signal.aborted) return;
           setEngs((e ?? []) as EngagementRow[]);
         }
       }
@@ -101,7 +103,7 @@ function AuthorizedGovernanceStationPage() {
       <section aria-labelledby="timeline"><h2 id="timeline" className="mb-2 font-medium text-foreground">Linha do tempo administrativa</h2>
         <p className="mb-2 text-xs text-muted-foreground">Mesma trilha da Auditoria (contas e políticas), lida com a sua sessão; sem senha, e-mail ou conteúdo.</p>
         <input aria-label="Buscar por entidade" placeholder="Buscar (ex.: politica:, conta:)" className="mb-2 w-full rounded border border-input bg-background p-2 text-sm" value={q} onChange={(e) => setQ(e.target.value)} />
-        {!timeline ? <SkeletonState label="Carregando" /> : timeline.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ato visível para esta sessão.</p>
+        {error ? <p role="alert" className="text-sm text-destructive">A consulta do histórico não foi concluída. Recarregue a página para tentar novamente.</p> : !timeline ? <SkeletonState label="Carregando" /> : timeline.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ato visível para esta sessão.</p>
           : <ul className="space-y-1 text-sm">{timeline.map((e) => <li key={e.id}><span className="text-muted-foreground">{e.at.slice(0, 16).replace("T", " ")}</span> {e.action} · {e.entity}{e.entityVersion ? ` v${e.entityVersion}` : ""}</li>)}</ul>}
         <Link to="/auditoria" className="text-sm underline">Abrir a auditoria completa</Link>
       </section>
