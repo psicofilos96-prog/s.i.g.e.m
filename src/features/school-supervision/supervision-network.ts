@@ -25,10 +25,10 @@ export function networkSchools(schools: readonly { id: string; name: string }[],
 export async function readNetworkReconciliation(parent?: AbortSignal) {
   return withListTimeout(parent, async (signal) => {
     const knownAt = new Date().toISOString();
-    const rpc = supabase.rpc.bind(supabase) as unknown as (name: string, args: object) => {
+    const client = supabase as unknown as { rpc: (name: string, args: object) => {
       range: (from: number, to: number) => { abortSignal: (s: AbortSignal) => PromiseLike<{ data: unknown[] | null; error: { message: string } | null }> };
-    };
-    const result = await readPages((from, to) => rpc("census_official_reconciliation", { _known_at: knownAt })
+    } };
+    const result = await readPages((from, to) => client.rpc("census_official_reconciliation", { _known_at: knownAt })
       .range(from, to).abortSignal(signal), 20_000);
     if (result.error) throw new Error(result.error.message);
     if (result.truncated) throw new Error("Consulta incompleta.");

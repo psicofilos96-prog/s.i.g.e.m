@@ -1,14 +1,14 @@
 # Roadmap — SIGEM simples no design original
 
 ## Acesso docente indevido (19/10/2026)
-- [ ] Reproduzir com a sessão docente, corrigir oferta de Gestão Escolar e áreas de outros setores no menu, início e acesso direto; respeitar capacidades reais e testar sem conceder permissões.
+- [x] Sessão docente reproduziu o acesso indevido; portões por capacidades removem Gestão Escolar e outras estações, inclusive acesso direto. Diário continua acessível; permissões do banco não foram alteradas. Testes de regressão e navegador com a conta da imagem.
 
 ## Mensagens para o usuário (19/10/2026)
-- [ ] Retirar o “Itaperuna” repetido sobre a imagem no topo da dashboard, preservando a identificação nos outros lugares.
-- [ ] Retirar códigos técnicos expostos como ADHESION_METRIC / BLOCKED_BY_HOMOLOGATED_RULE em todo o sistema; manter explicações humanas e ações de recuperação, sem ocultar falhas ou presumir dados.
+- [x] Retirado o “Itaperuna” repetido sobre a imagem; identificação institucional preservada e conferida no navegador.
+- [x] Avisos compartilhados traduzem títulos, texto e fragmentos; códigos removidos da Cozinha, execução, governança, diagnóstico e validação do Studio. Erro de tramitação recebe mensagem governada. Varredura preservou mensagens já traduzidas, dados/identificadores e falhas necessárias; não houve mudanças no banco.
 
 ## Continuação por perfil — Supervisão primeiro (19/10/2026)
-- [ ] Painel da rede em consulta: escolas autorizadas, busca e abertura do detalhe; números somente da reconciliação canônica, sem consultas por escola ou estimativas.
+- [x] Painel da rede em consulta: 56 escolas lidas, busca TESTE encontrou uma, detalhe selecionou inep-99999901; reconciliação HTTP 200, sem alerta. Números somente da reconciliação canônica, sem consultas por escola ou estimativas.
 - [x] Consultas da Supervisão por autoridade/sessão, limite de 15 s, nova tentativa e falha sem lista vazia; controles por pessoa/capacidade/escola. 59 testes PASS, build OK; Administrador carregou 56 escolas, selecionou escola de teste/2026 e abriu situação sem espera indefinida; acompanhamento recusado pelo reader com mensagem e retentativa.
 - [ ] Acompanhamento positivo e gravação no navegador: conta administrativa não tem leitura efetiva na escola consultada; depende de conta com capacidade e autoria humana aptas, sem conceder permissão para teste.
 - [ ] Visitas, instrumentos e expedientes oficiais: dependem da implementação dos escritores canônicos e da autoridade efetiva; não simular aprovação ou autoria.

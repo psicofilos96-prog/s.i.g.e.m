@@ -8,6 +8,28 @@ import type { EffectiveCapability } from "./session-authority";
 import { stationAllowsPath, type SectorPrincipal } from "./station-navigation";
 
 export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>> = {
+  // Sector entry points must not inherit a teacher's classroom-read permissions.
+  "/gestao-escolar": ["consultar-supervisao-da-propria-escola", "consultar-quadro-profissional-da-escola", "registrar-acompanhamento-pedagogico"],
+  "/direcao": ["consultar-acompanhamento-pedagogico", "registrar-acompanhamento-pedagogico"],
+  "/orientacao": ["consultar-acompanhamento-pedagogico", "registrar-acompanhamento-pedagogico"],
+  "/supervisao-escolar": ["consultar-acompanhamento-da-supervisao", "registrar-acompanhamento-da-supervisao", "construir-calendario-da-rede"],
+  "/secretaria": ["consultar-matricula-e-movimentacao", "cadastrar-estudante-na-rede"],
+  "/ciece": ["consultar-censo-escolar", "preparar-censo-escolar", "consultar-indicador-agregado"],
+  "/mapa-estatistico": ["consultar-matricula-e-movimentacao", "corrigir-mapa-estatistico"],
+  "/mapa-estatistico-rede": ["consultar-censo-escolar", "corrigir-mapa-estatistico"],
+  "/mapa-mensal-2026": ["consultar-matricula-e-movimentacao", "corrigir-mapa-estatistico"],
+  "/mapa-censo-2026": ["consultar-censo-escolar", "consultar-matricula-e-movimentacao"],
+  "/inclusao": ["consultar-apoio-inclusivo", "acompanhar-educacao-inclusiva-rede"],
+  "/alimentacao-escolar": ["consultar-alimentacao-escolar", "registrar-execucao-alimentacao", "submeter-pedido-alimentar", "registrar-estoque-alimentar"],
+  "/acompanhamento-planejamento": ["revisar-trabalho-docente"],
+  "/alunos": ["consultar-identidade-cadastral-do-estudante", "consultar-matricula-e-movimentacao", "cadastrar-estudante-na-rede"],
+  "/turmas": ["consultar-organizacao-da-oferta"],
+  "/profissionais": ["consultar-registro-funcional", "consultar-quadro-profissional-da-escola", "consultar-quadro-profissional-da-rede"],
+  "/departamento-pessoal": ["consultar-registro-funcional", "manter-registro-funcional"],
+  "/unidades": ["manter-cadastro-unidade-escolar"],
+  "/horarios": ["consultar-organizacao-da-oferta"],
+  "/importacoes": ["gerir-importacao-de-dados"],
+  "/documentos-escolares": ["consultar-documento-escolar", "emitir-documento-escolar"],
   // publications-admin-page.tsx: sem a capacidade ⇒ "Sem permissão para publicar".
   "/publicacoes": ["publicar-conteudo-publico"],
   // NPERM.4 — integration-page/institutional-page: integration_require_admin() recusa a tela
@@ -26,7 +48,8 @@ export function navItemAllowed(path: string, caps: readonly EffectiveCapability[
   // NACL.UI.1: deep link (`/rota/123`) obedece à regra da rota base.
   const base = Object.keys(NAV_REQUIRED_CAPABILITY).find((r) => path === r || path.startsWith(`${r}/`));
   if (!base) return true;
-  const need = NAV_REQUIRED_CAPABILITY[base]!;
+  const need = NAV_REQUIRED_CAPABILITY[base];
+  if (!need) return false;
   const network = NAV_NETWORK_SCOPE.has(base);
   return caps.some((c) => need.includes(c.capabilityId) && (!network || (c.schoolId === null && c.classId === null)));
 }

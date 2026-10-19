@@ -4,7 +4,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
-import { ADHESION_BLOCK, CALENDAR_UNRESOLVED, THEORETICAL_DEBIT_BLOCK, executionMessage, plannedVsExecuted, servedFacts, type Execution } from "./execution-model";
+import { CALENDAR_UNRESOLVED, executionMessage, plannedVsExecuted, servedFacts, type Execution } from "./execution-model";
 
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = callRpc;
@@ -39,7 +39,7 @@ export function TodaySection({ school, slots }: { school: string; slots: Slot[] 
     <section aria-labelledby="hoje" className="space-y-3 rounded border p-3 text-sm">
       <h2 id="hoje" className="font-semibold">Hoje na alimentação</h2>
       <StatePanel tone="info" title="Dia operacional" description={CALENDAR_UNRESOLVED} />
-      <StatePanel tone="info" title="Adesão não calculada" description={`${ADHESION_BLOCK}. Refeições servidas e alunos presentes aparecem como medidas separadas. ${THEORETICAL_DEBIT_BLOCK}: consumo só sai do estoque quando registrado.`} />
+      <StatePanel tone="info" title="Refeições e presença" description="Refeições servidas e alunos presentes são contagens separadas. Consulte a adesão no Diário da Cozinha quando essas contagens forem informadas. Só sai do estoque o consumo registrado." />
       {err ? <StatePanel tone="warning" title="Não disponível" description={err} /> : !rows ? <SkeletonState label="Carregando" /> : (
         <ul className="space-y-1">{slots.map((s) => { const r = rows.find((x) => x.meal_slot_value_id === s.value_id) ?? null; const f = servedFacts(r);
           return <li key={s.value_id} className="rounded border p-2"><strong>{s.label}</strong>: {LABEL[plannedVsExecuted(r)]}
