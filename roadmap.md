@@ -92,7 +92,7 @@
 - [x] Leitura em lote com verificação de capacidade única (0582): equivalência provada em 8 escolas × 4 fontes; fronteira negativa com conta de escola OK; Mapa da rede em 5,9 s (era 81 s)
 
 ## Login do professor (19/10/2026)
-- [ ] Continuação: anexos SIPE com erro/carregamento/retentativa, acesso privado e isolamento por conta; planejamento sem leitura antes da sessão. Conferir testes e navegador.
+- [x] Continuação: anexos SIPE com erro/carregamento/retentativa, acesso privado e isolamento por conta; planejamento sem leitura antes da sessão. 44 testes passaram, build OK. Navegador confirmou troca de senha obrigatória; envio/abertura reais aguardam conta apta.
 - [x] Continuação: correção oficial antes do cartão avulso; consultas por conta/sessão/versão com prazo e retentativa, gabaritos em paralelo limitado e descarte da conferência ao trocar prova/versão. 18 testes passaram; build OK; navegador confirmou o portão de troca de senha, sem expor a correção. Gravação real ainda não verificada.
 - [x] Pendências: consultas isoladas por conta/sessão, prazo de 15 segundos, resposta validada, erro explícito e nova tentativa; ausência não vira zero.
 - [x] Corrigir montagem antecipada durante verificação da senha inicial: falha fechada, limite de 15 segundos e confirmação por conta.
@@ -103,7 +103,7 @@
 - [ ] Painel: chamada do dia pendente, alunos em risco, pendências SIPE/SIA
 - [ ] Contagem aulas dadas × carga prevista; Diário em PDF A4
 - [ ] Pauta AV1/AV2/IV/PA e consolidado da turma (média: regra ainda sem lugar, aguarda decisão)
-- [ ] Correção por câmera: serviço canônico integrado e protegido; gravação no navegador aguarda conta docente apta. Anexos no SIPE: verificar integração existente.
+- [ ] Correção por câmera e anexos SIPE: serviços canônicos integrados e protegidos; gravação/envio/abertura no navegador aguardam conta docente apta.
 - [ ] PEI/PAEE/relatórios evolutivos e atendimento domiciliar no acesso do professor
 - [ ] Bilhetes individuais às famílias
 - [ ] Teste com conta de professor — sessão autorizada m504211 emitida; exige troca da senha inicial pelo titular. Não alterar senha real nem dispensar proteção; fluxos completos aguardam conta apta.
