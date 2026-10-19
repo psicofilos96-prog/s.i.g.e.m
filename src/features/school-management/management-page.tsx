@@ -21,6 +21,7 @@ import { OwnSchoolName } from "@/features/authority/own-school-field";
 import { OccurrencesPanel } from "./occurrences-panel";
 import { DirectorSummaryPanel } from "./director-summary-panel";
 import { SchoolLogoPanel } from "./school-logo";
+import { loadSchoolLogo } from "./school-logo-data";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();
@@ -77,10 +78,11 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     const blob = new Blob([toCsv(r, { headerLines: ["SIGEM"], title: GESTAO_ESCOLAR.title }, meta)], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `gestao-escolar-${on}.csv`; a.click(); URL.revokeObjectURL(a.href);
   };
-  const exportPdf = () => {
+  const exportPdf = async () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
     const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`];
-    openSchedulePrint(dossierPrintHtml(toPrintableHtml(r, { headerLines: ["SIGEM"], title: "Dossiê da Direção — situação operacional" }, meta), res.pending));
+    const logo = await loadSchoolLogo(school); // ausência ou falha = sem logo, nunca a de outra escola
+    openSchedulePrint(dossierPrintHtml(toPrintableHtml(r, { headerLines: ["SIGEM"], title: "Dossiê da Direção — situação operacional", logoUrl: logo?.dataUrl ?? null }, meta), res.pending));
   };
   return (
     <div className="space-y-6">

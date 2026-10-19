@@ -52,6 +52,14 @@ describe("motor de relatórios", () => {
     const h = toPrintableHtml(runReport(def, P, [{ nome: "<script>x</script>", v: 1, cpf: "", esc: "" }]), { ...B, logoUrl: "javascript:alert(1)" });
     expect(h).not.toContain("<script>x"); expect(h).not.toContain("javascript:");
   });
+  it("logo do cabeçalho: só https ou imagem embutida (data:) da escola; demais esquemas são recusados", () => {
+    const r = runReport(def, P, rows);
+    const dataUrl = "data:image/png;base64,iVBORw0KGgo=";
+    expect(toPrintableHtml(r, { ...B, logoUrl: dataUrl })).toContain(`src="${dataUrl}"`);
+    expect(toPrintableHtml(r, { ...B, logoUrl: "https://e.com/l.png" })).toContain('src="https://e.com/l.png"');
+    for (const bad of ["javascript:alert(1)", "data:text/html;base64,PHNjcmlwdD4=", "file:///x.png", "http://e.com/l.png"])
+      expect(toPrintableHtml(r, { ...B, logoUrl: bad })).not.toContain("<img");
+  });
   it("relatório grande vai para modo assíncrono", () => {
     const big = Array.from({ length: 10 }, (_, i) => ({ nome: `n${i}`, v: i, cpf: "", esc: "A" }));
     expect(runReport(def, P, big).mode).toBe("async"); expect(runReport(def, P, rows).mode).toBe("sync");
