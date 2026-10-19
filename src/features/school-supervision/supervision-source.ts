@@ -16,7 +16,7 @@ export async function readSupervisionRecords(school: string, knownAt: string | n
 export type CatalogOption = { value_id: string; label: string };
 export async function readCatalog(scheme: "modalidade-de-acompanhamento-da-supervisao" | "situacao-de-acompanhamento-da-supervisao"): Promise<CatalogOption[]> {
   const { data, error } = await db.from("attribute_value_definitions").select("value_id, label, version").eq("scheme_id", scheme).eq("status", "homologada").order("version", { ascending: false });
-  if (error) return [];
+  if (error) throw new Error(error.message);
   const m = new Map<string, string>();
   for (const d of (data ?? []) as { value_id: string; label: string }[]) if (!m.has(d.value_id)) m.set(d.value_id, d.label);
   return [...m].map(([value_id, label]) => ({ value_id, label }));

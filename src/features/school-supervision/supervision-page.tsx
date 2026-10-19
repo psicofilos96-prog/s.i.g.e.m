@@ -2,23 +2,24 @@ import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { MoreFilters } from "@/components/sigem/more-filters";
 import { operationalToday } from "@/lib/academic-date";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { supervisionHome, TOOL_STATE_LABEL } from "./supervision-home";
-import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { withListTimeout } from "@/lib/server-page";
+import { readSupervisionContext, supervisionReadKey, canRecordSupervision } from "./supervision-read";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
-import { readYears, type YearOption } from "@/features/year-transition/year-transition-source";
 import { yearStateLabel } from "@/features/school-secretariat/secretariat";
 import { runReport, toCsv } from "@/features/reports/report-engine";
 import { SUPERVISAO_ACOMPANHAMENTO } from "@/features/reports/report-registry";
-import { STATE_LABEL, buildPanel, type Block, type Pending } from "@/features/school-management/management-panel";
+import { STATE_LABEL, buildPanel } from "@/features/school-management/management-panel";
 import { readManagementInputs } from "@/features/school-management/management-source";
 import { ACTIONS, NATURE_LABEL, NATURE_ORDER, classifyPending, recordStateLine, supervisionError, supervisionRows, type SupervisionRecord } from "./supervision-model";
-import { readCatalog, readSupervisionRecords, recordSupervision, type CatalogOption } from "./supervision-source";
+import { readCatalog, readSupervisionRecords, recordSupervision } from "./supervision-source";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { journeyState, filterRecords } from "./supervision-journey";
 
@@ -26,26 +27,28 @@ const field = "mt-1 block w-full rounded-md border border-input bg-background p-
 const today = () => operationalToday();
 
 export function SupervisionPage() {
-  const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
-  const [years, setYears] = useState<YearOption[]>([]);
+  const authority = useSessionAuthority();
+  const sessionKey = supervisionReadKey(authority);
+  if (!sessionKey) return <StatePanel tone="info" title={authority.status === "loading" ? "Conferindo acesso…" : "Não disponível"} description="A consulta exige acesso confirmado à Supervisão." />;
+  return <SupervisionWorkspace key={sessionKey} sessionKey={sessionKey} />;
+}
+
+function SupervisionWorkspace({ sessionKey }: { sessionKey: string }) {
+  const context = useQuery({ queryKey: ["supervision-context", sessionKey], retry: false,
+    queryFn: ({ signal }) => readSupervisionContext(signal), staleTime: 60_000 });
+  const schools = context.data?.schools ?? [];
+  const years = context.data?.years ?? [];
   const [f, setF] = useState({ school: "", year: "", on: today(), knownAt: "" });
-  useEffect(() => {
-    void supabase.from("institutional_school_record_versions").select("school_id,official_name,version_number").order("version_number", { ascending: false }).then(({ data }) => {
-      const m = new Map<string, string>();
-      for (const r of (data ?? []) as { school_id: string; official_name: string }[]) if (!m.has(r.school_id)) m.set(r.school_id, r.official_name);
-      setSchools([...m].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name)));
-    });
-    readYears().then(setYears).catch(() => setYears([]));
-  }, []);
   const ready = f.school && f.year && f.on;
   return (
     <div className="space-y-6">
       <PageHeader eyebrow="Supervisão" title="Acompanhar as escolas"
         description="Escolha a escola e veja o que depende de você. Não há ranking." />
       <SupervisionHome />
+      {context.isError && <ReadFailure title="Não foi possível carregar escolas e anos" retry={() => void context.refetch()} />}
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
         <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
-          <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
+          <option value="">{context.isPending ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
         <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => setF({ ...f, year: e.target.value })}>
           <option value="">Escolha o ano</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}</select></label>
         <label className="text-sm">Data de referência<DateInput value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
@@ -53,22 +56,24 @@ export function SupervisionPage() {
           <label className="text-sm">Conhecido até (opcional)<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label>
         </MoreFilters>
       </section>
-      {ready ? <Station key={JSON.stringify(f)} {...f} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
+      {ready && context.isSuccess ? <Station key={JSON.stringify(f)} {...f} sessionKey={sessionKey} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
         : <EmptyState title="Escolha a escola para começar" description="Escolha escola, ano e data acima. O que você não alcança aparece como “Não disponível”." />}
     </div>
   );
 }
 
-function Station({ school, year, on, knownAt, schoolName }: { school: string; year: string; on: string; knownAt: string; schoolName: string }) {
+function Station({ school, year, on, knownAt, schoolName, sessionKey }: { school: string; year: string; on: string; knownAt: string; schoolName: string; sessionKey: string }) {
   const k = knownAt ? new Date(knownAt).toISOString() : null;
-  const [panel, setPanel] = useState<{ blocks: Block[]; pending: Pending[] } | null>(null);
-  useEffect(() => { readManagementInputs(school, year, on, k).then((i) => setPanel(buildPanel(i)), () => setPanel({ blocks: [], pending: [] })); }, [school, year, on, k]);
+  const query = useQuery({ queryKey: ["supervision-panel", sessionKey, school, year, on, k], retry: false,
+    queryFn: ({ signal }) => withListTimeout(signal, async () => buildPanel(await readManagementInputs(school, year, on, k))) });
+  const panel = query.data ?? null;
   const grouped = useMemo(() => (panel ? classifyPending(panel.blocks, panel.pending) : null), [panel]);
   const authority = useSessionAuthority();
-  const canRecord = authority.status === "signed-in" && authority.capabilities.some((c) => c.capabilityId === "registrar-acompanhamento-da-supervisao");
+  const canRecord = canRecordSupervision(authority, school);
   return (
     <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Registros da Supervisão e fontes que aceitam “conhecido até” reproduzem o que estava registrado naquele momento." />}
+      {query.isError && <ReadFailure title="Não foi possível consultar a situação da escola" retry={() => void query.refetch()} />}
       <Tabs defaultValue="situacao">
         <TabsList className="flex h-auto flex-wrap justify-start">
           <TabsTrigger value="situacao">Situação</TabsTrigger>
@@ -79,7 +84,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
         <TabsContent value="situacao">
       <section aria-label="Situação da escola" className="space-y-2">
         <h2 className="font-semibold">Situação da escola</h2>
-        {!panel ? <p role="status" className="text-sm text-muted-foreground">Lendo as fontes…</p> : (
+        {!panel ? !query.isError && <p role="status" className="text-sm text-muted-foreground">Lendo as fontes…</p> : (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {panel.blocks.map((b) => (
               <Link key={b.id} to={b.link as "/secretaria"} className="rounded-lg border bg-card p-4 space-y-1 hover:bg-accent">
@@ -93,7 +98,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       </section>
         </TabsContent>
         <TabsContent value="pendencias">
-      {!grouped ? <p role="status" className="text-sm text-muted-foreground">Lendo as fontes…</p> : (
+      {!grouped ? !query.isError && <p role="status" className="text-sm text-muted-foreground">Lendo as fontes…</p> : (
         <section aria-label="Pendências" className="space-y-3">
           <h2 className="font-semibold">Pendências por natureza</h2>
           <p className="text-xs text-muted-foreground">Cada item vem de um registro existente. Nenhuma pendência é nota da escola ou de pessoas.</p>
@@ -108,7 +113,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
         </section>)}
         </TabsContent>
         <TabsContent value="percurso"><Journey canRecord={canRecord} /></TabsContent>
-        <TabsContent value="acompanhamento"><Records school={school} schoolName={schoolName} knownAt={k} /></TabsContent>
+        <TabsContent value="acompanhamento"><Records school={school} schoolName={schoolName} knownAt={k} sessionKey={sessionKey} canRecord={canRecord} /></TabsContent>
       </Tabs>
     </div>
   );
@@ -137,19 +142,28 @@ function Journey({ canRecord }: { canRecord: boolean }) {
 
 const blank = { modality: "", subject: "", occurredOn: today(), referral: "", responsible: "", returnOn: "", status: "", schoolVisible: false, reason: "" };
 
-function Records({ school, schoolName, knownAt }: { school: string; schoolName: string; knownAt: string | null }) {
-  const [rows, setRows] = useState<SupervisionRecord[] | null>(null);
-  const [denied, setDenied] = useState<string | null>(null);
-  const [mods, setMods] = useState<CatalogOption[]>([]);
-  const [sts, setSts] = useState<CatalogOption[]>([]);
+function ReadFailure({ title, retry }: { title: string; retry: () => void }) {
+  return <div role="alert" className="space-y-2"><StatePanel tone="info" title={title} description="A consulta não foi concluída. Tente novamente." /><Button variant="outline" onClick={retry}>Tentar novamente</Button></div>;
+}
+
+function Records({ school, schoolName, knownAt, sessionKey, canRecord }: { school: string; schoolName: string; knownAt: string | null; sessionKey: string; canRecord: boolean }) {
+  const query = useQuery({ queryKey: ["supervision-records", sessionKey, school, knownAt], retry: false,
+    queryFn: ({ signal }) => withListTimeout(signal, async () => {
+      const [rows, mods, sts] = await Promise.all([readSupervisionRecords(school, knownAt),
+        readCatalog("modalidade-de-acompanhamento-da-supervisao"), readCatalog("situacao-de-acompanhamento-da-supervisao")]);
+      return { rows, mods, sts };
+    }) });
+  const rows = query.data?.rows ?? null;
+  const mods = query.data?.mods ?? [];
+  const sts = query.data?.sts ?? [];
+  const denied = query.isError ? supervisionError(query.error.message) : null;
   const [form, setForm] = useState(blank);
   const [editing, setEditing] = useState<{ base: SupervisionRecord; kind: "retificacao" | "anulacao" } | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [q, setQ] = useState("");
   const labels = useMemo(() => new Map([...mods, ...sts].map((o) => [o.value_id, o.label])), [mods, sts]);
-  const load = () => readSupervisionRecords(school, knownAt).then((r) => { setRows(r); setDenied(null); }, (e: Error) => { setRows(null); setDenied(supervisionError(e.message)); });
-  useEffect(() => { void load(); readCatalog("modalidade-de-acompanhamento-da-supervisao").then(setMods); readCatalog("situacao-de-acompanhamento-da-supervisao").then(setSts); }, [school, knownAt]);
+  const load = () => query.refetch();
 
   const submit = async () => {
     setBusy(true); setMsg(null);
@@ -185,12 +199,12 @@ function Records({ school, schoolName, knownAt }: { school: string; schoolName: 
                 <div className="flex flex-wrap items-baseline justify-between gap-2"><strong>{r.subject}</strong><span className="text-xs text-muted-foreground">{r.occurred_on} · {labels.get(r.modality_value_id) ?? r.modality_value_id}</span></div>
                 {r.referral && <p>Encaminhamento: {r.referral}</p>}
                 <p className="text-xs text-muted-foreground">{recordStateLine(r, labels)}{r.return_on ? ` · retorno até ${r.return_on}` : ""}{r.responsible_label ? ` · responsável: ${r.responsible_label}` : ""} · {r.school_visible ? "visível à escola" : "interno da Supervisão"}</p>
-                {!knownAt && ACTIONS(r).length > 0 && <div className="flex gap-2">
+                {!knownAt && canRecord && ACTIONS(r).length > 0 && <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => startEdit(r, "retificacao")}>Corrigir</Button>
                   <Button size="sm" variant="outline" onClick={() => startEdit(r, "anulacao")}>Anular</Button></div>}
               </li>))}</ul>)}
           <Button variant="outline" onClick={exportCsv}>Exportar acompanhamento (CSV)</Button>
-          {!knownAt && (
+          {!knownAt && canRecord && (
             <form className="rounded-lg border bg-card p-4 space-y-3" onSubmit={(e) => { e.preventDefault(); void submit(); }}>
               <h3 className="text-sm font-semibold">{editing ? (editing.kind === "anulacao" ? "Anular registro" : "Corrigir registro (nova versão)") : "Novo registro"}</h3>
               {mods.length === 0 && !editing ? <StatePanel tone="info" title="Falta cadastrar os tipos de visita" description="Peça à SEMED para cadastrar os tipos de acompanhamento." /> : (
