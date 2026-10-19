@@ -22,7 +22,8 @@ describe("NPERM.3 — menu × rota × capacidade", () => {
     expect(navItemAllowed("/publicacoes", [])).toBe(false);
     expect(navItemAllowed("/publicacoes", [cap("outra")])).toBe(false);
     expect(navItemAllowed("/publicacoes", [cap("publicar-conteudo-publico")])).toBe(true);
-    expect(navItemAllowed("/alunos", [])).toBe(true);
+    expect(navItemAllowed("/alunos", [])).toBe(false);
+    expect(navItemAllowed("/alunos", [cap("consultar-identidade-cadastral-do-estudante")])).toBe(true);
   });
   it("toda regra de menu é a mesma capacidade que a tela exige (sem segunda verdade)", () => {
     const src = readFileSync("src/features/public-portal/publications-admin-page.tsx", "utf8");
