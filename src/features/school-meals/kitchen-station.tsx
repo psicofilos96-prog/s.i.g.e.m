@@ -9,7 +9,7 @@ import { LABELS_STATE, MANUAL_CLASSES, MOVEMENT_CLASS_LABEL, expiresWithin, expi
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { MENU_REASONS, adhesion, diaryProblems, grossTotal, pvpsOrder, type Compliance, type Counts } from "./kitchen-diary";
 import { WaterFiltersPanel } from "./water-filters-panel";
-import { MenuOfDay } from "./menu-of-day";
+import { MenuOfDay, usePlannedMenu } from "./menu-of-day";
 import { SpecialDietKitchenList } from "./special-diet";
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = callRpc;
@@ -110,15 +110,16 @@ function QuickExecution({ school, slots, today, onDone, taken, label }: { school
   const [slot, setSlot] = useState(""); const [comp, setComp] = useState<Compliance | "">(""); const [reason, setReason] = useState(""); const [served, setServed] = useState("");
   const [prep, setPrep] = useState(""); const [c, setC] = useState({ present: "", first: "", repeats: "", staff: "" }); const [sample, setSample] = useState(false);
   const [msg, setMsg] = useState<string | null>(null); const busy = useRef(false); const [pending, setPending] = useState(false);
+  const planned = usePlannedMenu(today);
   const counts: Counts = { present: num(c.present), first: num(c.first), repeats: num(c.repeats), staff: num(c.staff) };
   const problems = diaryProblems(comp, reason, served, counts);
   const total = grossTotal(counts); const adh = adhesion(counts);
   const save = async () => {
     if (busy.current || problems.length) return; busy.current = true; setPending(true);
     try {
-      const basis = `1ª refeição a alunos: ${c.first || "não informado"}; repetições: ${c.repeats || "não informado"}; servidores: ${c.staff || "não informado"}; amostra coletada e etiquetada: ${sample ? "sim" : "não"}`;
+      const basis = `cardápio previsto: ${planned ?? "não informado"}; 1ª refeição a alunos: ${c.first || "não informado"}; repetições: ${c.repeats || "não informado"}; servidores: ${c.staff || "não informado"}; amostra coletada e etiquetada: ${sample ? "sim" : "não"}`;
       await call("record_meal_execution", { _base_id: null, _kind: "registro", _school: school, _on: today, _slot: slot, _planned_menu: null,
-        _followed: comp === "sim", _preparation: prep || null, _deviation: comp === "sim" ? null : `${comp === "parcialmente" ? "Parcialmente" : "Não"} — servido: ${served.trim()}`, _deviation_reason: comp === "sim" ? null : reason,
+        _followed: comp === "sim", _preparation: prep || (comp === "sim" ? planned : null) || null, _deviation: comp === "sim" ? null : `${comp === "parcialmente" ? "Parcialmente" : "Não"} — servido: ${served.trim()}`, _deviation_reason: comp === "sim" ? null : reason,
         _authorization: null, _meals_total: total, _count_basis: basis, _breakdown: [], _students_present: counts.present, _students_source: counts.present == null ? null : "contagem da cozinha no turno", _consumption: [], _tz: TZ, _reason: null });
       setMsg(`Registrado: ${label(slot)}.`); setSlot(""); setComp(""); setReason(""); setServed(""); setPrep(""); setC({ present: "", first: "", repeats: "", staff: "" }); setSample(false); onDone();
     } catch (e) { setMsg(executionMessage((e as Error).message)); } finally { busy.current = false; setPending(false); }
@@ -126,6 +127,7 @@ function QuickExecution({ school, slots, today, onDone, taken, label }: { school
   const nField = (k: keyof typeof c, l: string) => <label className="block">{l}<input inputMode="numeric" className={field} value={c[k]} onChange={(e) => setC({ ...c, [k]: e.target.value.replace(/\D/g, "") })} /></label>;
   return (<Card title="Diário da Cozinha — refeição do turno">
     <label className="block">Refeição / turno<select className={field} value={slot} onChange={(e) => setSlot(e.target.value)}><option value="">Escolha…</option>{slots.filter((s) => !taken.includes(s.value_id)).map((s) => <option key={s.value_id} value={s.value_id}>{s.label}</option>)}</select></label>
+    <p className="text-muted-foreground">Previsto hoje: {planned ?? "não informado (escolha a modalidade no Cardápio do dia)"}</p>
     <p className="font-medium">1. O cardápio foi cumprido?</p>
     <div role="radiogroup" aria-label="Cardápio cumprido?" className="grid grid-cols-3 gap-2">{([["sim", "Sim"], ["parcialmente", "Parcialmente"], ["nao", "Não"]] as const).map(([v, l]) => (
       <button key={v} type="button" role="radio" aria-checked={comp === v} onClick={() => setComp(v)} className={`${big} border ${comp === v ? "bg-primary text-primary-foreground" : ""}`}>{l}</button>))}</div>

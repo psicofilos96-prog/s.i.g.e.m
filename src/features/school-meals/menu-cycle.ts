@@ -38,3 +38,11 @@ export function cycleProblems(p: CyclePayload): string[] {
   for (let i = 1; i < sorted.length; i++) if (sorted[i]!.de <= sorted[i - 1]!.ate) { out.push("Há períodos do cronograma sobrepostos."); break; }
   return [...new Set(out)];
 }
+
+/** Texto do cardápio previsto hoje para a modalidade (condição Geral). null = sem ciclo homologado/cronograma: nada é presumido. */
+export function plannedMenuText(cycles: CyclePayload[], modality: string, date: string): string | null {
+  const c = cycles.find((x) => x.modalidade === modality && x.condicao === "Geral");
+  const d = c ? menuOfDay(c, date) : null;
+  if (!d || d.cells.length === 0) return null;
+  return d.cells.map((x) => `${x.refeicao}: ${x.preparacao}`).join("; ");
+}
