@@ -1,3 +1,4 @@
+import { CpfInput } from "@/components/sigem/cpf-input";
 import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
@@ -154,7 +155,7 @@ function NewGrant({ school, busy, onGrant }: { school: string; busy: boolean; on
     <section aria-labelledby="nova" className="space-y-3 rounded-lg border border-border p-4">
       <h3 id="nova" className="font-medium">Nova autorização</h3>
       <div className="flex flex-wrap items-end gap-3">
-        <label className="text-sm">CPF do responsável<input className="ml-2 rounded border border-input bg-background p-2" value={cpf} onChange={(x) => setCpf(x.target.value)} inputMode="numeric" autoComplete="off" /></label>
+        <label className="text-sm">CPF do responsável<CpfInput aria-label="CPF do responsável" value={cpf} onChange={setCpf} /></label>
         <Button variant="outline" disabled={!cpf.trim() || busy} onClick={() => void locateGuardian(school, cpf).then((r) => { setG(r); setE(null); }, (x: Error) => { setG(null); setE(adminMessage(x.message)); })}>Localizar responsável</Button>
       </div>
       {e ? <p className="text-sm text-destructive">{e}</p> : null}

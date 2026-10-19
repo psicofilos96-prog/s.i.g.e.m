@@ -1,3 +1,4 @@
+import { CpfInput } from "@/components/sigem/cpf-input";
 import { DateInput } from "@/components/sigem/date-input";
 import { NO_PROMISE_NOTICE } from "@/features/enrollments/preference-policy";
 import { createFileRoute, Link } from "@tanstack/react-router";
@@ -133,7 +134,7 @@ function Wizard({ campaign }: { campaign: C }) {
             ))}
           </fieldset>
           <Field id="requesterName" label="Nome completo" error={errors.requesterName}><Input value={d.requesterName} onChange={(e) => set("requesterName", e.target.value)} autoComplete="name" /></Field>
-          <Field id="requesterCpf" label="CPF" error={errors.requesterCpf}><Input value={d.requesterCpf} onChange={(e) => set("requesterCpf", e.target.value)} inputMode="numeric" autoComplete="off" /></Field>
+          <Field id="requesterCpf" label="CPF" error={errors.requesterCpf}><CpfInput id="requesterCpf" value={d.requesterCpf} onChange={(v) => set("requesterCpf", v)} required /></Field>
           <Field id="email" label="E-mail" hint="Informe e-mail, telefone ou os dois." error={errors.email}><Input type="email" value={d.email} onChange={(e) => set("email", e.target.value)} autoComplete="email" /></Field>
           <Field id="phone" label="Telefone com DDD" error={errors.phone}><Input type="tel" value={d.phone} onChange={(e) => set("phone", e.target.value)} autoComplete="tel" inputMode="tel" /></Field>
           {d.requesterKind === "responsavel" && <Field id="kinship" label="Parentesco com o estudante" hint="É uma declaração. O acesso da família é autorizado depois, pela escola." error={errors.kinship}><Input value={d.kinship} onChange={(e) => set("kinship", e.target.value)} /></Field>}
@@ -144,7 +145,7 @@ function Wizard({ campaign }: { campaign: C }) {
             ? <Field id="studentName" label="Nome completo do estudante" error={errors.studentName}><Input value={d.studentName} onChange={(e) => set("studentName", e.target.value)} autoComplete="off" /></Field>
             : <p className="text-sm text-muted-foreground">Estudante: {d.requesterName || "—"}</p>}
           <Field id="studentBirth" label="Data de nascimento" error={errors.studentBirth}><DateInput value={d.studentBirth} max={t} onChange={(e) => set("studentBirth", e.target.value)} /></Field>
-          <Field id="studentCpf" label="CPF do estudante (se tiver)" error={errors.studentCpf}><Input value={d.studentCpf} onChange={(e) => set("studentCpf", e.target.value)} inputMode="numeric" autoComplete="off" /></Field>
+          <Field id="studentCpf" label="CPF do estudante (se tiver)" error={errors.studentCpf}><CpfInput id="studentCpf" value={d.studentCpf} onChange={(v) => set("studentCpf", v)} /></Field>
         </>}
 
         {step === "etapa" && <>
