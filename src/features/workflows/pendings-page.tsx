@@ -1,4 +1,5 @@
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
+import { governError } from "@/lib/observability/governed-errors";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDate } from "@/lib/academic-date";
@@ -72,7 +73,7 @@ function Row({ p, today, expanded, onToggle, events, def }: { p: Pending; today:
           {actions.map((t) => <Button key={t.id} variant={t.kind === "cancelamento" ? "outline" : "default"} disabled={m.isPending}
             onClick={() => m.mutate({ instanceId: p.instanceId, transitionId: t.id, expectedSeq: p.seq, comment, dueOn: due || null })}>{t.label ?? t.id}</Button>)}
         </div>}
-        {m.error && <p role="alert" className="text-sm text-destructive">{(m.error as Error).message}</p>}
+        {m.error && <p role="alert" className="text-sm text-destructive">{governError(m.error).userMessage}</p>}
       </div>}
     </li>
   );

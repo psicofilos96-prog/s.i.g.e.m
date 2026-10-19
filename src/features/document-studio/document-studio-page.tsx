@@ -14,6 +14,7 @@ import {
 import { EditorError, estimatePages, insertField, insertTable, insertToken, setFooter, setHeaderLines, setStyle } from "./editor-model";
 import { latestLogos, logoAssets, logoRef, setHeaderLogo } from "./studio-logos";
 import { clearLocalDraft, readLocalDraft, saveLocalDraft } from "./editor-draft";
+import { validationIssueText } from "./validation-presentation";
 
 const SAMPLE_NOTE = "Prévia sem dados: campos aparecem como \"sem registro\". A emissão congela os dados informados junto com a versão homologada.";
 const TABS = ["Biblioteca", "Editor", "Histórico", "Emitir", "Emitidos", "Acervo"] as const;
@@ -169,7 +170,7 @@ export function DocumentStudioPage() {
               <button type="button" className="rounded-md border border-border px-2 py-1" onClick={() => tryEdit(() => setBlocks((b) => insertField(b, sel + 1, "Escola", "escola.nome")))}>+ Campo</button>
               <button type="button" className="rounded-md border border-border px-2 py-1" onClick={() => tryEdit(() => setBlocks((b) => insertTable(b, sel + 1, "historico.anos", [{ label: "Ano", fact: "ano" }, { label: "Escola", fact: "escola" }])))}>+ Tabela</button>
             </div>
-            {issues.length > 0 && <div role="alert" className="text-sm text-destructive">Problemas: {issues.map((x) => `${x.path} ${x.code}`).join("; ")}</div>}
+            {issues.length > 0 && <div role="alert" className="text-sm text-destructive">{issues.map(validationIssueText).join(" ")}</div>}
             {unresolvableTokens(draft.blocks).length > 0 && <p className="text-sm">Campos sem leitura automática: {unresolvableTokens(draft.blocks).join(", ")} — na emissão serão informados por quem emite.</p>}
             {user && <div className="flex flex-wrap gap-2 border-t border-border pt-3">
               <Button disabled={busy || !perm.editar || issues.length > 0} onClick={() => run(() => saveVersion({ templateId: draft.templateId, expectedVersion: draft.persisted ? draft.expected : 0, sector: draft.sector, title: draft.title, blocks: draft.blocks, page: draft.page, baseTemplateId: draft.baseTemplateId }).then(() => setDraft((d) => ({ ...d, persisted: true, expected: (d.persisted ? d.expected : 0) + 1 }))), "Nova versão gravada como rascunho.")}>{draft.persisted ? "Salvar nova versão" : "Gravar como rascunho"}</Button>

@@ -6,7 +6,7 @@ import type { User } from "@supabase/supabase-js";
 
 const base: Extract<SessionAuthority, { status: "signed-in" }> = {
   status: "signed-in", user: { id: "account-a" } as User, sessionRevision: 1,
-  person: { id: "person-a", displayName: "Pessoa" }, capabilities: [],
+  person: { id: "person-a", displayName: "Pessoa" }, capabilities: [{ capabilityId: "registrar-acompanhamento-da-supervisao", engagementId: "engagement", policyId: "policy", policyVersion: 1, schoolId: "school-a", classId: null, componentId: null, periodId: null }],
 };
 const cap = { capabilityId: "registrar-acompanhamento-da-supervisao", engagementId: "engagement", policyId: "policy", policyVersion: 1, schoolId: "school-a", classId: null, componentId: null, periodId: null };
 

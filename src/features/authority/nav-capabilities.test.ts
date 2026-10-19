@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
-import { NAV_REQUIRED_CAPABILITY, navItemAllowed } from "./nav-capabilities";
+import { NAV_REQUIRED_CAPABILITY, navItemAllowed, pathAllowed } from "./nav-capabilities";
 import { STATION_HOME, stationAllowsPath } from "./station-navigation";
 import { provisionalNavigation } from "@/config/navigation";
 
@@ -8,6 +8,16 @@ const cap = (capabilityId: string) => ({ capabilityId, engagementId: "e", policy
 const routeFile = (to: string) => { const b = to === "/" ? "index" : to.slice(1); return [`src/routes/${b}.tsx`, `src/routes/${b}.index.tsx`, `src/routes/${b}`].find(existsSync); };
 
 describe("NPERM.3 — menu × rota × capacidade", () => {
+  it("permissões de professor não abrem Gestão Escolar nem as estações de outros setores", () => {
+    const teacher = { status: "signed-in" as const, capabilities: [cap("registrar-aula"), cap("consultar-estudantes-da-turma"), cap("consultar-frequencia"), cap("consultar-resultado-avaliativo")] };
+    for (const path of ["/gestao-escolar", "/gestao-escolar/detalhe", "/direcao", "/orientacao", "/supervisao-escolar", "/secretaria", "/ciece", "/mapa-estatistico", "/inclusao", "/alimentacao-escolar", "/departamento-pessoal", "/profissionais", "/importacoes", "/alunos", "/turmas", "/unidades"])
+      expect(pathAllowed(teacher, path), path).toBe(false);
+    expect(pathAllowed(teacher, "/diario/turmas")).toBe(true);
+  });
+  it("mantém acesso à Gestão Escolar quando há competência própria, inclusive vínculo acumulado", () => {
+    expect(pathAllowed({ status: "signed-in", capabilities: [cap("registrar-aula"), cap("consultar-supervisao-da-propria-escola")] }, "/gestao-escolar")).toBe(true);
+    expect(pathAllowed({ status: "signed-in", capabilities: [] }, "/gestao-escolar")).toBe(false);
+  });
   it("Publicações só aparece com a capacidade de publicar", () => {
     expect(navItemAllowed("/publicacoes", [])).toBe(false);
     expect(navItemAllowed("/publicacoes", [cap("outra")])).toBe(false);
