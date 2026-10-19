@@ -19,3 +19,4 @@
 - Logo da escola (0589, `school-logo.tsx`): versões imutáveis enviadas só pela Direção da escola via `direcao_record_school_logo`; vale a mais recente, porque documento já emitido precisa reproduzir a logo da época.
 - Avisos da Direção (0590, `school-notices-panel.tsx`): aviso publicado é imutável e só se retira com motivo; público "turma" exige turma da própria escola e imagem só em `avisos-escola/<escola>/`, porque aviso editado ou imagem fora do cofre quebraria a confiança no mural.
 - Limites de risco (0591, `risk-limits-panel.tsx`): patamares de frequência/nota são configuração versionada só pela Direção da escola (base esperada obrigatória); guardar limite não gera alerta — o corte de nota espera a regra de médias da rede, porque alerta sem regra homologada seria fato falso.
+- Lote 0592 Direção (): lista abaixo do limite só com chamadas oficiais e limite vigente da escola; sem limite = recusa, porque limiar presumido seria fato falso.
