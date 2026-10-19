@@ -16,3 +16,4 @@
 - Lote 11 Direção (`daily-operation.ts`): estados de tela canônicos (permissão antes de dado, erro recuperável ≠ vazio, fonte não lida ≠ lista vazia); painel de decisões só com alertas que têm evidência e ação ligada à tela dona, sem score; filtros persistidos só de lista fechada (sem busca livre); busca só sobre linhas já autorizadas; rascunho salva só sobre a base lida, porque alerta sem ação ou filtro com nome de pessoa degradariam decisão e privacidade.
 
 - Ocorrências (0586, `occurrences.ts`): Caderno Negro imutável por trigger, adendo só ligado à original, escrita só por `direcao_record_occurrence` da conta Direção da escola e leitura por `school_occurrences_at` (Direção/OP da escola, contas de rede), porque prova editável perderia valor legal.
+- Logo da escola (0589, `school-logo.tsx`): versões imutáveis enviadas só pela Direção da escola via `direcao_record_school_logo`; vale a mais recente, porque documento já emitido precisa reproduzir a logo da época.
