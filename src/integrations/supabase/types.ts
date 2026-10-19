@@ -31670,6 +31670,102 @@ export type Database = {
         }
         Relationships: []
       }
+      school_notice_withdrawals: {
+        Row: {
+          notice_id: string
+          reason: string
+          withdrawn_at: string
+          withdrawn_by: string
+        }
+        Insert: {
+          notice_id: string
+          reason: string
+          withdrawn_at?: string
+          withdrawn_by: string
+        }
+        Update: {
+          notice_id?: string
+          reason?: string
+          withdrawn_at?: string
+          withdrawn_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_notice_withdrawals_notice_id_fkey"
+            columns: ["notice_id"]
+            isOneToOne: true
+            referencedRelation: "school_notices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_notices: {
+        Row: {
+          audience: string
+          body: string
+          class_id: string | null
+          expires_on: string | null
+          id: string
+          idempotency_key: string
+          image_path: string | null
+          published_at: string
+          published_by: string
+          published_by_principal_id: string
+          school_id: string
+          title: string
+        }
+        Insert: {
+          audience: string
+          body: string
+          class_id?: string | null
+          expires_on?: string | null
+          id?: string
+          idempotency_key: string
+          image_path?: string | null
+          published_at?: string
+          published_by: string
+          published_by_principal_id: string
+          school_id: string
+          title: string
+        }
+        Update: {
+          audience?: string
+          body?: string
+          class_id?: string | null
+          expires_on?: string | null
+          id?: string
+          idempotency_key?: string
+          image_path?: string | null
+          published_at?: string
+          published_by?: string
+          published_by_principal_id?: string
+          school_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_notices_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_notices_published_by_principal_id_fkey"
+            columns: ["published_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_notices_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_official_letter_cancellations: {
         Row: {
           letter_id: string
@@ -42922,6 +43018,19 @@ export type Database = {
           student_id: string
         }[]
       }
+      direcao_publish_school_notice: {
+        Args: {
+          _audience: string
+          _body: string
+          _class: string
+          _expires_on: string
+          _image_path: string
+          _key: string
+          _school: string
+          _title: string
+        }
+        Returns: string
+      }
       direcao_record_occurrence: {
         Args: {
           _addendum_of: string
@@ -42946,6 +43055,10 @@ export type Database = {
           _size: number
         }
         Returns: number
+      }
+      direcao_withdraw_school_notice: {
+        Args: { _notice: string; _reason: string }
+        Returns: undefined
       }
       dispatch_admin_case: {
         Args: {
@@ -52176,6 +52289,21 @@ export type Database = {
           created_at: string
           object_path: string
           version: number
+        }[]
+      }
+      school_notices_at: {
+        Args: { _school: string }
+        Returns: {
+          audience: string
+          body: string
+          class_id: string
+          expires_on: string
+          id: string
+          image_path: string
+          published_at: string
+          title: string
+          withdrawal_reason: string
+          withdrawn: boolean
         }[]
       }
       school_occurrences_at: {
