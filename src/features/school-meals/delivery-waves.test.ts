@@ -12,6 +12,6 @@ describe("Mapa por entrega", () => {
   it("ignora programação cancelada e não inventa fornecedor", () => {
     const r = deliveryWaveRows([d("2027-03-05", 4), d("2027-03-06", 9, "cancelamento")], ctx);
     expect(r).toHaveLength(1);
-    expect(r[0]["supplier"]).toBe("não informado");
+    expect(r[0]?.["supplier"]).toBe("não informado");
   });
 });
