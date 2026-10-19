@@ -86,6 +86,7 @@ function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m
   const [err, setErr] = useState<string | null>(null);
   const [checks, setChecks] = useState<CheckItem[] | null>(null); const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [nfFile, setNfFile] = useState<File | null>(null);
+  const [fiscalDone, setFiscalDone] = useState<{ key: string; id: string; uploaded: boolean } | null>(null);
   const day = f.receivedAt.slice(0, 10);
   useEffect(() => {
     void (async () => {
@@ -109,12 +110,20 @@ function ReceiveWizard({ row, onDone, onCancel }: { row: DeliveryRow; onDone: (m
     try {
       let fiscal: string | null = null;
       if (action === "confirmacao" && nfFile) {
-        fiscal = await call<string>("record_meal_fiscal_document", { _logical: null, _expected_version: null, _status: "recebido", _school: row.school_id, _schedule: row.schedule_logical_id,
-          _number: f.nfNumber.trim(), _issuer: null, _issued_on: f.nfDate || null, _sha256: await sha256Hex(nfFile), _storage_ref: null, _reason: null });
-        // Guarda o arquivo da NF no cofre privado da Alimentação, ligado ao documento fiscal.
-        const b64 = await new Promise<string>((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] ?? ""); r.onerror = no; r.readAsDataURL(nfFile); });
-        try { await uploadMealEvidence({ data: { targetKind: "documento-fiscal", targetLogicalId: fiscal, replaces: null, label: `NF ${f.nfNumber.trim()}`.slice(0, 120), mediaType: nfFile.type, base64: b64 } }); }
-        catch (e) { setErr(`O arquivo da nota não foi guardado: ${receivingMessage((e as Error).message)}. Use PDF ou imagem até 10 MB.`); return; }
+        // Nova tentativa reaproveita a NF já registrada (mesmo arquivo e número): nunca duplica o documento fiscal.
+        const key = `${await sha256Hex(nfFile)}|${f.nfNumber.trim()}`;
+        if (fiscalDone?.key === key) fiscal = fiscalDone.id;
+        else {
+          fiscal = await call<string>("record_meal_fiscal_document", { _logical: null, _expected_version: null, _status: "recebido", _school: row.school_id, _schedule: row.schedule_logical_id,
+            _number: f.nfNumber.trim(), _issuer: null, _issued_on: f.nfDate || null, _sha256: key.split("|")[0], _storage_ref: null, _reason: null });
+          setFiscalDone({ key, id: fiscal, uploaded: false });
+        }
+        if (!(fiscalDone?.key === key && fiscalDone.uploaded)) {
+          const b64 = await new Promise<string>((ok, no) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(",")[1] ?? ""); r.onerror = no; r.readAsDataURL(nfFile); });
+          try { await uploadMealEvidence({ data: { targetKind: "documento-fiscal", targetLogicalId: fiscal, replaces: null, label: `NF ${f.nfNumber.trim()}`.slice(0, 120), mediaType: nfFile.type, base64: b64 } }); }
+          catch (e) { setErr(`A nota foi registrada, mas o arquivo não foi guardado: ${receivingMessage((e as Error).message)}. Tente de novo (a nota não será duplicada). Use PDF ou imagem até 10 MB.`); return; }
+          setFiscalDone({ key, id: fiscal, uploaded: true });
+        }
       }
       const id = await call<string>("record_meal_receipt", {
         _logical: logical, _expected_version: version, _action: action, _schedule: row.schedule_logical_id, _received_at: new Date(f.receivedAt).toISOString(), _tz: TZ,
