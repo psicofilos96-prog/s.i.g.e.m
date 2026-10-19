@@ -31938,6 +31938,69 @@ export type Database = {
           },
         ]
       }
+      school_reclassification_steps: {
+        Row: {
+          content: string
+          id: string
+          idempotency_key: string
+          kind: string
+          outcome: string | null
+          process_id: string
+          recorded_at: string
+          recorded_by: string
+          recorded_by_principal_id: string
+          school_id: string
+          seq: number
+          step: string
+          student_id: string
+        }
+        Insert: {
+          content: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          outcome?: string | null
+          process_id: string
+          recorded_at?: string
+          recorded_by: string
+          recorded_by_principal_id: string
+          school_id: string
+          seq: number
+          step: string
+          student_id: string
+        }
+        Update: {
+          content?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          outcome?: string | null
+          process_id?: string
+          recorded_at?: string
+          recorded_by?: string
+          recorded_by_principal_id?: string
+          school_id?: string
+          seq?: number
+          step?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_reclassification_steps_recorded_by_principal_id_fkey"
+            columns: ["recorded_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_reclassification_steps_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_risk_limits: {
         Row: {
           frequency_pct: number | null
@@ -43100,6 +43163,19 @@ export type Database = {
         }
         Returns: string
       }
+      direcao_record_reclassification_step: {
+        Args: {
+          _content: string
+          _key: string
+          _kind: string
+          _outcome: string
+          _process: string
+          _school: string
+          _step: string
+          _student: string
+        }
+        Returns: string
+      }
       direcao_record_school_logo: {
         Args: {
           _mime: string
@@ -52459,6 +52535,20 @@ export type Database = {
           guardian_name: string
           indicated: boolean
           sequence: number
+        }[]
+      }
+      school_reclassifications_at: {
+        Args: { _school: string }
+        Returns: {
+          content: string
+          kind: string
+          outcome: string
+          process_id: string
+          recorded_at: string
+          seq: number
+          step: string
+          student_id: string
+          student_name: string
         }[]
       }
       school_record_version_core: {
