@@ -1,5 +1,8 @@
 # Roadmap — SIGEM simples no design original
 
+## Acesso docente indevido (19/10/2026)
+- [ ] Reproduzir com a sessão docente, corrigir oferta de Gestão Escolar e áreas de outros setores no menu, início e acesso direto; respeitar capacidades reais e testar sem conceder permissões.
+
 ## Mensagens para o usuário (19/10/2026)
 - [ ] Retirar o “Itaperuna” repetido sobre a imagem no topo da dashboard, preservando a identificação nos outros lugares.
 - [ ] Retirar códigos técnicos expostos como ADHESION_METRIC / BLOCKED_BY_HOMOLOGATED_RULE em todo o sistema; manter explicações humanas e ações de recuperação, sem ocultar falhas ou presumir dados.
