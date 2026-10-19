@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
 import { DEFAULT_MEASURES, DEFAULT_SEVERITIES, draftProblems, occurrenceNumber, threads, type OccurrenceRow, type Party } from "./occurrences";
 import { occurrencePdf } from "./occurrences-pdf";
+import { OccurrenceAttachments, useOccurrenceAttachments } from "./occurrence-attachments";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2 text-sm";
 const dt = (s: string) => new Date(s).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" });
@@ -20,6 +21,8 @@ export function OccurrencesPanel({ school, schoolName }: { school: string; schoo
   const key = ["school-occurrences", signed?.user.id, signed?.sessionRevision, school];
   const q = useQuery({ queryKey: key, enabled: !!signed, retry: false,
     queryFn: () => callRpc<OccurrenceRow[]>("school_occurrences_at", { _school: school }) });
+  const att = useOccurrenceAttachments(school, [signed?.user.id, signed?.sessionRevision]);
+  const attKey = ["occurrence-attachments", signed?.user.id, signed?.sessionRevision, school];
   const [form, setForm] = useState<null | { addendumOf: string | null }>(null);
   if (!signed) return null;
   if (q.isError && /not-authorized/.test(String(q.error))) return null;
@@ -42,6 +45,7 @@ export function OccurrencesPanel({ school, schoolName }: { school: string; schoo
             <p className="whitespace-pre-wrap">{t.original.narrative}</p>
             {t.original.measures.length > 0 && <p className="text-xs">Providências: {t.original.measures.join("; ")}</p>}
             {t.addenda.map((a) => <div key={a.id} className="ml-3 border-l pl-3"><p className="text-xs font-semibold">Adendo {occurrenceNumber(a)} · {dt(a.created_at)}</p><p className="whitespace-pre-wrap">{a.narrative}</p></div>)}
+            <OccurrenceAttachments school={school} occurrenceId={t.original.id} items={att.isError ? null : att.data ?? []} canWrite={canWrite} queryKey={attKey} />
             <div className="flex flex-wrap gap-2 pt-1">
               <Button size="sm" variant="outline" onClick={() => downloadBlob(`ocorrencia-${occurrenceNumber(t.original).replace("/", "-")}.pdf`, occurrencePdf(t, schoolName))}>PDF A4</Button>
               {canWrite && <Button size="sm" variant="outline" onClick={() => setForm({ addendumOf: t.original.id })}>Registrar adendo</Button>}
