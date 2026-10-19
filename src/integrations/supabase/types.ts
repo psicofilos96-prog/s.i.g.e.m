@@ -30785,6 +30785,53 @@ export type Database = {
           },
         ]
       }
+      school_disciplinary_occurrence_attachments: {
+        Row: {
+          created_at: string
+          file_name: string
+          id: string
+          mime_type: string
+          object_path: string
+          occurrence_id: string
+          recorded_by_user: string
+          school_id: string
+          sha256: string
+          size_bytes: number
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          id?: string
+          mime_type: string
+          object_path: string
+          occurrence_id: string
+          recorded_by_user: string
+          school_id: string
+          sha256: string
+          size_bytes: number
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          id?: string
+          mime_type?: string
+          object_path?: string
+          occurrence_id?: string
+          recorded_by_user?: string
+          school_id?: string
+          sha256?: string
+          size_bytes?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_disciplinary_occurrence_attachments_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "school_disciplinary_occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_disciplinary_occurrence_parties: {
         Row: {
           label_snapshot: string
@@ -42813,6 +42860,17 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      direcao_attach_occurrence_file: {
+        Args: {
+          _mime: string
+          _name: string
+          _occurrence: string
+          _path: string
+          _sha256: string
+          _size: number
+        }
+        Returns: string
+      }
       direcao_occurrence_students: {
         Args: { _q: string; _school: string }
         Returns: {
@@ -46505,6 +46563,19 @@ export type Database = {
         Returns: string[]
       }
       notif_still_authorized: { Args: { _delivery: string }; Returns: boolean }
+      occurrence_attachments_at: {
+        Args: { _school: string }
+        Returns: {
+          created_at: string
+          file_name: string
+          id: string
+          mime_type: string
+          object_path: string
+          occurrence_id: string
+          sha256: string
+          size_bytes: number
+        }[]
+      }
       offer_capability_on: {
         Args: { _on: string; _school: string }
         Returns: boolean
@@ -52234,6 +52305,8 @@ export type Database = {
         Returns: boolean
       }
       sdo_can_read: { Args: { _school: string }; Returns: boolean }
+      sdo_is_direcao: { Args: { _school: string }; Returns: boolean }
+      sdo_upload_allowed: { Args: { _path: string }; Returns: boolean }
       search_admin_cases: {
         Args: { _classification: string; _term: string; _year: number }
         Returns: {
