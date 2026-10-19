@@ -1,3 +1,4 @@
+import { isValidCpf } from "@/lib/cpf";
 /** DocServ no SIGEM (LOTE 01): papéis vêm de capacidades e da pessoa canônica, nunca de "tipo de usuário" do DocServ. */
 export type DocservContext = { person_id: string | null; servidor: boolean; escola_schools: string[]; nie: boolean };
 export type Outcome = "vinculado" | "ambiguo" | "sem-correspondencia" | "descartado";
@@ -29,7 +30,7 @@ export const OUTCOME_LABEL: Record<Outcome, string> = {
 };
 
 /** CPF só é aceito com 11 dígitos; nunca sai do formulário além da chamada ao servidor (lá vira HMAC). */
-export const cpfDigits = (v: string) => { const d = v.replace(/\D/g, ""); return d.length === 11 ? d : null; };
+export const cpfDigits = (v: string) => { const d = v.replace(/\D/g, ""); return isValidCpf(d) ? d : null; };
 
 export function needsManualDecision(q: QueueItem) { return q.outcome === "ambiguo"; }
 

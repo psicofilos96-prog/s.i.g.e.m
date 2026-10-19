@@ -13,7 +13,7 @@ describe("DocServ — painéis por capacidade", () => {
 });
 
 describe("DocServ — identidade", () => {
-  it("CPF só com 11 dígitos", () => { expect(cpfDigits("123.456.789-01")).toBe("12345678901"); expect(cpfDigits("123")).toBeNull(); });
+  it("CPF só com 11 dígitos", () => { expect(cpfDigits("529.982.247-25")).toBe("52998224725"); expect(cpfDigits("123.456.789-01")).toBeNull(); expect(cpfDigits("123")).toBeNull(); });
   it("ambíguo exige decisão manual; vinculado não", () => {
     const base: Omit<QueueItem, "outcome"> = { key: "k", seq: 1, kind: "servidor", matricula: null, cpf: true, inep: null, candidates: [], masked_names: null, manual: false, recorded_at: "" };
     expect(needsManualDecision({ ...base, outcome: "ambiguo" })).toBe(true);

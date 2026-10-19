@@ -1,3 +1,4 @@
+import { isValidCpf } from "@/lib/cpf";
 /**
  * Matrículas L05 — identificação do solicitante (responsável ou estudante adulto), contatos e recuperação de acesso.
  * Núcleo puro: o servidor recebe só HMAC de CPF/contato (nunca valor claro), toda resposta pública é uniforme
@@ -20,12 +21,7 @@ export interface IdentificationPlan {
 type R<T> = { ok: true; value: T } | { ok: false; issues: string[] };
 
 export function onlyDigits(s: string) { return s.replace(/\D/g, ""); }
-export function validCpf(raw: string): boolean {
-  const d = onlyDigits(raw);
-  if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
-  const dv = (n: number) => { let s = 0; for (let i = 0; i < n; i++) s += Number(d[i]) * (n + 1 - i); const r = (s * 10) % 11; return r === 10 ? 0 : r; };
-  return dv(9) === Number(d[9]) && dv(10) === Number(d[10]);
-}
+export const validCpf = isValidCpf;
 export function ageOn(birth: string, on: string): number {
   const [by = 0, bm = 0, bd = 0] = birth.split("-").map(Number); const [y = 0, m = 0, d = 0] = on.split("-").map(Number);
   return y - by - (m < bm || (m === bm && d < bd) ? 1 : 0);

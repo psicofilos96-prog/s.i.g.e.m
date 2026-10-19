@@ -6,6 +6,7 @@ import { useGeneralAdmin } from "@/features/institutional-admin/general-admin";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
 import { BUILD_INFO, schemaVersion } from "@/config/build-info";
 import { governError } from "@/lib/observability/governed-errors";
+import { CpfAuditPanel } from "./cpf-audit-panel";
 import { checkVersionChains, type Finding } from "./integrity-checks";
 import { BLOCKED_DEPENDENCIES, environmentCheck, migrationsCheck, probeCheck, recentTechFailures, recordTechFailure, type Check } from "./diagnostics-model";
 
@@ -73,6 +74,7 @@ export function SupportPage() {
         </p>
         {integrity && integrity !== "nao-legivel" && integrity.findings.length > 0 && <ul className="list-disc pl-5 text-sm">{integrity.findings.map((f, i) => <li key={i}>{f.check} · {f.key} — {f.detail}</li>)}</ul>}
       </section>
+      <CpfAuditPanel />
       <section aria-labelledby="sv-fail" className="space-y-2">
         <h2 id="sv-fail" className="text-lg font-semibold">Falhas técnicas recentes desta sessão</h2>
         {failures.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma registrada nesta sessão.</p> : (

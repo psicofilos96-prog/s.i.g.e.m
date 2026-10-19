@@ -1,3 +1,4 @@
+import { CpfInput } from "@/components/sigem/cpf-input";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,7 @@ function IdentityConsole() {
       <div className="flex flex-wrap items-end gap-2">
         <select className={field} value={kind} onChange={(e) => setKind(e.target.value as "servidor" | "escola")} aria-label="Tipo"><option value="servidor">Servidor</option><option value="escola">Escola</option></select>
         {kind === "servidor" && <input className={field} placeholder="Matrícula" value={mat} onChange={(e) => setMat(e.target.value)} />}
-        {kind === "servidor" && <input className={field} placeholder="CPF" value={cpf} onChange={(e) => setCpf(e.target.value)} autoComplete="off" />}
+        {kind === "servidor" && <CpfInput aria-label="CPF" className={field} value={cpf} onChange={setCpf} />}
         <input className={field} placeholder="INEP" value={inep} onChange={(e) => setInep(e.target.value)} />
         <Button size="sm" onClick={() => void resolve()}>Resolver</Button>
       </div>

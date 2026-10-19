@@ -1,3 +1,4 @@
+import { CpfInput } from "@/components/sigem/cpf-input";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { callRpc } from "@/lib/rpc-call";
@@ -78,7 +79,7 @@ export function ReceiveTransferPanel({ school, year, on }: { school: string; yea
       <h2 id="receber" className="font-semibold">Receber transferência</h2>
       <p className="text-sm text-muted-foreground">Busque pelo CPF, ou pelo nome completo junto com a data de nascimento.</p>
       <div className="flex flex-wrap gap-2">
-        <Input aria-label="CPF" placeholder="CPF" inputMode="numeric" className="max-w-[12rem]" value={cpf} onChange={(e) => setCpf(e.target.value)} />
+        <CpfInput aria-label="CPF" className="max-w-[12rem]" value={cpf} onChange={setCpf} />
         <span className="self-center text-sm text-muted-foreground">ou</span>
         <Input aria-label="Nome completo" placeholder="Nome completo" className="max-w-xs" value={name} onChange={(e) => setName(e.target.value)} />
         <DateInput aria-label="Data de nascimento" value={birth} onChange={(e) => setBirth(e.target.value)} />

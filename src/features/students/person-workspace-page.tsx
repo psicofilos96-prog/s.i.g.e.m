@@ -1,3 +1,4 @@
+import { formatCpf } from "@/lib/cpf";
 import { humanizeForScreen } from "@/config/technical-codes";
 /**
  * CADASTRAR ALUNO — piloto do padrão de interação do SIGEM 2.0 (13UX · Rodada 4).
@@ -449,9 +450,10 @@ export function PersonWorkspacePage({
           className="mt-1.5 h-12 text-base"
           inputMode="numeric"
           placeholder="000.000.000-00"
-          value={draft.cpf}
+          maxLength={14}
+          value={formatCpf(draft.cpf)}
           onBlur={() => touch("cpf")}
-          onChange={(event) => update({ cpf: event.target.value })}
+          onChange={(event) => update({ cpf: formatCpf(event.target.value) })}
         />
         <FieldHint>O aluno pode ser cadastrado sem CPF.</FieldHint>
         <FieldError issue={personIssueFor(issues, "cpf")} show={touched.includes("cpf")} />

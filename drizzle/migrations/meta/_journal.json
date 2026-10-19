@@ -4082,6 +4082,13 @@
       "when": 1792326222196,
       "tag": "0582_network_projection_compact_definer",
       "breakpoints": true
+    },
+    {
+      "idx": 583,
+      "version": "7",
+      "when": 1792411158423,
+      "tag": "0583_cpf_integrity_audit",
+      "breakpoints": true
     }
   ]
 }

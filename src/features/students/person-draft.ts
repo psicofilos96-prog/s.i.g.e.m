@@ -1,3 +1,4 @@
+import { isValidCpf } from "@/lib/cpf";
 /**
  * PESSOA / ALUNO — modelo demonstrativo de identidade cadastral (Etapa 8B).
  *
@@ -372,12 +373,12 @@ export function validatePersonDraft(
       message: "Data de nascimento inválida no formato demonstrativo dd/mm/aaaa.",
     });
   }
-  if (draft.cpf.trim() && !/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(draft.cpf.trim())) {
+  if (draft.cpf.trim() && !isValidCpf(draft.cpf)) {
     issues.push({
       id: "cpf-format",
       field: "cpf",
       severity: "erro",
-      message: "Formato demonstrativo de CPF inválido (000.000.000-00).",
+      message: "CPF inválido. Confira os números digitados.",
     });
   }
   if (!draft.cpf.trim()) {

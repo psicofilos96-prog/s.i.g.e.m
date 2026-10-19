@@ -1,3 +1,4 @@
+import { cpfDigits, cpfMessage, formatCpf } from "@/lib/cpf";
 import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
 import { PhotoCapture } from "@/features/family-portal/photo-capture";
 import { EntryOriginField, emptyEntryOrigin, entryOriginOk, entryOriginArgs, type EntryOrigin } from "./entry-origin-field";
@@ -222,7 +223,7 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
       <details open={!!fp.identificacao} className="rounded-md border p-3">
         <summary className="cursor-pointer text-sm">Buscar por CPF ou INEP</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={cpf} onChange={setCpf} error={(cpf.trim() && !validCpf(cpf) ? "CPF inválido: confira os 11 dígitos." : undefined) ?? fp.identificacao} />
+          <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={formatCpf(cpf)} onChange={(v) => setCpf(cpfDigits(v))} error={cpfMessage(cpf) ?? fp.identificacao} />
           <Field label="Código INEP do aluno" value={inep} onChange={setInep} error={fp.identificacao} />
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
