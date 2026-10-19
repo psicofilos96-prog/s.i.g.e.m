@@ -55,7 +55,7 @@ export function GovernanceStationPage() {
       <PageHeader title="Estação administrativa" description="Leitura da governança vigente. Nenhuma ação aqui concede acesso ou homologa regra; alterações só nos módulos donos." />
 
       <section aria-labelledby="gov-review" className="rounded border border-border p-4">
-        <h2 id="gov-review" className="mb-1 font-medium text-foreground">Revisão de governança pendente ({GOVERNANCE_REVIEW_PENDING.code})</h2>
+        <h2 id="gov-review" className="mb-1 font-medium text-foreground">Revisão de governança pendente</h2>
         <p className="text-sm">{GOVERNANCE_REVIEW_PENDING.finding}</p>
         <p className="text-sm text-muted-foreground">Impacto: {GOVERNANCE_REVIEW_PENDING.impact} {GOVERNANCE_REVIEW_PENDING.decision}</p>
       </section>

@@ -152,8 +152,7 @@ function AuthPage() {
           </div>
         </main>
         <section aria-label="Identidade da cidade" className="hidden min-w-0 flex-1 flex-col py-8 pl-8 pr-6 lg:flex xl:py-10 xl:pl-16 xl:pr-10">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-6">
-            <p className="flex items-center gap-3 min-w-0 text-sm uppercase tracking-[0.35em] text-login-ink/90 xl:tracking-[0.6em]">Itaperuna <span aria-hidden className="h-px w-12 shrink-0 bg-login-gold" /></p>
+          <div className="flex justify-end">
             <LiveClock />
           </div>
           <h2 className="mt-10 max-w-2xl font-display text-5xl font-semibold xl:text-6xl leading-[1.05] text-login-ink/95">Educação que<br />move <span className="text-login-gold-soft">nossa cidade.</span></h2>

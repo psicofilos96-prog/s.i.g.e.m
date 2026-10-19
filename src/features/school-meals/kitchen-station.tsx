@@ -4,7 +4,7 @@ import { SkeletonState } from "@/components/sigem/guidance";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
-import { ADHESION_BLOCK, CALENDAR_UNRESOLVED, THEORETICAL_DEBIT_BLOCK, executionMessage } from "./execution-model";
+import { CALENDAR_UNRESOLVED, executionMessage } from "./execution-model";
 import { MANUAL_CLASSES, MOVEMENT_CLASS_LABEL, expiresWithin, expiryText, lotText, opsMessage, type KitchenDay } from "./operations-l3-model";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { MENU_REASONS, adhesion, diaryProblems, grossTotal, pvpsOrder, type Compliance, type Counts } from "./kitchen-diary";
@@ -82,7 +82,7 @@ function KitchenDayView({ school, day, slots, docs, onDone, today }: { school: s
         <ul className="space-y-2">{slots.map((s) => { const e = day.executions.find((x) => x.slot === s.value_id); return (
           <li key={s.value_id} className="rounded-lg border p-3"><strong>{s.label}</strong>: {!e ? "sem registro" : e.followed === true ? "cardápio seguido" : e.followed === false ? `desvio — ${e.deviation ?? ""}` : "não informado"}
             {e && <div className="text-muted-foreground">Refeições servidas: {e.meals_total ?? "não informado"} · Alunos presentes: {e.students_present ?? "não informado"}</div>}</li>); })}</ul>)}
-      <p className="text-muted-foreground">{ADHESION_BLOCK}. Refeições servidas e alunos presentes são medidas separadas.</p>
+      <p className="text-muted-foreground">Refeições servidas e alunos presentes são contagens separadas. A adesão aparece no Diário da Cozinha quando as contagens são informadas.</p>
     </Card>
     <QuickExecution school={school} slots={slots} today={today} onDone={onDone} taken={day.executions.map((e) => e.slot)} label={label} />
     <Card title="Entregas esperadas hoje">
@@ -94,7 +94,7 @@ function KitchenDayView({ school, day, slots, docs, onDone, today }: { school: s
       {day.stock.length === 0 ? <p className="text-muted-foreground">Sem saldo registrado. Isso não afirma estoque zero.</p> : (
         <ul className="divide-y">{day.stock.map((l, i) => { const near = expiresWithin(l.expires_on, today, 7); return (
           <li key={i} className="py-2">{l.item} · {l.balance ?? "não disponível"} {l.unit}<div className="text-muted-foreground">Lote {lotText(l.lot)} · validade {expiryText(l.expires_on)}{near ? " · vence em até 7 dias ou já venceu" : ""}</div></li>); })}</ul>)}
-      <p className="text-muted-foreground">{THEORETICAL_DEBIT_BLOCK}: só sai do estoque o consumo que você registrar.</p>
+      <p className="text-muted-foreground">Só sai do estoque o consumo que você registrar.</p>
     </Card>
     <QuickConsumption school={school} stock={day.stock} today={today} onDone={onDone} />
     <WaterFiltersPanel school={school} today={today} />

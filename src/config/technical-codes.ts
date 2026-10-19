@@ -62,9 +62,10 @@ export function humanizeTechnical(text: string | null | undefined) {
   // "ASSUNTO — MOTIVO" (com espaço livre opcional entre palavras, ex.: "RULE CALCULATION")
   let out = text.replace(/\b([A-Z][A-Z0-9_ ]*[A-Z0-9])\s+[—-]\s+([A-Z][A-Z0-9_]+)\b/g, (all, subj: string, why: string) => {
     const key = subj.replace(/\s+/g, "_");
-    if (SUBJECT[key]) return SUBJECT[key]!;
+    const subject = SUBJECT[key];
+    if (subject) return subject;
     if (!CODE.test(why) && !CODE.test(key)) return all;
-    return LONE[why] ?? (LONE[key] ? LONE[key]! : GENERIC);
+    return LONE[why] ?? LONE[key] ?? GENERIC;
   });
   out = out.replace(new RegExp(CODE.source, "g"), (c) => {
     const p = phrase(c);

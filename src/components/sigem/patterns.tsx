@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { humanizeForScreen } from "@/config/technical-codes";
+import { noticeText } from "./notice-text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -164,7 +165,7 @@ export function EmptyState({
       <div className="mb-3 grid size-10 place-items-center rounded-lg bg-muted text-muted-foreground">
         <Icon className="size-5" />
       </div>
-      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+      <h2 className="text-sm font-semibold text-foreground">{humanizeForScreen(title)}</h2>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">{humanizeForScreen(description)}</p>
       {action && <div className="mt-4">{action}</div>}
     </div>
@@ -188,7 +189,7 @@ export function StatePanel({
         <AlertCircle className="size-4" />
       </span>
       <div className="min-w-0">
-        <h3 className="text-sm font-semibold">{title}</h3>
+        <h3 className="text-sm font-semibold">{humanizeForScreen(title)}</h3>
         <p className="mt-1 text-xs leading-relaxed opacity-80">{humanizeForScreen(description)}</p>
         {action && <div className="mt-3">{action}</div>}
       </div>
@@ -198,5 +199,5 @@ export function StatePanel({
 
 /** Aviso neutro em caixa (ausência/indisponibilidade explicada em texto). */
 export function NoteBox({ children }: { children: ReactNode }) {
-  return <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">{typeof children === "string" ? humanizeForScreen(children) : children}</p>;
+  return <p className="rounded-md border border-border p-4 text-sm text-muted-foreground">{noticeText(children)}</p>;
 }
