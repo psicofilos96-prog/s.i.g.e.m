@@ -2,8 +2,8 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LessonReportButton } from "./lesson-report-button";
 import type { MyDiary, LessonRow } from "./diary-w-source";
-const mock = vi.hoisted(() => ({ export: vi.fn(), download: vi.fn() }));
-vi.mock("./lesson-report-export", () => ({ exportLessonReport: mock.export }));
+const mock = vi.hoisted(() => ({ export: vi.fn(), create: vi.fn(), download: vi.fn() }));
+vi.mock("./lesson-report-export", () => ({ createLessonReportAttempt: (...args: unknown[]) => { mock.create(...args); return mock.export; } }));
 vi.mock("@/features/reports/report-engine", () => ({ downloadBlob: mock.download }));
 afterEach(() => { cleanup(); vi.resetAllMocks(); });
 const diary = { assignment_id: "a" } as MyDiary; const lessons = [{}] as LessonRow[];
@@ -16,7 +16,7 @@ describe("lesson PDF action", () => {
     mock.export.mockResolvedValue({ blob: new Blob(), name: "a.pdf", code: "ABCDEF0123456789ABCD" });
     render(<LessonReportButton diary={diary} lessons={lessons} />); fireEvent.click(screen.getByRole("button"));
     await waitFor(() => expect(mock.download).toHaveBeenCalledTimes(1));
-    expect(mock.export.mock.calls[0]?.[1]).toBe(lessons);
+    expect(mock.create.mock.calls[0]?.[1]).toBe(lessons);
   });
   it("does not download after account/selection unmount", async () => {
     let resolve: (v: unknown) => void = () => {};
@@ -24,10 +24,24 @@ describe("lesson PDF action", () => {
     const view = render(<LessonReportButton diary={diary} lessons={lessons} />);
     fireEvent.click(screen.getByRole("button")); view.unmount();
     await act(async () => { resolve({ blob: new Blob(), name: "a.pdf", code: "code" }); });
-    expect(mock.download).not.toHaveBeenCalled(); expect(mock.export.mock.calls[0]?.[3]()).toBe(false);
+    expect(mock.download).not.toHaveBeenCalled(); expect(mock.create.mock.calls[0]?.[3]()).toBe(false);
   });
   it("does not download when the emission fails", async () => {
     mock.export.mockRejectedValue(new Error("denied")); render(<LessonReportButton diary={diary} lessons={lessons} />);
     fireEvent.click(screen.getByRole("button")); await screen.findByRole("status"); expect(mock.download).not.toHaveBeenCalled();
+  });
+  it("reuses the same attempt after a failure", async () => {
+    mock.export.mockRejectedValueOnce(new Error("network")).mockResolvedValue({ blob: new Blob(), name: "a.pdf", code: "code" });
+    render(<LessonReportButton diary={diary} lessons={lessons} />);
+    fireEvent.click(screen.getByRole("button")); await screen.findByRole("status");
+    fireEvent.click(screen.getByRole("button"));
+    await waitFor(() => expect(mock.download).toHaveBeenCalledTimes(1));
+    expect(mock.create).toHaveBeenCalledTimes(1); expect(mock.export).toHaveBeenCalledTimes(2);
+  });
+  it("ignores a second click during an in-flight emission", async () => {
+    mock.export.mockReturnValue(new Promise(() => {}));
+    render(<LessonReportButton diary={diary} lessons={lessons} />);
+    fireEvent.click(screen.getByRole("button")); fireEvent.click(screen.getByRole("button"));
+    expect(mock.export).toHaveBeenCalledTimes(1);
   });
 });
