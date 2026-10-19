@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { runReport, toCsv, toPrintableHtml, toXlsx, fingerprint } from "@/features/reports/report-engine";
-import { MAPA_COMPRAS, purchaseMapRows } from "./purchase-map";
+import { MAPA_COMPRAS, MAPA_DISTRIBUICAO, distributionMapRows, distributionTotals, purchaseMapRows } from "./purchase-map";
 import { mealMessage } from "./meals-model";
 import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from "./ceiling-explain";
 import { operationalToday } from "@/lib/academic-date";
@@ -92,15 +92,18 @@ export function OrdersSection({ school, network, names }: { school: string; netw
       total: c.total, schools: Object.entries(c.by_school).map(([s, q]) => `${names.get(s) ?? s}: ${q}`).join("; ") }));
     download(`consolidado-${competence}.csv`, toCsv(runReport(CONSOLIDADO_ALIMENTACAO, { params: { competence } }, rows), { headerLines: ["SIGEM"], title: CONSOLIDADO_ALIMENTACAO.title }, [`Competência: ${competence}`, "Não é ordem de compra."]));
   }
-  async function exportPurchaseMap(fmt: "pdf" | "xlsx") {
-    const rows = purchaseMapRows((cons ?? []).map((c) => ({ ...c, total: Number(c.total) })), { items, units, contracts, suppliers, schools: names });
-    const result = runReport(MAPA_COMPRAS, { params: { competence } }, rows);
+  async function exportPurchaseMap(fmt: "pdf" | "xlsx", kind: "compras" | "distribuicao" = "compras") {
+    const ctx = { items, units, contracts, suppliers, schools: names };
+    const base = (cons ?? []).map((c) => ({ ...c, total: Number(c.total) }));
+    const def = kind === "compras" ? MAPA_COMPRAS : MAPA_DISTRIBUICAO;
+    const rows = kind === "compras" ? purchaseMapRows(base, ctx) : distributionMapRows(base, ctx);
+    const result = runReport(def, { params: { competence } }, rows);
     const logo = new URL(institution.emblemUrl, window.location.href).href;
-    const branding = { headerLines: [institution.governmentName, institution.departmentName, "Núcleo de Alimentação Escolar — SIGEM"], title: MAPA_COMPRAS.title, logoUrl: logo };
-    const meta = [`Competência: ${competence}`, "Somente pedidos autorizados vigentes.", "Não é ordem de compra nem empenho.", `Gerado em ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`];
+    const branding = { headerLines: [institution.governmentName, institution.departmentName, "Núcleo de Alimentação Escolar — SIGEM"], title: def.title, logoUrl: logo };
+    const meta = [`Competência: ${competence}`, "Somente pedidos autorizados vigentes.", "Não é ordem de compra nem empenho.", ...(kind === "distribuicao" ? distributionTotals(rows).map((t) => `Total ${t.supplier}: R$ ${t.total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}${t.complete ? "" : " (incompleto: há item sem preço no contrato)"}`) : []), `Gerado em ${new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`];
     if (fmt === "xlsx") {
       const buf = await toXlsx(result, branding, meta);
-      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })); a.download = `mapa-compras-${competence}.xlsx`; a.click();
+      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" })); a.download = `mapa-${kind}-${competence}.xlsx`; a.click();
       return;
     }
     const w = window.open("", "_blank"); if (!w) { setMsg("O navegador bloqueou a janela de impressão."); return; }
@@ -127,6 +130,8 @@ export function OrdersSection({ school, network, names }: { school: string; netw
             <Button variant="outline" onClick={exportCons}>Exportar consolidado (CSV)</Button>
             <Button variant="outline" onClick={() => void exportPurchaseMap("pdf")}>Mapa de compras (PDF A4)</Button>
             <Button variant="outline" onClick={() => void exportPurchaseMap("xlsx")}>Mapa de compras (XLSX)</Button>
+            <Button variant="outline" onClick={() => void exportPurchaseMap("pdf", "distribuicao")}>Mapa de distribuição por fornecedor (PDF A4)</Button>
+            <Button variant="outline" onClick={() => void exportPurchaseMap("xlsx", "distribuicao")}>Mapa de distribuição (XLSX)</Button>
           </div>}
         </div>
       )}
