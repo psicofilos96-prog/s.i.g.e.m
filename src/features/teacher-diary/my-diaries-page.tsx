@@ -5,7 +5,10 @@ import { operationalToday } from "@/lib/academic-date";
  * Correção sempre parte da versão vigente e declara apenas o que mudou; a regra de correção vem do banco.
  */
 import { SkeletonState } from "@/components/sigem/guidance";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { readDiariesSafely, readSlotsSafely, readLessonsSafely, readRosterSafely, readDiaryWithDeadline } from "./diary-read";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,8 +17,8 @@ import { ReferencePicker } from "@/features/curricular-reference/reference-picke
 import { readCatalog } from "@/features/curricular-reference/reference-source";
 import type { Catalog } from "@/features/curricular-reference/reference-engine";
 import {
-  ATTENDANCE_MARKS, changedAspects, currentMarks, diaryMessage, markAll, readLessons, readMyDiaries, readRoster, readSlots,
-  recordAttendance, recordLesson, unmarkedCount, type LessonRow, type Mark, type MyDiary, type RosterRow, type SlotRow,
+  ATTENDANCE_MARKS, changedAspects, currentMarks, diaryMessage, markAll,
+  recordAttendance, recordLesson, unmarkedCount, type LessonRow, type Mark, type MyDiary, type SlotRow,
 } from "./diary-w-source";
 
 const today = () => operationalToday();
@@ -23,29 +26,38 @@ const YEAR: Record<string, string> = { operacional: "Ano em operação", "em-pre
 const key = (d: MyDiary) => `${d.assignment_id}|${d.substitution_id ?? ""}|${d.engagement_id}`;
 
 export function MyDiariesPage() {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading") return authority.error
+    ? <StatePanel tone="danger" title="Não foi possível conferir seu acesso" description="Tente abrir o Diário novamente." />
+    : <SkeletonState label="Conferindo seu acesso" />;
+  if (authority.status !== "signed-in") return <EmptyState title="Entre para usar o Diário" />;
+  if (!authority.person) return <StatePanel tone="warning" title="Diário indisponível" description="Sua conta precisa estar vinculada a uma pessoa cadastrada." />;
+  return <DiariesWorkspace key={`${authority.user.id}#${authority.sessionRevision}`} scope={[authority.user.id, authority.sessionRevision]} />;
+}
+
+function ReadFailure({ title, retry }: { title: string; retry: () => void }) {
+  return <div role="alert" className="space-y-2"><StatePanel tone="danger" title={title} description="A consulta não foi concluída. Tente novamente." /><Button variant="outline" onClick={retry}>Tentar novamente</Button></div>;
+}
+
+function DiariesWorkspace({ scope }: { scope: readonly (string | number)[] }) {
   const [on, setOn] = useState(today());
-  const [rows, setRows] = useState<MyDiary[] | null>(null);
-  const [err, setErr] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
-  const [catalog, setCatalog] = useState<Catalog | null>(null);
-  useEffect(() => { readCatalog().then(setCatalog).catch(() => setCatalog(null)); }, []);
-  useEffect(() => {
-    let live = true; setRows(null); setErr(null);
-    readMyDiaries(on, new Date().toISOString()).then((r) => live && setRows(r)).catch((e) => live && setErr(diaryMessage((e as Error).message)));
-    return () => { live = false; };
-  }, [on]);
+  const diariesQuery = useQuery({ queryKey: ["teacher-diaries", ...scope, on], queryFn: () => readDiariesSafely(on, new Date().toISOString()), retry: false });
+  const catalogQuery = useQuery({ queryKey: ["teacher-diary-catalog", ...scope], queryFn: () => readDiaryWithDeadline(readCatalog), retry: false });
+  const rows = diariesQuery.isError ? null : diariesQuery.data ?? null;
+  const catalog = catalogQuery.isError ? null : catalogQuery.data ?? null;
   const sel = rows?.find((d) => key(d) === open) ?? null;
   return (
     <div className="space-y-6">
       <PageHeader title="Meus diários" description="Suas regências e substituições vigentes na data. O Diário nunca é aberto por lotação ou cargo." />
       <div className="max-w-xs"><label className="text-sm" htmlFor="data-diario">Data</label><DateInput id="data-diario" value={on} onChange={(e) => setOn(e.target.value)} /></div>
-      {err ? <StatePanel tone="danger" title="Não foi possível ler seus diários" description={err} />
+      {diariesQuery.isError ? <ReadFailure title="Não foi possível ler seus diários" retry={() => void diariesQuery.refetch()} />
         : !rows ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <EmptyState title="Nenhuma regência vigente nesta data" description="Só aparecem regências ou substituições suas registradas pela escola." />
         : (
           <ul className="grid gap-2 sm:grid-cols-2">{rows.map((d) => (
             <li key={key(d)}>
-              <button className={`w-full rounded-lg border p-3 text-left ${open === key(d) ? "border-primary" : ""}`} onClick={() => setOpen(key(d))}>
+              <Button variant="outline" className={`h-auto w-full flex-col items-start whitespace-normal p-3 text-left ${open === key(d) ? "border-primary" : ""}`} onClick={() => setOpen(key(d))}>
                 <span className="font-medium">{d.component_label ?? d.item_key ?? "Elemento curricular"}</span>
                 <span className="block text-sm">Turma {d.class_id}</span>
                 <span className="block text-xs text-muted-foreground">De {d.effective_from}{d.effective_until ? ` até ${d.effective_until}` : " sem término registrado"}</span>
@@ -54,32 +66,31 @@ export function MyDiariesPage() {
                   <Badge variant={d.year_state === "operacional" ? "secondary" : "outline"}>{YEAR[d.year_state ?? ""] ?? "Ano sem estado"}</Badge>
                   {d.assignment_state !== "vigente" && <Badge variant="outline">Regência: {d.assignment_state ?? "indisponível"}</Badge>}
                 </span>
-              </button>
+              </Button>
             </li>))}</ul>)}
-      {sel && <DiaryPanel key={key(sel)} diary={sel} on={on} catalog={catalog} />}
+      {catalogQuery.isError && <ReadFailure title="Não foi possível ler as referências curriculares" retry={() => void catalogQuery.refetch()} />}
+      {sel && <DiaryPanel key={`${key(sel)}|${on}`} diary={sel} on={on} catalog={catalog} scope={scope} />}
     </div>
   );
 }
 
-function DiaryPanel({ diary, on, catalog }: { diary: MyDiary; on: string; catalog: Catalog | null }) {
-  const [lessons, setLessons] = useState<LessonRow[] | null>(null);
-  const [slots, setSlots] = useState<SlotRow[] | null>(null);
-  const [slotErr, setSlotErr] = useState<string | null>(null);
+function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string; catalog: Catalog | null; scope: readonly (string | number)[] }) {
+  const lessonsQuery = useQuery({ queryKey: ["teacher-diary-lessons", ...scope, key(diary)], queryFn: () => readLessonsSafely(diary), retry: false });
+  const slotsQuery = useQuery({ queryKey: ["teacher-diary-slots", ...scope, key(diary), on], queryFn: () => readSlotsSafely(diary, on), retry: false });
+  const lessons = lessonsQuery.isError ? null : lessonsQuery.data ?? null;
+  const slots = slotsQuery.isError ? null : slotsQuery.data ?? null;
   const [msg, setMsg] = useState<string | null>(null);
   const [editing, setEditing] = useState<LessonRow | null>(null);
-  const load = useCallback(() => readLessons(diary).then(setLessons).catch((e) => setMsg(diaryMessage((e as Error).message))), [diary]);
-  useEffect(() => { void load(); }, [load]);
-  useEffect(() => { setSlots(null); setSlotErr(null); readSlots(diary, on).then(setSlots).catch((e) => setSlotErr(diaryMessage((e as Error).message))); }, [diary, on]);
   const operational = diary.year_state === "operacional";
   const readOnly = diary.year_state === "encerrado" || diary.year_state === "historico-importado";
   const ordered = useMemo(() => [...(lessons ?? [])].sort((a, b) => b.lesson_date.localeCompare(a.lesson_date)), [lessons]);
-  const saved = (m: string) => { setMsg(m); setEditing(null); void load(); };
+  const saved = (m: string) => { setMsg(m); setEditing(null); void lessonsQuery.refetch(); };
   return (
     <section className="space-y-4 rounded-lg border bg-card p-4" aria-label="Diário selecionado">
       <div>
         <h2 className="font-semibold">Aulas previstas em {on} (grade)</h2>
         <p className="text-xs text-muted-foreground">Previsão não é aula dada: nada vira ministrado sem o seu registro.</p>
-        {slotErr ? <p className="text-sm">{slotErr}</p> : !slots ? <SkeletonState label="Carregando" />
+        {slotsQuery.isError ? <ReadFailure title="Não foi possível ler os horários" retry={() => void slotsQuery.refetch()} /> : !slots ? <SkeletonState label="Carregando" />
           : slots.length === 0 ? <p className="text-sm">Nenhum horário da grade para este elemento nesta data.</p>
           : <ul className="text-sm">{slots.map((s) => <li key={s.block_id}>{s.starts_at.slice(0, 5)}–{s.ends_at.slice(0, 5)} {s.block_state !== "utilizavel" && <Badge variant="outline">indisponível: {s.block_state}</Badge>}</li>)}</ul>}
       </div>
@@ -89,7 +100,7 @@ function DiaryPanel({ diary, on, catalog }: { diary: MyDiary; on: string; catalo
       {operational && editing && <LessonForm diary={diary} on={editing.lesson_date} slots={slots ?? []} catalog={catalog} base={editing} onSaved={saved} onCancel={() => setEditing(null)} />}
       <div>
         <h2 className="font-semibold">Aulas ministradas (registradas)</h2>
-        {!lessons ? <SkeletonState label="Carregando" /> : ordered.length === 0 ? <p className="text-sm">Nenhuma aula registrada.</p> : (
+        {lessonsQuery.isError ? <ReadFailure title="Não foi possível ler as aulas registradas" retry={() => void lessonsQuery.refetch()} /> : !lessons ? <SkeletonState label="Carregando" /> : ordered.length === 0 ? <p className="text-sm">Nenhuma aula registrada.</p> : (
           <ul className="divide-y text-sm">{ordered.map((l) => (
             <li key={l.lesson_version_id} className="space-y-1 py-2">
               <span className="font-medium">{l.lesson_date}</span> · versão {l.version_number}
@@ -99,7 +110,7 @@ function DiaryPanel({ diary, on, catalog }: { diary: MyDiary; on: string; catalo
               <span className="block text-xs text-muted-foreground">Referências curriculares: {l.reference_item_ids.length || "nenhuma"}
                 {l.attendance_version_number ? ` · chamada versão ${l.attendance_version_number}` : " · sem chamada"}</span>
               {operational && <span className="flex gap-2"><button className="text-xs underline" onClick={() => setEditing(l)}>Corrigir aula</button></span>}
-              {operational && <Attendance diary={diary} lesson={l} onSaved={saved} />}
+              {operational && <Attendance key={`${l.lesson_version_id}|${l.attendance_version_id ?? "none"}`} diary={diary} lesson={l} onSaved={saved} scope={scope} />}
             </li>))}</ul>)}
       </div>
       {msg && <p role="status" className="text-sm">{msg}</p>}
@@ -143,18 +154,20 @@ function LessonForm({ diary, on, slots, catalog, base, onSaved, onCancel }: { di
   );
 }
 
-function Attendance({ diary, lesson, onSaved }: { diary: MyDiary; lesson: LessonRow; onSaved: (m: string) => void }) {
-  const [roster, setRoster] = useState<RosterRow[] | null>(null);
+function Attendance({ diary, lesson, onSaved, scope }: { diary: MyDiary; lesson: LessonRow; onSaved: (m: string) => void; scope: readonly (string | number)[] }) {
   const saved = currentMarks(lesson);
   const [marks, setMarks] = useState<Record<string, Mark>>(saved);
   const [just, setJust] = useState("");
   const [openA, setOpenA] = useState(false);
   const isCorrection = !!lesson.attendance_version_id;
-  useEffect(() => { if (openA && !roster) readRoster(diary, lesson.lesson_date).then(setRoster).catch((e) => onSaved(diaryMessage((e as Error).message))); }, [openA, roster, diary, lesson.lesson_date, onSaved]);
-  if (!openA) return <button className="text-xs underline" onClick={() => setOpenA(true)}>{isCorrection ? "Corrigir chamada" : "Fazer chamada"}</button>;
+  const rosterQuery = useQuery({ queryKey: ["teacher-diary-roster", ...scope, key(diary), lesson.lesson_date, lesson.attendance_version_id], queryFn: () => readRosterSafely(diary, lesson.lesson_date), enabled: openA, retry: false });
+  if (!openA) return <Button size="sm" variant="link" onClick={() => setOpenA(true)}>{isCorrection ? "Corrigir chamada" : "Fazer chamada"}</Button>;
+  if (rosterQuery.isError) return <ReadFailure title="Não foi possível ler os alunos da aula" retry={() => void rosterQuery.refetch()} />;
+  const roster = rosterQuery.data;
   if (!roster) return <SkeletonState label="Carregando alunos da data da aula" />;
-  // Correção: a lista é a da chamada original (fotografia da data), nunca a turma de hoje.
-  const list = isCorrection && lesson.eligible_student_ids ? roster.filter((r) => lesson.eligible_student_ids!.includes(r.student_id)) : roster;
+  // Correção usa a fotografia da chamada original, nunca a turma de hoje.
+  const eligible = lesson.eligible_student_ids;
+  const list = isCorrection && eligible ? roster.filter((r) => eligible.includes(r.student_id)) : roster;
   const missing = unmarkedCount(list, marks);
   const changed = Object.keys(marks).some((k) => marks[k] !== saved[k]);
   return (
