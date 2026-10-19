@@ -41997,6 +41997,7 @@ export type Database = {
         }
         Returns: string
       }
+      cpf_integrity_audit: { Args: never; Returns: Json }
       create_assessment_instrument: {
         Args: {
           _class: string
