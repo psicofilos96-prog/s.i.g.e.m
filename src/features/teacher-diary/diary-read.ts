@@ -23,7 +23,10 @@ const roster = z.array(z.object({ student_id: id, display_name: text, allocation
 const marks = z.record(text, z.record(text, z.enum(["Presente", "Ausente"])));
 const lessons = z.array(z.object({
   lesson_version_id: id, logical_record_id: id, version_number: z.number().int().positive(), lesson_date: id,
-  facts: z.object({ content: text.optional(), observation: text.optional() }), schedule_block_ids: z.array(id),
+  facts: z.object({ content: text.optional(), observation: text.optional() }).transform((facts) => ({
+    ...(facts.content === undefined ? {} : { content: facts.content }),
+    ...(facts.observation === undefined ? {} : { observation: facts.observation }),
+  })), schedule_block_ids: z.array(id),
   period_id: text.nullable(), recorded_as: z.enum(["titular", "substituto"]), attendance_version_id: text.nullable(),
   attendance_version_number: z.number().int().positive().nullable(), marks: marks.nullable(),
   eligible_student_ids: z.array(id).nullable(), reference_item_ids: z.array(id), reference_edition_ids: z.array(id),

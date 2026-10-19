@@ -30,7 +30,7 @@ export function MyDiariesPage() {
   if (authority.status === "loading") return authority.error
     ? <StatePanel tone="danger" title="Não foi possível conferir seu acesso" description="Tente abrir o Diário novamente." />
     : <SkeletonState label="Conferindo seu acesso" />;
-  if (authority.status !== "signed-in") return <EmptyState title="Entre para usar o Diário" />;
+  if (authority.status !== "signed-in") return <EmptyState title="Entre para usar o Diário" description="Use sua conta institucional." />;
   if (!authority.person) return <StatePanel tone="warning" title="Diário indisponível" description="Sua conta precisa estar vinculada a uma pessoa cadastrada." />;
   return <DiariesWorkspace key={`${authority.user.id}#${authority.sessionRevision}`} scope={[authority.user.id, authority.sessionRevision]} />;
 }
@@ -109,7 +109,7 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
               {l.facts.observation && <span className="block text-xs text-muted-foreground">{l.facts.observation}</span>}
               <span className="block text-xs text-muted-foreground">Referências curriculares: {l.reference_item_ids.length || "nenhuma"}
                 {l.attendance_version_number ? ` · chamada versão ${l.attendance_version_number}` : " · sem chamada"}</span>
-              {operational && <span className="flex gap-2"><button className="text-xs underline" onClick={() => setEditing(l)}>Corrigir aula</button></span>}
+              {operational && <span className="flex gap-2"><Button size="sm" variant="link" onClick={() => setEditing(l)}>Corrigir aula</Button></span>}
               {operational && <Attendance key={`${l.lesson_version_id}|${l.attendance_version_id ?? "none"}`} diary={diary} lesson={l} onSaved={saved} scope={scope} />}
             </li>))}</ul>)}
       </div>

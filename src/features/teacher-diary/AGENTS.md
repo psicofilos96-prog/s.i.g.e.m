@@ -1,3 +1,5 @@
+- `my-diaries-page` mounts after confirmed authority and natural-person linkage; `diary-read` validates responses with deadlines and account/revision keys, because stale responses must not cross sessions or appear as empty data.
+
 ## Perfil Docente SIGEM 2.0 (Lote 01 — `teacher-architecture.ts`)
 - Mapa das 34 seções → rota/módulo/tabela/lacuna vive só em `teacher-architecture.ts` e o teste exige que tudo citado exista, porque matriz manual em documento fica stale e esconderia cadastro paralelo.
 - Lote 02 (`teacher-context.ts`): "minhas turmas" é projeção por data de atuação × atribuição × substituição já lidas; atribuição vale só dentro da atuação, vigente = edição, encerrada = leitura apenas de fatos do próprio período, substituição concede e nunca retira, porque competência após o vínculo não pode ser ampliada nem presumida.
