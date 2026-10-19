@@ -636,5 +636,6 @@
  "drizzle/migrations/0585_my_lessons_without_attendance.sql": "a8951dfcf8dae7c728eab17aa8329c85f692bf7a1f1e8a67ff104dfc4fda8ac8",
  "drizzle/migrations/0586_direcao_disciplinary_occurrences.sql": "b9f00d1941e4793aed5f27d5c1f576d1c9bed69551f974fb18759607a0e40185",
  "drizzle/migrations/0587_direcao_occurrence_attachments.sql": "126e9f62f871e288fccf568cc103ec303bc88c380ac04f37feabad7cb0d29cce",
- "drizzle/migrations/0588_direcao_occurrence_staff.sql": "014fb12ad8ad14a139f74924c9c599a1108e48255e361d614a740bd717cee9da"
+ "drizzle/migrations/0588_direcao_occurrence_staff.sql": "014fb12ad8ad14a139f74924c9c599a1108e48255e361d614a740bd717cee9da",
+ "drizzle/migrations/0589_direcao_school_logo.sql": "9a4a47bd162ae9929ce10cefd087cf1f8425b586e764733e166a0b2e7b0d98f2"
 }
