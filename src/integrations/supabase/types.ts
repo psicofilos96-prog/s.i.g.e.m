@@ -31938,6 +31938,60 @@ export type Database = {
           },
         ]
       }
+      school_risk_limits: {
+        Row: {
+          frequency_pct: number | null
+          grade_cutoff: number | null
+          id: string
+          idempotency_key: string
+          reason: string
+          school_id: string
+          set_at: string
+          set_by: string
+          set_by_principal_id: string
+          version: number
+        }
+        Insert: {
+          frequency_pct?: number | null
+          grade_cutoff?: number | null
+          id?: string
+          idempotency_key: string
+          reason: string
+          school_id: string
+          set_at?: string
+          set_by: string
+          set_by_principal_id: string
+          version: number
+        }
+        Update: {
+          frequency_pct?: number | null
+          grade_cutoff?: number | null
+          id?: string
+          idempotency_key?: string
+          reason?: string
+          school_id?: string
+          set_at?: string
+          set_by?: string
+          set_by_principal_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_risk_limits_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_risk_limits_set_by_principal_id_fkey"
+            columns: ["set_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_staff_presence: {
         Row: {
           academic_year_id: string
@@ -43056,6 +43110,17 @@ export type Database = {
         }
         Returns: number
       }
+      direcao_set_risk_limits: {
+        Args: {
+          _expected_version: number
+          _frequency_pct: number
+          _grade_cutoff: number
+          _key: string
+          _reason: string
+          _school: string
+        }
+        Returns: number
+      }
       direcao_withdraw_school_notice: {
         Args: { _notice: string; _reason: string }
         Returns: undefined
@@ -52404,6 +52469,16 @@ export type Database = {
           _valid_from: string
         }
         Returns: string
+      }
+      school_risk_limits_at: {
+        Args: { _school: string }
+        Returns: {
+          frequency_pct: number
+          grade_cutoff: number
+          reason: string
+          set_at: string
+          version: number
+        }[]
       }
       school_supervision_records_at: {
         Args: { _known_at: string; _logical_id: string; _school: string }

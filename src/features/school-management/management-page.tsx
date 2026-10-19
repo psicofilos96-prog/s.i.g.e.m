@@ -22,6 +22,7 @@ import { OccurrencesPanel } from "./occurrences-panel";
 import { DirectorSummaryPanel } from "./director-summary-panel";
 import { SchoolLogoPanel } from "./school-logo";
 import { SchoolNoticesPanel } from "./school-notices-panel";
+import { RiskLimitsPanel } from "./risk-limits-panel";
 import { loadSchoolLogo } from "./school-logo-data";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
@@ -106,6 +107,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       </section>
       <OccurrencesPanel school={school} schoolName={schoolName} />
       <SchoolNoticesPanel school={school} year={year} on={on} />
+      <RiskLimitsPanel school={school} />
       <SchoolLogoPanel school={school} />
       <CensusDeclaredStaff school={school} />
       <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação operacional (CSV)</Button>
