@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
-import { formatInt } from "@/lib/format-ptbr";
+import { formatNumber } from "@/lib/format-ptbr";
 
 type Audit = {
   generated_at: string; cpf_records: number; malformed_fingerprints: number;
@@ -23,13 +23,13 @@ export function CpfAuditPanel() {
       {a === "erro" && <p role="alert" className="text-sm">Não foi possível conferir com esta conta.</p>}
       {a && a !== "erro" && (
         <ul className="divide-y divide-border rounded-md border border-border text-sm">
-          <li className="p-3">CPFs registrados: {formatInt(a.cpf_records)}</li>
-          <li className="p-3">Registros com formato inesperado: {formatInt(a.malformed_fingerprints)}</li>
-          <li className="p-3">Mesmo CPF em pessoas diferentes: {formatInt(a.duplicate_groups.length)}
+          <li className="p-3">CPFs registrados: {formatNumber(a.cpf_records)}</li>
+          <li className="p-3">Registros com formato inesperado: {formatNumber(a.malformed_fingerprints)}</li>
+          <li className="p-3">Mesmo CPF em pessoas diferentes: {formatNumber(a.duplicate_groups.length)}
             {a.duplicate_groups.length > 0 && <ul className="mt-1 list-disc pl-5 text-xs">{a.duplicate_groups.map((g, i) => <li key={i}>Pessoas para revisar: {g.people.join(", ")}</li>)}</ul>}
           </li>
-          <li className="p-3">Inscrições com o mesmo CPF para responsável e estudante: {formatInt(a.applications_same_cpf_requester_student)}</li>
-          <li className="p-3">Inscrições em que os dois CPFs são da mesma pessoa: {formatInt(a.applications_cpf_of_other_person)}</li>
+          <li className="p-3">Inscrições com o mesmo CPF para responsável e estudante: {formatNumber(a.applications_same_cpf_requester_student)}</li>
+          <li className="p-3">Inscrições em que os dois CPFs são da mesma pessoa: {formatNumber(a.applications_cpf_of_other_person)}</li>
           <li className="p-3 text-xs text-muted-foreground">Nada foi excluído nem corrigido. Gerado em {new Date(a.generated_at).toLocaleString("pt-BR")}.</li>
         </ul>
       )}
