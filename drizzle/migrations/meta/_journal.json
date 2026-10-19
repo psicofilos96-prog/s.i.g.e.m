@@ -4131,6 +4131,13 @@
       "when": 1792422226057,
       "tag": "0589_direcao_school_logo",
       "breakpoints": true
+    },
+    {
+      "idx": 590,
+      "version": "7",
+      "when": 1792425935397,
+      "tag": "0590_direcao_school_notices",
+      "breakpoints": true
     }
   ]
 }
