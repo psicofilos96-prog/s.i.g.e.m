@@ -42871,6 +42871,14 @@ export type Database = {
         }
         Returns: string
       }
+      direcao_occurrence_staff: {
+        Args: { _q: string; _school: string }
+        Returns: {
+          cargo: string
+          name: string
+          person_key: string
+        }[]
+      }
       direcao_occurrence_students: {
         Args: { _q: string; _school: string }
         Returns: {
