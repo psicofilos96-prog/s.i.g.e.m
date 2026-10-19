@@ -19,6 +19,7 @@ import { CensusDeclaredStaff } from "@/features/professionals/census-declared-st
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { OwnSchoolName } from "@/features/authority/own-school-field";
 import { OccurrencesPanel } from "./occurrences-panel";
+import { DirectorSummaryPanel } from "./director-summary-panel";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();
@@ -83,6 +84,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
   return (
     <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Blocos marcados com “conhecido até” reproduzem o que estava registrado naquele momento; os demais mostram o estado atual da fonte." />}
+      <DirectorSummaryPanel school={school} year={year} on={on} />
       <section aria-label="Blocos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {res.blocks.filter((b) => b.state !== "UNAVAILABLE").map((b) => (
           <Link key={b.id} to={b.link as "/secretaria"} className={`rounded-lg border bg-card p-4 space-y-1 hover:bg-accent ${TONE[b.state]}`}>
