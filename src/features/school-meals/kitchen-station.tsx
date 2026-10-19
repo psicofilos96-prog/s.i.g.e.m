@@ -11,6 +11,7 @@ import { MENU_REASONS, adhesion, diaryProblems, grossTotal, pvpsOrder, type Comp
 import { WaterFiltersPanel } from "./water-filters-panel";
 import { LabelsPanel } from "./labels-panel";
 import { MenuOfDay, usePlannedMenu } from "./menu-of-day";
+import { plannedFirst } from "./planned-consumption";
 import { SpecialDietKitchenList } from "./special-diet";
 type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 const call = callRpc;
@@ -150,6 +151,7 @@ function QuickExecution({ school, slots, today, onDone, taken, label }: { school
 /** 3. Baixa de ingredientes do dia: lotes em ordem PVPS, botões +1 e uma saída por linha no livro de estoque. */
 function QuickConsumption({ school, stock, today, onDone }: { school: string; stock: KitchenDay["stock"]; today: string; onDone: () => void }) {
   const lines = pvpsOrder(stock);
+  const plannedMenu = usePlannedMenu(today);
   const [qty, setQty] = useState<Record<number, string>>({}); const [klass, setKlass] = useState<string>("consumo-observado"); const [reason, setReason] = useState("");
   const [msg, setMsg] = useState<string | null>(null); const busy = useRef(false); const [pending, setPending] = useState(false);
   if (lines.length === 0) return null;
@@ -170,9 +172,10 @@ function QuickConsumption({ school, stock, today, onDone }: { school: string; st
   return (<Card title="3. Baixa de ingredientes do dia">
     <p className="text-sm text-muted-foreground">Lotes em ordem de vencimento: o que vence primeiro sai primeiro.</p>
     <label className="block">Tipo<select className={field} value={klass} onChange={(e) => setKlass(e.target.value)}>{MANUAL_CLASSES.map((c) => <option key={c} value={c}>{MOVEMENT_CLASS_LABEL[c]}</option>)}</select></label>
-    <ul className="divide-y">{lines.map((l, k) => (
+    {plannedMenu && <p className="text-sm">Itens do cardápio previsto aparecem primeiro. A quantidade é sempre a usada de fato.</p>}
+    <ul className="divide-y">{plannedFirst(lines, plannedMenu).map(({ line: l, index: k, planned }) => (
       <li key={k} className="flex flex-wrap items-center gap-2 py-2">
-        <span className="min-w-40 flex-1">{l.item} ({l.unit}) · saldo {l.balance ?? "não disponível"} · lote {lotText(l.lot)} · validade {expiryText(l.expires_on)}</span>
+        <span className="min-w-40 flex-1">{planned && <strong>Previsto · </strong>}{l.item} ({l.unit}) · saldo {l.balance ?? "não disponível"} · lote {lotText(l.lot)} · validade {expiryText(l.expires_on)}</span>
         <button type="button" className="rounded border px-3 py-2" onClick={() => bump(k, 1)}>+1</button>
         <input inputMode="decimal" aria-label={`Quantidade de ${l.item}`} className="w-20 rounded border bg-background p-2" value={qty[k] ?? ""} onChange={(e) => setQty({ ...qty, [k]: e.target.value })} />
       </li>))}</ul>
