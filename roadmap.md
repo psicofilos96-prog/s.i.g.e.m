@@ -90,3 +90,14 @@
 
 ## Mapa da rede — permissão uma vez por consulta (18/10/2026)
 - [x] Leitura em lote com verificação de capacidade única (0582): equivalência provada em 8 escolas × 4 fontes; fronteira negativa com conta de escola OK; Mapa da rede em 5,9 s (era 81 s)
+
+## Login do professor (19/10/2026)
+- [x] CPF centralizado em todo o sistema + conferência em Diagnóstico
+- [x] Mural de avisos da rede na tela inicial do professor (escolas das atuações vigentes)
+- [ ] Painel: chamada do dia pendente, alunos em risco, pendências SIPE/SIA
+- [ ] Contagem aulas dadas × carga prevista; Diário em PDF A4
+- [ ] Pauta AV1/AV2/IV/PA e consolidado da turma (média: regra ainda sem lugar, aguarda decisão)
+- [ ] Correção de prova por câmera; anexos no SIPE
+- [ ] PEI/PAEE/relatórios evolutivos e atendimento domiciliar no acesso do professor
+- [ ] Bilhetes individuais às famílias
+- [ ] Teste com conta de professor — aguarda autorização para criar professor de teste na 99999901
