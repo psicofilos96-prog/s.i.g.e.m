@@ -41,7 +41,7 @@ export function cpfStatus(raw: string | null | undefined): CpfStatus {
 }
 
 /** Mensagem em tempo real: nada enquanto a digitação está incompleta, a não ser que o campo já tenha perdido o foco. */
-export function cpfMessage(raw: string, opts: { required?: boolean; touched?: boolean } = {}): string | null {
+export function cpfMessage(raw: string, opts: { required?: boolean | undefined; touched?: boolean | undefined } = {}): string | null {
   const s = cpfStatus(raw);
   if (s === "vazio") return opts.required && opts.touched ? "Informe o CPF." : null;
   if (s === "incompleto") return opts.touched ? "O CPF tem 11 números." : null;
