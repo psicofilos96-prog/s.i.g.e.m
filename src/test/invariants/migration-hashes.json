@@ -645,5 +645,6 @@
  "drizzle/migrations/0594_direcao_reclassification.sql": "00af0e7adb91a4bb64cdf9d8b7650f3ee73462bf3081ab1753b07b8f457727a8",
  "drizzle/migrations/0595_meal_water_filters.sql": "4250dfedb3921a4cbb8df72e7a063110a68cf921d82f557fdd21da2aa6d87892",
  "drizzle/migrations/0596_meal_special_diet_requests.sql": "8c8b9197f1e310519edc41b671dcb1becc7f10f245bc50b80d6fcc029277bb63",
- "drizzle/migrations/0597_meal_special_diet_student_search.sql": "6503e250bddbe7cc5409fc723296c0ad4d9021c7ed62d5135dc2a805b8655da1"
+ "drizzle/migrations/0597_meal_special_diet_student_search.sql": "6503e250bddbe7cc5409fc723296c0ad4d9021c7ed62d5135dc2a805b8655da1",
+ "drizzle/migrations/0598_meal_receipt_requires_fiscal_document.sql": "8c21e9f6560fb32a4ed66b61c82ebd0e449bbba7eddcadb6c15839969a2cad54"
 }

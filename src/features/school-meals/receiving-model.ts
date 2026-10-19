@@ -85,6 +85,7 @@ export function supplierFacts(rows: DeliveryRow[], today: string): SupplierFacts
 }
 
 export function receivingMessage(raw: string): string {
+  if (raw.includes("fiscal-document-required")) return "Para confirmar o recebimento, registre a nota fiscal (número e arquivo).";
   if (raw.includes("inventory-catalog-pending")) return "Item ou unidade sem correspondência homologada no catálogo do estoque. O aceite não foi registrado.";
   if (raw.includes("checklist-answer-required")) return "Responda os itens obrigatórios da conferência.";
   if (raw.includes("temperature-required")) return "Este item exige temperatura na conferência.";
