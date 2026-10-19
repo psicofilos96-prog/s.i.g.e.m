@@ -92,7 +92,7 @@
 - [x] Leitura em lote com verificação de capacidade única (0582): equivalência provada em 8 escolas × 4 fontes; fronteira negativa com conta de escola OK; Mapa da rede em 5,9 s (era 81 s)
 
 ## Login do professor (19/10/2026)
-- [ ] Continuação atual: PDF A4 de registro de aulas por regência, pelo motor comum e trilha de emissão, sem notas/chamada/assinatura presumida; conferir paginação e isolamento da exportação.
+- [x] Continuação atual: PDF A4 de registro de aulas por regência, motor comum e emissão com hash exato antes do download; sem notas/chamada/assinatura presumida. Leitura em páginas ordenadas recusa truncamento; 52 testes PASS. PDF sintético de 3 páginas inspecionado, início/fim preservados; navegador preserva portão de senha. Emissão real aguarda conta docente apta.
 - [x] Continuação atual: envio de aula/chamada único com prazo de 15 s e UUID confirmado; erro preserva formulário, incerteza mantém payload/identidade para retentativa, conta desmontada ignora resposta. 30 testes PASS; navegador confirmou portão de senha e zero consultas antes dele. Gravação real aguarda troca de senha pelo titular; PDF segue pendente.
 - [x] Continuação atual: Meus diários, horários, aulas e chamada com chave conta/revisão, prazo de 15 s, resposta validada e nova tentativa; 23 testes passaram, build OK. Navegador: portão de senha preservado, zero consultas do Diário antes dele. Fluxo completo aguarda troca da senha pelo titular.
 - [x] Continuação: anexos SIPE com erro/carregamento/retentativa, acesso privado e isolamento por conta; planejamento sem leitura antes da sessão. 44 testes passaram, build OK. Navegador confirmou troca de senha obrigatória; envio/abertura reais aguardam conta apta.
@@ -104,7 +104,7 @@
 - [x] Mural de avisos da rede na tela inicial do professor (escolas das atuações vigentes)
 - [x] Pendências próprias de planos/provas com a OP e aulas registradas sem chamada nos últimos 14 dias
 - [ ] Painel: chamada do dia pendente, alunos em risco, pendências SIPE/SIA
-- [ ] Contagem aulas dadas × carga prevista; Diário em PDF A4
+- [ ] Contagem aulas dadas × carga prevista; Diário completo em PDF A4 (registro de aulas em PDF implementado; notas/frequência e conferência real ainda pendentes)
 - [ ] Pauta AV1/AV2/IV/PA e consolidado da turma (média: regra ainda sem lugar, aguarda decisão)
 - [ ] Correção por câmera e anexos SIPE: serviços canônicos integrados e protegidos; gravação/envio/abertura no navegador aguardam conta docente apta.
 - [ ] PEI/PAEE/relatórios evolutivos e atendimento domiciliar no acesso do professor
