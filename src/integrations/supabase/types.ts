@@ -30785,6 +30785,114 @@ export type Database = {
           },
         ]
       }
+      school_disciplinary_occurrence_parties: {
+        Row: {
+          label_snapshot: string
+          occurrence_id: string
+          party_kind: string
+          party_ref: string | null
+          role: string
+        }
+        Insert: {
+          label_snapshot: string
+          occurrence_id: string
+          party_kind: string
+          party_ref?: string | null
+          role: string
+        }
+        Update: {
+          label_snapshot?: string
+          occurrence_id?: string
+          party_kind?: string
+          party_ref?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_disciplinary_occurrence_parties_occurrence_id_fkey"
+            columns: ["occurrence_id"]
+            isOneToOne: false
+            referencedRelation: "school_disciplinary_occurrences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_disciplinary_occurrences: {
+        Row: {
+          addendum_of: string | null
+          created_at: string
+          id: string
+          idempotency_key: string
+          kind: string
+          measures: string[]
+          narrative: string
+          number_seq: number
+          number_year: number
+          occurred_at: string
+          recorded_by_principal_id: string
+          recorded_by_user: string
+          school_id: string
+          severity: string
+          witnesses: string | null
+        }
+        Insert: {
+          addendum_of?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          kind: string
+          measures?: string[]
+          narrative: string
+          number_seq: number
+          number_year: number
+          occurred_at: string
+          recorded_by_principal_id: string
+          recorded_by_user: string
+          school_id: string
+          severity: string
+          witnesses?: string | null
+        }
+        Update: {
+          addendum_of?: string | null
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          kind?: string
+          measures?: string[]
+          narrative?: string
+          number_seq?: number
+          number_year?: number
+          occurred_at?: string
+          recorded_by_principal_id?: string
+          recorded_by_user?: string
+          school_id?: string
+          severity?: string
+          witnesses?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_disciplinary_occurrences_addendum_of_fkey"
+            columns: ["addendum_of"]
+            isOneToOne: false
+            referencedRelation: "school_disciplinary_occurrences"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_disciplinary_occurrences_recorded_by_principal_id_fkey"
+            columns: ["recorded_by_principal_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_sector_principals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_disciplinary_occurrences_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_document_emission_events: {
         Row: {
           emission_id: string
@@ -42705,6 +42813,28 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      direcao_occurrence_students: {
+        Args: { _q: string; _school: string }
+        Returns: {
+          name: string
+          student_id: string
+        }[]
+      }
+      direcao_record_occurrence: {
+        Args: {
+          _addendum_of: string
+          _idempotency_key: string
+          _kind: string
+          _measures: string[]
+          _narrative: string
+          _occurred_at: string
+          _parties: Json
+          _school: string
+          _severity: string
+          _witnesses: string
+        }
+        Returns: string
+      }
       dispatch_admin_case: {
         Args: {
           _case_id: string
@@ -51915,6 +52045,23 @@ export type Database = {
         }
         Returns: string
       }
+      school_occurrences_at: {
+        Args: { _school: string }
+        Returns: {
+          addendum_of: string
+          created_at: string
+          id: string
+          kind: string
+          measures: string[]
+          narrative: string
+          number_seq: number
+          number_year: number
+          occurred_at: string
+          parties: Json
+          severity: string
+          witnesses: string
+        }[]
+      }
       school_pedagogical_records_at: {
         Args: {
           _known_at: string
@@ -52086,6 +52233,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      sdo_can_read: { Args: { _school: string }; Returns: boolean }
       search_admin_cases: {
         Args: { _classification: string; _term: string; _year: number }
         Returns: {
