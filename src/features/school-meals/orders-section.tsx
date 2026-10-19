@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { runReport, toCsv, toPrintableHtml, toXlsx, fingerprint } from "@/features/reports/report-engine";
-import { MAPA_COMPRAS, purchaseMapRows } from "./purchase-map";
+import { MAPA_COMPRAS, MAPA_DISTRIBUICAO, distributionMapRows, distributionTotals, purchaseMapRows } from "./purchase-map";
 import { mealMessage } from "./meals-model";
 import { authorizationNeeds, explainServerLine, type ServerCeilingLine } from "./ceiling-explain";
 import { operationalToday } from "@/lib/academic-date";
