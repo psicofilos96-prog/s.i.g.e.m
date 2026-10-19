@@ -68,7 +68,7 @@ export function RiskLimitsPanel({ school }: { school: string }) {
       <p className="text-xs text-muted-foreground">
         O corte de nota só passa a gerar alertas quando a regra de médias da rede estiver definida.
       </p>
-      {err && <p className="text-xs text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
       {ok && <p className="text-xs text-primary">{ok}</p>}
     </section>
   );

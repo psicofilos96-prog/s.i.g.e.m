@@ -44,7 +44,7 @@ export function ReclassificationPanel({ school }: { school: string }) {
   return (
     <section aria-label="Reclassificação e avanço" className="rounded-lg border bg-card p-4 space-y-3">
       <h2 className="font-semibold">Reclassificação e avanço escolar</h2>
-      {err && <p className="text-sm text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
       <div className="space-y-2">
         <div className="flex flex-wrap gap-2 text-sm">
           <input className="rounded border bg-background px-2 py-1" placeholder="Nome do estudante" value={search} onChange={(e) => setSearch(e.target.value)} />

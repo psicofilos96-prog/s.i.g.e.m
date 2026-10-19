@@ -102,7 +102,7 @@ export function SchoolNoticesPanel({ school, year, on }: { school: string; year:
         <Button size="sm" disabled={busy} onClick={() => void publish()}>{busy ? "Publicando…" : "Publicar aviso"}</Button>
         <p className="text-xs text-muted-foreground">Aviso publicado não pode ser editado; só retirado com motivo.</p>
       </div>
-      {err && <p className="text-xs text-destructive">{err}</p>}
+      {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
       {ok && <p className="text-xs text-primary">{ok}</p>}
 
       <div className="space-y-2">
