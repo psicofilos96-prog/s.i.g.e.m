@@ -180,3 +180,6 @@ Conta: Supervisão (sessão injetada). Critério: sem "Carregando"/skeleton apó
 - Solução (migration 0582): `network_projection_compact_sources` virou leitor em lote com verificação de capacidade UMA vez por chamada (escopo rede ou lista de escolas permitidas), mantendo o mesmo resultado de acesso: escola sem capacidade recebe listas vazias, como seria via RLS. Semântica temporal idêntica aos leitores por escola (cadeias append-only, declarações de início, encerramentos, ambiguidade = recusa).
 - Provas: equivalência linha a linha com os leitores oficiais em 8 escolas × 4 fontes (matrículas, participações, enturmações, movimentações); fronteira negativa com conta de escola (sec.99999901) — só a própria escola retorna dados; totais da rede inalterados (10.135 matrículas, 10.525 enturmações, 704 turmas).
 - Medição no navegador (CIECE, outubro/2026): 81 s → 22 s → 11,8 s → **5,9 s**.
+
+## Medição 19/10/2026 (sem sessão, 14 rotas protegidas)
+- `scripts/perf-loading-gate-bench.py`: 0 respostas 401/403, 0 telas presas em "Carregando" após 12 s. Medição com sessão por setor ainda pendente.
