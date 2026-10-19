@@ -22,6 +22,7 @@ import { OccurrencesPanel } from "./occurrences-panel";
 import { DirectorSummaryPanel } from "./director-summary-panel";
 import { SchoolLogoPanel } from "./school-logo";
 import { SchoolNoticesPanel } from "./school-notices-panel";
+import { ClassCouncilPanel } from "./class-council-panel";
 import { RiskLimitsPanel } from "./risk-limits-panel";
 import { FrequencyRiskPanel } from "./frequency-risk-panel";
 import { VaccinationOverduePanel } from "./vaccination-overdue-panel";
@@ -109,6 +110,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       </section>
       <OccurrencesPanel school={school} schoolName={schoolName} />
       <SchoolNoticesPanel school={school} year={year} on={on} />
+      <ClassCouncilPanel school={school} year={year} on={on} />
       <RiskLimitsPanel school={school} />
       <FrequencyRiskPanel school={school} schoolName={schoolName} today={today()} />
       <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
