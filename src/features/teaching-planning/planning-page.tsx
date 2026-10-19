@@ -2,18 +2,20 @@ import { ReviewPanel } from "@/features/teacher-review/review-panel";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useSessionAuthority } from "@/features/authority/session-authority";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { Button } from "@/components/ui/button";
 import { ReferencePicker } from "@/features/curricular-reference/reference-picker";
 import { readCatalog } from "@/features/curricular-reference/reference-source";
 import { copyDraft, dailyBlocks, filterPlans, planTargetDate, parseBlocks, parseRefs, planHeads, planHistory, planMessage, plansOn, STATUS_LABEL, type PlanBlock, type PlanStatus, type PlanVersion } from "./planning-model";
-import { attachmentUrl, classPositions, planPeriods, itemsOfMatrix, matrixItemKeys, myAssignments, planAttachments, revokeAttachment, savePlan, uploadAttachment, visiblePlans, type Assignment } from "./planning-source";
+import { classPositions, planPeriods, itemsOfMatrix, matrixItemKeys, myAssignments, savePlan, visiblePlans, type Assignment } from "./planning-source";
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
 import { PlanPrint, SharePanel, TemplatesAdmin, planTemplates, recordSharedCopy, sharedWithMe } from "./sipe-extras";
 import { resolveTemplate, templateHeads } from "./planning-model";
 import { DEFAULT_DAY_FIELDS } from "./sipe-defaults";
+import { PlanAttachments } from "./plan-attachments";
+import { readAttachmentWithDeadline } from "./attachment-read";
 
 const today = () => operationalToday();
 type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null; sharedSource?: string };
@@ -25,14 +27,20 @@ const fromVersion = (v: PlanVersion): Draft => {
 };
 
 export function PlanningPage() {
+  const authority = useSessionAuthority();
+  if (authority.status === "loading") return <SkeletonState label="Conferindo sua sessão…" />;
+  if (authority.status !== "signed-in") return <StatePanel tone="neutral" title="Entre com sua conta" description="O planejamento está disponível após a entrada no SIGEM." />;
+  return <PlanningWorkspace key={`${authority.user.id}:${authority.sessionRevision}`} uid={authority.user.id} revision={authority.sessionRevision} />;
+}
+
+function PlanningWorkspace({ uid, revision }: { uid: string; revision: number }) {
   const qc = useQueryClient();
-  const [uid, setUid] = useState<string | null>(null);
-  useEffect(() => { supabase.auth.getUser().then(({ data }) => setUid(data.user?.id ?? null)); }, []);
-  const assignments = useQuery({ queryKey: ["plan-assignments"], queryFn: () => myAssignments(today()) });
-  const plans = useQuery({ queryKey: ["plans"], queryFn: visiblePlans });
-  const catalog = useQuery({ queryKey: ["ref-catalog"], queryFn: readCatalog });
-  const shared = useQuery({ queryKey: ["sipe-shared"], queryFn: sharedWithMe });
-  const templates = useQuery({ queryKey: ["sipe-tpl"], queryFn: planTemplates });
+  const scope = [uid, revision];
+  const assignments = useQuery({ queryKey: ["plan-assignments", ...scope], queryFn: () => readAttachmentWithDeadline(() => myAssignments(today())), retry: false });
+  const plans = useQuery({ queryKey: ["plans", ...scope], queryFn: () => readAttachmentWithDeadline(visiblePlans), retry: false });
+  const catalog = useQuery({ queryKey: ["ref-catalog", ...scope], queryFn: () => readAttachmentWithDeadline(readCatalog), retry: false });
+  const shared = useQuery({ queryKey: ["sipe-shared", ...scope], queryFn: () => readAttachmentWithDeadline(sharedWithMe), retry: false });
+  const templates = useQuery({ queryKey: ["sipe-tpl", ...scope], queryFn: () => readAttachmentWithDeadline(planTemplates), retry: false });
   const [printing, setPrinting] = useState<PlanVersion | null>(null);
   const [showTpl, setShowTpl] = useState(false);
   const [segment, setSegment] = useState("");
@@ -50,12 +58,12 @@ export function PlanningPage() {
   const current = new Map((assignments.data ?? []).map((a) => [a.assignment_id, a]));
 
   const assignment = draft ? current.get(draft.assignmentId) : undefined;
-  const matrixVersion = useQuery({ queryKey: ["plan-mv", assignment?.version_id], enabled: !!assignment, queryFn: async () => (await matrixItemKeys([assignment!.version_id]))[0]?.matrix_version_id ?? null });
+  const matrixVersion = useQuery({ queryKey: ["plan-mv", ...scope, assignment?.version_id], enabled: !!assignment, retry: false, queryFn: () => readAttachmentWithDeadline(async () => assignment ? (await matrixItemKeys([assignment.version_id]))[0]?.matrix_version_id ?? null : null) });
   const refDate = draft ? planTargetDate(draft.coversFrom || null, day) : day;
-  const periods = useQuery({ queryKey: ["plan-periods", draft?.assignmentId, refDate], enabled: !!assignment, queryFn: () => planPeriods(draft!.assignmentId, refDate) });
+  const periods = useQuery({ queryKey: ["plan-periods", ...scope, draft?.assignmentId, refDate], enabled: !!assignment, retry: false, queryFn: () => readAttachmentWithDeadline(() => assignment ? planPeriods(assignment.assignment_id, refDate) : Promise.resolve([])) });
   const draftClass = draft ? all.find((v) => v.id === draft.head)?.school_id ?? null : null;
-  const positions = useQuery({ queryKey: ["plan-positions", assignment?.class_id, refDate, draftClass], enabled: !!assignment && !!draftClass, queryFn: () => classPositions(draftClass!, assignment!.class_id, refDate) });
-  const items = useQuery({ queryKey: ["plan-items", matrixVersion.data], enabled: !!matrixVersion.data, queryFn: () => itemsOfMatrix(matrixVersion.data!) });
+  const positions = useQuery({ queryKey: ["plan-positions", ...scope, assignment?.class_id, refDate, draftClass], enabled: !!assignment && !!draftClass, retry: false, queryFn: () => readAttachmentWithDeadline(() => assignment && draftClass ? classPositions(draftClass, assignment.class_id, refDate) : Promise.resolve([])) });
+  const items = useQuery({ queryKey: ["plan-items", ...scope, matrixVersion.data], enabled: !!matrixVersion.data, retry: false, queryFn: () => readAttachmentWithDeadline(() => matrixVersion.data ? itemsOfMatrix(matrixVersion.data) : Promise.resolve([])) });
 
   const edit = (patch: Partial<Draft>) => { setDraft((d) => (d ? { ...d, ...patch } : d)); setDirty(true); };
   const saving = useRef(false);
@@ -68,8 +76,9 @@ export function PlanningPage() {
         blocks: draft.blocks, refs: [...draft.itemKeys.map((k) => ({ kind: "matrix-item" as const, item_key: k, ...(matrixVersion.data ? { matrix_version_id: matrixVersion.data } : {}) })),
           ...draft.refIds.map((i) => ({ kind: "reference-item" as const, item_id: i, ...(draft.refPos[i] ? { position_key: draft.refPos[i] } : {}) }))],
         status: st, copiedFrom: draft.copiedFrom, reason: null, targetDate: planTargetDate(draft.coversFrom || null, day), periodId: draft.periodId });
-      const fresh = await visiblePlans(); qc.setQueryData(["plans"], fresh);
-      const v = fresh.find((x) => x.id === id)!;
+      const fresh = await readAttachmentWithDeadline(visiblePlans); qc.setQueryData(["plans", ...scope], fresh);
+      const v = fresh.find((x) => x.id === id);
+      if (!v) throw new Error("plan-save-not-confirmed");
       if (draft.sharedSource && !draft.planId) await recordSharedCopy(v.plan_id, draft.sharedSource).catch(() => undefined);
       setDraft(fromVersion(v)); setDirty(false);
       if (!silent) setMsg({ tone: "ok", text: st === "publicado" ? "Compartilhado. Nova versão registrada." : "Salvo como nova versão." });
@@ -82,7 +91,7 @@ export function PlanningPage() {
     const t = setTimeout(() => save(undefined, true), 4000); return () => clearTimeout(t);
   }, [draft, dirty]);
 
-  if (assignments.isError || plans.isError) return <StatePanel tone="danger" title="Não foi possível abrir o planejamento" description="Tente novamente em instantes." />;
+  if (assignments.isError || plans.isError) return <div className="space-y-3"><StatePanel tone="danger" title="Não foi possível abrir o planejamento" description="Tente novamente." /><Button variant="outline" onClick={() => { if (assignments.isError) void assignments.refetch(); if (plans.isError) void plans.refetch(); }}>Tentar novamente</Button></div>;
   if (!assignments.data || !plans.data) return <SkeletonState label="Carregando" />;
 
   const newPlan = (a: Assignment) => { setDraft({ planId: null, head: null, assignmentId: a.assignment_id, title: "", levelValueId: null, coversFrom: "", coversUntil: "", blocks: [{ kindValueId: null, heading: "", body: "" }], itemKeys: [a.item_key], refIds: [], refPos: {}, periodId: null, status: "rascunho", copiedFrom: null }); setDirty(false); setMsg(null); };
@@ -109,6 +118,8 @@ export function PlanningPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Planejamento" description="Planeje para suas regências vigentes. Rascunho só você vê; compartilhar cria nova versão visível a quem tem permissão de consulta. Planejar não registra aula nem marca conteúdo como dado." />
+      {shared.isError && <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive"><span>Não foi possível ler os planejamentos compartilhados.</span><Button size="sm" variant="outline" onClick={() => { void shared.refetch(); }}>Tentar novamente</Button></div>}
+      {templates.isError && <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive"><span>Não foi possível ler os modelos de planejamento.</span><Button size="sm" variant="outline" onClick={() => { void templates.refetch(); }}>Tentar novamente</Button></div>}
       <div className="flex gap-2"><Button size="sm" variant="ghost" aria-expanded={showTpl} onClick={() => setShowTpl(!showTpl)}>Modelos de planejamento (Secretaria)</Button></div>
       {showTpl && <TemplatesAdmin schoolIds={[...new Set(all.map((v) => v.school_id))]} />}
       {msg && <div role={msg.tone === "err" ? "alert" : "status"} className={`rounded border p-3 text-sm ${msg.tone === "err" ? "border-destructive text-destructive" : "border-border"}`}>{msg.text}</div>}
@@ -204,7 +215,7 @@ export function PlanningPage() {
                       </fieldset>)}</div>)
                 : <p className="text-sm text-muted-foreground">Base BNCC/SAEB não disponível; o planejamento funciona sem ela.</p>}
               {!readOnly && <label className="block text-xs text-muted-foreground">Modelo dos dias <select aria-label="Modelo dos dias" className="ml-1 rounded border border-input bg-background p-1" value={segment} onChange={(e) => setSegment(e.target.value)}><option value="">Padrão SIPE</option>{segments.map((s) => <option key={s} value={s}>{s}</option>)}</select> {tpl ? `· ${tpl.plan_mode === "unidocente" ? "um planejamento da turma" : "um por componente"} · modelo v${tpl.version}` : `· campos: ${DEFAULT_DAY_FIELDS.join(", ")}`}</label>}
-              {draft.planId && <Attachments planId={draft.planId} uid={uid} readOnly={readOnly} />}
+              {draft.planId && <PlanAttachments key={draft.planId} planId={draft.planId} isAuthor={all.find((v) => v.id === draft.head)?.author_user_id === uid} readOnly={readOnly} />}
               {draft.head && <Button size="sm" variant="outline" onClick={() => setPrinting(all.find((v) => v.id === draft.head)!)}>Imprimir / PDF (A4)</Button>}
               {draft.planId && draft.head && !readOnly && draftSchool && <SharePanel planId={draft.planId} schoolId={draftSchool} />}
               {draft.planId && draft.head && <ReviewPanel kind="plano" subjectId={draft.planId} versionId={draft.head} isAuthor={all.find((v) => v.id === draft.head)?.author_user_id === uid} print={{ title: all.find((v) => v.id === draft.head)?.title ?? draft.title, sections: parseBlocks(all.find((v) => v.id === draft.head)?.blocks).map((b) => ({ heading: b.heading, body: b.body })) }} />}
@@ -227,18 +238,3 @@ export function PlanningPage() {
   );
 }
 
-function Attachments({ planId, uid, readOnly }: { planId: string; uid: string | null; readOnly: boolean }) {
-  const q = useQuery({ queryKey: ["plan-att", planId], queryFn: () => planAttachments(planId) });
-  const [err, setErr] = useState<string | null>(null);
-  const live = (q.data ?? []).filter((a) => !a.revoked && !(q.data ?? []).some((x) => x.supersedes_id === a.id));
-  return (
-    <fieldset className="space-y-1">
-      <legend className="text-sm font-medium">Anexos (privados, só o autor)</legend>
-      {err && <p role="alert" className="text-sm text-destructive">{err}</p>}
-      {live.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum anexo.</p> : <ul className="text-sm">{live.map((a) => (
-        <li key={a.id} className="flex gap-2"><button type="button" className="underline" onClick={async () => window.open(await attachmentUrl(a.object_path), "_blank", "noopener")}>{a.label}</button>
-          {!readOnly && <button type="button" className="text-xs underline" onClick={async () => { try { await revokeAttachment(planId, a.id); q.refetch(); } catch (e) { setErr(planMessage((e as Error).message)); } }}>remover</button>}</li>))}</ul>}
-      {!readOnly && uid && <input type="file" accept="image/jpeg,image/png,image/webp,application/pdf" aria-label="Adicionar anexo" className="text-sm" onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; if (f.size > 10 * 1024 * 1024) { setErr("Arquivo acima de 10 MB."); return; } try { await uploadAttachment(uid, planId, f); q.refetch(); setErr(null); } catch (x) { setErr(planMessage((x as Error).message)); } e.target.value = ""; }} />}
-    </fieldset>
-  );
-}
