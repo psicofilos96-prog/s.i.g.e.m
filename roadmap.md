@@ -1,5 +1,8 @@
 # Roadmap — SIGEM simples no design original
 
+## Mensagens para o usuário (19/10/2026)
+- [ ] Retirar códigos técnicos expostos como ADHESION_METRIC / BLOCKED_BY_HOMOLOGATED_RULE em todo o sistema; manter explicações humanas e ações de recuperação, sem ocultar falhas ou presumir dados.
+
 ## Continuação por perfil — Supervisão primeiro (19/10/2026)
 - [ ] Painel da rede em consulta: escolas autorizadas, busca e abertura do detalhe; números somente da reconciliação canônica, sem consultas por escola ou estimativas.
 - [x] Consultas da Supervisão por autoridade/sessão, limite de 15 s, nova tentativa e falha sem lista vazia; controles por pessoa/capacidade/escola. 59 testes PASS, build OK; Administrador carregou 56 escolas, selecionou escola de teste/2026 e abriu situação sem espera indefinida; acompanhamento recusado pelo reader com mensagem e retentativa.

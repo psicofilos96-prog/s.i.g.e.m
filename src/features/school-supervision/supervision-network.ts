@@ -25,7 +25,7 @@ export function networkSchools(schools: readonly { id: string; name: string }[],
 export async function readNetworkReconciliation(parent?: AbortSignal) {
   return withListTimeout(parent, async (signal) => {
     const knownAt = new Date().toISOString();
-    const rpc = supabase.rpc as unknown as (name: string, args: object) => {
+    const rpc = supabase.rpc.bind(supabase) as unknown as (name: string, args: object) => {
       range: (from: number, to: number) => { abortSignal: (s: AbortSignal) => PromiseLike<{ data: unknown[] | null; error: { message: string } | null }> };
     };
     const result = await readPages((from, to) => rpc("census_official_reconciliation", { _known_at: knownAt })
