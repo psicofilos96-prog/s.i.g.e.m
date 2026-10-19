@@ -12,3 +12,20 @@ export function plannedFirst<T extends { item: string }>(lines: T[], planned: st
   const tagged = lines.map((line, index) => ({ line, index, planned: isPlannedItem(line.item, planned) }));
   return [...tagged.filter((t) => t.planned), ...tagged.filter((t) => !t.planned)];
 }
+
+import type { CyclePayload } from "./menu-cycle";
+/** Ingredientes dos ciclos homologados da modalidade cujo cronograma toca a competência (AAAA-MM). */
+export function menuIngredientsOfMonth(cycles: CyclePayload[], modality: string, competence: string): string[] {
+  const set = new Map<string, string>();
+  for (const c of cycles) {
+    if (c.modalidade !== modality) continue;
+    const weeks = new Set(c.cronograma.filter((w) => w.de.slice(0, 7) <= competence && w.ate.slice(0, 7) >= competence).map((w) => w.semana));
+    for (const e of c.entradas) if (weeks.has(e.semana)) for (const g of e.ingredientes) if (g.trim()) set.set(norm(g), g.trim());
+  }
+  return [...set.values()].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+/** Ingredientes do cardápio sem item no pedido (por nome). Só aponta; nunca sugere quantidade. */
+export function menuIngredientsMissing(ingredients: string[], orderedItemNames: string[]): string[] {
+  return ingredients.filter((g) => !orderedItemNames.some((n) => isPlannedItem(n, g) || isPlannedItem(g, n)));
+}
