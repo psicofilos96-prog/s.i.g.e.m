@@ -4222,6 +4222,13 @@
       "when": 1792507641678,
       "tag": "0602_class_name_catalog_versions",
       "breakpoints": true
+    },
+    {
+      "idx": 603,
+      "version": "7",
+      "when": 1792508136950,
+      "tag": "0603_class_name_catalog_amendment_guard",
+      "breakpoints": true
     }
   ]
 }
