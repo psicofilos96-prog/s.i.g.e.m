@@ -5,6 +5,7 @@ import { callRpc } from "@/lib/rpc-call";
 import { userErrorText } from "@/lib/observability/governed-errors";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { Button } from "@/components/ui/button";
+import { askText } from "@/components/sigem/confirm-action";
 import {
   NOTICE_AUDIENCES, NOTICE_IMAGE_MIME, activeNotices, audienceLabel, noticeImageProblem, noticeProblems,
   type NoticeAudience, type NoticeRow,
@@ -63,7 +64,7 @@ export function SchoolNoticesPanel({ school, year, on }: { school: string; year:
   };
 
   const withdraw = async (id: string) => {
-    const reason = window.prompt("Motivo da retirada (obrigatório):")?.trim();
+    const reason = (await askText("Motivo da retirada (obrigatório):"))?.trim();
     if (!reason || reason.length < 3) return;
     setBusy(true); setErr(null);
     try {

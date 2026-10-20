@@ -4,7 +4,7 @@ import { callRpc } from "@/lib/rpc-call";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { shiftMonthKey, operationalMonthKey } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
-import { askText } from "@/components/sigem/confirm-action";
+import { askText, confirmAction } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { StatePanel } from "@/components/sigem/patterns";
@@ -194,9 +194,9 @@ function SchoolOrder({ school, competence, order, items: allItems, units, pubs, 
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={() => setLines([...lines, { item_ref: items[0]!.logical_id, unidade_ref: units[0]!.logical_id, quantidade: 0, publico_ref: publico || undefined }])}>Adicionar item</Button>
           <Button variant="outline" onClick={() => void act({ ...base, _action: "rascunho", _lines: lines, _reason: null })}>Salvar rascunho</Button>
-          {order && <Button onClick={() => {
+          {order && <Button onClick={async () => {
             const zeros = lines.filter((l) => classifyZero(l) === "zero-sem-justificativa").map((l) => String(items.find((it) => it.logical_id === l.item_ref)?.payload["nome"] ?? l.item_ref));
-            if (zeros.length && !window.confirm(`Estes itens estão com quantidade zero e sem motivo:\n\n${zeros.join("\n")}\n\nConfirma o envio assim mesmo?`)) return;
+            if (zeros.length && !await confirmAction({ title: "Submeter pedido com itens zerados?", consequence: `O pedido será enviado com quantidade zero e sem justificativa nestes itens: ${zeros.join(", ")}.`, actionLabel: "Submeter pedido" })) return;
             void act({ ...base, _action: "submissao", _lines: lines, _reason: null });
           }}>Submeter pedido</Button>}
         </div>
