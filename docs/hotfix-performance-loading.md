@@ -248,3 +248,9 @@ Pendente: a abertura da Administração ainda lê ~11 mil pessoas em páginas se
 - Pesquisa TESTE retornou sete identidades reais; seletor de atuação localizou e selecionou uma delas sem gravar atuação. Nomes existentes renderizaram nas listas. Sem erro de execução ou Carregando preso. Inspeção visual da pesquisa em 1280 e 538 px confirmou ausência de transbordamento horizontal. Nenhuma credencial foi exibida nos registros de teste.
 - 14 testes focados PASS; build OK após corrigir opções de seletor do teste. Script de navegador: `/tmp/browser/admin-person-search/check_search.py`. Não houve cadastro ou redefinição de senha.
 - PERF.LOADING.1 permanece aberto: o `reload` administrativo ainda lê todas as atuações/contas, repete no modo de desenvolvimento e não tem recuperação global com prazo; próximas investigações devem medir esse caminho e as consultas de turmas/permissões antes de mudanças no banco.
+
+## Medição 2026-10-20 — turmas e permissões efetivas
+- `readable_class_ids()` no banco: 154 ms (conta de rede, 704 turmas) e 190 ms (conta de escola, 2 turmas). A política de `institutional_classes` já usa `(SELECT ...)`.
+- REST com a conta do Administrador: `effective_capabilities` 1,0–1,4 s (300 KB); `institutional_classes?select=id` 0,8–1,0 s. A média histórica de 825 ms é anterior à 0601 ou ocorreu sob carga.
+- Sem evidência para índice ou reescrita agora. O custo de permissões é contido no cliente pelo cache compartilhado de 60 s (`capabilities-cache.ts`).
+- Administração (12h): prazo único de 15 s com "Tentar novamente". A tela lê contas e atuações só com a capacidade correspondente.
