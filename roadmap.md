@@ -4,7 +4,7 @@
 - [x] Padronização 2027: 136 nomes/códigos registrados e seleção conferida no navegador; 0602–0604 validam par, duplicidade e ausência de configuração sem alterar histórico. Criação de turma concreta não exercitada: falta catálogo curricular homologado na data; nomes não substituem etapas.
 - [x] Eliminar consultas antecipadas do Início e carga simultânea de blocos administrativos; limitar leituras da Central e remover cascatas da Estação sem ampliar permissões. 160 regressões direcionadas PASS; Administração paginada, Central com abas sob demanda e Estação com fontes limitadas.
 - [ ] Reconciliar pendências docentes e entre setores com implementações canônicas existentes; concluir integrações seguras e registrar bloqueadores reais.
-- [ ] Executar regressões e verificação integrada: tipos, build, invariantes profundas, PDFs, dados e rotas PASS; corrigidas 3 falhas (Alimentação/avisos). Suíte completa ainda acusa invariantes pré-existentes de datas nativas, 'hoje' em UTC, 'Carregando' solto e menus por estação.
+- [x] Executar regressões e verificação integrada: suíte completa PASS (7.729 testes), datas, 'hoje' em Brasília, 'Carregando' padronizado e menus por estação corrigidos.
 
 ## Continuação solicitada (20/10/2026)
 - [x] Administração: contas pelo leitor canônico e atuações em páginas no servidor (50 + continuidade), consultas por sessão com cancelamento/prazo e recuperação independente. 26 testes PASS; Administrador percorreu ambas as listas e recuperou 50 atuações após retenção de 15 s. Leituras de atuações 4 → 1; abertura variável 6,64 s antes e 20,12/12,49/6,37 s depois: sem prova de melhora de tempo global. Demais pendências abaixo continuam abertas, sem homologação presumida.
