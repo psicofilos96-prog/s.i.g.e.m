@@ -88,7 +88,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
   const info = observationLines(typeof presentation["observations"] === "string" ? presentation["observations"] : undefined);
   const logos = logosOf(doc.layout);
   return (
-    <article className="cd-folha" data-calendar-id={versionId} data-testid="institutional-print-sheet"
+    <article className="cd-folha" data-calendar-id={versionId} data-presentation={footer ? "interno-quadros" : "interno"} data-testid="institutional-print-sheet"
       aria-label={`Calendário Escolar ${year ?? ""} — ${model.title ?? "título não declarado"}`}>
       {doc.typography || doc.layout ? <style>{layoutCss(versionId, doc)}</style> : null}
       <div className="cd-cabecalho">
