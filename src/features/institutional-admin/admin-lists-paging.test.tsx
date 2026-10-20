@@ -19,11 +19,10 @@ const state = vi.hoisted(() => ({
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: { getUser: () => Promise.resolve({ data: { user: { id: "u1" } } }) },
-    rpc: (name: string) =>
-      Promise.resolve({
+    rpc: (name: string) => ({ abortSignal: () => Promise.resolve({
         data: name === "effective_scope_capabilities" ? [{ capability_id: "manter-atuacoes-institucionais" }] : null,
         error: null,
-      }),
+      }) }),
     from: (table: string): Builder => {
       const chain: Builder = {
         select: () => chain,
