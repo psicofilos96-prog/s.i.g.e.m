@@ -59,7 +59,7 @@ function AuthorizedGovernanceStationPage() {
           setEngs((e ?? []) as EngagementRow[]);
         }
       }
-      const loadedEvents = await loadAll();
+      const loadedEvents = await loadAll(ADMIN_MODULES);
       if (active && !signal.aborted) setEvents(loadedEvents.filter((x) => ADMIN_MODULES.has(x.module)));
     }).catch(() => { if (active) { setError("Não foi possível concluir a consulta. Recarregue a página para tentar novamente."); setEvents([]); } });
     return () => { active = false; controller.abort(); };
