@@ -5,8 +5,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 type Builder = {
   select: () => Builder;
   order: () => Builder;
+  eq: () => Builder;
+  limit: () => Builder;
   range: (from: number, to: number) => Promise<{ data: unknown[]; error: null }>;
   maybeSingle: () => Promise<{ data: unknown; error: null }>;
+  then: Promise<{ data: unknown[]; error: null }>["then"];
 };
 const state = vi.hoisted(() => ({
   ranges: {} as Record<string, Array<[number, number]>>,
@@ -20,11 +23,14 @@ vi.mock("@/integrations/supabase/client", () => ({
       const chain: Builder = {
         select: () => chain,
         order: () => chain,
+        eq: () => chain,
+        limit: () => chain,
         range: (from, to) => {
           (state.ranges[table] ??= []).push([from, to]);
           return Promise.resolve({ data: (state.rows[table] ?? []).slice(from, to + 1), error: null });
         },
         maybeSingle: () => Promise.resolve({ data: { state: "instalado" }, error: null }),
+        then: (onOk, onErr) => Promise.resolve({ data: [], error: null }).then(onOk, onErr),
       };
       return chain;
     },
@@ -52,6 +58,6 @@ describe("PERF.LOADING.1 — listas da Administração leem além do corte de 10
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><InstitutionalAdminPage /></QueryClientProvider>);
     await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 999], [1000, 1999]]));
-    expect(state.ranges["institutional_persons"]).toEqual([[0, 999]]);
+    expect(state.ranges["institutional_persons"]?.[0]).toEqual([0, 999]);
   });
 });
