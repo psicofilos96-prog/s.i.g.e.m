@@ -1,4 +1,4 @@
-import { cleanup, render, waitFor } from "@testing-library/react";
+import { cleanup, render, waitFor, screen, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +7,7 @@ type Builder = {
   order: () => Builder;
   eq: () => Builder;
   limit: () => Builder;
+  abortSignal: () => Builder;
   range: (from: number, to: number) => Promise<{ data: unknown[]; error: null }>;
   maybeSingle: () => Promise<{ data: unknown; error: null }>;
   then: Promise<{ data: unknown[]; error: null }>["then"];
@@ -29,6 +30,7 @@ vi.mock("@/integrations/supabase/client", () => ({
         order: () => chain,
         eq: () => chain,
         limit: () => chain,
+        abortSignal: () => chain,
         range: (from, to) => {
           (state.ranges[table] ??= []).push([from, to]);
           return Promise.resolve({ data: (state.rows[table] ?? []).slice(from, to + 1), error: null });
@@ -56,12 +58,16 @@ const engagements = Array.from({ length: 1593 }, (_, i) => ({ id: `e${String(i).
 
 afterEach(() => { cleanup(); state.ranges = {}; state.rows = {}; });
 
-describe("PERF.LOADING.1 — listas da Administração leem além do corte de 1000 linhas", () => {
-  it("atuações são lidas em páginas ordenadas até o fim (1593 linhas)", async () => {
+describe("PERF.LOADING.1 — listas da Administração não dependem do conjunto inteiro", () => {
+  it("atuações leem apenas a página pedida e uma linha de continuidade (1593 disponíveis)", async () => {
     state.rows = { institutional_persons: persons, institutional_engagements: engagements };
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><InstitutionalAdminPage /></QueryClientProvider>);
-    await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 999], [1000, 1999]]));
+    await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 50]]));
     expect(state.ranges["institutional_persons"]).toBeUndefined();
+    const next = screen.getByRole("navigation", { name: "Paginação de atuações" }).querySelectorAll("button")[1];
+    if (!next) throw new Error("Missing next page");
+    fireEvent.click(next);
+    await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 50], [50, 100]]));
   });
 });
