@@ -8,7 +8,7 @@ type Builder = {
   eq: () => Builder;
   limit: () => Builder;
   abortSignal: () => Builder;
-  range: (from: number, to: number) => Promise<{ data: unknown[]; error: null }>;
+  range: (from: number, to: number) => Builder;
   maybeSingle: () => Promise<{ data: unknown; error: null }>;
   then: Promise<{ data: unknown[]; error: null }>["then"];
 };
@@ -24,6 +24,7 @@ vi.mock("@/integrations/supabase/client", () => ({
         error: null,
       }) }),
     from: (table: string): Builder => {
+      let bounds: [number, number] | null = null;
       const chain: Builder = {
         select: () => chain,
         order: () => chain,
@@ -32,10 +33,11 @@ vi.mock("@/integrations/supabase/client", () => ({
         abortSignal: () => chain,
         range: (from, to) => {
           (state.ranges[table] ??= []).push([from, to]);
-          return Promise.resolve({ data: (state.rows[table] ?? []).slice(from, to + 1), error: null });
+          bounds = [from, to];
+          return chain;
         },
         maybeSingle: () => Promise.resolve({ data: { state: "instalado" }, error: null }),
-        then: (onOk, onErr) => Promise.resolve({ data: [], error: null }).then(onOk, onErr),
+        then: (onOk, onErr) => Promise.resolve({ data: bounds ? (state.rows[table] ?? []).slice(bounds[0], bounds[1] + 1) : [], error: null }).then(onOk, onErr),
       };
       return chain;
     },
@@ -66,6 +68,7 @@ describe("PERF.LOADING.1 — listas da Administração não dependem do conjunto
     expect(state.ranges["institutional_persons"]).toBeUndefined();
     const next = screen.getByRole("navigation", { name: "Paginação de atuações" }).querySelectorAll("button")[1];
     if (!next) throw new Error("Missing next page");
+    await waitFor(() => expect(next.disabled).toBe(false));
     fireEvent.click(next);
     await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 50], [50, 100]]));
   });
