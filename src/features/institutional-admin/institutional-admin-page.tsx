@@ -5,7 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
 import { withListTimeout } from "@/lib/server-page";
-import { readPages } from "@/lib/list-paging";
+import { useAdminList } from "./admin-list-read";
+import { parseBoundary, z } from "@/lib/runtime-shape";
 import { useNavigate } from "@tanstack/react-router";
 import { safeInstallReturn } from "@/features/calendar/calendar-access-onboarding";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -15,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import {
   createInstitutionalAccount,
-  listInstitutionalAccounts,
   resetInstitutionalCredential,
   createDesignatedActivatorAccount,
 } from "./accounts.functions";
@@ -31,16 +31,6 @@ import { AdminPersonSearch, useAdminPersonNames } from "./person-search";
  * Administração institucional (B1): só coleta e exibe. Toda autorização é do
  * banco (capacidade vigente pela política homologada); a tela nunca concede nada.
  */
-type Engagement = {
-  id: string;
-  person_id: string;
-  engagement_kind_id: string;
-  scope_level: string | null;
-  school_id: string | null;
-  valid_from: string;
-  valid_until: string | null;
-  originating_act_ref: string | null;
-};
 type Policy = { id: string; logical_policy_id: string; version: number; status: string; homologation_act_ref: string | null };
 
 const ERRORS: Record<string, string> = {
@@ -115,66 +105,50 @@ export function InstitutionalAdminPage() {
 }
 
 function AuthorizedInstitutionalAdminPage() {
+  const authority = useSessionAuthority();
   const queryClient = useQueryClient();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [state, setState] = useState<string | null>(null);
   const [designated, setDesignated] = useState(false);
   const [mustChange, setMustChange] = useState(false);
   const [caps, setCaps] = useState<string[]>([]);
-  const [engagements, setEngagements] = useState<Engagement[]>([]);
   const [policies, setPolicies] = useState<Policy[]>([]);
-  const [accounts, setAccounts] = useState<Awaited<ReturnType<typeof listInstitutionalAccounts>>>([]);
-  const [listsTruncated, setListsTruncated] = useState(false);
-  const listAccounts = useServerFn(listInstitutionalAccounts);
   const navigate = useNavigate();
 
-  const [loadFailed, setLoadFailed] = useState(false);
+  const setup = useQuery({
+    queryKey: ["admin-setup", sessionContextKey(authority)], retry: false, staleTime: 60_000,
+    queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+      const { data: u, error: userError } = await supabase.auth.getUser();
+      if (userError) throw userError;
+      const st = await supabase.from("sigem_installation_state").select("state").abortSignal(s).maybeSingle();
+      if (st.error) throw st.error;
+      if (!u.user) return { signedIn: false, state: st.data?.state ?? null, designated: false, mustChange: false, caps: [] as string[], policies: [] as Policy[] };
+      const [d, m, c] = await Promise.all([
+        supabase.rpc("am_designated_installer").abortSignal(s),
+        supabase.rpc("password_change_required").abortSignal(s),
+        supabase.rpc("effective_scope_capabilities").abortSignal(s),
+      ]);
+      if (d.error) throw d.error;
+      if (m.error) throw m.error;
+      if (c.error) throw c.error;
+      const capabilities = parseBoundary(z.array(z.object({ capability_id: z.string() })), c.data, "admin-setup-capabilities");
+      const capList = [...new Set(capabilities.map((x) => x.capability_id))].sort();
+      if (m.data) return { signedIn: true, state: st.data?.state ?? null, designated: !!d.data, mustChange: true, caps: [] as string[], policies: [] as Policy[] };
+      const wantsPolicy = st.data?.state === "nao-instalado" || capList.some((cap) => ["registrar-politica-de-capacidades", "homologar-politica-de-capacidades"].includes(cap));
+      const pol = wantsPolicy ? await supabase.from("capability_policies").select("id, logical_policy_id, version, status, homologation_act_ref").order("version").abortSignal(s) : { data: [], error: null };
+      if (pol.error) throw pol.error;
+      const policyRows = parseBoundary(z.array(z.object({ id: z.string(), logical_policy_id: z.string(), version: z.number(), status: z.string(), homologation_act_ref: z.string().nullable() })), pol.data, "admin-setup-policy");
+      return { signedIn: true, state: st.data?.state ?? null, designated: !!d.data, mustChange: false, caps: capList, policies: policyRows };
+    }),
+  });
   const reload = useCallback(async () => {
-    void queryClient.invalidateQueries({ queryKey: ["admin-person-search"] });
-    void queryClient.invalidateQueries({ queryKey: ["admin-person-names"] });
-    setLoadFailed(false);
-    // PERF.LOADING.1 — prazo único de 15 s; falha vira aviso com nova tentativa, nunca espera infinita nem lista vazia.
-    const deadline = new Promise<never>((_, rej) => setTimeout(() => rej(new Error("timeout")), 15_000));
-    try {
-      await Promise.race([deadline, (async () => {
-        const { data: u } = await supabase.auth.getUser();
-        setSignedIn(!!u.user);
-        const st = await supabase.from("sigem_installation_state").select("state").maybeSingle();
-        setState(st.data?.state ?? null);
-        if (!u.user) return;
-        const [d, m, c] = await Promise.all([
-          supabase.rpc("am_designated_installer"),
-          supabase.rpc("password_change_required"),
-          supabase.rpc("effective_scope_capabilities"),
-        ]);
-        if (c.error) throw c.error;
-        const capList = Array.from(new Set((c.data ?? []).map((x: { capability_id: string }) => x.capability_id))).sort();
-        setDesignated(!!d.data);
-        setMustChange(!!m.data);
-        setCaps(capList);
-        // Só lê as listas que a conta pode usar, porque leitura sem capacidade é custo sem efeito.
-        const wantsEng = capList.includes("manter-atuacoes-institucionais");
-        const wantsAcc = capList.includes("manter-contas-institucionais");
-        const [e, pol, acc] = await Promise.all([
-          wantsEng
-            ? readPages<Engagement>((from, to) => supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, originating_act_ref").order("id").range(from, to), 20_000)
-            : Promise.resolve({ data: [] as Engagement[], truncated: false, error: null }),
-          supabase.from("capability_policies").select("id, logical_policy_id, version, status, homologation_act_ref").order("version"),
-          wantsAcc ? listAccounts() : Promise.resolve([] as Awaited<ReturnType<typeof listInstitutionalAccounts>>),
-        ]);
-        setEngagements(e.data ?? []);
-        setListsTruncated(e.truncated);
-        setPolicies((pol.data ?? []) as Policy[]);
-        setAccounts(acc);
-      })()]);
-    } catch {
-      setLoadFailed(true);
-    }
-  }, [listAccounts, queryClient]);
-
+    await Promise.all(["admin-person-search", "admin-person-names", "admin-list", "admin-setup"].map((key) => queryClient.invalidateQueries({ queryKey: [key] })));
+  }, [queryClient]);
   useEffect(() => {
-    void reload();
-  }, [reload]);
+    if (!setup.data) return;
+    setSignedIn(setup.data.signedIn); setState(setup.data.state); setDesignated(setup.data.designated);
+    setMustChange(setup.data.mustChange); setCaps(setup.data.caps); setPolicies(setup.data.policies);
+  }, [setup.data]);
 
   const has = (cap: string) => caps.includes(cap);
 
@@ -186,11 +160,11 @@ function AuthorizedInstitutionalAdminPage() {
         description="Conta e pessoa identificam quem entra; o que cada um pode fazer vem só da atuação vigente e da política homologada."
       />
       {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Contas são criadas só pela administração; o login institucional é identificador, não caixa postal." />}
-      {listsTruncated && <Notice tone="error" text="A lista de atuações está incompleta por limite técnico de leitura. Recarregue a página; se continuar, avise o suporte." />}
-      {loadFailed && (
+      {setup.isPending && <p role="status" className="text-sm text-muted-foreground">Carregando os dados da Administração…</p>}
+      {setup.isError && (
         <div role="alert" className="flex flex-wrap items-center gap-3">
           <Notice tone="error" text="Não foi possível carregar os dados desta tela agora. Nada foi alterado." />
-          <button type="button" className="rounded-md border px-3 py-1.5 text-sm" onClick={() => void reload()}>Tentar novamente</button>
+          <Button type="button" size="sm" variant="outline" onClick={() => void setup.refetch()}>Tentar novamente</Button>
         </div>
       )}
       {signedIn && mustChange && <PasswordChange onDone={reload} />}
@@ -211,8 +185,8 @@ function AuthorizedInstitutionalAdminPage() {
         </Section>
       )}
       {has("manter-pessoas-institucionais") && <PersonsSection onDone={reload} />}
-      {has("manter-contas-institucionais") && <AccountsSection accounts={accounts} onDone={reload} />}
-      {has("manter-atuacoes-institucionais") && <EngagementsSection engagements={engagements} onDone={reload} />}
+      {has("manter-contas-institucionais") && <AccountsSection onDone={reload} />}
+      {has("manter-atuacoes-institucionais") && <EngagementsSection onDone={reload} />}
       {(has("registrar-politica-de-capacidades") || has("homologar-politica-de-capacidades")) && (
         <PolicySection policies={policies} canHomologate={has("homologar-politica-de-capacidades")} onDone={reload} />
       )}
@@ -414,14 +388,14 @@ function PersonsSection({ onDone }: { onDone: () => void }) {
   );
 }
 
-function AccountsSection({ accounts, onDone }: { accounts: Awaited<ReturnType<typeof listInstitutionalAccounts>>; onDone: () => void }) {
+function AccountsSection({ onDone }: { onDone: () => void }) {
   const create = useServerFn(createInstitutionalAccount);
   const reset = useServerFn(resetInstitutionalCredential);
   const [err, setErr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
-  const linked = new Set(accounts.map((a) => a.personId));
   const [page, setPage] = useState(1);
-  const visible = accounts.slice((page - 1) * 50, page * 50);
+  const list = useAdminList("accounts", page);
+  const visible = list.data?.accounts ?? [];
   const names = useAdminPersonNames(visible.map((a) => a.personId));
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -447,17 +421,18 @@ function AccountsSection({ accounts, onDone }: { accounts: Awaited<ReturnType<ty
       <ul className="mb-4 grid gap-2 text-sm">
         {visible.map((a) => (
           <li key={a.userId} className="flex flex-wrap items-center justify-between gap-2">
-            <span>{name(a.personId)} — {a.login ?? "login não registrado"}{a.lastEvent !== "troca" ? " · troca de senha pendente" : ""}</span>
+            <span>{name(a.personId)} — {a.login ?? "login não registrado"}{a.passwordChangeRequired ? " · troca de senha pendente" : ""}</span>
             <Button size="sm" variant="outline" onClick={() => doReset(a.userId)}>Redefinir credencial</Button>
           </li>
         ))}
-        {accounts.length === 0 && <li className="text-muted-foreground">Nenhuma conta vinculada.</li>}
+        {list.isSuccess && visible.length === 0 && <li className="text-muted-foreground">Nenhuma conta vinculada.</li>}
       </ul>
-      <LocalPager page={page} setPage={setPage} total={accounts.length} noun="contas" />
+      <ListState list={list} />
+      <LocalPager page={page} setPage={setPage} hasNext={list.data?.hasNext ?? false} busy={list.isFetching} noun="contas" />
       {names.isError && <div role="alert" className="mb-3 text-sm text-destructive">Não foi possível consultar os nomes das contas. <Button type="button" size="sm" variant="outline" onClick={() => void names.refetch()}>Tentar novamente</Button></div>}
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-3 sm:items-end">
         <div className="grid gap-1">
-          <AdminPersonSearch id="aperson" picker excluded={[...linked]} />
+          <AdminPersonSearch id="aperson" picker />
         </div>
         <div className="grid gap-1">
           <Label htmlFor="basis">Regra do login</Label>
@@ -476,10 +451,11 @@ function AccountsSection({ accounts, onDone }: { accounts: Awaited<ReturnType<ty
   );
 }
 
-function EngagementsSection({ engagements, onDone }: { engagements: Engagement[]; onDone: () => void }) {
+function EngagementsSection({ onDone }: { onDone: () => void }) {
   const [err, setErr] = useState<string | null>(null);
   const [page, setPage] = useState(1);
-  const visible = engagements.slice((page - 1) * 50, page * 50);
+  const list = useAdminList("engagements", page);
+  const visible = list.data?.engagements ?? [];
   const names = useAdminPersonNames(visible.map((g) => g.person_id));
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -521,9 +497,10 @@ function EngagementsSection({ engagements, onDone }: { engagements: Engagement[]
             {!g.valid_until && <Button size="sm" variant="outline" onClick={() => end(g.id)}>Encerrar vigência</Button>}
           </li>
         ))}
-        {engagements.length === 0 && <li className="text-muted-foreground">Nenhuma atuação registrada.</li>}
+        {list.isSuccess && visible.length === 0 && <li className="text-muted-foreground">Nenhuma atuação registrada.</li>}
       </ul>
-      <LocalPager page={page} setPage={setPage} total={engagements.length} noun="atuações" />
+      <ListState list={list} />
+      <LocalPager page={page} setPage={setPage} hasNext={list.data?.hasNext ?? false} busy={list.isFetching} noun="atuações" />
       {names.isError && <div role="alert" className="mb-3 text-sm text-destructive">Não foi possível consultar os nomes das atuações. <Button type="button" size="sm" variant="outline" onClick={() => void names.refetch()}>Tentar novamente</Button></div>}
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1">
@@ -551,11 +528,17 @@ function EngagementsSection({ engagements, onDone }: { engagements: Engagement[]
   );
 }
 
-function LocalPager({ page, setPage, total, noun }: { page: number; setPage: (p: number) => void; total: number; noun: string }) {
+function ListState({ list }: { list: ReturnType<typeof useAdminList> }) {
+  if (list.isPending) return <p role="status" className="mb-3 text-sm text-muted-foreground">Carregando esta página…</p>;
+  if (list.isError) return <div role="alert" className="mb-3 text-sm text-destructive">Não foi possível carregar esta página. <Button type="button" size="sm" variant="outline" onClick={() => void list.refetch()}>Tentar novamente</Button></div>;
+  return null;
+}
+
+function LocalPager({ page, setPage, hasNext, busy, noun }: { page: number; setPage: (p: number) => void; hasNext: boolean; busy: boolean; noun: string }) {
   return <nav aria-label={`Paginação de ${noun}`} className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-    <Button type="button" size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>Página anterior</Button>
-    <span>Página {page} · {total.toLocaleString("pt-BR")} {noun}</span>
-    <Button type="button" size="sm" variant="outline" disabled={page * 50 >= total} onClick={() => setPage(page + 1)}>Próxima página</Button>
+    <Button type="button" size="sm" variant="outline" disabled={busy || page <= 1} onClick={() => setPage(page - 1)}>Página anterior</Button>
+    <span>Página {page} · {noun}</span>
+    <Button type="button" size="sm" variant="outline" disabled={busy || !hasNext} onClick={() => setPage(page + 1)}>Próxima página</Button>
   </nav>;
 }
 

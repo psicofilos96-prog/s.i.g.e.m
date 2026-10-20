@@ -56,26 +56,6 @@ export const resetInstitutionalCredential = createServerFn({ method: "POST" })
     return { ok: true as const, provisionalPassword: password };
   });
 
-export const listInstitutionalAccounts = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { data, error } = await context.supabase.from("user_person_links").select("user_id, person_id, created_at");
-    if (error) return [];
-    const { data: ev } = await context.supabase
-      .from("account_credential_events")
-      .select("user_id, login, kind, created_at")
-      .order("created_at", { ascending: true });
-    return (data ?? []).map((l) => {
-      const mine = (ev ?? []).filter((e) => e.user_id === l.user_id);
-      return {
-        userId: l.user_id,
-        personId: l.person_id,
-        login: mine.find((e) => e.login)?.login ?? null,
-        lastEvent: mine.at(-1)?.kind ?? null,
-      };
-    });
-  });
-
 /**
  * B1.3 — Primeiro acesso do Administrador Geral. Só enquanto o SIGEM não foi ativado, só para o
  * login designado (lido do banco, nunca do cliente) e só a partir de uma sessão institucional já

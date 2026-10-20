@@ -33,3 +33,4 @@
 - Matriz de capacidades (`capability-matrix.ts`, Central de acessos): inventário gerado das migrations por `scripts/capability-inventory.mjs` (teste exige sincronia) × política homologada vigente × atuações vigentes; só leitura, e atribuição só por nova versão homologada da política, porque matriz que concede privilégio pularia a decisão institucional.
 
 - Administration person directories use server-filtered pages; pickers wait for a search and labels resolve only visible person IDs under RLS, because downloading the entire directory delays unrelated tasks.
+- Administration accounts use paged admin_account_overview and engagements use ordered server pages with look-ahead; session-keyed queries expire and cancel independently, because full-directory reloads and late responses must not delay or overwrite visible records. Account creation uniqueness remains enforced by the canonical writer, not by the visible page.

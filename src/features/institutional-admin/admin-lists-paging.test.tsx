@@ -1,4 +1,4 @@
-import { cleanup, render, waitFor } from "@testing-library/react";
+import { cleanup, render, waitFor, screen, fireEvent } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -7,7 +7,8 @@ type Builder = {
   order: () => Builder;
   eq: () => Builder;
   limit: () => Builder;
-  range: (from: number, to: number) => Promise<{ data: unknown[]; error: null }>;
+  abortSignal: () => Builder;
+  range: (from: number, to: number) => Builder;
   maybeSingle: () => Promise<{ data: unknown; error: null }>;
   then: Promise<{ data: unknown[]; error: null }>["then"];
 };
@@ -18,23 +19,25 @@ const state = vi.hoisted(() => ({
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: { getUser: () => Promise.resolve({ data: { user: { id: "u1" } } }) },
-    rpc: (name: string) =>
-      Promise.resolve({
+    rpc: (name: string) => ({ abortSignal: () => Promise.resolve({
         data: name === "effective_scope_capabilities" ? [{ capability_id: "manter-atuacoes-institucionais" }] : null,
         error: null,
-      }),
+      }) }),
     from: (table: string): Builder => {
+      let bounds: [number, number] | null = null;
       const chain: Builder = {
         select: () => chain,
         order: () => chain,
         eq: () => chain,
         limit: () => chain,
+        abortSignal: () => chain,
         range: (from, to) => {
           (state.ranges[table] ??= []).push([from, to]);
-          return Promise.resolve({ data: (state.rows[table] ?? []).slice(from, to + 1), error: null });
+          bounds = [from, to];
+          return chain;
         },
         maybeSingle: () => Promise.resolve({ data: { state: "instalado" }, error: null }),
-        then: (onOk, onErr) => Promise.resolve({ data: [], error: null }).then(onOk, onErr),
+        then: (onOk, onErr) => Promise.resolve({ data: bounds ? (state.rows[table] ?? []).slice(bounds[0], bounds[1] + 1) : [], error: null }).then(onOk, onErr),
       };
       return chain;
     },
@@ -46,7 +49,7 @@ vi.mock("@/features/authority/session-authority", () => ({
 }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => () => Promise.resolve([]) }));
 vi.mock("@/features/institutional-admin/accounts.functions", () => ({
-  createInstitutionalAccount: vi.fn(), listInstitutionalAccounts: vi.fn(),
+  createInstitutionalAccount: vi.fn(),
   resetInstitutionalCredential: vi.fn(), createDesignatedActivatorAccount: vi.fn(),
 }));
 import { InstitutionalAdminPage } from "./institutional-admin-page";
@@ -56,12 +59,17 @@ const engagements = Array.from({ length: 1593 }, (_, i) => ({ id: `e${String(i).
 
 afterEach(() => { cleanup(); state.ranges = {}; state.rows = {}; });
 
-describe("PERF.LOADING.1 — listas da Administração leem além do corte de 1000 linhas", () => {
-  it("atuações são lidas em páginas ordenadas até o fim (1593 linhas)", async () => {
+describe("PERF.LOADING.1 — listas da Administração não dependem do conjunto inteiro", () => {
+  it("atuações leem apenas a página pedida e uma linha de continuidade (1593 disponíveis)", async () => {
     state.rows = { institutional_persons: persons, institutional_engagements: engagements };
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><InstitutionalAdminPage /></QueryClientProvider>);
-    await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 999], [1000, 1999]]));
+    await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 50]]));
     expect(state.ranges["institutional_persons"]).toBeUndefined();
+    const next = screen.getByRole("navigation", { name: "Paginação de atuações" }).querySelectorAll("button")[1];
+    if (!next) throw new Error("Missing next page");
+    await waitFor(() => expect(next.disabled).toBe(false));
+    fireEvent.click(next);
+    await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 50], [50, 100]]));
   });
 });
