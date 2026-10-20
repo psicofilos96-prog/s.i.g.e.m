@@ -2,6 +2,9 @@ import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
+import { withListTimeout } from "@/lib/server-page";
 import { useNavigate } from "@tanstack/react-router";
 import { safeInstallReturn } from "@/features/calendar/calendar-access-onboarding";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -83,7 +86,34 @@ function Notice({ text, tone = "muted" }: { text: string | null; tone?: "muted" 
   return <p className={tone === "error" ? "mt-2 text-sm text-destructive" : "mt-2 text-sm text-muted-foreground"}>{text}</p>;
 }
 
+export const ADMIN_PAGE_CAPABILITIES = ["cadastrar-estudante-na-rede","consultar-identidade-cadastral-do-estudante","homologar-politica-de-capacidades","manter-anos-e-periodos-letivos","manter-atuacoes-institucionais","manter-cadastro-unidade-escolar","manter-catalogos-institucionais","manter-componentes-curriculares","manter-contas-institucionais","manter-identidade-cadastral-do-estudante","manter-pessoas-institucionais","registrar-politica-de-capacidades"] as const;
+
+/** PERF.LOADING.1 — sem capacidade administrativa, a tela não lê cadastros; a ativação inicial segue aberta antes da instalação. */
+export function adminPageAllowed(caps: readonly string[], installed: boolean | null): boolean | null {
+  if (caps.some((c) => (ADMIN_PAGE_CAPABILITIES as readonly string[]).includes(c))) return true;
+  if (installed === null) return null;
+  return !installed;
+}
+
 export function InstitutionalAdminPage() {
+  const authority = useSessionAuthority();
+  const caps = authority.status === "signed-in" ? authority.capabilities.map((c) => c.capabilityId) : [];
+  const needsState = authority.status === "signed-in" && adminPageAllowed(caps, false) !== true;
+  const st = useQuery({ queryKey: ["admin-install-state"], enabled: needsState, retry: false, queryFn: async ({ signal }) => {
+    const r = await withListTimeout(signal, (s) => supabase.from("sigem_installation_state").select("state").abortSignal(s).maybeSingle());
+    if (r.error) throw r.error;
+    return r.data?.state === "installed";
+  } });
+  if (authority.status === "loading") return <p role={authority.error ? "alert" : "status"} className="p-6 text-sm text-muted-foreground">{authority.error ? "Não foi possível conferir seu acesso. Recarregue a página para tentar novamente." : "Conferindo seu acesso…"}</p>;
+  if (authority.status !== "signed-in") return <AuthorizedInstitutionalAdminPage />;
+  if (st.isError) return <div role="alert" className="p-6 text-sm">Não foi possível conferir seu acesso. <Button size="sm" variant="outline" onClick={() => { void st.refetch(); }}>Tentar novamente</Button></div>;
+  const ok = adminPageAllowed(caps, needsState ? (st.data ?? null) : false);
+  if (ok === null) return <p role="status" className="p-6 text-sm text-muted-foreground">Conferindo seu acesso…</p>;
+  if (!ok) return <p role="alert" className="p-6 text-sm">Sua conta não tem permissão para abrir a Administração institucional.</p>;
+  return <AuthorizedInstitutionalAdminPage key={sessionContextKey(authority)} />;
+}
+
+function AuthorizedInstitutionalAdminPage() {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [state, setState] = useState<string | null>(null);
   const [designated, setDesignated] = useState(false);
