@@ -183,3 +183,18 @@ Conta: Supervisão (sessão injetada). Critério: sem "Carregando"/skeleton apó
 
 ## Medição 19/10/2026 (sem sessão, 14 rotas protegidas)
 - `scripts/perf-loading-gate-bench.py`: 0 respostas 401/403, 0 telas presas em "Carregando" após 12 s. Medição com sessão por setor ainda pendente.
+
+## Medição com sessão — conta docente (2026-10-20)
+| Rota | Tempo | Leituras | Resultado |
+|---|---|---|---|
+| / | 14,2 s (1ª abertura do ambiente) | 27 | abre |
+| /minhas-turmas | 2,9 s | 9 | abre |
+| /meus-diarios | 3,1 s | 15 | abre |
+| /avaliacoes-do-professor | 3,5 s | 25 | abre |
+| /planejamento | 2,6 s | 18 | abre |
+| /gestao-escolar | 3,9 s | 9 | recusa sem ler domínio |
+| /central-de-acessos | 2,2 s | 9 | recusa sem ler domínio |
+| /tarefas | 2,8 s | 23 | abre |
+| /administracao | antes 16,9 s / 48 leituras (pessoas, atuações, escolas, políticas); depois 3,6 s / 10 | recusa sem ler cadastros |
+
+Correção: `/administracao` só monta os leitores com capacidade administrativa ou antes da ativação inicial (`adminPageAllowed`, teste `admin-page-gate.test.ts`). Nenhuma tela ficou presa em "Carregando". Pendente: mesma medição com contas de Secretaria, Direção, Supervisão e Administrador.
