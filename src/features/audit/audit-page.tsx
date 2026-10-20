@@ -21,11 +21,13 @@ const PAGE = 25;
 
 /** Teto por fonte; fonte que atinge o teto é declarada incompleta na tela e na exportação. */
 export const AUDIT_SOURCE_LIMIT = 500;
-export async function loadAll(): Promise<AuditEvent[]> { return (await loadAuditTrail()).events; }
-export async function loadAuditTrail(): Promise<{ events: AuditEvent[]; truncatedModules: string[] }> {
+export async function loadAll(modules?: ReadonlySet<string>): Promise<AuditEvent[]> { return (await loadAuditTrail(modules)).events; }
+/** Fontes lidas: só as dos módulos pedidos (a Estação não consulta fontes que ela descartaria). */
+export const adaptersFor = (modules?: ReadonlySet<string>) => (modules ? ADAPTERS.filter((a) => modules.has(a.module)) : ADAPTERS);
+export async function loadAuditTrail(modules?: ReadonlySet<string>): Promise<{ events: AuditEvent[]; truncatedModules: string[] }> {
   const out: AuditEvent[] = []; const truncatedModules: string[] = [];
   // RLS de quem consulta decide o que volta; fonte recusada = nada visível (igual a vazio, contra enumeração).
-  await Promise.all(ADAPTERS.map(async (a) => {
+  await Promise.all(adaptersFor(modules).map(async (a) => {
     const { data, error } = await supabase.from(a.table as never).select(a.select).order(a.atColumn, { ascending: false }).limit(AUDIT_SOURCE_LIMIT);
     if (!error && Array.isArray(data)) {
       if (data.length >= AUDIT_SOURCE_LIMIT) truncatedModules.push(a.module);
@@ -53,7 +55,7 @@ async function loadActorDirectory(): Promise<{ dir: ActorDirectory; schools: { i
 export function AuditPage() {
   const authority = useSessionAuthority();
   const actor = sessionActor(authority);
-  const q = useQuery({ queryKey: ["audit-central", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: loadAuditTrail });
+  const q = useQuery({ queryKey: ["audit-central", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: () => loadAuditTrail() });
   const d = useQuery({ queryKey: ["audit-actors", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: loadActorDirectory });
   const dir: ActorDirectory = d.data?.dir ?? new Map();
   const [f, setF] = useState({ from: "", to: "", module: "", kind: "", actor: "", entity: "", knownAt: "", station: "", schoolId: "", nature: "", search: "" });
