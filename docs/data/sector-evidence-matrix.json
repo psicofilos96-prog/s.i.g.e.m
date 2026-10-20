@@ -164,9 +164,9 @@
    "src/routes/verificar.ato.$codigo.tsx",
    "src/routes/verificar.documento.$codigo.tsx"
   ],
-  "modules": 21,
+  "modules": 22,
   "withTest": 15,
-  "withScreen": 13,
+  "withScreen": 14,
   "withoutScreen": [
    "src/features/document-management/admin-case.ts",
    "src/features/document-management/case-acts.ts",
@@ -183,7 +183,8 @@
    "src/features/document-studio/acervo.ts",
    "src/features/document-studio/base-templates.ts",
    "src/features/document-studio/editor-draft.ts",
-   "src/features/document-studio/studio-logos.ts"
+   "src/features/document-studio/studio-logos.ts",
+   "src/features/document-studio/validation-presentation.ts"
   ]
  },
  {
