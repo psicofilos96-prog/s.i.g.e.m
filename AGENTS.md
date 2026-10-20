@@ -27,7 +27,7 @@ Toda norma escolar é DADO configurado, homologado e versionado; nunca código. 
 - Family notices use explicit recipients; infrequency configuration in Parameters versions canonical rules atomically, never assumes delivery; see sector AGENTS.md.
 - Enrollment uses a shared validator and trigger; browser uses the same cutoff, so alternate writers cannot bypass it.
 - Vaccination writer stores the current parameter's deadline in each immutable event; reports read that date, because later parameters must not rewrite declared deadlines.
-Read nested AGENTS.md; statistical-map covers transport; supervision covers read gates.
+Read nested AGENTS.md: map transport, supervision gates, admin paging.
 - Teacher counts reuse authorized reads/distinct units; password/pending/correction/planning/diary reads use deadlines/session keys; stale reviews fail closed.
 
 ## Continuidade técnica
