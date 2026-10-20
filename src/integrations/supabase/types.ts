@@ -6632,6 +6632,83 @@ export type Database = {
           },
         ]
       }
+      class_name_catalog_entries: {
+        Row: {
+          catalog_version_id: string
+          code: string
+          id: string
+          modality_label: string
+          name: string
+          ordinal_label: string
+          series_labels: Json
+          source_rows: Json
+        }
+        Insert: {
+          catalog_version_id: string
+          code: string
+          id?: string
+          modality_label: string
+          name: string
+          ordinal_label: string
+          series_labels: Json
+          source_rows: Json
+        }
+        Update: {
+          catalog_version_id?: string
+          code?: string
+          id?: string
+          modality_label?: string
+          name?: string
+          ordinal_label?: string
+          series_labels?: Json
+          source_rows?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_name_catalog_entries_catalog_version_id_fkey"
+            columns: ["catalog_version_id"]
+            isOneToOne: false
+            referencedRelation: "class_name_catalog_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      class_name_catalog_versions: {
+        Row: {
+          catalog_key: string
+          created_at: string
+          decision_source: string
+          first_cycle_start: string
+          id: string
+          source_name: string
+          source_sha256: string
+          status: string
+          version: number
+        }
+        Insert: {
+          catalog_key: string
+          created_at?: string
+          decision_source: string
+          first_cycle_start: string
+          id?: string
+          source_name: string
+          source_sha256: string
+          status: string
+          version: number
+        }
+        Update: {
+          catalog_key?: string
+          created_at?: string
+          decision_source?: string
+          first_cycle_start?: string
+          id?: string
+          source_name?: string
+          source_sha256?: string
+          status?: string
+          version?: number
+        }
+        Relationships: []
+      }
       class_offering_axis_values: {
         Row: {
           offering_version_id: string
@@ -18449,6 +18526,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          name_catalog_entry_id: string | null
           originating_act_ref: string | null
           recorded_by: string | null
           recorded_by_person_id: string | null
@@ -18470,6 +18548,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          name_catalog_entry_id?: string | null
           originating_act_ref?: string | null
           recorded_by?: string | null
           recorded_by_person_id?: string | null
@@ -18491,6 +18570,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          name_catalog_entry_id?: string | null
           originating_act_ref?: string | null
           recorded_by?: string | null
           recorded_by_person_id?: string | null
@@ -18537,6 +18617,13 @@ export type Database = {
             columns: ["class_id"]
             isOneToOne: false
             referencedRelation: "institutional_classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "institutional_class_record_versions_name_catalog_entry_id_fkey"
+            columns: ["name_catalog_entry_id"]
+            isOneToOne: false
+            referencedRelation: "class_name_catalog_entries"
             referencedColumns: ["id"]
           },
           {
@@ -42154,6 +42241,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          name_catalog_entry_id: string | null
           originating_act_ref: string | null
           recorded_by: string | null
           recorded_by_person_id: string | null
@@ -42331,6 +42419,18 @@ export type Database = {
           reason: string
           valid_from: string
           version: number
+        }[]
+      }
+      class_name_catalog_for_year: {
+        Args: { _year: string }
+        Returns: {
+          catalog_version: number
+          code: string
+          entry_id: string
+          modality_label: string
+          name: string
+          ordinal_label: string
+          series_labels: Json
         }[]
       }
       class_names_for_schools: {
@@ -42574,6 +42674,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          name_catalog_entry_id: string | null
           originating_act_ref: string | null
           recorded_by: string | null
           recorded_by_person_id: string | null

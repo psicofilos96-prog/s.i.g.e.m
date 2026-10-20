@@ -1,5 +1,11 @@
 # Roadmap — SIGEM simples no design original
 
+## Fechamento conjunto solicitado (20/10/2026)
+- [ ] Padronização 2027: analisar Planilha_Padronizacao_Turmas.xlsx, registrar os nomes pelo cadastro canônico e permitir seleção pelas escolas a partir de 2027, preservando turmas/histórico existentes.
+- [ ] Eliminar consultas antecipadas do Início e carga simultânea de blocos administrativos; limitar leituras da Central e remover cascatas da Estação sem ampliar permissões.
+- [ ] Reconciliar pendências docentes e entre setores com implementações canônicas existentes; concluir integrações seguras e registrar bloqueadores reais.
+- [ ] Executar regressões, verificação integrada disponível e conferir a navegação autenticada; não declarar fechamento global sem prova.
+
 ## Continuação solicitada (20/10/2026)
 - [x] Administração: contas pelo leitor canônico e atuações em páginas no servidor (50 + continuidade), consultas por sessão com cancelamento/prazo e recuperação independente. 26 testes PASS; Administrador percorreu ambas as listas e recuperou 50 atuações após retenção de 15 s. Leituras de atuações 4 → 1; abertura variável 6,64 s antes e 20,12/12,49/6,37 s depois: sem prova de melhora de tempo global. Demais pendências abaixo continuam abertas, sem homologação presumida.
 

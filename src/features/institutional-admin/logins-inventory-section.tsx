@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Download, Search, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { withListTimeout } from "@/lib/server-page";
+import { readPages } from "@/lib/list-paging";
+import { sessionContextKey, useSessionAuthority } from "@/features/authority/session-authority";
 import { Button } from "@/components/ui/button";
 import { runReport, toCsv, toXlsx } from "@/features/reports/report-engine";
 import {
@@ -22,12 +25,15 @@ function download(blob: Blob, name: string) {
 
 /** Inventário de logins: só para quem o banco reconhece como titular (Administrador Geral). */
 export function LoginsInventorySection({ sessionKey }: { sessionKey: string }) {
-  const holder = useQuery({ queryKey: ["access-center", "holder", sessionKey], queryFn: async () => {
-    const { data, error } = await supabase.rpc("access_center_holder"); if (error) throw error; return data === true;
-  } });
-  const inv = useQuery({ queryKey: ["access-center", "inventory", sessionKey], enabled: holder.data === true, queryFn: async () => {
-    const { data, error } = await supabase.rpc("access_center_inventory"); if (error) throw error; return (data ?? []) as InventoryRow[];
-  } });
+  const holder = useQuery({ queryKey: ["access-center", "holder", sessionKey], retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+    const { data, error } = await supabase.rpc("access_center_holder").abortSignal(s); if (error) throw error;
+    if (typeof data !== "boolean") throw new Error("Acesso não confirmado."); return data;
+  }) });
+  const inv = useQuery({ queryKey: ["access-center", "inventory", sessionKey], enabled: holder.data === true, retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+    const r = await readPages((from, to) => supabase.rpc("access_center_inventory").order("user_id").range(from, to).abortSignal(s), 100_000);
+    if (r.error || r.truncated) throw r.error ?? new Error("Não foi possível consultar todas as contas."); return (r.data ?? []) as InventoryRow[];
+  }) });
+  if (holder.isError) return <div role="alert">Não foi possível conferir o acesso aos logins. <Button variant="outline" size="sm" onClick={() => void holder.refetch()}>Tentar novamente</Button></div>;
   if (holder.isLoading) return null;
   if (holder.data !== true) return null;
   return (
@@ -38,7 +44,7 @@ export function LoginsInventorySection({ sessionKey }: { sessionKey: string }) {
           <p className="text-sm text-muted-foreground">Todas as contas que entram no sistema: onde acessam e se podem entrar.</p>
         </div>
       </header>
-      {inv.isLoading ? <SkeletonState label="Carregando contas" /> : inv.isError ? <p role="alert" className="text-destructive">Não foi possível ler as contas. Tente de novo.</p> : <Inventory rows={inv.data ?? []} />}
+      {inv.isLoading ? <SkeletonState label="Carregando contas" /> : inv.isError ? <div role="alert" className="text-destructive">Não foi possível ler as contas. <Button variant="outline" size="sm" onClick={() => void inv.refetch()}>Tentar novamente</Button></div> : <Inventory rows={inv.data ?? []} />}
     </section>
   );
 }
@@ -128,11 +134,13 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
 
 /** Permissões efetivas e origem, lidas no banco só para o titular; nada aqui concede ou retira capacidade. */
 function AccountDetail({ userId }: { userId: string }) {
-  const q = useQuery({ queryKey: ["access-center", "detail", userId], queryFn: async () => {
-    const { data, error } = await supabase.rpc("access_center_account_detail", { _user: userId }); if (error) throw error; return (data ?? []) as DetailEntry[];
-  } });
+  const authority = useSessionAuthority();
+  const q = useQuery({ queryKey: ["access-center", "detail", sessionContextKey(authority), userId], enabled: authority.status === "signed-in", retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+    const r = await readPages((from, to) => supabase.rpc("access_center_account_detail", { _user: userId }).order("entry_kind").order("capability_id").order("on_date").range(from, to).abortSignal(s), 100_000);
+    if (r.error || r.truncated) throw r.error ?? new Error("Não foi possível consultar todas as permissões."); return (r.data ?? []) as DetailEntry[];
+  }) });
   if (q.isLoading) return <SkeletonState label="Carregando permissões" />;
-  if (q.isError) return <p role="alert" className="mt-2 text-xs text-destructive">Não foi possível ler as permissões desta conta.</p>;
+  if (q.isError) return <div role="alert" className="mt-2 text-xs text-destructive">Não foi possível ler as permissões desta conta. <Button variant="outline" size="sm" onClick={() => void q.refetch()}>Tentar novamente</Button></div>;
   const g = groupDetail(q.data ?? []);
   return (
     <div className="mt-2 grid gap-2 rounded-md border border-border bg-muted/30 p-2 text-xs">

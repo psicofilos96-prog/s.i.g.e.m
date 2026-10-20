@@ -20,6 +20,7 @@ import {
 } from "./class-wizard-model";
 import { JourneyEditor } from "./class-composition-views";
 import { classNamesFor, createClassWithSetup, positionCatalogs, shiftOptions } from "./class-wizard-source";
+import { readClassNameOptions, chooseClassName } from "./class-name-catalog";
 
 const YEAR_STATE: Record<string, string> = {
   "historico-importado": "histórico importado — não recebe turma nova",
@@ -32,11 +33,13 @@ export function ClassCreateWizardPage() {
   const auth = useSessionAuthority();
   const caps = auth.status === "signed-in" ? auth.capabilities : [];
   const schoolIds = schoolsWithCapability(caps, CLASS_REGISTRY_CAPABILITY);
-  const school = schoolIds.length === 1 ? schoolIds[0]! : "";
+  const school = schoolIds.length === 1 ? schoolIds[0] ?? "" : "";
   const [chosenSchool, setChosenSchool] = useState("");
   const schoolId = school || chosenSchool;
   const names = useQuery({ queryKey: ["inst-school-names", schoolIds], queryFn: () => schoolNames(schoolIds), enabled: schoolIds.length > 0 });
-  const years = useQuery({ queryKey: ["wizard-years"], queryFn: readYears });
+  const sessionKey = auth.status === "signed-in" ? auth.userId : null;
+  const allowed = !!sessionKey && schoolIds.length > 0;
+  const years = useQuery({ queryKey: ["wizard-years", sessionKey], queryFn: readYears, enabled: allowed, retry: false });
   const [s, setS] = useState<ClassWizardState>(emptyClassWizard);
   const [step, setStep] = useState(0);
   const [problems, setProblems] = useState<string[]>([]);
@@ -44,9 +47,11 @@ export function ClassCreateWizardPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const on = s.validFrom || todayIso();
-  const catalogs = useQuery({ queryKey: ["wizard-positions", on], queryFn: () => positionCatalogs(on) });
-  const shifts = useQuery({ queryKey: ["wizard-shifts", on], queryFn: () => shiftOptions(on) });
-  const existing = useQuery({ queryKey: ["wizard-names", schoolId, s.yearId], queryFn: () => classNamesFor(schoolId, s.yearId), enabled: !!schoolId && !!s.yearId });
+  const catalogs = useQuery({ queryKey: ["wizard-positions", sessionKey, on], queryFn: () => positionCatalogs(on), enabled: allowed, retry: false });
+  const shifts = useQuery({ queryKey: ["wizard-shifts", sessionKey, on], queryFn: () => shiftOptions(on), enabled: allowed, retry: false });
+  const existing = useQuery({ queryKey: ["wizard-names", sessionKey, schoolId, s.yearId], queryFn: () => classNamesFor(schoolId, s.yearId), enabled: allowed && !!schoolId && !!s.yearId, retry: false });
+  const nameOptions = useQuery({ queryKey: ["class-name-options", sessionKey, s.yearId], queryFn: () => readClassNameOptions(s.yearId, AbortSignal.timeout(15000)), enabled: allowed && !!s.yearId, retry: false });
+  const standardized = (nameOptions.data?.length ?? 0) > 0;
   const yearState = years.data?.find((y) => y.id === s.yearId)?.state ?? null;
   const set = (p: Partial<ClassWizardState>) => setS((x) => ({ ...x, ...p }));
   const ctx = useMemo(() => ({ yearState, existingNames: existing.data ?? [] }), [yearState, existing.data]);
@@ -62,6 +67,8 @@ export function ClassCreateWizardPage() {
   function next() {
     const p = stepProblems(step, s, ctx);
     if (step === 0 && !schoolId) p.unshift("Escolha a escola.");
+    if (step === 2 && (!nameOptions.data || nameOptions.isError)) p.unshift("Não foi possível confirmar os nomes disponíveis. Tente novamente.");
+    if (step === 2 && standardized && !nameOptions.data?.some((x) => x.name === s.name && x.code === s.code)) p.unshift("Escolha um nome padronizado da lista.");
     setProblems(p);
     if (p.length === 0) setStep((x) => Math.min(x + 1, CLASS_WIZARD_STEPS.length - 1));
   }
@@ -106,7 +113,7 @@ export function ClassCreateWizardPage() {
                   {schoolIds.map((id) => <option key={id} value={id}>{names.data?.get(id) ?? "Escola sem nome registrado"}</option>)}
                 </select></label>)}
             <label className="text-sm">Ano letivo
-              <select className={sel} value={s.yearId} onChange={(e) => set({ yearId: e.target.value })}>
+              <select className={sel} value={s.yearId} onChange={(e) => set({ yearId: e.target.value, name: "", code: "" })}>
                 <option value="">Escolha o ano</option>
                 {(years.data ?? []).map((y) => (
                   <option key={y.id} value={y.id} disabled={!yearAcceptsNewClass(y.state)}>
@@ -151,10 +158,14 @@ export function ClassCreateWizardPage() {
         {step === 2 && (
           <>
             <div className="grid gap-1"><Label htmlFor="w-name" className="text-sm">Nome da turma</Label>
-              <Input id="w-name" aria-invalid={problems.length ? true : undefined} aria-describedby={problems.length ? "w-problems" : undefined} value={s.name} onChange={(e) => set({ name: e.target.value })} placeholder={s.positions.length ? `${s.positions.map((p) => p.label).join(" e ")} — A` : "Ex.: 5º ano A"} />
-              <p className="text-xs text-muted-foreground">A sugestão é só um exemplo; o nome é o que você confirmar.</p></div>
+              {nameOptions.isError ? <div role="alert" className="text-sm text-destructive">Não foi possível consultar os nomes.<Button type="button" variant="outline" onClick={() => void nameOptions.refetch()}>Tentar novamente</Button></div> : !nameOptions.data ? <p role="status">Consultando nomes disponíveis…</p> : standardized ? (
+                <select id="w-name" className={sel} value={nameOptions.data.find((x) => x.name === s.name && x.code === s.code)?.entry_id ?? ""} onChange={(e) => { const picked = chooseClassName(nameOptions.data ?? [], e.target.value); set(picked ?? { name: "", code: "" }); }}>
+                  <option value="">Escolha o nome padronizado</option>
+                  {[...new Set(nameOptions.data.map((x) => x.modality_label))].map((group) => <optgroup key={group} label={group}>{nameOptions.data.filter((x) => x.modality_label === group).map((x) => <option key={x.entry_id} value={x.entry_id} disabled={ctx.existingNames.includes(x.name)}>{x.name}</option>)}</optgroup>)}
+                </select>
+              ) : <Input id="w-name" value={s.name} onChange={(e) => set({ name: e.target.value })} />}</div>
             <div className="grid gap-1"><Label htmlFor="w-code" className="text-sm">Código usado pela escola (opcional)</Label>
-              <Input id="w-code" aria-invalid={problems.length ? true : undefined} aria-describedby={problems.length ? "w-problems" : undefined} value={s.code} onChange={(e) => set({ code: e.target.value })} /></div>
+              <Input id="w-code" readOnly={standardized} aria-invalid={problems.length ? true : undefined} aria-describedby={problems.length ? "w-problems" : undefined} value={s.code} onChange={(e) => set({ code: e.target.value })} /></div>
           </>
         )}
         {step === 3 && (

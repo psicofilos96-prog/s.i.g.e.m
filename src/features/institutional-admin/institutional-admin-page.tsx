@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   createInstitutionalAccount,
   resetInstitutionalCredential,
@@ -52,7 +53,7 @@ function humanError(msg: string): string {
   const key = Object.keys(ERRORS).find((k) => msg.includes(k));
   if (key) return ERRORS[key] ?? "Operação recusada; nada foi gravado.";
   const cap = msg.match(/capability:([a-z-]+)/);
-  if (cap) return `Sua atuação vigente não concede a capacidade necessária (${cap[1]}).`;
+  if (cap) return "Sua conta não tem autorização para realizar esta operação.";
   return "Operação recusada; nada foi gravado.";
 }
 
@@ -90,13 +91,13 @@ export function InstitutionalAdminPage() {
   const authority = useSessionAuthority();
   const caps = authority.status === "signed-in" ? authority.capabilities.map((c) => c.capabilityId) : [];
   const needsState = authority.status === "signed-in" && adminPageAllowed(caps, null) !== true;
-  const st = useQuery({ queryKey: ["admin-install-state"], enabled: needsState, retry: false, queryFn: async ({ signal }) => {
+  const st = useQuery({ queryKey: ["admin-install-state", sessionContextKey(authority)], enabled: needsState, retry: false, queryFn: async ({ signal }) => {
     const r = await withListTimeout(signal, (s) => supabase.from("sigem_installation_state").select("state").abortSignal(s).maybeSingle());
     if (r.error) throw r.error;
     return r.data?.state !== "nao-instalado";
   } });
   if (authority.status === "loading") return <p role={authority.error ? "alert" : "status"} className="p-6 text-sm text-muted-foreground">{authority.error ? "Não foi possível conferir seu acesso. Recarregue a página para tentar novamente." : "Conferindo seu acesso…"}</p>;
-  if (authority.status !== "signed-in") return <AuthorizedInstitutionalAdminPage />;
+  if (authority.status !== "signed-in") return <p role="status" className="p-6 text-sm">Entre com sua conta institucional para abrir a Administração.</p>;
   if (st.isError) return <div role="alert" className="p-6 text-sm">Não foi possível conferir seu acesso. <Button size="sm" variant="outline" onClick={() => { void st.refetch(); }}>Tentar novamente</Button></div>;
   const ok = adminPageAllowed(caps, needsState ? (st.data ?? null) : false);
   if (ok === null) return <p role="status" className="p-6 text-sm text-muted-foreground">Conferindo seu acesso…</p>;
@@ -118,16 +119,14 @@ function AuthorizedInstitutionalAdminPage() {
   const setup = useQuery({
     queryKey: ["admin-setup", sessionContextKey(authority)], retry: false, staleTime: 60_000,
     queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
-      const { data: u, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
-      const st = await supabase.from("sigem_installation_state").select("state").abortSignal(s).maybeSingle();
-      if (st.error) throw st.error;
-      if (!u.user) return { signedIn: false, state: st.data?.state ?? null, designated: false, mustChange: false, caps: [] as string[], policies: [] as Policy[] };
-      const [d, m, c] = await Promise.all([
+      if (authority.status !== "signed-in") throw new Error("Sessão não confirmada.");
+      const [st, d, m, c] = await Promise.all([
+        supabase.from("sigem_installation_state").select("state").abortSignal(s).maybeSingle(),
         supabase.rpc("am_designated_installer").abortSignal(s),
         supabase.rpc("password_change_required").abortSignal(s),
         supabase.rpc("effective_scope_capabilities").abortSignal(s),
       ]);
+      if (st.error) throw st.error;
       if (d.error) throw d.error;
       if (m.error) throw m.error;
       if (c.error) throw c.error;
@@ -184,20 +183,26 @@ function AuthorizedInstitutionalAdminPage() {
           )}
         </Section>
       )}
-      {has("manter-pessoas-institucionais") && <PersonsSection onDone={reload} />}
-      {has("manter-contas-institucionais") && <AccountsSection onDone={reload} />}
-      {has("manter-atuacoes-institucionais") && <EngagementsSection onDone={reload} />}
-      {(has("registrar-politica-de-capacidades") || has("homologar-politica-de-capacidades")) && (
-        <PolicySection policies={policies} canHomologate={has("homologar-politica-de-capacidades")} onDone={reload} />
-      )}
-      {signedIn && <SchoolsAdminSection canMaintain={has("manter-cadastro-unidade-escolar")} />}
-      {signedIn && <SchoolSourceImportSection canMaintain={has("manter-cadastro-unidade-escolar")} />}
-      {signedIn && <ComponentsAdminSection canMaintain={has("manter-componentes-curriculares")} />}
-      {signedIn && <AcademicPeriodsAdminSection canMaintain={has("manter-anos-e-periodos-letivos")} />}
-      {signedIn && <CatalogsAdminSection canMaintain={has("manter-catalogos-institucionais")} />}
-      {signedIn && has("consultar-identidade-cadastral-do-estudante") && (
-        <StudentsAdminSection canRegister={has("cadastrar-estudante-na-rede")} canMaintain={has("manter-identidade-cadastral-do-estudante")} />
-      )}
+      {signedIn && !mustChange && !setup.isError && <Tabs defaultValue="pessoas">
+        <TabsList aria-label="Cadastros administrativos" className="h-auto w-full flex-wrap justify-start gap-1">
+          <TabsTrigger value="pessoas">Pessoas e vínculos</TabsTrigger>
+          <TabsTrigger value="escolas">Escolas</TabsTrigger>
+          <TabsTrigger value="curriculo">Currículo e períodos</TabsTrigger>
+          <TabsTrigger value="catalogos">Catálogos</TabsTrigger>
+          {has("consultar-identidade-cadastral-do-estudante") && <TabsTrigger value="estudantes">Estudantes</TabsTrigger>}
+          {(has("registrar-politica-de-capacidades") || has("homologar-politica-de-capacidades")) && <TabsTrigger value="politica">Política</TabsTrigger>}
+        </TabsList>
+        <TabsContent value="pessoas" className="space-y-5">
+          {has("manter-pessoas-institucionais") && <PersonsSection onDone={reload} />}
+          {has("manter-contas-institucionais") && <AccountsSection onDone={reload} />}
+          {has("manter-atuacoes-institucionais") && <EngagementsSection onDone={reload} />}
+        </TabsContent>
+        <TabsContent value="escolas" className="space-y-5"><SchoolsAdminSection canMaintain={has("manter-cadastro-unidade-escolar")} /><SchoolSourceImportSection canMaintain={has("manter-cadastro-unidade-escolar")} /></TabsContent>
+        <TabsContent value="curriculo" className="space-y-5"><ComponentsAdminSection canMaintain={has("manter-componentes-curriculares")} /><AcademicPeriodsAdminSection canMaintain={has("manter-anos-e-periodos-letivos")} /></TabsContent>
+        <TabsContent value="catalogos"><CatalogsAdminSection canMaintain={has("manter-catalogos-institucionais")} /></TabsContent>
+        {has("consultar-identidade-cadastral-do-estudante") && <TabsContent value="estudantes"><StudentsAdminSection canRegister={has("cadastrar-estudante-na-rede")} canMaintain={has("manter-identidade-cadastral-do-estudante")} /></TabsContent>}
+        <TabsContent value="politica"><PolicySection policies={policies} canHomologate={has("homologar-politica-de-capacidades")} onDone={reload} /></TabsContent>
+      </Tabs>}
     </div>
   );
 }

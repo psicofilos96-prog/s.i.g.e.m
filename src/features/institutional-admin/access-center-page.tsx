@@ -2,10 +2,14 @@ import { operationalToday, civilDateOf } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { DateInput } from "@/components/sigem/date-input";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { readPages } from "@/lib/list-paging";
+import { readAccessPeople } from "./access-center-read";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { withListTimeout } from "@/lib/server-page";
@@ -31,30 +35,38 @@ function AuthorizedAccessCenterPage() {
   const held = new Set(authority.status === "signed-in" ? authority.capabilities.filter((c) => c.policyId).map((c) => c.capabilityId) : []);
   const key = sessionContextKey(authority);
   const enabled = authority.status === "signed-in";
+  const [tab, setTab] = useState("logins");
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("");
+  useEffect(() => { const t = setTimeout(() => { setFilter(search); setPage(1); }, 300); return () => clearTimeout(t); }, [search]);
   const qc = useQueryClient();
   const refresh = () => qc.invalidateQueries({ queryKey: ["access-center"] });
 
-  const people = useQuery({ queryKey: ["access-center", "people", key], enabled, retry: false, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
-    const [p, e, end] = await Promise.all([
-      supabase.from("institutional_persons").select("id, display_name, actor_nature, institutional_identifier").order("display_name").abortSignal(s),
-      supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, position_label_snapshot").abortSignal(s),
-      supabase.from("engagement_endings").select("engagement_id, ended_on").abortSignal(s),
-    ]);
-    if (p.error || e.error || end.error) throw p.error ?? e.error ?? end.error;
-    return { persons: p.data, engagements: e.data, endings: end.data };
+  const people = useQuery({ queryKey: ["access-center", "people", key, page, filter], enabled: enabled && tab === "pessoas", retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, (s) => readAccessPeople(page, filter, s)) });
+  const personIds = people.data?.persons.map((p) => p.id) ?? [];
+  const accounts = useQuery({ queryKey: ["access-center", "accounts", key, personIds], enabled: enabled && tab === "pessoas" && personIds.length > 0 && held.has("manter-contas-institucionais"), retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+    const r = await readPages((from, to) => supabase.rpc("admin_account_overview").in("person_id", personIds).order("user_id").range(from, to).abortSignal(s), 20_000);
+    if (r.error || r.truncated) throw r.error ?? new Error("Leitura incompleta."); return r.data ?? [];
   }) });
-  const accounts = useQuery({ queryKey: ["access-center", "accounts", key], enabled: enabled && held.has("manter-contas-institucionais"), retry: false, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
-    const { data, error } = await supabase.rpc("admin_account_overview").abortSignal(s); if (error) throw error; return data ?? [];
-  }) });
-  const policies = useQuery({ queryKey: ["access-center", "policies", key], enabled, retry: false, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+  const policies = useQuery({ queryKey: ["access-center", "policies", key], enabled: enabled && (tab === "politicas" || tab === "matriz"), retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
     const [v, r] = await Promise.all([
-      supabase.from("capability_policies").select("id, logical_policy_id, version, status, supersedes_version_id, valid_from, valid_until, homologation_origin, homologated_at, homologated_by, created_at, created_by").order("version").abortSignal(s),
-      supabase.from("capability_policy_rules").select("policy_id, engagement_kind_id, capability_id, scope_dimensions").abortSignal(s),
+      readPages((from, to) => supabase.from("capability_policies").select("id, logical_policy_id, version, status, supersedes_version_id, valid_from, valid_until, homologation_origin, homologated_at, homologated_by, created_at, created_by").order("version").order("id").range(from, to).abortSignal(s), 20_000),
+      readPages((from, to) => supabase.from("capability_policy_rules").select("policy_id, engagement_kind_id, capability_id, scope_dimensions").order("policy_id").order("engagement_kind_id").order("capability_id").range(from, to).abortSignal(s), 100_000),
     ]);
     if (v.error || r.error) throw v.error ?? r.error;
+    if (v.truncated || r.truncated) throw new Error("Não foi possível consultar a política completa.");
     const rules = new Map<string, PolicyRule[]>();
-    for (const x of r.data) rules.set(x.policy_id, [...(rules.get(x.policy_id) ?? []), { engagement_kind_id: x.engagement_kind_id, capability_id: x.capability_id, scope_dimensions: x.scope_dimensions }]);
+    for (const x of r.data ?? []) rules.set(x.policy_id, [...(rules.get(x.policy_id) ?? []), { engagement_kind_id: x.engagement_kind_id, capability_id: x.capability_id, scope_dimensions: x.scope_dimensions }]);
     return { versions: v.data as PolicyVersion[], rules };
+  }) });
+  const matrixSource = useQuery({ queryKey: ["access-center", "matrix-source", key], enabled: enabled && tab === "matriz", retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+    const [e, end] = await Promise.all([
+      readPages((from, to) => supabase.from("institutional_engagements").select("id, engagement_kind_id, valid_from, valid_until").order("id").range(from, to).abortSignal(s), 100_000),
+      readPages((from, to) => supabase.from("engagement_endings").select("engagement_id, ended_on").order("engagement_id").range(from, to).abortSignal(s), 100_000),
+    ]);
+    if (e.error || end.error || e.truncated || end.truncated) throw e.error ?? end.error ?? new Error("Não foi possível consultar todas as atuações.");
+    return { engagements: e.data ?? [], endings: end.data ?? [] };
   }) });
 
   if (authority.status === "signed-out") return <Shell><p className="text-muted-foreground">Entre com a sua conta institucional para continuar.</p></Shell>;
@@ -68,20 +80,30 @@ function AuthorizedAccessCenterPage() {
         <p className="font-semibold">Cargo e função não são permissão.</p>
         <p className="mt-1 text-muted-foreground">Uma conta só pode agir pelo que a política efetiva concede ao tipo de atuação vigente, no escopo declarado. Não há curinga, troca de perfil nem acesso automático aos setores.</p>
       </div>
-      <LoginsInventorySection sessionKey={key ?? "anon"} />
-      <Loadable q={people} label="pessoas e atuações">{(d) => <PeopleSection data={d} accounts={accounts.data ?? null} accountsError={accounts.isError} />}</Loadable>
-      <Loadable q={policies} label="políticas">{(d) => <PolicySection data={d} canDraft={held.has("registrar-politica-de-capacidades")} canHomologate={held.has("homologar-politica-de-capacidades")} onDone={refresh} />}</Loadable>
-      {people.data && policies.data && (() => {
+      <Tabs value={tab} onValueChange={setTab}>
+        <TabsList aria-label="Central de acessos" className="mt-4 h-auto flex-wrap"><TabsTrigger value="logins">Logins</TabsTrigger><TabsTrigger value="pessoas">Pessoas e atuações</TabsTrigger><TabsTrigger value="politicas">Políticas</TabsTrigger><TabsTrigger value="matriz">Matriz de capacidades</TabsTrigger></TabsList>
+        <TabsContent value="logins"><LoginsInventorySection sessionKey={key ?? "anon"} /></TabsContent>
+        <TabsContent value="pessoas">
+          <Input aria-label="Buscar pessoa por nome" placeholder="Buscar pessoa por nome" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Loadable q={people} label="pessoas e atuações">{(d) => <PeopleSection data={d} accounts={accounts.data ?? null} accountsError={accounts.isError} />}</Loadable>
+          <nav aria-label="Paginação de pessoas" className="mt-3 flex flex-wrap items-center gap-3"><Button variant="outline" size="sm" disabled={page <= 1 || people.isFetching} onClick={() => setPage(page - 1)}>Página anterior</Button><span>Página {page}</span><Button variant="outline" size="sm" disabled={!people.data?.hasNext || people.isFetching} onClick={() => setPage(page + 1)}>Próxima página</Button></nav>
+          {accounts.isError && <Button variant="outline" size="sm" onClick={() => void accounts.refetch()}>Tentar consultar contas novamente</Button>}
+        </TabsContent>
+        <TabsContent value="politicas"><Loadable q={policies} label="políticas">{(d) => <PolicySection data={d} canDraft={held.has("registrar-politica-de-capacidades")} canHomologate={held.has("homologar-politica-de-capacidades")} onDone={refresh} />}</Loadable></TabsContent>
+        <TabsContent value="matriz"><Loadable q={policies} label="políticas">{() => <Loadable q={matrixSource} label="atuações da matriz">{() => null}</Loadable>}</Loadable>
+      {matrixSource.data && policies.data && (() => {
         const eff = effectiveVersion(policies.data.versions, today());
         return <CapabilityMatrixSection rules={eff ? policies.data.rules.get(eff.id) ?? [] : null} policyVersion={eff?.version ?? null}
-          engagements={people.data.engagements} endings={new Map(people.data.endings.map((e) => [e.engagement_id, e.ended_on]))} on={today()} />;
+          engagements={matrixSource.data.engagements} endings={new Map(matrixSource.data.endings.map((e) => [e.engagement_id, e.ended_on]))} on={today()} />;
       })()}
+        </TabsContent>
+      </Tabs>
     </Shell>
   );
 }
 
-function Loadable<T>({ q, label, children }: { q: { isError: boolean; data: T | undefined }; label: string; children: (d: T) => React.ReactNode }) {
-  if (q.isError) return <p role="alert" className="mt-6 text-destructive">Não foi possível ler {label}.</p>;
+function Loadable<T>({ q, label, children }: { q: { isError: boolean; data: T | undefined; refetch: () => unknown }; label: string; children: (d: T) => React.ReactNode }) {
+  if (q.isError) return <div role="alert" className="mt-6 text-destructive">Não foi possível ler {label}. <Button variant="outline" size="sm" onClick={() => void q.refetch()}>Tentar novamente</Button></div>;
   if (!q.data) return <p className="mt-6 text-muted-foreground">Carregando {label}…</p>;
   return <>{children(q.data)}</>;
 }

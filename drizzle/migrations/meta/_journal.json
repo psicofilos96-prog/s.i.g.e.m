@@ -4215,6 +4215,13 @@
       "when": 1792497406252,
       "tag": "0601_perf_engagements_policy_initplan",
       "breakpoints": true
+    },
+    {
+      "idx": 602,
+      "version": "7",
+      "when": 1792507641678,
+      "tag": "0602_class_name_catalog_versions",
+      "breakpoints": true
     }
   ]
 }

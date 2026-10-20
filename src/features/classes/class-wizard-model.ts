@@ -108,6 +108,7 @@ export function stepProblems(step: number, s: ClassWizardState, ctx: { yearState
 
 /** Passo a corrigir para cada recusa do banco. */
 const ERROR_STEP: Array<[RegExp, number, string]> = [
+  [/class-name-catalog:/, 2, "O nome e o código precisam corresponder à lista padronizada vigente. Consulte a lista e selecione novamente."],
   [/class:year-not-open/, 0, "Este ano letivo não está aberto para novas turmas."],
   [/class:invalid-dates|academic-year-outside-bounds|academic-year-inactive|school-unavailable/, 0, "A data de início não é válida para esta escola e ano letivo."],
   [/composition:(mixed-catalogs|duplicate-position|position-not-homologated|position-required)/, 1, "A composição escolhida não é aceita pelo catálogo vigente. Revise a etapa/ano."],

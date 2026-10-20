@@ -14,6 +14,9 @@ import { DateInput } from "@/components/sigem/date-input";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { withListTimeout } from "@/lib/server-page";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { readPages } from "@/lib/list-paging";
 
 const ADMIN_MODULES = new Set(["Contas", "Políticas de acesso"]);
 const today = () => operationalToday();
@@ -27,43 +30,28 @@ export function GovernanceStationPage() {
 }
 
 function AuthorizedGovernanceStationPage() {
-  const [policy, setPolicy] = useState<PolicyVersion | null | undefined>(undefined);
-  const [rules, setRules] = useState<PolicyRule[] | null>(null);
-  const [engs, setEngs] = useState<EngagementRow[]>([]);
-  const [events, setEvents] = useState<AuditEvent[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const authority = useSessionAuthority();
   const [cap, setCap] = useState(""); const [school, setSchool] = useState(""); const [on, setOn] = useState(today());
   const [q, setQ] = useState("");
-  useEffect(() => {
-    let active = true;
-    const controller = new AbortController();
-    void withListTimeout(controller.signal, async (signal) => {
-      const { data: pols, error: e1 } = await supabase.from("capability_policies").select("*").abortSignal(signal);
-      if (!active || signal.aborted) return;
-      if (e1) { setError("Política não legível com esta sessão."); setEvents([]); return; }
-      const v = effectiveVersion((pols ?? []) as unknown as PolicyVersion[], today());
-      setPolicy(v);
-      if (!v) { setRules([]); setEvents([]); return; }
-      const { data, error: e2 } = await supabase.from("capability_policy_rules").select("engagement_kind_id,capability_id,scope_dimensions").eq("policy_id", v.id).abortSignal(signal);
-      if (!active || signal.aborted) return;
-      if (e2) setError("Regras não legíveis com esta sessão."); else setRules((data ?? []) as PolicyRule[]);
-      const { data: u } = await supabase.auth.getUser();
-      if (!active || signal.aborted) return;
-      if (u.user) {
-        const { data: links } = await supabase.from("user_person_links" as never).select("person_id").eq("user_id", u.user.id).abortSignal(signal);
-        if (!active || signal.aborted) return;
-        const ids = ((links ?? []) as { person_id: string }[]).map((l) => l.person_id);
-        if (ids.length) {
-          const { data: e } = await supabase.from("institutional_engagements").select("id,engagement_kind_id,scope_level,school_id,valid_from,valid_until").in("person_id", ids).abortSignal(signal);
-          if (!active || signal.aborted) return;
-          setEngs((e ?? []) as EngagementRow[]);
-        }
-      }
-      const loadedEvents = await loadAll(ADMIN_MODULES);
-      if (active && !signal.aborted) setEvents(loadedEvents.filter((x) => ADMIN_MODULES.has(x.module)));
-    }).catch(() => { if (active) { setError("Não foi possível concluir a consulta. Recarregue a página para tentar novamente."); setEvents([]); } });
-    return () => { active = false; controller.abort(); };
-  }, []);
+  const state = useQuery({ queryKey: ["governance-station", sessionContextKey(authority)], enabled: authority.status === "signed-in", retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, async (s) => {
+    if (authority.status !== "signed-in") throw new Error("Sessão não confirmada.");
+    const [pols, engagements] = await Promise.all([
+      readPages((from, to) => supabase.from("capability_policies").select("*").order("id").range(from, to).abortSignal(s), 20_000),
+      authority.person ? readPages((from, to) => supabase.from("institutional_engagements").select("id,engagement_kind_id,scope_level,school_id,valid_from,valid_until").eq("person_id", authority.person?.id ?? "").order("id").range(from, to).abortSignal(s), 20_000) : Promise.resolve({ data: [], error: null, truncated: false }),
+    ]);
+    if (pols.error || engagements.error || pols.truncated || engagements.truncated) throw pols.error ?? engagements.error ?? new Error("Consulta incompleta.");
+    const policy = effectiveVersion((pols.data ?? []) as unknown as PolicyVersion[], today());
+    if (!policy) return { policy: null, rules: [] as PolicyRule[], engagements: engagements.data as EngagementRow[] };
+    const r = await readPages((from, to) => supabase.from("capability_policy_rules").select("engagement_kind_id,capability_id,scope_dimensions").eq("policy_id", policy.id).order("engagement_kind_id").order("capability_id").range(from, to).abortSignal(s), 100_000);
+    if (r.error || r.truncated) throw r.error ?? new Error("Consulta incompleta.");
+    return { policy, rules: (r.data ?? []) as PolicyRule[], engagements: (engagements.data ?? []) as EngagementRow[] };
+  }) });
+  const history = useQuery({ queryKey: ["governance-station-history", sessionContextKey(authority)], enabled: authority.status === "signed-in", retry: false, staleTime: 60_000, queryFn: ({ signal }) => withListTimeout(signal, async () => (await loadAll(ADMIN_MODULES)).filter((x) => ADMIN_MODULES.has(x.module))) });
+  const policy = state.isError ? undefined : state.data?.policy;
+  const rules = state.isError ? null : state.data?.rules ?? null;
+  const engs = state.data?.engagements ?? [];
+  const events = history.isError ? null : history.data ?? null;
+  const error = state.isError ? "Não foi possível concluir a consulta." : null;
   const matrix = rules ? governanceMatrix(rules) : null;
   const caps = useMemo(() => [...new Set((rules ?? []).map((r) => r.capability_id))].sort(), [rules]);
   const explanation = cap && rules ? explainAccess(policy?.id ?? null, rules, engs, { capability: cap, schoolId: school.trim() || null, on }) : null;
@@ -90,7 +78,7 @@ function AuthorizedGovernanceStationPage() {
       </section>
 
       <section><h2 className="mb-2 font-medium text-foreground">Quem exerce cada ato</h2>
-        {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+        {error && <div role="alert" className="text-sm text-destructive">{error} <Button variant="outline" size="sm" onClick={() => void state.refetch()}>Tentar novamente</Button></div>}
         {!error && !matrix && <SkeletonState label="Carregando" />}
         {policy === null && !error && <p className="text-sm text-muted-foreground">Nenhuma política homologada vigente legível por esta sessão.</p>}
         {matrix && (
@@ -103,7 +91,7 @@ function AuthorizedGovernanceStationPage() {
       <section aria-labelledby="timeline"><h2 id="timeline" className="mb-2 font-medium text-foreground">Linha do tempo administrativa</h2>
         <p className="mb-2 text-xs text-muted-foreground">Mesma trilha da Auditoria (contas e políticas), lida com a sua sessão; sem senha, e-mail ou conteúdo.</p>
         <input aria-label="Buscar por entidade" placeholder="Buscar (ex.: politica:, conta:)" className="mb-2 w-full rounded border border-input bg-background p-2 text-sm" value={q} onChange={(e) => setQ(e.target.value)} />
-        {error ? <p role="alert" className="text-sm text-destructive">A consulta do histórico não foi concluída. Recarregue a página para tentar novamente.</p> : !timeline ? <SkeletonState label="Carregando" /> : timeline.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ato visível para esta sessão.</p>
+        {history.isError ? <div role="alert" className="text-sm text-destructive">A consulta do histórico não foi concluída. <Button variant="outline" size="sm" onClick={() => void history.refetch()}>Tentar novamente</Button></div> : !timeline ? <SkeletonState label="Carregando" /> : timeline.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ato visível para esta sessão.</p>
           : <ul className="space-y-1 text-sm">{timeline.map((e) => <li key={e.id}><span className="text-muted-foreground">{e.at.slice(0, 16).replace("T", " ")}</span> {e.action} · {e.entity}{e.entityVersion ? ` v${e.entityVersion}` : ""}</li>)}</ul>}
         <Link to="/auditoria" className="text-sm underline">Abrir a auditoria completa</Link>
       </section>
