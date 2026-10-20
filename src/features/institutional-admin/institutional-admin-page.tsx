@@ -2,7 +2,7 @@ import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
 import { withListTimeout } from "@/lib/server-page";
 import { readPages } from "@/lib/list-paging";
@@ -60,7 +60,7 @@ const ERRORS: Record<string, string> = {
 };
 function humanError(msg: string): string {
   const key = Object.keys(ERRORS).find((k) => msg.includes(k));
-  if (key) return ERRORS[key]!;
+  if (key) return ERRORS[key] ?? "Operação recusada; nada foi gravado.";
   const cap = msg.match(/capability:([a-z-]+)/);
   if (cap) return `Sua atuação vigente não concede a capacidade necessária (${cap[1]}).`;
   return "Operação recusada; nada foi gravado.";
@@ -115,6 +115,7 @@ export function InstitutionalAdminPage() {
 }
 
 function AuthorizedInstitutionalAdminPage() {
+  const queryClient = useQueryClient();
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [state, setState] = useState<string | null>(null);
   const [designated, setDesignated] = useState(false);
@@ -128,6 +129,8 @@ function AuthorizedInstitutionalAdminPage() {
   const navigate = useNavigate();
 
   const reload = useCallback(async () => {
+    void queryClient.invalidateQueries({ queryKey: ["admin-person-search"] });
+    void queryClient.invalidateQueries({ queryKey: ["admin-person-names"] });
     const { data: u } = await supabase.auth.getUser();
     setSignedIn(!!u.user);
     const st = await supabase.from("sigem_installation_state").select("state").maybeSingle();
@@ -148,7 +151,7 @@ function AuthorizedInstitutionalAdminPage() {
     setListsTruncated(e.truncated);
     setPolicies((pol.data ?? []) as Policy[]);
     setAccounts(await listAccounts());
-  }, [listAccounts]);
+  }, [listAccounts, queryClient]);
 
   useEffect(() => {
     void reload();

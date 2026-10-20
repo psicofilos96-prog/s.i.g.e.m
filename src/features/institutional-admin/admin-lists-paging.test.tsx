@@ -58,6 +58,6 @@ describe("PERF.LOADING.1 — listas da Administração leem além do corte de 10
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><InstitutionalAdminPage /></QueryClientProvider>);
     await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 999], [1000, 1999]]));
-    expect(state.ranges["institutional_persons"]?.[0]).toEqual([0, 999]);
+    expect(state.ranges["institutional_persons"]).toBeUndefined();
   });
 });
