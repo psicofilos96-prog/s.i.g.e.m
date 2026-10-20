@@ -254,6 +254,7 @@ export async function recordPeriodLink(input: { classId: string; baseVersionId: 
 
 export function humanClassError(message: string): string {
   const m = message ?? "";
+  if (m.includes("class-name-catalog:")) return "Selecione um nome e código da lista padronizada vigente para esta turma.";
   if (m.includes("school-capability-required"))
     return m.startsWith("class-period") || m.includes("class-period:")
       ? "Sua atuação vigente não concede a manutenção da organização de períodos desta turma nesta escola."

@@ -14,9 +14,15 @@ const supportFlags = z.array(z.object({
 
 /** Só com sessão institucional; sem laboratório. Falha de leitura = nada afirmado. */
 export function TeachingSupportNotice({ date, classes }: { date: string; classes: readonly { classId: string; className: string }[] }) {
+  const mode = useDiaryPersistenceMode();
+  if (mode !== "cloud" || classes.length === 0) return null;
+  return <InstitutionalTeachingSupportNotice date={date} classes={classes} />;
+}
+
+function InstitutionalTeachingSupportNotice({ date, classes }: { date: string; classes: readonly { classId: string; className: string }[] }) {
   const authority = useSessionAuthority();
   const mode = useDiaryPersistenceMode();
-  const ready = authority.status === "signed-in" && Boolean(authority.person) && mode === "cloud" && classes.length > 0;
+  const ready = authority.status === "signed-in" && Boolean(authority.person) && mode === "cloud";
   const query = useQuery({
     queryKey: ["teacher-mediation", authority.status === "signed-in" ? authority.user.id : null,
       authority.status === "signed-in" ? authority.sessionRevision : null, mode, date, classes],

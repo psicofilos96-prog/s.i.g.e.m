@@ -39,10 +39,10 @@ export function MenuCycleEditor() {
         <label>Refeição<input className={field} value={meal} onChange={(e) => setMeal(e.target.value)} /></label>
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-[720px] border-collapse">
-          <thead><tr><th className="p-1" />{WEEKDAYS.map((d) => <th key={d} className="p-1 text-left">{d}</th>)}</tr></thead>
+        <table aria-label="Preparações do cardápio por semana e dia" className="min-w-[720px] border-collapse">
+          <thead><tr><th scope="col" className="p-1">Semana</th>{WEEKDAYS.map((d) => <th scope="col" key={d} className="p-1 text-left">{d}</th>)}</tr></thead>
           <tbody>{[1, 2, 3, 4].map((s) => (
-            <tr key={s} className="border-t align-top"><th className="p-1 text-left">Semana {s}</th>
+            <tr key={s} className="border-t align-top"><th scope="row" className="p-1 text-left">Semana {s}</th>
               {WEEKDAYS.map((_, d) => (
                 <td key={d} className="space-y-1 p-1">
                   <textarea aria-label={`Semana ${s} ${WEEKDAYS[d]} preparação`} rows={2} className={field} placeholder="Preparação" value={cells[key(s, d)]?.p ?? ""} onChange={(e) => set(s, d, "p", e.target.value)} />

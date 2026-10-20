@@ -11,12 +11,12 @@ export const Route = createFileRoute("/turmas/nova")({
       {
         name: "description",
         content:
-          "Configuração demonstrativa de turma a partir do contexto: unidade, período letivo, oferta, organização, agrupamentos e matriz.",
+          "Cadastro institucional de turmas com nomes padronizados, composição, turno e capacidade no escopo autorizado da escola.",
       },
       { property: "og:title", content: `Nova turma — ${brand.name}` },
       {
         property: "og:description",
-        content: "Workspace demonstrativo de configuração de turma, sem persistência de dados.",
+        content: "Nova turma no SIGEM: seleção de nomes padronizados e configuração escolar com autorização institucional.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

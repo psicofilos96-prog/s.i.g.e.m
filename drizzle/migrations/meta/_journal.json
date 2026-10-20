@@ -4215,6 +4215,27 @@
       "when": 1792497406252,
       "tag": "0601_perf_engagements_policy_initplan",
       "breakpoints": true
+    },
+    {
+      "idx": 602,
+      "version": "7",
+      "when": 1792507641678,
+      "tag": "0602_class_name_catalog_versions",
+      "breakpoints": true
+    },
+    {
+      "idx": 603,
+      "version": "7",
+      "when": 1792508136950,
+      "tag": "0603_class_name_catalog_amendment_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 604,
+      "version": "7",
+      "when": 1792508688805,
+      "tag": "0604_class_name_catalog_fail_closed",
+      "breakpoints": true
     }
   ]
 }

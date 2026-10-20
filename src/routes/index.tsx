@@ -57,14 +57,20 @@ const tasks = [
 function HomePage() {
   const { user, loading } = useSessionUser();
   const authority = useSessionAuthority();
+  if (user && authority.status === "signed-in") return <SimpleHome userId={user.id} authority={authority} />;
+  if (loading || authority.status === "loading") return <p role={authority.status === "loading" && authority.error ? "alert" : "status"} className="p-6 text-muted-foreground">{authority.status === "loading" && authority.error ? "Não foi possível confirmar seu acesso. Recarregue a página para tentar novamente." : "Conferindo seu acesso…"}</p>;
+  return <PublicHomePage />;
+}
+
+function PublicHomePage() {
+  const { user, loading } = useSessionUser();
+  const authority = useSessionAuthority();
   const myTasks = authority.status === "signed-in" ? tasks.filter((t) => pathAllowed(authority, t.to)) : tasks;
-  const q = usePanorama(!!user);
+  const q = usePanorama(false);
   const rows = q.data ?? [];
   const totals = rows.length ? panoramaTotals(rows) : null;
   const ranked = [...rows].filter((r) => r.enrollments !== null).sort((a, b) => (b.enrollments ?? 0) - (a.enrollments ?? 0));
   const max = ranked[0]?.enrollments ?? 1;
-
-  if (user && authority.status === "signed-in") return <SimpleHome userId={user.id} authority={authority} />;
 
   return (
     <div className="pilot-page -m-3 min-h-[calc(100svh-var(--topbar-height))] bg-background sm:-m-4 lg:-m-5 xl:-m-6">

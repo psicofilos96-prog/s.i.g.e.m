@@ -34,3 +34,4 @@
 
 - Administration person directories use server-filtered pages; pickers wait for a search and labels resolve only visible person IDs under RLS, because downloading the entire directory delays unrelated tasks.
 - Administration accounts use paged admin_account_overview and engagements use ordered server pages with look-ahead; session-keyed queries expire and cancel independently, because full-directory reloads and late responses must not delay or overwrite visible records. Account creation uniqueness remains enforced by the canonical writer, not by the visible page.
+- Administrative tabs mount only the selected domain; Access Center people use server-filtered pages and related IDs, while its matrix reads the complete authorized engagement set independently and refuses truncation, because a visible page cannot prove network-wide capability coverage.
