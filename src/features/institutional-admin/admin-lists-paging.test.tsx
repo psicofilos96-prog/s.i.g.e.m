@@ -34,6 +34,10 @@ vi.mock("@/features/authority/session-authority", () => ({
   sessionContextKey: () => "k",
 }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => () => Promise.resolve([]) }));
+vi.mock("@/features/institutional-admin/accounts.functions", () => ({
+  createInstitutionalAccount: vi.fn(), listInstitutionalAccounts: vi.fn(),
+  resetInstitutionalCredential: vi.fn(), createDesignatedActivatorAccount: vi.fn(),
+}));
 import { InstitutionalAdminPage } from "./institutional-admin-page";
 
 const persons = Array.from({ length: 3 }, (_, i) => ({ id: `p${i}`, display_name: `P${i}`, institutional_identifier: null }));
