@@ -31,13 +31,13 @@ describe("PERF.LOADING.1 — busca administrativa limitada", () => {
   it("seletor espera busca, mantém escolha explícita e exclui contas vinculadas", async () => {
     mount(true, ["p1"]); expect(state.ranges).toEqual([]);
     fireEvent.change(screen.getByRole("textbox"), { target: { value: "Pessoa" } });
-    await screen.findByRole("option", { name: "Pessoa 0", exact: true });
-    expect(screen.queryByRole("option", { name: "Pessoa 1", exact: true })).toBeNull();
+    await screen.findByRole("option", { name: "Pessoa 0" });
+    expect(screen.queryByRole("option", { name: "Pessoa 1" })).toBeNull();
     expect(state.filters[0]).toBe("display_name.ilike.%Pessoa%,institutional_identifier.ilike.%Pessoa%");
     expect(screen.getByRole("combobox")).toHaveValue("");
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "p0" } });
     fireEvent.click(screen.getByRole("button", { name: "Próxima página" }));
-    await screen.findByRole("option", { name: "Pessoa 50", exact: true });
+    await screen.findByRole("option", { name: "Pessoa 50" });
     expect(screen.getByRole("combobox")).toHaveValue("p0");
   });
   it("não lê durante confirmação de autoridade", () => {

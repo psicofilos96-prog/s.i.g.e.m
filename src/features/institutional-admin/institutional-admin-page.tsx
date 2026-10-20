@@ -429,7 +429,7 @@ function AccountsSection({ accounts, onDone }: { accounts: Awaited<ReturnType<ty
         {accounts.length === 0 && <li className="text-muted-foreground">Nenhuma conta vinculada.</li>}
       </ul>
       <LocalPager page={page} setPage={setPage} total={accounts.length} noun="contas" />
-      {names.isError && <Notice tone="error" text="Não foi possível consultar os nomes das contas." />}
+      {names.isError && <div role="alert" className="mb-3 text-sm text-destructive">Não foi possível consultar os nomes das contas. <Button type="button" size="sm" variant="outline" onClick={() => void names.refetch()}>Tentar novamente</Button></div>}
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-3 sm:items-end">
         <div className="grid gap-1">
           <AdminPersonSearch id="aperson" picker excluded={[...linked]} />
@@ -499,7 +499,7 @@ function EngagementsSection({ engagements, onDone }: { engagements: Engagement[]
         {engagements.length === 0 && <li className="text-muted-foreground">Nenhuma atuação registrada.</li>}
       </ul>
       <LocalPager page={page} setPage={setPage} total={engagements.length} noun="atuações" />
-      {names.isError && <Notice tone="error" text="Não foi possível consultar os nomes das atuações." />}
+      {names.isError && <div role="alert" className="mb-3 text-sm text-destructive">Não foi possível consultar os nomes das atuações. <Button type="button" size="sm" variant="outline" onClick={() => void names.refetch()}>Tentar novamente</Button></div>}
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1">
           <AdminPersonSearch id="eperson" picker />
