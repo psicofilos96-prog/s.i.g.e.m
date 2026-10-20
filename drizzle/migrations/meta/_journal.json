@@ -4208,6 +4208,13 @@
       "when": 1792433672487,
       "tag": "0600_meal_master_contracted_price",
       "breakpoints": true
+    },
+    {
+      "idx": 601,
+      "version": "7",
+      "when": 1792497406252,
+      "tag": "0601_perf_engagements_policy_initplan",
+      "breakpoints": true
     }
   ]
 }

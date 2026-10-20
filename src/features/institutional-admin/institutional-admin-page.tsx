@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
 import { withListTimeout } from "@/lib/server-page";
+import { readPages } from "@/lib/list-paging";
 import { useNavigate } from "@tanstack/react-router";
 import { safeInstallReturn } from "@/features/calendar/calendar-access-onboarding";
 import { PageHeader } from "@/components/sigem/patterns";
@@ -123,6 +124,7 @@ function AuthorizedInstitutionalAdminPage() {
   const [engagements, setEngagements] = useState<Engagement[]>([]);
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [accounts, setAccounts] = useState<Awaited<ReturnType<typeof listInstitutionalAccounts>>>([]);
+  const [listsTruncated, setListsTruncated] = useState(false);
   const listAccounts = useServerFn(listInstitutionalAccounts);
   const navigate = useNavigate();
 
@@ -136,15 +138,17 @@ function AuthorizedInstitutionalAdminPage() {
       supabase.rpc("am_designated_installer"),
       supabase.rpc("password_change_required"),
       supabase.rpc("effective_scope_capabilities"),
-      supabase.from("institutional_persons").select("id, display_name, institutional_identifier").order("display_name"),
-      supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, originating_act_ref"),
+      // NPAG.1 — o servidor corta em 1000 linhas; lê em páginas com ordem estável para nunca apresentar recorte como lista completa.
+      readPages<Person>((from, to) => supabase.from("institutional_persons").select("id, display_name, institutional_identifier").order("display_name").order("id").range(from, to), 20_000),
+      readPages<Engagement>((from, to) => supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, originating_act_ref").order("id").range(from, to), 20_000),
       supabase.from("capability_policies").select("id, logical_policy_id, version, status, homologation_act_ref").order("version"),
     ]);
     setDesignated(!!d.data);
     setMustChange(!!m.data);
     setCaps(Array.from(new Set((c.data ?? []).map((x: { capability_id: string }) => x.capability_id))).sort());
-    setPersons((p.data ?? []) as Person[]);
-    setEngagements((e.data ?? []) as Engagement[]);
+    setPersons(p.data ?? []);
+    setEngagements(e.data ?? []);
+    setListsTruncated(p.truncated || e.truncated);
     setPolicies((pol.data ?? []) as Policy[]);
     setAccounts(await listAccounts());
   }, [listAccounts]);
@@ -163,6 +167,7 @@ function AuthorizedInstitutionalAdminPage() {
         description="Conta e pessoa identificam quem entra; o que cada um pode fazer vem só da atuação vigente e da política homologada."
       />
       {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Contas são criadas só pela administração; o login institucional é identificador, não caixa postal." />}
+      {listsTruncated && <Notice tone="error" text="As listas de pessoas ou atuações estão incompletas por limite técnico de leitura. Recarregue a página; se continuar, avise o suporte." />}
       {signedIn && mustChange && <PasswordChange onDone={reload} />}
       {signedIn && state === "nao-instalado" && designated && <Installation policies={policies} onDone={async () => { await reload(); const back = safeInstallReturn(new URLSearchParams(window.location.search).get("retorno")); if (back) void navigate({ to: back }); }} />}
       {signedIn && state === "nao-instalado" && !designated && (

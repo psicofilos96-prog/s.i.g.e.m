@@ -52,20 +52,21 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Testes com contas sintéticas só via `scripts/harness-gate.mjs` (fail-closed, declara a camada provada), porque login interativo nem sempre existe.
 
 ## Verificação
-- `npm run verify` (`scripts/verify.mjs`) é a rotina única de checagem local; etapas novas entram nela e em `docs/rotina-de-verificacao.md`, porque checagens espalhadas deixam de ser rodadas.
+- `npm run verify` (`scripts/verify.mjs`) é a checagem local única; etapas novas entram nela e em `docs/rotina-de-verificacao.md` — checagens espalhadas deixam de ser rodadas.
 
 ## Documentação
-- Todo doc em `docs/` abre com "Situação atual" (classe: Canônico, Referência vigente, Registro de lote ou Histórico) e entra em `docs/mapa-documentacao-vigente.md`; texto antigo fica como histórico, porque doc stale vira instrução contraditória.
+- Todo doc em `docs/` abre com "Situação atual" (Canônico, Referência vigente, Registro de lote ou Histórico) e entra em `docs/mapa-documentacao-vigente.md`; texto antigo fica como histórico — doc stale vira instrução contraditória.
 
 ## Listas
-- >1000 linhas só por `readPages` (`src/lib/list-paging.ts`, ordem estável, `truncated`), porque o servidor corta em 1000 e contagem parcial não pode parecer total.
-- Índice de docs só por `scripts/docs-index.mjs` (conferido no `verify`), porque índice manual fica stale.
-- Fronteira crítica de dados usa `parseBoundary` (src/lib/runtime-shape.ts), não só `as T`, porque tipo não confere execução.
+- >1000 linhas só por `readPages` (`src/lib/list-paging.ts`, ordem estável, `truncated`) — o servidor corta em 1000 e parcial não pode parecer total.
+- Índice de docs só por `scripts/docs-index.mjs` (no `verify`) — índice manual fica stale.
+- Fronteira de dados usa `parseBoundary` (src/lib/runtime-shape.ts), não só `as T` — tipo não confere execução.
+- RLS: função STABLE SECURITY DEFINER constante entra em `(SELECT ...)`; sem embrulho é reexecutada por linha (0601).
 
-- Cabeçalhos de segurança/no-store só via `src/lib/security-headers.ts` (middleware em `src/start.ts`), porque cabeçalho por rota é esquecido.
+- Cabeçalhos de segurança/no-store só via `src/lib/security-headers.ts` (em `src/start.ts`) — cabeçalho por rota é esquecido.
 
 ## Aceitação integrada
-- Aceitação entre setores só por `scripts/integration-acceptance-e2e.mjs`, porque suítes soltas deixam de rodar juntas.
+- Aceitação entre setores só por `scripts/integration-acceptance-e2e.mjs` — suítes soltas deixam de rodar juntas.
 
-- Testes: `.test.ts` rodam em node e `.test.tsx` em jsdom (projetos em `vitest.config.ts`; `.ts` que precise de DOM entra em `DOM_TS_TESTS`), porque jsdom em tudo custava 70% da suíte.
+- Testes: `.test.ts` em node e `.test.tsx` em jsdom (`vitest.config.ts`; `.ts` com DOM entra em `DOM_TS_TESTS`) — jsdom em tudo custava 70% da suíte.
 
