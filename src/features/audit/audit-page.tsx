@@ -55,7 +55,7 @@ async function loadActorDirectory(): Promise<{ dir: ActorDirectory; schools: { i
 export function AuditPage() {
   const authority = useSessionAuthority();
   const actor = sessionActor(authority);
-  const q = useQuery({ queryKey: ["audit-central", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: loadAuditTrail });
+  const q = useQuery({ queryKey: ["audit-central", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: () => loadAuditTrail() });
   const d = useQuery({ queryKey: ["audit-actors", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: loadActorDirectory });
   const dir: ActorDirectory = d.data?.dir ?? new Map();
   const [f, setF] = useState({ from: "", to: "", module: "", kind: "", actor: "", entity: "", knownAt: "", station: "", schoolId: "", nature: "", search: "" });
