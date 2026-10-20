@@ -1,8 +1,8 @@
 # Roadmap — SIGEM simples no design original
 
 ## Contraste do calendário (20/10/2026)
-- [ ] Conferir no modelo Interno com quadros do externo as datas de feriados/conselhos em preto e negrito e CF de 21/12 em branco, na prévia e impressão; sem alterar fatos ou outros modelos.
-- [ ] Corrigir a apresentação/ impressão que informa versões indisponíveis para a Supervisão apesar do calendário homologado estar aberto.
+- [x] Modelo misto: datas de feriados/conselhos pretas e em negrito e CF de 21/12 branco, conferidos na prévia e impressão com Supervisão; sem alterar fatos/outros modelos.
+- [x] Apresentação usa instante do servidor; snapshot inválido não vira recusa. Supervisão abriu EJA versão 12 com relógio adiantado dois minutos; 26 testes PASS. Permissões/versões preservadas.
 
 ## Acesso docente indevido (19/10/2026)
 - [x] Busca administrativa: removida carga integral de 11.147 pessoas; páginas/filtros no servidor, seletores por busca e nomes somente dos IDs visíveis. 14 testes PASS; navegador administrativo confirmou sete resultados TESTE e seleção sem gravação, sem erros/transbordamento. Abertura 23,8 s → mediana 15,3 s local; revisão global continua aberta.

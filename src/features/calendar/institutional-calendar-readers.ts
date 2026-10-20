@@ -249,6 +249,21 @@ export async function readCalendarList(p: { knownAt: string }, rpc: Rpc = defaul
   const { data, error } = await rpc("calendar_list_at", { _known_at: p.knownAt }); if (error) throw error;
   return parseCalendarList(data, p);
 }
+
+/** Usa o instante do servidor: relógio do navegador adiantado não é falta de acesso. */
+export async function readCalendarListNow(rpc: Rpc = defaultRpc): Promise<CalendarListRead> {
+  const { data, error } = await rpc("calendar_network_sources_at", { _known_at: null });
+  if (error) throw error;
+  if (!isObj(data) || data["contract"] !== "b4.6.10/1") return fail("sources:contract");
+  if (data["state"] === "access-denied") {
+    exactKeys(data, ["contract", "state"], "sources:denied");
+    return { kind: "access-denied" };
+  }
+  exactKeys(data, ["contract", "state", "knownAt", "audience", "sources"], "sources");
+  if (data["state"] !== "lido" || !isKnownAt(data["knownAt"]) ||
+    !["construcao", "homologados"].includes(String(data["audience"])) || !Array.isArray(data["sources"])) fail("sources:shape");
+  return readCalendarList({ knownAt: str(data["knownAt"], "sources:known-at") }, rpc);
+}
 export async function readCalendarDays(p: { calendarId: string; from: string; to: string; knownAt: string }, rpc: Rpc = defaultRpc) {
   checkKnownAt(p.knownAt); if (!isIsoDate(p.from) || !isIsoDate(p.to) || p.from > p.to) fail("param:range");
   if (!p.calendarId) fail("param:calendar");
