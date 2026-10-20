@@ -198,3 +198,9 @@ Conta: Supervisão (sessão injetada). Critério: sem "Carregando"/skeleton apó
 | /administracao | antes 16,9 s / 48 leituras (pessoas, atuações, escolas, políticas); depois 3,6 s / 10 | recusa sem ler cadastros |
 
 Correção: `/administracao` só monta os leitores com capacidade administrativa ou antes da ativação inicial (`adminPageAllowed`, teste `admin-page-gate.test.ts`). Nenhuma tela ficou presa em "Carregando". Pendente: mesma medição com contas de Secretaria, Direção, Supervisão e Administrador.
+
+## Medição com sessão — Supervisão (2026-10-20)
+Conta supervisao@sigem.itap.gov.br, 12 rotas, script `/tmp/browser/sup/bench_sup.py` (mesma metodologia do benchmark sem sessão).
+Nenhuma rota presa em "Carregando" após 12 s; nenhuma resposta de erro (4xx/5xx) do banco.
+Tempos (ms até rede ociosa): / 7719 · /supervisao-escolar 5042 · /calendario 2428 · /gestao-escolar 3829 · /administracao 2952 · /central-de-acessos 2988 · /estacao-administrativa 2377 · /tarefas 3995 · /transporte-escolar 2819 · /integracoes 11563 · /matriculas/operacao 2643 · /avaliacoes-do-professor 2802.
+Pendente: investigar /integracoes (11,5 s com só 9 leituras — provável espera fora do banco); medir Administrador.
