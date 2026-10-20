@@ -79,7 +79,7 @@ function AuthorizedGovernanceStationPage() {
 
       <section><h2 className="mb-2 font-medium text-foreground">Quem exerce cada ato</h2>
         {error && <div role="alert" className="text-sm text-destructive">{error} <Button variant="outline" size="sm" onClick={() => void state.refetch()}>Tentar novamente</Button></div>}
-        {!error && !matrix && <SkeletonState label="Carregando" />}
+        {!error && state.isPending && <SkeletonState label="Carregando" />}
         {policy === null && !error && <p className="text-sm text-muted-foreground">Nenhuma política homologada vigente legível por esta sessão.</p>}
         {matrix && (
           <table className="w-full text-sm"><thead><tr className="text-left text-muted-foreground"><th scope="col">Ato</th><th scope="col">Domínio</th><th scope="col">Capacidade</th><th scope="col">Atuações (política homologada)</th></tr></thead>
