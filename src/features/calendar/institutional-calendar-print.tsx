@@ -207,5 +207,5 @@ export function InstitutionalCalendarPrint(props: { model: PrintModel; presentat
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
-  return createPortal(<div className="cd-print-root" aria-hidden><div className="cd-a4"><InstitutionalPrintSheet {...props} /></div></div>, document.body);
+  return createPortal(<div className={`cd-print-root${props.footer ? " cx-print-ativo" : ""}`} aria-hidden><div className="cd-a4"><InstitutionalPrintSheet {...props} /></div></div>, document.body);
 }

@@ -18,7 +18,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { captureCalendarKnownAt } from "./institutional-calendar-source";
-import { readCalendarDays, readCalendarList, readDayTypes, readNorm, type CalendarDayRead, type CalendarVersionSummary, type DayTypeVersion } from "./institutional-calendar-readers";
+import { readCalendarDays, readCalendarList, readCalendarListNow, readDayTypes, readNorm, type CalendarDayRead, type CalendarVersionSummary, type DayTypeVersion } from "./institutional-calendar-readers";
 import {
   CalendarWriteRefused, decideCalendar, decideNorm, recordCalendarVersion, recordDayTypeVersion, recordExclusiveNormVersion,
   recordPresentationSnapshot, writeRefusalText, type Decision, type ScopeInput,
@@ -792,25 +792,27 @@ export function CalendarPresentationAccess({ contextKey, institutionalCalendarId
   const knownAt = useMemo(() => captureCalendarKnownAt(), [contextKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const on = today();
   const q = useQuery({ queryKey: ["calext12-presentation", contextKey, institutionalCalendarId, preferredVersionId, knownAt], retry: false, queryFn: async () => {
-    const list = await readCalendarList({ knownAt });
-    if (list.kind !== "lido") return { state: "indisponivel" as const };
+    const list = await readCalendarListNow();
+    if (list.kind === "access-denied") return { state: "indisponivel" as const };
+    if (list.kind !== "lido") throw new Error("Não foi possível confirmar a data da consulta. Tente novamente.");
+    const snapshotAt = list.knownAt;
     const mine = list.versions.filter((v) => v.calendarId === institutionalCalendarId);
     const v = mine.find((x) => x.versionId === preferredVersionId) ?? [...mine].sort((a, b) => b.version - a.version)[0];
     if (!v) return { state: "sem-versao" as const };
-    const pr = await readPresentation({ versionId: v.versionId, on, knownAt });
+    const pr = await readPresentation({ versionId: v.versionId, on: v.validFrom > on ? v.validFrom : on, knownAt: snapshotAt });
     // Lote 3: períodos da versão são lidos na própria vigência dela (ano futuro: hoje < início ⇒ lista vazia na folha).
-    return { state: "ok" as const, v, pr, b24: await loadB24(v.validFrom > on ? v.validFrom : on) };
+    return { state: "ok" as const, v, pr, snapshotAt, b24: await loadB24(v.validFrom > on ? v.validFrom : on) };
   } });
-  if (q.error) return <p role="alert" className="text-xs text-destructive">{errText(q.error)}</p>;
+  if (q.error) return <div><p role="alert" className="text-xs text-destructive">{errText(q.error)}</p><Button type="button" size="sm" variant="outline" onClick={() => void q.refetch()}>Tentar novamente</Button></div>;
   if (!q.data) return <p role="status" className="text-xs text-muted-foreground">Lendo a versão institucional…</p>;
   if (q.data.state === "indisponivel") return <p className="text-xs text-muted-foreground">Versões institucionais indisponíveis para a sua conta.</p>;
   if (q.data.state === "sem-versao") return <p role="note" className="text-xs text-muted-foreground">Este calendário ainda não tem versão salva no banco; salve-o para visualizar os modelos.</p>;
-  const { v, pr, b24 } = q.data;
+  const { v, pr, b24, snapshotAt } = q.data;
   if (pr.kind !== "lido") return <PresentationState read={pr} />;
   return (
     <div className="space-y-1">
       <p className="text-xs text-muted-foreground">Versão {v.version}{v.lastHomologation?.decision === "homologada" ? " (homologada)" : " (não homologada)"} — conteúdo lido do banco; o modelo escolhido muda só a aparência.</p>
-      <PrintVersion version={v} presentation={pr.snapshot.presentation} knownAt={knownAt} autoLoad canEdit={canEdit}
+      <PrintVersion version={v} presentation={pr.snapshot.presentation} knownAt={snapshotAt} autoLoad canEdit={canEdit}
         periods={b24.periods.filter((p) => p.orgId === v.periodOrganizationId)} />
     </div>
   );
