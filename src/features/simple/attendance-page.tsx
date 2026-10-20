@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -15,7 +16,7 @@ export function AttendancePage() {
   const [pickedSchool, setSchool] = useState("");
   const school = own ?? pickedSchool;
   const [klass, setKlass] = useState("");
-  const [day, setDay] = useState(() => new Date().toISOString().slice(0, 10));
+  const [day, setDay] = useState(() => operationalToday());
   const [marks, setMarks] = useState<Record<string, boolean>>({});
   const [busy, setBusy] = useState(false);
 

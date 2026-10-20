@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * NREL.2 — Assuntos do gerador. Cada um lê pelo reader canônico com a sessão do usuário; a RLS e as
  * capabilities do dado de origem decidem o que volta. Nenhum adaptador usa privilégio de serviço.
@@ -305,7 +306,7 @@ function SECRETARIA_DOC_SOURCES(): BuilderSource[] {
       acl: "Somente a própria escola, com permissão de matrícula.", period: false, pageSize: 5000, filterable: ["late"],
       load: once(async () => {
         const r = await (supabase.rpc as unknown as (f: string) => Promise<{ data: { student_name: string; status: string; declared_on: string; due_on: string | null }[] | null; error: unknown }>)("secretariat_own_vaccination_report");
-        if (r.error) fail(); const today = new Date().toISOString().slice(0, 10);
+        if (r.error) fail(); const today = operationalToday();
         return (r.data ?? []).filter((x) => x.status === "pendente").sort((a, b) => (a.due_on ?? "").localeCompare(b.due_on ?? ""))
           .map((x) => ({ student_name: x.student_name, declared_on: br(x.declared_on), due_on: br(x.due_on), late: x.due_on && x.due_on < today ? "Sim" : "Não" }));
       }) },

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { CpfInput } from "@/components/sigem/cpf-input";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -227,7 +228,7 @@ export function VaccinationPanel({ school, student }: { school: string; student:
   }
   if (loadError) return <div className="space-y-2 text-sm"><p role="alert">Não foi possível ler a vacinação.</p><Button variant="outline" onClick={() => void load()}>Tentar novamente</Button></div>;
   if (cur === undefined) return null;
-  const overdue = cur?.status === "pendente" && cur.due_on && cur.due_on < new Date().toISOString().slice(0, 10);
+  const overdue = cur?.status === "pendente" && cur.due_on && cur.due_on < operationalToday();
   return (
     <details className="rounded-md border border-border p-3 text-sm">
       <summary className="cursor-pointer font-medium">Vacinação — {cur ? (cur.status === "em-dia" ? `em dia (desde ${d(cur.declared_on)})` : `pendente, prazo até ${d(cur.due_on)}${overdue ? " — vencido" : ""}`) : "ainda não registrada"}</summary>

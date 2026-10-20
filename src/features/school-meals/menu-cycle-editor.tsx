@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
 import { Button } from "@/components/ui/button";
@@ -54,8 +55,8 @@ export function MenuCycleEditor() {
         <p className="font-medium">Cronograma do ano (qual semana vale em cada período)</p>
         {ranges.map((r, i) => (
           <div key={i} className="flex flex-wrap items-center gap-2">
-            <input type="date" className="rounded border bg-background p-1" value={r.de} onChange={(e) => setRanges(ranges.map((x, j) => j === i ? { ...x, de: e.target.value } : x))} />
-            a <input type="date" className="rounded border bg-background p-1" value={r.ate} onChange={(e) => setRanges(ranges.map((x, j) => j === i ? { ...x, ate: e.target.value } : x))} />
+            <DateInput className="rounded border bg-background p-1" value={r.de} onChange={(e) => setRanges(ranges.map((x, j) => j === i ? { ...x, de: e.target.value } : x))} />
+            a <DateInput className="rounded border bg-background p-1" value={r.ate} onChange={(e) => setRanges(ranges.map((x, j) => j === i ? { ...x, ate: e.target.value } : x))} />
             = Semana <select className="rounded border bg-background p-1" value={r.semana} onChange={(e) => setRanges(ranges.map((x, j) => j === i ? { ...x, semana: Number(e.target.value) } : x))}>{[1, 2, 3, 4].map((n) => <option key={n}>{n}</option>)}</select>
             <button type="button" className="text-xs underline" onClick={() => setRanges(ranges.filter((_, j) => j !== i))}>remover</button>
           </div>))}

@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { callRpc } from "@/lib/rpc-call";
@@ -27,8 +28,8 @@ export function FrequencyRiskPanel({ school, schoolName, today }: { school: stri
     <section aria-label="Estudantes abaixo do limite de frequência" className="rounded-lg border bg-card p-4 space-y-3">
       <h2 className="font-semibold">Estudantes abaixo do limite de frequência</h2>
       <div className="flex flex-wrap gap-2 text-sm">
-        <label>De <input type="date" className="rounded border bg-background px-2 py-1" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
-        <label>Até <input type="date" className="rounded border bg-background px-2 py-1" value={to} onChange={(e) => setTo(e.target.value)} /></label>
+        <label>De <DateInput className="rounded border bg-background px-2 py-1" value={from} onChange={(e) => setFrom(e.target.value)} /></label>
+        <label>Até <DateInput className="rounded border bg-background px-2 py-1" value={to} onChange={(e) => setTo(e.target.value)} /></label>
       </div>
       {q.isLoading ? <p className="text-sm text-muted-foreground">…</p>
         : missing ? <p className="text-sm text-muted-foreground">Defina primeiro a frequência de corte em "Limites de risco da escola".</p>

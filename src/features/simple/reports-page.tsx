@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -22,7 +23,7 @@ export function ReportsPage() {
   const [groupBy, setGroupBy] = useState("school_id");
   const [school, setSchool] = useState("");
   const [from, setFrom] = useState(() => new Date().toISOString().slice(0, 8) + "01");
-  const [to, setTo] = useState(() => new Date().toISOString().slice(0, 10));
+  const [to, setTo] = useState(() => operationalToday());
   const schools = useOptions("schools");
   const classes = useOptions("classes");
   const staff = useOptions("staff");

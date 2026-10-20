@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,7 +95,7 @@ export function SchoolNoticesPanel({ school, year, on }: { school: string; year:
               {(classes.data ?? []).map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select></label>)}
         <label className="text-sm space-y-1">Válido até (opcional)
-          <input type="date" className="w-full rounded border bg-background px-2 py-1" value={expiresOn} onChange={(e) => setExpiresOn(e.target.value)} /></label>
+          <DateInput className="w-full rounded border bg-background px-2 py-1" value={expiresOn} onChange={(e) => setExpiresOn(e.target.value)} /></label>
       </div>
       <label className="text-sm space-y-1 block">Texto do aviso
         <textarea className="w-full rounded border bg-background px-2 py-1" rows={3} value={body} onChange={(e) => setBody(e.target.value)} maxLength={8000} /></label>
