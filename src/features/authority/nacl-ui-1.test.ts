@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
-import { pathAllowed } from "./nav-capabilities";
+import { NAV_REQUIRED_CAPABILITY, pathAllowed } from "./nav-capabilities";
 import { provisionalNavigation } from "@/config/navigation";
 
 const cap = (capabilityId: string, schoolId: string | null = null, engagementId = "e1") =>
@@ -22,7 +22,7 @@ describe("NACL.UI.1 — menu, atalhos, busca e deep link alinhados às capacidad
     }
   });
   it("principal setorial vê só a própria estação; deep link de outra estação é recusado", () => {
-    const a = { status: "signed-in" as const, principal: { id: "x", station: "alimentacao" as const, scope: "network" as const, schoolId: null }, capabilities: [] };
+    const a = { status: "signed-in" as const, principal: { id: "x", station: "alimentacao" as const, scope: "network" as const, schoolId: null }, capabilities: [cap("consultar-alimentacao-escolar")] };
     expect(pathAllowed(a, "/alimentacao-escolar")).toBe(true);
     expect(pathAllowed(a, "/central-de-acessos")).toBe(false);
     expect(pathAllowed(a, "/alunos/$studentId")).toBe(false);
@@ -35,7 +35,7 @@ describe("NACL.UI.1 — menu, atalhos, busca e deep link alinhados às capacidad
     expect(pathAllowed({ status: "signed-in", capabilities: [...caps, cap("administrar-integracoes", null, "e3")] }, "/integracoes/x")).toBe(true);
   });
   it("Admin com todas as capacidades explícitas vê todo o menu", () => {
-    const admin = { status: "signed-in" as const, capabilities: [cap("publicar-conteudo-publico"), cap("administrar-integracoes")] };
+    const admin = { status: "signed-in" as const, capabilities: [...new Set(Object.values(NAV_REQUIRED_CAPABILITY).flat())].map((c) => cap(c)) };
     for (const p of allNav) expect(pathAllowed(admin, p), p).toBe(true);
   });
   it("menu, paleta, busca, cards e deep link usam a mesma regra", () => {

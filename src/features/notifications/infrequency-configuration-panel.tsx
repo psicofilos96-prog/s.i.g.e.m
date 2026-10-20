@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ export function InfrequencyConfigurationPanel() {
   if (!allowed || (query.isError && configurationMessage(query.error).startsWith("Sua conta"))) return null;
   return <section className="space-y-3" aria-labelledby="infrequency-communication-title">
     <h3 id="infrequency-communication-title" className="font-semibold">Avisos de infrequência</h3>
-    {query.isPending ? <p role="status">Carregando aviso…</p> : query.isError ? <div role="alert"><p>{configurationMessage(query.error)}</p><Button variant="outline" onClick={() => void query.refetch()}>Tentar novamente</Button></div>
+    {query.isPending ? <LoadingState label="Carregando aviso…" /> : query.isError ? <div role="alert"><p>{configurationMessage(query.error)}</p><Button variant="outline" onClick={() => void query.refetch()}>Tentar novamente</Button></div>
       : <ConfigurationEditor key={`${query.data.version}-${query.data.rule_id}`} current={query.data} />}
   </section>;
 }

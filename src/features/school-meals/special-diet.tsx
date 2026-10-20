@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { DateInput } from "@/components/sigem/date-input";
 import { useCallback, useEffect, useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
@@ -108,7 +109,7 @@ export function SpecialDietReviewPanel() {
     catch (e) { setErr(msg(e)); }
   };
   if (err && !rows) return <p className="text-sm text-muted-foreground">{err}</p>;
-  if (!rows) return <p className="text-sm text-muted-foreground">Carregando pedidos…</p>;
+  if (!rows) return <LoadingState label="Carregando pedidos…" />;
   const pending = rows.filter((r) => !r.outcome);
   return (
     <section className="space-y-3 rounded-lg border bg-card p-4">
@@ -141,7 +142,7 @@ export function SpecialDietKitchenList({ school, today }: { school: string; toda
   return (
     <section className="space-y-2 rounded-lg border bg-card p-4">
       <h2 className="text-lg font-semibold">Alimentação especial de hoje</h2>
-      {!rows ? <p className="text-sm text-muted-foreground">Carregando…</p> : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum estudante com alimentação especial deferida.</p> :
+      {!rows ? <LoadingState label="Carregando…" /> : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum estudante com alimentação especial deferida.</p> :
         <ul className="divide-y text-sm">{rows.map((r, i) => <li key={i} className="py-2"><b>{r.student_name}</b>{r.class_label ? ` · ${r.class_label}` : ""} — {r.menu_condition}{r.handling_note ? <span className="block text-muted-foreground">{r.handling_note}</span> : null}</li>)}</ul>}
     </section>
   );

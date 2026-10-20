@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { askText } from "@/components/sigem/confirm-action";
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -159,7 +160,7 @@ function AuthorizedInstitutionalAdminPage() {
         description="Conta e pessoa identificam quem entra; o que cada um pode fazer vem só da atuação vigente e da política homologada."
       />
       {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Contas são criadas só pela administração; o login institucional é identificador, não caixa postal." />}
-      {setup.isPending && <p role="status" className="text-sm text-muted-foreground">Carregando os dados da Administração…</p>}
+      {setup.isPending && <LoadingState label="Carregando os dados da Administração…" />}
       {setup.isError && (
         <div role="alert" className="flex flex-wrap items-center gap-3">
           <Notice tone="error" text="Não foi possível carregar os dados desta tela agora. Nada foi alterado." />
@@ -534,7 +535,7 @@ function EngagementsSection({ onDone }: { onDone: () => void }) {
 }
 
 function ListState({ list }: { list: ReturnType<typeof useAdminList> }) {
-  if (list.isPending) return <p role="status" className="mb-3 text-sm text-muted-foreground">Carregando esta página…</p>;
+  if (list.isPending) return <LoadingState label="Carregando esta página…" />;
   if (list.isError) return <div role="alert" className="mb-3 text-sm text-destructive">Não foi possível carregar esta página. <Button type="button" size="sm" variant="outline" onClick={() => void list.refetch()}>Tentar novamente</Button></div>;
   return null;
 }

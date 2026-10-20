@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { useEffect, useMemo, useState } from "react";
 import { operationalToday } from "@/lib/academic-date";
 import { institution } from "@/config/institution";
@@ -68,7 +69,7 @@ export function StudentListingPage() {
         </div>
       </div>
       {err && <p role="status" className="text-sm text-destructive">{err}</p>}
-      {!err && (rows === null ? <p className="text-sm text-muted-foreground">Carregando…</p> : (
+      {!err && (rows === null ? <LoadingState label="Carregando…" /> : (
         <div className="overflow-x-auto rounded-md border border-border">
           <p className="p-2 text-sm text-muted-foreground">{shown.length} aluno(s)</p>
           <table className="w-full text-sm">

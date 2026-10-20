@@ -43,7 +43,7 @@ describe("L45 — áreas de trabalho e política em rascunho", () => {
     }
   });
   it("conta setorial de outra estação não recebe a atividade", () => {
-    const auth = { status: "signed-in" as const, principal: { id: "p", station: "alimentacao" as const, scope: "network" as const, schoolId: null }, capabilities: [] };
+    const auth = { status: "signed-in" as const, principal: { id: "p", station: "alimentacao" as const, scope: "network" as const, schoolId: null }, capabilities: [{ capabilityId: "consultar-alimentacao-escolar", engagementId: "e", policyId: "p", policyVersion: 1, classId: null, periodId: null, schoolId: null, componentId: null }] };
     expect(pathAllowed(auth, "/inclusao")).toBe(false);
     expect(pathAllowed(auth, "/alimentacao-escolar")).toBe(true);
   });

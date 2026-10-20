@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { callRpc } from "@/lib/rpc-call";
@@ -35,7 +36,7 @@ export function OccurrencesPanel({ school, schoolName }: { school: string; schoo
         {canWrite && !form && <Button onClick={() => setForm({ addendumOf: null })}>Nova ocorrência</Button>}
       </div>
       {form && <OccurrenceForm school={school} addendumOf={form.addendumOf} onDone={() => setForm(null)} queryKey={key} />}
-      {q.isLoading ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {q.isLoading ? <LoadingState label="Carregando…" />
         : q.isError ? <StatePanel tone="danger" title="Não foi possível ler as ocorrências" description={userErrorText(q.error as Error)} />
         : (q.data ?? []).length === 0 ? <p className="text-sm text-muted-foreground">Nenhum registro de ocorrência nesta escola.</p>
         : <ul className="space-y-3">{threads(q.data ?? []).map((t) => (

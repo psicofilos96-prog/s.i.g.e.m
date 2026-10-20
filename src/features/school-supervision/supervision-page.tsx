@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { MoreFilters } from "@/components/sigem/more-filters";
@@ -51,7 +52,7 @@ function SupervisionWorkspace({ sessionKey }: { sessionKey: string }) {
       <Tabs value={view} onValueChange={setView}>
         <TabsList><TabsTrigger value="rede">Rede</TabsTrigger><TabsTrigger value="escola">Escola</TabsTrigger></TabsList>
         <TabsContent value="rede" className="mt-4">
-          {context.isPending ? <p role="status">Carregando escolas…</p> : context.isSuccess && <SupervisionNetworkPanel schools={schools} sessionKey={sessionKey} openSchool={(school) => { setF({ ...f, school }); setView("escola"); }} />}
+          {context.isPending ? <LoadingState label="Carregando escolas…" /> : context.isSuccess && <SupervisionNetworkPanel schools={schools} sessionKey={sessionKey} openSchool={(school) => { setF({ ...f, school }); setView("escola"); }} />}
         </TabsContent>
         <TabsContent value="escola" className="mt-4 space-y-6">
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">

@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -76,7 +77,7 @@ export function OfficialLettersPage() {
           <div className="sm:col-span-2"><Button disabled={!ready || busy} onClick={() => void issue()}>Emitir ofício</Button></div>
         </div>)}
       {msg && <p role="status" className="text-sm text-destructive">{msg}</p>}
-      {listQ.isError ? <p role="alert" className="text-sm text-destructive">Não foi possível consultar os ofícios. Tente novamente.</p> : !list ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {listQ.isError ? <p role="alert" className="text-sm text-destructive">Não foi possível consultar os ofícios. Tente novamente.</p> : !list ? <LoadingState label="Carregando…" />
         : list.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ofício emitido.</p>
         : <ul className="space-y-2">{list.map((l) => (
           <li key={l.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-card p-3 text-sm">
