@@ -1,6 +1,7 @@
 # Roadmap — SIGEM simples no design original
 
 ## Contraste do calendário (20/10/2026)
+- [ ] Exibir no modelo misto os totais mensais separados por período (maio 15/4, setembro 7/14), preservando datas e total anual; conferir testes e impressão.
 - [x] Modelo misto: datas de feriados/conselhos pretas e em negrito e CF de 21/12 branco, conferidos na prévia e impressão com Supervisão; sem alterar fatos/outros modelos.
 - [x] Apresentação usa instante do servidor; snapshot inválido não vira recusa. Supervisão abriu EJA versão 12 com relógio adiantado dois minutos; 26 testes PASS. Permissões/versões preservadas.
 

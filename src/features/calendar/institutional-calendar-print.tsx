@@ -40,6 +40,17 @@ export function countRange(days: readonly PrintModel["months"][number]["days"][n
 
 const prevDay = (iso: string) => { const d = new Date(`${iso}T00:00:00Z`); d.setUTCDate(d.getUTCDate() - 1); return d.toISOString().slice(0, 10); };
 
+/** Divide só a apresentação do total, pelas transições declaradas; não altera o efeito de nenhum dia. */
+export function monthPeriodCounts(month: PrintModel["months"][number], periods: PrintModel["periods"], from: string, to: string): PrintCount[] {
+  const sorted = [...periods].sort((a, b) => a.startsOn.localeCompare(b.startsOn));
+  const cuts = [...new Set(sorted.slice(1).flatMap((p, i) =>
+    sorted[i]?.endsOn.slice(0, 7) === month.key && p.startsOn.slice(0, 7) === month.key && p.startsOn > from && p.startsOn <= to
+      ? [p.startsOn] : []))].sort();
+  if (!cuts.length) return [];
+  const starts = [from, ...cuts];
+  return starts.map((start, i) => countRange(month.days, start, cuts[i] ? prevDay(cuts[i]) : to));
+}
+
 /**
  * Linhas da grade igual ao interno do laboratório: com grupos de períodos (ex.: semestres) declarados na
  * apresentação, cada grupo tem seus meses (o mês dividido aparece nos dois, escuro fora do intervalo) e uma
@@ -114,6 +125,7 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
               </tr>
             );
             const m = row.month;
+            const periodCounts = monthPeriodCounts(m, model.periods, row.from, row.to);
             const inRange = (on: string) => on >= row.from && on <= row.to;
             const byDay = new Map(m.days.filter((d) => inRange(d.on)).map((d) => [Number(d.on.slice(8, 10)), d]));
             return (
@@ -141,7 +153,12 @@ export function InstitutionalPrintSheet({ model, presentation, versionId = "inst
                     </td>
                   );
                 })}
-                <td className="cd-total" colSpan={2}><Count c={row.split ? countRange(m.days, row.from, row.to) : m.total} /></td>
+                {periodCounts.length === 2 ? periodCounts.map((c, i) => (
+                  <td key={i} className="cd-total"><Count c={c} /></td>
+                )) : <td className="cd-total" colSpan={2}>
+                  {periodCounts.length > 2 ? periodCounts.map((c, i) => <span key={i}>{i > 0 ? " / " : ""}<Count c={c} /></span>)
+                    : <Count c={row.split ? countRange(m.days, row.from, row.to) : m.total} />}
+                </td>}
               </tr>
             );
           })}
