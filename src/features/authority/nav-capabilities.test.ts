@@ -59,7 +59,8 @@ describe("NPERM.3 — menu × rota × capacidade", () => {
       expect(navItemAllowed(p, [cap("administrar-integracoes")])).toBe(false);
       expect(navItemAllowed(p, [net])).toBe(true);
     }
-    for (const f of ["integration-page", "institutional-page"]) expect(readFileSync(`src/features/integration/${f}.tsx`, "utf8")).toContain("administrar-integracoes");
+    expect(readFileSync("src/features/integration/integration-page.tsx", "utf8")).toContain('pathAllowed(authority, "/integracoes")');
+    expect(readFileSync("src/features/integration/institutional-page.tsx", "utf8")).toContain("administrar-integracoes");
     expect(readFileSync("drizzle/migrations/0091_integration_api_webhooks.sql", "utf8")).toContain("has_network_capability('administrar-integracoes')");
   });
   it("o bloqueio de estação envolve o conteúdo da rota, não só o menu", () => {

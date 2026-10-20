@@ -55,7 +55,7 @@ function AuthorizedIntegrationPage({ readKey }: { readKey: string | null }) {
   const overview = useQuery({
     queryKey: ["integration-overview", readKey], retry: false,
     queryFn: async ({ signal }): Promise<Overview> => {
-      const r = await withListTimeout(signal, (s) => rpc("integration_overview").abortSignal(s));
+      const r = await withListTimeout<{ data: unknown; error: { message: string } | null }>(signal, (s) => rpc("integration_overview").abortSignal(s));
       if (r.error) throw r.error;
       return parseBoundary(overviewSchema, r.data, "integration-overview");
     },
