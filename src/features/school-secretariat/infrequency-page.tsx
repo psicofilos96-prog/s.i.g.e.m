@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useOwnSchoolId } from "@/features/authority/own-school";
@@ -68,7 +69,7 @@ export function InfrequencyPage() {
         <Button disabled={!own || rowsQ.isFetching} onClick={() => { setMsg(null); if (period.from === from && period.to === to) void rowsQ.refetch(); else setPeriod({ from, to }); }}>Atualizar</Button>
       </div>
       {msg && <p role="status" className="text-sm text-foreground">{msg}</p>}
-      {rowsQ.isError ? <p role="alert" className="text-sm text-destructive">{msgOf(rowsQ.error)}</p> : !rows ? <p className="text-sm text-muted-foreground">Carregando…</p>
+      {rowsQ.isError ? <p role="alert" className="text-sm text-destructive">{msgOf(rowsQ.error)}</p> : !rows ? <LoadingState label="Carregando…" />
         : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum aluno abaixo da frequência mínima neste período.</p>
         : <ul className="space-y-2">{rows.map((r) => (
           <li key={r.student_id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border bg-card p-3 text-sm">

@@ -1,3 +1,4 @@
+import { LoadingState } from "@/components/sigem/states";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ function AttachmentList({ planId, uid, revision, readOnly }: { planId: string; u
   };
   return <fieldset className="space-y-2" aria-label="Anexos do planejamento">
     <legend className="text-sm font-medium">Anexos privados</legend>
-    {q.isPending && <p role="status" className="text-sm text-muted-foreground">Carregando anexos…</p>}
+    {q.isPending && <LoadingState label="Carregando anexos…" />}
     {q.isError && <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive"><span>Não foi possível ler os anexos.</span><Button size="sm" variant="outline" disabled={busy} onClick={() => { void q.refetch(); }}>Tentar novamente</Button></div>}
     {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
     {notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}
