@@ -98,7 +98,7 @@ export function adminPageAllowed(caps: readonly string[], installed: boolean | n
 export function InstitutionalAdminPage() {
   const authority = useSessionAuthority();
   const caps = authority.status === "signed-in" ? authority.capabilities.map((c) => c.capabilityId) : [];
-  const needsState = authority.status === "signed-in" && adminPageAllowed(caps, false) !== true;
+  const needsState = authority.status === "signed-in" && adminPageAllowed(caps, null) !== true;
   const st = useQuery({ queryKey: ["admin-install-state"], enabled: needsState, retry: false, queryFn: async ({ signal }) => {
     const r = await withListTimeout(signal, (s) => supabase.from("sigem_installation_state").select("state").abortSignal(s).maybeSingle());
     if (r.error) throw r.error;
