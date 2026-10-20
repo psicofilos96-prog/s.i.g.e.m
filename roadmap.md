@@ -1,5 +1,8 @@
 # Roadmap — SIGEM simples no design original
 
+## Continuação solicitada (20/10/2026)
+- [ ] Administração: substituir carga integral de contas/atuações por páginas no servidor; cancelar consultas vencidas e descartar respostas antigas; testar recuperação e registrar medição autenticada. Demais pendências abaixo continuam abertas, sem homologação presumida.
+
 ## Contraste do calendário (20/10/2026)
 - [x] Modelo misto exibe totais mensais por período: maio 15/4 e setembro 7/14. Oito testes PASS; conta Supervisão confirmou tela e PDF, preservando datas e total anual de 200 dias.
 - [x] Modelo misto: datas de feriados/conselhos pretas e em negrito e CF de 21/12 branco, conferidos na prévia e impressão com Supervisão; sem alterar fatos/outros modelos.
