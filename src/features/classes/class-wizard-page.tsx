@@ -125,6 +125,14 @@ export function ClassCreateWizardPage() {
             ) : null}
             <div className="grid gap-1"><Label htmlFor="w-from" className="text-sm">Início da turma</Label>
               <DateInput id="w-from" value={s.validFrom} onChange={(e) => set({ validFrom: e.target.value })} /></div>
+            {s.yearId && <div className="grid gap-1"><Label htmlFor="w-initial-name">Nome padronizado</Label>
+              {nameOptions.isError ? <div role="alert">Não foi possível consultar os nomes. <Button type="button" variant="outline" onClick={() => void nameOptions.refetch()}>Tentar novamente</Button></div> : nameOptions.isPending ? <p role="status">Consultando nomes disponíveis…</p> : standardized ? <>
+                <select id="w-initial-name" className={sel} value={nameOptions.data?.find((x) => x.name === s.name && x.code === s.code)?.entry_id ?? ""} onChange={(e) => { const picked = chooseClassName(nameOptions.data ?? [], e.target.value); set(picked ?? { name: "", code: "" }); }}>
+                  <option value="">Escolha o nome padronizado</option>
+                  {[...new Set(nameOptions.data?.map((x) => x.modality_label))].map((group) => <optgroup key={group} label={group}>{nameOptions.data?.filter((x) => x.modality_label === group).map((x) => <option key={x.entry_id} value={x.entry_id} disabled={ctx.existingNames.includes(x.name)}>{x.name}</option>)}</optgroup>)}
+                </select><p className="text-sm text-muted-foreground">{nameOptions.data?.length} nomes cadastrados{s.code ? ` · Código ${s.code}` : ""}</p>
+              </> : <p className="text-sm text-muted-foreground">Este ano mantém a identificação anterior das turmas.</p>}
+            </div>}
           </>
         )}
         {step === 1 && (
