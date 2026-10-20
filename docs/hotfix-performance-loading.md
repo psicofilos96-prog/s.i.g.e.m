@@ -254,3 +254,8 @@ Pendente: a abertura da Administração ainda lê ~11 mil pessoas em páginas se
 - REST com a conta do Administrador: `effective_capabilities` 1,0–1,4 s (300 KB); `institutional_classes?select=id` 0,8–1,0 s. A média histórica de 825 ms é anterior à 0601 ou ocorreu sob carga.
 - Sem evidência para índice ou reescrita agora. O custo de permissões é contido no cliente pelo cache compartilhado de 60 s (`capabilities-cache.ts`).
 - Administração (12h): prazo único de 15 s com "Tentar novamente". A tela lê contas e atuações só com a capacidade correspondente.
+
+## Medição com Secretaria e Direção (2026-10-20, escola de teste 99999901, dev local)
+- Secretaria: / 7,9 s; /secretaria 4,7; /alunos 3,2; /turmas 11,3 (abertura fria); /matriculas 3,7; /gestao-escolar 2,3; /administracao 2,4; /tarefas 3,2.
+- Direção: / 4,9 s; /gestao-escolar 3,1; /alunos 2,9; /turmas 3,8; /secretaria 2,2; /administracao 1,7; /tarefas 2,6.
+- Nenhuma tela presa em "Carregando", nenhuma resposta 4xx/5xx de dados, nenhum erro de execução.
