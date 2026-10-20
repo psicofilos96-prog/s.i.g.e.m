@@ -102,7 +102,7 @@ export function InstitutionalAdminPage() {
   const st = useQuery({ queryKey: ["admin-install-state"], enabled: needsState, retry: false, queryFn: async ({ signal }) => {
     const r = await withListTimeout(signal, (s) => supabase.from("sigem_installation_state").select("state").abortSignal(s).maybeSingle());
     if (r.error) throw r.error;
-    return r.data?.state === "installed";
+    return r.data?.state !== "nao-instalado";
   } });
   if (authority.status === "loading") return <p role={authority.error ? "alert" : "status"} className="p-6 text-sm text-muted-foreground">{authority.error ? "Não foi possível conferir seu acesso. Recarregue a página para tentar novamente." : "Conferindo seu acesso…"}</p>;
   if (authority.status !== "signed-in") return <AuthorizedInstitutionalAdminPage />;
