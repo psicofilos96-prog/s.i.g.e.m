@@ -25,12 +25,12 @@ import { StudentsAdminSection } from "./students-admin-section";
 import { ComponentsAdminSection } from "./components-admin-section";
 import { AcademicPeriodsAdminSection } from "./academic-periods-admin-section";
 import { CatalogsAdminSection } from "./catalogs-admin-section";
+import { AdminPersonSearch, useAdminPersonNames } from "./person-search";
 
 /**
  * Administração institucional (B1): só coleta e exibe. Toda autorização é do
  * banco (capacidade vigente pela política homologada); a tela nunca concede nada.
  */
-type Person = { id: string; display_name: string; institutional_identifier: string | null };
 type Engagement = {
   id: string;
   person_id: string;
@@ -120,7 +120,6 @@ function AuthorizedInstitutionalAdminPage() {
   const [designated, setDesignated] = useState(false);
   const [mustChange, setMustChange] = useState(false);
   const [caps, setCaps] = useState<string[]>([]);
-  const [persons, setPersons] = useState<Person[]>([]);
   const [engagements, setEngagements] = useState<Engagement[]>([]);
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [accounts, setAccounts] = useState<Awaited<ReturnType<typeof listInstitutionalAccounts>>>([]);
@@ -134,21 +133,19 @@ function AuthorizedInstitutionalAdminPage() {
     const st = await supabase.from("sigem_installation_state").select("state").maybeSingle();
     setState(st.data?.state ?? null);
     if (!u.user) return;
-    const [d, m, c, p, e, pol] = await Promise.all([
+    const [d, m, c, e, pol] = await Promise.all([
       supabase.rpc("am_designated_installer"),
       supabase.rpc("password_change_required"),
       supabase.rpc("effective_scope_capabilities"),
       // NPAG.1 — o servidor corta em 1000 linhas; lê em páginas com ordem estável para nunca apresentar recorte como lista completa.
-      readPages<Person>((from, to) => supabase.from("institutional_persons").select("id, display_name, institutional_identifier").order("display_name").order("id").range(from, to), 20_000),
       readPages<Engagement>((from, to) => supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, originating_act_ref").order("id").range(from, to), 20_000),
       supabase.from("capability_policies").select("id, logical_policy_id, version, status, homologation_act_ref").order("version"),
     ]);
     setDesignated(!!d.data);
     setMustChange(!!m.data);
     setCaps(Array.from(new Set((c.data ?? []).map((x: { capability_id: string }) => x.capability_id))).sort());
-    setPersons(p.data ?? []);
     setEngagements(e.data ?? []);
-    setListsTruncated(p.truncated || e.truncated);
+    setListsTruncated(e.truncated);
     setPolicies((pol.data ?? []) as Policy[]);
     setAccounts(await listAccounts());
   }, [listAccounts]);
@@ -167,7 +164,7 @@ function AuthorizedInstitutionalAdminPage() {
         description="Conta e pessoa identificam quem entra; o que cada um pode fazer vem só da atuação vigente e da política homologada."
       />
       {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Contas são criadas só pela administração; o login institucional é identificador, não caixa postal." />}
-      {listsTruncated && <Notice tone="error" text="As listas de pessoas ou atuações estão incompletas por limite técnico de leitura. Recarregue a página; se continuar, avise o suporte." />}
+      {listsTruncated && <Notice tone="error" text="A lista de atuações está incompleta por limite técnico de leitura. Recarregue a página; se continuar, avise o suporte." />}
       {signedIn && mustChange && <PasswordChange onDone={reload} />}
       {signedIn && state === "nao-instalado" && designated && <Installation policies={policies} onDone={async () => { await reload(); const back = safeInstallReturn(new URLSearchParams(window.location.search).get("retorno")); if (back) void navigate({ to: back }); }} />}
       {signedIn && state === "nao-instalado" && !designated && (
@@ -185,9 +182,9 @@ function AuthorizedInstitutionalAdminPage() {
           )}
         </Section>
       )}
-      {has("manter-pessoas-institucionais") && <PersonsSection persons={persons} onDone={reload} />}
-      {has("manter-contas-institucionais") && <AccountsSection persons={persons} accounts={accounts} onDone={reload} />}
-      {has("manter-atuacoes-institucionais") && <EngagementsSection persons={persons} engagements={engagements} onDone={reload} />}
+      {has("manter-pessoas-institucionais") && <PersonsSection onDone={reload} />}
+      {has("manter-contas-institucionais") && <AccountsSection accounts={accounts} onDone={reload} />}
+      {has("manter-atuacoes-institucionais") && <EngagementsSection engagements={engagements} onDone={reload} />}
       {(has("registrar-politica-de-capacidades") || has("homologar-politica-de-capacidades")) && (
         <PolicySection policies={policies} canHomologate={has("homologar-politica-de-capacidades")} onDone={reload} />
       )}
@@ -364,9 +361,8 @@ function PasswordChange({ onDone }: { onDone: () => void }) {
   );
 }
 
-function PersonsSection({ persons, onDone }: { persons: Person[]; onDone: () => void }) {
+function PersonsSection({ onDone }: { onDone: () => void }) {
   const [err, setErr] = useState<string | null>(null);
-  const [q, setQ] = useState("");
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -377,14 +373,9 @@ function PersonsSection({ persons, onDone }: { persons: Person[]; onDone: () => 
     form.reset();
     onDone();
   }
-  const shown = persons.filter((p) => `${p.display_name} ${p.institutional_identifier ?? ""}`.toLowerCase().includes(q.toLowerCase()));
   return (
     <Section title="Pessoas">
-      <Input placeholder="Localizar por nome ou matrícula" value={q} onChange={(e) => setQ(e.target.value)} className="mb-3" aria-label="Localizar pessoa" />
-      <ul className="mb-4 grid gap-1 text-sm">
-        {shown.map((p) => <li key={p.id}>{p.display_name}{p.institutional_identifier ? ` — ${p.institutional_identifier}` : ""}</li>)}
-        {shown.length === 0 && <li className="text-muted-foreground">Nenhuma pessoa encontrada.</li>}
-      </ul>
+      <AdminPersonSearch id="persons" />
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <Field id="pname" label="Nome" required />
         <Field id="pid" label="Identificador institucional" />
@@ -395,12 +386,15 @@ function PersonsSection({ persons, onDone }: { persons: Person[]; onDone: () => 
   );
 }
 
-function AccountsSection({ persons, accounts, onDone }: { persons: Person[]; accounts: Awaited<ReturnType<typeof listInstitutionalAccounts>>; onDone: () => void }) {
+function AccountsSection({ accounts, onDone }: { accounts: Awaited<ReturnType<typeof listInstitutionalAccounts>>; onDone: () => void }) {
   const create = useServerFn(createInstitutionalAccount);
   const reset = useServerFn(resetInstitutionalCredential);
   const [err, setErr] = useState<string | null>(null);
   const [secret, setSecret] = useState<string | null>(null);
   const linked = new Set(accounts.map((a) => a.personId));
+  const [page, setPage] = useState(1);
+  const visible = accounts.slice((page - 1) * 50, page * 50);
+  const names = useAdminPersonNames(visible.map((a) => a.personId));
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
@@ -419,11 +413,11 @@ function AccountsSection({ persons, accounts, onDone }: { persons: Person[]; acc
     setSecret(`Nova senha provisória (exibida só agora): ${r.provisionalPassword}`);
     onDone();
   }
-  const name = (id: string) => persons.find((p) => p.id === id)?.display_name ?? "Pessoa";
+  const name = (id: string) => names.data?.get(id) ?? (names.isPending ? "Conferindo nome…" : "Nome indisponível");
   return (
     <Section title="Contas institucionais">
       <ul className="mb-4 grid gap-2 text-sm">
-        {accounts.map((a) => (
+        {visible.map((a) => (
           <li key={a.userId} className="flex flex-wrap items-center justify-between gap-2">
             <span>{name(a.personId)} — {a.login ?? "login não registrado"}{a.lastEvent !== "troca" ? " · troca de senha pendente" : ""}</span>
             <Button size="sm" variant="outline" onClick={() => doReset(a.userId)}>Redefinir credencial</Button>
@@ -431,12 +425,11 @@ function AccountsSection({ persons, accounts, onDone }: { persons: Person[]; acc
         ))}
         {accounts.length === 0 && <li className="text-muted-foreground">Nenhuma conta vinculada.</li>}
       </ul>
+      <LocalPager page={page} setPage={setPage} total={accounts.length} noun="contas" />
+      {names.isError && <Notice tone="error" text="Não foi possível consultar os nomes das contas." />}
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-3 sm:items-end">
         <div className="grid gap-1">
-          <Label htmlFor="aperson">Pessoa</Label>
-          <select id="aperson" name="aperson" required className="h-10 rounded-md border border-input bg-background px-3 text-sm">
-            {persons.filter((p) => !linked.has(p.id)).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
-          </select>
+          <AdminPersonSearch id="aperson" picker excluded={[...linked]} />
         </div>
         <div className="grid gap-1">
           <Label htmlFor="basis">Regra do login</Label>
@@ -455,8 +448,11 @@ function AccountsSection({ persons, accounts, onDone }: { persons: Person[]; acc
   );
 }
 
-function EngagementsSection({ persons, engagements, onDone }: { persons: Person[]; engagements: Engagement[]; onDone: () => void }) {
+function EngagementsSection({ engagements, onDone }: { engagements: Engagement[]; onDone: () => void }) {
   const [err, setErr] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const visible = engagements.slice((page - 1) * 50, page * 50);
+  const names = useAdminPersonNames(visible.map((g) => g.person_id));
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const f = new FormData(e.currentTarget);
@@ -487,11 +483,11 @@ function EngagementsSection({ persons, engagements, onDone }: { persons: Person[
     if (error) return setErr(humanError(error.message));
     onDone();
   }
-  const name = (id: string) => persons.find((p) => p.id === id)?.display_name ?? "Pessoa";
+  const name = (id: string) => names.data?.get(id) ?? (names.isPending ? "Conferindo nome…" : "Nome indisponível");
   return (
     <Section title="Atuações">
       <ul className="mb-4 grid gap-2 text-sm">
-        {engagements.map((g) => (
+        {visible.map((g) => (
           <li key={g.id} className="flex flex-wrap items-center justify-between gap-2">
             <span>{name(g.person_id)} — {g.engagement_kind_id} · alcance {g.scope_level ?? "nenhum"}{g.school_id ? ` (${g.school_id})` : ""} · {g.valid_from} a {g.valid_until ?? "sem fim"} · ato {g.originating_act_ref ?? "—"}</span>
             {!g.valid_until && <Button size="sm" variant="outline" onClick={() => end(g.id)}>Encerrar vigência</Button>}
@@ -499,12 +495,11 @@ function EngagementsSection({ persons, engagements, onDone }: { persons: Person[
         ))}
         {engagements.length === 0 && <li className="text-muted-foreground">Nenhuma atuação registrada.</li>}
       </ul>
+      <LocalPager page={page} setPage={setPage} total={engagements.length} noun="atuações" />
+      {names.isError && <Notice tone="error" text="Não foi possível consultar os nomes das atuações." />}
       <form onSubmit={submit} className="grid gap-3 sm:grid-cols-2">
         <div className="grid gap-1">
-          <Label htmlFor="eperson">Pessoa</Label>
-          <select id="eperson" name="eperson" required className="h-10 rounded-md border border-input bg-background px-3 text-sm">
-            {persons.map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
-          </select>
+          <AdminPersonSearch id="eperson" picker />
         </div>
         <Field id="ekind" label="Tipo de atuação" required />
         <div className="grid gap-1">
@@ -526,6 +521,14 @@ function EngagementsSection({ persons, engagements, onDone }: { persons: Person[
       <Notice text={err} tone="error" />
     </Section>
   );
+}
+
+function LocalPager({ page, setPage, total, noun }: { page: number; setPage: (p: number) => void; total: number; noun: string }) {
+  return <nav aria-label={`Paginação de ${noun}`} className="mb-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+    <Button type="button" size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>Página anterior</Button>
+    <span>Página {page} · {total.toLocaleString("pt-BR")} {noun}</span>
+    <Button type="button" size="sm" variant="outline" disabled={page * 50 >= total} onClick={() => setPage(page + 1)}>Próxima página</Button>
+  </nav>;
 }
 
 function PolicySection({ policies, canHomologate, onDone }: { policies: Policy[]; canHomologate: boolean; onDone: () => void }) {
