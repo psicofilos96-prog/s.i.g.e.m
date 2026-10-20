@@ -128,29 +128,48 @@ function AuthorizedInstitutionalAdminPage() {
   const listAccounts = useServerFn(listInstitutionalAccounts);
   const navigate = useNavigate();
 
+  const [loadFailed, setLoadFailed] = useState(false);
   const reload = useCallback(async () => {
     void queryClient.invalidateQueries({ queryKey: ["admin-person-search"] });
     void queryClient.invalidateQueries({ queryKey: ["admin-person-names"] });
-    const { data: u } = await supabase.auth.getUser();
-    setSignedIn(!!u.user);
-    const st = await supabase.from("sigem_installation_state").select("state").maybeSingle();
-    setState(st.data?.state ?? null);
-    if (!u.user) return;
-    const [d, m, c, e, pol] = await Promise.all([
-      supabase.rpc("am_designated_installer"),
-      supabase.rpc("password_change_required"),
-      supabase.rpc("effective_scope_capabilities"),
-      // NPAG.1 — o servidor corta em 1000 linhas; lê em páginas com ordem estável para nunca apresentar recorte como lista completa.
-      readPages<Engagement>((from, to) => supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, originating_act_ref").order("id").range(from, to), 20_000),
-      supabase.from("capability_policies").select("id, logical_policy_id, version, status, homologation_act_ref").order("version"),
-    ]);
-    setDesignated(!!d.data);
-    setMustChange(!!m.data);
-    setCaps(Array.from(new Set((c.data ?? []).map((x: { capability_id: string }) => x.capability_id))).sort());
-    setEngagements(e.data ?? []);
-    setListsTruncated(e.truncated);
-    setPolicies((pol.data ?? []) as Policy[]);
-    setAccounts(await listAccounts());
+    setLoadFailed(false);
+    // PERF.LOADING.1 — prazo único de 15 s; falha vira aviso com nova tentativa, nunca espera infinita nem lista vazia.
+    const deadline = new Promise<never>((_, rej) => setTimeout(() => rej(new Error("timeout")), 15_000));
+    try {
+      await Promise.race([deadline, (async () => {
+        const { data: u } = await supabase.auth.getUser();
+        setSignedIn(!!u.user);
+        const st = await supabase.from("sigem_installation_state").select("state").maybeSingle();
+        setState(st.data?.state ?? null);
+        if (!u.user) return;
+        const [d, m, c] = await Promise.all([
+          supabase.rpc("am_designated_installer"),
+          supabase.rpc("password_change_required"),
+          supabase.rpc("effective_scope_capabilities"),
+        ]);
+        if (c.error) throw c.error;
+        const capList = Array.from(new Set((c.data ?? []).map((x: { capability_id: string }) => x.capability_id))).sort();
+        setDesignated(!!d.data);
+        setMustChange(!!m.data);
+        setCaps(capList);
+        // Só lê as listas que a conta pode usar, porque leitura sem capacidade é custo sem efeito.
+        const wantsEng = capList.includes("manter-atuacoes-institucionais");
+        const wantsAcc = capList.includes("manter-contas-institucionais");
+        const [e, pol, acc] = await Promise.all([
+          wantsEng
+            ? readPages<Engagement>((from, to) => supabase.from("institutional_engagements").select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, originating_act_ref").order("id").range(from, to), 20_000)
+            : Promise.resolve({ data: [] as Engagement[], truncated: false, error: null }),
+          supabase.from("capability_policies").select("id, logical_policy_id, version, status, homologation_act_ref").order("version"),
+          wantsAcc ? listAccounts() : Promise.resolve([] as Awaited<ReturnType<typeof listInstitutionalAccounts>>),
+        ]);
+        setEngagements(e.data ?? []);
+        setListsTruncated(e.truncated);
+        setPolicies((pol.data ?? []) as Policy[]);
+        setAccounts(acc);
+      })()]);
+    } catch {
+      setLoadFailed(true);
+    }
   }, [listAccounts, queryClient]);
 
   useEffect(() => {
@@ -168,6 +187,12 @@ function AuthorizedInstitutionalAdminPage() {
       />
       {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Contas são criadas só pela administração; o login institucional é identificador, não caixa postal." />}
       {listsTruncated && <Notice tone="error" text="A lista de atuações está incompleta por limite técnico de leitura. Recarregue a página; se continuar, avise o suporte." />}
+      {loadFailed && (
+        <div role="alert" className="flex flex-wrap items-center gap-3">
+          <Notice tone="error" text="Não foi possível carregar os dados desta tela agora. Nada foi alterado." />
+          <button type="button" className="rounded-md border px-3 py-1.5 text-sm" onClick={() => void reload()}>Tentar novamente</button>
+        </div>
+      )}
       {signedIn && mustChange && <PasswordChange onDone={reload} />}
       {signedIn && state === "nao-instalado" && designated && <Installation policies={policies} onDone={async () => { await reload(); const back = safeInstallReturn(new URLSearchParams(window.location.search).get("retorno")); if (back) void navigate({ to: back }); }} />}
       {signedIn && state === "nao-instalado" && !designated && (
