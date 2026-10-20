@@ -1,4 +1,5 @@
 import { cleanup, render, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 type Builder = {
@@ -48,7 +49,8 @@ afterEach(() => { cleanup(); state.ranges = {}; state.rows = {}; });
 describe("PERF.LOADING.1 — listas da Administração leem além do corte de 1000 linhas", () => {
   it("atuações são lidas em páginas ordenadas até o fim (1593 linhas)", async () => {
     state.rows = { institutional_persons: persons, institutional_engagements: engagements };
-    render(<InstitutionalAdminPage />);
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={client}><InstitutionalAdminPage /></QueryClientProvider>);
     await waitFor(() => expect(state.ranges["institutional_engagements"]).toEqual([[0, 999], [1000, 1999]]));
     expect(state.ranges["institutional_persons"]).toEqual([[0, 999]]);
   });
