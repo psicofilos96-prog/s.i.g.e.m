@@ -204,3 +204,24 @@ Conta supervisao@sigem.itap.gov.br, 12 rotas, script `/tmp/browser/sup/bench_sup
 Nenhuma rota presa em "Carregando" após 12 s; nenhuma resposta de erro (4xx/5xx) do banco.
 Tempos (ms até rede ociosa): / 7719 · /supervisao-escolar 5042 · /calendario 2428 · /gestao-escolar 3829 · /administracao 2952 · /central-de-acessos 2988 · /estacao-administrativa 2377 · /tarefas 3995 · /transporte-escolar 2819 · /integracoes 11563 · /matriculas/operacao 2643 · /avaliacoes-do-professor 2802.
 Pendente: investigar /integracoes (11,5 s com só 9 leituras — provável espera fora do banco); medir Administrador.
+
+## Continuação — Administrador, medição local autenticada
+
+Método: navegação completa, tempo até rede ociosa, viewport 1280×1800; não representa tempo em produção nem prova a meta de 2 s. Conta administrativa real, sem mutações escolares.
+
+| Rota | Tempo | Leituras | Resultado |
+|---|---|---|---|
+| / | 9,8 s | 27 | Início administrativo |
+| /integracoes (fria / repetida) | 17,8 / 3,6 s | 9 / 9 | acesso recusado, nenhuma chamada ao overview |
+| /administracao | 22,1 s | 56 | cadastros carregados |
+| /central-de-acessos | 9,7 s | 17 | abre |
+| /estacao-administrativa | 5,4 s | 19 | abre; três consultas de trilha retornam 403 |
+| /supervisao-escolar | 5,8 s | 14 | abre |
+| /gestao-escolar | 6,2 s | 15 | abre |
+| /tarefas | 4,4 s | 23 | abre |
+| /turmas | 7,0 s | 18 | abre |
+| /alunos | 4,5 s | 11 | abre |
+
+Nenhuma tela permaneceu em Carregando. Na abertura fria de Integrações, requisições de módulos locais duraram até 9,9 s; a conta não possui a capacidade de rede e o overview não foi chamado. Portanto, a medição anterior não prova lentidão desse RPC. Ainda assim, a leitura interna do overview não tinha prazo e foi protegida com query por sessão, aborto em 15 s, validação em execução e retentativa manual, sem ampliar permissões.
+
+Gargalo administrativo efetivamente observado: duas consultas de `institutional_engagements` com 8,8 s e 5,6 s; emissão da lista de contas 4,9 s. Respostas 403 na Estação: `school_document_emission_events`, `inclusion_access_events`, `import_batch_events`. Pendente investigar as causas e impedir que uma trilha parcial aparente completude. Não declara PERF.LOADING.1 encerrado.
