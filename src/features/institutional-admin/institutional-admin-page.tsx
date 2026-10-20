@@ -167,6 +167,7 @@ function AuthorizedInstitutionalAdminPage() {
         description="Conta e pessoa identificam quem entra; o que cada um pode fazer vem só da atuação vigente e da política homologada."
       />
       {signedIn === false && <Notice text="Entre com uma conta institucional para usar esta área. Contas são criadas só pela administração; o login institucional é identificador, não caixa postal." />}
+      {listsTruncated && <Notice tone="error" text="As listas de pessoas ou atuações estão incompletas por limite técnico de leitura. Recarregue a página; se continuar, avise o suporte." />}
       {signedIn && mustChange && <PasswordChange onDone={reload} />}
       {signedIn && state === "nao-instalado" && designated && <Installation policies={policies} onDone={async () => { await reload(); const back = safeInstallReturn(new URLSearchParams(window.location.search).get("retorno")); if (back) void navigate({ to: back }); }} />}
       {signedIn && state === "nao-instalado" && !designated && (
