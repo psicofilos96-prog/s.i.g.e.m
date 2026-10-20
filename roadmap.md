@@ -2,6 +2,7 @@
 
 ## Contraste do calendário (20/10/2026)
 - [ ] Conferir no modelo Interno com quadros do externo as datas de feriados/conselhos em preto e negrito e CF de 21/12 em branco, na prévia e impressão; sem alterar fatos ou outros modelos.
+- [ ] Corrigir a apresentação/ impressão que informa versões indisponíveis para a Supervisão apesar do calendário homologado estar aberto.
 
 ## Acesso docente indevido (19/10/2026)
 - [x] Busca administrativa: removida carga integral de 11.147 pessoas; páginas/filtros no servidor, seletores por busca e nomes somente dos IDs visíveis. 14 testes PASS; navegador administrativo confirmou sete resultados TESTE e seleção sem gravação, sem erros/transbordamento. Abertura 23,8 s → mediana 15,3 s local; revisão global continua aberta.
