@@ -1620,6 +1620,12 @@
 .cx-misto .cx-caixa-corpo { overflow: visible; }
 .cx-misto-meio { display: flex; flex-direction: column; gap: 2mm; min-width: 0; }
 .cx-misto [data-cx-bloco="conselhos"] .cx-caixa-corpo { font-size: 7.6pt; }
+.cx-misto { --calendar-info-ink: oklch(0 0 0); }
+.cx-misto .cx-feriados b { color: var(--calendar-info-ink); font-weight: 800; }
+.cd-folha[data-presentation="interno-quadros"] { --calendar-combined-mark-ink: oklch(1 0 0); }
+.cd-folha[data-presentation="interno-quadros"] [data-date$="-12-21"] [data-mark="CF"] {
+  color: var(--calendar-combined-mark-ink) !important;
+}
 
 /* Diário de Classe — identidade "premium" com escopo próprio (.diary-premium). */
 .diary-premium {

@@ -135,7 +135,7 @@ export function MarkerGlyph({ symbology, text }: { symbology: MarkerSymbology; t
   // Configuração inválida não é corrigida em silêncio: mostra só a sigla e sinaliza.
   if (invalid || s.shape === "nenhuma")
     return (
-      <span className="cd-marcador-texto" data-symbology-invalid={invalid || undefined} style={invalid ? undefined : textStyle}>
+      <span className="cd-marcador-texto" data-mark={text} data-symbology-invalid={invalid || undefined} style={invalid ? undefined : textStyle}>
         {text}
       </span>
     );
@@ -171,6 +171,7 @@ export function MarkerGlyph({ symbology, text }: { symbology: MarkerSymbology; t
       </svg>
       <span
         className="cd-marcador-sigla"
+        data-mark={text}
         style={{
           ...textStyle,
           position: "absolute",
