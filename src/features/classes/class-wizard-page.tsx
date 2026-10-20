@@ -37,7 +37,7 @@ export function ClassCreateWizardPage() {
   const [chosenSchool, setChosenSchool] = useState("");
   const schoolId = school || chosenSchool;
   const names = useQuery({ queryKey: ["inst-school-names", schoolIds], queryFn: () => schoolNames(schoolIds), enabled: schoolIds.length > 0 });
-  const sessionKey = auth.status === "signed-in" ? auth.userId : null;
+  const sessionKey = auth.status === "signed-in" ? `${auth.user.id}:${auth.sessionRevision}` : null;
   const allowed = !!sessionKey && schoolIds.length > 0;
   const years = useQuery({ queryKey: ["wizard-years", sessionKey], queryFn: readYears, enabled: allowed, retry: false });
   const [s, setS] = useState<ClassWizardState>(emptyClassWizard);

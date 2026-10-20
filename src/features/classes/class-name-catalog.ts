@@ -10,7 +10,7 @@ export const classNameOptionSchema = z.object({
 export type ClassNameOption = z.infer<typeof classNameOptionSchema>;
 
 export async function readClassNameOptions(year: string, signal?: AbortSignal): Promise<ClassNameOption[]> {
-  const page = await readPages<ClassNameOption>((from, to) => {
+  const page = await readPages<unknown>((from, to) => {
     let q = supabase.rpc("class_name_catalog_for_year", { _year: year }).order("entry_id").range(from, to);
     if (signal) q = q.abortSignal(signal);
     return q;
