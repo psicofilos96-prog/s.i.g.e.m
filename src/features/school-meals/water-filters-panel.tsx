@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { useCallback, useEffect, useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
 import { opsMessage } from "./operations-l3-model";
@@ -31,7 +32,7 @@ export function WaterFiltersPanel({ school, today }: { school: string; today: st
         <label>Equipamento<input className={field} value={f.equipment} placeholder="ex.: Purificador da cozinha" onChange={(e) => setF({ ...f, equipment: e.target.value })} /></label>
         <label>Tipo<select className={field} value={f.kind} onChange={(e) => { const k = e.target.value as "torneira" | "maior"; setF({ ...f, kind: k, months: String(DEFAULT_MONTHS[k]) }); }}>
           <option value="torneira">De torneira</option><option value="maior">Maior</option></select></label>
-        <label>Data da troca<input type="date" max={today} className={field} value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
+        <label>Data da troca<DateInput max={today} className={field} value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
         <label>Próxima troca em (meses)<input inputMode="numeric" className={field} value={f.months} onChange={(e) => setF({ ...f, months: e.target.value.replace(/\D/g, "") })} /></label>
       </div>
       <p className="text-xs text-muted-foreground">Padrão do sistema: 6 meses (torneira) e 9 meses (maior). Ajuste se o fabricante indicar outro prazo.</p>

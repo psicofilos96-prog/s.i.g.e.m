@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { compareClasses, readStageRanks } from "@/features/classes/class-stage-order";
 /**
  * 14.10 — Entrada servidor do Mapa Estatístico. Lê com a sessão do requisitante (RLS),
@@ -35,7 +36,7 @@ function ruleFromRow(r: any): MapCompetenceRule | null {
 /** Nome da turma na data da fotografia pelo reader B2.5 `class_at`; ausência/inconsistência é declarada, nunca escolhida. */
 async function mapClassNames(db: Db, ids: string[], temporal: BitemporalContext | null): Promise<{ id: string; name: string }[]> {
   // Sem data da fotografia, o nome exibido vem do cadastro vigente hoje (só rótulo; números não mudam).
-  const t: BitemporalContext = temporal ?? { validOn: new Date().toISOString().slice(0, 10) };
+  const t: BitemporalContext = temporal ?? { validOn: operationalToday() };
   const [got, ranks] = await Promise.all([classNamesAt(db, ids, t), readStageRanks(db, ids)]);
   const out = ids.map((id) => {
     const o = got.get(id);

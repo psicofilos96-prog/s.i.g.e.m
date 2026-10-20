@@ -1,3 +1,4 @@
+import { DateInput } from "@/components/sigem/date-input";
 import { useCallback, useEffect, useState } from "react";
 import { callRpc } from "@/lib/rpc-call";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,7 +84,7 @@ export function SpecialDietRequestPanel({ school }: { school: string }) {
           {need === "Outra" && <Input placeholder="Descreva" value={other} onChange={(e) => setOther(e.target.value)} />}
           <label className="block text-sm">Laudo médico (obrigatório)
             <input className="mt-1 block" type="file" accept="application/pdf,image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></label>
-          <label className="block text-sm">Laudo válido até (se houver)<Input type="date" value={until} onChange={(e) => setUntil(e.target.value)} /></label>
+          <label className="block text-sm">Laudo válido até (se houver)<DateInput value={until} onChange={(e) => setUntil(e.target.value)} /></label>
           <Button disabled={busy || !file} onClick={() => void send()}>{busy ? "Enviando…" : "Enviar pedido"}</Button>
         </div>
       )}

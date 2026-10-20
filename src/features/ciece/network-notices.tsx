@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 /**
  * Avisos da rede (CIECE): publicação com imagem opcional e mural das escolas.
  * Gravação só por `publish_network_notice`/`withdraw_network_notice` (capacidade de rede do CIECE);
@@ -167,7 +168,7 @@ export function PersonNoticeBoard({ personId }: { personId: string }) {
   const cls = useQuery({
     queryKey: ["classificacao-escolas-pessoa", personId],
     queryFn: async () => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = operationalToday();
       const { data: eng } = await supabase.from("institutional_engagements").select("school_id,valid_from,valid_until").eq("person_id", personId).not("school_id", "is", null);
       const ids = [...new Set((eng ?? []).filter((e) => e.valid_from <= today && (!e.valid_until || e.valid_until >= today)).map((e) => e.school_id as string))];
       if (!ids.length) return [];

@@ -1,3 +1,4 @@
+import { operationalToday } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { countOf } from "./data";
@@ -16,7 +17,7 @@ export function SimpleHome() {
     queryKey: ["sg-home"],
     staleTime: 30_000,
     queryFn: async () => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = operationalToday();
       const [a, s, t, e, p, all] = await Promise.all([
         countOf("sg_students"), countOf("sg_staff"), countOf("sg_classes"), countOf("sg_schools"),
         countOf("sg_attendance", (q) => q.eq("day", today).eq("present", true)),
