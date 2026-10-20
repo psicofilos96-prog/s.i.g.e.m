@@ -22,14 +22,14 @@ export async function readAdminList(kind: "accounts" | "engagements", page: numb
         .order("login").order("user_id").range(from, to + 1).abortSignal(s);
       if (r.error) throw r.error;
       const rows = parseBoundary(z.array(accountSchema), r.data, "admin-account-page");
-      return { items: rows.slice(0, LIST_PAGE_SIZE).map((a) => ({ userId: a.user_id, personId: a.person_id, login: a.login, passwordChangeRequired: a.password_change_required })), hasNext: rows.length > LIST_PAGE_SIZE };
+      return { engagements: [] as z.infer<typeof engagementSchema>[], accounts: rows.slice(0, LIST_PAGE_SIZE).map((a) => ({ userId: a.user_id, personId: a.person_id, login: a.login, passwordChangeRequired: a.password_change_required })), hasNext: rows.length > LIST_PAGE_SIZE };
     }
     const r = await supabase.from("institutional_engagements")
       .select("id, person_id, engagement_kind_id, scope_level, school_id, valid_from, valid_until, originating_act_ref")
       .order("id").range(from, to + 1).abortSignal(s);
     if (r.error) throw r.error;
     const rows = parseBoundary(z.array(engagementSchema), r.data, "admin-engagement-page");
-    return { items: rows.slice(0, LIST_PAGE_SIZE), hasNext: rows.length > LIST_PAGE_SIZE };
+    return { accounts: [] as { userId: string; personId: string; login: string | null; passwordChangeRequired: boolean }[], engagements: rows.slice(0, LIST_PAGE_SIZE), hasNext: rows.length > LIST_PAGE_SIZE };
   });
 }
 
