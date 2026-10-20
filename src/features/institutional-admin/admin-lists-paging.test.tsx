@@ -49,7 +49,7 @@ vi.mock("@/features/authority/session-authority", () => ({
 }));
 vi.mock("@tanstack/react-start", () => ({ useServerFn: () => () => Promise.resolve([]) }));
 vi.mock("@/features/institutional-admin/accounts.functions", () => ({
-  createInstitutionalAccount: vi.fn(), listInstitutionalAccounts: vi.fn(),
+  createInstitutionalAccount: vi.fn(),
   resetInstitutionalCredential: vi.fn(), createDesignatedActivatorAccount: vi.fn(),
 }));
 import { InstitutionalAdminPage } from "./institutional-admin-page";

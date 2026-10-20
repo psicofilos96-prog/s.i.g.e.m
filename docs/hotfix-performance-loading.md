@@ -2,6 +2,14 @@
 
 Situação atual: Registro de lote (2026-10-09).
 
+## Administração — páginas e recuperação (20/10/2026, continuação)
+
+- Removida a carga integral de atuações e o leitor paralelo de contas/eventos. Contas usam `admin_account_overview`, filtrando vínculos não nulos, ordenadas por login/ID; atuações seguem RLS e ordem por ID. Cada pedido traz 50 registros e uma linha adicional de continuidade; não afirma total global nem depende do conjunto inteiro. Unicidade de conta é responsabilidade do writer canônico, não das opções visíveis no seletor.
+- Preparação da tela e listas usam queries por sessão, prazo de 15 s, cancelamento e recuperação explícita. Falha de leitura não vira lista vazia; resposta antiga não publica estado após timeout. A preparação não consulta política nem monta blocos de domínio durante troca obrigatória de senha.
+- 26 testes focados PASS: página além de 1000, continuidade, recusa, formato inválido, aborto, timeout/retentativa, portões e busca. Verificação selecionada pelo `verify`: migrations, segurança SQL, segredos, nove testes de acessibilidade e 11 rotas sem 5xx PASS; não equivale à suíte integrada completa.
+- Administrador real no navegador local, 1280×1800: ambas as listas passaram à página 2; retenção de atuações produziu erro após 15 s; Tentar novamente trouxe 50 registros reais sem gravar dados. Fotos em `/tmp/browser/admin-paging/`; roteiro `check_admin.py`.
+- Mesmo critério local (navegação até paginação de atuações + 1,5 s): antes 6,64 s/55 leituras/4 leituras de atuações; depois 20,12, 12,49 e 6,37 s/50 leituras/1 leitura de atuações. A variabilidade não permite alegar ganho de tempo global. A redução de volume e recuperação estão provadas; ainda falta otimizar os demais blocos e concluir PERF.LOADING.1. Nenhuma permissão, migration, autoria ou homologação alterada.
+
 ## Confirmação de sessão e autoridade (19/10/2026)
 
 - Antes: `getSession` e a consulta compartilhada de autoridade não tinham prazo de encerramento; uma promessa sem resposta mantinha a tela incerta indefinidamente.
