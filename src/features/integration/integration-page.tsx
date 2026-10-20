@@ -1,6 +1,12 @@
 import { PageHeader } from "@/components/sigem/patterns";
 import { userErrorText } from "@/lib/observability/governed-errors";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { z } from "zod";
+import { sessionContextKey, useSessionAuthority } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { withListTimeout } from "@/lib/server-page";
+import { parseBoundary } from "@/lib/runtime-shape";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,10 +24,27 @@ type Overview = {
   requests: { client_id: string | null; method: string; route: string; status: number; error_code: string | null; request_id: string; created_at: string }[];
 };
 
+const overviewSchema = z.object({
+  clients: z.array(z.object({ id: z.string(), name: z.string(), scopes: z.array(z.string()), school_ids: z.array(z.string()).nullable(), rate: z.number(), active: z.boolean() })),
+  keys: z.array(z.object({ id: z.string(), client_id: z.string(), prefix: z.string(), created_at: z.string(), revoked_at: z.string().nullable() })),
+  subscriptions: z.array(z.object({ id: z.string(), client_id: z.string(), url: z.string(), events: z.array(z.string()), secret_hint: z.string(), secret_version: z.number(), active: z.boolean() })),
+  deliveries: z.array(z.object({ id: z.string(), event_type: z.string(), event_id: z.string(), status: z.string(), attempts: z.number(), last_http_status: z.number().nullable(), last_error: z.string().nullable(), replay_count: z.number() })),
+  requests: z.array(z.object({ client_id: z.string().nullable(), method: z.string(), route: z.string(), status: z.number(), error_code: z.string().nullable(), request_id: z.string(), created_at: z.string() })),
+});
+
 const rpc = (fn: string, args?: Record<string, unknown>) => (supabase as any).rpc(fn, args);
 
 export function IntegrationPage() {
-  const [data, setData] = useState<Overview | null>(null);
+  const authority = useSessionAuthority();
+  if (authority.status === "loading") return authority.error
+    ? <ErrorState title="Não foi possível conferir seu acesso" description="Tente novamente." onRetry={() => window.location.reload()} />
+    : <LoadingState label="Conferindo seu acesso" />;
+  if (!pathAllowed(authority, "/integracoes")) return <ErrorState title="Acesso não disponível" description="Sua conta não tem permissão para abrir esta página." />;
+  const readKey = sessionContextKey(authority);
+  return <AuthorizedIntegrationPage key={readKey} readKey={readKey} />;
+}
+
+function AuthorizedIntegrationPage({ readKey }: { readKey: string | null }) {
   const [error, setError] = useState<string | null>(null);
   const [shown, setShown] = useState<{ label: string; value: string } | null>(null);
   const [name, setName] = useState("");
@@ -29,12 +52,16 @@ export function IntegrationPage() {
   const [schools, setSchools] = useState("");
   const process = useServerFn(processWebhookQueue);
 
-  const load = useCallback(async () => {
-    const r = await rpc("integration_overview");
-    if (r.error) { setError(r.error.message.includes("capability-missing") ? "Sua conta não tem a permissão administrar-integracoes." : userErrorText(r.error)); return; }
-    setError(null); setData(r.data as Overview);
-  }, []);
-  useEffect(() => { void load(); }, [load]);
+  const overview = useQuery({
+    queryKey: ["integration-overview", readKey], retry: false,
+    queryFn: async ({ signal }): Promise<Overview> => {
+      const r = await withListTimeout<{ data: unknown; error: { message: string } | null }>(signal, (s) => rpc("integration_overview").abortSignal(s));
+      if (r.error) throw r.error;
+      return parseBoundary(overviewSchema, r.data, "integration-overview");
+    },
+  });
+  const data = overview.data;
+  const load = async () => { setError(null); await overview.refetch(); };
 
   const act = async (fn: string, args: Record<string, unknown>, label?: string) => {
     const r = await rpc(fn, args);
@@ -43,7 +70,7 @@ export function IntegrationPage() {
     await load();
   };
 
-  if (error && !data) return <div className="p-6"><ErrorState title="Integrações indisponíveis" description={error} onRetry={load} /></div>;
+  if (overview.isError && !data) return <div className="p-6"><ErrorState title="Integrações indisponíveis" description={userErrorText(overview.error)} onRetry={load} /></div>;
   if (!data) return <div className="p-6"><LoadingState label="Carregando integrações" /></div>;
 
   return (
@@ -52,7 +79,7 @@ export function IntegrationPage() {
         <PageHeader eyebrow="Administração" title="Integrações externas" />
         <p className="text-sm text-muted-foreground">Sistemas externos usam uma chave própria (nunca a de uma pessoa), com permissões mínimas. Documentação técnica: <a className="underline" href="/api/public/v1/openapi.json">openapi.json</a>.</p>
       </header>
-      {error && <WarningNote>{error}</WarningNote>}
+      {(error || overview.isError) && <WarningNote>{error ?? userErrorText(overview.error)}</WarningNote>}
       {shown && (
         <section className="rounded-md border border-border bg-muted p-4" aria-live="polite">
           <p className="font-medium">{shown.label} — copie agora; não será mostrado de novo.</p>
