@@ -160,7 +160,7 @@ async function loadContext(
     applyDiaryMirror(diary);
     setDiarySessionState({ phase: "pronto", key: target.key, userId: target.userId, reference });
     setDiaryPersistenceMode("cloud");
-  } catch (e) {
+  } catch (e) { console.warn("[diary-session-debug]", e instanceof Error ? e.stack : e);
     if (diaryGeneration() !== mine) return;
     markInstitutionalRosterUnavailable();
     setDiarySessionState({
