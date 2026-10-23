@@ -71,3 +71,6 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 - Testes: `.test.ts` em node e `.test.tsx` em jsdom (`vitest.config.ts`; `.ts` com DOM entra em `DOM_TS_TESTS`) — jsdom em tudo custava 70% da suíte.
 
+
+## Sessão no navegador (PERF.LOADING.1)
+- Leitura da sessão de login passa por `src/lib/auth-session-read-cache.ts` (instalado em `src/router.tsx`, memória de 10 s; gravação/remoção vão direto ao armazenamento), porque no preview cada consulta lia a sessão via editor em fila e as telas estouravam o prazo.
