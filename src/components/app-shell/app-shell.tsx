@@ -79,7 +79,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
       <img
         src={institution.emblemUrl}
         alt=""
-        className="size-8 shrink-0 object-contain"
+        className="size-9 shrink-0 object-contain drop-shadow-sm"
       />
       {!compact && (
         <div className="min-w-0">
@@ -172,7 +172,7 @@ function SidebarNavigation({
             value={menuQuery}
             onChange={(e) => setMenuQuery(e.target.value)}
             placeholder="Procurar no menu…"
-            className="h-9 w-full rounded-lg border border-sidebar-border bg-sidebar-accent/30 px-3 text-sm text-sidebar-foreground placeholder:text-sidebar-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+            className="h-9 w-full rounded-xl border-0 bg-sidebar-foreground/[0.07] px-3 text-sm text-sidebar-foreground placeholder:text-sidebar-muted transition-colors focus-visible:bg-sidebar-foreground/[0.11] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sidebar-border"
           />
         </div>
       )}
@@ -206,14 +206,14 @@ function SidebarNavigation({
               const content = (
                 <div
                   className={cn(
-                    "relative flex min-h-10 items-center gap-3 rounded-lg px-2.5 text-[0.875rem] font-medium transition-colors duration-150",
+                    "group/nav relative flex min-h-10 items-center gap-3 rounded-xl px-2.5 text-[0.875rem] font-medium transition-all duration-200",
                     isActive
                       ? "bg-sidebar-accent text-sidebar-foreground shadow-[inset_0_0_0_1px_var(--sidebar-border)] before:absolute before:inset-y-2 before:-left-3 before:w-[3px] before:rounded-r-full before:bg-territory-accent"
-                      : "text-sidebar-muted hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
+                      : "text-sidebar-muted hover:bg-sidebar-foreground/[0.06] hover:text-sidebar-foreground",
                     compact && "justify-center px-0",
                   )}
                 >
-                  <Icon className="size-[1.125rem] shrink-0" aria-hidden="true" />
+                  <Icon className={cn("size-[1.125rem] shrink-0 transition-colors duration-200", isActive ? "text-territory-accent" : "group-hover/nav:text-territory-accent")} strokeWidth={1.75} aria-hidden="true" />
                   {!compact && <span className="truncate">{item.label}</span>}
                 </div>
               );
@@ -287,8 +287,8 @@ function Sidebar({ compact, onToggle }: { compact: boolean; onToggle: () => void
       </div>
       <SidebarNavigation compact={compact} />
       {!compact && (
-        <div className="print:hidden mx-4 mb-3 border-l border-sidebar-border pl-3">
-          <p className="text-2xs font-semibold uppercase tracking-wide text-sidebar-muted">
+        <div className="print:hidden mx-4 mb-3 pl-1 opacity-60">
+          <p className="text-2xs font-medium uppercase tracking-wide text-sidebar-muted">
             {institution.governmentName}
           </p>
           <p className="mt-0.5 text-micro text-sidebar-foreground/75">
@@ -416,12 +416,12 @@ function Topbar({
   return (
     <header
       className={cn(
-        "print:hidden fixed right-0 top-0 z-30 h-[var(--topbar-height)] border-b border-border/80 bg-card/90 backdrop-blur-xl transition-[left] duration-200",
+        "glass print:hidden fixed right-0 top-0 z-30 h-[var(--topbar-height)] border-b border-border/60 transition-[left] duration-200",
         compact ? "lg:left-[var(--sidebar-collapsed-width)]" : "lg:left-[var(--sidebar-width)]",
         "left-0",
       )}
     >
-      <div className="print:hidden flex h-full items-center gap-2 px-3 sm:px-5">
+      <div className="print:hidden flex h-full items-center gap-2 px-3 sm:gap-3 sm:px-6">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu">
@@ -457,7 +457,7 @@ function Topbar({
         <button
           type="button"
           onClick={onOpenSearch}
-          className="ml-auto hidden h-10 pointer-coarse:h-11 min-w-0 items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 text-sm text-muted-foreground transition-colors hover:bg-muted lg:flex lg:w-80"
+          className="ml-auto hidden h-10 pointer-coarse:h-11 min-w-0 items-center gap-2 rounded-full border border-border/70 bg-card/70 px-4 text-sm text-muted-foreground shadow-[var(--shadow-soft)] transition-all hover:border-primary/30 hover:bg-card lg:flex lg:w-96"
         >
           <Search className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">Buscar no sistema</span>
