@@ -97,7 +97,7 @@ function startOrigin() {
     applyUser(session?.user ?? null);
     controller.abort();
   });
-  const boot = (attempt: number): void => { void Promise.resolve()
+  const boot = (): void => { void Promise.resolve()
     .then(() => withListTimeout(controller.signal, () => supabase.auth.getSession()))
     .then(
       ({ data: s, error }) => {
@@ -107,12 +107,10 @@ function startOrigin() {
       },
       (e: unknown) => {
         if (!alive || eventSeen) return;
-        // PERF.LOADING.1: falha transitória tenta de novo sozinha (fail closed, sem tela presa).
-        if (attempt < 3) { setTimeout(() => { if (alive && !eventSeen) boot(attempt + 1); }, 1500); return; }
         setOrigin({ phase: "error", user: null, revision: origin.revision, error: e instanceof Error ? e.message : "falha ao ler a sessão" });
       },
     ); };
-  boot(0);
+  boot();
   return () => {
     alive = false;
     controller.abort();
