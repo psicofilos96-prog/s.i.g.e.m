@@ -1,3 +1,4 @@
+import { useSessionAuthority } from "@/features/authority/session-authority";
 import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
@@ -349,7 +350,10 @@ function PrintVersion({ version, presentation, knownAt, periods, autoLoad = fals
   const [model, setModel] = useState<ReturnType<typeof buildPrintModel> | null>(null);
   const [readDays, setReadDays] = useState<readonly CalendarDayRead[]>([]);
   const [err, setErr] = useState<string | null>(null);
-  const [template, setTemplate] = useState<PresentationTemplateCode | "interno-quadros">(DEFAULT_TEMPLATE);
+  // Decisão 2026-10-23: fora de Supervisão, CIECE e Administrador, só o modelo oficial de divulgação aparece, sem seletor.
+  const fullChoice = useCalendarModelChoice();
+  const [template, setTemplate] = useState<PresentationTemplateCode | "interno-quadros">(fullChoice ? DEFAULT_TEMPLATE : "interno-quadros");
+  useEffect(() => { if (!fullChoice) setTemplate("interno-quadros"); }, [fullChoice]);
   const load = async () => {
     setErr(null);
     try {
@@ -364,7 +368,7 @@ function PrintVersion({ version, presentation, knownAt, periods, autoLoad = fals
     <div className="space-y-1">
       {autoLoad && !model && !err && <p role="status" className="text-xs text-muted-foreground">Lendo as declarações da versão…</p>}
       {autoLoad && err && <p role="alert" className="text-xs text-destructive">{err}</p>}
-      {model && <TemplateSelector value={template} onChange={setTemplate} extra={MIXED_OPTION} />}
+      {model && fullChoice && <TemplateSelector value={template} onChange={setTemplate} extra={MIXED_OPTION} />}
       {template === "interno-quadros" ? model && (
         <MixedSheet model={model} presentation={presentation} version={version} knownAt={knownAt} days={readDays} />
       ) : template === "interno" ? (
@@ -383,7 +387,15 @@ function PrintVersion({ version, presentation, knownAt, periods, autoLoad = fals
   );
 }
 
-const MIXED_OPTION = [{ code: "interno-quadros" as const, label: "Interno com quadros do externo" }];
+const MIXED_OPTION = [{ code: "interno-quadros" as const, label: "Calendário oficial (divulgação)" }];
+
+function useCalendarModelChoice(): boolean {
+  const a = useSessionAuthority();
+  if (a.status !== "signed-in") return false;
+  const st = a.principal?.station;
+  if (st === "supervisao" || st === "ciece") return true;
+  return !a.principal && a.capabilities.some((c) => c.capabilityId === "construir-calendario-da-rede");
+}
 
 /** Terceiro modelo: a folha interna inteira, trocando só a parte abaixo da tabela pelos quadros do externo. */
 function MixedSheet({ model, presentation, version, knownAt, days }: {
