@@ -18,7 +18,7 @@ describe("PERF.LOADING.3 — capacidades efetivas sem truncamento", () => {
     expect(r.error).toBeNull();
     expect(r.data).toHaveLength(76_780);
     const s = await readAllEffectiveCapabilities(db);
-    expect(s.data).toHaveLength(110 * 55);
+    expect(s.data).toHaveLength(110 * 56); // 55 escolas + 1 linha de rede (vale sem turma)
     expect((s.data as { capability_id: string; school_id: string; class_id: null }[]).some((x) => x.capability_id === "cap-109" && x.school_id === "s54" && x.class_id === null)).toBe(true);
     const rows = r.data as { capability_id: string; class_id: string }[];
     expect(rows.findIndex((x) => x.capability_id === "cap-109")).toBeGreaterThan(1000);
