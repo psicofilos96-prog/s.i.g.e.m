@@ -653,5 +653,8 @@
  "drizzle/migrations/0602_class_name_catalog_versions.sql": "d7d4de0da1a49f58fbffbf95ca25b56c8681185594db29f1119f9e2f2cc50450",
  "drizzle/migrations/0603_class_name_catalog_amendment_guard.sql": "f20fb18e1dd3d3ed28925e984a463a82c254da7dc4704226a76dd5b2f3ca8656",
  "drizzle/migrations/0604_class_name_catalog_fail_closed.sql": "32e62e63f22b47ac1fc6954b652828eb5f2850ac558b8bdafdcebf45faf2be66",
- "drizzle/migrations/0605_0605_op_planning_template_authority.sql": "43ea44ac7bc05b77893f9b9244a4c7b5bfff4f7e45d2b64a256264a9da719b3b"
+ "drizzle/migrations/0605_0605_op_planning_template_authority.sql": "43ea44ac7bc05b77893f9b9244a4c7b5bfff4f7e45d2b64a256264a9da719b3b",
+ "drizzle/migrations/0606_cycle_participations_teacher_read_fix.sql": "01ab1a5fecf1b1878ad423cbe0bb4b6c1a02bae8cb036eebb8d88cef9c5d7d11",
+ "drizzle/migrations/0607_class_schedule_at_engagements_once.sql": "c3565a9bf8bdae638418f204cfbe99301d51638615921bc63d626ae7da784dea",
+ "drizzle/migrations/0608_curricular_component_system_defaults.sql": "92315adf491e15485a22fcdb7041869de2a82c5ec5ea377bd722d8aca2d63f40"
 }
