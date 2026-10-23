@@ -161,5 +161,6 @@
 - [ ] Página inicial: central de trabalho por perfil — seguir Etapa 4
 - [ ] Ambiente docente: Sala de Aula e Planejamento — seguir Etapa 5
 - [ ] Gestão: Relatórios e Quadro Docente — seguir Etapa 6
-- [ ] Documentos: Acervo Documental
-- [ ] Validação: experiência, segurança e funcionamento
+- [ ] Documentos: Acervo Documental — seguir Etapa 7
+- [ ] Validação final — seguir Etapa 8
+- Ordem decidida: Etapas 1–4 (fundação compartilhada) concluídas e validadas antes dos módulos; números/agendas da imagem são ilustrativos, sempre dados reais
