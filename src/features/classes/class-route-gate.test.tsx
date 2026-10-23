@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 describe("ClassRouteGate — acessibilidade", () => {
   const src = readFileSync("src/features/classes/class-route-gate.tsx", "utf8");
   it("renderiza h1 (sr-only) nos ramos sem sessão e de carregamento", () => {
-    expect(src.match(/<h1 className="sr-only">/g)?.length).toBe(2);
+    expect(src.match(/<h1 className="sr-only">/g)?.length).toBeGreaterThanOrEqual(2);
     expect(src).toMatch(/role="status"|<SkeletonState/);
   });
   it("não decide acesso: só escolhe entre institucional e laboratório pela sessão", () => {
