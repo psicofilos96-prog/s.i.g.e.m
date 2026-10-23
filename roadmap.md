@@ -1,5 +1,8 @@
 # Roadmap — SIGEM simples no design original
 
+## Restauração das disciplinas (23/10/2026)
+- [ ] Restaurar os nove componentes autorizados como Padrão do sistema, preservando IDs e versões existentes; conferir leitura sem inventar homologação.
+
 ## Fechamento conjunto solicitado (20/10/2026)
 - [x] Padronização 2027: 136 nomes/códigos registrados e seleção conferida no navegador; 0602–0604 validam par, duplicidade e ausência de configuração sem alterar histórico. Criação de turma concreta não exercitada: falta catálogo curricular homologado na data; nomes não substituem etapas.
 - [x] Eliminar consultas antecipadas do Início e carga simultânea de blocos administrativos; limitar leituras da Central e remover cascatas da Estação sem ampliar permissões. 160 regressões direcionadas PASS; Administração paginada, Central com abas sob demanda e Estação com fontes limitadas.
