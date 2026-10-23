@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDate, parseAcademicDate } from "@/lib/academic-date";
+import { unversionedComponentDefaults, type ComponentDefault } from "@/features/curriculum/component-defaults";
 
 /**
  * B2.3 — Componentes curriculares. Identidade permanente (ID do banco); nome,
@@ -33,24 +34,36 @@ const iso = (v: FormDataEntryValue | null) => { const t = String(v ?? "").trim()
 
 export function ComponentsAdminSection({ canMaintain }: { canMaintain: boolean }) {
   const [rows, setRows] = useState<Version[]>([]);
+  const [defaults, setDefaults] = useState<ComponentDefault[]>([]);
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const load = useCallback(async () => {
-    const { data } = await supabase.from("curricular_component_versions")
+    const [versions, standards] = await Promise.all([supabase.from("curricular_component_versions")
       .select("id, component_id, version, official_name, short_name, is_active, valid_from, change_reason, originating_act_ref, created_at")
-      .order("version");
-    setRows((data ?? []) as Version[]);
+      .order("version"), supabase.from("curricular_component_system_defaults")
+        .select("component_id, display_name, valid_from, source_ref").order("display_name")]);
+    if (versions.error || standards.error) {
+      setErr("Não foi possível consultar as disciplinas. Tente novamente.");
+      return;
+    }
+    setRows((versions.data ?? []) as Version[]);
+    setDefaults(standards.data ?? []);
   }, []);
   useEffect(() => { void load(); }, [load]);
 
   const chains = useMemo(() => {
     const m = new Map<string, Version[]>();
     for (const r of rows) m.set(r.component_id, [...(m.get(r.component_id) ?? []), r]);
-    return [...m.values()].map((c) => ({ chain: c, last: c[c.length - 1]! }))
+    return [...m.values()].flatMap((c) => {
+      const last = c.at(-1);
+      return last ? [{ chain: c, last }] : [];
+    })
       .sort((a, b) => a.last.official_name.localeCompare(b.last.official_name, "pt-BR"));
   }, [rows]);
   const shown = chains.filter((c) => c.chain.some((v) => `${v.official_name} ${v.short_name ?? ""}`.toLowerCase().includes(q.toLowerCase())));
+  const shownDefaults = unversionedComponentDefaults(defaults, rows.map((r) => r.component_id))
+    .filter((d) => d.display_name.toLowerCase().includes(q.toLowerCase()));
 
   async function save(e: FormEvent<HTMLFormElement>, base?: Version) {
     e.preventDefault();
@@ -120,7 +133,15 @@ export function ComponentsAdminSection({ canMaintain }: { canMaintain: boolean }
             )}
           </li>
         ))}
-        {shown.length === 0 && <li className="text-muted-foreground">Nenhum componente curricular cadastrado.</li>}
+        {shownDefaults.map((d) => (
+          <li key={d.component_id} className="rounded-md border border-border p-3">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-medium">{d.display_name}</span>
+              <Badge variant="secondary">Padrão do sistema</Badge>
+            </div>
+          </li>
+        ))}
+        {shown.length === 0 && shownDefaults.length === 0 && <li className="text-muted-foreground">Nenhum componente curricular cadastrado.</li>}
       </ul>
       {canMaintain && (
         <form onSubmit={(e) => save(e)} className="grid gap-3 sm:grid-cols-2">
