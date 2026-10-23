@@ -4236,6 +4236,13 @@
       "when": 1792508688805,
       "tag": "0604_class_name_catalog_fail_closed",
       "breakpoints": true
+    },
+    {
+      "idx": 605,
+      "version": "7",
+      "when": 1792763869662,
+      "tag": "0605_0605_op_planning_template_authority",
+      "breakpoints": true
     }
   ]
 }
