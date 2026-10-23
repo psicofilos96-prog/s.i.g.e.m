@@ -159,7 +159,7 @@
 - [ ] Identidade visual (design system premium) — seguir Etapa 2 enviada
 - [ ] Navegação: menus e layout global — seguir Etapa 3
 - [ ] Página inicial: central de trabalho por perfil — seguir Etapa 4
-- [ ] Ambiente docente: Sala de Aula e Planejamento — seguir Etapa 5
+- [ ] Ambiente docente: Sala de Aula e Planejamento — seguir Etapa 5 e o texto SIA_e_SIPE-3 enviado
 - [ ] Gestão: Relatórios e Quadro Docente — seguir Etapa 6
 - [ ] Documentos: Acervo Documental — seguir Etapa 7
 - [ ] Validação final — seguir Etapa 8
