@@ -4250,6 +4250,13 @@
       "when": 1792769757251,
       "tag": "0606_cycle_participations_teacher_read_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 607,
+      "version": "7",
+      "when": 1792770108153,
+      "tag": "0607_class_schedule_at_engagements_once",
+      "breakpoints": true
     }
   ]
 }

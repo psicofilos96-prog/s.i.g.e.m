@@ -42646,6 +42646,14 @@ export type Database = {
           version_id: string
         }[]
       }
+      class_teaching_engagements_by_item: {
+        Args: { _class_id: string; _known_at: string; _on: string }
+        Returns: {
+          eng: string
+          ik: string
+          mv: string
+        }[]
+      }
       class_time_capability_grant: {
         Args: { _capability: string; _on: string; _school: string }
         Returns: string
