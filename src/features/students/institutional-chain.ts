@@ -90,6 +90,8 @@ export function projectInstitutionalChains(input: ChainInput): { students: Demon
   const allocationsOf = new Map<string, ClassAllocationAtRow[]>();
   for (const a of allocations.values()) {
     const base = { studentId: a.student_id, schoolId: a.school_id, classId: a.class_id, record: { kind: "alocacao" as const, id: a.id, logicalId: a.logical_id }, evidence: { from: a.valid_from, until: a.ended_on } };
+    // Alocação já encerrada antes da data consultada é história: não entra em listas e não acusa a cadeia.
+    if (a.ended_on && a.ended_on < on) continue;
     if (!a.participation_logical_id) {
       diag({ ...base, code: "allocation:legacy-without-participation", detail: "Alocação registrada sem participação educacional; nenhuma participação é inventada e ela não integra listas de turma." });
       continue;
