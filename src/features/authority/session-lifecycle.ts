@@ -33,3 +33,17 @@ export function reactToSignOut(pathWithSearch: string, wasVoluntary: boolean, is
 export function isAccountSwitch(previousUserId: string | null, nextUserId: string | null): boolean {
   return previousUserId !== null && nextUserId !== null && previousUserId !== nextUserId;
 }
+
+/**
+ * PERF.LOGOUT.1 — saída garantida: limpa a sessão local (sem esperar o servidor, que pode travar
+ * o cadeado de autenticação do navegador) com prazo máximo, e recarrega em /auth.
+ */
+export async function signOutNow(opts: { clearCache?: () => void; signOut: () => Promise<unknown>; go?: (url: string) => void; deadlineMs?: number }) {
+  markVoluntarySignOut();
+  try { opts.clearCache?.(); } catch { /* ignore */ }
+  await Promise.race([
+    opts.signOut().catch(() => undefined),
+    new Promise((r) => setTimeout(r, opts.deadlineMs ?? 3000)),
+  ]);
+  (opts.go ?? ((u: string) => window.location.replace(u)))("/auth");
+}

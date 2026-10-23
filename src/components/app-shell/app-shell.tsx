@@ -681,17 +681,9 @@ function SessionMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onSelect={async () => {
-            markVoluntarySignOut();
-            try {
-              await queryClient.cancelQueries();
-              queryClient.clear();
-              await supabase.auth.signOut();
-            } finally {
-              // NAUTH.3: falha de rede ao sair nunca deixa a tela protegida aberta.
-              queryClient.clear();
-              navigate({ to: "/auth", replace: true });
-            }
+          onSelect={() => {
+            void queryClient.cancelQueries();
+            void signOutNow({ clearCache: () => queryClient.clear(), signOut: () => supabase.auth.signOut({ scope: "local" }) });
           }}
         >
           Sair

@@ -26,7 +26,7 @@ export function SimpleShell({ children }: { children: ReactNode }) {
             </Link>
             <button
               type="button"
-              onClick={async () => { try { markVoluntarySignOut(); } catch { /* ignore */ } await supabase.auth.signOut(); }}
+              onClick={() => { void signOutNow({ signOut: () => supabase.auth.signOut({ scope: "local" }) }); }}
               className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-secondary px-4 font-semibold hover:bg-accent"
               aria-label="Sair"
             >
