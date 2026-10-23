@@ -52,11 +52,15 @@ export type ChainInput = {
   validOn: string;
 };
 
-function uniqueHeads<T extends { logical_id: string }>(rows: readonly T[], kind: string): Map<string, T> {
+/** Registro anterior à identidade lógica (logical_id nulo) é a sua própria entidade: chave = id da linha.
+ *  O servidor também só acusa ambiguidade entre cabeças com logical_id; nulos nunca colidem entre si. */
+function uniqueHeads<T extends { logical_id: string; id?: string }>(rows: readonly T[], kind: string): Map<string, T> {
   const out = new Map<string, T>();
   for (const r of rows) {
-    if (out.has(r.logical_id)) throw new SourceInconsistency(`${kind}:duplicate-head (${r.logical_id})`);
-    out.set(r.logical_id, r);
+    const key = r.logical_id ?? (r.id ? `row:${r.id}` : null);
+    if (key === null) throw new SourceInconsistency(`${kind}:missing-identity`);
+    if (out.has(key)) throw new SourceInconsistency(`${kind}:duplicate-head (${key})`);
+    out.set(key, r);
   }
   return out;
 }
@@ -86,8 +90,10 @@ export function projectInstitutionalChains(input: ChainInput): { students: Demon
   const allocationsOf = new Map<string, ClassAllocationAtRow[]>();
   for (const a of allocations.values()) {
     const base = { studentId: a.student_id, schoolId: a.school_id, classId: a.class_id, record: { kind: "alocacao" as const, id: a.id, logicalId: a.logical_id }, evidence: { from: a.valid_from, until: a.ended_on } };
+    // Alocação legada já encerrada antes da data é história: não integra listas e não acusa a cadeia.
+    const pastLegacy = !!a.ended_on && a.ended_on < on;
     if (!a.participation_logical_id) {
-      diag({ ...base, code: "allocation:legacy-without-participation", detail: "Alocação registrada sem participação educacional; nenhuma participação é inventada e ela não integra listas de turma." });
+      if (!pastLegacy) diag({ ...base, code: "allocation:legacy-without-participation", detail: "Alocação registrada sem participação educacional; nenhuma participação é inventada e ela não integra listas de turma." });
       continue;
     }
     const p = validParticipations.get(a.participation_logical_id);
