@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Home, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionUser } from "@/features/authority/session-authority";
-import { markVoluntarySignOut } from "@/features/authority/session-lifecycle";
+import { signOutNow } from "@/features/authority/session-lifecycle";
 import { PageHeader } from "@/components/sigem/patterns";
 
 export const SIMPLE_PATHS = ["/", "/cadastro", "/chamada", "/numeros"];
@@ -26,7 +26,7 @@ export function SimpleShell({ children }: { children: ReactNode }) {
             </Link>
             <button
               type="button"
-              onClick={async () => { try { markVoluntarySignOut(); } catch { /* ignore */ } await supabase.auth.signOut(); }}
+              onClick={() => { void signOutNow({ signOut: () => supabase.auth.signOut({ scope: "local" }) }); }}
               className="inline-flex min-h-12 items-center gap-2 rounded-2xl bg-secondary px-4 font-semibold hover:bg-accent"
               aria-label="Sair"
             >

@@ -64,8 +64,8 @@
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.977 0.008 85);
+  --radius: 0.875rem;
+  --background: oklch(0.983 0.0055 75); /* #FBF9F6 creme aquecido */
   --foreground: oklch(0.23 0.03 238);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.23 0.03 238);
@@ -93,7 +93,7 @@
   --warning-foreground: oklch(0.4 0.1 63);
   --info: oklch(0.59 0.14 244);
   --info-foreground: oklch(0.34 0.1 247);
-  --border: oklch(0.905 0.014 80);
+  --border: oklch(0.91 0.012 78);
   --input: oklch(0.85 0.02 75);
   --ring: oklch(0.58 0.11 232);
   --institutional: oklch(0.27 0.055 236);
@@ -109,11 +109,11 @@
   --login-ink: oklch(0.98 0.005 240);
   --territory-foreground: oklch(0.985 0.008 230);
   --territory-accent: oklch(0.76 0.13 75);
-  --sidebar: oklch(0.21 0.035 236);
+  --sidebar: oklch(0.255 0.04 210); /* azul-petróleo */
   --sidebar-foreground: oklch(0.94 0.012 239);
-  --sidebar-muted: oklch(0.7 0.035 239);
-  --sidebar-accent: oklch(0.29 0.045 234);
-  --sidebar-border: oklch(0.66 0.04 245 / 0.22);
+  --sidebar-muted: oklch(0.76 0.03 205);
+  --sidebar-accent: oklch(0.33 0.05 205);
+  --sidebar-border: oklch(0.75 0.04 200 / 0.16);
   --shadow-panel:
     0 1px 1px color-mix(in oklab, var(--foreground) 3%, transparent),
     0 4px 16px -10px color-mix(in oklab, var(--institutional) 14%, transparent);
@@ -1673,3 +1673,54 @@
   --color-dp-violet-soft: var(--dp-violet-soft);
   --shadow-dp: var(--dp-shadow);
 }
+
+
+/* PREMIUM.2026 — identidade: barra petróleo com degradê, vidro suave, bordas em degradê e tons das ações. */
+:root {
+  --sidebar-gradient: linear-gradient(180deg, oklch(0.29 0.045 200) 0%, oklch(0.24 0.04 215) 55%, oklch(0.2 0.035 230) 100%);
+  --glass: color-mix(in oklab, var(--card) 72%, transparent);
+  --shadow-soft: 0 1px 2px color-mix(in oklab, var(--foreground) 4%, transparent), 0 8px 24px -14px color-mix(in oklab, var(--sidebar) 28%, transparent);
+  --shadow-lift: 0 2px 4px color-mix(in oklab, var(--foreground) 5%, transparent), 0 18px 36px -18px color-mix(in oklab, var(--sidebar) 40%, transparent);
+  --tone-blue: oklch(0.58 0.14 250);
+  --tone-mint: oklch(0.7 0.11 175);
+  --tone-amber: oklch(0.75 0.14 70);
+  --tone-forest: oklch(0.5 0.1 150);
+  --tone-coral: oklch(0.7 0.13 20);
+  --tone-teal: oklch(0.55 0.08 205);
+}
+.sidebar-terrain { background: var(--sidebar-gradient); }
+.sidebar-terrain::before { opacity: 0.08; }
+@utility glass {
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+@utility gradient-border {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, color-mix(in oklab, var(--tone, var(--tone-teal)) 45%, var(--border)), var(--border) 60%) border-box;
+}
+@utility lift {
+  box-shadow: var(--shadow-soft);
+  transition: transform 200ms var(--motion-ease), box-shadow 200ms var(--motion-ease);
+  &:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+  @media (prefers-reduced-motion: reduce) { &:hover { transform: none; } }
+}
+@utility tone-wash {
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in oklab, var(--tone, var(--tone-teal)) 12%, transparent), transparent 60%) padding-box,
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(135deg, color-mix(in oklab, var(--tone, var(--tone-teal)) 50%, var(--border)), var(--border) 65%) border-box;
+  border: 1px solid transparent;
+}
+.tone-blue { --tone: var(--tone-blue); }
+.tone-mint { --tone: var(--tone-mint); }
+.tone-amber { --tone: var(--tone-amber); }
+.tone-forest { --tone: var(--tone-forest); }
+.tone-coral { --tone: var(--tone-coral); }
+.tone-teal { --tone: var(--tone-teal); }
+.tone-icon { color: var(--tone, var(--primary)); background: color-mix(in oklab, var(--tone, var(--primary)) 12%, transparent); }
+.pulse-dot { position: relative; }
+.pulse-dot::after { content: ""; position: absolute; inset: 0; border-radius: 9999px; background: currentColor; animation: pulse-ring 2s ease-out infinite; }
+@keyframes pulse-ring { 0% { transform: scale(1); opacity: .6; } 100% { transform: scale(2.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pulse-dot::after { animation: none; } }

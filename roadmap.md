@@ -150,3 +150,6 @@
 - [ ] Teste com conta de professor — sessão autorizada m504211 emitida; exige troca da senha inicial pelo titular. Não alterar senha real nem dispensar proteção; fluxos completos aguardam conta apta.
 
 - [ ] Alimentação Escolar (em andamento; feito: confirmação de itens zerados, recebimento com data real, NF, checklist e não conformidade; diário da cozinha e filtros feitos; cardápio 4 semanas feito; faltam teto, ANAE, distribuição, POPs/etiquetas, remanejamento): implementar especificação enviada (especificacao_setor_alimentacao_escolar_sigem_lovable.md)
+- [ ] Novo visual 2026: sidebar azul-petróleo, fundo creme #FBF9F6, vidro suave, cantos 12-16px, títulos serifados
+- [ ] Barra lateral premium (marca compacta, busca integrada, grupos COMEÇAR/MEUS AMBIENTES/ESCOLA E PESSOAS/SISTEMA, ícones com hover) e topo translúcido fixo (busca pílula Ctrl K, sino, escola, ajuda, avatar)
+- [ ] Início: saudação serifada com data, 5 ações rápidas coloridas, "Para você hoje", "Destaques e alertas" com status de integração

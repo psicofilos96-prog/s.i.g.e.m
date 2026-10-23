@@ -97,7 +97,7 @@ function startOrigin() {
     applyUser(session?.user ?? null);
     controller.abort();
   });
-  Promise.resolve()
+  const boot = (): void => { void Promise.resolve()
     .then(() => withListTimeout(controller.signal, () => supabase.auth.getSession()))
     .then(
       ({ data: s, error }) => {
@@ -109,7 +109,8 @@ function startOrigin() {
         if (!alive || eventSeen) return;
         setOrigin({ phase: "error", user: null, revision: origin.revision, error: e instanceof Error ? e.message : "falha ao ler a sessão" });
       },
-    );
+    ); };
+  boot();
   return () => {
     alive = false;
     controller.abort();
