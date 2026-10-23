@@ -11,6 +11,8 @@
 
 ## Configurabilidade Normativa (princípio transversal do SIGEM)
 
+- Component system defaults are separate owner-authorized data linked to existing component IDs; canonical readers prefer all institutional versions and never turn defaults into human-authored versions or homologations, because restoration must not fabricate provenance.
+
 Memórias de requisitos (`docs/sigem-memoria-*.md`): contexto histórico, nunca autorização para importar regras/dados/código antigos.
 
 Toda norma escolar é DADO configurado, homologado e versionado; nunca código. A cadeia é sempre:
