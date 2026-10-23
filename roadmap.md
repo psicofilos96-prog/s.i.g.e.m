@@ -153,3 +153,14 @@
 - [x] Novo visual 2026: sidebar azul-petróleo, fundo creme #FBF9F6, vidro suave, cantos 12-16px, títulos serifados
 - [x] Barra lateral premium (marca compacta, busca integrada, grupos COMEÇAR/MEUS AMBIENTES/ESCOLA E PESSOAS/SISTEMA, ícones com hover) e topo translúcido fixo (busca pílula Ctrl K, sino, escola, ajuda, avatar)
 - [x] Início: saudação serifada com data, 5 ações rápidas coloridas, "Para você hoje", "Destaques e alertas" com status de integração
+
+## Transformação do SIGEM (pedido 23/10/2026)
+- [ ] Auditoria e proteção da arquitetura
+- [ ] Identidade visual (design system premium) — seguir Etapa 2 enviada
+- [ ] Navegação: menus e layout global — seguir Etapa 3
+- [ ] Página inicial: central de trabalho por perfil — seguir Etapa 4
+- [ ] Ambiente docente: Sala de Aula e Planejamento — seguir Etapa 5 e o texto SIA_e_SIPE-3 enviado
+- [ ] Gestão: Relatórios e Quadro Docente — seguir Etapa 6
+- [ ] Documentos: Acervo Documental — seguir Etapa 7
+- [ ] Validação final — seguir Etapa 8
+- Ordem decidida: Etapas 1–4 (fundação compartilhada) concluídas e validadas antes dos módulos; números/agendas da imagem são ilustrativos, sempre dados reais

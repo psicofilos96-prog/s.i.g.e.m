@@ -43,6 +43,11 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
   const templates = useQuery({ queryKey: ["sipe-tpl", ...scope], queryFn: () => readAttachmentWithDeadline(planTemplates), retry: false });
   const [printing, setPrinting] = useState<PlanVersion | null>(null);
   const [showTpl, setShowTpl] = useState(false);
+  // Só a Orientação Pedagógica (capacidade explícita) configura modelos; professor nunca vê a opção.
+  const tplAuth = useSessionAuthority();
+  const tplCaps = tplAuth.status === "signed-in" ? (tplAuth.capabilities ?? []).filter((c) => c.capabilityId === "configurar-modelo-planejamento") : [];
+  const canTemplates = tplCaps.length > 0;
+  const tplSchools = [...new Set(tplCaps.map((c) => c.schoolId).filter((s): s is string => !!s))];
   const [segment, setSegment] = useState("");
   const [draft, setDraft] = useState<Draft | null>(null);
   const [dirty, setDirty] = useState(false);
@@ -120,8 +125,8 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
       <PageHeader title="Planejamento" description="Planeje para suas regências vigentes. Rascunho só você vê; compartilhar cria nova versão visível a quem tem permissão de consulta. Planejar não registra aula nem marca conteúdo como dado." />
       {shared.isError && <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive"><span>Não foi possível ler os planejamentos compartilhados.</span><Button size="sm" variant="outline" onClick={() => { void shared.refetch(); }}>Tentar novamente</Button></div>}
       {templates.isError && <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive"><span>Não foi possível ler os modelos de planejamento.</span><Button size="sm" variant="outline" onClick={() => { void templates.refetch(); }}>Tentar novamente</Button></div>}
-      <div className="flex gap-2"><Button size="sm" variant="ghost" aria-expanded={showTpl} onClick={() => setShowTpl(!showTpl)}>Modelos de planejamento (Secretaria)</Button></div>
-      {showTpl && <TemplatesAdmin schoolIds={[...new Set(all.map((v) => v.school_id))]} />}
+      {canTemplates && <div className="flex gap-2"><Button size="sm" variant="ghost" aria-expanded={showTpl} onClick={() => setShowTpl(!showTpl)}>Modelos de planejamento (Orientação Pedagógica)</Button></div>}
+      {canTemplates && showTpl && <TemplatesAdmin schoolIds={tplSchools} />}
       {msg && <div role={msg.tone === "err" ? "alert" : "status"} className={`rounded border p-3 text-sm ${msg.tone === "err" ? "border-destructive text-destructive" : "border-border"}`}>{msg.text}</div>}
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <aside className="space-y-5">

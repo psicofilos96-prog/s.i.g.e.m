@@ -49,7 +49,7 @@ export function SharePanel({ planId, schoolId }: { planId: string; schoolId: str
   );
 }
 
-/** Secretaria: campos do dia por segmento (ex.: anos iniciais = unidocente, anos finais = por componente), versionados; planos antigos não mudam. */
+/** Orientação Pedagógica: campos do dia por segmento (ex.: anos iniciais = unidocente, anos finais = por componente), versionados; planos antigos não mudam. */
 export function TemplatesAdmin({ schoolIds }: { schoolIds: string[] }) {
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["sipe-tpl"], queryFn: planTemplates });
@@ -62,7 +62,7 @@ export function TemplatesAdmin({ schoolIds }: { schoolIds: string[] }) {
   const inp = "w-full rounded border border-input bg-background p-2 text-sm";
   return (
     <section aria-label="Modelos de planejamento" className="space-y-3 rounded-lg border border-border p-4">
-      <h2 className="font-semibold">Modelos de planejamento (Secretaria)</h2>
+      <h2 className="font-semibold">Modelos de planejamento (Orientação Pedagógica)</h2>
       <p className="text-xs text-muted-foreground">Cada gravação cria nova versão. Planejamentos já feitos guardam seus próprios campos e não mudam. Sem modelo, valem os campos do SIPE: {DEFAULT_DAY_FIELDS.join(", ")}.</p>
       {q.isError && <p role="alert" className="text-sm text-destructive">Não foi possível ler os modelos.</p>}
       <ul className="space-y-1 text-sm">{hs.map((t) => <li key={t.id} className="rounded border border-border p-2"><strong>{t.segment_key}</strong> · {t.scope_key === "rede" ? "rede" : "escola"} · {t.plan_mode === "unidocente" ? "um planejamento da turma (professor regente)" : "um por componente"} · v{t.version}<p className="text-xs text-muted-foreground">{t.day_fields.join(" · ")}</p>

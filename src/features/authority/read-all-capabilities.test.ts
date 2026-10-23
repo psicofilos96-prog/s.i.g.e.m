@@ -18,7 +18,7 @@ describe("PERF.LOADING.3 — capacidades efetivas sem truncamento", () => {
     expect(r.error).toBeNull();
     expect(r.data).toHaveLength(76_780);
     const s = await readAllEffectiveCapabilities(db);
-    expect(s.data).toHaveLength(110 * 55);
+    expect(s.data).toHaveLength(110 * 56); // 55 escolas + 1 linha de rede (vale sem turma)
     expect((s.data as { capability_id: string; school_id: string; class_id: null }[]).some((x) => x.capability_id === "cap-109" && x.school_id === "s54" && x.class_id === null)).toBe(true);
     const rows = r.data as { capability_id: string; class_id: string }[];
     expect(rows.findIndex((x) => x.capability_id === "cap-109")).toBeGreaterThan(1000);
@@ -26,7 +26,7 @@ describe("PERF.LOADING.3 — capacidades efetivas sem truncamento", () => {
   });
   it("escola expande só para as turmas da escola; turma fica como está; designação sem turma", () => {
     const out = expandGrants([g("a", "escola", "s1"), g("b", "turma", "s2", "c9"), g("c", "designacao")], [{ school_id: "s1", class_id: "c1" }, { school_id: "s1", class_id: "c2" }, { school_id: "s2", class_id: "c3" }]);
-    expect(expandGrants([g("a", "escola", "s1"), g("z", "escola", "s9")], [{ school_id: "s1", class_id: "c1" }, { school_id: "s1", class_id: "c2" }], "school").map((r) => `${r.capability_id}:${r.school_id}:${r.class_id}`)).toEqual(["a:s1:null"]);
+    expect(expandGrants([g("a", "escola", "s1"), g("z", "escola", "s9")], [{ school_id: "s1", class_id: "c1" }, { school_id: "s1", class_id: "c2" }], "school").map((r) => `${r.capability_id}:${r.school_id}:${r.class_id}`)).toEqual(["a:s1:null", "z:s9:null"]);
     expect(out.map((r) => `${r.capability_id}:${r.school_id}:${r.class_id}`)).toEqual(["a:s1:c1", "a:s1:c2", "b:s2:c9", "c:null:null"]);
   });
   it("leitura paginada percorre todas as páginas e recusa parcial acima do teto", async () => {

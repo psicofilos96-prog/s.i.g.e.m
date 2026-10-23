@@ -17,7 +17,6 @@ export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>
   "/ciece": ["consultar-censo-escolar", "preparar-censo-escolar", "consultar-indicador-agregado"],
   "/mapa-estatistico": ["consultar-matricula-e-movimentacao", "corrigir-mapa-estatistico"],
   "/mapa-estatistico-rede": ["consultar-censo-escolar", "corrigir-mapa-estatistico"],
-  "/mapa-mensal-2026": ["consultar-matricula-e-movimentacao", "corrigir-mapa-estatistico"],
   "/mapa-censo-2026": ["consultar-censo-escolar", "consultar-matricula-e-movimentacao"],
   "/inclusao": ["consultar-apoio-inclusivo", "acompanhar-educacao-inclusiva-rede"],
   "/alimentacao-escolar": ["consultar-alimentacao-escolar", "registrar-execucao-alimentacao", "submeter-pedido-alimentar", "registrar-estoque-alimentar"],
@@ -41,6 +40,29 @@ export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>
   "/central-de-integracoes": ["administrar-integracoes"],
   // EDUCACENSO.1 — educacenso_control_at só lista escolas com estas capacidades (0354).
   "/educacenso": ["preparar-censo-escolar", "consultar-censo-escolar", "consultar-pendencias-do-censo"],
+  // 2026-10-23 — Sistema/Normas: só quem tem competência sobre a área (antes ficavam abertos a todos).
+  "/paineis": ["manter-painel-inteligencia", "consultar-indicador-agregado", "consultar-desempenho-educacional"],
+  "/avaliacao-desempenho": ["consultar-desempenho-educacional", "manter-avaliacao-institucional", "manter-programa-avaliativo"],
+  "/relatorios": ["consultar-indicador-agregado", "consultar-matricula-e-movimentacao", "consultar-alimentacao-escolar", "consultar-desempenho-educacional", "consultar-acompanhamento-da-supervisao", "consultar-acompanhamento-pedagogico"],
+  "/consolidado-2026": ["consultar-censo-escolar", "corrigir-mapa-estatistico"],
+  "/parametros": ["registrar-politica-de-capacidades", "construir-calendario-da-rede", "manter-parametros-nutricionais", "manter-regra-de-competencia-do-mapa"],
+  "/auditoria": ["consultar-auditoria", "exportar-auditoria"],
+  "/senhas-de-setores": ["manter-contas-institucionais"],
+  "/configuracao-inicial": ["manter-cadastro-unidade-escolar", "preparar-ano-letivo"],
+  "/prontidao-piloto": ["registrar-politica-de-capacidades"],
+  "/qualidade-dos-dados": ["revisar-qualidade-dos-dados"],
+  "/revisao-de-anomalias": ["revisar-qualidade-dos-dados", "consultar-indicador-agregado"],
+  "/quadro-docente": ["consultar-quadro-profissional-da-escola", "consultar-quadro-profissional-da-rede", "manter-atribuicao-docente"],
+  "/simulador": ["registrar-politica-de-capacidades", "manter-cadastro-de-turmas"],
+  "/sugestoes-de-horario": ["manter-grade-da-turma"],
+  "/pendencias": ["gerir-tarefas-operacionais", "registrar-politica-de-capacidades"],
+  "/areas": ["registrar-politica-de-capacidades"],
+  "/matrizes-curriculares": ["manter-matrizes-curriculares", "homologar-matrizes-curriculares", "consultar-organizacao-da-oferta"],
+  "/regras-avaliativas": ["registrar-norma-homologada", "manter-programa-avaliativo"],
+  "/regras-de-situacao": ["registrar-norma-homologada", "registrar-situacao-academica"],
+  "/identidade-institucional": ["manter-catalogos-institucionais", "registrar-politica-de-capacidades"],
+  "/referencias-curriculares": ["construir-referencia-curricular", "homologar-referencia-curricular", "consultar-planejamento-docente", "revisar-trabalho-docente"],
+  "/mapa-mensal-2026": ["consultar-matricula-e-movimentacao", "corrigir-mapa-estatistico"],
 };
 
 /** Rotas cuja capacidade só vale em alcance de rede (sem escola/turma), espelhando o banco. */

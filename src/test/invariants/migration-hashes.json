@@ -652,5 +652,6 @@
  "drizzle/migrations/0601_perf_engagements_policy_initplan.sql": "d5b1ab482913f9ab251a9c81d1058eec1df8386eed30709d4e3516d3a4b0535e",
  "drizzle/migrations/0602_class_name_catalog_versions.sql": "d7d4de0da1a49f58fbffbf95ca25b56c8681185594db29f1119f9e2f2cc50450",
  "drizzle/migrations/0603_class_name_catalog_amendment_guard.sql": "f20fb18e1dd3d3ed28925e984a463a82c254da7dc4704226a76dd5b2f3ca8656",
- "drizzle/migrations/0604_class_name_catalog_fail_closed.sql": "32e62e63f22b47ac1fc6954b652828eb5f2850ac558b8bdafdcebf45faf2be66"
+ "drizzle/migrations/0604_class_name_catalog_fail_closed.sql": "32e62e63f22b47ac1fc6954b652828eb5f2850ac558b8bdafdcebf45faf2be66",
+ "drizzle/migrations/0605_0605_op_planning_template_authority.sql": "43ea44ac7bc05b77893f9b9244a4c7b5bfff4f7e45d2b64a256264a9da719b3b"
 }
