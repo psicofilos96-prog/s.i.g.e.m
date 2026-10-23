@@ -89,6 +89,7 @@ export type InstitutionalRosterRead = DemonstrationStudent[] & { chainDiagnostic
 let cloudDiagnostics: ChainDiagnostic[] = [];
 /** Diagnósticos da cadeia aceitos no contexto corrente (vazio no laboratório/sem lista aceita). */
 export function rosterChainDiagnostics(): ChainDiagnostic[] {
+  if (cloudDiagnostics.length) console.warn("[chain-debug]", JSON.stringify(cloudDiagnostics.slice(0,3)));
   return isDiaryCloud() && isDiaryMirrorReady() ? cloudDiagnostics : [];
 }
 /** Aplica a lista aceita pelo controlador de sessão. */
