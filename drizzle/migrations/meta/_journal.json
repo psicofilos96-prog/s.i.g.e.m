@@ -4243,6 +4243,13 @@
       "when": 1792763869662,
       "tag": "0605_0605_op_planning_template_authority",
       "breakpoints": true
+    },
+    {
+      "idx": 606,
+      "version": "7",
+      "when": 1792769757251,
+      "tag": "0606_cycle_participations_teacher_read_fix",
+      "breakpoints": true
     }
   ]
 }
