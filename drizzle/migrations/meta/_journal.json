@@ -4257,6 +4257,13 @@
       "when": 1792770108153,
       "tag": "0607_class_schedule_at_engagements_once",
       "breakpoints": true
+    },
+    {
+      "idx": 608,
+      "version": "7",
+      "when": 1792775755963,
+      "tag": "0608_curricular_component_system_defaults",
+      "breakpoints": true
     }
   ]
 }

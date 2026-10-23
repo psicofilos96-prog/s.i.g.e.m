@@ -7554,6 +7554,38 @@ export type Database = {
           },
         ]
       }
+      curricular_component_system_defaults: {
+        Row: {
+          component_id: string
+          created_at: string
+          display_name: string
+          source_ref: string
+          valid_from: string
+        }
+        Insert: {
+          component_id: string
+          created_at?: string
+          display_name: string
+          source_ref: string
+          valid_from: string
+        }
+        Update: {
+          component_id?: string
+          created_at?: string
+          display_name?: string
+          source_ref?: string
+          valid_from?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curricular_component_system_defaults_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: true
+            referencedRelation: "institutional_curricular_components"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       curricular_component_versions: {
         Row: {
           change_reason: string | null
