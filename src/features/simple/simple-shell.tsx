@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Home, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSessionUser } from "@/features/authority/session-authority";
-import { markVoluntarySignOut } from "@/features/authority/session-lifecycle";
+import { signOutNow } from "@/features/authority/session-lifecycle";
 import { PageHeader } from "@/components/sigem/patterns";
 
 export const SIMPLE_PATHS = ["/", "/cadastro", "/chamada", "/numeros"];

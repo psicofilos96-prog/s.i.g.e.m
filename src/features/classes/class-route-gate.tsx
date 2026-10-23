@@ -16,8 +16,9 @@ export function useRouteHeading(): string {
  * apresentação apenas — a decisão de acesso continua no banco.
  */
 export function ClassRouteGate({ institutional, laboratory, laboratoryHasHeading = false }: { institutional: () => ReactNode; laboratory: () => ReactNode; laboratoryHasHeading?: boolean }) {
-  const { loading, user } = useSessionUser();
+  const { loading, user, error } = useSessionUser();
   const heading = useRouteHeading();
+  if (loading && error) return <><h1 className="sr-only">{heading}</h1><div role="alert" className="py-10 text-center"><p className="text-muted-foreground">Não foi possível confirmar o seu login agora.</p><button type="button" className="mt-3 rounded-md border px-4 py-2 font-medium" onClick={() => window.location.reload()}>Tentar novamente</button></div></>;
   if (loading) return <><h1 className="sr-only">{heading}</h1><SkeletonState label="Carregando" /></>;
   return user ? <>{institutional()}</> : laboratoryHasHeading ? <>{laboratory()}</> : <><h1 className="sr-only">{heading}</h1>{laboratory()}</>;
 }

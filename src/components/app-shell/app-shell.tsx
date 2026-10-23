@@ -28,7 +28,7 @@ import {
 import sigemLogo from "@/assets/logo-sigem.png.asset.json";
 import { institution } from "@/config/institution";
 import { isPublicPath } from "@/features/public-portal/public-paths";
-import { markVoluntarySignOut, safeRedirect } from "@/features/authority/session-lifecycle";
+import { signOutNow, safeRedirect } from "@/features/authority/session-lifecycle";
 import { brand } from "@/config/branding";
 import { breadcrumbForPath, pageTitleForPath, provisionalNavigation } from "@/config/navigation";
 import { guideForPath } from "@/config/route-guides";
