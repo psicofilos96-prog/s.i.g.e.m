@@ -52,11 +52,15 @@ export type ChainInput = {
   validOn: string;
 };
 
-function uniqueHeads<T extends { logical_id: string }>(rows: readonly T[], kind: string): Map<string, T> {
+/** Registro anterior à identidade lógica (logical_id nulo) é a sua própria entidade: chave = id da linha.
+ *  O servidor também só acusa ambiguidade entre cabeças com logical_id; nulos nunca colidem entre si. */
+function uniqueHeads<T extends { logical_id: string; id?: string }>(rows: readonly T[], kind: string): Map<string, T> {
   const out = new Map<string, T>();
   for (const r of rows) {
-    if (out.has(r.logical_id)) throw new SourceInconsistency(`${kind}:duplicate-head (${r.logical_id})`);
-    out.set(r.logical_id, r);
+    const key = r.logical_id ?? (r.id ? `row:${r.id}` : null);
+    if (key === null) throw new SourceInconsistency(`${kind}:missing-identity`);
+    if (out.has(key)) throw new SourceInconsistency(`${kind}:duplicate-head (${key})`);
+    out.set(key, r);
   }
   return out;
 }
