@@ -153,3 +153,13 @@
 - [x] Novo visual 2026: sidebar azul-petróleo, fundo creme #FBF9F6, vidro suave, cantos 12-16px, títulos serifados
 - [x] Barra lateral premium (marca compacta, busca integrada, grupos COMEÇAR/MEUS AMBIENTES/ESCOLA E PESSOAS/SISTEMA, ícones com hover) e topo translúcido fixo (busca pílula Ctrl K, sino, escola, ajuda, avatar)
 - [x] Início: saudação serifada com data, 5 ações rápidas coloridas, "Para você hoje", "Destaques e alertas" com status de integração
+
+## Transformação do SIGEM (pedido 23/10/2026)
+- [ ] Auditoria e proteção da arquitetura
+- [ ] Identidade visual (design system premium)
+- [ ] Navegação: menus e layout global
+- [ ] Página inicial: central de trabalho por perfil
+- [ ] Ambiente docente: Sala de Aula e Planejamento
+- [ ] Gestão: Relatórios e Quadro Docente
+- [ ] Documentos: Acervo Documental
+- [ ] Validação: experiência, segurança e funcionamento
