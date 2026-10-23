@@ -45,7 +45,7 @@ export type ExpandMode = "class" | "school";
 /**
  * Expansão pura. `class` reproduz exatamente as linhas de effective_capabilities() (uma por turma).
  * `school` (padrão da tela) gera uma linha por ESCOLA com `class_id = null` para concessões rede/escola —
- * o cliente já trata classId nulo como "todas as turmas"; escolas sem turma não entram, como no leitor original.
+ * o cliente já trata classId nulo como "todas as turmas"; escola sem turma ainda recebe a concessão (a escola existe antes das turmas).
  */
 export function expandGrants(grants: readonly GrantRow[], scopeClasses: readonly { school_id: string; class_id: string }[], mode: ExpandMode = "class"): CapabilityRow[] {
   const bySchool = new Map<string, string[]>();
@@ -54,13 +54,15 @@ export function expandGrants(grants: readonly GrantRow[], scopeClasses: readonly
   for (const g of grants) {
     const base = { capability_id: g.capability_id, engagement_id: g.engagement_id, policy_id: g.policy_id, policy_version: g.policy_version, component_id: g.component_id, period_id: g.period_id };
     if (g.scope_level === "rede") {
+      // Concessão de rede vale mesmo sem nenhuma turma cadastrada (rede recém-limpa).
+      if (mode === "school") out.push({ ...base, school_id: null, class_id: null });
       for (const [school, classes] of bySchool) {
         if (mode === "school") out.push({ ...base, school_id: school, class_id: null });
         else for (const cls of classes) out.push({ ...base, school_id: school, class_id: cls });
       }
     } else if (g.scope_level === "escola") {
       const classes = (g.school_id ? bySchool.get(g.school_id) : undefined) ?? [];
-      if (mode === "school") { if (classes.length) out.push({ ...base, school_id: g.school_id, class_id: null }); }
+      if (mode === "school") out.push({ ...base, school_id: g.school_id, class_id: null });
       else for (const cls of classes) out.push({ ...base, school_id: g.school_id, class_id: cls });
     } else {
       out.push({ ...base, school_id: g.school_id, class_id: g.class_id });
