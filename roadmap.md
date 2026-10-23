@@ -156,9 +156,9 @@
 
 ## Transformação do SIGEM (pedido 23/10/2026)
 - [ ] Auditoria e proteção da arquitetura
-- [ ] Identidade visual (design system premium)
-- [ ] Navegação: menus e layout global
-- [ ] Página inicial: central de trabalho por perfil
+- [ ] Identidade visual (design system premium) — seguir Etapa 2 enviada
+- [ ] Navegação: menus e layout global — seguir Etapa 3
+- [ ] Página inicial: central de trabalho por perfil — seguir Etapa 4
 - [ ] Ambiente docente: Sala de Aula e Planejamento
 - [ ] Gestão: Relatórios e Quadro Docente
 - [ ] Documentos: Acervo Documental
