@@ -159,7 +159,7 @@
 - [ ] Identidade visual (design system premium) — seguir Etapa 2 enviada
 - [ ] Navegação: menus e layout global — seguir Etapa 3
 - [ ] Página inicial: central de trabalho por perfil — seguir Etapa 4
-- [ ] Ambiente docente: Sala de Aula e Planejamento
-- [ ] Gestão: Relatórios e Quadro Docente
+- [ ] Ambiente docente: Sala de Aula e Planejamento — seguir Etapa 5
+- [ ] Gestão: Relatórios e Quadro Docente — seguir Etapa 6
 - [ ] Documentos: Acervo Documental
 - [ ] Validação: experiência, segurança e funcionamento

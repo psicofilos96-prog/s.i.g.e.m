@@ -44,7 +44,7 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
   const [printing, setPrinting] = useState<PlanVersion | null>(null);
   const [showTpl, setShowTpl] = useState(false);
   // Só a Orientação Pedagógica (capacidade explícita) configura modelos; professor nunca vê a opção.
-  const tplCaps = authority.status === "signed-in" ? authority.capabilities.filter((c) => c.capabilityId === "configurar-modelo-planejamento") : [];
+  const tplCaps = authority.status === "signed-in" ? (authority.capabilities ?? []).filter((c) => c.capabilityId === "configurar-modelo-planejamento") : [];
   const canTemplates = tplCaps.length > 0;
   const tplSchools = [...new Set(tplCaps.map((c) => c.schoolId).filter((s): s is string => !!s))];
   const [segment, setSegment] = useState("");
