@@ -58,7 +58,7 @@ export function UnitDetailPage({ id }: { id: string }) {
   return (
     <div className="space-y-6">
       <OperationalPageHeader
-        title={(v ?? currentSchoolVersion(unit)!).officialName}
+        title={v?.officialName ?? "Unidade escolar"}
         description={v ? `Cadastro institucional · versão ${v.versionNumber} vigente desde ${formatAcademicDate(v.validFrom)}` : "Sem versão vigente na data escolhida"}
         parent={{ label: "Unidades escolares", to: "/unidades" }}
       />

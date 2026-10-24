@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { ListTimeoutError, pageRange, withListTimeout } from "./server-page";
 import { ilikeTerm } from "@/features/students/institutional-lists";
+
+afterEach(() => vi.useRealTimers());
 
 describe("PERF.LOADING.2 — listas paginadas no servidor", () => {
   it("1ª página pede só 50 linhas, nunca o conjunto inteiro", () => {
@@ -34,5 +36,43 @@ describe("PERF.LOADING.2 — listas paginadas no servidor", () => {
     expect(ilikeTerm("a")).toBeNull();
     expect(ilikeTerm(" ma%ria_ ")).toBe("%ma ria%");
     expect(ilikeTerm("silva,(x)")).toBe("%silva x%");
+  });
+});
+
+
+describe("cancelamento sem leitura pendurada", () => {
+  it("um sinal já cancelado rejeita sem iniciar a consulta", async () => {
+    vi.useFakeTimers();
+    const parent = new AbortController();
+    parent.abort();
+    const run = vi.fn(() => new Promise<never>(() => {}));
+    const failure = vi.fn();
+    void withListTimeout(parent.signal, run).catch(failure);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(failure).toHaveBeenCalledWith(expect.objectContaining({ name: "AbortError" }));
+    expect(run).not.toHaveBeenCalled();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("cancelamento síncrono dentro da consulta é observado", async () => {
+    vi.useFakeTimers();
+    const parent = new AbortController();
+    const failure = vi.fn();
+    void withListTimeout(parent.signal, () => {
+      parent.abort();
+      return new Promise<never>(() => {});
+    }).catch(failure);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(failure).toHaveBeenCalledWith(expect.objectContaining({ name: "AbortError" }));
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it("cancelamento antes do início efetivo evita requisição obsoleta", async () => {
+    const parent = new AbortController();
+    const run = vi.fn(async () => "resultado antigo");
+    const promise = withListTimeout(parent.signal, run);
+    parent.abort();
+    await expect(promise).rejects.toMatchObject({ name: "AbortError" });
+    expect(run).not.toHaveBeenCalled();
   });
 });
