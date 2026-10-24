@@ -24,7 +24,7 @@ export default defineTool({
     if (!KNOWN.has(name)) throw new ToolError("Ação desconhecida. Use find_sigem_actions para achar o nome certo.");
     const sb = supabaseForUser(ctx);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (sb as any).rpc(name, args ?? {}).limit?.(200) ?? await (sb as any).rpc(name, args ?? {});
+    const { data, error } = await (sb as any).rpc(name, args ?? {});
     if (error) throw new ToolError(`O SIGEM recusou: ${error.message}`);
     const json = JSON.stringify(data ?? null);
     const text = json.length > 20000 ? `${json.slice(0, 20000)}… (resultado cortado)` : json;
