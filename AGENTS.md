@@ -78,4 +78,4 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Leitura da sessão de login passa por `src/lib/auth-session-read-cache.ts` (instalado em `src/router.tsx`, memória de 10 s; gravação/remoção vão direto ao armazenamento), porque no preview cada consulta lia a sessão via editor em fila e as telas estouravam o prazo.
 
 ## Agentes (MCP)
-- Servidor MCP em `src/lib/mcp/` só com ferramentas de leitura, OAuth do próprio usuário e cliente com o token dele, porque assistente externo nunca pode ver além da conta nem contornar RLS.
+- Servidor MCP em `src/lib/mcp/` age só como a conta conectada (OAuth + cliente com o token dela) e grava apenas por funções do banco do catálogo `rpc-catalog.json` (gerado por `scripts/mcp-rpc-catalog.mjs`), nunca SQL/tabela direta/chave privilegiada, porque o assistente não pode ir além do que a conta faria na tela.
