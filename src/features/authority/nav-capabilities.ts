@@ -14,6 +14,10 @@ export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>
   "/orientacao": ["consultar-acompanhamento-pedagogico", "registrar-acompanhamento-pedagogico"],
   "/supervisao-escolar": ["consultar-acompanhamento-da-supervisao", "registrar-acompanhamento-da-supervisao", "construir-calendario-da-rede"],
   "/secretaria": ["consultar-matricula-e-movimentacao", "cadastrar-estudante-na-rede"],
+  // O assistente de matrícula só oferece escolas com esta competência; consulta não autoriza criar.
+  "/matriculas/nova": ["manter-matricula-e-enturmacao"],
+  // O espaço de movimentações lê matrículas; a gravação revalida a competência no banco.
+  "/transferencias": ["consultar-matricula-e-movimentacao", "manter-matricula-e-enturmacao"],
   "/ciece": ["consultar-censo-escolar", "preparar-censo-escolar", "consultar-indicador-agregado"],
   "/mapa-estatistico": ["consultar-matricula-e-movimentacao", "corrigir-mapa-estatistico"],
   "/mapa-estatistico-rede": ["consultar-censo-escolar", "corrigir-mapa-estatistico"],
