@@ -1,3 +1,4 @@
+import { PublicEntryShell } from "./public-entry-shell";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { PasswordChangeGate } from "@/features/authority/password-change-gate";
@@ -16,7 +17,6 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Building2,
-  Check,
   ChevronDown,
   ChevronRight,
   CircleHelp,
@@ -37,7 +37,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useSessionAuthority } from "@/features/authority/session-authority";
+import { sessionContextKey, useSessionAuthority } from "@/features/authority/session-authority";
 import { requiresSessionBeforeRead } from "@/features/authority/session-read-gate";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { STATION_HOME, STATION_LABEL, stationAllowsPath } from "@/features/authority/station-navigation";
@@ -66,12 +66,6 @@ import {
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { countLabel } from "@/lib/format-ptbr";
-
-/** Unidades apenas para representar a troca de contexto; sem autenticação. */
-const DEMO_UNITS = [
-  "Instituição Educacional Demonstrativa Horizonte",
-  "Escola Demonstrativa Águas Claras",
-] as const;
 
 function Brand({ compact = false }: { compact?: boolean }) {
   return (
@@ -405,13 +399,9 @@ function SystemSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (v:
 
 function Topbar({
   compact,
-  unit,
-  onUnitChange,
   onOpenSearch,
 }: {
   compact: boolean;
-  unit: string;
-  onUnitChange: (unit: string) => void;
   onOpenSearch: () => void;
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -459,6 +449,7 @@ function Topbar({
           </ol>
         </nav>
 
+        {session.status === "signed-in" && <>
         <button
           type="button"
           onClick={onOpenSearch}
@@ -479,34 +470,11 @@ function Topbar({
           <Search />
         </Button>
 
+        </>}
+
         <ContextHelp />
         {session.status === "signed-in" && <NotificationBell />}
-        {session.status === "signed-in" ? <InstitutionalContextBadge /> : session.status === "loading" ? null : (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="ml-auto hidden min-h-10 max-w-[10rem] gap-2 px-2 md:flex lg:ml-0 lg:max-w-[18rem]"
-              aria-label="Trocar a unidade em que estou atuando"
-            >
-              <Building2 className="size-4 text-muted-foreground" />
-              <span className="truncate text-sm">{unit}</span>
-              <ChevronDown className="size-3.5 shrink-0" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Estou atuando em</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {DEMO_UNITS.map((option) => (
-              <DropdownMenuItem key={option} onSelect={() => onUnitChange(option)}>
-                {option === unit ? <Check className="size-4" /> : <span className="size-4" />}
-                <span className="[overflow-wrap:anywhere]">{option}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        )}
-
+        {session.status === "signed-in" && <InstitutionalContextBadge />}
 
         <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
           <Link to="/ajuda" aria-label="Central de ajuda">
@@ -522,25 +490,30 @@ function Topbar({
 
 export function AppShell({ children }: { children: ReactNode }) {
   const [compact, setCompact] = useState(false);
-  const [unit, setUnit] = useState<string>(DEMO_UNITS[0]);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [search, setSearch] = useState<{ context: string | null; open: boolean }>({ context: null, open: false });
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   // Guias obedecem à mesma competência do menu e do destino.
   const guideAuthority = useSessionAuthority();
+  const searchContext = sessionContextKey(guideAuthority);
+  const searchOpen = searchContext !== null && search.context === searchContext && search.open;
+  const setSearchOpen = (open: boolean) => setSearch({ context: searchContext, open });
 
   useEffect(() => {
+    if (!searchContext) return;
     function onKey(event: KeyboardEvent) {
       // NKEY.1: tela com busca própria (ex.: Secretaria) trata antes e marca o evento.
       if (isSearchShortcut(event) && !event.defaultPrevented) {
         event.preventDefault();
-        setSearchOpen((value) => !value);
+        setSearch((previous) => ({ context: searchContext, open: previous.context === searchContext ? !previous.open : true }));
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [searchContext]);
 
   if (pathname === "/login" || pathname === "/auth" || pathname === "/primeiro-acesso" || isPublicPath(pathname)) return <>{children}</>;
+
+  if (pathname === "/" && guideAuthority.status === "signed-out") return <PublicEntryShell>{children}</PublicEntryShell>;
 
   return (
     <PasswordChangeGate>
@@ -550,11 +523,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Sidebar compact={compact} onToggle={() => setCompact((value) => !value)} />
         <Topbar
           compact={compact}
-          unit={unit}
-          onUnitChange={setUnit}
           onOpenSearch={() => setSearchOpen(true)}
         />
-        <SystemSearch open={searchOpen} onOpenChange={setSearchOpen} />
+        <SystemSearch key={searchContext ?? "no-session"} open={searchOpen} onOpenChange={setSearchOpen} />
         <main
           id="conteudo"
           tabIndex={-1}
