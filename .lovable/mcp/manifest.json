@@ -59,6 +59,68 @@
           "additionalProperties": false
         },
         "outputSchema": null
+      },
+      {
+        "name": "find_sigem_actions",
+        "title": "Procurar ações do SIGEM",
+        "description": "Procura, pelo nome, as ações (consultas e gravações) do SIGEM e mostra os argumentos de cada uma. Use antes de run_sigem_action.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 80,
+              "description": "Parte do nome, em inglês técnico (ex.: enrollment, attendance, notice, diary)."
+            },
+            "only_writes": {
+              "type": "boolean",
+              "description": "Se verdadeiro, mostra só ações que gravam."
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "run_sigem_action",
+        "title": "Executar ação do SIGEM",
+        "description": "Executa uma ação do SIGEM (consulta ou gravação) com a conta conectada. O próprio SIGEM recusa o que a conta não pode fazer.",
+        "annotations": {
+          "destructiveHint": true,
+          "idempotentHint": false,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "pattern": "^[a-z0-9_]{2,80}$",
+              "description": "Nome exato da ação, obtido em find_sigem_actions."
+            },
+            "args": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "Argumentos com os nomes exatos (ex.: { \"_school\": \"...\" })."
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
       }
     ]
   }
