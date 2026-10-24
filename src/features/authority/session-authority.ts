@@ -6,6 +6,7 @@
  * Cargo nunca concede capacidade. Qualquer elo ausente ⇒ nenhuma capacidade.
  * A tela usa isto só para mostrar/ocultar ações; a gravação revalida no banco.
  */
+import { registerSessionReadContext } from "@/lib/session-read-context";
 import { readAllEffectiveCapabilities } from "./read-all-capabilities";
 import { useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -68,6 +69,8 @@ export type SessionAuthority =
 type SessionOrigin = { phase: "loading" | "ready" | "error"; user: User | null; revision: number; error?: string };
 let origin: SessionOrigin = { phase: "loading", user: null, revision: 0 };
 let revisionCounter = 0;
+// O cache só consulta esta origem; não lê o SDK nem mantém uma cópia da identidade.
+registerSessionReadContext(() => origin.phase === "ready" && origin.user ? `${origin.user.id}#${origin.revision}` : null);
 const originListeners = new Set<() => void>();
 let stopOrigin: (() => void) | null = null;
 

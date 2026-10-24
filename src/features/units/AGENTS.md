@@ -5,3 +5,7 @@
 
 ## Nova/Editar unidade (ONDA 2 — `unit-editor-page.tsx`, `/unidades/nova`, `/unidades/editar/$id`)
 - Tela própria reutiliza `SchoolsAdminSection` em modo `focus` e grava só por `register_school_record_version`; botão aparece só com `manter-cadastro-unidade-escolar`, porque formulário paralelo criaria segundo writer.
+
+- Leitores do cadastro e dos nomes vigentes usam `readPages` com ordem estável, limite explícito e prazo; teto atingido ou resposta inválida nunca vira lista completa, porque o servidor corta respostas em mil linhas.
+- A lista operacional resolve a versão por data (`schoolVersionAt`), e a ficha sem versão vigente usa título neutro; a cabeça futura continua disponível no histórico e na administração, porque agendamento não antecipa vigência.
+- O carregamento do cadastro cancela a leitura anterior ao recarregar/desmontar e ignora gerações antigas, porque resposta atrasada não pode restaurar informação superada.

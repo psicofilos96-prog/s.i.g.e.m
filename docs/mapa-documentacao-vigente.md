@@ -373,3 +373,4 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `docs/ficha-matricula-impressao.md` — Referência vigente: modelo de impressão da Ficha de Matrícula e lacunas de dados.
 
 - `auditoria-acessos-sessao-2026-10-23.md` — Registro de lote: fechamento do acesso direto ao acervo legado, correções de sessão/menu e evidências atuais de verificação.
+- `auditoria-leituras-escolas-2026-10-24.md` — Registro de lote: cancelamento sem espera indefinida, paginação do cadastro e vigência dos nomes de escolas.

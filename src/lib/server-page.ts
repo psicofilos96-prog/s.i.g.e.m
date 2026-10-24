@@ -25,12 +25,25 @@ export function timeoutSignal(parent: AbortSignal | undefined, ms = LIST_TIMEOUT
 /** Executa a leitura com tempo-limite; promessa rejeitada sempre sai do carregamento. */
 export async function withListTimeout<T>(parent: AbortSignal | undefined, run: (signal: AbortSignal) => PromiseLike<T>, ms = LIST_TIMEOUT_MS): Promise<T> {
   const ts = timeoutSignal(parent, ms);
+  const cancellationError = () => ts.timedOut() ? new ListTimeoutError() : new DOMException("cancelada", "AbortError");
+  let onAbort: (() => void) | undefined;
   try {
-    return await Promise.race([
-      Promise.resolve(run(ts.signal)),
-      new Promise<never>((_, rej) => ts.signal.addEventListener("abort", () => rej(ts.timedOut() ? new ListTimeoutError() : new DOMException("cancelada", "AbortError")), { once: true })),
-    ]);
-  } finally { ts.clear(); }
+    // Observe cancellation before starting work: an already-aborted signal will
+    // never emit another event, including when the timeout later expires.
+    const cancelled = new Promise<never>((_, reject) => {
+      onAbort = () => reject(cancellationError());
+      if (ts.signal.aborted) onAbort();
+      else ts.signal.addEventListener("abort", onAbort, { once: true });
+    });
+    const work = Promise.resolve().then(() => {
+      if (ts.signal.aborted) throw cancellationError();
+      return run(ts.signal);
+    });
+    return await Promise.race([work, cancelled]);
+  } finally {
+    if (onAbort) ts.signal.removeEventListener("abort", onAbort);
+    ts.clear();
+  }
 }
 
 export type ServerPage<T> = { items: T[]; total: number | null; page: number; pageSize: number };

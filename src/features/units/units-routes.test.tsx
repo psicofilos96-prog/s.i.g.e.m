@@ -8,14 +8,19 @@ vi.mock("@/features/authority/session-authority", () => ({ useSessionAuthority: 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: { getSession: () => Promise.resolve({ data: { session: state.session ? {} : null } }) },
-    from: (t: string) => ({
-      select: () =>
-        Promise.resolve(
-          state.fail
-            ? { data: null, error: { message: "denied" } }
-            : { data: t === "institutional_schools" ? state.schools : t === "institutional_school_identifiers" ? state.ids : state.versions, error: null },
-        ),
-    }),
+    from: (t: string) => {
+      let from = 0;
+      let to = 999;
+      const query = {
+        select: () => query,
+        order: () => query,
+        range: (start: number, end: number) => { from = start; to = end; return query; },
+        abortSignal: () => Promise.resolve(state.fail
+          ? { data: null, error: { message: "denied" } }
+          : { data: (t === "institutional_schools" ? state.schools : t === "institutional_school_identifiers" ? state.ids : state.versions).slice(from, to + 1), error: null }),
+      };
+      return query;
+    },
   },
 }));
 import { renderUnitsRoutes } from "@/test/router-harness";
@@ -32,7 +37,9 @@ function seed() {
       id: `v-${n}`, school_id: id, version_number: 1, supersedes_version_id: null,
       official_name: n === 0 ? "CIEP 467 HENRIETT AMADO" : `ESCOLA REAL ${String(n).padStart(2, "0")}`,
       address: null, district: null, location_kind: n < 41 ? "urbana" : "rural", active: true, valid_from: "2026-08-31",
-      originating_act_ref: null, phone: null, institutional_email: null, own_building: null, hard_access: null, classroom_count: null,
+      originating_act_ref: null, registered_at: "2026-08-31T12:00:00Z", justification: null,
+      author_person_id: null, author_user_id: null, authorizing_engagement_id: null,
+      capability_policy_id: null, capability_policy_version: null, phone: null, institutional_email: null, own_building: null, hard_access: null, classroom_count: null,
       administrative_dependency: conv ? "Privada" : "Municipal", private_school_category: conv ? "Filantrópica" : null,
       partnership_public_authority: conv ? "Municipal" : null,
     });

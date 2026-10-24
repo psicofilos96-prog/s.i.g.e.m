@@ -6,3 +6,7 @@
 
 ## CPF
 - Validação, máscara e mensagens de CPF só por `src/lib/cpf.ts` (campo `CpfInput`); o banco revalida com `technical_cpf_valid` e guarda só HMAC único por pessoa, porque cópias da regra divergiam e CPF em claro violaria a LGPD. Auditoria só lê (`cpf_integrity_audit`, em /diagnostico).
+
+## Cancelamento de leituras
+- `withListTimeout` instala a observação de cancelamento antes de iniciar a leitura e recusa sinais já cancelados; limpa observadores e temporizadores ao terminar, porque AbortSignal não repete um evento perdido e a tela ficaria carregando indefinidamente.
+- `callRpc` só compartilha leitores no contexto confirmado de conta + revisão, consultando a origem por `session-read-context.ts`; SSR ou origem incerta não compartilham. Resposta de sessão anterior é descartada, e prazo técnico remove a pergunta travada, porque uma promessa global por função/argumentos podia atravessar contas e bloquear a recuperação.

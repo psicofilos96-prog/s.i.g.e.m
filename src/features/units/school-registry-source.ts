@@ -3,11 +3,15 @@
  * (institutional_schools + institutional_school_identifiers + institutional_school_record_versions).
  * Usada pela consulta operacional (/unidades) e pela administração; nunca há fallback de fixture.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { operationalToday } from "@/lib/academic-date";
+import { readPages } from "@/lib/list-paging";
+import { parseBoundary, z } from "@/lib/runtime-shape";
+import { withListTimeout } from "@/lib/server-page";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import {
-  currentSchoolVersion,
+  schoolVersionAt,
   schoolIdentifier,
   unitsFromRows,
   type SchoolIdentifierRow,
@@ -21,18 +25,42 @@ export type SchoolRegistryRows = {
   versions: Tables<"institutional_school_record_versions">[];
 };
 
-export async function loadSchoolRegistryRows(): Promise<SchoolRegistryRows | null> {
-  const [s, i, v] = await Promise.all([
-    supabase.from("institutional_schools").select("id"),
-    supabase.from("institutional_school_identifiers").select("school_id, identifier_kind, value"),
-    supabase.from("institutional_school_record_versions").select("*"),
-  ]);
-  if (s.error || i.error || v.error) return null;
-  return {
-    schools: (s.data ?? []) as SchoolRow[],
-    identifiers: (i.data ?? []) as SchoolIdentifierRow[],
-    versions: (v.data ?? []) as SchoolRegistryRows["versions"],
-  };
+const schoolSchema = z.object({ id: z.string() });
+const identifierSchema = z.object({ school_id: z.string(), identifier_kind: z.string(), value: z.string() });
+const versionSchema = z.object({
+  id: z.string(), school_id: z.string(), version_number: z.number().int(),
+  supersedes_version_id: z.string().nullable(), official_name: z.string(),
+  address: z.string().nullable(), district: z.string().nullable(), location_kind: z.string().nullable(),
+  active: z.boolean(), valid_from: z.string(), registered_at: z.string(),
+  originating_act_ref: z.string().nullable(), justification: z.string().nullable(),
+  author_person_id: z.string().nullable(), author_user_id: z.string().nullable(),
+  authorizing_engagement_id: z.string().nullable(), capability_policy_id: z.string().nullable(),
+  capability_policy_version: z.number().nullable(), phone: z.string().nullable(),
+  institutional_email: z.string().nullable(), own_building: z.boolean().nullable(),
+  hard_access: z.boolean().nullable(), classroom_count: z.number().nullable(),
+  administrative_dependency: z.string().nullable(), private_school_category: z.string().nullable(),
+  partnership_public_authority: z.string().nullable(),
+});
+const REGISTRY_READ_MAX = 100_000;
+
+export async function loadSchoolRegistryRows(signal?: AbortSignal): Promise<SchoolRegistryRows | null> {
+  try {
+    return await withListTimeout(signal, async (readSignal) => {
+      const [s, i, v] = await Promise.all([
+        readPages((from, to) => supabase.from("institutional_schools").select("id").order("id").range(from, to).abortSignal(readSignal), REGISTRY_READ_MAX),
+        readPages((from, to) => supabase.from("institutional_school_identifiers").select("school_id, identifier_kind, value").order("id").range(from, to).abortSignal(readSignal), REGISTRY_READ_MAX),
+        readPages((from, to) => supabase.from("institutional_school_record_versions").select("*").order("school_id").order("version_number").range(from, to).abortSignal(readSignal), REGISTRY_READ_MAX),
+      ]);
+      if ([s, i, v].some((result) => result.error || result.truncated)) return null;
+      return {
+        schools: parseBoundary(z.array(schoolSchema), s.data ?? [], "school-registry-schools"),
+        identifiers: parseBoundary(z.array(identifierSchema), i.data ?? [], "school-registry-identifiers"),
+        versions: parseBoundary(z.array(versionSchema), v.data ?? [], "school-registry-versions"),
+      };
+    });
+  } catch {
+    return null;
+  }
 }
 
 export type SchoolRegistryState =
@@ -43,20 +71,32 @@ export type SchoolRegistryState =
 
 export function useSchoolRegistry(): SchoolRegistryState & { reload: () => void } {
   const [state, setState] = useState<SchoolRegistryState>({ status: "loading" });
+  const generation = useRef(0);
+  const controller = useRef<AbortController | null>(null);
   const load = useCallback(async () => {
+    const request = ++generation.current;
+    controller.current?.abort();
+    const current = new AbortController();
+    controller.current = current;
     setState({ status: "loading" });
     try {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) return setState({ status: "no-session" });
-      const rows = await loadSchoolRegistryRows();
-      if (!rows) return setState({ status: "error" });
-      setState({ status: "ready", units: unitsFromRows(rows.schools, rows.identifiers, rows.versions) });
+      const next = await withListTimeout(current.signal, async (signal): Promise<SchoolRegistryState> => {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        signal.throwIfAborted();
+        if (!data.session) return { status: "no-session" };
+        const rows = await loadSchoolRegistryRows(signal);
+        if (!rows) return { status: "error" };
+        return { status: "ready", units: unitsFromRows(rows.schools, rows.identifiers, rows.versions) };
+      });
+      if (request === generation.current && !current.signal.aborted) setState(next);
     } catch {
-      setState({ status: "error" });
+      if (request === generation.current && !current.signal.aborted) setState({ status: "error" });
     }
   }, []);
   useEffect(() => {
     void load();
+    return () => { ++generation.current; controller.current?.abort(); };
   }, [load]);
   return { ...state, reload: () => void load() };
 }
@@ -76,10 +116,10 @@ export type UnitListRow = {
   validFrom: string | null;
 };
 
-export function unitListRows(units: readonly SchoolUnit[]): UnitListRow[] {
+export function unitListRows(units: readonly SchoolUnit[], on: string = operationalToday()): UnitListRow[] {
   return units
     .map((u) => {
-      const v = currentSchoolVersion(u);
+      const v = schoolVersionAt(u, on);
       return {
         schoolId: u.schoolId,
         name: v?.officialName ?? u.schoolId,

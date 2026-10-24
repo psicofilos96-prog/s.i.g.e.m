@@ -40,6 +40,7 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 import { useSessionAuthority, useSessionUser, type SessionAuthority } from "./session-authority";
+import { currentSessionReadKey } from "@/lib/session-read-context";
 import { LIST_TIMEOUT_MS } from "@/lib/server-page";
 
 function deferred<T>() {
@@ -289,5 +290,31 @@ describe("B4.10.0b — useSessionAuthority", () => {
     expect(b.person?.id).toBe("per-u-b");
     expect(b.capabilities.map((c) => c.capabilityId)).toEqual(["cap-b"]);
     unmount();
+  });
+});
+
+
+describe("chave de leitura da origem real da sessão", () => {
+  it("isola outra conta, novo login e SSR sem fazer outra leitura de autenticação", async () => {
+    m.getSession.mockResolvedValue(session("u-a"));
+    const view = renderHook(() => useSessionUser());
+    await waitFor(() => expect(view.result.current.loading).toBe(false));
+    const first = currentSessionReadKey();
+    expect(first).toMatch(/^u-a#/);
+    expect(m.getSession).toHaveBeenCalledTimes(1);
+    emit("SIGNED_OUT", null);
+    expect(currentSessionReadKey()).toBeNull();
+    emit("SIGNED_IN", "u-a");
+    expect(currentSessionReadKey()).toMatch(/^u-a#/);
+    expect(currentSessionReadKey()).not.toBe(first);
+    emit("SIGNED_IN", "u-b");
+    expect(currentSessionReadKey()).toMatch(/^u-b#/);
+    const browserWindow = window;
+    vi.stubGlobal("window", undefined);
+    try { expect(currentSessionReadKey()).toBeNull(); }
+    finally { vi.stubGlobal("window", browserWindow); }
+    expect(m.getSession).toHaveBeenCalledTimes(1);
+    view.unmount();
+    expect(currentSessionReadKey()).toBeNull();
   });
 });
