@@ -14,7 +14,7 @@ export default defineTool({
     const r = await readAllEffectiveCapabilities(sb);
     if (r.error || !r.data) throw new ToolError("Não foi possível ler as permissões agora. Tente novamente.");
     const map = new Map<string, Set<string>>();
-    for (const c of r.data) {
+    for (const c of r.data as Array<{ capability_id: string; school_id: string | null }>) {
       const set = map.get(c.capability_id) ?? new Set<string>();
       set.add(c.school_id ?? "rede");
       map.set(c.capability_id, set);
