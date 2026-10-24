@@ -76,3 +76,6 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Sessão no navegador (PERF.LOADING.1)
 - Leitura da sessão de login passa por `src/lib/auth-session-read-cache.ts` (instalado em `src/router.tsx`, memória de 10 s; gravação/remoção vão direto ao armazenamento), porque no preview cada consulta lia a sessão via editor em fila e as telas estouravam o prazo.
+
+## Agentes (MCP)
+- Servidor MCP em `src/lib/mcp/` só com ferramentas de leitura, OAuth do próprio usuário e cliente com o token dele, porque assistente externo nunca pode ver além da conta nem contornar RLS.
