@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "sdk_version": "3.3.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://crfqhyqkujhhlbiyhdbc.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "s-i-g-e-m",
+      "version": "0.1.0",
+      "title": "S.I.G.E.M"
+    },
+    "tools": [
+      {
+        "name": "search_help",
+        "title": "Pesquisar ajuda do SIGEM",
+        "description": "Procura nos tópicos de ajuda e no glossário do SIGEM por um termo (ex.: calendário, matrícula).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 200,
+              "description": "Termo a procurar, em português."
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "my_permissions",
+        "title": "Minhas permissões no SIGEM",
+        "description": "Lista as permissões efetivas da conta conectada, por escola, como o próprio SIGEM as calcula.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

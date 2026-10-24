@@ -5,6 +5,7 @@
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/tanstack/vite";
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
@@ -31,6 +32,7 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    plugins: [mcpPlugin()],
     define: {
       __SIGEM_APP_VERSION__: JSON.stringify(appVersion()),
       __SIGEM_COMMIT__: JSON.stringify(gitCommit()),
