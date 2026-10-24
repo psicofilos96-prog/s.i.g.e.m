@@ -167,3 +167,5 @@
 - [ ] Documentos: Acervo Documental — seguir Etapa 7
 - [ ] Validação final — seguir Etapa 8
 - Ordem decidida: Etapas 1–4 (fundação compartilhada) concluídas e validadas antes dos módulos; números/agendas da imagem são ilustrativos, sempre dados reais
+
+- [ ] Ligar SIGEM ao ChatGPT e Codex (aguarda publicar e o usuário adicionar o conector)
