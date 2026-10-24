@@ -32,6 +32,7 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
+    plugins: [mcpPlugin()],
     define: {
       __SIGEM_APP_VERSION__: JSON.stringify(appVersion()),
       __SIGEM_COMMIT__: JSON.stringify(gitCommit()),

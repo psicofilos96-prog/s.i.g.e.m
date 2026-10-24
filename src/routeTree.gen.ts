@@ -199,6 +199,7 @@ import { Route as UnidadesIdRouteImport } from './routes/unidades.$id'
 import { Route as UnidadesNovaRouteImport } from './routes/unidades.nova'
 import { Route as VerificarCodigoRouteImport } from './routes/verificar.$codigo'
 import { Route as VinculosLetivosNovoRouteImport } from './routes/vinculos-letivos.novo'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AlunosEditarIdRouteImport } from './routes/alunos.editar.$id'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as CalendarioEscolarCalendarioIdIndexRouteImport } from './routes/calendario-escolar.$calendarioId.index'
@@ -1269,6 +1270,11 @@ const VinculosLetivosNovoRoute = VinculosLetivosNovoRouteImport.update({
   path: '/novo',
   getParentRoute: () => VinculosLetivosRoute,
 } as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AlunosEditarIdRoute = AlunosEditarIdRouteImport.update({
   id: '/editar/$id',
   path: '/editar/$id',
@@ -2059,6 +2065,7 @@ export interface FileRoutesByFullPath {
   '/regras-de-situacao/': typeof RegrasDeSituacaoIndexRoute
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/calendario-escolar/$calendarioId/documento': typeof CalendarioEscolarCalendarioIdDocumentoRoute
@@ -2337,6 +2344,7 @@ export interface FileRoutesByTo {
   '/regras-de-situacao': typeof RegrasDeSituacaoIndexRoute
   '/turmas': typeof TurmasIndexRoute
   '/unidades': typeof UnidadesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/calendario-escolar/$calendarioId/documento': typeof CalendarioEscolarCalendarioIdDocumentoRoute
@@ -2615,6 +2623,7 @@ export interface FileRoutesById {
   '/regras-de-situacao/': typeof RegrasDeSituacaoIndexRoute
   '/turmas/': typeof TurmasIndexRoute
   '/unidades/': typeof UnidadesIndexRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/alunos/editar/$id': typeof AlunosEditarIdRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/calendario-escolar/$calendarioId/documento': typeof CalendarioEscolarCalendarioIdDocumentoRoute
@@ -2911,6 +2920,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao/'
     | '/turmas/'
     | '/unidades/'
+    | '/.lovable/oauth/consent'
     | '/alunos/editar/$id'
     | '/api/public/health'
     | '/calendario-escolar/$calendarioId/documento'
@@ -3189,6 +3199,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao'
     | '/turmas'
     | '/unidades'
+    | '/.lovable/oauth/consent'
     | '/alunos/editar/$id'
     | '/api/public/health'
     | '/calendario-escolar/$calendarioId/documento'
@@ -3466,6 +3477,7 @@ export interface FileRouteTypes {
     | '/regras-de-situacao/'
     | '/turmas/'
     | '/unidades/'
+    | '/.lovable/oauth/consent'
     | '/alunos/editar/$id'
     | '/api/public/health'
     | '/calendario-escolar/$calendarioId/documento'
@@ -3720,6 +3732,7 @@ export interface RootRouteChildren {
   AreasIndexRoute: typeof AreasIndexRoute
   CalendarioEscolarIndexRoute: typeof CalendarioEscolarIndexRoute
   PublicoIndexRoute: typeof PublicoIndexRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   CalendarioEscolarCalendarioIdDocumentoRoute: typeof CalendarioEscolarCalendarioIdDocumentoRoute
   InclusaoNeiAeeRoute: typeof InclusaoNeiAeeRoute
@@ -5070,6 +5083,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/vinculos-letivos/novo'
       preLoaderRoute: typeof VinculosLetivosNovoRouteImport
       parentRoute: typeof VinculosLetivosRoute
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/alunos/editar/$id': {
       id: '/alunos/editar/$id'
@@ -6615,6 +6635,7 @@ const rootRouteChildren: RootRouteChildren = {
   AreasIndexRoute: AreasIndexRoute,
   CalendarioEscolarIndexRoute: CalendarioEscolarIndexRoute,
   PublicoIndexRoute: PublicoIndexRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   CalendarioEscolarCalendarioIdDocumentoRoute:
     CalendarioEscolarCalendarioIdDocumentoRoute,
