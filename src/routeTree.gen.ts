@@ -70,6 +70,7 @@ import { Route as MapaEstatisticoRedeRouteImport } from './routes/mapa-estatisti
 import { Route as MapaMensal2026RouteImport } from './routes/mapa-mensal-2026'
 import { Route as MatriculasRouteImport } from './routes/matriculas'
 import { Route as MatrizesCurricularesRouteImport } from './routes/matrizes-curriculares'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as MediadorRouteImport } from './routes/mediador'
 import { Route as MeusDiariosRouteImport } from './routes/meus-diarios'
 import { Route as NumerosRouteImport } from './routes/numeros'
@@ -111,6 +112,7 @@ import { Route as TransporteEscolarRouteImport } from './routes/transporte-escol
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
 import { Route as VinculosLetivosRouteImport } from './routes/vinculos-letivos'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AlimentacaoEscolarCozinhaRouteImport } from './routes/alimentacao-escolar_.cozinha'
 import { Route as AlimentacaoEscolarSaudeDeclaradaRouteImport } from './routes/alimentacao-escolar_.saude-declarada'
 import { Route as AlunosIndexRouteImport } from './routes/alunos.index'
@@ -609,6 +611,11 @@ const MatrizesCurricularesRoute = MatrizesCurricularesRouteImport.update({
   path: '/matrizes-curriculares',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MediadorRoute = MediadorRouteImport.update({
   id: '/mediador',
   path: '/mediador',
@@ -814,6 +821,12 @@ const VinculosLetivosRoute = VinculosLetivosRouteImport.update({
   path: '/vinculos-letivos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AlimentacaoEscolarCozinhaRoute =
   AlimentacaoEscolarCozinhaRouteImport.update({
     id: '/alimentacao-escolar_/cozinha',
@@ -1936,6 +1949,7 @@ export interface FileRoutesByFullPath {
   '/mapa-mensal-2026': typeof MapaMensal2026Route
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/mcp': typeof McpRoute
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
   '/numeros': typeof NumerosRoute
@@ -1977,6 +1991,7 @@ export interface FileRoutesByFullPath {
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alimentacao-escolar/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
@@ -2224,6 +2239,7 @@ export interface FileRoutesByTo {
   '/mapa-estatistico': typeof MapaEstatisticoRoute
   '/mapa-estatistico-rede': typeof MapaEstatisticoRedeRoute
   '/mapa-mensal-2026': typeof MapaMensal2026Route
+  '/mcp': typeof McpRoute
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
   '/numeros': typeof NumerosRoute
@@ -2260,6 +2276,7 @@ export interface FileRoutesByTo {
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/transporte-escolar': typeof TransporteEscolarRoute
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alimentacao-escolar/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
@@ -2494,6 +2511,7 @@ export interface FileRoutesById {
   '/mapa-mensal-2026': typeof MapaMensal2026Route
   '/matriculas': typeof MatriculasRouteWithChildren
   '/matrizes-curriculares': typeof MatrizesCurricularesRouteWithChildren
+  '/mcp': typeof McpRoute
   '/mediador': typeof MediadorRoute
   '/meus-diarios': typeof MeusDiariosRoute
   '/numeros': typeof NumerosRoute
@@ -2535,6 +2553,7 @@ export interface FileRoutesById {
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/alimentacao-escolar_/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alimentacao-escolar_/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
   '/alunos/$id': typeof AlunosIdRoute
@@ -2791,6 +2810,7 @@ export interface FileRouteTypes {
     | '/mapa-mensal-2026'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/mcp'
     | '/mediador'
     | '/meus-diarios'
     | '/numeros'
@@ -2832,6 +2852,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
+    | '/.well-known/oauth-protected-resource'
     | '/alimentacao-escolar/cozinha'
     | '/alimentacao-escolar/saude-declarada'
     | '/alunos/$id'
@@ -3079,6 +3100,7 @@ export interface FileRouteTypes {
     | '/mapa-estatistico'
     | '/mapa-estatistico-rede'
     | '/mapa-mensal-2026'
+    | '/mcp'
     | '/mediador'
     | '/meus-diarios'
     | '/numeros'
@@ -3115,6 +3137,7 @@ export interface FileRouteTypes {
     | '/transferencias'
     | '/transporte-escolar'
     | '/vinculos-letivos'
+    | '/.well-known/oauth-protected-resource'
     | '/alimentacao-escolar/cozinha'
     | '/alimentacao-escolar/saude-declarada'
     | '/alunos/$id'
@@ -3348,6 +3371,7 @@ export interface FileRouteTypes {
     | '/mapa-mensal-2026'
     | '/matriculas'
     | '/matrizes-curriculares'
+    | '/mcp'
     | '/mediador'
     | '/meus-diarios'
     | '/numeros'
@@ -3389,6 +3413,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
+    | '/.well-known/oauth-protected-resource'
     | '/alimentacao-escolar_/cozinha'
     | '/alimentacao-escolar_/saude-declarada'
     | '/alunos/$id'
@@ -3644,6 +3669,7 @@ export interface RootRouteChildren {
   MapaMensal2026Route: typeof MapaMensal2026Route
   MatriculasRoute: typeof MatriculasRouteWithChildren
   MatrizesCurricularesRoute: typeof MatrizesCurricularesRouteWithChildren
+  McpRoute: typeof McpRoute
   MediadorRoute: typeof MediadorRoute
   MeusDiariosRoute: typeof MeusDiariosRoute
   NumerosRoute: typeof NumerosRoute
@@ -3685,6 +3711,7 @@ export interface RootRouteChildren {
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AlimentacaoEscolarCozinhaRoute: typeof AlimentacaoEscolarCozinhaRoute
   AlimentacaoEscolarSaudeDeclaradaRoute: typeof AlimentacaoEscolarSaudeDeclaradaRoute
   AreasAreaIdRoute: typeof AreasAreaIdRoute
@@ -4181,6 +4208,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MatrizesCurricularesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/mediador': {
       id: '/mediador'
       path: '/mediador'
@@ -4466,6 +4500,13 @@ declare module '@tanstack/react-router' {
       path: '/vinculos-letivos'
       fullPath: '/vinculos-letivos'
       preLoaderRoute: typeof VinculosLetivosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/alimentacao-escolar_/cozinha': {
@@ -6546,6 +6587,7 @@ const rootRouteChildren: RootRouteChildren = {
   MapaMensal2026Route: MapaMensal2026Route,
   MatriculasRoute: MatriculasRouteWithChildren,
   MatrizesCurricularesRoute: MatrizesCurricularesRouteWithChildren,
+  McpRoute: McpRoute,
   MediadorRoute: MediadorRoute,
   MeusDiariosRoute: MeusDiariosRoute,
   NumerosRoute: NumerosRoute,
@@ -6587,6 +6629,8 @@ const rootRouteChildren: RootRouteChildren = {
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AlimentacaoEscolarCozinhaRoute: AlimentacaoEscolarCozinhaRoute,
   AlimentacaoEscolarSaudeDeclaradaRoute: AlimentacaoEscolarSaudeDeclaradaRoute,
   AreasAreaIdRoute: AreasAreaIdRoute,
