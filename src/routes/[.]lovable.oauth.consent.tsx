@@ -64,7 +64,7 @@ function Consent() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col justify-center gap-4 p-6">
       <h1 className="font-serif text-2xl">Conectar {client} ao SIGEM</h1>
-      <p>Isso permite que {client} use o SIGEM como você ({account}), só para consultas.</p>
+      <p>Isso permite que {client} use o SIGEM como você ({account}): consultar e gravar dados (Diário, Secretaria, avisos e tudo o que sua conta pode fazer), sem pedir confirmação a cada gravação.</p>
       {details?.client?.redirect_uri && <p className="text-sm text-muted-foreground">Destino: {details.client.redirect_uri}</p>}
       <p className="text-sm text-muted-foreground">As permissões da sua conta continuam valendo; nada fica liberado além do que você já pode ver.</p>
       {msg && <p role="alert" className="text-sm">{msg}</p>}
