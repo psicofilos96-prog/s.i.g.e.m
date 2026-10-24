@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { consumeVoluntarySignOut, markVoluntarySignOut, reactToSignOut, safeRedirect } from "./session-lifecycle";
+import { consumeVoluntarySignOut, markVoluntarySignOut, postLoginTarget, reactToSignOut, safeRedirect } from "./session-lifecycle";
 
 const pub = (p: string) => p.startsWith("/publico");
 
@@ -22,5 +22,16 @@ describe("NAUTH.2 ciclo de sessão", () => {
     markVoluntarySignOut();
     expect(consumeVoluntarySignOut()).toBe(true);
     expect(consumeVoluntarySignOut()).toBe(false);
+  });
+});
+
+
+describe("destino após autenticação", () => {
+  it.each([undefined, null, "", "https://externo.example", "//externo.example", "/auth"])("sem deep link interno seguro, %s abre a área inicial", (value) => {
+    expect(postLoginTarget(value)).toBe("/");
+  });
+  it("mantém o caminho interno solicitado e sua busca", () => {
+    expect(postLoginTarget("/secretaria?aba=matriculas")).toBe("/secretaria?aba=matriculas");
+    expect(postLoginTarget("/diario/turmas")).toBe("/diario/turmas");
   });
 });
