@@ -12,7 +12,7 @@ import { ConnectionBanner } from "./connection-banner";
  * agente; nada aqui codifica cargo nem cria sessão, usuário ou permissão.
  */
 import { useRecoveryTrail } from "@/lib/observability/recovery-trail";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Building2,
@@ -119,21 +119,26 @@ function SidebarNavigation({
     );
   const [showAdvanced, setShowAdvanced] = useState(inAdvanced);
   const [menuQuery, setMenuQuery] = useState("");
+  const menuSearchId = useId();
   const [closedGroups, setClosedGroups] = useState<ReadonlySet<string>>(new Set());
   const fold = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const q = fold(menuQuery.trim());
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
   // BQ.1 Lote 2 — conta de setor vê só a própria estação; humanos inalterados.
   // Lote 2.1: enquanto a autoridade carrega, o menu fica vazio (antes mostrava tudo por um instante a contas de setor).
-  const groups = authority.status === "loading" ? [] : provisionalNavigation
+  const groups = authority.status !== "signed-in" ? [] : provisionalNavigation
     .filter((group) => principal !== null || compact || showAdvanced || q !== "" || !ADVANCED_GROUPS.includes(group.label))
     // NACL.UI.1: mesma regra de estação × capacidade usada por paleta, busca, cards e deep link.
     .map((group) => authority.status === "signed-in" ? { ...group, items: group.items.filter((item) => pathAllowed(authority, item.to)) } : group)
     .map((group) => (q ? { ...group, items: group.items.filter((item) => fold(item.label).includes(q)) } : group))
     .filter((group) => group.items.length > 0);
+  const hasHiddenAdvanced = !compact && !showAdvanced && principal === null && q === "" &&
+    provisionalNavigation.some((group) => ADVANCED_GROUPS.includes(group.label) &&
+      group.items.some((item) => pathAllowed(authority, item.to)));
   const generalAdminLink = (
     <Link
       to="/administracao-geral"
+      aria-label="Administração Geral"
       aria-current={pathname === "/administracao-geral" ? "page" : undefined}
     >
       <div
@@ -165,9 +170,9 @@ function SidebarNavigation({
     <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-4">
       {!compact && (
         <div className="mb-4 px-0.5">
-          <label htmlFor="sidebar-menu-search" className="sr-only">Procurar no menu</label>
+          <label htmlFor={menuSearchId} className="sr-only">Procurar no menu</label>
           <input
-            id="sidebar-menu-search"
+            id={menuSearchId}
             type="search"
             value={menuQuery}
             onChange={(e) => setMenuQuery(e.target.value)}
@@ -217,7 +222,7 @@ function SidebarNavigation({
                   {!compact && <span className="truncate">{item.label}</span>}
                 </div>
               );
-              const wrapped = <Link to={item.to} aria-current={isActive ? "page" : undefined}>{content}</Link>;
+              const wrapped = <Link to={item.to} aria-label={item.label} aria-current={isActive ? "page" : undefined}>{content}</Link>;
               const navigable = closeOnNavigate ? (
                 <SheetClose asChild>{wrapped}</SheetClose>
               ) : (
@@ -255,7 +260,7 @@ function SidebarNavigation({
           ) : generalAdminNavigable}
         </div>
       ) : null}
-      {!compact && !showAdvanced ? (
+      {hasHiddenAdvanced ? (
         <button
           type="button"
           onClick={() => setShowAdvanced(true)}
@@ -520,8 +525,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [unit, setUnit] = useState<string>(DEMO_UNITS[0]);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  // NHOME.1: ação principal do guia só com sessão — sem login a página de destino também pede entrada.
-  const signedInForGuide = useSessionAuthority().status === "signed-in";
+  // Guias obedecem à mesma competência do menu e do destino.
+  const guideAuthority = useSessionAuthority();
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
@@ -563,7 +568,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <StationGate pathname={pathname}>
               {(() => {
                 const g = guideForPath(pathname);
-                return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary && signedInForGuide ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
+                return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary && pathAllowed(guideAuthority, g.primary.to) ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
               })()}
               <div className="mb-4 empty:hidden print:hidden"><WhatThisMeans pathname={pathname} /></div>
               {children}

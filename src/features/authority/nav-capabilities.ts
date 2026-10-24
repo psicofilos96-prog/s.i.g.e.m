@@ -68,10 +68,13 @@ export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>
 /** Rotas cuja capacidade só vale em alcance de rede (sem escola/turma), espelhando o banco. */
 export const NAV_NETWORK_SCOPE: ReadonlySet<string> = new Set(["/integracoes", "/central-de-integracoes"]);
 
+const CAPABILITY_ROUTES = Object.keys(NAV_REQUIRED_CAPABILITY).sort((a, b) => b.length - a.length);
+
 /** Sem regra ⇒ visível; com regra ⇒ exige ao menos uma das capacidades efetivas. */
 export function navItemAllowed(path: string, caps: readonly EffectiveCapability[]): boolean {
   // NACL.UI.1: deep link (`/rota/123`) obedece à regra da rota base.
-  const base = Object.keys(NAV_REQUIRED_CAPABILITY).find((r) => path === r || path.startsWith(`${r}/`));
+  const pathname = path.split(/[?#]/)[0] ?? "";
+  const base = CAPABILITY_ROUTES.find((r) => pathname === r || pathname.startsWith(`${r}/`));
   if (!base) return true;
   const need = NAV_REQUIRED_CAPABILITY[base];
   if (!need) return false;
@@ -91,7 +94,7 @@ export type PathAuthority =
 
 export function pathAllowed(authority: PathAuthority, path: string): boolean {
   if (authority.status !== "signed-in") return false;
-  const clean = path.replace(/\/\$[a-z]+$/i, "");
+  const clean = (path.split(/[?#]/)[0] ?? "").replace(/\/\$[a-z]+$/i, "");
   const principal = authority.principal ?? null;
   if (principal && !stationAllowsPath(principal.station, clean)) return false;
   return navItemAllowed(clean, authority.capabilities);

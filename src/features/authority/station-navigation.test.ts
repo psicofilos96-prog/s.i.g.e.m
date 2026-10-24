@@ -24,6 +24,11 @@ describe("BQ.1 Lote 2 — isolamento de navegação por estação", () => {
     expect(stationAllowsPath("administracao_geral", "/")).toBe(false);
     expect(stationAllowsPath("x", "/")).toBe(false);
   });
+  it("nomes herdados de Object não são estações e nunca lançam erro", () => {
+    for (const station of ["constructor", "__proto__", "toString"]) {
+      expect(stationAllowsPath(station, "/")).toBe(false);
+    }
+  });
   it("prefixo parecido não vaza (/alunosx não é /alunos)", () => {
     expect(stationAllowsPath("orientacao_pedagogica", "/alunosx")).toBe(false);
   });

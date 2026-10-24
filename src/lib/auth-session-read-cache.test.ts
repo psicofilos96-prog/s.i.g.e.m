@@ -38,3 +38,31 @@ describe("cache curto da leitura da sessão", () => {
     expect(await s.getItem("k")).toBe("nova");
   });
 });
+
+
+describe("falhas de persistência da sessão", () => {
+  it("não mantém em memória um token cuja gravação falhou", async () => {
+    const s = cachedSessionStorage({ getItem: async () => "persistida", setItem: async () => { throw new Error("offline"); }, removeItem: vi.fn() });
+    await expect(s.setItem("k", "nova")).rejects.toThrow("offline");
+    expect(await s.getItem("k")).toBe("persistida");
+  });
+
+  it("invalida a leitura otimista quando a remoção lança erro síncrono", async () => {
+    const s = cachedSessionStorage({ getItem: () => "persistida", setItem: vi.fn(), removeItem: () => { throw new Error("bloqueado"); } });
+    expect(() => s.removeItem("k")).toThrow("bloqueado");
+    expect(await s.getItem("k")).toBe("persistida");
+  });
+
+  it("falha atrasada de uma gravação não descarta a sessão mais recente", async () => {
+    let reject!: (reason: Error) => void;
+    const setItem = vi.fn().mockImplementationOnce(() => new Promise<void>((_, r) => { reject = r; })).mockResolvedValue(undefined);
+    const getItem = vi.fn(async () => "antiga");
+    const s = cachedSessionStorage({ getItem, setItem, removeItem: vi.fn() });
+    const first = s.setItem("k", "primeira") as Promise<void>;
+    await s.setItem("k", "recente");
+    reject(new Error("falha antiga"));
+    await expect(first).rejects.toThrow("falha antiga");
+    expect(await s.getItem("k")).toBe("recente");
+    expect(getItem).not.toHaveBeenCalled();
+  });
+});

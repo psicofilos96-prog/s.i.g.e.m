@@ -28,6 +28,12 @@ describe("NPERF.4 — permissões compartilhadas", () => {
     await readEffectiveCapabilitiesShared(now); await readEffectiveCapabilitiesShared(now);
     expect(rpc).toHaveBeenCalledTimes(4);
   });
+  it("rejeição de transporte não envenena a recuperação por 60 segundos", async () => {
+    rpc.mockRejectedValueOnce(new Error("conexão interrompida"));
+    await expect(readEffectiveCapabilitiesShared()).rejects.toThrow("conexão interrompida");
+    expect((await readEffectiveCapabilitiesShared()).error).toBeNull();
+    expect(rpc).toHaveBeenCalledTimes(2);
+  });
   it("sem sessão não guarda nada", async () => {
     user = ""; await readEffectiveCapabilitiesShared(); await readEffectiveCapabilitiesShared();
     expect(rpc).toHaveBeenCalledTimes(2);

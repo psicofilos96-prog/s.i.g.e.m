@@ -371,3 +371,5 @@ Gerado por varredura de `docs/` contra o HEAD. Prevalência: `AGENTS.md` (raiz e
 - `docs/lote-43-areas-perfis-acesso-2026-10.md` — Registro de lote: catálogo de áreas, perfis e acesso mínimo.
 - `docs/lote-46-servidor-funcional-e2e-2026-10.md` — Registro de lote: servidor funcional persistido, crosswalk de candidatos e E2E das áreas.
 - `docs/ficha-matricula-impressao.md` — Referência vigente: modelo de impressão da Ficha de Matrícula e lacunas de dados.
+
+- `auditoria-acessos-sessao-2026-10-23.md` — Registro de lote: fechamento do acesso direto ao acervo legado, correções de sessão/menu e evidências atuais de verificação.

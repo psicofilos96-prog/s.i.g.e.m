@@ -4264,6 +4264,13 @@
       "when": 1792775755963,
       "tag": "0608_curricular_component_system_defaults",
       "breakpoints": true
+    },
+    {
+      "idx": 609,
+      "version": "7",
+      "when": 1792808739371,
+      "tag": "0609_archive_legacy_simple_tables",
+      "breakpoints": true
     }
   ]
 }

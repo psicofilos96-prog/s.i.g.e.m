@@ -14,7 +14,7 @@ Opções: `--only=tipos,testes`, `--skip=build,rotas`, `SIGEM_BASE_URL` (padrão
 | Etapa (id) | O que valida |
 |---|---|
 | migrations | Migration congelada não foi editada (hash), journal = arquivos, novas migrations listadas para `invariants:freeze-migrations`. |
-| tipos | `tsgo --noEmit`: 0 erros de tipo. |
+| tipos | `tsgo --noEmit` local (`@typescript/native-preview` com versão fixa no lockfile): 0 erros de tipo, sem download de compilador durante a verificação. |
 | testes | `vitest run`: suíte completa (regras, modelos, telas, vocabulário, a11y por componente, invariantes rápidas). |
 | profundas | `SIGEM_DEEP=1` em `src/test/invariants`: writers, grants, migrations. |
 | acessibilidade | `a11y.test.tsx` (componentes compartilhados) + varredura de vocabulário pt-BR. |
@@ -26,7 +26,7 @@ Opções: `--only=tipos,testes`, `--skip=build,rotas`, `SIGEM_BASE_URL` (padrão
 | harness | `institutional-harness.mjs` só com `SIGEM_TEST_HARNESS=1` e `SIGEM_HARNESS_ACK=fixtures-efemeras-com-cleanup`; única etapa que recebe credenciais. Sem isso: NOT RUN. |
 | navegador | Sempre NOT RUN (INTERACTIVE_BROWSER_VALIDATION_PENDING): smoke por estação e axe com login exigem contas sintéticas pelo `harness-gate`. |
 | build | `vite build` (empacota, não publica). |
-| rotas | Requisições sem login a rotas públicas e principais; falha em 5xx. Se o servidor não responde, a etapa fica NÃO EXECUTADA. |
+| rotas | Requisições sem login a rotas públicas e principais; falha em 5xx ou em requisição sem resposta (prazo de 15 s por rota). Se nenhuma rota responder, a etapa fica NÃO EXECUTADA. |
 
 Fora da rotina: a varredura de segurança da plataforma (ferramenta do agente) e as provas SQL `supabase/tests/*.sql` (acesso privilegiado). A rotina nunca publica.
 
