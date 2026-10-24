@@ -511,7 +511,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [searchContext]);
 
-  if (pathname === "/login" || pathname === "/auth" || pathname === "/primeiro-acesso" || isPublicPath(pathname)) return <>{children}</>;
+  if (pathname === "/login" || pathname === "/auth" || pathname === "/primeiro-acesso" || pathname === "/.lovable/oauth/consent" || isPublicPath(pathname)) return <>{children}</>;
 
   if (pathname === "/" && guideAuthority.status === "signed-out") return <PublicEntryShell>{children}</PublicEntryShell>;
 
