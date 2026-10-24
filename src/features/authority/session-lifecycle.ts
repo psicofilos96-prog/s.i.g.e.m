@@ -13,6 +13,11 @@ export function safeRedirect(raw: unknown): string | null {
   return raw;
 }
 
+/** Sem deep link válido, a entrada é a área inicial que projeta o acesso da conta. */
+export function postLoginTarget(raw: unknown): string {
+  return safeRedirect(raw) ?? "/";
+}
+
 let voluntary = false;
 export function markVoluntarySignOut() { voluntary = true; }
 /** Consome a marca: true só uma vez por saída voluntária. */

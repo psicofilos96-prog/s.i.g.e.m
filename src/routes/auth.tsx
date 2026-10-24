@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { firstAccessSetPassword } from "@/features/authority/first-access.functions";
 import { passwordProblem } from "@/features/authority/password-policy";
-import { safeRedirect } from "@/features/authority/session-lifecycle";
+import { postLoginTarget, safeRedirect } from "@/features/authority/session-lifecycle";
 import { classifyLoginError, loginMessage } from "@/features/authority/login-messages";
 import wallpaper from "@/assets/itaperuna-wallpaper.png.asset.json";
 import logoCiece from "@/assets/logo-ciece-white.png.asset.json";
@@ -47,7 +47,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
-  const target = safeRedirect(search.redirect) ?? "/diario";
+  const target = postLoginTarget(search.redirect);
   const router = useRouter();
   // Caminho interno sanitizado (pode trazer ?busca); history preserva a busca do deep link.
   const go = () => router.history.replace(target);
