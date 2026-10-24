@@ -23,8 +23,8 @@ export const HOME_ACTIONS: readonly HomeAction[] = [
   { to: "/meus-diarios", label: "Meu diário", icon: BookOpenText },
   // Secretaria
   { to: "/mapa-estatistico", label: "Mapa estatístico", icon: Map },
-  { to: "/matriculas", label: "Matricular", icon: UserPlus },
-  { to: "/transferencias", label: "Transferir", icon: ArrowLeftRight },
+  { to: "/matriculas/nova", label: "Matricular", icon: UserPlus },
+  { to: "/transferencias/nova", label: "Transferir", icon: ArrowLeftRight },
   { to: "/alunos", label: "Alunos", icon: GraduationCap },
   { to: "/turmas", label: "Turmas", icon: School },
   { to: "/documentos-escolares", label: "Documentos", icon: FileText },
