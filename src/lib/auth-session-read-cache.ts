@@ -22,6 +22,27 @@ type Entry = { value: string | null; at: number };
 export function cachedSessionStorage(inner: SessionStorageLike, ttlMs = SESSION_READ_CACHE_TTL_MS, now: () => number = Date.now) {
   const cache = new Map<string, Entry>();
   const pending = new Map<string, Promise<string | null>>();
+  // A failed write cannot leave a session in memory that was never persisted.
+  // Compare entry identity so an older rejection cannot discard a newer login.
+  function mutate(key: string, value: string | null, write: () => void | Promise<void>) {
+    pending.delete(key);
+    const optimistic = { value, at: now() };
+    cache.set(key, optimistic);
+    const invalidateFailedWrite = () => {
+      if (cache.get(key) === optimistic) cache.delete(key);
+    };
+    try {
+      const result = write();
+      if (result) return Promise.resolve(result).catch((error: unknown) => {
+        invalidateFailedWrite();
+        throw error;
+      });
+      return undefined;
+    } catch (error) {
+      invalidateFailedWrite();
+      throw error;
+    }
+  }
   const storage: SessionStorageLike & { __sigemSessionCache: true; invalidate: () => void } = {
     __sigemSessionCache: true,
     invalidate: () => { cache.clear(); pending.clear(); },
@@ -38,14 +59,10 @@ export function cachedSessionStorage(inner: SessionStorageLike, ttlMs = SESSION_
       return read;
     },
     setItem(key, value) {
-      pending.delete(key);
-      cache.set(key, { value, at: now() });
-      return inner.setItem(key, value);
+      return mutate(key, value, () => inner.setItem(key, value));
     },
     removeItem(key) {
-      pending.delete(key);
-      cache.set(key, { value: null, at: now() });
-      return inner.removeItem(key);
+      return mutate(key, null, () => inner.removeItem(key));
     },
   };
   return storage;

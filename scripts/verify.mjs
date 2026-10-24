@@ -51,7 +51,7 @@ const STEPS = [
   { id: "migrations", title: "Integridade de migrations", what: "Migration congelada não foi editada; journal = arquivos; novas listadas para congelar.",
     fn: () => { const r = run("node", ["scripts/check-migrations.mjs"]); return { ok: r.ok, note: tail(r.out, 2) }; } },
   { id: "tipos", title: "Tipos (TypeScript)", what: "O projeto compila sem erro de tipo.",
-    fn: () => { const r = run("npx", ["tsgo", "--noEmit", "-p", "."]); const n = (r.out.match(/error TS/g) ?? []).length; return { ok: r.ok, note: r.ok ? "0 erros" : `${n} erro(s)\n${tail(r.out, 8)}` }; } },
+    fn: () => { const r = run("npx", ["--no-install", "tsgo", "--noEmit", "-p", "."]); const n = (r.out.match(/error TS/g) ?? []).length; return { ok: r.ok, note: r.ok ? "0 erros" : `${n} erro(s)\n${tail(r.out, 8)}` }; } },
   { id: "testes", title: "Testes (suíte completa)", what: "Regras, modelos, telas, vocabulário, a11y por componente, snapshots e invariantes rápidas.",
     fn: () => { const r = run("npx", ["vitest", "run"]); return { ok: r.ok, note: pick(r.out, /Test Files|Tests |FAIL/) }; } },
   { id: "profundas", title: "Invariantes profundas", what: "Verificações arquiteturais caras (SIGEM_DEEP=1): writers, grants, migrations.",
@@ -78,8 +78,8 @@ const STEPS = [
       const routes = ["/", "/auth", "/publico", "/diario", "/secretaria", "/turmas", "/relatorios", "/auditoria", "/central-de-acessos", "/calendarios", "/rota-inexistente-verificacao"];
       const bad = []; let reached = 0;
       for (const r of routes) {
-        try { const res = await fetch(BASE + r, { redirect: "manual" }); reached++; if (res.status >= 500) bad.push(`${r} → ${res.status}`); }
-        catch { /* servidor fora do ar */ }
+        try { const res = await fetch(BASE + r, { redirect: "manual", signal: AbortSignal.timeout(15_000) }); reached++; if (res.status >= 500) bad.push(`${r} → ${res.status}`); }
+        catch { bad.push(`${r} → sem resposta no prazo`); }
       }
       if (!reached) return { ok: null, note: `servidor em ${BASE} não respondeu — etapa não executada` };
       return { ok: bad.length === 0, note: bad.length ? bad.join(", ") : `${reached} rota(s) sem erro 5xx` };

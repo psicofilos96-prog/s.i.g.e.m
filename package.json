@@ -20,7 +20,8 @@
     "release:report": "node scripts/release-report.mjs",
     "release:notes": "node scripts/release-notes.mjs",
     "ci": "node scripts/check-migrations.mjs && vitest run && vite build",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "typecheck": "tsgo --noEmit -p ."
   },
   "overrides": {
     "rolldown": "1.2.1",
@@ -86,6 +87,7 @@
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
     "@vitejs/plugin-react": "^5.2.0",
     "@vitest/coverage-v8": "^5.0.1",
     "axe-core": "^4.13.0",

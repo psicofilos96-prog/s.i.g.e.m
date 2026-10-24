@@ -21,9 +21,14 @@ export async function readEffectiveCapabilitiesShared(now: () => number = Date.n
   const promise = (async () => (await readAllEffectiveCapabilities(supabase)) as Result)();
   const mine = { key, at: now(), promise };
   entry = mine;
-  const r = await promise;
-  if (r.error && entry === mine) entry = null;
-  return r;
+  try {
+    const r = await promise;
+    if (r.error && entry === mine) entry = null;
+    return r;
+  } catch (error) {
+    if (entry === mine) entry = null;
+    throw error;
+  }
 }
 
 if (typeof window !== "undefined" && typeof supabase.auth?.onAuthStateChange === "function") {

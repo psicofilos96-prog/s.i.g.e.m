@@ -27,6 +27,6 @@ describe("NHOME.1 — homes de estação", () => {
   it("o guia mostra a ação principal como botão", () => {
     const s = readFileSync("src/components/app-shell/app-shell.tsx", "utf8");
     expect(s).toContain("<Link to={g.primary.to}>{g.primary.label}</Link>");
-    expect(s).toContain("g.primary && signedInForGuide");
+    expect(s).toContain("g.primary && pathAllowed(guideAuthority, g.primary.to)");
   });
 });

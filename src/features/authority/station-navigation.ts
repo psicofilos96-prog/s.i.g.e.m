@@ -61,6 +61,7 @@ const matches = (path: string, route: string) =>
 
 /** Rota permitida à estação; desconhecida ⇒ recusa (fail closed). */
 export function stationAllowsPath(station: string, path: string): boolean {
+  if (!Object.hasOwn(STATION_ROUTES, station)) return false;
   const routes = (STATION_ROUTES as Record<string, readonly string[] | undefined>)[station];
   if (!routes) return false;
   return [...COMMON, ...routes].some((r) => matches(path, r));

@@ -13,16 +13,21 @@ import { ErrorState } from "./states";
 export function TaskGuide({ where, todo, next, action }: { where: string; todo: string; next?: string; action?: ReactNode }) {
   const id = useId();
   return (
-    <section aria-labelledby={`${id}-t`} className="border-l-2 border-territory-accent py-1 pl-4 text-foreground">
-      <h2 id={`${id}-t`} className="font-sans text-xs font-semibold uppercase tracking-wide text-accent-foreground">Você está em: {where}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">{todo}</p>
-      {next && (
-        <p className="mt-1 flex items-start gap-1.5 text-sm text-muted-foreground">
-          <ArrowRight className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          <span>Próximo passo: {next}</span>
-        </p>
-      )}
-      {action && <div className="mt-3">{action}</div>}
+    <section aria-labelledby={`${id}-t`} className="relative overflow-hidden rounded-2xl border border-border/70 bg-card px-4 py-4 text-foreground shadow-sm sm:px-5">
+      <div aria-hidden="true" className="absolute inset-y-4 left-0 w-1 rounded-r-full bg-territory-accent" />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <h2 id={`${id}-t`} className="font-sans text-xs font-semibold uppercase tracking-wide text-accent-foreground">Você está em: {where}</h2>
+          <p className="mt-1.5 text-sm leading-relaxed text-foreground">{todo}</p>
+          {next && (
+            <p className="mt-2 flex items-start gap-1.5 text-sm leading-relaxed text-muted-foreground">
+              <ArrowRight className="mt-0.5 size-4 shrink-0 text-territory-accent" aria-hidden="true" />
+              <span>Próximo passo: {next}</span>
+            </p>
+          )}
+        </div>
+        {action && <div className="shrink-0 [&>button]:w-full [&>a]:w-full sm:[&>button]:w-auto sm:[&>a]:w-auto">{action}</div>}
+      </div>
     </section>
   );
 }

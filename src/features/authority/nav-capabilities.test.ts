@@ -25,6 +25,17 @@ describe("NPERM.3 — menu × rota × capacidade", () => {
     expect(pathAllowed({ status: "signed-in", capabilities: [cap("manter-contas-institucionais")] }, "/estacao-administrativa")).toBe(false);
     expect(pathAllowed({ status: "signed-in", capabilities: [cap("registrar-politica-de-capacidades")] }, "/estacao-administrativa")).toBe(true);
   });
+  it("consulta e fragmento não contornam a capacidade da rota", () => {
+    for (const p of ["/central-de-acessos?aba=contas", "/central-de-acessos#pessoas", "/integracoes?origem=menu"]) {
+      expect(navItemAllowed(p, [])).toBe(false);
+    }
+    expect(navItemAllowed("/central-de-acessos?aba=contas", [cap("manter-contas-institucionais")])).toBe(true);
+  });
+  it("parâmetros não bloqueiam a própria estação nem liberam outra", () => {
+    const authority = { status: "signed-in" as const, principal: { id: "p", station: "alimentacao" as const, scope: "network" as const, schoolId: null }, capabilities: [cap("consultar-alimentacao-escolar")] };
+    expect(pathAllowed(authority, "/alimentacao-escolar?aba=refeicoes")).toBe(true);
+    expect(pathAllowed(authority, "/central-de-acessos?aba=contas")).toBe(false);
+  });
   it("Publicações só aparece com a capacidade de publicar", () => {
     expect(navItemAllowed("/publicacoes", [])).toBe(false);
     expect(navItemAllowed("/publicacoes", [cap("outra")])).toBe(false);

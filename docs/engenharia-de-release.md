@@ -8,7 +8,7 @@
 
 ## Checks obrigatórios (`.github/workflows/ci.yml`, job `required`)
 1. `bun run check:migrations` com `SIGEM_REQUIRE_FROZEN=1`: falha se migration congelada foi editada/removida, se journal e arquivos divergem, ou se há migration nova sem hash. Só lê arquivos; nunca reexecuta histórico.
-2. Typecheck (`tsgo`, com `tsc` de reserva).
+2. Typecheck (`bun run typecheck`, compilador nativo `tsgo` declarado e fixado no lockfile, sem download implícito).
 3. `bun run test` (suíte rápida, inclui invariantes arquiteturais).
 4. `bun run build`.
 Job `deep` (após `required`): `bun run test:deep` (property tests).
