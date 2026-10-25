@@ -155,7 +155,7 @@ export function useCloudClosingSync(enabled: boolean, identity: { userId?: strin
   const current = on && loaded?.key === key ? loaded : null;
   const owned = closingOwnership.owner() === key;
   const usable = Boolean(current) && !current?.error && owned;
-  const caps = usable ? (closingPayload()?.caps ?? []) : [];
+  const caps = useMemo(() => usable ? (closingPayload()?.caps ?? []) : [], [usable]);
   const capabilitiesFor = useCallback(
     (classId: string, periodId: string) =>
       caps
