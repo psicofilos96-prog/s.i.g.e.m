@@ -22,7 +22,7 @@ export function managerialPanel(p: {
   eligible: Read<EligibleRow[]>; results: Read<ResultRow[]>; editions: Read<number>;
   interventions: Read<number>; reassessments: Read<number>; performanceRuleHomologated: boolean;
 }): Tile[] {
-  const cnt = (r: Read<unknown[]>, f: (x: any) => string): Read<number> => (r.state === "lido" ? { ...r, value: new Set(r.value.map(f)).size } : r);
+  const cnt = <T>(r: Read<T[]>, f: (x: T) => string): Read<number> => (r.state === "lido" ? { ...r, value: new Set(r.value.map(f)).size } : r);
   const elig = cnt(p.eligible, (e: EligibleRow) => e.studentId);
   const evald = p.results.state === "lido" ? { ...p.results, value: new Set(p.results.value.filter((x) => x.score !== null || x.band !== null).map((x) => x.studentId)).size } : p.results;
   const participation: Read<number> = elig.state !== "lido" || evald.state !== "lido" ? { state: "nao-lido", reason: "elegíveis ou avaliados não lidos" }
