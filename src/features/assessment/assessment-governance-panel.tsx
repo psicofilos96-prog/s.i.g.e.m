@@ -1,5 +1,5 @@
 import { SkeletonState } from "@/components/sigem/guidance";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { StatePanel } from "@/components/sigem/patterns";
 import { completenessLines, governanceMessage, readGovernance, recordConference, recordOfficialization, type GovernanceState } from "./assessment-governance";
@@ -10,8 +10,8 @@ export function AssessmentGovernancePanel({ instrumentId, refreshKey }: { instru
   const [err, setErr] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const load = () => readGovernance(instrumentId).then(setState).catch((e) => setErr(governanceMessage((e as Error).message)));
-  useEffect(() => { setState(null); setErr(null); void load(); }, [instrumentId, refreshKey]);
+  const load = useCallback(() => readGovernance(instrumentId).then(setState).catch((e) => setErr(governanceMessage((e as Error).message))), [instrumentId]);
+  useEffect(() => { setState(null); setErr(null); void load(); }, [instrumentId, refreshKey, load]);
   if (err) return <StatePanel tone="danger" title="Conferência indisponível" description={err} />;
   if (!state) return <SkeletonState label="Carregando a conferência" />;
   if (!("completeness" in state)) return <StatePanel tone="neutral" title="Conferência indisponível" description="Sua atuação não acompanha este instrumento." />;
