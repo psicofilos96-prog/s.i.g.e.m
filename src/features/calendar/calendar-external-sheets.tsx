@@ -86,7 +86,6 @@ function themeVars(p: ExternalProfile, t: ExternalTemplateCode): CSSProperties {
     "--cx-h-footer": `${p.show.branding ? p.bands.footer : 0}fr`,
   };
   const style = v as CSSProperties;
-  if (false && t && p.pageImage) Object.assign(style, { backgroundImage: `linear-gradient(color-mix(in srgb, ${p.pageColor} ${100 - p.pageOpacity}%, transparent), color-mix(in srgb, ${p.pageColor} ${100 - p.pageOpacity}%, transparent)), url(${p.pageImage})`, backgroundSize: p.pageZoom === 100 ? "cover" : `cover, ${p.pageZoom}%`, backgroundPosition: `${p.pageFocusX}% ${p.pageFocusY}%`, backgroundRepeat: "no-repeat" });
   return style;
 }
 
@@ -134,8 +133,6 @@ function Banner({ vm, p, presentation, template }: { vm: ExternalViewModel; p: E
         </div>
         <div className="cx-banner-dir">
           {right.length > 0 && <div className="cx-logos">{right.map((l) => <ExtLogo key={l.id} l={l} inherited={id.logos} />)}</div>}
-          {false && p.show.slogan && p.slogan && (
-            <p className="cx-slogan">{p.slogan}<svg viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden><path d="M2 9 C 50 2, 120 14, 198 5" /><path d="M10 12 C 70 7, 130 13, 190 9" /></svg></p>)}
         </div>
       </div>
     </header>
@@ -595,7 +592,6 @@ export function FreeSheet({ vm, p, presentation, template, selected, onSelect, o
   const logos = p.logos.filter((l) => !l.hidden);
   return (
     <Sheet className={`cf-livre ${foto ? "cf-fotografico" : "cf-quadro"} ${cards ? "cf-panoramico" : "cf-mosaico"}`} p={p} template={template} vm={vm}>
-      {false && !!f.photo.page && <div className="cf-foto cf-foto-pagina" aria-hidden style={{ position: "absolute", inset: 0, ...adjustedBg(f.photo.page ?? "", f.photo.pageAdj) }} />}
       {topImg && f.photo.topHmm > 0 && <div className="cf-foto cf-foto-topo" aria-hidden style={{ height: mm(f.photo.topHmm), ...adjustedBg(topImg, f.photo.topAdj) }} />}
       {f.photo.bottom && f.photo.bottomHmm > 0 && <div className="cf-foto cf-foto-rodape" aria-hidden style={{ height: mm(f.photo.bottomHmm), ...adjustedBg(f.photo.bottom, f.photo.bottomAdj) }} />}
       {f.photo.veilStrength > 0 && <div className="cf-veu" aria-hidden style={{ background: `linear-gradient(to bottom, transparent 0mm, transparent 45mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) 55mm, color-mix(in srgb, ${f.photo.veil} ${f.photo.veilStrength}%, transparent) ${SHEET_H - Math.max(8, f.photo.bottomHmm)}mm, transparent ${SHEET_H}mm)` }} />}

@@ -105,8 +105,8 @@ export function formatDateTime(value: string | null | undefined, opts: { textual
   if (!value) return "";
   const m = /^(\d{4}-\d{2}-\d{2})[T ](\d{2}):(\d{2})/.exec(value);
   if (!m) return formatAcademicDate(value);
-  let date = m[1]!;
-  let hh = Number(m[2]);
+  const date = m[1]!;
+  const hh = Number(m[2]);
   const mm = m[3]!;
   if (/(Z|[+-]\d{2}:?\d{2})$/.test(value)) {
     // NDATE.1: Intl com America/Sao_Paulo respeita o horário de verão histórico

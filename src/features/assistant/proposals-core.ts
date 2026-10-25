@@ -5,7 +5,7 @@
 import { z } from "zod";
 import { sanitizeRetrieved, type UserContext } from "./assistant-core";
 
-const id = z.string().trim().min(1).max(120).regex(/^[A-Za-z0-9:_.\-]+$/);
+const id = z.string().trim().min(1).max(120).regex(/^[A-Za-z0-9:_.-]+$/);
 const text = (max: number) => z.string().trim().min(1).max(max);
 const hex64 = z.string().regex(/^[0-9a-f]{64}$/);
 
