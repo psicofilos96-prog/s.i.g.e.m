@@ -14,7 +14,7 @@
     "test:watch": "vitest",
     "audit:curriculum-source": "node scripts/validate-cme-3-2026-matrix-source.mjs",
     "test:invariants": "vitest run src/test/invariants",
-    "test:deep": "SIGEM_DEEP=1 vitest run src/test/invariants",
+    "test:deep": "node scripts/test-deep.mjs",
     "invariants:freeze-migrations": "node scripts/freeze-migration-hashes.mjs",
     "check:migrations": "node scripts/check-migrations.mjs",
     "release:report": "node scripts/release-report.mjs",
