@@ -164,7 +164,7 @@ describe("aba Logos no editor de personalização", () => {
     fireEvent.click(screen.getByRole("button", { name: /salvar personaliza/i }));
     expect(onSave).toHaveBeenCalled();
     const [layout] = onSave.mock.calls[0]!;
-    expect((layout as any)?.logos?.length).toBeGreaterThan(0);
+    expect(layout?.logos?.length).toBeGreaterThan(0);
   });
 });
 

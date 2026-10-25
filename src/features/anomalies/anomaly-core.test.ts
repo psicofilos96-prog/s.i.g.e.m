@@ -35,7 +35,8 @@ describe("detecção assistida de anomalias", () => {
   });
   it("drift gradual não dispara; salto dispara", () => {
     const drift = Array.from({ length: 20 }, (_, i) => 100 + i * 3);
-    expect(detect(s(drift)).state === "verificado" && (detect(s(drift)) as any).signals.length).toBe(0);
+    const driftResult = detect(s(drift));
+    expect(driftResult.state === "verificado" ? driftResult.signals.length : -1).toBe(0);
     const o = detect(s([...drift, 400]));
     expect(o.state === "verificado" && o.signals.length).toBe(1);
   });
