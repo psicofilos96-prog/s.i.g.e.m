@@ -107,7 +107,7 @@ describe("14.10.6–8 conferência, oficialização e correção", () => {
 describe("14.10 garantias no banco e no código (inspeção)", () => {
   const sql = readdirSync("supabase/migrations").map((f) => readFileSync(`supabase/migrations/${f}`, "utf8")).join("\n");
   const m = sql.slice(sql.indexOf("CREATE TABLE public.map_competence_rules"));
-  const code = ["map-domain.ts", "statistical-map.functions.ts", "statistical-map-page.tsx"].map((f) => readFileSync(`src/features/statistical-map/${f}`, "utf8")).join("\n");
+  const code = ["map-domain.ts", "statistical-map.functions.ts", "statistical-map-page.tsx"].map((f) => readFileSync(`src/features/statistical-map/${f}`, "utf8").replace(/\r\n/g, "\n")).join("\n");
   it("abertura idempotente e única por escola + competência", () => {
     expect(m).toMatch(/UNIQUE \(school_id, competence_year, competence_month\)/);
     expect(m).toMatch(/IF _id IS NOT NULL THEN RETURN _id; END IF; -- idempotente/);
@@ -133,7 +133,7 @@ describe("14.10 garantias no banco e no código (inspeção)", () => {
   it("sem fallback para demonstração e sem campo de digitação de totais ou lacunas", () => {
     expect(code).not.toMatch(/fixture|laborat|demonstra/i);
     // N4.3: digitação só no ajuste auditável (célula declarada ajustável pela regra, motivo obrigatório).
-    const outsideAdjust = code.replace(/function AdjustBox[\s\S]*?\n}\n/, "");
+    const outsideAdjust = code.replace(/function AdjustBox[\s\S]*?\r?\n}\r?\n/, "");
     expect(outsideAdjust).not.toMatch(/<(input|Input)\b/);
     expect(code).toMatch(/function AdjustBox/);
   });

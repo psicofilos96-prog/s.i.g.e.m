@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { sniffMime, checkUpload, orphanReport } from "./file-guard";
 import { SIGNED_URL_TTL_SECONDS } from "./data-inventory";
 const PNG = new Uint8Array([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a,0]);
@@ -23,7 +23,8 @@ describe("NFILE.1", () => {
   });
   it("URL assinada curta e nenhum URL público", () => {
     expect(SIGNED_URL_TTL_SECONDS).toBeLessThanOrEqual(300);
-    expect(execSync("rg -l -g '!*.test.ts' getPublicUrl src || true").toString().trim()).toBe("");
+    const rg = spawnSync("rg", ["-l", "-g", "!*.test.ts", "getPublicUrl", "src"], { encoding: "utf8" });
+    expect(rg.status === 1 ? "" : `${rg.stdout ?? ""}${rg.stderr ?? ""}`.trim()).toBe("");
     expect(readFileSync("src/features/privacy/data-inventory.ts", "utf8")).toContain("SIGNED_URL_TTL_SECONDS");
   });
 });

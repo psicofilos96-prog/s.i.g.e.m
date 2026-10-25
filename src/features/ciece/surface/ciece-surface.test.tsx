@@ -1,9 +1,9 @@
 /** 14.4L — Superfícies do CIECE. */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { CieceWorkspace } from "./ciece-workspace";
 import { LAB_CATALOG, LAB_CLASS_A, LAB_CLASS_B, createLaboratorySource, laboratoryAvailable } from "./ciece-laboratory";
 import { STATE_PRESENTATION, formatValue, groupStateId } from "./ciece-presentation";
@@ -23,6 +23,7 @@ function mount(catalog: CieceCatalog = LAB_CATALOG) {
   return { source, ...utils };
 }
 const card = (name: string) => screen.getByRole("article", { name });
+afterEach(() => cleanup());
 
 describe("14.4 — fronteira e ausência de cálculo", () => {
   it("1–3. nenhuma tela usa fatos, motor ou carregador; consulta institucional passa por queryCieceIndicator", () => {

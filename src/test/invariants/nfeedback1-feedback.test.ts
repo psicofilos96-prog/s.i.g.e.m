@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-const rg = (p: string) => execSync(`rg -nP '${p}' --glob '*.tsx' --glob '!*.test.*' src/features src/routes src/components || true`).toString().trim();
+const rg = (p: string) => {
+  const r = spawnSync("rg", ["-nP", p, "--glob", "*.tsx", "--glob", "!*.test.*", "src/features", "src/routes", "src/components"], { encoding: "utf8" });
+  return r.status === 1 ? "" : `${r.stdout ?? ""}${r.stderr ?? ""}`.trim();
+};
 
 describe("NFEEDBACK.1 — retorno após ações", () => {
   it("mensagem condicional de resultado/erro é anunciada a leitores de tela", () => {

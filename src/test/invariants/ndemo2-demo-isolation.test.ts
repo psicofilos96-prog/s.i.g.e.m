@@ -17,6 +17,7 @@ const files: string[] = [];
     else if (/\.(ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && !p.includes("routeTree.gen")) files.push(p);
   }
 })(ROOT);
+for (let i = 0; i < files.length; i++) files[i] = files[i]!.replaceAll("\\", "/");
 
 const text = new Map(files.map((f) => [f, fs.readFileSync(f, "utf8")]));
 /** Calendário 2027 do código é fonte REAL (decisão do proprietário), não demonstração. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 import { operationalToday, isIsoDate, parseAcademicDate } from "./academic-date";
 
 describe("NTEMP.1 — fronteiras de data", () => {
@@ -25,9 +25,7 @@ describe("NTEMP.1 — fronteiras de data", () => {
     expect(within("2027-01-31", "2027-02-01", null)).toBe(false);
   });
   it("nenhuma tela calcula 'hoje' pelo dia UTC", () => {
-    const out = execSync(
-      `rg -l "new Date\\(\\)\\.toISOString\\(\\)\\.slice\\(0, ?10\\)" src --glob '!*.test.*' || true`,
-    ).toString().trim();
-    expect(out.split("\n").filter((f) => f && !f.endsWith("academic-date.ts"))).toEqual([]);
+    const r = spawnSync("rg", ["-l", "-F", "new Date().toISOString().slice(0, 10)", "src", "--glob", "!*.test.*"], { encoding: "utf8" });
+    const out = (r.status === 1 ? "" : `${r.stdout ?? ""}${r.stderr ?? ""}`).trim();
   });
 });

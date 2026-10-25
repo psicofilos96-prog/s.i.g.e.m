@@ -25,6 +25,10 @@ function gitCommit(): string {
   }
 }
 
+function createMcpPlugin() {
+  // The current MCP plugin compares POSIX Vite roots with Windows paths during build.
+  return process.platform === "win32" ? null : mcpPlugin();
+}
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
@@ -32,7 +36,7 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    plugins: [mcpPlugin()],
+    plugins: [createMcpPlugin()].filter(Boolean),
     define: {
       __SIGEM_APP_VERSION__: JSON.stringify(appVersion()),
       __SIGEM_COMMIT__: JSON.stringify(gitCommit()),

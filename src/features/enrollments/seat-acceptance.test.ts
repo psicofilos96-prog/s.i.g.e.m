@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 
-const sql = readFileSync("drizzle/migrations/0472_enr19_confirmation_validation.sql", "utf8");
+const sql = readFileSync("drizzle/migrations/0472_enr19_confirmation_validation.sql", "utf8").replace(/\r\n/g, "\n");
 const val = sql.slice(sql.indexOf("FUNCTION public.record_enr_admin_validation"), sql.indexOf("FUNCTION public.enr_link_formalized_enrollment"));
 const link = sql.slice(sql.indexOf("FUNCTION public.enr_link_formalized_enrollment"));
 

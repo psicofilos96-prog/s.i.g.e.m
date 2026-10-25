@@ -18,7 +18,7 @@ const SAFE_ENV = Object.fromEntries(Object.entries(process.env).filter(([k]) =>
   !/SERVICE_ROLE|SECRET|PASSWORD|PGPASSWORD|TOKEN|PRIVATE|LOVABLE_BROWSER_/i.test(k)));
 
 function run(cmd, args, extraEnv = {}) {
-  const r = spawnSync(cmd, args, { encoding: "utf8", env: { ...SAFE_ENV, ...extraEnv }, maxBuffer: 64 * 1024 * 1024, timeout: 20 * 60_000 });
+  const r = spawnSync(cmd, args, { shell: process.platform === "win32", encoding: "utf8", env: { ...SAFE_ENV, ...extraEnv }, maxBuffer: 64 * 1024 * 1024, timeout: 20 * 60_000 });
   const out = `${r.stdout ?? ""}${r.stderr ?? ""}`.replace(/\x1b\[[0-9;]*m/g, "");
   return { ok: r.status === 0, out };
 }
@@ -51,9 +51,9 @@ const STEPS = [
   { id: "migrations", title: "Integridade de migrations", what: "Migration congelada não foi editada; journal = arquivos; novas listadas para congelar.",
     fn: () => { const r = run("node", ["scripts/check-migrations.mjs"]); return { ok: r.ok, note: tail(r.out, 2) }; } },
   { id: "tipos", title: "Tipos (TypeScript)", what: "O projeto compila sem erro de tipo.",
-    fn: () => { const r = run("npx", ["--no-install", "tsgo", "--noEmit", "-p", "."]); const n = (r.out.match(/error TS/g) ?? []).length; return { ok: r.ok, note: r.ok ? "0 erros" : `${n} erro(s)\n${tail(r.out, 8)}` }; } },
+    fn: () => { const r = run("node", ["node_modules/@typescript/native-preview/bin/tsgo", "--noEmit", "-p", "."]); const n = (r.out.match(/error TS/g) ?? []).length; return { ok: r.ok, note: r.ok ? "0 erros" : `${n} erro(s)\n${tail(r.out, 8)}` }; } },
   { id: "testes", title: "Testes (suíte completa)", what: "Regras, modelos, telas, vocabulário, a11y por componente, snapshots e invariantes rápidas.",
-    fn: () => { const r = run("npx", ["vitest", "run"]); return { ok: r.ok, note: pick(r.out, /Test Files|Tests |FAIL/) }; } },
+    fn: () => { const r = run("npx", ["vitest", "run", "--no-file-parallelism"]); return { ok: r.ok, note: pick(r.out, /Test Files|Tests |FAIL/) }; } },
   { id: "profundas", title: "Invariantes profundas", what: "Verificações arquiteturais caras (SIGEM_DEEP=1): writers, grants, migrations.",
     fn: () => { const r = run("npx", ["vitest", "run", "src/test/invariants"], { SIGEM_DEEP: "1" }); return { ok: r.ok, note: pick(r.out, /Test Files|Tests |FAIL/) }; } },
   { id: "acessibilidade", title: "Acessibilidade", what: "Componentes compartilhados (nomes acessíveis, rótulos, foco) e vocabulário pt-BR.",

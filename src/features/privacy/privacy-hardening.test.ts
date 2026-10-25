@@ -6,7 +6,7 @@ import { BROWSER_STORAGE_ALLOWLIST, DATA_INVENTORY, LIFECYCLE_UNDECIDED, PII_COL
 function walk(d: string): string[] {
   return readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
 }
-const src = walk("src").filter((f) => /\.(ts|tsx)$/.test(f) && !/\.test\./.test(f) && !f.startsWith("src/integrations/"));
+const src = walk("src").map((f) => f.replaceAll("\\", "/")).filter((f) => /\.(ts|tsx)$/.test(f) && !/\.test\./.test(f) && !f.startsWith("src/integrations/"));
 
 describe("AS — privacidade", () => {
   it("toda tabela com coluna de PII/texto livre está inventariada", () => {

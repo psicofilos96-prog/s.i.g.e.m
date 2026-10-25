@@ -37,7 +37,7 @@ describe("NTEST.1 — cenários por estação (camada estática)", () => {
 
 describe("NTEST.1 — o harness nunca entra no app", () => {
   const walk = (d: string): string[] => readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : [p]; });
-  const app = walk("src").filter((p) => /\.(ts|tsx)$/.test(p) && !/\.test\.|src\/test\//.test(p));
+  const app = walk("src").map((p) => p.replaceAll("\\", "/")).filter((p) => /\.(ts|tsx)$/.test(p) && !/\.test\.|src\/test\//.test(p));
   it("nenhum código do app importa harness/fixtures", () =>
     expect(app.filter((p) => /harness-gate|bo-fixture|test\/harness/.test(readFileSync(p, "utf8")))).toEqual([]));
   it("scripts de harness não contêm senha literal", () => {

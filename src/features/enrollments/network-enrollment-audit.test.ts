@@ -2,7 +2,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { CANONICAL_ENTITIES, FORBIDDEN_DUPLICATES, NET_CRITERIA, NET_SECTIONS, netAuditProblems, netSummary } from "./network-enrollment-audit";
 
-const types = readFileSync("src/integrations/supabase/types.ts", "utf8");
+const types = readFileSync("src/integrations/supabase/types.ts", "utf8").replace(/\r\n/g, "\n");
 const tableKnown = (t: string) => new RegExp(`\\n\\s{6}${t}: \\{\\n\\s+Row:`).test(types);
 
 describe("Rede/Matrículas/Vagas L01 — auditoria", () => {

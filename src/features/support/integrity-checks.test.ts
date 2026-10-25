@@ -33,7 +33,7 @@ describe("AW — integridade (fixtures sintéticas)", () => {
   it("repositório real: manifesto congelado sem drift", () => {
     const manifest = JSON.parse(readFileSync("src/test/invariants/migration-hashes.json", "utf8")) as Record<string, string>;
     const actual: Record<string, string> = {};
-    for (const f of Object.keys(manifest)) { try { actual[f] = createHash("sha256").update(readFileSync(f)).digest("hex"); } catch { /* ausente */ } }
+    for (const f of Object.keys(manifest)) { try { actual[f] = createHash("sha256").update(readFileSync(f, "utf8").replace(/\r\n/g, "\n")).digest("hex"); } catch { /* ausente */ } }
     expect(Object.keys(manifest).length).toBeGreaterThan(100);
     expect(checkMigrationDrift(manifest, actual)).toEqual([]);
   });

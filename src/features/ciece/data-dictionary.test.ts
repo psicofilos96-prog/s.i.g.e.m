@@ -4,7 +4,7 @@ import { dictionary, indicatorCatalog, type SchemaColumn } from "./data-dictiona
 
 /** Lê colunas reais do schema gerado (bloco Row de cada tabela). */
 function schemaFromTypes(): SchemaColumn[] {
-  const src = readFileSync("src/integrations/supabase/types.ts", "utf8");
+  const src = readFileSync("src/integrations/supabase/types.ts", "utf8").replace(/\r\n/g, "\n");
   const out: SchemaColumn[] = [];
   for (const m of src.matchAll(/\n      (\w+): \{\n        Row: \{\n([\s\S]*?)\n        \}/g)) {
     for (const c of m[2]!.matchAll(/^\s+(\w+): ([^\n]+)$/gm)) out.push({ table: m[1]!, column: c[1]!, type: c[2]!.replace(/ \| null$/, ""), nullable: c[2]!.includes("| null") });

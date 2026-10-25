@@ -3,8 +3,9 @@
 // Uso: node scripts/docs-index.mjs [--check]  (--check falha se o índice estiver desatualizado ou houver link quebrado)
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(dirname(new URL(import.meta.url).pathname), "..");
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const DOCS = join(ROOT, "docs");
 const OUT = join(DOCS, "indice-tecnico-documentacao.md");
 
@@ -92,7 +93,7 @@ function build() {
   return { text: L.join("\n"), broken };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === resolve(new URL(import.meta.url).pathname)) {
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const { text, broken } = build();
   if (process.argv.includes("--check")) {
     const cur = existsSync(OUT) ? readFileSync(OUT, "utf8") : "";

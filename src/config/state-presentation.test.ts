@@ -37,7 +37,7 @@ describe("NSTATE.1 — rótulo e cor do estado canônico", () => {
     expect(reviewState([e("aprovado", "v1")], "v2")).toBe("aprovado-versao-anterior");
   });
   it("Solicitação: ações da tela espelham as transições do banco (0183)", () => {
-    const sql = readFileSync("drizzle/migrations/0183_nae2_meal_orders_authorization_consolidation.sql", "utf8");
+    const sql = readFileSync("drizzle/migrations/0183_nae2_meal_orders_authorization_consolidation.sql", "utf8").replace(/\r\n/g, "\n");
     expect(sql).toContain("_action = 'analise' THEN\n    IF head.status <> 'submetido'");
     expect(sql).toContain("_action = 'autorizacao' AND head.status NOT IN ('submetido','em-analise')");
     expect(sql).toContain("_action = 'retificacao' AND head.status NOT IN ('autorizado-total','autorizado-parcial','retificado')");
