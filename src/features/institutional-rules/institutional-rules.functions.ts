@@ -18,7 +18,7 @@ function fail(error: { message?: string } | null) {
 
 export const listRuleVersions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ domain: Domain, on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }).parse(d))
+  .validator((d) => z.object({ domain: Domain, on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }).parse(d))
   .handler(async ({ data, context }): Promise<DomainRead> => {
     const db = context.supabase as unknown as Db;
     const { data: rows, error } = await db.rpc("institutional_rule_versions_at", { _domain: data.domain, _on: data.on, _known_at: new Date().toISOString() });
@@ -30,7 +30,7 @@ export const listRuleVersions = createServerFn({ method: "POST" })
 
 export const previewRuleDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ domain: Domain, payload: Payload, validFrom: Day, validUntil: Day }).parse(d))
+  .validator((d) => z.object({ domain: Domain, payload: Payload, validFrom: Day, validUntil: Day }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const r = await db.rpc("preview_institutional_rule_draft", { _domain: data.domain, _payload: data.payload, _valid_from: data.validFrom, _valid_until: data.validUntil });
@@ -40,7 +40,7 @@ export const previewRuleDraft = createServerFn({ method: "POST" })
 
 export const recordRuleDraft = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     domain: Domain, logicalId: z.string().min(3).max(80), expectedVersion: z.number().int().min(0),
     validFrom: Day, validUntil: Day, payload: Payload, reason: z.string().trim().min(1).max(2000), sourceRef: z.string().trim().max(500).nullable(),
   }).parse(d))
@@ -55,7 +55,7 @@ export const recordRuleDraft = createServerFn({ method: "POST" })
 
 export const homologateRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ domain: Domain, logicalId: z.string().min(3).max(80), version: z.number().int().min(1),
+  .validator((d) => z.object({ domain: Domain, logicalId: z.string().min(3).max(80), version: z.number().int().min(1),
     reason: z.string().trim().min(1).max(2000), sourceRef: z.string().trim().max(500).nullable() }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;

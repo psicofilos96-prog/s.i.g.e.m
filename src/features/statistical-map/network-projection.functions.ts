@@ -29,7 +29,7 @@ async function rows<T>(p: Promise<{ data: unknown; error: unknown }>): Promise<T
 
 export const getNetworkProjection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Input.parse(d))
+  .validator((d) => Input.parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const w = monthWindow(data.year, data.month, data.knownAt ?? null, data.referenceDate);

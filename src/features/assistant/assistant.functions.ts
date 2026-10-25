@@ -5,7 +5,7 @@ import { z } from "zod";
 // Assistente read-only: lê só como o próprio usuário (RLS) e só pelos readers do broker.
 export const askAssistant = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     question: z.string().trim().min(2).max(500),
     route: z.string().max(200).regex(/^\//),
     classId: z.string().max(80).nullable(),

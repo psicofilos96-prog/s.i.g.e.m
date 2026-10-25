@@ -14,7 +14,7 @@ type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unkno
  */
 export const uploadInclusionAttachment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     recordLogicalId: z.string().uuid(), classification: z.enum(["pedagogico", "clinico"]),
     purpose: z.string().trim().min(1).max(300), mediaType: z.string().max(100), base64: z.string().max(Math.ceil(MAX * 1.37)),
   }).parse(d))
@@ -43,7 +43,7 @@ export const uploadInclusionAttachment = createServerFn({ method: "POST" })
 
 export const openInclusionAttachment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ attachmentId: z.string().uuid(), purpose: z.string().trim().min(1).max(300) }).parse(d))
+  .validator((d) => z.object({ attachmentId: z.string().uuid(), purpose: z.string().trim().min(1).max(300) }).parse(d))
   .handler(async ({ data, context }) => {
     const rpc = context.supabase.rpc as unknown as Rpc;
     const { data: path, error } = await rpc("authorize_inclusion_attachment_access", { _attachment: data.attachmentId, _purpose: data.purpose });

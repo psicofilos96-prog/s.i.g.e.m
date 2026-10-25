@@ -5,7 +5,7 @@ import { z } from "zod";
 // Health check no servidor: lê só a presença do segredo pelo nome, nunca o devolve; registra execução minimizada.
 export const checkInstitutionalIntegration = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ key: z.string().regex(/^[a-z0-9][a-z0-9-]{2,62}$/) }).parse(d))
+  .validator((d) => z.object({ key: z.string().regex(/^[a-z0-9][a-z0-9-]{2,62}$/) }).parse(d))
   .handler(async ({ data, context }) => {
     const sb = context.supabase as any;
     const { data: ok } = await sb.rpc("has_network_capability", { _capability: "administrar-integracoes" });

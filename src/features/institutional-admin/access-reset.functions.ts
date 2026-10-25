@@ -9,7 +9,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 export const resetAccessPasswords = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => d)
+  .validator((d: unknown) => d)
   .handler(async () => ({
     ok: false as const,
     error: "A redefinição com uma mesma senha para várias contas foi desativada. Gere um código individual de nova senha para cada conta.",

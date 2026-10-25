@@ -28,7 +28,7 @@ const Input = z.object({
 
 export const queryCieceIndicator = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Input.parse(d))
+  .validator((d) => Input.parse(d))
   .handler(async ({ data: raw, context }) => {
     const data = raw as AnalyticQuery & { filters: Record<string, string | number | boolean> };
     const db = context.supabase;

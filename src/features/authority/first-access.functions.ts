@@ -19,7 +19,7 @@ const MESSAGES: Record<string, string> = {
 };
 
 export const firstAccessSetPassword = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => input.parse(d))
+  .validator((d: unknown) => input.parse(d))
   .handler(async ({ data }): Promise<{ ok: true } | { ok: false; message: string }> => {
     const p = passwordProblem(data.password, data.password2);
     if (p) return { ok: false, message: p };

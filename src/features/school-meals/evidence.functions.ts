@@ -14,7 +14,7 @@ type Rpc = (fn: string, a: Record<string, unknown>) => PromiseLike<{ data: unkno
  */
 export const uploadMealEvidence = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     targetKind: z.enum(["recebimento", "nao-conformidade", "documento-fiscal"]), targetLogicalId: z.string().uuid(),
     replaces: z.object({ logicalId: z.string().uuid(), version: z.number().int().min(1), reason: z.string().trim().min(1).max(300) }).nullable(),
     label: z.string().max(120), mediaType: z.string().max(100), base64: z.string().max(Math.ceil(EVIDENCE_MAX_BYTES * 1.37)),
@@ -43,7 +43,7 @@ export const uploadMealEvidence = createServerFn({ method: "POST" })
 
 export const revokeMealEvidence = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ logicalId: z.string().uuid(), version: z.number().int().min(1), reason: z.string().trim().min(1).max(300) }).parse(d))
+  .validator((d) => z.object({ logicalId: z.string().uuid(), version: z.number().int().min(1), reason: z.string().trim().min(1).max(300) }).parse(d))
   .handler(async ({ data, context }) => {
     const rpc = context.supabase.rpc as unknown as Rpc;
     const { error } = await rpc("record_meal_evidence", { _logical: data.logicalId, _expected_version: data.version, _event: "revogacao",
@@ -54,7 +54,7 @@ export const revokeMealEvidence = createServerFn({ method: "POST" })
 
 export const openMealEvidence = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const rpc = context.supabase.rpc as unknown as Rpc;
     const { data: path, error } = await rpc("authorize_meal_evidence_access", { _id: data.id });

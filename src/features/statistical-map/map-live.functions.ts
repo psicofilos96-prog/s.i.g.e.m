@@ -9,7 +9,7 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 /** Lê com a sessão (leitores do Mapa conferem a capacidade na escola) e devolve só dados minimizados. */
 export const getLiveMapData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Input.parse(d))
+  .validator((d) => Input.parse(d))
   .handler(async ({ data, context }): Promise<LiveMapData> => {
     const db = context.supabase as any;
     const from = `${data.year}-${String(data.month).padStart(2, "0")}-01`;
@@ -61,7 +61,7 @@ export const getLiveMapData = createServerFn({ method: "POST" })
 /** Congela as movimentações do mês: o que for registrado depois entra no mês seguinte, com observação. */
 export const freezeLiveMap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Input.extend({ note: z.string().max(500).optional() }).parse(d))
+  .validator((d) => Input.extend({ note: z.string().max(500).optional() }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: r, error } = await (context.supabase as any).rpc("freeze_statistical_map", { _school: data.schoolId, _year: data.year, _month: data.month, _note: data.note ?? null });
     if (error) throw new Error(/capacidade/.test(error.message) ? "Seu acesso não permite congelar o mapa desta escola." : "Não foi possível congelar agora.");

@@ -11,7 +11,7 @@ import { CODE_TTL_HOURS, DECISION_TEXT, decideCode, generateLinkToken, hashCode,
  */
 export const issueActivationCodes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userIds: z.array(z.string().uuid()).min(1).max(10), purpose: z.enum(["ativacao", "recuperacao"]) }).parse(d))
+  .validator((d) => z.object({ userIds: z.array(z.string().uuid()).min(1).max(10), purpose: z.enum(["ativacao", "recuperacao"]) }).parse(d))
   .handler(async ({ data, context }) => {
     const ids = [...new Set(data.userIds)];
     const auth = await context.supabase.rpc("access_center_authorize_reset", { _users: ids });
@@ -39,7 +39,7 @@ export const issueActivationCodes = createServerFn({ method: "POST" })
 
 /** Ativação/recuperação pública pelo link individual: o convite identifica a conta; nada é digitado além da senha. */
 export const redeemActivationLink = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ token: z.string().min(20).max(80), password: z.string().max(200), confirm: z.string().max(200) }).parse(d))
+  .validator((d) => z.object({ token: z.string().min(20).max(80), password: z.string().max(200), confirm: z.string().max(200) }).parse(d))
   .handler(async ({ data }) => {
     const pw = passwordIssue(data.password, data.confirm);
     if (pw) return { ok: false as const, error: pw };

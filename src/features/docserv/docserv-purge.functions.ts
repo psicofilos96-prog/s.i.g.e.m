@@ -9,7 +9,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  */
 export const purgeDocservDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ document: z.string().uuid(), reason: z.string().trim().min(5).max(500) }).parse(d))
+  .validator((d: unknown) => z.object({ document: z.string().uuid(), reason: z.string().trim().min(5).max(500) }).parse(d))
   .handler(async ({ data, context }) => {
     const { data: paths, error } = await context.supabase.rpc("docserv_authorize_purge", { _document: data.document, _reason: data.reason });
     if (error) return { ok: false as const, error: error.message.replace(/^.*docserv:/, "docserv:").slice(0, 80) };

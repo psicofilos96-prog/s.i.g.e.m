@@ -305,12 +305,12 @@ export const listMapSchools = createServerFn({ method: "POST" })
 
 export const getStatisticalMap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.parse(d))
+  .validator((d) => Competence.parse(d))
   .handler(async ({ data, context }) => view(await loadContext(context.supabase as unknown as Db, data)));
 
 export const openStatisticalMap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.parse(d))
+  .validator((d) => Competence.parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     fail((await db.rpc("open_statistical_map", { _school: data.schoolId, _year: data.year, _month: data.month })).error);
@@ -319,7 +319,7 @@ export const openStatisticalMap = createServerFn({ method: "POST" })
 
 export const saveMapObservations = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.extend({ text: z.string().max(4000) }).parse(d))
+  .validator((d) => Competence.extend({ text: z.string().max(4000) }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const ctx = await loadContext(db, data);
@@ -330,7 +330,7 @@ export const saveMapObservations = createServerFn({ method: "POST" })
 
 export const conferStatisticalMap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.parse(d))
+  .validator((d) => Competence.parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const ctx = await loadContext(db, data);
@@ -344,7 +344,7 @@ export const conferStatisticalMap = createServerFn({ method: "POST" })
 
 export const officializeStatisticalMap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.extend({ expectedFingerprint: z.string().min(1) }).parse(d))
+  .validator((d) => Competence.extend({ expectedFingerprint: z.string().min(1) }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const ctx = await loadContext(db, data);
@@ -366,7 +366,7 @@ export const officializeStatisticalMap = createServerFn({ method: "POST" })
 /** Abertura formal da correção: registra motivo, autor e data; não altera a versão oficial vigente. */
 export const openMapCorrectionFn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.extend({ reason: z.string().trim().min(1).max(2000) }).parse(d))
+  .validator((d) => Competence.extend({ reason: z.string().trim().min(1).max(2000) }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const ctx = await loadContext(db, data);
@@ -395,7 +395,7 @@ export const listMapRules = createServerFn({ method: "POST" })
 
 export const draftMapRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => RuleDraft.parse(d))
+  .validator((d) => RuleDraft.parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const r = await db.rpc("record_map_competence_rule_draft", { _id: data.id, _expected_version: data.expectedVersion, _valid_from: data.validFrom, _valid_until: data.validUntil, _definition: data.definition });
@@ -405,7 +405,7 @@ export const draftMapRule = createServerFn({ method: "POST" })
 
 export const homologateMapRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().min(1).max(80), version: z.number().int().min(1), sourceRef: z.string().trim().max(500).nullable() }).parse(d))
+  .validator((d) => z.object({ id: z.string().min(1).max(80), version: z.number().int().min(1), sourceRef: z.string().trim().max(500).nullable() }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     fail((await db.rpc("homologate_map_competence_rule", { _id: data.id, _version: data.version, _source_ref: data.sourceRef || null })).error);
@@ -415,7 +415,7 @@ export const homologateMapRule = createServerFn({ method: "POST" })
 /** N4.3 — Devolução própria da Estatística (≠ retificação pós-aprovação). */
 export const returnStatisticalMap = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.extend({ expectedConferenceId: z.string().uuid(), reason: z.string().trim().min(1).max(2000) }).parse(d))
+  .validator((d) => Competence.extend({ expectedConferenceId: z.string().uuid(), reason: z.string().trim().min(1).max(2000) }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const m = await db.from("statistical_maps").select("id").eq("school_id", data.schoolId).eq("competence_year", data.year).eq("competence_month", data.month).maybeSingle();
@@ -427,7 +427,7 @@ export const returnStatisticalMap = createServerFn({ method: "POST" })
 /** N4.3 — Ajuste auditável (ou anulação) de célula declarada ajustável pela regra. */
 export const adjustMapCell = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => Competence.extend({ cellId: z.string().min(1).max(120), expectedHeadId: z.string().uuid().nullable(), adjusted: z.union([z.number(), z.string().max(500)]).nullable(), reason: z.string().trim().min(1).max(2000), annul: z.boolean() }).parse(d))
+  .validator((d) => Competence.extend({ cellId: z.string().min(1).max(120), expectedHeadId: z.string().uuid().nullable(), adjusted: z.union([z.number(), z.string().max(500)]).nullable(), reason: z.string().trim().min(1).max(2000), annul: z.boolean() }).parse(d))
   .handler(async ({ data, context }) => {
     const db = context.supabase as unknown as Db;
     const ctx = await loadContext(db, data);

@@ -16,7 +16,7 @@ const createSchema = z.object({
 
 export const createInstitutionalAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => createSchema.parse(d))
+  .validator((d) => createSchema.parse(d))
   .handler(async ({ data, context }) => {
     const login = formInstitutionalLogin(data.basis, data.value);
     if (!login) return { ok: false as const, error: "Login inválido pela regra oficial." };
@@ -43,7 +43,7 @@ const resetSchema = z.object({ userId: z.string().uuid(), actRef: z.string().max
 
 export const resetInstitutionalCredential = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => resetSchema.parse(d))
+  .validator((d) => resetSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const auth = await supabaseAdmin.rpc("authorize_account_action", { _actor: context.userId, _user: data.userId });
@@ -66,7 +66,7 @@ const activatorSchema = z.object({ password: z.string().min(12).max(128) });
 
 export const createDesignatedActivatorAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => activatorSchema.parse(d))
+  .validator((d) => activatorSchema.parse(d))
   .handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // The first account must be requested by the existing, confirmed supervisory

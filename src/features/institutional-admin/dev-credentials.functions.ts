@@ -19,7 +19,7 @@ export const devCredentialToolStatus = createServerFn({ method: "GET" })
  */
 export const generateDevTemporaryCredentials = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ userIds: z.array(z.string().uuid()).min(1).max(DEV_TOOL_MAX), confirm: z.literal("GERAR") }).parse(d))
+  .validator((d) => z.object({ userIds: z.array(z.string().uuid()).min(1).max(DEV_TOOL_MAX), confirm: z.literal("GERAR") }).parse(d))
   .handler(async ({ data, context }) => {
     const gate = gateNow();
     if (!gate.enabled) return { ok: false as const, error: gate.reason };

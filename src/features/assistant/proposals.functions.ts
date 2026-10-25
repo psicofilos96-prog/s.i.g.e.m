@@ -11,7 +11,7 @@ async function userCtx(sb: any, route: string) {
 /** Gera proposta. NÃO grava nada; devolve prévia + impressão digital. */
 export const proposeAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ request: z.string().trim().min(3).max(800), route: z.string().max(200).regex(/^\//), schoolId: z.string().max(80).nullable() }).parse(d))
+  .validator((d) => z.object({ request: z.string().trim().min(3).max(800), route: z.string().max(200).regex(/^\//), schoolId: z.string().max(80).nullable() }).parse(d))
   .handler(async ({ data, context }) => {
     const core = await import("./proposals-core");
     const gate = core.classifyProposalRequest(data.request);
@@ -33,7 +33,7 @@ export const proposeAction = createServerFn({ method: "POST" })
 /** Confirmação humana: revalida schema, impressão digital e escopo; executa pelo writer canônico como o usuário. */
 export const confirmProposal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     proposalJson: z.string().max(12000),
     fingerprint: z.string().regex(/^[0-9a-f]{64}$/),
     decision: z.enum(["confirmar", "descartar"]),

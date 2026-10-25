@@ -39,7 +39,7 @@ export const listSectorLogins = createServerFn({ method: "POST" })
 
 export const setSectorPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ userId: z.string().uuid(), password: z.string().max(200), password2: z.string().max(200) }).parse(d))
+  .validator((d: unknown) => z.object({ userId: z.string().uuid(), password: z.string().max(200), password2: z.string().max(200) }).parse(d))
   .handler(async ({ data, context }): Promise<{ ok: boolean; message: string }> => {
     await assertAdmin(context);
     const p = passwordProblem(data.password, data.password2);
