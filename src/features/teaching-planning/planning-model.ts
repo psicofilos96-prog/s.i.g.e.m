@@ -6,6 +6,7 @@
  */
 export type PlanStatus = "rascunho" | "publicado" | "arquivado";
 export type PlanBlock = { kindValueId: string | null; heading: string; body: string };
+type JsonRecord = Record<string, unknown>;
 /** Ref normalizada pelo banco (0150): matriz guarda matrix_version_id; Y guarda edition_id; position_key = posição curricular explícita (multietapa). */
 export type CurricularRef =
   | { kind: "matrix-item"; item_key: string; matrix_version_id?: string; position_key?: string }
@@ -29,15 +30,22 @@ export const planHistory = (rows: readonly PlanVersion[], planId: string) => row
 
 export function parseBlocks(v: unknown): PlanBlock[] {
   if (!Array.isArray(v)) return [];
-  return v.filter((b) => b && typeof b === "object").map((b: any) => ({ kindValueId: typeof b.kindValueId === "string" ? b.kindValueId : null, heading: String(b.heading ?? ""), body: String(b.body ?? "") }));
+  return v.filter((b) => b && typeof b === "object").map((b) => {
+    const block = b as JsonRecord;
+    return { kindValueId: typeof block['kindValueId'] === "string" ? block['kindValueId'] : null, heading: String(block['heading'] ?? ""), body: String(block['body'] ?? "") };
+  });
 }
 export function parseRefs(v: unknown): CurricularRef[] {
   if (!Array.isArray(v)) return [];
   const opt = (k: string, x: unknown) => (typeof x === "string" && x ? { [k]: x } : {});
-  return v.flatMap((r: any): CurricularRef[] => r?.kind === "matrix-item" && typeof r.item_key === "string"
-      ? [{ kind: "matrix-item" as const, item_key: r.item_key, ...opt("matrix_version_id", r.matrix_version_id), ...opt("position_key", r.position_key) }]
-    : r?.kind === "reference-item" && typeof r.item_id === "string"
-      ? [{ kind: "reference-item" as const, item_id: r.item_id, ...opt("edition_id", r.edition_id), ...opt("position_key", r.position_key) }] : []);
+  return v.flatMap((value): CurricularRef[] => {
+    if (!value || typeof value !== "object") return [];
+    const r = value as JsonRecord;
+    return r['kind'] === "matrix-item" && typeof r['item_key'] === "string"
+      ? [{ kind: "matrix-item" as const, item_key: r['item_key'], ...opt("matrix_version_id", r['matrix_version_id']), ...opt("position_key", r['position_key']) }]
+    : r['kind'] === "reference-item" && typeof r['item_id'] === "string"
+      ? [{ kind: "reference-item" as const, item_id: r['item_id'], ...opt("edition_id", r['edition_id']), ...opt("position_key", r['position_key']) }] : [];
+  });
 }
 
 /** Filtros da tela do professor: turma, elemento (item_key da matriz), período oficial; vazio = sem filtro. */
