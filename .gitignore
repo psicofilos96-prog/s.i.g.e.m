@@ -35,3 +35,8 @@ dist-ssr
 # `.env` raiz é gerado pela plataforma e só pode conter valores públicos (guarda: src/test/invariants/env-file-public-only.test.ts).
 .env.*
 !.env.example
+
+# Credenciais locais
+.env
+.env.local
+.env.*.local
