@@ -1,11 +1,20 @@
 // NCFG.3 — dry-run determinístico (somente leitura). Uso: bun scripts/ncfg3/dryrun.ts /tmp/ncfg3/src.json /tmp/ncfg3/ids.json
 import { readFileSync } from "node:fs";
 import { catalogCandidates, classCandidates, FUTURE_IMPORT_SEQUENCE, journeyCandidates, planFingerprint, professionalCandidates, summarize } from "../../src/features/year-preparation/correspondence-dryrun";
-const src = JSON.parse(readFileSync(process.argv[2]!, "utf8"));
+type DryRunFile = {
+  sha256: string;
+  prof: Array<[unknown, unknown]>;
+  jorn: Array<[unknown, unknown, unknown, unknown]>;
+  turm: Array<[unknown, unknown]>;
+  etapa: unknown[];
+  componente: unknown[];
+};
+
+const src = JSON.parse(readFileSync(process.argv[2]!, "utf8")) as Record<string, DryRunFile>;
 const ids = JSON.parse(readFileSync(process.argv[3]!, "utf8")) as { schools: [string, string][]; persons: [string, string][] };
 const schools = new Map(ids.schools), persons = new Map(ids.persons);
 const files: Record<string, unknown> = {};
-for (const [f, d] of Object.entries<any>(src)) {
+for (const [f, d] of Object.entries(src)) {
   const ctx = { version: 1, sourceSha256: d.sha256, schools };
   const all = [
     ...professionalCandidates({ ...ctx, persons }, d.prof.map(([person, school]: string[]) => ({ person, school }))),
