@@ -28,7 +28,7 @@ export type DomainCoverage = { domain: CensusDomain; known: number; unknown: num
 export function domainCoverage(c: SnapshotContent): DomainCoverage[] {
   return CENSUS_DOMAINS.map((d) => {
     let known = 0, unknown = 0;
-    if (d === "escolas") { for (const s of c.schools) (s.active ? known++ : unknown++); }
+    if (d === "escolas") { for (const s of c.schools) { if (s.active) known++; else unknown++; } }
     else for (const s of c.schools) for (const m of DOMAIN_MEASURES[d]) { const v = s.measures[m]; if (!v || v.value === null) unknown++; else known++; }
     const findings = c.findings.filter((f) => ruleDomain(f.rule) === d).reduce((n, f) => n + f.count, 0);
     return { domain: d, known, unknown, findings };

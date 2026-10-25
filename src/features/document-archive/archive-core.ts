@@ -9,7 +9,7 @@ export const can = (rank: number, needed: Role): boolean => rank >= roleRank(nee
 
 /** Mesmo critério de acv_name_ok. */
 export function nameOk(name: string): boolean {
-  return name.length >= 1 && name.length <= 180 && name === name.trim() && !/[\u0000-\u001f\u007f/\\<>:"|?*]/.test(name)
+  return name.length >= 1 && name.length <= 180 && name === name.trim() && ![...name].some((char) => { const code = char.charCodeAt(0); return code <= 0x1f || code === 0x7f || "/\\\\<>:\"|?*".includes(char); })
     && name !== "." && name !== ".." && !name.endsWith(".");
 }
 

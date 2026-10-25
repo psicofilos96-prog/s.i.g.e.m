@@ -61,7 +61,7 @@ export function networkRegularity(input: NetworkInput, schools: string[]) {
       [c.hasTeacherForAll, "turma-sem-docente", "componente sem docente atribuído", "manter-atribuicao-docente"],
       [c.hasSchedule, "turma-sem-grade", "turma sem grade de horário", "Direção / horários"],
     ];
-    for (const [v, code, label, comp] of checks) v === null ? nv(c.schoolId, c.classId, code) : !v && indications.push(I(c.schoolId, c.classId, code, label, "turma", comp));
+    for (const [v, code, label, comp] of checks) { if (v === null) nv(c.schoolId, c.classId, code); else if (!v) indications.push(I(c.schoolId, c.classId, code, label, "turma", comp)); }
   }
   for (const r of input.results.filter((x) => allowed.has(x.schoolId))) {
     if (r.periodClosed === null || r.resultsMissing === null) { nv(r.schoolId, r.classId, "resultados"); continue; }

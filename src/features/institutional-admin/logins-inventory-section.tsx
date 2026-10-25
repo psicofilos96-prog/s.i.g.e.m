@@ -66,7 +66,7 @@ function Inventory({ rows }: { rows: InventoryRow[] }) {
     if (fmt === "csv") download(new Blob([toCsv(result, BRANDING, meta)], { type: "text/csv;charset=utf-8" }), `${name}.csv`);
     else download(new Blob([await toXlsx(result, BRANDING, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${name}.xlsx`);
   }
-  const toggle = (id: string) => setPicked((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
+  const toggle = (id: string) => setPicked((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const sel = "h-10 w-full min-w-0 max-w-full rounded-md border border-input bg-background px-2 text-sm";
 
   return (

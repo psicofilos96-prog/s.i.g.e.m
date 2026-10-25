@@ -64,7 +64,7 @@ export function SchoolSourceImportSection({ canMaintain }: { canMaintain: boolea
             {rows.map((r) => (
               <li key={r.inep} className="flex items-start gap-2 rounded border border-border p-2">
                 <input type="checkbox" aria-label={`Selecionar ${r.name}`} disabled={!canMaintain || r.status !== "novo"} checked={sel.has(r.inep)}
-                  onChange={(e) => setSel((s) => { const n = new Set(s); e.target.checked ? n.add(r.inep) : n.delete(r.inep); return n; })} />
+                  onChange={(e) => setSel((s) => { const n = new Set(s); if (e.target.checked) n.add(r.inep); else n.delete(r.inep); return n; })} />
                 <span className="min-w-0">
                   <span className="font-medium text-foreground">{r.name}</span>
                   <span className="block text-xs text-muted-foreground">INEP {r.inep} · {unitKindLabel(r.dependency, r.partnership)}{r.privateCategory ? ` · ${r.privateCategory}` : ""} · {r.location} · {STATUS[r.status]}</span>

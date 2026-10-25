@@ -16,7 +16,7 @@ const lh = (pt: number) => pt * PT * 1.22;
 
 /** Texto só com caracteres da fonte padrão do PDF (evita quadrados no lugar de símbolos). */
 export const pdfSafe = (s: string) => s.replace(/[\u2212\u2013]/g, "-").replace(/\u00d7/g, "x").replace(/[\u2018\u2019]/g, "'").replace(/[\u201c\u201d]/g, '"')
-  .replace(/[^\u0000-\u00ff\u2014\u2022\u2026]/g, "");
+  .split("").filter((char) => { const code = char.charCodeAt(0); return code <= 0xff || code === 0x2014 || code === 0x2022 || code === 0x2026; }).join("");
 
 export type Box = { page: number; x: number; y: number; w: number; h: number; kind: string };
 export type RenderOpts = { cover?: boolean | undefined; emblem?: { dataUrl: string; w: number; h: number } | null | undefined };
@@ -157,7 +157,7 @@ export function renderOfficialMapPdf(d: OfficialMapDoc, o: RenderOpts = {}): { p
     rgb(C.navy, "fill"); pdf.rect(LEFT, y, WIDTH, bandH, "F"); rgb(C.gold, "fill"); pdf.rect(LEFT, y, 1.4, bandH, "F");
     font(11.5, "bold", [255, 255, 255]); put(pdfSafe(s.title.toUpperCase()), LEFT + 4, y + 1.6); box(LEFT, y, WIDTH, bandH, "band");
     y += bandH + 3;
-    for (const b of s.blocks) b.kind === "table" ? table(b) : b.kind === "fields" ? fields(b.pairs) : note(b.text);
+    for (const b of s.blocks) { if (b.kind === "table") table(b); else if (b.kind === "fields") fields(b.pairs); else note(b.text); }
     y += 2;
   }
 

@@ -18,7 +18,7 @@ export function corridorView(rows: LessonAttendance[], just: Justification[]): C
       c.lessons++;
       if (r.mark === "ausente") {
         const j = just.some((x) => x.studentId === r.studentId && x.homologatedType && x.from <= r.date && r.date <= x.to);
-        j ? c.justified++ : c.absences++;
+        if (j) c.justified++; else c.absences++;
       }
     }
     by.set(r.studentId, c);

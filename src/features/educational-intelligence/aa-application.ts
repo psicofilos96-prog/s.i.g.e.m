@@ -16,7 +16,7 @@ export function eligibleOn(allocs: readonly Allocation[], refDate: string, scope
     seen.set(a.studentId, [...(seen.get(a.studentId) ?? []), a]);
   }
   const eligible: Allocation[] = []; const ambiguous: string[] = [];
-  for (const [id, xs] of seen) xs.length === 1 ? eligible.push(xs[0]!) : ambiguous.push(id);
+  for (const [id, xs] of seen) { if (xs.length === 1) eligible.push(xs[0]!); else ambiguous.push(id); }
   return { eligible, ambiguous }; // duas alocações vigentes ⇒ conferência, nunca escolha
 }
 

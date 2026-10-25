@@ -67,7 +67,7 @@ export function summarizeCompare(rows: CompareRow[]): Record<string, number> {
 /** Cobertura: quantas medidas da fotografia são conhecidas (valor provado) × desconhecidas. */
 export function coverage(c: SnapshotContent): { known: number; unknown: number } {
   let known = 0, unknown = 0;
-  for (const s of c.schools) for (const m of Object.values(s.measures)) (m.value === null ? unknown++ : known++);
+  for (const s of c.schools) for (const m of Object.values(s.measures)) { if (m.value === null) unknown++; else known++; }
   return { known, unknown };
 }
 

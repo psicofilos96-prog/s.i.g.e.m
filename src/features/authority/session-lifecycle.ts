@@ -7,7 +7,7 @@
 export function safeRedirect(raw: unknown): string | null {
   if (typeof raw !== "string" || raw.length === 0 || raw.length > 512) return null;
   if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) return null;
-  if (/[\u0000-\u001f]/.test(raw)) return null;
+  if ([...raw].some((char) => char.charCodeAt(0) <= 0x1f)) return null;
   const path = raw.split(/[?#]/)[0] ?? "";
   if (path === "/auth" || path === "/login" || path.startsWith("/auth/")) return null;
   return raw;

@@ -36,7 +36,7 @@ export function safeLabel(name: string): string {
 
 /** Caminho só de segmentos gerados (uuid/ids); recusa traversal ou segmento vazio. */
 export function assertSafePath(path: string): string {
-  if (!path || path.split("/").some((s) => !s || s === "." || s === ".." || /[\\\u0000]/.test(s))) throw new UploadRefused("caminho-invalido");
+  if (!path || path.split("/").some((s) => !s || s === "." || s === ".." || /[\\\\]/.test(s) || [...s].some((char) => char.charCodeAt(0) === 0))) throw new UploadRefused("caminho-invalido");
   return path;
 }
 
