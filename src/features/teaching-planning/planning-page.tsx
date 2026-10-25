@@ -56,7 +56,7 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
   const [historyOf, setHistoryOf] = useState<string | null>(null);
   const [filter, setFilter] = useState<{ classId: string; itemKey: string; periodId: string }>({ classId: "", itemKey: "", periodId: "" });
 
-  const all = plans.data ?? [];
+  const all = useMemo(() => plans.data ?? [], [plans.data]);
   const heads = useMemo(() => planHeads(all), [all]);
   const mine = filterPlans(heads.filter((p) => p.author_user_id === uid), filter);
   const others = heads.filter((p) => p.author_user_id !== uid);
@@ -90,11 +90,13 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
     } catch (e) { setMsg({ tone: "err", text: planMessage((e as Error).message) }); }
     finally { saving.current = false; }
   }
+  const saveRef = useRef(save);
+  saveRef.current = save;
   // Autosave seguro: só rascunho existente, após 4s parado, com cabeça esperada (conflito vira aviso, nunca sobrescreve).
   useEffect(() => {
     if (!draft || !dirty || draft.status !== "rascunho" || !draft.head) return;
-    const t = setTimeout(() => save(undefined, true), 4000); return () => clearTimeout(t);
-  }, [draft, dirty]);
+    const t = setTimeout(() => void saveRef.current(undefined, true), 4000); return () => clearTimeout(t);
+  }, [draft, dirty, saveRef]);
 
   if (assignments.isError || plans.isError) return <div className="space-y-3"><StatePanel tone="danger" title="Não foi possível abrir o planejamento" description="Tente novamente." /><Button variant="outline" onClick={() => { if (assignments.isError) void assignments.refetch(); if (plans.isError) void plans.refetch(); }}>Tentar novamente</Button></div>;
   if (!assignments.data || !plans.data) return <SkeletonState label="Carregando" />;
