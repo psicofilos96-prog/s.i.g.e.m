@@ -1,15 +1,15 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Candidate, LookupOutcome, PreparationSummary, ProfessionalLookupKind, StudentLookupKind, TransitionDecision } from "./year-transition";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const rpc = (name: string, args: Record<string, unknown>) => (supabase.rpc as any)(name, args) as Promise<{ data: unknown; error: { message: string } | null }>;
+type RpcResult = { data: unknown; error: { message: string } | null };
+type RpcClient = (name: string, args: Record<string, unknown>) => PromiseLike<RpcResult>;
+const rpc = (name: string, args: Record<string, unknown>) => (supabase.rpc as unknown as RpcClient)(name, args);
 
 async function call<T>(name: string, args: Record<string, unknown>): Promise<T> {
   const { data, error } = await rpc(name, args);
   if (error) throw new Error(error.message);
   return data as T;
 }
-
 export interface YearOption { id: string; label: string; state: string | null }
 
 export async function readYears(): Promise<YearOption[]> {
