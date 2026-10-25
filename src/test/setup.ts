@@ -39,6 +39,9 @@ if (!Element.prototype.scrollIntoView) {
   Element.prototype.scrollIntoView = () => {};
 }
 
+// jsdom does not implement viewport scrolling; application flows may still call it.
+window.scrollTo = (() => {}) as typeof window.scrollTo;
+
 if (!Element.prototype.hasPointerCapture) {
   Element.prototype.hasPointerCapture = () => false;
   Element.prototype.setPointerCapture = () => {};
