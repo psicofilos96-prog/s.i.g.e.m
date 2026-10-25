@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { accessDecision, applicableRequirements, familyView, recordDocEvent, regularizationAlert, type Checklist } from "./document-checklist";
 
+const unwrap = <T>(r: { ok: true; value: T } | { ok: false; code: string }): T => { if (!r.ok) throw new Error(r.code); return r.value; };
+
 const c: Checklist = { id: "c", processKind: "matricula-inicial", version: 1, homologated: true, requirements: [
   { id: "cert", label: "Certidão", legalBasis: null, basisVerifiedOn: null, validFrom: "2026-01-01", validTo: null, blocksAccess: true },
   { id: "vac", label: "Vacinação", legalBasis: "Lei X art. Y", basisVerifiedOn: "2026-02-01", validFrom: "2026-01-01", validTo: null, blocksAccess: true },
@@ -23,8 +25,8 @@ describe("conferência documental", () => {
   });
   it("anexo fora da escola, autovalidação e devolução sem motivo são recusados", () => {
     expect(recordDocEvent([], { requirementId: "cert", status: "recebido", at: "t", actorPrincipalId: "a", attachmentPath: "B/x.pdf" }, "A")).toMatchObject({ code: "doc:attachment-out-of-scope" });
-    const r = (recordDocEvent([], { requirementId: "cert", status: "recebido", at: "t", actorPrincipalId: "a", attachmentPath: "A/x.pdf" }, "A") as any).value;
-    const e = (recordDocEvent(r, { requirementId: "cert", status: "em-conferencia", at: "t", actorPrincipalId: "b" }, "A") as any).value;
+    const r = unwrap(recordDocEvent([], { requirementId: "cert", status: "recebido", at: "t", actorPrincipalId: "a", attachmentPath: "A/x.pdf" }, "A"));
+    const e = unwrap(recordDocEvent(r, { requirementId: "cert", status: "em-conferencia", at: "t", actorPrincipalId: "b" }, "A"));
     expect(recordDocEvent(e, { requirementId: "cert", status: "validado", at: "t", actorPrincipalId: "a" }, "A")).toMatchObject({ code: "doc:self-validation" });
     expect(recordDocEvent(e, { requirementId: "cert", status: "pendente", at: "t", actorPrincipalId: "b" }, "A")).toMatchObject({ code: "doc:reason-required" });
     expect(recordDocEvent(e, { requirementId: "cert", status: "validado", at: "t", actorPrincipalId: "b" }, "A")).toMatchObject({ ok: true });
