@@ -96,7 +96,7 @@ export function AssessmentEntryRegistration({
     [revision, source],
   );
   const enabled = projection.state === "entry-enabled" ? projection : null;
-  const rosterItems = enabled?.rosterItems ?? [];
+  const rosterItems = useMemo(() => enabled?.rosterItems ?? [], [enabled]);
   const mode = enabled?.inputMode ?? { kind: "descritiva" as const, maxLength: 1 };
   const balance = enabled?.surfaceBalance ?? {
     totalStudents: 0, recordedCount: 0, unrecordedCount: 0, notApplicableCount: 0, summaryLabel: "",
