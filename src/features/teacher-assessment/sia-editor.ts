@@ -49,8 +49,12 @@ export function richBlocks(src: string): RichBlock[] {
 }
 
 export type InstrumentEntry = { itemVersionId: string; weight: number | null };
-export const parseEntries = (v: unknown): InstrumentEntry[] => Array.isArray(v) ? v.flatMap((x: any) => typeof x?.item_version_id === "string"
-  ? [{ itemVersionId: x.item_version_id, weight: typeof x.weight === "number" && Number.isFinite(x.weight) && x.weight > 0 ? x.weight : null }] : []) : [];
+export const parseEntries = (v: unknown): InstrumentEntry[] => Array.isArray(v) ? v.flatMap((value) => {
+  if (!value || typeof value !== "object") return [];
+  const x = value as Record<string, unknown>;
+  return typeof x["item_version_id"] === "string"
+    ? [{ itemVersionId: x["item_version_id"], weight: typeof x["weight"] === "number" && Number.isFinite(x["weight"]) && x["weight"] > 0 ? x["weight"] : null }] : [];
+}) : [];
 /** Peso é declarado pelo professor; ausente fica ausente (nunca vira 0 nem 1). */
 export function weightSummary(entries: InstrumentEntry[]) {
   const declared = entries.filter((e) => e.weight !== null);
