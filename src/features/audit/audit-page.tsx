@@ -57,21 +57,21 @@ export function AuditPage() {
   const actor = sessionActor(authority);
   const q = useQuery({ queryKey: ["audit-central", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: () => loadAuditTrail() });
   const d = useQuery({ queryKey: ["audit-actors", authority.status === "signed-in" ? authority.user.id : null], enabled: authority.status === "signed-in", queryFn: loadActorDirectory });
-  const dir: ActorDirectory = d.data?.dir ?? new Map();
+  const dir = useMemo<ActorDirectory>(() => d.data?.dir ?? new Map<string, ActorInfo>(), [d.data]);
   const [f, setF] = useState({ from: "", to: "", module: "", kind: "", actor: "", entity: "", knownAt: "", station: "", schoolId: "", nature: "", search: "" });
   const [cursors, setCursors] = useState<(string | null)[]>([null]);
   const [sel, setSel] = useState<AuditEvent | null>(null);
 
-  const all = q.data?.events ?? [];
+  const all = useMemo(() => q.data?.events ?? [], [q.data?.events]);
   const truncatedModules = q.data?.truncatedModules ?? [];
   const filtered = useMemo(() => filterTimeline(all, {
     from: f.from || null, to: f.to || null, module: f.module || null, kind: (f.kind || null) as AuditKind | null,
     actor: f.actor.trim() || null, entity: f.entity.trim() || null, knownAt: f.knownAt ? new Date(f.knownAt).toISOString() : null,
     station: f.station || null, schoolId: f.schoolId || null, nature: (f.nature || null) as ActorNature | null, search: f.search || null,
   }, dir), [all, f, dir]);
-  const stations = [...new Set([...dir.values()].map((a) => a.station).filter((x): x is string => !!x))].sort();
+  const stations = useMemo(() => [...new Set([...dir.values()].map((a) => a.station).filter((x): x is string => !!x))].sort(), [dir]);
   const pg = page(filtered, PAGE, cursors[cursors.length - 1]);
-  const modules = [...new Set(ADAPTERS.map((a) => a.module))];
+  const modules = useMemo(() => [...new Set(ADAPTERS.map((a) => a.module))], []);
   const set = (k: keyof typeof f) => (v: string) => { setF({ ...f, [k]: v }); setCursors([null]); setSel(null); };
 
   if (authority.status === "signed-out") return <><h1 className="sr-only">Auditoria e governança de dados</h1><EmptyState title="Entre para consultar a auditoria" description="A trilha só existe com login e mostra apenas o que suas permissões alcançam." /></>;
