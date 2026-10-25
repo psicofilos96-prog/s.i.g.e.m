@@ -5,6 +5,8 @@
  * Conteúdo é texto puro renderizado com escape do React; nada é interpretado como HTML.
  * Gerador automático de itens: só interface (`ItemSuggestionProvider`), sem implementação.
  */
+type JsonRecord = Record<string, unknown>;
+
 export type ItemOption = { key: string; text: string };
 export type ItemTypeDef = Readonly<{ id: string; label: string; usesOptions: boolean; answerHint: string }>;
 
@@ -39,17 +41,31 @@ export const heads = <T extends { id: string; supersedes_id: string | null }>(ro
   const sup = new Set(rows.map((r) => r.supersedes_id).filter(Boolean)); return rows.filter((r) => !sup.has(r.id));
 };
 export function parseOptions(v: unknown): ItemOption[] {
-  return Array.isArray(v) ? v.flatMap((o: any) => (o && typeof o.key === "string" && typeof o.text === "string" ? [{ key: o.key, text: o.text }] : [])) : [];
+  return Array.isArray(v) ? v.flatMap((value) => {
+    if (!value || typeof value !== "object") return [];
+    const o = value as JsonRecord;
+    return typeof o["key"] === "string" && typeof o["text"] === "string" ? [{ key: o["key"], text: o["text"] }] : [];
+  }) : [];
 }
-export const parseRefIds = (v: unknown): string[] => Array.isArray(v) ? v.flatMap((r: any) => (r?.kind === "reference-item" && typeof r.item_id === "string" ? [r.item_id] : [])) : [];
-export const parseInstrumentItems = (v: unknown): string[] => Array.isArray(v) ? v.flatMap((x: any) => (typeof x?.item_version_id === "string" ? [x.item_version_id] : [])) : [];
+export const parseRefIds = (v: unknown): string[] => Array.isArray(v) ? v.flatMap((value) => {
+  if (!value || typeof value !== "object") return [];
+  const r = value as JsonRecord;
+  return r["kind"] === "reference-item" && typeof r["item_id"] === "string" ? [r["item_id"]] : [];
+}) : [];
+export const parseInstrumentItems = (v: unknown): string[] => Array.isArray(v) ? v.flatMap((value) => {
+  if (!value || typeof value !== "object") return [];
+  const x = value as JsonRecord;
+  return typeof x["item_version_id"] === "string" ? [x["item_version_id"]] : [];
+}) : [];
 
 /** Habilidade removida da base em edição futura: a versão antiga mantém o ID; a tela mostra como "não encontrada na base atual". */
 export const refStatus = (refIds: readonly string[], known: ReadonlySet<string>) => refIds.map((id) => ({ id, found: known.has(id) }));
 
 export type Randomization = { seed: string; shuffleItems: boolean; shuffleOptions: boolean };
 export function parseRandomization(v: unknown): Randomization | null {
-  const r = v as any; return r && typeof r.seed === "string" && r.seed ? { seed: r.seed, shuffleItems: !!r.shuffleItems, shuffleOptions: !!r.shuffleOptions } : null;
+  if (!v || typeof v !== "object") return null;
+  const r = v as JsonRecord;
+  return typeof r["seed"] === "string" && r["seed"] ? { seed: r["seed"], shuffleItems: !!r["shuffleItems"], shuffleOptions: !!r["shuffleOptions"] } : null;
 }
 function rng(seed: string) { let h = 2166136261; for (const c of seed) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return () => { h = Math.imul(h ^ (h >>> 15), 2246822507); h = Math.imul(h ^ (h >>> 13), 3266489909); return ((h ^= h >>> 16) >>> 0) / 4294967296; }; }
 export function shuffled<T>(xs: readonly T[], seed: string): T[] { const a = [...xs]; const r = rng(seed); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j]!, a[i]!]; } return a; }
