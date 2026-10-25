@@ -96,7 +96,8 @@ export function useSchoolRegistry(): SchoolRegistryState & { reload: () => void 
   }, []);
   useEffect(() => {
     void load();
-    return () => { ++generation.current; controller.current?.abort(); };
+    const generationRef = generation;
+    return () => { ++generationRef.current; controller.current?.abort(); };
   }, [load]);
   return { ...state, reload: () => void load() };
 }
