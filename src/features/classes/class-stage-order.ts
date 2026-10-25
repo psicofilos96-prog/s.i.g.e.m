@@ -33,7 +33,9 @@ export function compareClasses(a: { name: string; stageRank?: number | undefined
   return (a.stageRank ?? 900) - (b.stageRank ?? 900) || collator.compare(a.name, b.name);
 }
 
-type Db = { from: (t: string) => any };
+type StageResult = { data: unknown[] | null; error: { message: string } | null };
+type StageQuery = StageResult & { select: (columns: string) => StageQuery; in: (column: string, values: readonly string[]) => StageQuery; then: PromiseLike<StageResult>["then"] };
+type Db = { from: (table: string) => StageQuery };
 
 /** Lê a etapa declarada das turmas (sob a RLS de quem consulta). Falha ⇒ mapa vazio (vai para o fim, sem palpite). */
 export async function readStageRanks(db: Db, ids: string[]): Promise<Map<string, number>> {
