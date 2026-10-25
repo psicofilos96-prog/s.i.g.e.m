@@ -40,6 +40,8 @@ export function OperationalPageHeader({
   };
   actions?: ReactNode;
 }) {
+  const hasQueryClient = Boolean(useContext(QueryClientContext));
+
   return (
     <header className="grid grid-cols-1 items-end gap-4 border-b border-border/70 pb-5 sm:grid-cols-[minmax(0,1fr)_auto]">
       <div className="min-w-0">
@@ -54,7 +56,7 @@ export function OperationalPageHeader({
             {parent ? (
               <>
                 <BreadcrumbItem>
-                  {useContext(QueryClientContext) ? <SessionParentCrumb parent={parent} /> : <ParentCrumb parent={parent} allowed />}
+                  {hasQueryClient ? <SessionParentCrumb parent={parent} /> : <ParentCrumb parent={parent} allowed />}
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
               </>

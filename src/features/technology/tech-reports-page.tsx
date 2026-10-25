@@ -36,10 +36,10 @@ export function TechReportsPage() {
   const auth = useSessionAuthority();
   const [code, setCode] = useState("");
   const [state, setState] = useState<{ k: "idle" } | { k: "loading" } | { k: "error"; m: string } | { k: "none" } | { k: "ok"; t: { items: TimelineItem[]; undated: number } }>({ k: "idle" });
+  const [exp, setExp] = useState<string | null>(null);
   if (auth.status === "signed-out") return <SignInRequired title="Relatórios de Tecnologia" what="os relatórios de tecnologia" />;
   if (auth.status === "loading") return auth.error ? <ErrorState description={auth.error} /> : <LoadingState />;
 
-  const [exp, setExp] = useState<string | null>(null);
   const exportTimeline = async (format: "csv" | "xlsx" | "pdf") => {
     if (state.k !== "ok") return;
     setExp("Registrando emissão…");
