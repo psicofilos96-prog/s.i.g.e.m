@@ -4,7 +4,7 @@ import { afterEach } from "vitest";
 import { cleanup } from "@testing-library/react";
 
 // React 18+ uses this flag to validate async state updates in jsdom tests.
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+(globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 afterEach(() => {
   cleanup();
