@@ -12,11 +12,16 @@ export const askAssistant = createServerFn({ method: "POST" })
     schoolId: z.string().max(80).nullable(),
   }).parse(d))
   .handler(async ({ data, context }) => {
-    const sb = context.supabase as any;
+    const sb = context.supabase;
     const { answer } = await import("./assistant-core");
     const { serverReaders, lovableProvider } = await import("./assistant.server");
     const caps = await (await import("@/features/authority/read-all-capabilities")).readAllEffectiveCapabilities(sb);
-    const user = { capabilities: (caps.data ?? []).map((c: any) => ({ capability_id: c.capability_id, school_id: c.school_id ?? null })), route: data.route };
+    const capabilities = (caps.data ?? []).flatMap((row) => {
+      if (!row || typeof row !== "object") return [];
+      const c = row as { capability_id?: unknown; school_id?: unknown };
+      return typeof c.capability_id === "string" ? [{ capability_id: c.capability_id, school_id: typeof c.school_id === "string" ? c.school_id : null }] : [];
+    });
+    const user = { capabilities, route: data.route };
     const key = process.env["LOVABLE_API_KEY"];
     return answer(data.question, user, serverReaders(sb), key ? (s) => lovableProvider(key) : null, { classId: data.classId, schoolId: data.schoolId });
   });

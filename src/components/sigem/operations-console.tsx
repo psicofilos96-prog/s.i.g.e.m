@@ -21,7 +21,7 @@ function ReadTable({ read, ns }: { read: OperationRead; ns: string }) {
     staleTime: 30_000,
     retry: 1,
     queryFn: async ({ signal }) => {
-      let sel = supabase.from(read.table as never).select(read.columns.join(",")) as any;
+      let sel = supabase.from(read.table as never).select(read.columns.join(","));
       for (const [k, v] of Object.entries(read.eq ?? {})) sel = sel.eq(k, v);
       const r = await sel
         .order(read.order, { ascending: false })
@@ -72,7 +72,7 @@ function LookupPicker({ id, spec, value, onPick }: { id: string; spec: LookupSpe
     staleTime: 30_000,
     retry: 1,
     queryFn: async ({ signal }) => {
-      let sel = supabase.from(spec.table as never).select(["id", ...spec.label].join(",")) as any;
+      let sel = supabase.from(spec.table as never).select(["id", ...spec.label].join(","));
       if (filter) sel = sel.or(filter);
       const r = await sel.order(spec.order, { ascending: false }).range(0, LOOKUP_LIMIT - 1).abortSignal(signal);
       if (r.error) throw new Error(r.error.message);

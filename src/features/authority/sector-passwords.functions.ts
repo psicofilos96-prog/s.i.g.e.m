@@ -3,6 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { passwordProblem } from "./password-policy";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 const MASTER = "admin@sigem.itap.gov.br";
 
@@ -14,8 +16,8 @@ function isSectorAccount(u: { email?: string | null; app_metadata?: Record<strin
   return kind === "sector" || kind == null || kind === "";
 }
 
-async function assertAdmin(ctx: { supabase: any; claims: any }) {
-  if (String(ctx.claims?.email ?? "").toLowerCase() === MASTER) return;
+async function assertAdmin(ctx: { supabase: SupabaseClient<Database>; claims: Record<string, unknown> }) {
+  if (String(ctx.claims?.["email"] ?? "").toLowerCase() === MASTER) return;
   const { data } = await ctx.supabase.rpc("has_network_capability", { _capability: "manter-contas-institucionais" });
   if (data !== true) throw new Error("Sem permissão para definir senhas de setor.");
 }
