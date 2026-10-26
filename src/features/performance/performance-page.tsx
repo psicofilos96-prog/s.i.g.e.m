@@ -84,10 +84,10 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
 
       <section aria-labelledby="met" className="rounded border p-4 space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-2">
-          <h2 id="met" className="font-semibold">Métricas calculadas</h2>
-          <label className="text-sm">Agrupar por<select className={field} value={by} onChange={(e) => setBy(e.target.value as GroupBy)}><option value="escola">Escola</option><option value="turma">Turma</option><option value="item">Item/habilidade</option></select></label>
+          <h2 id="met" className="font-semibold">Resultados calculados</h2>
+          <label className="text-sm">Ver por<select className={field} value={by} onChange={(e) => setBy(e.target.value as GroupBy)}><option value="escola">Escola</option><option value="turma">Turma</option><option value="item">Item/habilidade</option></select></label>
         </div>
-        {d.metrics.length === 0 ? <p className="text-sm">Nenhuma métrica com fórmula registrada para esta avaliação. Sem fórmula, nenhum indicador é mostrado.</p>
+        {d.metrics.length === 0 ? <p className="text-sm">Nenhum cálculo registrado para esta avaliação. Sem fórmula registrada, nenhum resultado é mostrado.</p>
           : d.metrics.map((m) => {
             const total = computeMetric(m.formula, a.scale, d.results);
             const groups = aggregate(d.results, by, m.formula, a.scale, disclosure);
@@ -95,18 +95,21 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
             const c = other && o.d && om ? compareTemporal({ metric: m, assessment: a, value: total }, { metric: om, assessment: other, value: computeMetric(om.formula, other.scale, o.d.results) }) : null;
             return (
               <div key={m.id} className="rounded border p-3">
-                <p className="font-medium">{m.label} <span className="text-xs text-muted-foreground">v{m.version}</span></p>
-                <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Como é calculado</summary><p className="mt-1">Fórmula: {FORMULA_LABEL(m.formula)} · População: {m.population_key} · Fonte: {m.source_note}. Ausentes e não aplicados não contam como zero.</p></details>
+                <p className="font-medium">{m.label}</p>
                 <p className="mt-1 text-lg">{fmt(total)} {total.status === "calculada" && m.unit_label}<button className="ml-2 text-sm underline" onClick={() => openDrill({ title: m.label, ids: total.resultIds })}>ver os registros que formam este número</button></p>
                 {c && <p className="text-sm"><strong>Comparação:</strong> {c.comparable ? comparisonText(c.delta, other!.title) : `não é possível comparar — ${humanizeForScreen(c.reason)}`}</p>}
-                <Coverage v={total} />
-                <Goals metric={m} value={total} />
                 <GroupChart groups={groups} unit={m.unit_label} />
                 <table className="mt-2 w-full text-sm"><caption className="sr-only">Métrica por grupo</caption>
                   <thead><tr className="text-left"><th scope="col">Grupo</th><th scope="col">Estudantes</th><th scope="col">Valor</th></tr></thead>
                   <tbody>{groups.map((g) => <tr key={g.key} className="border-t"><td>{g.label}</td><td>{g.disclosed ? g.students : "—"}</td>
                     <td>{g.disclosed ? <button className="underline" onClick={() => openDrill({ title: `${m.label} — ${g.label}`, ids: g.metric.resultIds })}>{fmt(g.metric)}</button> : <span title={g.suppressedReason ?? ""}>Suprimido</span>}</td></tr>)}</tbody>
                 </table>
+                <details className="mt-2 text-xs text-muted-foreground">
+                  <summary className="cursor-pointer">Detalhes: como é calculado, quem entrou na conta e metas</summary>
+                  <p className="mt-1">Fórmula: {FORMULA_LABEL(m.formula)} · População: {m.population_key} · Fonte: {m.source_note} · Versão {m.version}. Ausentes e não aplicados não contam como zero.</p>
+                  <Coverage v={total} />
+                  <Goals metric={m} value={total} />
+                </details>
               </div>
             );
           })}
