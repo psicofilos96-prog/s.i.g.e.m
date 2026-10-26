@@ -10,6 +10,11 @@ permissions:
 jobs:
   required:
     runs-on: ubuntu-latest
+    # Tests use mocked Supabase boundaries; these public placeholders only
+    # allow the client module to initialize in the CI runner.
+    env:
+      SUPABASE_URL: https://ci-placeholder.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
