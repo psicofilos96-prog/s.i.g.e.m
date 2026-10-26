@@ -41,7 +41,7 @@ export function PerformancePage() {
         : assessments.length === 0 ? <EmptyState title="Nenhuma avaliação institucional registrada" description="Sem avaliação cadastrada não há resultado nem métrica a mostrar. As avaliações rotineiras do professor continuam no Diário." />
         : <>
             <StationHomePanel assessments={assessments} disclosure={disclosure} />
-            {!disclosure && <StatePanel tone="warning" title="Política de divulgação não configurada" description="Nenhum grupo é suprimido porque não existe limiar registrado. A exportação de agregados fica bloqueada até a política existir." />}
+            {!disclosure && <StatePanel tone="warning" title="Política de divulgação não configurada" description="Enquanto ela não for registrada, a exportação de resultados fica bloqueada e nenhum grupo pequeno é escondido." />}
             <div className="grid gap-3 text-sm sm:grid-cols-2">
               <label>Qual avaliação?<select className={field} value={sel} onChange={(e) => setSel(e.target.value)}><option value="">Escolha…</option>{assessments.map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)} (v{a.version})</option>)}</select></label>
               <MoreFilters active={!!cmp}><label>Comparar com (opcional)<select className={field} value={cmp} onChange={(e) => setCmp(e.target.value)}><option value="">Nenhuma</option>{assessments.filter((a) => a.logical_id !== sel).map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)}</option>)}</select></label></MoreFilters>
@@ -76,22 +76,18 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
   return (
     <div className="space-y-6">
       <section aria-labelledby="obs" className="rounded border p-4">
-        <h2 id="obs" className="font-semibold">Dado observado</h2>
-        <p className="text-sm text-muted-foreground">Origem: {a.origin === "externa" ? "avaliação externa" : "avaliação institucional"}{a.source_note ? ` — fonte: ${a.source_note}` : ""}. População-alvo declarada: {a.target_population.map((p) => `${p.axis_id} = ${p.value_id}`).join("; ")}.</p>
-        <dl className="mt-2 grid grid-cols-3 gap-2 text-sm">
-          <div><dt className="text-muted-foreground">Observados</dt><dd>{observed.filter((r) => r.status === "observado").length}</dd></div>
-          <div><dt className="text-muted-foreground">Ausentes</dt><dd>{observed.filter((r) => r.status === "ausente").length}</dd></div>
-          <div><dt className="text-muted-foreground">Não aplicados</dt><dd>{observed.filter((r) => r.status === "nao-aplicado").length}</dd></div>
-        </dl>
+        <h2 id="obs" className="font-semibold">Resultados registrados</h2>
+        <p className="text-sm text-muted-foreground">Origem: {a.origin === "externa" ? "avaliação externa" : "avaliação da rede"}{a.source_note ? ` — fonte: ${a.source_note}` : ""}.</p>
+        <p className="mt-2 text-sm"><strong>{observed.filter((r) => r.status === "observado").length}</strong> com resultado · {observed.filter((r) => r.status === "ausente").length} ausentes · {observed.filter((r) => r.status === "nao-aplicado").length} não aplicados</p>
         {observed.length === 0 && <p className="mt-2 text-sm">Nenhum resultado registrado para esta avaliação. Isso não significa resultado zero.</p>}
       </section>
 
       <section aria-labelledby="met" className="rounded border p-4 space-y-3">
         <div className="flex flex-wrap items-end justify-between gap-2">
-          <h2 id="met" className="font-semibold">Métricas calculadas</h2>
-          <label className="text-sm">Agrupar por<select className={field} value={by} onChange={(e) => setBy(e.target.value as GroupBy)}><option value="escola">Escola</option><option value="turma">Turma</option><option value="item">Item/habilidade</option></select></label>
+          <h2 id="met" className="font-semibold">Resultados calculados</h2>
+          <label className="text-sm">Ver por<select className={field} value={by} onChange={(e) => setBy(e.target.value as GroupBy)}><option value="escola">Escola</option><option value="turma">Turma</option><option value="item">Item/habilidade</option></select></label>
         </div>
-        {d.metrics.length === 0 ? <p className="text-sm">Nenhuma métrica com fórmula registrada para esta avaliação. Sem fórmula, nenhum indicador é mostrado.</p>
+        {d.metrics.length === 0 ? <p className="text-sm">Nenhum cálculo registrado para esta avaliação. Sem fórmula registrada, nenhum resultado é mostrado.</p>
           : d.metrics.map((m) => {
             const total = computeMetric(m.formula, a.scale, d.results);
             const groups = aggregate(d.results, by, m.formula, a.scale, disclosure);
@@ -99,18 +95,21 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
             const c = other && o.d && om ? compareTemporal({ metric: m, assessment: a, value: total }, { metric: om, assessment: other, value: computeMetric(om.formula, other.scale, o.d.results) }) : null;
             return (
               <div key={m.id} className="rounded border p-3">
-                <p className="font-medium">{m.label} <span className="text-xs text-muted-foreground">v{m.version}</span></p>
-                <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Como é calculado</summary><p className="mt-1">Fórmula: {FORMULA_LABEL(m.formula)} · População: {m.population_key} · Fonte: {m.source_note}. Ausentes e não aplicados não contam como zero.</p></details>
+                <p className="font-medium">{m.label}</p>
                 <p className="mt-1 text-lg">{fmt(total)} {total.status === "calculada" && m.unit_label}<button className="ml-2 text-sm underline" onClick={() => openDrill({ title: m.label, ids: total.resultIds })}>ver os registros que formam este número</button></p>
                 {c && <p className="text-sm"><strong>Comparação:</strong> {c.comparable ? comparisonText(c.delta, other!.title) : `não é possível comparar — ${humanizeForScreen(c.reason)}`}</p>}
-                <Coverage v={total} />
-                <Goals metric={m} value={total} />
                 <GroupChart groups={groups} unit={m.unit_label} />
                 <table className="mt-2 w-full text-sm"><caption className="sr-only">Métrica por grupo</caption>
                   <thead><tr className="text-left"><th scope="col">Grupo</th><th scope="col">Estudantes</th><th scope="col">Valor</th></tr></thead>
                   <tbody>{groups.map((g) => <tr key={g.key} className="border-t"><td>{g.label}</td><td>{g.disclosed ? g.students : "—"}</td>
                     <td>{g.disclosed ? <button className="underline" onClick={() => openDrill({ title: `${m.label} — ${g.label}`, ids: g.metric.resultIds })}>{fmt(g.metric)}</button> : <span title={g.suppressedReason ?? ""}>Suprimido</span>}</td></tr>)}</tbody>
                 </table>
+                <details className="mt-2 text-xs text-muted-foreground">
+                  <summary className="cursor-pointer">Detalhes: como é calculado, quem entrou na conta e metas</summary>
+                  <p className="mt-1">Fórmula: {FORMULA_LABEL(m.formula)} · População: {m.population_key} · Fonte: {m.source_note} · Versão {m.version}. Ausentes e não aplicados não contam como zero.</p>
+                  <Coverage v={total} />
+                  <Goals metric={m} value={total} />
+                </details>
               </div>
             );
           })}
