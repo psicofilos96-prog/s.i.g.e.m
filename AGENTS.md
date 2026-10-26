@@ -51,6 +51,7 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Ambiente
 - Banco canônico = Lovable Cloud do projeto (`supabase/config.toml`); mutações de scripts técnicos passam por `scripts/environment-gate.mjs`, porque o nome do banco não prova o destino.
+- `vite.config.ts` guarda os valores públicos do backend como reserva quando `.env` falta no build, porque o `.env` saiu do repositório e a publicação abria em branco.
 
 - Testes com contas sintéticas só via `scripts/harness-gate.mjs` (fail-closed, declara a camada provada), porque login interativo nem sempre existe.
 

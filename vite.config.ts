@@ -29,6 +29,20 @@ function createMcpPlugin() {
   // The current MCP plugin compares POSIX Vite roots with Windows paths during build.
   return process.platform === "win32" ? null : mcpPlugin();
 }
+
+// Incidente 2026-10-26: o `.env` deixou de ser versionado e a publicação saiu sem conexão
+// (tela em branco). Valores PÚBLICOS do backend como reserva; `.env`/ambiente prevalecem.
+const PUBLIC_BACKEND = {
+  VITE_SUPABASE_PROJECT_ID: "crfqhyqkujhhlbiyhdbc",
+  VITE_SUPABASE_URL: "https://crfqhyqkujhhlbiyhdbc.supabase.co",
+  VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_UKo2fmDM9zvf3jwUM21G0Q_WgXfAc6z",
+} as const;
+for (const [name, value] of Object.entries(PUBLIC_BACKEND)) {
+  if (!process.env[name]) process.env[name] = value;
+  const plain = name.replace(/^VITE_/, "");
+  if (!process.env[plain]) process.env[plain] = value;
+}
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
