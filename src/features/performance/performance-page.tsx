@@ -76,13 +76,9 @@ function AssessmentView({ a, all, other, disclosure }: { a: AssessmentVersion; a
   return (
     <div className="space-y-6">
       <section aria-labelledby="obs" className="rounded border p-4">
-        <h2 id="obs" className="font-semibold">Dado observado</h2>
-        <p className="text-sm text-muted-foreground">Origem: {a.origin === "externa" ? "avaliação externa" : "avaliação institucional"}{a.source_note ? ` — fonte: ${a.source_note}` : ""}. População-alvo declarada: {a.target_population.map((p) => `${p.axis_id} = ${p.value_id}`).join("; ")}.</p>
-        <dl className="mt-2 grid grid-cols-3 gap-2 text-sm">
-          <div><dt className="text-muted-foreground">Observados</dt><dd>{observed.filter((r) => r.status === "observado").length}</dd></div>
-          <div><dt className="text-muted-foreground">Ausentes</dt><dd>{observed.filter((r) => r.status === "ausente").length}</dd></div>
-          <div><dt className="text-muted-foreground">Não aplicados</dt><dd>{observed.filter((r) => r.status === "nao-aplicado").length}</dd></div>
-        </dl>
+        <h2 id="obs" className="font-semibold">Resultados registrados</h2>
+        <p className="text-sm text-muted-foreground">Origem: {a.origin === "externa" ? "avaliação externa" : "avaliação da rede"}{a.source_note ? ` — fonte: ${a.source_note}` : ""}.</p>
+        <p className="mt-2 text-sm"><strong>{observed.filter((r) => r.status === "observado").length}</strong> com resultado · {observed.filter((r) => r.status === "ausente").length} ausentes · {observed.filter((r) => r.status === "nao-aplicado").length} não aplicados</p>
         {observed.length === 0 && <p className="mt-2 text-sm">Nenhum resultado registrado para esta avaliação. Isso não significa resultado zero.</p>}
       </section>
 
