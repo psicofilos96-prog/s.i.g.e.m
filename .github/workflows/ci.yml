@@ -16,7 +16,8 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run check:migrations
       - run: bun run typecheck
-      - run: bun run test
+      # Large jsdom route scenarios must not compete across test files.
+      - run: bun run test -- --no-file-parallelism
       - run: bun run build
   deep:
     runs-on: ubuntu-latest
