@@ -41,7 +41,7 @@ export function PerformancePage() {
         : assessments.length === 0 ? <EmptyState title="Nenhuma avaliação institucional registrada" description="Sem avaliação cadastrada não há resultado nem métrica a mostrar. As avaliações rotineiras do professor continuam no Diário." />
         : <>
             <StationHomePanel assessments={assessments} disclosure={disclosure} />
-            {!disclosure && <StatePanel tone="warning" title="Política de divulgação não configurada" description="Nenhum grupo é suprimido porque não existe limiar registrado. A exportação de agregados fica bloqueada até a política existir." />}
+            {!disclosure && <StatePanel tone="warning" title="Política de divulgação não configurada" description="Enquanto ela não for registrada, a exportação de resultados fica bloqueada e nenhum grupo pequeno é escondido." />}
             <div className="grid gap-3 text-sm sm:grid-cols-2">
               <label>Qual avaliação?<select className={field} value={sel} onChange={(e) => setSel(e.target.value)}><option value="">Escolha…</option>{assessments.map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)} (v{a.version})</option>)}</select></label>
               <MoreFilters active={!!cmp}><label>Comparar com (opcional)<select className={field} value={cmp} onChange={(e) => setCmp(e.target.value)}><option value="">Nenhuma</option>{assessments.filter((a) => a.logical_id !== sel).map((a) => <option key={a.logical_id} value={a.logical_id}>{a.title} — {br(a.applied_from)}</option>)}</select></label></MoreFilters>
