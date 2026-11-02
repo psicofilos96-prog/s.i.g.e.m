@@ -7,6 +7,8 @@ import { PageHeader, EmptyState } from "@/components/sigem/patterns";
 import { DateInput } from "@/components/sigem/date-input";
 import { formatAcademicDateNumeric as br } from "@/lib/academic-date";
 import { runReport, toCsv } from "@/features/reports/report-engine";
+import { loadStudentRecord } from "@/features/students/student-record";
+import { Link } from "@tanstack/react-router";
 import { NETWORK_BRANDING } from "@/features/reports/report-registry";
 import {
   DOMAIN_LABEL, DOMAIN_STATE_LABEL, FICHA_LONGITUDINAL, TRAJECTORY_DOMAINS, eventValueText, readStudentTrajectory, trajectoryRows,
@@ -23,6 +25,13 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
     queryFn: () => readStudentTrajectory({ studentId, asOf, domains }),
   });
   const t: Trajectory | undefined = q.data;
+  // Fallback exclusivo aos fatos administrativos já autorizados pela RLS da ficha escolar.
+  // Não substitui nem amplia as permissões dos domínios pedagógicos.
+  const administrative = useQuery({
+    queryKey: ["student-trajectory-administrative", studentId],
+    queryFn: ({ signal }) => loadStudentRecord(studentId, signal),
+    enabled: t?.result === "access-denied",
+  });
   const toggle = (d: TrajectoryDomain) => setDomains((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d]));
 
   return (
@@ -49,7 +58,28 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
       {q.isLoading && <SkeletonState label="Carregando a ficha" />}
       {t?.result === "unavailable" && <EmptyState title="Ficha indisponível agora" description={humanizeForScreen(t.reason)} />}
       {t?.result === "access-denied" && (
-        <EmptyState title="Ficha não disponível para você" description="Não há registros deste aluno que sua atuação permita consultar nesta data." />
+        administrative.isPending ? <SkeletonState label="Consultando histórico escolar autorizado" /> :
+        administrative.data?.enrollments.length ? (
+          <section className="space-y-3 rounded-lg border border-border p-4" aria-label="Histórico administrativo autorizado">
+            <h2 className="font-display text-xl font-semibold">Histórico escolar autorizado · {administrative.data.name}</h2>
+            <p className="text-sm text-muted-foreground">Sua conta pode consultar estes vínculos escolares. Frequência, avaliações e acompanhamento pedagógico só aparecem quando houver autorização específica; nenhum acesso adicional foi concedido.</p>
+            {administrative.data.enrollments.map((e) => (
+              <div key={e.id} className="space-y-2 rounded-md border border-border p-3 text-sm">
+                <p className="font-medium">{e.schoolLabel ?? "Escola vinculada"} · Ingresso: {e.openedOn ? br(e.openedOn) : "não registrado"}</p>
+                {e.classes.length ? (
+                  <ul className="list-disc pl-5">
+                    {e.classes.map((cl) => (
+                      <li key={cl.episodeId}>{cl.label} · {cl.validFrom ? `desde ${br(cl.validFrom)}` : "início não registrado"} · {cl.situation.kind === "encerrado" ? `encerrado em ${br(cl.situation.on)}` : "sem encerramento registrado"}</li>
+                    ))}
+                  </ul>
+                ) : <p className="text-muted-foreground">Sem vínculo de turma visível.</p>}
+              </div>
+            ))}
+            <Link className="text-sm font-medium text-primary underline" to="/alunos/$id" params={{ id: studentId }}>Abrir ficha escolar completa</Link>
+          </section>
+        ) : (
+          <EmptyState title="Ficha fora do seu alcance" description="Este aluno não possui matrícula visível para sua conta. Consulte a administração de acessos se deveria pertencer à sua escola." />
+        )
       )}
       {t?.result === "ok" && (
         <>
