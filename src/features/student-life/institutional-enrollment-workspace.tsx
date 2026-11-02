@@ -467,6 +467,7 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
   const [destination, setDestination] = useState("");
   const [reason, setReason] = useState("");
   const [newClass, setNewClass] = useState("");
+  const [originEpisode, setOriginEpisode] = useState("");
   const qc = useQueryClient();
   const [fix, setFix] = useState<{ row: MovementRow; date: string; reason: string } | null>(null);
   const [searchFields, setSearchFields] = useState({ name: "", cpf: "", birth: "", inep: "" });
@@ -522,8 +523,12 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
   const transfer = type === "transferencia";
   const remanejamento = type === "remanejamento";
   const saida = type === "cancelamento" || type === "evasao" || type === "falecimento";
-  const currentEpisode = d.history.allocations.find((a) => a.student_id === enr?.student_id
-    && a.school_id === school && !a.ended_on && a.valid_from <= validOn);
+  // O estudante pode ter mais de uma alocação (por exemplo, regular + AEE).
+  // Nunca escolher uma arbitrariamente para remanejar: se há mais de uma, exigir origem explícita.
+  const currentEpisodes = d.allocations.filter((a) => a.student_id === enr?.student_id
+    && a.school_id === school && !a.ended_on);
+  const currentEpisode = currentEpisodes.find((a) => a.id === originEpisode)
+    ?? (currentEpisodes.length === 1 ? currentEpisodes[0] : null);
   const availableDestinationClasses = d.classes.filter((cl) => cl.academic_year_id === enr?.academic_year_id
     && cl.id !== currentEpisode?.class_id);
   return (
@@ -610,6 +615,10 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
                 {d.movementTypes.map((t) => <option key={t.valueId} value={t.valueId}>{t.label}</option>)}
               </select>
               {transfer && <Input aria-label="Identificador da escola de destino" placeholder="Identificador da escola de destino" className="w-64" value={destination} onChange={(e) => setDestination(e.target.value)} />}
+              {remanejamento && currentEpisodes.length > 1 && <select aria-label="Turma de origem do remanejamento" className="h-9 rounded-md border border-input bg-background px-2" value={originEpisode} onChange={(e) => { setOriginEpisode(e.target.value); setNewClass(""); }}>
+                <option value="">Escolha a turma atual…</option>
+                {currentEpisodes.map((a) => <option key={a.id} value={a.id}>{a.class_label_snapshot ?? d.classes.find((cl) => cl.id === a.class_id)?.name ?? "Turma sem nome"}</option>)}
+              </select>}
               {remanejamento && <select aria-label="Turma de destino" className="h-9 rounded-md border border-input bg-background px-2" value={newClass} onChange={(e) => setNewClass(e.target.value)}>
                 <option value="">Escolha a nova turma…</option>
                 {availableDestinationClasses.map((cl) => <option key={cl.id} value={cl.id}>{cl.name}</option>)}
