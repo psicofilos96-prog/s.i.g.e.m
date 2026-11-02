@@ -38,6 +38,25 @@ import { ClassJourneyPanel } from "./class-journey-panel";
 const today = () => operationalToday();
 const newId = (p: string) => `${p}-${crypto.randomUUID()}`;
 
+type MovementStudentLabel = { student_id: string; display_name: string | null; census_inep: string | null };
+
+/** A consulta é restrita no banco à escola da sessão; IDs técnicos nunca viram rótulos. */
+async function readMovementStudentLabels(school: string, studentIds: string[]): Promise<Map<string, MovementStudentLabel>> {
+  const labels = new Map<string, MovementStudentLabel>();
+  const rpc = supabase.rpc as unknown as (name: string, args: Record<string, unknown>) => Promise<{
+    data: MovementStudentLabel[] | null; error: { message: string } | null;
+  }>;
+  // A função no banco aceita no máximo 100 alunos por requisição.
+  for (let i = 0; i < studentIds.length; i += 100) {
+    const { data, error } = await rpc("secretariat_student_labels", {
+      _school: school, _student_ids: studentIds.slice(i, i + 100),
+    });
+    if (error) throw new Error(error.message);
+    for (const item of data ?? []) labels.set(item.student_id, item);
+  }
+  return labels;
+}
+
 function Unavailable({ children }: { children: ReactNode }) {
   return <p className="rounded-md border border-dashed border-border p-3 text-sm text-muted-foreground">{children}</p>;
 }
@@ -443,7 +462,19 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
   const [destination, setDestination] = useState("");
   const [reason, setReason] = useState("");
   const [fix, setFix] = useState<{ row: MovementRow; date: string; reason: string } | null>(null);
-  const enr = d.history.enrollments.find((e) => e.logical_id === enrollment);
+  // Registros antigos podem não ter logical_id: o ID da versão é sempre o seletor seguro.
+  const enr = d.history.enrollments.find((e) => e.id === enrollment);
+  const studentIds = [...new Set([
+    ...d.history.enrollments.map((e) => e.student_id),
+    ...d.history.movements.map((m) => m.student_id),
+  ].filter((id): id is string => Boolean(id)))];
+  const labelsQuery = useQuery({
+    queryKey: ["b3", "movement-student-labels", school, studentIds],
+    queryFn: () => readMovementStudentLabels(school, studentIds),
+    enabled: Boolean(school && studentIds.length),
+  });
+  const labels = labelsQuery.data;
+  const yearOf = (id: string | null) => d.years.find((y) => y.id === id)?.name ?? "Ano letivo não identificado";
   const typeOf = (id: string) => d.movementTypes.find((t) => t.valueId === id);
   return (
     <Card>
@@ -454,7 +485,7 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
           <ul className="space-y-1">
             {d.history.movements.map((m) => (
               <li key={m.id} className="flex flex-wrap items-center gap-2">
-                <span>{fmt(m.effective_on)} · {m.student_id} · {typeOf(m.movement_type_id)?.label ?? m.movement_type_id} v{m.version}{m.correction_reason ? ` · retificada: ${m.correction_reason}` : ""}</span>
+                <span>{fmt(m.effective_on)} · {labels?.get(m.student_id)?.display_name ?? "Estudante sem nome legível"} · {typeOf(m.movement_type_id)?.label ?? "Tipo não identificado"} v{m.version}{m.correction_reason ? ` · retificada: ${m.correction_reason}` : ""}</span>
                 {canRegister && <Button size="sm" variant="ghost" onClick={() => setFix({ row: m, date: m.effective_on, reason: "" })}>Retificar data</Button>}
               </li>
             ))}
@@ -478,9 +509,25 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
           : d.movementTypes.length === 0 ? <Unavailable>Nenhum tipo de movimentação homologado; o registro fica indisponível até a rede homologar os tipos.</Unavailable>
           : (
             <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-              <select aria-label="Inscrição" className="h-9 rounded-md border border-input bg-background px-2" value={enrollment} onChange={(e) => setEnrollment(e.target.value)}>
-                <option value="">Inscrição…</option>
-                {d.history.enrollments.map((e) => <option key={e.logical_id} value={e.logical_id}>{e.student_id} · {e.academic_year_id}</option>)}
+              {labelsQuery.isError && (
+                <div className="w-full space-y-2">
+                  <Unavailable>Não foi possível consultar os nomes dos alunos nesta escola. Nenhuma movimentação será registrada sem identificação legível.</Unavailable>
+                  <Button size="sm" variant="outline" onClick={() => void labelsQuery.refetch()}>Tentar carregar nomes novamente</Button>
+                </div>
+              )}
+              <select aria-label="Inscrição" className="h-9 min-w-0 max-w-full rounded-md border border-input bg-background px-2"
+                value={enrollment} disabled={labelsQuery.isPending || labelsQuery.isError || !d.history.enrollments.length}
+                onChange={(e) => setEnrollment(e.target.value)}>
+                <option value="">{labelsQuery.isPending && studentIds.length ? "Carregando alunos…" : "Selecione um aluno…"}</option>
+                {d.history.enrollments.map((e) => {
+                  const st = labels?.get(e.student_id);
+                  const name = st?.display_name?.trim();
+                  return (
+                    <option key={e.id} value={e.id} disabled={!name}>
+                      {name || "Estudante sem nome legível"} · {st?.census_inep ? `INEP: ${st.census_inep}` : "INEP não registrado"} · {yearOf(e.academic_year_id)}
+                    </option>
+                  );
+                })}
               </select>
               <select aria-label="Tipo de movimentação" className="h-9 rounded-md border border-input bg-background px-2" value={type} onChange={(e) => setType(e.target.value)}>
                 <option value="">Tipo…</option>
@@ -488,7 +535,7 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
               </select>
               <Input aria-label="Escola de destino na rede (opcional)" placeholder="Escola de destino (opcional)" className="w-56" value={destination} onChange={(e) => setDestination(e.target.value)} />
               <Input aria-label="Motivo (opcional)" placeholder="Motivo (opcional)" className="w-56" value={reason} onChange={(e) => setReason(e.target.value)} />
-              <Button size="sm" disabled={!enr || !type} onClick={() => run(() => recordStudentMovement({
+              <Button size="sm" disabled={!enr || !type || !labels?.get(enr.student_id)?.display_name?.trim()} onClick={() => run(() => recordStudentMovement({
                 logicalId: newId("mov"), baseVersionId: null, studentId: enr!.student_id, enrollmentId: enr!.id,
                 type: typeOf(type)!, effectiveOn: validOn, origin: { schoolId: school },
                 destination: destination.trim() ? { schoolId: destination.trim() } : {}, reasonText: reason.trim() || null,
