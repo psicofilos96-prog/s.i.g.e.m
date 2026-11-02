@@ -452,8 +452,18 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
     ...d.history.movements.map((m) => m.student_id),
   ])];
   const namesQuery = useQuery({
-    queryKey: ["b3", "movement-student-names", school, studentIds],
-    queryFn: () => readStudentNames(studentIds),
+    // Identidade estável por escola e conjunto, sem serializar milhares de IDs na chave.
+    queryKey: ["b3", "movement-student-names", school, studentIds.length, studentIds.join("|")],
+    queryFn: async () => {
+      // O PostgREST transporta o filtro .in() na URL. Uma escola grande excederia
+      // o limite do servidor se todos os UUIDs fossem enviados numa única chamada.
+      const names = new Map<string, string>();
+      for (let i = 0; i < studentIds.length; i += 100) {
+        const part = await readStudentNames(studentIds.slice(i, i + 100));
+        for (const [id, name] of part) names.set(id, name);
+      }
+      return names;
+    },
     enabled: studentIds.length > 0,
   });
   const names = namesQuery.data;
