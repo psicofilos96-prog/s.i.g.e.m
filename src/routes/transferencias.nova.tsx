@@ -20,7 +20,7 @@ export const Route = createFileRoute("/transferencias/nova")({
   }),
   head: () => ({
     meta: [
-      { title: `Transferência escolar — ${brand.name}` },
+      { title: `Movimentações escolares — ${brand.name}` },
       {
         name: "description",
         content:
