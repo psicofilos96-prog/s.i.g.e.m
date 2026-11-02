@@ -658,5 +658,6 @@
  "drizzle/migrations/0607_class_schedule_at_engagements_once.sql": "c3565a9bf8bdae638418f204cfbe99301d51638615921bc63d626ae7da784dea",
  "drizzle/migrations/0608_curricular_component_system_defaults.sql": "92315adf491e15485a22fcdb7041869de2a82c5ec5ea377bd722d8aca2d63f40",
  "drizzle/migrations/0609_archive_legacy_simple_tables.sql": "846166ab7f913b8553afe30de9b50c15fb5b641043081ae4f430f093db690cbf",
- "drizzle/migrations/0610_secretariat_student_labels.sql": "496f18a708e51ad0398c77d2663fc58de8ea3a439e8c37b382a6040b55ba27d9"
+ "drizzle/migrations/0610_secretariat_student_labels.sql": "496f18a708e51ad0398c77d2663fc58de8ea3a439e8c37b382a6040b55ba27d9",
+ "drizzle/migrations/0611_secretariat_movement_search.sql": "6366134dd578dc2b0c8990b0c1eff8cb5bc66b6962c36792a7d0653981b8544d"
 }
