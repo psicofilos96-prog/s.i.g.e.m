@@ -118,7 +118,7 @@ const QUICK_ACTIONS = [
   { to: "/alunos/novo", label: "Cadastrar aluno", icon: UserPlus },
   { to: "/matriculas/nova", label: "Nova matrícula", icon: GraduationCap },
   { to: "/enturmacoes/nova", label: "Colocar em turma", icon: UsersRound },
-  { to: "/transferencias/nova", label: "Transferência", icon: ArrowLeftRight },
+  { to: "/transferencias/nova", label: "Movimentações", icon: ArrowLeftRight },
 ] as const;
 
 function greetingFor(hour: number): string {
