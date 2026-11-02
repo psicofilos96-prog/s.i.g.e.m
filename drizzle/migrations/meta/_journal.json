@@ -4271,6 +4271,13 @@
       "when": 1792808739371,
       "tag": "0609_archive_legacy_simple_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 610,
+      "version": "7",
+      "when": 1793648400000,
+      "tag": "0610_secretariat_student_labels",
+      "breakpoints": true
     }
   ]
 }
