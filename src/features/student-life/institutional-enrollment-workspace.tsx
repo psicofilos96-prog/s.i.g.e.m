@@ -43,9 +43,10 @@ type MovementStudentLabel = { student_id: string; display_name: string | null; c
 /** A consulta é restrita no banco à escola da sessão; IDs técnicos nunca viram rótulos. */
 async function readMovementStudentLabels(school: string, studentIds: string[]): Promise<Map<string, MovementStudentLabel>> {
   const labels = new Map<string, MovementStudentLabel>();
-  const rpc = supabase.rpc as unknown as (name: string, args: Record<string, unknown>) => Promise<{
-    data: MovementStudentLabel[] | null; error: { message: string } | null;
-  }>;
+  const rpc = (name: string, args: Record<string, unknown>) =>
+    (supabase.rpc as unknown as (method: string, params: Record<string, unknown>) => Promise<{
+      data: MovementStudentLabel[] | null; error: { message: string } | null;
+    }>)(name, args);
   // A função no banco aceita no máximo 100 alunos por requisição.
   for (let i = 0; i < studentIds.length; i += 100) {
     const { data, error } = await rpc("secretariat_student_labels", {
