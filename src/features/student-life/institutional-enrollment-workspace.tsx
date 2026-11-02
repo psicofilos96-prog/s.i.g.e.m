@@ -482,9 +482,9 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
       const { data: rows, error } = await supabase.rpc("secretariat_movement_search", {
         _school: school,
         _name: searchFields.name.trim() || null,
-        _cpf: searchFields.cpf.replace(/\\D/g, "") || null,
+        _cpf: searchFields.cpf.replace(/\D/g, "") || null,
         _birth: searchFields.birth || null,
-        _inep: searchFields.inep.replace(/\\D/g, "") || null,
+        _inep: searchFields.inep.replace(/\D/g, "") || null,
       } as never);
       if (error) throw error;
       setSearchResult({ school, students: (rows ?? []) as Array<{ student_id: string; display_name: string | null; census_inep: string | null }> });
