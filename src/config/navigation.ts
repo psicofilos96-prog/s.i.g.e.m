@@ -157,7 +157,7 @@ export function pageTitleForPath(pathname: string): string {
   if (pathname === "/") return "Início";
   if (pathname.startsWith("/matriculas")) return "Matrículas";
   if (pathname.startsWith("/enturmacoes")) return "Enturmação";
-  if (pathname.startsWith("/transferencias")) return "Transferências";
+  if (pathname.startsWith("/transferencias")) return "Movimentações";
   if (pathname.startsWith("/vinculos-letivos")) return "Vínculos letivos";
   // NDESIGN.QA: telas fora do menu mantêm o nome na barra superior, como as demais.
   if (pathname.startsWith("/acompanhamento-diarios")) return "Acompanhamento de diários";
