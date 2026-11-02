@@ -24,13 +24,13 @@ export const Route = createFileRoute("/transferencias/nova")({
       {
         name: "description",
         content:
-          "Fluxo demonstrativo de transferência escolar: histórico da origem preservado, matrícula do destino criada ou reutilizada e nenhuma enturmação automática.",
+          "Movimentações oficiais da Secretaria Escolar: transferência, remanejamento, cancelamento, evasão e falecimento, conforme autorização e ano letivo.",
       },
       { property: "og:title", content: `Transferência escolar — ${brand.name}` },
       {
         property: "og:description",
         content:
-          "Transferência é operação histórica com data efetiva, não alteração do campo escola do aluno.",
+          "Movimentações preservam o histórico e passam pelos registros oficiais da escola.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
