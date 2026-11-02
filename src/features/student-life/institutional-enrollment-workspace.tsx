@@ -32,6 +32,7 @@ import {
   type MovementRow, type OperationalSituation,
 } from "./secretary-operations";
 import { AllocationPositionsPanel } from "./allocation-curricular-position-panel";
+import { readStudentNames, UNNAMED_STUDENT } from "./curricular-resolution-source";
 import { ClassCurricularResolutionPanel } from "./class-curricular-resolution-panel";
 import { ClassJourneyPanel } from "./class-journey-panel";
 
@@ -444,6 +445,25 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
   const [reason, setReason] = useState("");
   const [fix, setFix] = useState<{ row: MovementRow; date: string; reason: string } | null>(null);
   const enr = d.history.enrollments.find((e) => e.logical_id === enrollment);
+  // A consulta de nomes usa exclusivamente IDs já autorizados pelos readers B3.
+  // O ID técnico permanece no value para o writer, nunca no texto visível.
+  const studentIds = [...new Set([
+    ...d.history.enrollments.map((e) => e.student_id),
+    ...d.history.movements.map((m) => m.student_id),
+  ])];
+  const namesQuery = useQuery({
+    queryKey: ["b3", "movement-student-names", school, studentIds],
+    queryFn: () => readStudentNames(studentIds),
+    enabled: studentIds.length > 0,
+  });
+  const names = namesQuery.data;
+  const yearName = (id: string | null) => d.years.find((y) => y.id === id)?.name ?? "Ano letivo não identificado";
+  const options = d.history.enrollments.map((e) => ({
+    enrollment: e,
+    name: names?.get(e.student_id) ?? null,
+    year: yearName(e.academic_year_id),
+  })).sort((a, b) => (a.name ?? "").localeCompare(b.name ?? "", "pt-BR", { sensitivity: "base" })
+    || a.year.localeCompare(b.year, "pt-BR") || a.enrollment.logical_id.localeCompare(b.enrollment.logical_id));
   const typeOf = (id: string) => d.movementTypes.find((t) => t.valueId === id);
   return (
     <Card>
@@ -454,7 +474,7 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
           <ul className="space-y-1">
             {d.history.movements.map((m) => (
               <li key={m.id} className="flex flex-wrap items-center gap-2">
-                <span>{fmt(m.effective_on)} · {m.student_id} · {typeOf(m.movement_type_id)?.label ?? m.movement_type_id} v{m.version}{m.correction_reason ? ` · retificada: ${m.correction_reason}` : ""}</span>
+                <span>{fmt(m.effective_on)} · {names?.get(m.student_id) ?? UNNAMED_STUDENT} · {typeOf(m.movement_type_id)?.label ?? m.movement_type_id} v{m.version}{m.correction_reason ? ` · retificada: ${m.correction_reason}` : ""}</span>
                 {canRegister && <Button size="sm" variant="ghost" onClick={() => setFix({ row: m, date: m.effective_on, reason: "" })}>Retificar data</Button>}
               </li>
             ))}
@@ -478,17 +498,20 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
           : d.movementTypes.length === 0 ? <Unavailable>Nenhum tipo de movimentação homologado; o registro fica indisponível até a rede homologar os tipos.</Unavailable>
           : (
             <div className="flex flex-wrap gap-2 border-t border-border pt-3">
-              <select aria-label="Inscrição" className="h-9 rounded-md border border-input bg-background px-2" value={enrollment} onChange={(e) => setEnrollment(e.target.value)}>
-                <option value="">Inscrição…</option>
-                {d.history.enrollments.map((e) => <option key={e.logical_id} value={e.logical_id}>{e.student_id} · {e.academic_year_id}</option>)}
+              {namesQuery.isError && <Unavailable>Não foi possível consultar os nomes dos alunos. Verifique a permissão de leitura ou tente carregar novamente.</Unavailable>}
+              <select aria-label="Inscrição" className="h-9 min-w-0 max-w-full rounded-md border border-input bg-background px-2" value={enrollment} disabled={namesQuery.isPending || namesQuery.isError} onChange={(e) => setEnrollment(e.target.value)}>
+                <option value="">{namesQuery.isPending ? "Carregando nomes dos alunos…" : "Selecione o aluno…"}</option>
+                {options.map(({ enrollment: e, name, year }) => <option key={e.logical_id} value={e.logical_id} disabled={!name}>{name ?? UNNAMED_STUDENT} · {year}</option>)}
               </select>
+              {namesQuery.isError && <Button size="sm" variant="outline" onClick={() => void namesQuery.refetch()}>Tentar novamente</Button>}
+              {namesQuery.isSuccess && options.some((o) => !o.name) && <p className="w-full text-xs text-muted-foreground">Inscrições sem nome legível não podem ser selecionadas. Confira o cadastro e as permissões do aluno.</p>}
               <select aria-label="Tipo de movimentação" className="h-9 rounded-md border border-input bg-background px-2" value={type} onChange={(e) => setType(e.target.value)}>
                 <option value="">Tipo…</option>
                 {d.movementTypes.map((t) => <option key={t.valueId} value={t.valueId}>{t.label}</option>)}
               </select>
               <Input aria-label="Escola de destino na rede (opcional)" placeholder="Escola de destino (opcional)" className="w-56" value={destination} onChange={(e) => setDestination(e.target.value)} />
               <Input aria-label="Motivo (opcional)" placeholder="Motivo (opcional)" className="w-56" value={reason} onChange={(e) => setReason(e.target.value)} />
-              <Button size="sm" disabled={!enr || !type} onClick={() => run(() => recordStudentMovement({
+              <Button size="sm" disabled={!enr || !type || !names?.has(enr.student_id)} onClick={() => run(() => recordStudentMovement({
                 logicalId: newId("mov"), baseVersionId: null, studentId: enr!.student_id, enrollmentId: enr!.id,
                 type: typeOf(type)!, effectiveOn: validOn, origin: { schoolId: school },
                 destination: destination.trim() ? { schoolId: destination.trim() } : {}, reasonText: reason.trim() || null,
