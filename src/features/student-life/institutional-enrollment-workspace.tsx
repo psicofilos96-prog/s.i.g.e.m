@@ -10,6 +10,9 @@ import { PageHeader } from "@/components/sigem/patterns";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { confirmAction } from "@/components/sigem/confirm-action";
+import { DeathRecordPanel } from "@/features/school-secretariat/movement-panels";
+import { reassignClass, recordExit } from "@/features/school-secretariat/secretariat-source";
 import { NETWORK_SCHOOLS, PRIVATE_SCHOOLS } from "@/config/private-schools";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -463,6 +466,8 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
   const [type, setType] = useState("");
   const [destination, setDestination] = useState("");
   const [reason, setReason] = useState("");
+  const [newClass, setNewClass] = useState("");
+  const qc = useQueryClient();
   const [fix, setFix] = useState<{ row: MovementRow; date: string; reason: string } | null>(null);
   const [searchFields, setSearchFields] = useState({ name: "", cpf: "", birth: "", inep: "" });
   const [searchResult, setSearchResult] = useState<{ school: string; students: Array<{ student_id: string; display_name: string | null; census_inep: string | null }> } | null>(null);
@@ -517,11 +522,15 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
   const transfer = type === "transferencia";
   const remanejamento = type === "remanejamento";
   const saida = type === "cancelamento" || type === "evasao" || type === "falecimento";
+  const currentEpisode = d.history.allocations.find((a) => a.student_id === enr?.student_id
+    && a.school_id === school && !a.ended_on && a.valid_from <= validOn);
+  const availableDestinationClasses = d.classes.filter((cl) => cl.academic_year_id === enr?.academic_year_id
+    && cl.id !== currentEpisode?.class_id);
   return (
     <Card>
       <CardHeader><CardTitle>Movimentações escolares</CardTitle></CardHeader>
       <CardContent className="space-y-3 text-sm">
-        <p className="text-muted-foreground">Registre transferências, remanejamentos e ocorrências de saída com os tipos homologados. O registro da movimentação preserva o histórico; o encerramento de matrícula e a alteração de turma são operações próprias.</p>
+        <p className="text-muted-foreground">Transferir, remanejar ou encerrar um vínculo são operações diferentes. Aqui você escolhe o aluno e a ação; os registros oficiais preservam a matrícula e o histórico conforme as regras da rede.</p>
         {d.history.movements.length === 0 ? <p className="text-muted-foreground">Nenhuma movimentação registrada para esta escola.</p> : (
           <ul className="space-y-1">
             {d.history.movements.map((m) => (
@@ -601,16 +610,43 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
                 {d.movementTypes.map((t) => <option key={t.valueId} value={t.valueId}>{t.label}</option>)}
               </select>
               {transfer && <Input aria-label="Identificador da escola de destino" placeholder="Identificador da escola de destino" className="w-64" value={destination} onChange={(e) => setDestination(e.target.value)} />}
+              {remanejamento && <select aria-label="Turma de destino" className="h-9 rounded-md border border-input bg-background px-2" value={newClass} onChange={(e) => setNewClass(e.target.value)}>
+                <option value="">Escolha a nova turma…</option>
+                {availableDestinationClasses.map((cl) => <option key={cl.id} value={cl.id}>{cl.name}</option>)}
+              </select>}
               <Input aria-label={saida ? "Motivo da saída" : "Motivo da movimentação (opcional)"} placeholder={saida ? "Motivo da saída (obrigatório)" : "Motivo (opcional)"} className="w-64" value={reason} onChange={(e) => setReason(e.target.value)} />
               {enr && <Button size="sm" variant="outline" asChild><Link to="/ficha-longitudinal/$id" params={{ id: enr.student_id }}>Ver ficha longitudinal</Link></Button>}
-              {remanejamento && <div className="w-full space-y-1 text-xs text-muted-foreground"><p>Remanejamento registra o evento, mas não troca a turma automaticamente. Para alterar a alocação, utilize a área de enturmação.</p><Link to="/enturmacoes/nova" className="text-primary underline">Ir para enturmação</Link></div>}
-              {saida && <p className="w-full text-xs text-muted-foreground">Cancelamento, evasão e falecimento registram a ocorrência; a baixa do vínculo requer encerramento próprio com situação homologada. Nenhuma matrícula será apagada automaticamente.</p>}
-              {transfer && <p className="w-full text-xs text-muted-foreground">A transferência não encerra automaticamente a inscrição na origem nem constitui matrícula na escola de destino. Registre as etapas correspondentes após a movimentação.</p>}
-              <Button size="sm" disabled={!enr || !typeOf(type) || !labels?.get(enr.student_id)?.display_name?.trim() || (saida && !reason.trim()) || (transfer && !destination.trim())} onClick={() => run(() => recordStudentMovement({
-                logicalId: newId("mov"), baseVersionId: null, studentId: enr!.student_id, enrollmentId: enr!.id,
-                type: typeOf(type)!, effectiveOn: validOn, origin: { schoolId: school },
-                destination: destination.trim() ? { schoolId: destination.trim() } : {}, reasonText: reason.trim() || null,
-              }), "Movimentação registrada no histórico. Confira as etapas de encerramento e alocação, se cabíveis.")}>Registrar {typeOf(type)?.label ?? "movimentação"} em {fmt(validOn)}</Button>
+              {remanejamento && <p className="w-full text-xs text-muted-foreground">A troca de turma encerra a alocação anterior e abre a nova na mesma escola pelo escritor oficial, sem apagar o histórico. {currentEpisode ? "" : "Este aluno não tem turma vigente para remanejar nesta data."}</p>}
+              {(type === "cancelamento" || type === "evasao") && <p className="w-full text-xs text-muted-foreground">A saída encerra a matrícula e registra o tipo homologado. É obrigatório informar o motivo. Desistência e evasão não devem ser equiparadas sem respaldo no registro escolar.</p>}
+              {transfer && <p className="w-full text-xs text-muted-foreground">A transferência encerra a matrícula na origem. O ingresso no destino é uma operação separada daquela escola. Confira o identificador de destino antes de confirmar.</p>}
+              {type === "falecimento" && enr ? (
+                <div className="w-full"><DeathRecordPanel key={enr.id} enrollment={enr.id} student={enr.student_id} onDone={() => void qc.invalidateQueries({ queryKey: ["b3"] })} /></div>
+              ) : type === "falecimento" ? (
+                <p className="text-xs text-muted-foreground">Escolha a inscrição para registrar o falecimento com certidão.</p>
+              ) : (
+                <Button size="sm" disabled={!enr || !typeOf(type) || !labels?.get(enr.student_id)?.display_name?.trim()
+                  || !reason.trim() || (transfer && !destination.trim()) || (remanejamento && (!currentEpisode || !newClass))}
+                  onClick={async () => {
+                    if (!enr) return;
+                    const confirmed = await confirmAction({
+                      title: remanejamento ? "Confirmar remanejamento" : "Confirmar saída escolar",
+                      consequence: remanejamento
+                        ? "A turma anterior será encerrada e a nova turma receberá o aluno na data escolhida."
+                        : "O vínculo da escola será encerrado e a movimentação oficial será registrada. A operação altera o histórico escolar.",
+                      actionLabel: remanejamento ? "Remanejar" : "Registrar saída",
+                      destructive: !remanejamento,
+                    });
+                    if (!confirmed) return;
+                    if (remanejamento && currentEpisode) {
+                      await run(() => reassignClass({ episode: currentEpisode.id, toClass: newClass, effectiveOn: validOn, reason: reason.trim() }),
+                        "Remanejamento concluído: a turma anterior foi encerrada e a nova foi registrada.");
+                    } else if (typeOf(type)) {
+                      await run(() => recordExit({ enrollment: enr.id, effectiveOn: validOn, movementType: type,
+                        typeVersion: typeOf(type)!.version, destinationSchool: transfer ? destination.trim() : null,
+                        reason: reason.trim() }), "Saída registrada e matrícula encerrada na origem.");
+                    }
+                  }}> {remanejamento ? "Confirmar remanejamento" : transfer ? "Confirmar transferência" : "Registrar saída e encerrar matrícula"} </Button>
+              )}
             </div>
           )}
         <Unavailable>{allocationMoveAvailability().reason}</Unavailable>
