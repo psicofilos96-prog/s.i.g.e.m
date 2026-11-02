@@ -53653,6 +53653,14 @@ export type Database = {
           student_name: string
         }[]
       }
+      secretariat_student_labels: {
+        Args: { _school: string; _student_ids: string[] }
+        Returns: {
+          census_inep: string
+          display_name: string
+          student_id: string
+        }[]
+      }
       secretariat_teaching_candidates: {
         Args: { _on: string; _school: string }
         Returns: {
