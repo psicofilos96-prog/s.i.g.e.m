@@ -59,6 +59,9 @@ export function StudentTrajectoryPage({ studentId }: { studentId: string }) {
       {t?.result === "unavailable" && <EmptyState title="Ficha indisponível agora" description={humanizeForScreen(t.reason)} />}
       {t?.result === "access-denied" && (
         administrative.isPending ? <SkeletonState label="Consultando histórico escolar autorizado" /> :
+        administrative.isError ? (
+          <EmptyState title="Histórico escolar temporariamente indisponível" description="Não foi possível consultar os vínculos escolares. Tente novamente; a autorização não foi modificada." />
+        ) :
         administrative.data?.enrollments.length ? (
           <section className="space-y-3 rounded-lg border border-border p-4" aria-label="Histórico administrativo autorizado">
             <h2 className="font-display text-xl font-semibold">Histórico escolar autorizado · {administrative.data.name}</h2>
