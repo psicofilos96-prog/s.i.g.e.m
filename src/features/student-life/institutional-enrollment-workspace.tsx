@@ -614,7 +614,13 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
                 <option value="">Escolha a movimentação…</option>
                 {d.movementTypes.map((t) => <option key={t.valueId} value={t.valueId}>{t.label}</option>)}
               </select>
-              {transfer && <Input aria-label="Identificador da escola de destino" placeholder="Identificador da escola de destino" className="w-64" value={destination} onChange={(e) => setDestination(e.target.value)} />}
+              {transfer && <select aria-label="Escola de destino" className="h-9 max-w-full rounded-md border border-input bg-background px-2" value={destination} onChange={(e) => setDestination(e.target.value)}>
+                <option value="">Selecione a escola de destino…</option>
+                <option value="externa">Escola externa / não cadastrada na rede</option>
+                {NETWORK_SCHOOLS.filter((s) => `inep-${s.inep}` !== school).map((s) => (
+                  <option key={s.inep} value={`inep-${s.inep}`}>{s.name} · INEP {s.inep}</option>
+                ))}
+              </select>}
               {remanejamento && currentEpisodes.length > 1 && <select aria-label="Turma de origem do remanejamento" className="h-9 rounded-md border border-input bg-background px-2" value={originEpisode} onChange={(e) => { setOriginEpisode(e.target.value); setNewClass(""); }}>
                 <option value="">Escolha a turma atual…</option>
                 {currentEpisodes.map((a) => <option key={a.id} value={a.id}>{a.class_label_snapshot ?? d.classes.find((cl) => cl.id === a.class_id)?.name ?? "Turma sem nome"}</option>)}
@@ -627,7 +633,7 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
               {enr && <Button size="sm" variant="outline" asChild><Link to="/ficha-longitudinal/$id" params={{ id: enr.student_id }}>Ver ficha longitudinal</Link></Button>}
               {remanejamento && <p className="w-full text-xs text-muted-foreground">A troca de turma encerra a alocação anterior e abre a nova na mesma escola pelo escritor oficial, sem apagar o histórico. {currentEpisode ? "" : "Este aluno não tem turma vigente para remanejar nesta data."}</p>}
               {(type === "cancelamento" || type === "evasao") && <p className="w-full text-xs text-muted-foreground">A saída encerra a matrícula e registra o tipo homologado. É obrigatório informar o motivo. Desistência e evasão não devem ser equiparadas sem respaldo no registro escolar.</p>}
-              {transfer && <p className="w-full text-xs text-muted-foreground">A transferência encerra a matrícula na origem. O ingresso no destino é uma operação separada daquela escola. Confira o identificador de destino antes de confirmar.</p>}
+              {transfer && <p className="w-full text-xs text-muted-foreground">A transferência encerra a matrícula na origem. A escola de destino deverá registrar o recebimento. Se for externa, descreva a escola no motivo da saída para preservar a informação.</p>}
               {type === "falecimento" && enr ? (
                 <div className="w-full"><DeathRecordPanel key={enr.id} enrollment={enr.id} student={enr.student_id} onDone={() => void qc.invalidateQueries({ queryKey: ["b3"] })} /></div>
               ) : type === "falecimento" ? (
@@ -651,14 +657,14 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
                         "Remanejamento concluído: a turma anterior foi encerrada e a nova foi registrada.");
                     } else if (typeOf(type)) {
                       await run(() => recordExit({ enrollment: enr.id, effectiveOn: validOn, movementType: type,
-                        typeVersion: typeOf(type)!.version, destinationSchool: transfer ? destination.trim() : null,
+                        typeVersion: typeOf(type)!.version, destinationSchool: transfer && destination !== "externa" ? destination.trim() : null,
                         reason: reason.trim() }), "Saída registrada e matrícula encerrada na origem.");
                     }
                   }}> {remanejamento ? "Confirmar remanejamento" : transfer ? "Confirmar transferência" : "Registrar saída e encerrar matrícula"} </Button>
               )}
             </div>
           )}
-        <Unavailable>{allocationMoveAvailability().reason}</Unavailable>
+        <p className="text-xs text-muted-foreground">Os lançamentos oficiais só podem ser realizados para um ano letivo aberto e com as competências exigidas. Em ano histórico, a consulta permanece disponível, mas a gravação pode ser recusada. Nenhum encerramento ou troca de turma é feito sem confirmação.</p>
       </CardContent>
     </Card>
   );
