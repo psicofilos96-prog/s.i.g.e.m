@@ -520,7 +520,7 @@
   ],
   "modules": 55,
   "withTest": 40,
-  "withScreen": 21,
+  "withScreen": 23,
   "withoutScreen": [
    "src/features/school-secretariat/absence-justification.ts",
    "src/features/school-secretariat/academic-panel.ts",
@@ -534,9 +534,7 @@
    "src/features/school-secretariat/document-readiness.ts",
    "src/features/school-secretariat/enrollment-flow.ts",
    "src/features/school-secretariat/enrollment-form/layout.ts",
-   "src/features/school-secretariat/enrollment-form/model.ts",
    "src/features/school-secretariat/enrollment-form/render.ts",
-   "src/features/school-secretariat/enrollment-form/source.ts",
    "src/features/school-secretariat/family-requests.ts",
    "src/features/school-secretariat/home-hospital-care.ts",
    "src/features/school-secretariat/legacy-templates.ts",
