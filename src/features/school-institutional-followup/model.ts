@@ -7,13 +7,13 @@ export type FollowupVisit = {
 export type FollowupAction = {
   id: string; school_id: string; visit_logical_id: string;
   description: string; responsible_label: string | null; due_on: string | null;
-  created_at: string;
+  created_at: string; author_name: string | null;
 };
 export type FollowupUpdate = {
   id: string; action_id: string; visit_logical_id: string | null;
   occurred_on: string; situation: string; done_text: string | null;
   not_done_text: string | null; results: string | null; referrals: string | null;
-  created_at: string;
+  created_at: string; author_name: string | null;
 };
 export type SchoolSnapshot = {
   visits: FollowupVisit[]; actions: FollowupAction[]; updates: FollowupUpdate[];
