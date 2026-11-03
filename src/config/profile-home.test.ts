@@ -21,7 +21,7 @@ describe("Início simples", () => {
 });
 
 
-describe("atalhos de matrícula e transferência por competência", () => {
+describe("atalhos de matrícula e movimentações por competência", () => {
   const capability = (capabilityId: string) => ({ capabilityId, engagementId: "e", policyId: "p", policyVersion: 1, schoolId: "escola", classId: null, periodId: null, componentId: null });
   const actions = (capabilities: ReturnType<typeof capability>[]) => {
     const authority = { status: "signed-in" as const, capabilities };
@@ -32,19 +32,19 @@ describe("atalhos de matrícula e transferência por competência", () => {
   it("professor não recebe atalhos de matrícula ou transferência", () => {
     const labels = actions([capability("registrar-aula"), capability("consultar-estudantes-da-turma")]);
     expect(labels).not.toContain("Matricular");
-    expect(labels).not.toContain("Transferir");
+    expect(labels).not.toContain("Movimentações");
     expect(labels).toContain("Chamada");
   });
 
   it("competência de manutenção mantém os dois atalhos operacionais", () => {
     const labels = actions([capability("manter-matricula-e-enturmacao")]);
     expect(labels).toContain("Matricular");
-    expect(labels).toContain("Transferir");
+    expect(labels).toContain("Movimentações");
   });
 
   it("consulta não oferece a criação de matrícula", () => {
     const labels = actions([capability("consultar-matricula-e-movimentacao")]);
     expect(labels).not.toContain("Matricular");
-    expect(labels).toContain("Transferir");
+    expect(labels).toContain("Movimentações");
   });
 });
