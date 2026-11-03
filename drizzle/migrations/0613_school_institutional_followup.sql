@@ -231,15 +231,19 @@ BEGIN
          (SELECT 1 FROM public.school_institutional_followup_visits next WHERE next.supersedes_id = v.id)
         ORDER BY v.visit_date DESC, v.recorded_at DESC LIMIT 1000) t),'[]'::jsonb),
     'actions', coalesce((SELECT jsonb_agg(to_jsonb(a) ORDER BY a.created_at DESC)
-      FROM (SELECT id, school_id, visit_logical_id, description, responsible_label,
-        due_on, recorded_at AS created_at
-        FROM public.school_institutional_followup_actions WHERE school_id = _school
-        ORDER BY recorded_at DESC LIMIT 2000) a),'[]'::jsonb),
+      FROM (SELECT a.id, a.school_id, a.visit_logical_id, a.description, a.responsible_label,
+        a.due_on, a.recorded_at AS created_at, p.display_name AS author_name
+        FROM public.school_institutional_followup_actions a
+        LEFT JOIN public.institutional_persons p ON p.id = a.author_person_id
+        WHERE a.school_id = _school
+        ORDER BY a.recorded_at DESC LIMIT 2000) a),'[]'::jsonb),
     'updates', coalesce((SELECT jsonb_agg(to_jsonb(u) ORDER BY u.occurred_on DESC, u.created_at DESC)
       FROM (SELECT u.id, u.action_id, u.visit_logical_id, u.occurred_on, u.situation,
-        u.done_text, u.not_done_text, u.results, u.referrals, u.recorded_at AS created_at
+        u.done_text, u.not_done_text, u.results, u.referrals, u.recorded_at AS created_at,
+        p.display_name AS author_name
         FROM public.school_institutional_followup_updates u
         JOIN public.school_institutional_followup_actions a ON a.id = u.action_id
+        LEFT JOIN public.institutional_persons p ON p.id = u.author_person_id
         WHERE a.school_id = _school ORDER BY u.occurred_on DESC, u.recorded_at DESC LIMIT 5000) u),'[]'::jsonb)
   ) INTO _res;
   RETURN _res;
