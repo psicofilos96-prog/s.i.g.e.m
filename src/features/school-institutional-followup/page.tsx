@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
-import { networkFollowup, recordAction, recordUpdate, recordVisit, schoolFollowup } from "./source";
+import { networkFollowup, recordVisitBundle, recordUpdate, schoolFollowup } from "./source";
 import { exportFollowupNetwork } from "./report";
 import { currentSituation, currentUpdate, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS } from "./model";
 
@@ -92,14 +92,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     const requests = visitRequests.current ?? { visit: crypto.randomUUID(), actions: draftActions.map(() => crypto.randomUUID()) };
     visitRequests.current = requests;
     try {
-      const id = await recordVisit({ school, day, diagnosis, strengths, weaknesses, summary, request: requests.visit });
-      for (const [index, action] of draftActions.entries()) {
-        if (!action.description.trim()) continue;
-        await recordAction({
-          visit: id, description: action.description, responsible: action.responsible,
-          due: action.due || null, request: requests.actions[index] ?? crypto.randomUUID(),
-        });
-      }
+      await recordVisitBundle({
+        school, day, diagnosis, strengths, weaknesses, summary, request: requests.visit,
+        actions: draftActions.map((a, index) => ({
+          description: a.description, responsible: a.responsible,
+          due: a.due || null, request: requests.actions[index] ?? crypto.randomUUID(),
+        })),
+      });
       setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
       setDraftActions([newAction()]); visitRequests.current = null;
       setNotice("Visita e ações registradas. O histórico da escola foi preservado.");
