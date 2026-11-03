@@ -1,0 +1,252 @@
+import { useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { operationalToday } from "@/lib/academic-date";
+import { Button } from "@/components/ui/button";
+import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
+import { networkFollowup, recordAction, recordUpdate, recordVisit, schoolFollowup } from "./source";
+import { currentSituation, currentUpdate, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS } from "./model";
+
+const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
+const textArea = input + " min-h-20";
+const dateLabel = (d: string | null) => d ? d.split("-").reverse().join("/") : "Não informado";
+const newAction = () => ({ description: "", responsible: "", due: "" });
+type ActionDraft = ReturnType<typeof newAction>;
+
+export function InstitutionalSchoolFollowupPage() {
+  const authority = useSessionAuthority();
+  const key = sessionContextKey(authority);
+  if (authority.status !== "signed-in" || !key || !pathAllowed(authority, "/acompanhamento-unidades")) {
+    return <StatePanel tone="info" title={authority.status === "loading" ? "Verificando acesso…" : "Acesso não disponível"}
+      description="Entre com uma conta institucional autorizada para consultar ou registrar o acompanhamento." />;
+  }
+  return <FollowupWorkspace key={key} sessionKey={key} authority={authority} />;
+}
+type SignedIn = Extract<ReturnType<typeof useSessionAuthority>, { status: "signed-in" }>;
+
+function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; authority: SignedIn }) {
+  const queryClient = useQueryClient();
+  const today = operationalToday();
+  const [from, setFrom] = useState(today.slice(0, 4) + "-01-01");
+  const [to, setTo] = useState(today);
+  const [search, setSearch] = useState("");
+  const [school, setSchool] = useState("");
+  const [day, setDay] = useState(today);
+  const [diagnosis, setDiagnosis] = useState("");
+  const [strengths, setStrengths] = useState("");
+  const [weaknesses, setWeaknesses] = useState("");
+  const [summary, setSummary] = useState("");
+  const [draftActions, setDraftActions] = useState<ActionDraft[]>([newAction()]);
+  const [saving, setSaving] = useState(false);
+  const [savingUpdate, setSavingUpdate] = useState(false);
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const visitRequests = useRef<{ visit: string; actions: string[] } | null>(null);
+  const updateRequest = useRef<string | null>(null);
+  const [actionId, setActionId] = useState("");
+  const [situation, setSituation] = useState(SITUATIONS[0].value as string);
+  const [updateDay, setUpdateDay] = useState(today);
+  const [done, setDone] = useState("");
+  const [notDone, setNotDone] = useState("");
+  const [results, setResults] = useState("");
+  const [referrals, setReferrals] = useState("");
+
+  const network = useQuery({
+    queryKey: ["institutional-followup-network", sessionKey, from, to],
+    queryFn: () => networkFollowup(from, to), enabled: Boolean(from && to && from <= to), retry: false,
+  });
+  const detail = useQuery({
+    queryKey: ["institutional-followup-school", sessionKey, school],
+    queryFn: () => schoolFollowup(school), enabled: Boolean(school), retry: false,
+  });
+  const rows = searchableNetwork(network.data ?? [], search);
+  const totals = networkIndicators(network.data ?? []);
+  const selected = network.data?.find((r) => r.school_id === school);
+  const canRecord = Boolean(authority.person) && authority.capabilities.some((c) =>
+    c.capabilityId === "registrar-acompanhamento-da-supervisao"
+    && (c.schoolId === null || c.schoolId === school));
+  const stats = detail.data ? schoolIndicators(detail.data, today) : null;
+  const maxVisits = Math.max(1, ...rows.map((r) => r.visits));
+  async function refresh() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-network", sessionKey] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-school", sessionKey, school] }),
+    ]);
+  }
+  async function saveVisit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!school || !canRecord || !diagnosis.trim() || !day || day > today || saving) return;
+    setSaving(true); setError(""); setNotice("");
+    const requests = visitRequests.current ?? { visit: crypto.randomUUID(), actions: draftActions.map(() => crypto.randomUUID()) };
+    visitRequests.current = requests;
+    try {
+      const id = await recordVisit({ school, day, diagnosis, strengths, weaknesses, summary, request: requests.visit });
+      for (const [index, action] of draftActions.entries()) {
+        if (!action.description.trim()) continue;
+        await recordAction({
+          visit: id, description: action.description, responsible: action.responsible,
+          due: action.due || null, request: requests.actions[index] ?? crypto.randomUUID(),
+        });
+      }
+      setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
+      setDraftActions([newAction()]); visitRequests.current = null;
+      setNotice("Visita e ações registradas. O histórico da escola foi preservado.");
+      await refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Falha ao registrar a visita.");
+    } finally { setSaving(false); }
+  }
+  async function saveUpdate(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!actionId || !school || !canRecord || savingUpdate || !updateDay || updateDay > today) return;
+    setSavingUpdate(true); setError(""); setNotice("");
+    updateRequest.current ??= crypto.randomUUID();
+    try {
+      await recordUpdate({
+        action: actionId, visit: null, day: updateDay, situation,
+        done, notDone, results, referrals, request: updateRequest.current,
+      });
+      updateRequest.current = null;
+      setActionId(""); setDone(""); setNotDone(""); setResults(""); setReferrals("");
+      setNotice("Evolução da ação registrada, sem apagar as atualizações anteriores.");
+      await refresh();
+    } catch (e) { setError(e instanceof Error ? e.message : "Falha ao registrar a atualização."); }
+    finally { setSavingUpdate(false); }
+  }
+  function changeSchool(id: string) {
+    setSchool(id); setActionId(""); setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null;
+    setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
+  }
+  return <div className="space-y-6">
+    <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
+      description="A equipe registra o diagnóstico e a evolução das ações. O Gabinete consulta o panorama da rede e seus históricos." />
+    <section className="space-y-3 rounded-xl border border-border p-4" aria-label="Panorama da rede">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="text-sm">Início do período<input className={input} type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
+        <label className="text-sm">Fim do período<input className={input} type="date" value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
+        <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome da escola" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
+        <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
+      </div>
+      {network.isPending && <p role="status" className="text-sm text-muted-foreground">Lendo registros autorizados…</p>}
+      {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
+        description={network.error instanceof Error ? network.error.message : "Verifique a conexão e as permissões."} />}
+      {network.isSuccess && <>
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {[
+            ["Escolas acessíveis", totals.schools], ["Visitadas no período", totals.visitedSchools],
+            ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
+            ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
+          ].map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3">
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-2xl font-semibold tabular-nums">{value}</p>
+          </div>)}
+        </div>
+        <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
+        <h2 className="font-semibold">Escolas e visitas realizadas</h2>
+        {rows.length === 0 ? <EmptyState title="Nenhuma escola disponível" description="Nenhuma unidade foi encontrada neste escopo ou filtro." /> : <>
+          <div className="space-y-2">
+            {rows.slice(0, 8).map((r) => <div key={r.school_id} className="grid grid-cols-[minmax(0,1fr)_2fr_auto] items-center gap-2 text-xs">
+              <span className="truncate" title={r.school_name}>{r.school_name}</span>
+              <div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${(r.visits / maxVisits) * 100}%` }} /></div>
+              <span className="tabular-nums">{r.visits}</span>
+            </div>)}
+          </div>
+          <div className="max-h-72 overflow-auto rounded-lg border">
+            <table className="w-full text-left text-sm"><thead className="sticky top-0 bg-background"><tr>
+              <th className="p-2">Unidade escolar</th><th className="p-2">Visitas</th><th className="p-2">Ações</th><th className="p-2">Prazo vencido</th>
+            </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className="border-t">
+              <td className="p-2"><button type="button" className="text-left font-medium text-primary underline-offset-2 hover:underline" onClick={() => changeSchool(r.school_id)}>{r.school_name}</button></td>
+              <td className="p-2 tabular-nums">{r.visits}</td><td className="p-2 tabular-nums">{r.actions}</td><td className="p-2 tabular-nums">{r.overdue}</td>
+            </tr>)}</tbody></table>
+          </div>
+        </>}
+      </>}
+    </section>
+    {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
+    {school && <section className="space-y-5" aria-label="Detalhamento da escola">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
+        <Button variant="outline" onClick={() => changeSchool("")}>Fechar escola</Button>
+      </div>
+      {detail.isPending && <p role="status">Carregando histórico…</p>}
+      {detail.isError && <StatePanel tone="danger" title="Histórico indisponível"
+        description={detail.error instanceof Error ? detail.error.message : "Erro de consulta."} />}
+      {stats && <div className="flex flex-wrap gap-2 text-xs">
+        <span className="rounded-lg bg-muted p-2">{stats.visits} visitas</span>
+        <span className="rounded-lg bg-muted p-2">{stats.actions} ações</span>
+        <span className="rounded-lg bg-muted p-2">{stats.completed} concluídas</span>
+        <span className="rounded-lg bg-muted p-2">{stats.withoutUpdate} sem atualização</span>
+        <span className="rounded-lg bg-muted p-2">{stats.noDueDate} sem prazo</span>
+      </div>}
+      {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
+      {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
+      {canRecord && <form className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
+        <h3 className="font-semibold">Registrar nova visita</h3>
+        <label className="block text-sm">Data da visita<input className={input} type="date" max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
+        <label className="block text-sm">Diagnóstico da realidade<textarea className={textArea} required maxLength={10000} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} /></label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="block text-sm">Pontos fortes<textarea className={textArea} maxLength={10000} value={strengths} onChange={(e) => setStrengths(e.target.value)} /></label>
+          <label className="block text-sm">Fragilidades e necessidades<textarea className={textArea} maxLength={10000} value={weaknesses} onChange={(e) => setWeaknesses(e.target.value)} /></label>
+        </div>
+        <label className="block text-sm">Observações e encaminhamentos da visita<textarea className={textArea} maxLength={10000} value={summary} onChange={(e) => setSummary(e.target.value)} /></label>
+        <h4 className="font-medium">Plano de ação — medidas propostas</h4>
+        {draftActions.map((a, i) => <div key={i} className="space-y-2 rounded-lg bg-muted/30 p-3">
+          <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
+            onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, description: e.target.value } : x))} /></label>
+          <div className="grid gap-2 md:grid-cols-2">
+            <label className="block text-sm">Responsável declarado<input className={input} maxLength={250} value={a.responsible}
+              onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, responsible: e.target.value } : x))} /></label>
+            <label className="block text-sm">Prazo, se houver<input className={input} type="date" min={day} value={a.due}
+              onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, due: e.target.value } : x))} /></label>
+          </div>
+        </div>)}
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" onClick={() => { setDraftActions((a) => [...a, newAction()]); visitRequests.current = null; }}>Adicionar medida</Button>
+          {draftActions.length > 1 && <Button type="button" variant="ghost" onClick={() => { setDraftActions((a) => a.slice(0, -1)); visitRequests.current = null; }}>Remover última</Button>}
+          <Button type="submit" disabled={saving || !diagnosis.trim()}>{saving ? "Registrando…" : "Salvar visita e plano"}</Button>
+        </div>
+        <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
+      </form>}
+      {detail.data && <>
+        <div className="space-y-3 rounded-xl border p-4">
+          <h3 className="font-semibold">Ações e evolução</h3>
+          {!detail.data.actions.length && <p className="text-sm text-muted-foreground">Nenhuma medida cadastrada.</p>}
+          {detail.data.actions.map((a) => {
+            const latest = currentUpdate(a, detail.data!.updates);
+            return <div key={a.id} className="space-y-2 border-b pb-3 last:border-0">
+              <p className="font-medium">{a.description}</p>
+              <p className="text-xs text-muted-foreground">Responsável: {a.responsible_label || "Não informado"} • Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detail.data!.updates)}</p>
+              {latest && <p className="text-sm">Última atualização ({dateLabel(latest.occurred_on)}): {latest.done_text || latest.not_done_text || latest.results || latest.referrals || "Situação registrada sem observações"}</p>}
+              {canRecord && <Button size="sm" variant="outline" onClick={() => { setActionId(a.id); updateRequest.current = null; }}>Registrar evolução</Button>}
+            </div>;
+          })}
+        </div>
+        {canRecord && actionId && <form className="space-y-3 rounded-xl border p-4" onSubmit={(e) => void saveUpdate(e)}>
+          <h3 className="font-semibold">Nova atualização da ação</h3>
+          <label className="block text-sm">Data<input className={input} type="date" required max={today} value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} /></label>
+          <label className="block text-sm">Situação declarada<select className={input} value={situation} onChange={(e) => setSituation(e.target.value)}>
+            {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select></label>
+          <label className="block text-sm">O que foi feito<textarea className={textArea} maxLength={4000} value={done} onChange={(e) => setDone(e.target.value)} /></label>
+          <label className="block text-sm">O que não foi feito<textarea className={textArea} maxLength={4000} value={notDone} onChange={(e) => setNotDone(e.target.value)} /></label>
+          <label className="block text-sm">Resultados<textarea className={textArea} maxLength={4000} value={results} onChange={(e) => setResults(e.target.value)} /></label>
+          <label className="block text-sm">Encaminhamentos<textarea className={textArea} maxLength={4000} value={referrals} onChange={(e) => setReferrals(e.target.value)} /></label>
+          <div className="flex gap-2"><Button type="submit" disabled={savingUpdate}>{savingUpdate ? "Salvando…" : "Registrar atualização"}</Button>
+            <Button type="button" variant="outline" onClick={() => setActionId("")}>Cancelar</Button></div>
+        </form>}
+        <div className="space-y-3 rounded-xl border p-4">
+          <h3 className="font-semibold">Histórico de visitas</h3>
+          {!detail.data.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
+          {detail.data.visits.map((v) => <article key={v.id} className="space-y-2 border-b pb-3 last:border-0">
+            <p className="text-sm font-medium">{dateLabel(v.visit_date)} • {v.author_name || "Autoria institucional registrada"} {v.version > 1 ? `(retificação v${v.version})` : ""}</p>
+            <p className="text-sm"><strong>Diagnóstico:</strong> {v.diagnosis}</p>
+            <p className="text-sm"><strong>Pontos fortes:</strong> {v.strengths || "Não informado"}</p>
+            <p className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses || "Não informado"}</p>
+            {v.summary && <p className="text-sm"><strong>Encaminhamentos:</strong> {v.summary}</p>}
+          </article>)}
+        </div>
+      </>}
+    </section>}
+  </div>;
+}
