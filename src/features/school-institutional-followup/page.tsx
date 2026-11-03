@@ -6,6 +6,7 @@ import { operationalToday } from "@/lib/academic-date";
 import { Button } from "@/components/ui/button";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { networkFollowup, recordAction, recordUpdate, recordVisit, schoolFollowup } from "./source";
+import { exportFollowupNetwork } from "./report";
 import { currentSituation, currentUpdate, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
@@ -40,6 +41,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [draftActions, setDraftActions] = useState<ActionDraft[]>([newAction()]);
   const [saving, setSaving] = useState(false);
   const [savingUpdate, setSavingUpdate] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const visitRequests = useRef<{ visit: string; actions: string[] } | null>(null);
@@ -68,6 +70,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     && (c.schoolId === null || c.schoolId === school));
   const stats = detail.data ? schoolIndicators(detail.data, today) : null;
   const maxVisits = Math.max(1, ...rows.map((r) => r.visits));
+  async function exportReport(format: "csv" | "xlsx" | "pdf") {
+    if (!network.isSuccess || exporting) return;
+    setExporting(true); setError("");
+    try { await exportFollowupNetwork(rows, from, to, format); }
+    catch (e) { setError(e instanceof Error ? e.message : "Não foi possível exportar o relatório."); }
+    finally { setExporting(false); }
+  }
   async function refresh() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-network", sessionKey] }),
@@ -127,6 +136,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         <label className="text-sm">Fim do período<input className={input} type="date" value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
         <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome da escola" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
         <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
+        {network.isSuccess && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("xlsx")}>Excel</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("csv")}>CSV</Button>
+        </div>}
       </div>
       {network.isPending && <p role="status" className="text-sm text-muted-foreground">Lendo registros autorizados…</p>}
       {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
