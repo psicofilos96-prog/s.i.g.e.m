@@ -1,5 +1,10 @@
 -- Acompanhamento institucional de unidades escolares. Domínio distinto da Supervisão formal.
 -- Aditivo, append-only, sem permissões automáticas. Gabinete lê; equipe humana registra.
+-- Capabilities próprias; não compartilhar acesso com procedimentos formais da Supervisão.
+INSERT INTO public.sigem_capability_catalog(capability_id, origin) VALUES
+  ('consultar-acompanhamento-institucional', 'decisao-projeto-acompanhamento-2026-11-03'),
+  ('registrar-acompanhamento-institucional', 'decisao-projeto-acompanhamento-2026-11-03')
+ON CONFLICT (capability_id) DO NOTHING;
 CREATE TABLE public.school_institutional_followup_visits (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   logical_id uuid NOT NULL,
@@ -64,8 +69,9 @@ ALTER TABLE public.school_institutional_followup_actions ENABLE ROW LEVEL SECURI
 ALTER TABLE public.school_institutional_followup_updates ENABLE ROW LEVEL SECURITY;
 -- Sem policies de acesso direto: somente funções guardadas por capacidade efetiva.
 CREATE FUNCTION public.school_institutional_followup_immutable()
-RETURNS trigger LANGUAGE plpgsql SET search_path TO '' AS $$
-BEGIN RAISE EXCEPTION 'followup:append-only'; END $$;
+RETURNS trigger LANGUAGE plpgsql SET search_path TO '' AS $
+BEGIN RAISE EXCEPTION 'followup:append-only'; END $;
+REVOKE ALL ON FUNCTION public.school_institutional_followup_immutable() FROM PUBLIC, anon, authenticated, service_role;
 CREATE TRIGGER followup_visit_immutable BEFORE UPDATE OR DELETE ON public.school_institutional_followup_visits
   FOR EACH ROW EXECUTE FUNCTION public.school_institutional_followup_immutable();
 CREATE TRIGGER followup_action_immutable BEFORE UPDATE OR DELETE ON public.school_institutional_followup_actions
@@ -73,13 +79,25 @@ CREATE TRIGGER followup_action_immutable BEFORE UPDATE OR DELETE ON public.schoo
 CREATE TRIGGER followup_update_immutable BEFORE UPDATE OR DELETE ON public.school_institutional_followup_updates
   FOR EACH ROW EXECUTE FUNCTION public.school_institutional_followup_immutable();
 
--- Reaproveita a competência já homologável da Supervisão: não concede acesso por cargo.
+-- Uma autorização própria evita que dar leitura ao Gabinete abra a Supervisão formal.
+-- Capabilities dependem de política institucional homologada. Nenhuma é concedida nesta migration.
+CREATE FUNCTION public.school_institutional_followup_grant(_capability text, _school text)
+RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $
+BEGIN
+  IF auth.uid() IS NULL OR _school IS NULL OR _capability NOT IN (
+    'consultar-acompanhamento-institucional','registrar-acompanhamento-institucional'
+  ) THEN RETURN false; END IF;
+  RETURN EXISTS (SELECT 1 FROM public.effective_scope_capabilities(CURRENT_DATE) c
+    WHERE c.capability_id = _capability AND c.policy_id IS NOT NULL
+      AND (c.scope_level = 'rede' OR c.scope_level = 'escola' AND c.school_id = _school));
+END $;
+REVOKE ALL ON FUNCTION public.school_institutional_followup_grant(text,text) FROM PUBLIC, anon, authenticated, service_role;
 -- Uma função de leitura atende o Gabinete; a gravação sempre exige pessoa natural.
 CREATE FUNCTION public.school_institutional_followup_can_read(_school text)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO '' AS $$
   SELECT auth.uid() IS NOT NULL AND (
-    public.al_supervision_grant('consultar-acompanhamento-da-supervisao', _school) IS NOT NULL
-    OR public.al_supervision_grant('registrar-acompanhamento-da-supervisao', _school) IS NOT NULL
+    public.school_institutional_followup_grant('consultar-acompanhamento-institucional', _school)
+    OR public.school_institutional_followup_grant('registrar-acompanhamento-institucional', _school)
   )
 $$;
 REVOKE ALL ON FUNCTION public.school_institutional_followup_can_read(text) FROM PUBLIC, anon, authenticated, service_role;
@@ -89,7 +107,7 @@ RETURNS uuid LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $
 DECLARE _person uuid;
 BEGIN
   IF auth.uid() IS NULL THEN RAISE EXCEPTION 'followup:session-required'; END IF;
-  IF public.al_supervision_grant('registrar-acompanhamento-da-supervisao', _school) IS NULL
+  IF NOT public.school_institutional_followup_grant('registrar-acompanhamento-institucional', _school)
     THEN RAISE EXCEPTION 'followup:recording-denied'; END IF;
   SELECT l.person_id INTO _person FROM public.user_person_links l WHERE l.user_id = auth.uid();
   IF _person IS NULL OR NOT EXISTS (SELECT 1 FROM public.institutional_persons p
