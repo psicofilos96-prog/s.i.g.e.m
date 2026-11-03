@@ -1,0 +1,50 @@
+import { readFileSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import { SITUATIONS } from "./model";
+
+/**
+ * Prova estática de barreiras: execução SQL real exige banco efêmero com migrations.
+ * A prova SQL negativa separada vive em supabase/tests/0613_school_institutional_followup.sql.
+ */
+const sql = readFileSync("drizzle/migrations/0613_school_institutional_followup.sql", "utf8");
+const negative = readFileSync("supabase/tests/0613_school_institutional_followup.sql", "utf8");
+
+describe("acompanhamento institucional — contrato SQL", () => {
+  it("não expõe tabelas do acompanhamento a clientes", () => {
+    expect(sql).toMatch(/REVOKE ALL ON public\.school_institutional_followup_visits,/);
+    expect(sql).toMatch(/FROM PUBLIC, anon, authenticated, service_role/);
+    for (const table of ["visits", "actions", "updates"]) {
+      expect(sql).toContain(`ALTER TABLE public.school_institutional_followup_${table} ENABLE ROW LEVEL SECURITY`);
+      expect(sql).not.toMatch(new RegExp(`GRANT (?:SELECT|INSERT|UPDATE|DELETE) ON public\\.school_institutional_followup_${table} TO authenticated`));
+    }
+  });
+  it("garante consulta e gravação por capacidades distintas", () => {
+    expect(sql).toContain("consultar-acompanhamento-institucional");
+    expect(sql).toContain("registrar-acompanhamento-institucional");
+    expect(sql).not.toContain("al_supervision_grant(");
+    expect(sql).not.toContain("GRANT EXECUTE ON FUNCTION public.school_institutional_followup_grant");
+    expect(sql).toMatch(/auth\.uid\(\) IS NULL/);
+    expect(sql).toContain("p.actor_nature = 'pessoa-natural'");
+  });
+  it("fecha o leque de situações no SQL, igual à interface", () => {
+    for (const status of SITUATIONS) {
+      expect(sql).toContain(`'${status.value}'`);
+    }
+    expect(sql).toMatch(/situation text NOT NULL CHECK \(situation IN/);
+    expect(sql).toContain("followup:situation-invalid");
+  });
+  it("opera visita e plano atomica e idempotentemente", () => {
+    expect(sql).toContain("CREATE FUNCTION public.record_school_institutional_followup_bundle(");
+    expect(sql).toContain("pg_catalog.jsonb_array_length(");
+    expect(sql).toContain("followup:too-many-actions");
+    expect(sql).toContain("ON CONFLICT (request_key) DO NOTHING");
+    expect(sql).toContain("REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle");
+  });
+  it("possui prova de negação e rollback em banco isolado", () => {
+    expect(negative).toMatch(/^BEGIN;/m);
+    expect(negative.trimEnd().endsWith("ROLLBACK;")).toBe(true);
+    expect(negative).toContain("followup-test:reader-failed-open");
+    expect(negative).toContain("followup-test:writer-failed-open");
+    expect(negative).toContain("followup-test:ghost-read-network");
+  });
+});
