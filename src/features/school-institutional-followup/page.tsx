@@ -4,6 +4,8 @@ import { useSessionAuthority, sessionContextKey } from "@/features/authority/ses
 import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { operationalToday } from "@/lib/academic-date";
 import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/sigem/date-input";
+import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { networkFollowup, recordAction, recordUpdate, recordVisit, schoolFollowup } from "./source";
 import { exportFollowupNetwork } from "./report";
@@ -74,7 +76,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     if (!network.isSuccess || exporting) return;
     setExporting(true); setError("");
     try { await exportFollowupNetwork(rows, from, to, format); }
-    catch (e) { setError(e instanceof Error ? e.message : "Não foi possível exportar o relatório."); }
+    catch (e) { setError(presentError(e)); }
     finally { setExporting(false); }
   }
   async function refresh() {
@@ -103,7 +105,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       setNotice("Visita e ações registradas. O histórico da escola foi preservado.");
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Falha ao registrar a visita.");
+      setError(presentError(e));
     } finally { setSaving(false); }
   }
   async function saveUpdate(event: React.FormEvent<HTMLFormElement>) {
@@ -120,7 +122,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       setActionId(""); setDone(""); setNotDone(""); setResults(""); setReferrals("");
       setNotice("Evolução da ação registrada, sem apagar as atualizações anteriores.");
       await refresh();
-    } catch (e) { setError(e instanceof Error ? e.message : "Falha ao registrar a atualização."); }
+    } catch (e) { setError(presentError(e)); }
     finally { setSavingUpdate(false); }
   }
   function changeSchool(id: string) {
@@ -132,8 +134,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       description="A equipe registra o diagnóstico e a evolução das ações. O Gabinete consulta o panorama da rede e seus históricos." />
     <section className="space-y-3 rounded-xl border border-border p-4" aria-label="Panorama da rede">
       <div className="flex flex-wrap items-end gap-3">
-        <label className="text-sm">Início do período<input className={input} type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
-        <label className="text-sm">Fim do período<input className={input} type="date" value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
+        <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
+        <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
         <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome da escola" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
         <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
         {network.isSuccess && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
@@ -144,7 +146,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </div>
       {network.isPending && <p role="status" className="text-sm text-muted-foreground">Lendo registros autorizados…</p>}
       {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
-        description={network.error instanceof Error ? network.error.message : "Verifique a conexão e as permissões."} />}
+        description={presentError(network.error)} />}
       {network.isSuccess && <>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {[
@@ -167,8 +169,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             </div>)}
           </div>
           <div className="max-h-72 overflow-auto rounded-lg border">
-            <table className="w-full text-left text-sm"><thead className="sticky top-0 bg-background"><tr>
-              <th className="p-2">Unidade escolar</th><th className="p-2">Visitas</th><th className="p-2">Ações</th><th className="p-2">Prazo vencido</th>
+            <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-background"><tr>
+              <th scope="col" className="p-2">Unidade escolar</th><th scope="col" className="p-2">Visitas</th><th scope="col" className="p-2">Ações</th><th scope="col" className="p-2">Prazo vencido</th>
             </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className="border-t">
               <td className="p-2"><button type="button" className="text-left font-medium text-primary underline-offset-2 hover:underline" onClick={() => changeSchool(r.school_id)}>{r.school_name}</button></td>
               <td className="p-2 tabular-nums">{r.visits}</td><td className="p-2 tabular-nums">{r.actions}</td><td className="p-2 tabular-nums">{r.overdue}</td>
@@ -185,7 +187,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </div>
       {detail.isPending && <p role="status">Carregando histórico…</p>}
       {detail.isError && <StatePanel tone="danger" title="Histórico indisponível"
-        description={detail.error instanceof Error ? detail.error.message : "Erro de consulta."} />}
+        description={presentError(detail.error)} />}
       {stats && <div className="flex flex-wrap gap-2 text-xs">
         <span className="rounded-lg bg-muted p-2">{stats.visits} visitas</span>
         <span className="rounded-lg bg-muted p-2">{stats.actions} ações</span>
@@ -197,7 +199,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
       {canRecord && <form className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
         <h3 className="font-semibold">Registrar nova visita</h3>
-        <label className="block text-sm">Data da visita<input className={input} type="date" max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
+        <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
         <label className="block text-sm">Diagnóstico da realidade<textarea className={textArea} required maxLength={10000} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} /></label>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="block text-sm">Pontos fortes<textarea className={textArea} maxLength={10000} value={strengths} onChange={(e) => setStrengths(e.target.value)} /></label>
@@ -211,7 +213,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <div className="grid gap-2 md:grid-cols-2">
             <label className="block text-sm">Responsável declarado<input className={input} maxLength={250} value={a.responsible}
               onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, responsible: e.target.value } : x))} /></label>
-            <label className="block text-sm">Prazo, se houver<input className={input} type="date" min={day} value={a.due}
+            <label className="block text-sm">Prazo, se houver<DateInput className={input} min={day} value={a.due}
               onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, due: e.target.value } : x))} /></label>
           </div>
         </div>)}
@@ -252,7 +254,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </div>
         {canRecord && actionId && <form className="space-y-3 rounded-xl border p-4" onSubmit={(e) => void saveUpdate(e)}>
           <h3 className="font-semibold">Nova atualização da ação</h3>
-          <label className="block text-sm">Data<input className={input} type="date" required max={today} value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} /></label>
+          <label className="block text-sm">Data<DateInput className={input} required max={today} value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} /></label>
           <label className="block text-sm">Situação declarada<select className={input} value={situation} onChange={(e) => setSituation(e.target.value)}>
             {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select></label>
