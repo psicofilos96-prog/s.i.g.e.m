@@ -32,3 +32,38 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run test:deep
+
+  followup-sql:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: followup_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: followup_ci_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d followup_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGPASSWORD: followup_ci_only
+    steps:
+      - uses: actions/checkout@v5
+      - name: Ensure PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y postgresql-client
+          fi
+      - name: Execute migration and scoped-access tests in disposable PostgreSQL
+        run: |
+          set -euo pipefail
+          psql -h localhost -U postgres -d followup_ci -v ON_ERROR_STOP=1 \
+            -f supabase/tests/fixtures/0613_followup_isolated_bootstrap.sql \
+            -f drizzle/migrations/0613_school_institutional_followup.sql \
+            -f supabase/tests/0613_school_institutional_followup.sql \
+            -f supabase/tests/0613_followup_isolated_positive.sql
