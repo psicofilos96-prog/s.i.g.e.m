@@ -127,7 +127,20 @@ BEGIN
   IF _request IS NULL THEN RAISE EXCEPTION 'followup:request-required'; END IF;
   SELECT id INTO _id FROM public.school_institutional_followup_visits
     WHERE request_key = _request AND author_user_id = auth.uid() AND school_id = _school;
-  IF _id IS NOT NULL THEN RETURN _id; END IF;
+  IF _id IS NOT NULL THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM public.school_institutional_followup_visits old
+      WHERE old.id = _id
+        AND old.visit_date IS NOT DISTINCT FROM _day
+        AND old.diagnosis IS NOT DISTINCT FROM btrim(_diagnosis)
+        AND old.strengths IS NOT DISTINCT FROM coalesce(_strengths,'')
+        AND old.weaknesses IS NOT DISTINCT FROM coalesce(_weaknesses,'')
+        AND old.summary IS NOT DISTINCT FROM nullif(btrim(_summary),'')
+        AND old.supersedes_id IS NOT DISTINCT FROM _base
+        AND old.correction_reason IS NOT DISTINCT FROM nullif(btrim(_reason),'')
+    ) THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
+    RETURN _id;
+  END IF;
   IF _day IS NULL OR _day > (now() AT TIME ZONE 'America/Sao_Paulo')::date THEN RAISE EXCEPTION 'followup:invalid-date'; END IF;
   IF length(btrim(coalesce(_diagnosis,''))) = 0 THEN RAISE EXCEPTION 'followup:diagnosis-required'; END IF;
   IF _base IS NOT NULL THEN
@@ -152,6 +165,17 @@ BEGIN
       WHERE request_key = _request AND author_user_id = auth.uid() AND school_id = _school;
   END IF;
   IF _id IS NULL THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.school_institutional_followup_visits old
+    WHERE old.id = _id
+      AND old.visit_date IS NOT DISTINCT FROM _day
+      AND old.diagnosis IS NOT DISTINCT FROM btrim(_diagnosis)
+      AND old.strengths IS NOT DISTINCT FROM coalesce(_strengths,'')
+      AND old.weaknesses IS NOT DISTINCT FROM coalesce(_weaknesses,'')
+      AND old.summary IS NOT DISTINCT FROM nullif(btrim(_summary),'')
+      AND old.supersedes_id IS NOT DISTINCT FROM _base
+      AND old.correction_reason IS NOT DISTINCT FROM nullif(btrim(_reason),'')
+  ) THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
   RETURN _id;
 END $$;
 REVOKE ALL ON FUNCTION public.record_school_institutional_followup_visit(text,date,text,text,text,text,uuid,text,uuid) FROM PUBLIC, anon, service_role;
@@ -176,6 +200,14 @@ BEGIN
   IF _id IS NULL THEN SELECT id INTO _id FROM public.school_institutional_followup_actions
     WHERE request_key = _request AND author_user_id = auth.uid() AND school_id = v.school_id; END IF;
   IF _id IS NULL THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.school_institutional_followup_actions old
+    WHERE old.id = _id
+      AND old.visit_logical_id = v.logical_id
+      AND old.description IS NOT DISTINCT FROM btrim(_description)
+      AND old.responsible_label IS NOT DISTINCT FROM nullif(btrim(_responsible),'')
+      AND old.due_on IS NOT DISTINCT FROM _due
+  ) THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
   RETURN _id;
 END $$;
 REVOKE ALL ON FUNCTION public.record_school_institutional_followup_action(uuid,text,text,date,uuid) FROM PUBLIC, anon, service_role;
@@ -210,6 +242,18 @@ BEGIN
   IF _id IS NULL THEN SELECT u.id INTO _id FROM public.school_institutional_followup_updates u
     WHERE u.request_key = _request AND u.author_user_id = auth.uid() AND u.action_id = _action; END IF;
   IF _id IS NULL THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.school_institutional_followup_updates old
+    WHERE old.id = _id
+      AND old.action_id = _action
+      AND old.visit_logical_id IS NOT DISTINCT FROM v.logical_id
+      AND old.occurred_on IS NOT DISTINCT FROM _day
+      AND old.situation IS NOT DISTINCT FROM btrim(_situation)
+      AND old.done_text IS NOT DISTINCT FROM nullif(btrim(_done),'')
+      AND old.not_done_text IS NOT DISTINCT FROM nullif(btrim(_not_done),'')
+      AND old.results IS NOT DISTINCT FROM nullif(btrim(_results),'')
+      AND old.referrals IS NOT DISTINCT FROM nullif(btrim(_referrals),'')
+  ) THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
   RETURN _id;
 END $$;
 REVOKE ALL ON FUNCTION public.record_school_institutional_followup_update(uuid,uuid,date,text,text,text,text,text,uuid) FROM PUBLIC, anon, service_role;
