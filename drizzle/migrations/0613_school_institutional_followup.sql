@@ -48,7 +48,7 @@ CREATE TABLE public.school_institutional_followup_updates (
   action_id uuid NOT NULL REFERENCES public.school_institutional_followup_actions(id),
   visit_logical_id uuid,
   occurred_on date NOT NULL,
-  situation text NOT NULL CHECK (length(btrim(situation)) BETWEEN 1 AND 120),
+  situation text NOT NULL CHECK (situation IN ('prevista', 'em andamento', 'concluída', 'não realizada', 'suspensa')),
   done_text text CHECK (done_text IS NULL OR length(done_text) <= 4000),
   not_done_text text CHECK (not_done_text IS NULL OR length(not_done_text) <= 4000),
   results text CHECK (results IS NULL OR length(results) <= 4000),
@@ -191,7 +191,8 @@ BEGIN
   IF a.id IS NULL THEN RAISE EXCEPTION 'followup:action-not-found'; END IF;
   _person := public.school_institutional_followup_person(a.school_id);
   IF _day IS NULL OR _day > CURRENT_DATE THEN RAISE EXCEPTION 'followup:invalid-date'; END IF;
-  IF length(btrim(coalesce(_situation,''))) = 0 THEN RAISE EXCEPTION 'followup:situation-required'; END IF;
+  IF btrim(coalesce(_situation,'')) NOT IN ('prevista', 'em andamento', 'concluída', 'não realizada', 'suspensa')
+    THEN RAISE EXCEPTION 'followup:situation-invalid'; END IF;
   IF _request IS NULL THEN RAISE EXCEPTION 'followup:request-required'; END IF;
   IF _visit IS NOT NULL THEN
     SELECT * INTO v FROM public.school_institutional_followup_visits WHERE id = _visit;
