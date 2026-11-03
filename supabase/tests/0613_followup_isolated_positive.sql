@@ -46,6 +46,28 @@ BEGIN
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-positive:changed-payload-accepted'; END IF;
 
+  -- Se a segunda medida é inválida, nem a visita nem a primeira medida persistem.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_bundle(
+      'school-a', day_, 'Visita que deve reverter', '', '', '',
+      'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee'::uuid,
+      jsonb_build_array(
+        jsonb_build_object('description','Ação válida da transação falha',
+          'request','ffffffff-ffff-4fff-8fff-ffffffffffff'),
+        jsonb_build_object('description','Ação com prazo anterior à visita',
+          'due',(day_ - 1)::text,
+          'request','11111111-aaaa-4aaa-8aaa-111111111111')
+      )
+    );
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:due-before-visit' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:partial-bundle-accepted'; END IF;
+  doc := public.school_institutional_followup_school('school-a');
+  IF jsonb_array_length(doc->'visits') <> 1 OR jsonb_array_length(doc->'actions') <> 1
+    THEN RAISE EXCEPTION 'followup-positive:partial-bundle-persisted'; END IF;
+
   -- Atualizações preservam a sequência, e a projeção reflete a última situação.
   PERFORM public.record_school_institutional_followup_update(
     action1, visit1, day_, 'em andamento', 'Materiais separados', NULL,
@@ -60,6 +82,19 @@ BEGIN
     THEN RAISE EXCEPTION 'followup-positive:update-author-missing'; END IF;
   SELECT situation INTO status_ FROM public.school_institutional_followup_statuses() LIMIT 1;
   IF status_ <> 'concluída' THEN RAISE EXCEPTION 'followup-positive:wrong-current-status %', status_; END IF;
+
+  -- O banco rejeita valores fora do catálogo e conserva o histórico existente.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_update(
+      action1, NULL, day_, 'inventada', '', '', '', '', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:situation-invalid' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:unknown-situation-accepted'; END IF;
+  doc := public.school_institutional_followup_school('school-a');
+  IF jsonb_array_length(doc->'updates') <> 2
+    THEN RAISE EXCEPTION 'followup-positive:invalid-situation-persisted'; END IF;
 
   -- Escola fora do escopo de escrita e leitura do servidor permanece isolada.
   denied := false;
