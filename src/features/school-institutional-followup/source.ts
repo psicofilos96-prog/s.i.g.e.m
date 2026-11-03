@@ -64,3 +64,17 @@ export async function recordUpdate(input: {
   if (typeof id !== "string") throw new Error("Não foi possível confirmar a atualização.");
   return id;
 }
+
+export async function recordVisitBundle(input: {
+  school: string; day: string; diagnosis: string; strengths: string; weaknesses: string;
+  summary: string; request: string;
+  actions: { description: string; responsible: string; due: string | null; request: string }[];
+}): Promise<string> {
+  const id = await call("record_school_institutional_followup_bundle", {
+    _school: input.school, _day: input.day, _diagnosis: input.diagnosis,
+    _strengths: input.strengths, _weaknesses: input.weaknesses,
+    _summary: input.summary, _request: input.request, _actions: input.actions,
+  });
+  if (typeof id !== "string") throw new Error("Não foi possível confirmar a visita e o plano.");
+  return id;
+}
