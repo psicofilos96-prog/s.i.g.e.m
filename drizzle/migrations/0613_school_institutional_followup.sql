@@ -108,7 +108,7 @@ BEGIN
   _person := public.school_institutional_followup_person(_school);
   IF _request IS NULL THEN RAISE EXCEPTION 'followup:request-required'; END IF;
   SELECT id INTO _id FROM public.school_institutional_followup_visits
-    WHERE request_key = _request AND author_user_id = auth.uid();
+    WHERE request_key = _request AND author_user_id = auth.uid() AND school_id = _school;
   IF _id IS NOT NULL THEN RETURN _id; END IF;
   IF _day IS NULL OR _day > CURRENT_DATE THEN RAISE EXCEPTION 'followup:invalid-date'; END IF;
   IF length(btrim(coalesce(_diagnosis,''))) = 0 THEN RAISE EXCEPTION 'followup:diagnosis-required'; END IF;
