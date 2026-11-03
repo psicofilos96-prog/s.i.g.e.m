@@ -277,3 +277,41 @@ BEGIN
 END $$;
 REVOKE ALL ON FUNCTION public.school_institutional_followup_network(date,date) FROM PUBLIC, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.school_institutional_followup_network(date,date) TO authenticated;
+
+
+-- Uma visita e suas ações são um único ato transacional: erro em uma ação desfaz todas.
+CREATE FUNCTION public.record_school_institutional_followup_bundle(
+  _school text, _day date, _diagnosis text, _strengths text, _weaknesses text,
+  _summary text, _request uuid, _actions jsonb)
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$
+DECLARE _visit uuid; a jsonb; _request_action uuid;
+BEGIN
+  IF _actions IS NOT NULL AND pg_catalog.jsonb_typeof(_actions) <> 'array'
+    THEN RAISE EXCEPTION 'followup:actions-invalid'; END IF;
+  IF pg_catalog.jsonb_array_length(coalesce(_actions, '[]'::jsonb)) > 50
+    THEN RAISE EXCEPTION 'followup:too-many-actions'; END IF;
+  _visit := public.record_school_institutional_followup_visit(
+    _school, _day, _diagnosis, _strengths, _weaknesses,
+    _summary, NULL, NULL, _request
+  );
+  FOR a IN SELECT value FROM pg_catalog.jsonb_array_elements(coalesce(_actions, '[]'::jsonb))
+  LOOP
+    IF pg_catalog.jsonb_typeof(a) <> 'object' THEN
+      RAISE EXCEPTION 'followup:action-invalid';
+    END IF;
+    IF nullif(pg_catalog.btrim(coalesce(a->>'description','')), '') IS NOT NULL THEN
+      IF nullif(pg_catalog.btrim(coalesce(a->>'request','')), '') IS NULL
+        THEN RAISE EXCEPTION 'followup:action-request-required'; END IF;
+      _request_action := (a->>'request')::uuid;
+      PERFORM public.record_school_institutional_followup_action(
+        _visit, a->>'description', a->>'responsible',
+        nullif(a->>'due','')::date, _request_action
+      );
+    END IF;
+  END LOOP;
+  RETURN _visit;
+END $$;
+REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
+  FROM PUBLIC, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
+  TO authenticated;
