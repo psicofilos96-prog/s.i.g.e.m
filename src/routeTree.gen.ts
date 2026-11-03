@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AcervoDocumentalRouteImport } from './routes/acervo-documental'
 import { Route as AcompanhamentoAvaliacaoRouteImport } from './routes/acompanhamento-avaliacao'
+import { Route as AcompanhamentoUnidadesRouteImport } from './routes/acompanhamento-unidades'
 import { Route as AcompanhamentoDiariosRouteImport } from './routes/acompanhamento-diarios'
 import { Route as AcompanhamentoPlanejamentoRouteImport } from './routes/acompanhamento-planejamento'
 import { Route as AdministracaoRouteImport } from './routes/administracao'
@@ -318,6 +319,11 @@ const AcervoDocumentalRoute = AcervoDocumentalRouteImport.update({
 const AcompanhamentoAvaliacaoRoute = AcompanhamentoAvaliacaoRouteImport.update({
   id: '/acompanhamento-avaliacao',
   path: '/acompanhamento-avaliacao',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcompanhamentoUnidadesRoute = AcompanhamentoUnidadesRouteImport.update({
+  id: '/acompanhamento-unidades',
+  path: '/acompanhamento-unidades',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcompanhamentoDiariosRoute = AcompanhamentoDiariosRouteImport.update({
@@ -1891,6 +1897,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/acervo-documental': typeof AcervoDocumentalRoute
   '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
+  '/acompanhamento-unidades': typeof AcompanhamentoUnidadesRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
@@ -2188,6 +2195,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/acervo-documental': typeof AcervoDocumentalRoute
   '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
+  '/acompanhamento-unidades': typeof AcompanhamentoUnidadesRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
@@ -2453,6 +2461,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/acervo-documental': typeof AcervoDocumentalRoute
   '/acompanhamento-avaliacao': typeof AcompanhamentoAvaliacaoRoute
+  '/acompanhamento-unidades': typeof AcompanhamentoUnidadesRoute
   '/acompanhamento-diarios': typeof AcompanhamentoDiariosRoute
   '/acompanhamento-planejamento': typeof AcompanhamentoPlanejamentoRoute
   '/administracao': typeof AdministracaoRoute
@@ -2752,6 +2761,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acervo-documental'
     | '/acompanhamento-avaliacao'
+    | '/acompanhamento-unidades'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
     | '/administracao'
@@ -3049,6 +3059,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acervo-documental'
     | '/acompanhamento-avaliacao'
+    | '/acompanhamento-unidades'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
     | '/administracao'
@@ -3313,6 +3324,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acervo-documental'
     | '/acompanhamento-avaliacao'
+    | '/acompanhamento-unidades'
     | '/acompanhamento-diarios'
     | '/acompanhamento-planejamento'
     | '/administracao'
@@ -3611,6 +3623,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AcervoDocumentalRoute: typeof AcervoDocumentalRoute
   AcompanhamentoAvaliacaoRoute: typeof AcompanhamentoAvaliacaoRoute
+  AcompanhamentoUnidadesRoute: typeof AcompanhamentoUnidadesRoute
   AcompanhamentoDiariosRoute: typeof AcompanhamentoDiariosRoute
   AcompanhamentoPlanejamentoRoute: typeof AcompanhamentoPlanejamentoRoute
   AdministracaoRoute: typeof AdministracaoRoute
@@ -3800,6 +3813,13 @@ declare module '@tanstack/react-router' {
       path: '/acompanhamento-avaliacao'
       fullPath: '/acompanhamento-avaliacao'
       preLoaderRoute: typeof AcompanhamentoAvaliacaoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acompanhamento-unidades': {
+      id: '/acompanhamento-unidades'
+      path: '/acompanhamento-unidades'
+      fullPath: '/acompanhamento-unidades'
+      preLoaderRoute: typeof AcompanhamentoUnidadesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/acompanhamento-diarios': {
@@ -6529,6 +6549,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AcervoDocumentalRoute: AcervoDocumentalRoute,
   AcompanhamentoAvaliacaoRoute: AcompanhamentoAvaliacaoRoute,
+  AcompanhamentoUnidadesRoute: AcompanhamentoUnidadesRoute,
   AcompanhamentoDiariosRoute: AcompanhamentoDiariosRoute,
   AcompanhamentoPlanejamentoRoute: AcompanhamentoPlanejamentoRoute,
   AdministracaoRoute: AdministracaoRoute,
