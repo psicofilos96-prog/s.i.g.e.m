@@ -4292,6 +4292,13 @@
       "when": 1793650050000,
       "tag": "0612_secretariat_movement_search_observation_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 613,
+      "version": "7",
+      "when": 1793725200000,
+      "tag": "0613_school_institutional_followup",
+      "breakpoints": true
     }
   ]
 }
