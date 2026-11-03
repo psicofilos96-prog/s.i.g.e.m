@@ -69,8 +69,8 @@ ALTER TABLE public.school_institutional_followup_actions ENABLE ROW LEVEL SECURI
 ALTER TABLE public.school_institutional_followup_updates ENABLE ROW LEVEL SECURITY;
 -- Sem policies de acesso direto: somente funções guardadas por capacidade efetiva.
 CREATE FUNCTION public.school_institutional_followup_immutable()
-RETURNS trigger LANGUAGE plpgsql SET search_path TO '' AS $
-BEGIN RAISE EXCEPTION 'followup:append-only'; END $;
+RETURNS trigger LANGUAGE plpgsql SET search_path TO '' AS $$
+BEGIN RAISE EXCEPTION 'followup:append-only'; END $$;
 REVOKE ALL ON FUNCTION public.school_institutional_followup_immutable() FROM PUBLIC, anon, authenticated, service_role;
 CREATE TRIGGER followup_visit_immutable BEFORE UPDATE OR DELETE ON public.school_institutional_followup_visits
   FOR EACH ROW EXECUTE FUNCTION public.school_institutional_followup_immutable();
@@ -82,7 +82,7 @@ CREATE TRIGGER followup_update_immutable BEFORE UPDATE OR DELETE ON public.schoo
 -- Uma autorização própria evita que dar leitura ao Gabinete abra a Supervisão formal.
 -- Capabilities dependem de política institucional homologada. Nenhuma é concedida nesta migration.
 CREATE FUNCTION public.school_institutional_followup_grant(_capability text, _school text)
-RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $
+RETURNS boolean LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $$
 BEGIN
   IF auth.uid() IS NULL OR _school IS NULL OR _capability NOT IN (
     'consultar-acompanhamento-institucional','registrar-acompanhamento-institucional'
@@ -90,7 +90,7 @@ BEGIN
   RETURN EXISTS (SELECT 1 FROM public.effective_scope_capabilities(CURRENT_DATE) c
     WHERE c.capability_id = _capability AND c.policy_id IS NOT NULL
       AND (c.scope_level = 'rede' OR c.scope_level = 'escola' AND c.school_id = _school));
-END $;
+END $$;
 REVOKE ALL ON FUNCTION public.school_institutional_followup_grant(text,text) FROM PUBLIC, anon, authenticated, service_role;
 -- Uma função de leitura atende o Gabinete; a gravação sempre exige pessoa natural.
 CREATE FUNCTION public.school_institutional_followup_can_read(_school text)
