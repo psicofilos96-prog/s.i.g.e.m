@@ -78,3 +78,20 @@ export async function recordVisitBundle(input: {
   if (typeof id !== "string") throw new Error("Não foi possível confirmar a visita e o plano.");
   return id;
 }
+
+export type FollowupMonth = { month: string; visits: number };
+export type FollowupStatus = { situation: string; actions: number };
+export async function monthlyFollowup(from: string, to: string): Promise<FollowupMonth[]> {
+  const rows = await call("school_institutional_followup_monthly", { _from: from, _to: to });
+  if (!Array.isArray(rows)) throw new Error("Série mensal indisponível.");
+  return rows.map((r: Record<string, unknown>) => ({
+    month: String(r["month"]), visits: Number(r["visits"]),
+  }));
+}
+export async function followupStatuses(): Promise<FollowupStatus[]> {
+  const rows = await call("school_institutional_followup_statuses", {});
+  if (!Array.isArray(rows)) throw new Error("Situações indisponíveis.");
+  return rows.map((r: Record<string, unknown>) => ({
+    situation: String(r["situation"]), actions: Number(r["actions"]),
+  }));
+}
