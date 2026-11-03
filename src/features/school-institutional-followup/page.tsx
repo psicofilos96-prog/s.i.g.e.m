@@ -66,7 +66,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const totals = networkIndicators(network.data ?? []);
   const selected = network.data?.find((r) => r.school_id === school);
   const canRecord = Boolean(authority.person) && authority.capabilities.some((c) =>
-    c.capabilityId === "registrar-acompanhamento-da-supervisao"
+    c.capabilityId === "registrar-acompanhamento-institucional"
     && (c.schoolId === null || c.schoolId === school));
   const stats = detail.data ? schoolIndicators(detail.data, today) : null;
   const maxVisits = Math.max(1, ...rows.map((r) => r.visits));
