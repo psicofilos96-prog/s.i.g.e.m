@@ -217,7 +217,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             return <div key={a.id} className="space-y-2 border-b pb-3 last:border-0">
               <p className="font-medium">{a.description}</p>
               <p className="text-xs text-muted-foreground">Responsável: {a.responsible_label || "Não informado"} • Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detail.data!.updates)}</p>
-              {latest && <p className="text-sm">Última atualização ({dateLabel(latest.occurred_on)}): {latest.done_text || latest.not_done_text || latest.results || latest.referrals || "Situação registrada sem observações"}</p>}
+              {latest && <p className="text-sm">Última atualização ({dateLabel(latest.occurred_on)}): {latest.situation}</p>}
+              {detail.data!.updates.some((u) => u.action_id === a.id) && <details className="rounded-lg bg-muted/30 p-3 text-sm">
+                <summary className="cursor-pointer font-medium">Consultar histórico completo desta ação</summary>
+                <ol className="mt-3 space-y-3">
+                  {detail.data!.updates.filter((u) => u.action_id === a.id)
+                    .sort((x, y) => y.occurred_on.localeCompare(x.occurred_on) || y.created_at.localeCompare(x.created_at))
+                    .map((u) => <li key={u.id} className="space-y-1 border-b pb-2 last:border-0">
+                      <p className="font-medium">{dateLabel(u.occurred_on)} — {u.situation}</p>
+                      <p><strong>O que foi feito:</strong> {u.done_text || "Não informado"}</p>
+                      <p><strong>O que não foi feito:</strong> {u.not_done_text || "Não informado"}</p>
+                      <p><strong>Resultados:</strong> {u.results || "Não informado"}</p>
+                      <p><strong>Encaminhamentos:</strong> {u.referrals || "Não informado"}</p>
+                    </li>)}
+                </ol>
+              </details>}
               {canRecord && <Button size="sm" variant="outline" onClick={() => { setActionId(a.id); updateRequest.current = null; }}>Registrar evolução</Button>}
             </div>;
           })}
