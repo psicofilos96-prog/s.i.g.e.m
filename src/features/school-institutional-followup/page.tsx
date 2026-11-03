@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
-import { networkFollowup, recordVisitBundle, recordUpdate, schoolFollowup } from "./source";
+import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordUpdate, schoolFollowup } from "./source";
+import { InstitutionalFollowupAnalytics } from "./analytics";
 import { exportFollowupNetwork } from "./report";
 import { currentSituation, currentUpdate, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS } from "./model";
 
@@ -60,6 +61,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     queryKey: ["institutional-followup-network", sessionKey, from, to],
     queryFn: () => networkFollowup(from, to), enabled: Boolean(from && to && from <= to), retry: false,
   });
+  const monthly = useQuery({
+    queryKey: ["institutional-followup-monthly", sessionKey, from, to],
+    queryFn: () => monthlyFollowup(from, to), enabled: Boolean(from && to && from <= to), retry: false,
+  });
+  const statuses = useQuery({
+    queryKey: ["institutional-followup-statuses", sessionKey],
+    queryFn: followupStatuses, retry: false,
+  });
   const detail = useQuery({
     queryKey: ["institutional-followup-school", sessionKey, school],
     queryFn: () => schoolFollowup(school), enabled: Boolean(school), retry: false,
@@ -82,6 +91,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   async function refresh() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-network", sessionKey] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-monthly", sessionKey] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-statuses", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-school", sessionKey, school] }),
     ]);
   }
@@ -158,6 +169,12 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </div>)}
         </div>
         <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
+        {monthly.isSuccess && statuses.isSuccess && <InstitutionalFollowupAnalytics
+          months={monthly.data} statuses={statuses.data}
+          period={`${dateLabel(from)} a ${dateLabel(to)}`} />}
+        {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
+          Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
+        </p>}
         <h2 className="font-semibold">Escolas e visitas realizadas</h2>
         {rows.length === 0 ? <EmptyState title="Nenhuma escola disponível" description="Nenhuma unidade foi encontrada neste escopo ou filtro." /> : <>
           <div className="space-y-2">
