@@ -87,12 +87,8 @@ Inspecionados no GitHub em 03/11/2026:
 
 **Diretriz de implementação:** criar domínio próprio, por exemplo src/features/school-institutional-followup/, com páginas adequadas à equipe e ao Gabinete, integrando cadastro de escolas, sessão, capacidades, relatório e componentes visuais do SIGEM. Não duplicar fonte canônica de escolas nem mudar supervisão formal sem necessidade.
 
-## 9. Compatibilidade com a exigência de Google Drive
-O documento de origem menciona expressamente uma planilha compartilhada no Google Drive. Um sistema web não cumpre literalmente essa forma de entrega sem anuência do solicitante. Opções:
-1. Obter validação formal para o sistema substituir a planilha como instrumento oficial, preservando exportação Excel/CSV.
-2. Se a planilha for obrigatória, prover uma visão de consulta sincronizada e unidirecional em Google Sheets, derivada do banco (nunca manter duas fontes editáveis concorrentes). A sincronização exigirá escopo e autorização específicos.
-
-Não prometer integração com Drive antes de definir governança e acesso.
+## 9. Decisão sobre a ferramenta oficial (03/11/2026)
+O solicitante possui autonomia para substituir a planilha idealizada no documento por um sistema web. **Não haverá dependência de Google Drive ou Google Sheets.** O SIGEM será a fonte institucional para visitas, ações, evolução e indicadores. Exportações em PDF e CSV/Excel continuam desejáveis para consultas e reuniões do Gabinete, mas não constituem segunda base editável.
 
 ## 10. Sequência de implementação
 **Fase 0 — validação institucional:** confirmar campos obrigatórios e opcionais, escopo de escolas, perfis autorizados, catálogo de situações e se a planilha do Drive deve continuar existindo.
@@ -101,7 +97,7 @@ Não prometer integração com Drive antes de definir governança e acesso.
 
 **Fase 2 — Gabinete:** painel de rede, filtros, indicadores com fórmulas e fontes, detalhamento por escola e relatórios.
 
-**Fase 3 — melhoria contínua:** anexos, agenda de visitas, notificações internas de pendências se autorizadas, exportação/sincronização, refinamento da visualização e acessibilidade.
+**Fase 3 — melhoria contínua:** anexos, agenda de visitas, notificações internas de pendências se autorizadas, exportação, refinamento da visualização e acessibilidade.
 
 **Não fazer sem escopo posterior:** fiscalização automática, rankings de escolas, IA para afirmar conformidade, cobrança formal e acesso irrestrito por cargo.
 
@@ -116,7 +112,7 @@ Não prometer integração com Drive antes de definir governança e acesso.
 - [ ] Nenhum registro ou evidência de escola fora do escopo pode ser lido.
 - [ ] Correções são justificadas e preservam histórico.
 - [ ] Build, lint, testes e invariantes relevantes do SIGEM passam após implementação.
-- [ ] A estratégia formal de cumprimento da planilha no Google Drive está acordada.
+- [ ] O sistema é a ferramenta oficial do acompanhamento, sem planilha paralela.
 
 ## 12. Pendências para homologação
 - Quem é o setor dono do instrumento e quem autoriza as contas da equipe e do Gabinete?
@@ -124,6 +120,5 @@ Não prometer integração com Drive antes de definir governança e acesso.
 - Quais categorias de pontos fortes e fragilidades serão usadas, se houver?
 - Quais valores de situação serão aprovados e como representar ação não realizada?
 - É necessário visibilidade às escolas ou, inicialmente, apenas à equipe e ao Gabinete?
-- O Google Drive precisa de planilha sincronizada ou a substituição pelo sistema será autorizada?
 
 Estas pendências não impedem projetar a arquitetura e as interfaces, mas impedem transformar opções em normas institucionais definitivas.
