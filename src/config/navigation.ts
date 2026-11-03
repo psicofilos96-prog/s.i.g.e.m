@@ -40,7 +40,7 @@ export type NavigationRoute =
   | "/ciece"
   | "/mapa-estatistico"
   | "/identidade-institucional"
-  | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/supervisao-escolar" | "/familia"
+  | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/supervisao-escolar" | "/acompanhamento-unidades" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/mapa-censo-2026" | "/mapa-mensal-2026" | "/consolidado-2026" | "/auditoria" | "/parametros"
   | "/central-de-acessos" | "/senhas-de-setores" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos" | "/acervo-documental";
