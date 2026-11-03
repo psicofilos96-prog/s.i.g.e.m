@@ -15,17 +15,17 @@ export async function networkFollowup(from: string, to: string): Promise<Network
   const rows = await call("school_institutional_followup_network", { _from: from, _to: to });
   if (!Array.isArray(rows)) throw new Error("A consulta da rede retornou um formato inesperado.");
   return rows.map((r: Record<string, unknown>) => ({
-    school_id: String(r.school_id), school_name: String(r.school_name),
-    visits: Number(r.visits), actions: Number(r.actions),
-    completed: Number(r.completed), overdue: Number(r.overdue),
-    last_visit: r.last_visit == null ? null : String(r.last_visit),
+    school_id: String(r['school_id']), school_name: String(r['school_name']),
+    visits: Number(r['visits']), actions: Number(r['actions']),
+    completed: Number(r['completed']), overdue: Number(r['overdue']),
+    last_visit: r['last_visit'] == null ? null : String(r['last_visit']),
   }));
 }
 export async function schoolFollowup(school: string): Promise<SchoolSnapshot> {
   const value = await call("school_institutional_followup_school", { _school: school });
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Resposta da escola inválida.");
   const obj = value as Record<string, unknown>;
-  if (!Array.isArray(obj.visits) || !Array.isArray(obj.actions) || !Array.isArray(obj.updates)) {
+  if (!Array.isArray(obj['visits']) || !Array.isArray(obj['actions']) || !Array.isArray(obj['updates'])) {
     throw new Error("O histórico da escola veio incompleto.");
   }
   return obj as unknown as SchoolSnapshot;
