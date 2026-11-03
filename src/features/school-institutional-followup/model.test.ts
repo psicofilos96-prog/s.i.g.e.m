@@ -3,12 +3,12 @@ import { currentSituation, currentUpdate, isOverdue, networkIndicators, normaliz
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
-  responsible_label: "Direção", due_on: "2026-10-15", created_at: "2026-09-30T12:00:00Z",
+  responsible_label: "Direção", due_on: "2026-10-15", created_at: "2026-09-30T12:00:00Z", author_name: "Equipe",
 };
 const progress: FollowupUpdate = {
   id: "u1", action_id: "a1", visit_logical_id: null, occurred_on: "2026-10-10",
   situation: "em andamento", done_text: "Iniciada", not_done_text: null, results: null,
-  referrals: null, created_at: "2026-10-10T10:00:00Z",
+  referrals: null, created_at: "2026-10-10T10:00:00Z", author_name: "Equipe",
 };
 const completed: FollowupUpdate = {
   ...progress, id: "u2", occurred_on: "2026-10-18", situation: "concluída",
