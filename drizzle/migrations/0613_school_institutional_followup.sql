@@ -87,7 +87,7 @@ BEGIN
   IF auth.uid() IS NULL OR _school IS NULL OR _capability NOT IN (
     'consultar-acompanhamento-institucional','registrar-acompanhamento-institucional'
   ) THEN RETURN false; END IF;
-  RETURN EXISTS (SELECT 1 FROM public.effective_scope_capabilities(CURRENT_DATE) c
+  RETURN EXISTS (SELECT 1 FROM public.effective_scope_capabilities((now() AT TIME ZONE 'America/Sao_Paulo')::date) c
     WHERE c.capability_id = _capability AND c.policy_id IS NOT NULL
       AND (c.scope_level = 'rede' OR c.scope_level = 'escola' AND c.school_id = _school));
 END $$;
@@ -128,7 +128,7 @@ BEGIN
   SELECT id INTO _id FROM public.school_institutional_followup_visits
     WHERE request_key = _request AND author_user_id = auth.uid() AND school_id = _school;
   IF _id IS NOT NULL THEN RETURN _id; END IF;
-  IF _day IS NULL OR _day > CURRENT_DATE THEN RAISE EXCEPTION 'followup:invalid-date'; END IF;
+  IF _day IS NULL OR _day > (now() AT TIME ZONE 'America/Sao_Paulo')::date THEN RAISE EXCEPTION 'followup:invalid-date'; END IF;
   IF length(btrim(coalesce(_diagnosis,''))) = 0 THEN RAISE EXCEPTION 'followup:diagnosis-required'; END IF;
   IF _base IS NOT NULL THEN
     SELECT * INTO _base_row FROM public.school_institutional_followup_visits WHERE id = _base FOR UPDATE;
@@ -190,7 +190,7 @@ BEGIN
   SELECT * INTO a FROM public.school_institutional_followup_actions WHERE id = _action;
   IF a.id IS NULL THEN RAISE EXCEPTION 'followup:action-not-found'; END IF;
   _person := public.school_institutional_followup_person(a.school_id);
-  IF _day IS NULL OR _day > CURRENT_DATE THEN RAISE EXCEPTION 'followup:invalid-date'; END IF;
+  IF _day IS NULL OR _day > (now() AT TIME ZONE 'America/Sao_Paulo')::date THEN RAISE EXCEPTION 'followup:invalid-date'; END IF;
   IF btrim(coalesce(_situation,'')) NOT IN ('prevista', 'em andamento', 'concluída', 'não realizada', 'suspensa')
     THEN RAISE EXCEPTION 'followup:situation-invalid'; END IF;
   IF _request IS NULL THEN RAISE EXCEPTION 'followup:request-required'; END IF;
@@ -270,7 +270,7 @@ BEGIN
     (SELECT count(*)::integer FROM public.school_institutional_followup_actions a
       LEFT JOIN LATERAL (SELECT u.situation FROM public.school_institutional_followup_updates u
         WHERE u.action_id = a.id ORDER BY u.occurred_on DESC, u.recorded_at DESC, u.id DESC LIMIT 1) latest ON true
-      WHERE a.school_id = s.id AND a.due_on < CURRENT_DATE AND latest.situation IS DISTINCT FROM 'concluída'),
+      WHERE a.school_id = s.id AND a.due_on < (now() AT TIME ZONE 'America/Sao_Paulo')::date AND latest.situation IS DISTINCT FROM 'concluída'),
     (SELECT max(v.visit_date) FROM public.school_institutional_followup_visits v
       WHERE v.school_id = s.id AND NOT EXISTS
         (SELECT 1 FROM public.school_institutional_followup_visits newer WHERE newer.supersedes_id = v.id))
