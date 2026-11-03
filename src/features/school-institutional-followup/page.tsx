@@ -47,8 +47,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  const visitRequests = useRef<{ visit: string; actions: string[] } | null>(null);
-  const updateRequest = useRef<string | null>(null);
+  const visitRequests = useRef<{ signature: string; visit: string; actions: string[] } | null>(null);
+  const updateRequest = useRef<{ signature: string; request: string } | null>(null);
   const [actionId, setActionId] = useState("");
   const [situation, setSituation] = useState(SITUATIONS[0].value as string);
   const [updateDay, setUpdateDay] = useState(today);
@@ -100,7 +100,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     event.preventDefault();
     if (!school || !canRecord || !diagnosis.trim() || !day || day > today || saving) return;
     setSaving(true); setError(""); setNotice("");
-    const requests = visitRequests.current ?? { visit: crypto.randomUUID(), actions: draftActions.map(() => crypto.randomUUID()) };
+    // Só repetir a mesma chave de operação quando o conteúdo for idêntico.
+    const signature = JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary, draftActions });
+    const requests = visitRequests.current?.signature === signature ? visitRequests.current
+      : { signature, visit: crypto.randomUUID(), actions: draftActions.map(() => crypto.randomUUID()) };
     visitRequests.current = requests;
     try {
       await recordVisitBundle({
@@ -122,11 +125,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     event.preventDefault();
     if (!actionId || !school || !canRecord || savingUpdate || !updateDay || updateDay > today) return;
     setSavingUpdate(true); setError(""); setNotice("");
-    updateRequest.current ??= crypto.randomUUID();
+    const signature = JSON.stringify({ actionId, school, updateDay, situation, done, notDone, results, referrals });
+    if (updateRequest.current?.signature !== signature) {
+      updateRequest.current = { signature, request: crypto.randomUUID() };
+    }
     try {
       await recordUpdate({
         action: actionId, visit: null, day: updateDay, situation,
-        done, notDone, results, referrals, request: updateRequest.current,
+        done, notDone, results, referrals, request: updateRequest.current.request,
       });
       updateRequest.current = null;
       setActionId(""); setDone(""); setNotDone(""); setResults(""); setReferrals("");
