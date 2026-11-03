@@ -40,6 +40,18 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("ON CONFLICT (request_key) DO NOTHING");
     expect(sql).toContain("REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle");
   });
+  it("rejeita reutilização de chaves de idempotência com payload diferente", () => {
+    expect(sql).toContain("old.diagnosis IS NOT DISTINCT FROM btrim(_diagnosis)");
+    expect(sql).toContain("old.description IS NOT DISTINCT FROM btrim(_description)");
+    expect(sql).toContain("old.situation IS NOT DISTINCT FROM btrim(_situation)");
+    expect(sql).toContain("followup:request-conflict");
+  });
+  it("separa agregações mensais e situação vigente por autorização escolar", () => {
+    expect(sql).toContain("CREATE FUNCTION public.school_institutional_followup_monthly(");
+    expect(sql).toContain("CREATE FUNCTION public.school_institutional_followup_statuses()");
+    expect(sql).toContain("public.school_institutional_followup_can_read(v.school_id)");
+    expect(sql).toContain("public.school_institutional_followup_can_read(a.school_id)");
+  });
   it("possui prova de negação e rollback em banco isolado", () => {
     expect(negative).toMatch(/^BEGIN;/m);
     expect(negative.trimEnd().endsWith("ROLLBACK;")).toBe(true);
