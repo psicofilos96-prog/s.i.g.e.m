@@ -320,3 +320,46 @@ REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle(text,d
   FROM PUBLIC, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
   TO authenticated;
+
+
+-- Séries destinadas ao Gabinete: leitura agregada no banco, somente escolas autorizadas.
+CREATE FUNCTION public.school_institutional_followup_monthly(_from date, _to date)
+RETURNS TABLE(month text, visits integer)
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $$
+BEGIN
+  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'followup:session-required'; END IF;
+  IF _from IS NULL OR _to IS NULL OR _from > _to THEN RAISE EXCEPTION 'followup:period-invalid'; END IF;
+  RETURN QUERY
+  SELECT to_char(v.visit_date, 'YYYY-MM')::text, count(*)::integer
+  FROM public.school_institutional_followup_visits v
+  WHERE v.visit_date BETWEEN _from AND _to
+    AND public.school_institutional_followup_can_read(v.school_id)
+    AND NOT EXISTS (SELECT 1 FROM public.school_institutional_followup_visits newer WHERE newer.supersedes_id = v.id)
+  GROUP BY to_char(v.visit_date, 'YYYY-MM')
+  ORDER BY to_char(v.visit_date, 'YYYY-MM');
+END $$;
+REVOKE ALL ON FUNCTION public.school_institutional_followup_monthly(date,date)
+  FROM PUBLIC, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.school_institutional_followup_monthly(date,date) TO authenticated;
+
+-- Situação vigente de cada medida, incluindo a classe "sem atualização".
+CREATE FUNCTION public.school_institutional_followup_statuses()
+RETURNS TABLE(situation text, actions integer)
+LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $$
+BEGIN
+  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'followup:session-required'; END IF;
+  RETURN QUERY
+    SELECT coalesce(latest.situation, 'sem atualização')::text, count(*)::integer
+    FROM public.school_institutional_followup_actions a
+    LEFT JOIN LATERAL (
+      SELECT u.situation FROM public.school_institutional_followup_updates u
+      WHERE u.action_id = a.id
+      ORDER BY u.occurred_on DESC, u.recorded_at DESC, u.id DESC LIMIT 1
+    ) latest ON true
+    WHERE public.school_institutional_followup_can_read(a.school_id)
+    GROUP BY coalesce(latest.situation, 'sem atualização')
+    ORDER BY coalesce(latest.situation, 'sem atualização');
+END $$;
+REVOKE ALL ON FUNCTION public.school_institutional_followup_statuses()
+  FROM PUBLIC, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.school_institutional_followup_statuses() TO authenticated;
