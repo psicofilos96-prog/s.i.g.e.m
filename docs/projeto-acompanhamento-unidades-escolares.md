@@ -151,3 +151,10 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 
 **Pendências identificadas:** não há ambiente staging institucional comprovado com o esquema completo; os identificadores das contas autorizadas e o ato que homologa os escopos ainda não estão definidos neste PR. Nenhuma capacidade é concedida automaticamente.
 
+## 11.4. Consulta operacional, filtros e cronologia
+- **Unidades:** filtro por visita realizada no período, unidade sem visita no período e unidade com medidas vencidas. O painel e os gráficos mantêm o denominador da rede autorizada; a lista e os relatórios consolidados refletem a seleção atual, explicitada na tela.
+- **Medidas:** filtros por situação declarada, sem atualização, sem prazo e prazo vencido, além de pesquisa por descrição, responsável e data. A ordenação usa prazo informado crescente, deixando prazos ausentes por último, sem atribuir notas ou ranking.
+- **Linha do tempo coerente:** evolução não pode ser registrada antes da data vigente da visita que originou a medida. O mesmo vale para visita associada à atualização. Retificação da data é recusada quando produziria evolução anterior à visita ou ultrapassaria prazo já cadastrado.
+- **Mensagem ao usuário:** erros de cronologia são traduzidos em linguagem operacional; a causa detalhada permanece na validação SQL. Os cenários negativos são testados no PostgreSQL descartável.
+- **Eficiência do CI:** novas revisões de um mesmo PR cancelam as execuções obsoletas, mantendo idêntica cobertura para a revisão mais recente. O `main` e outros PRs usam grupos independentes.
+
