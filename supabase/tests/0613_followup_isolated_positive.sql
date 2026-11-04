@@ -211,6 +211,33 @@ BEGIN
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-positive:late-action-request-reused'; END IF;
 
+  -- Uma evolução não pode anteceder a visita que originou a medida.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_update(
+      action1, NULL, day_ - 1, 'prevista', '', '', '', '', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:update-before-origin-visit' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:update-predates-visit'; END IF;
+
+  -- Uma correção de data também não pode colocar uma evolução anterior à visita.
+  visit1 := public.record_school_institutional_followup_visit(
+    'school-a', day_ - 20, 'Histórico anterior', '', '', '', NULL, NULL, gen_random_uuid());
+  action1 := public.record_school_institutional_followup_action(
+    visit1, 'Conferir os acervos', 'Direção', NULL, gen_random_uuid());
+  PERFORM public.record_school_institutional_followup_update(
+    action1, NULL, day_ - 10, 'em andamento', 'Iniciado', '', '', '', gen_random_uuid());
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_visit(
+      'school-a', day_ - 9, 'Diagnóstico retificado com data inconsistente',
+      '', '', '', visit1, 'Ajuste de data', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:date-after-action-update' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:correction-after-event'; END IF;
+
   RAISE NOTICE 'FOLLOWUP_0613_POSITIVE_AND_NEGATIVE_OK';
 END $positive$;
 
