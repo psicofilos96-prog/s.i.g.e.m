@@ -267,7 +267,7 @@ BEGIN
   -- Um histórico cortado silenciosamente produziria contagens e estados falsos.
   -- Enquanto a paginação canônica não existir, falha fechada com erro identificável.
   IF (SELECT count(*) FROM public.school_institutional_followup_visits
-       WHERE school_id = _school AND supersedes_id IS NULL) > 1000
+       WHERE school_id = _school) > 1000
     OR (SELECT count(*) FROM public.school_institutional_followup_actions
        WHERE school_id = _school) > 2000
     OR (SELECT count(*) FROM public.school_institutional_followup_updates u
