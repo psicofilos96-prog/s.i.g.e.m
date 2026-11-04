@@ -45,6 +45,32 @@ export function isOverdue(action: FollowupAction, updates: readonly FollowupUpda
   if (!action.due_on || action.due_on >= today) return false;
   return currentSituation(action, updates) !== "concluída";
 }
+/** Filtro de medidas de uma unidade; não acrescenta dados de outra escola. */
+export type ActionView = "todas" | "prazo vencido" | "sem prazo" | (typeof SITUATIONS)[number]["value"] | typeof NO_UPDATE;
+
+export function filterSchoolActions(
+  actions: readonly FollowupAction[],
+  updates: readonly FollowupUpdate[],
+  view: ActionView,
+  term: string,
+  today: string,
+): FollowupAction[] {
+  const q = normalizeText(term.trim());
+  return actions.filter((action) => {
+    if (view === "prazo vencido" && !isOverdue(action, updates, today)) return false;
+    if (view === "sem prazo" && action.due_on !== null) return false;
+    if (view !== "todas" && view !== "prazo vencido" && view !== "sem prazo"
+      && currentSituation(action, updates) !== view) return false;
+    if (q && !normalizeText(
+      [action.description, action.responsible_label ?? "", action.due_on ?? ""].join(" "),
+    ).includes(q)) return false;
+    return true;
+  }).sort((a, b) =>
+    // Mais urgente primeiro; o prazo ausente fica no final sem valor fabricado.
+    (a.due_on ?? "9999-12-31").localeCompare(b.due_on ?? "9999-12-31")
+    || a.description.localeCompare(b.description, "pt-BR") || a.id.localeCompare(b.id));
+}
+
 export function schoolIndicators(snapshot: SchoolSnapshot, today: string) {
   const visits = snapshot.visits.length;
   const actions = snapshot.actions.length;
