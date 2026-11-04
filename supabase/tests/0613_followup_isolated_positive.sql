@@ -184,6 +184,30 @@ BEGIN
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-positive:outsider-direct-read'; END IF;
 
+  -- Após a visita, o servidor autorizado acrescenta nova medida ao plano já existente.
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', writer, 'role', 'authenticated')::text, true);
+  action1 := public.record_school_institutional_followup_action(
+    visit2, 'Organizar material suplementar', 'Equipe escolar',
+    day_ + 14, 'abababab-abab-4bab-8bab-abababababab'::uuid);
+  IF public.record_school_institutional_followup_action(
+    visit2, 'Organizar material suplementar', 'Equipe escolar',
+    day_ + 14, 'abababab-abab-4bab-8bab-abababababab'::uuid) IS DISTINCT FROM action1
+    THEN RAISE EXCEPTION 'followup-positive:late-action-not-idempotent'; END IF;
+  doc := public.school_institutional_followup_school('school-a');
+  IF jsonb_array_length(doc->'actions') <> 2 OR jsonb_array_length(doc->'visits') <> 1
+    OR jsonb_array_length(doc->'visit_history') <> 1
+    THEN RAISE EXCEPTION 'followup-positive:late-action-not-linked'; END IF;
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_action(
+      visit2, 'Descrição diferente', 'Equipe escolar',
+      day_ + 14, 'abababab-abab-4bab-8bab-abababababab'::uuid);
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:request-conflict' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:late-action-request-reused'; END IF;
+
   RAISE NOTICE 'FOLLOWUP_0613_POSITIVE_AND_NEGATIVE_OK';
 END $positive$;
 
