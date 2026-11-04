@@ -103,6 +103,31 @@ BEGIN
   IF jsonb_array_length(doc->'visits') <> 1 OR jsonb_array_length(doc->'actions') <> 1
     THEN RAISE EXCEPTION 'followup-positive:partial-bundle-persisted'; END IF;
 
+  -- Uma ação sem descrição, mas com prazo/responsável, jamais pode sumir do plano.
+  -- Mesmo depois de outra ação válida, a transação inteira deve ser revertida.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_bundle(
+      'school-a', day_, 'Visita com medida parcial', '', '', '',
+      gen_random_uuid(),
+      jsonb_build_array(
+        jsonb_build_object('description', 'Ação válida antes da parcial',
+          'request', gen_random_uuid()),
+        jsonb_build_object('description', '', 'responsible', 'Coordenação',
+          'due', day_::text, 'request', gen_random_uuid())
+      )
+    );
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:action-description-required'
+      THEN denied := true;
+    ELSE RAISE;
+    END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:partial-action-silently-skipped'; END IF;
+  doc := public.school_institutional_followup_school('school-a');
+  IF jsonb_array_length(doc->'visits') <> 1 OR jsonb_array_length(doc->'actions') <> 1
+    THEN RAISE EXCEPTION 'followup-positive:partial-action-bundle-persisted'; END IF;
+
   -- Atualizações preservam a sequência, e a projeção reflete a última situação.
   PERFORM public.record_school_institutional_followup_update(
     action1, visit1, day_, 'em andamento', 'Materiais separados', NULL,
