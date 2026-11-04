@@ -10,6 +10,7 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { InstitutionalPendingPanel } from "./pending-panel";
+import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
@@ -288,6 +289,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     changeSchool(schoolId);
     setTargetActionId(measureId);
   }
+  function inspectSchoolMeasure(measureId: string) {
+    // Leitura contextual sem trocar a escola nem descartar dados de formulários em edição.
+    setActionView("todas"); setActionQuery("");
+    setTargetActionId(measureId);
+  }
   return <div className="space-y-6">
     <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
       description="A equipe registra o diagnóstico e a evolução das ações. O Gabinete consulta o panorama da rede e seus históricos." />
@@ -392,6 +398,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </div>}
       {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
+      {detail.data && <SchoolOpenActionsPanel key={school} snapshot={detail.data} today={today}
+        onInspect={inspectSchoolMeasure} />}
       {canRecord && <form id="followup-visit-form" className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
         <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
         {correctionBase && <p className="text-sm text-muted-foreground">

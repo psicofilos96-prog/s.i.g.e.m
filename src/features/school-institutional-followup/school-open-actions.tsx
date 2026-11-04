@@ -1,0 +1,74 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { formatAcademicDate } from "@/lib/academic-date";
+import {
+  currentSituation, filterSchoolActions, isOverdue, NO_UPDATE, type SchoolSnapshot,
+} from "./model";
+
+const INITIAL_SHOWN = 5;
+
+/** Preparação da visita: somente dados da ficha escolar já autorizada no PostgreSQL. */
+export function SchoolOpenActionsPanel({ snapshot, today, onInspect }: {
+  snapshot: SchoolSnapshot; today: string; onInspect: (actionId: string) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const ordered = filterSchoolActions(snapshot.actions, snapshot.updates, "todas", "", today);
+  const pending = ordered.filter((a) =>
+    currentSituation(a, snapshot.updates) !== "concluída");
+  const overdue = pending.filter((a) => isOverdue(a, snapshot.updates, today)).length;
+  const withoutUpdate = pending.filter((a) =>
+    currentSituation(a, snapshot.updates) === NO_UPDATE).length;
+  const visible = expanded ? pending : pending.slice(0, INITIAL_SHOWN);
+
+  return <section className="space-y-3 rounded-xl border border-border p-4"
+    aria-label="Providências da unidade para preparação da visita">
+    <div>
+      <h3 className="font-semibold">Antes da próxima visita — providências sem conclusão declarada</h3>
+      <p className="text-sm text-muted-foreground">
+        Consulte as medidas que merecem acompanhamento antes de registrar uma nova visita.
+        A situação é declarada pela equipe e não representa cobrança ou homologação.
+      </p>
+    </div>
+    <div className="flex flex-wrap gap-2 text-sm">
+      <span className="rounded-md bg-muted/40 p-2">{pending.length} sem conclusão declarada</span>
+      <span className="rounded-md bg-muted/40 p-2">{overdue} com prazo vencido</span>
+      <span className="rounded-md bg-muted/40 p-2">{withoutUpdate} sem atualização</span>
+    </div>
+    {snapshot.actions.length === 0 && <p className="text-sm text-muted-foreground">
+      Nenhuma medida cadastrada para esta unidade.
+    </p>}
+    {snapshot.actions.length > 0 && pending.length === 0 &&
+      <p className="text-sm text-muted-foreground">
+        Todas as medidas cadastradas constam como concluídas pela equipe. A conclusão não foi homologada pelo Gabinete.
+      </p>}
+    {pending.length > 0 && <ul className="space-y-2">
+      {visible.map((a) => {
+        const situation = currentSituation(a, snapshot.updates);
+        const expired = isOverdue(a, snapshot.updates, today);
+        return <li key={a.id} className="flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-1">
+            <p className="font-medium break-words">{a.description}</p>
+            <p className="text-xs text-muted-foreground">
+              Responsável: {a.responsible_label || "Não informado"} · Prazo: {formatAcademicDate(a.due_on, "Não informado")}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Situação: {situation}{expired ? " · Prazo vencido" : ""}
+            </p>
+          </div>
+          <Button size="sm" variant="outline" className="shrink-0"
+            aria-label={`Ver acompanhamento da medida: ${a.description}`}
+            onClick={() => onInspect(a.id)}>Ver acompanhamento</Button>
+        </li>;
+      })}
+    </ul>}
+    {pending.length > INITIAL_SHOWN && <Button size="sm" variant="outline"
+      onClick={() => setExpanded((v) => !v)}
+      aria-expanded={expanded}>
+      {expanded ? "Mostrar menos medidas" : `Mostrar todas as ${pending.length} medidas`}
+    </Button>}
+    <p className="text-xs text-muted-foreground">
+      A lista é ordenada pelo prazo declarado; medidas sem prazo vêm por último.
+      Sem atualização não significa não realizada. Ver acompanhamento abre o histórico da medida, sem alterar registros.
+    </p>
+  </section>;
+}

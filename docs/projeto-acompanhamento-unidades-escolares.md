@@ -178,3 +178,8 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 - O autor responsável por gravar o fato permanece identificado automaticamente pelo usuário e pessoa natural autenticados, sem depender dos participantes digitados.
 - Objetivo e participantes são mantidos na versão original e nas retificações, com exportação na ficha da unidade e no relatório da visita. Retentativas idempotentes recusam alterações desses conteúdos sem nova chave.
 - O teste PostgreSQL assegura persistência, identificação do autor e detecção de conflito de chave. Dados pessoais de estudantes e laudos não devem ser incluídos.
+## 11.9. Preparação da visita — providências ainda abertas
+- Ao abrir a ficha de uma unidade autorizada, antes do formulário de visita, o SIGEM destaca as medidas sem conclusão declarada, com contagens de prazos vencidos e ausência de atualizações.
+- Exibe cinco itens prioritários por prazo inicialmente e oferece `Mostrar todas` para consultar o restante. A ausência de prazo não é considerada vencimento; uma declaração de conclusão não constitui homologação.
+- `Ver acompanhamento` abre diretamente o histórico completo da medida dentro da mesma escola, removendo filtros locais que poderiam ocultá-la. Não descarta textos de formulários em edição nem concede capacidade de escrita.
+- O painel reutiliza o snapshot escolar já verificado no SQL (sem nova RPC), com testes de situação, vencimento, expansão e navegação. Continua sendo necessário homologar em clone e com contas reais antes de publicar.
