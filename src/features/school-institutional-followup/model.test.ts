@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, filterSchoolActions, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -37,6 +37,26 @@ describe("acompanhamento das unidades — projeções", () => {
       updates: [progress],
     }, "2026-11-03");
     expect(s).toEqual({ visits: 0, actions: 2, completed: 0, overdue: 1, noDueDate: 1, withoutUpdate: 1 });
+  });
+  it("filtra ações sem equiparar sem atualização a não realizada", () => {
+    const a2 = { ...action, id: "a2", description: "Preparar formação", responsible_label: "Coordenação", due_on: null };
+    const a3 = { ...action, id: "a3", description: "Revisar ventilação", due_on: "2026-11-15" };
+    const items = [a3, a2, action];
+    expect(filterSchoolActions(items, [progress], "sem atualização", "", "2026-11-04")
+      .map((a) => a.id)).toEqual(["a3", "a2"]);
+    expect(filterSchoolActions(items, [progress], "não realizada", "", "2026-11-04")).toEqual([]);
+    expect(filterSchoolActions(items, [progress], "prazo vencido", "", "2026-11-04")
+      .map((a) => a.id)).toEqual(["a1"]);
+    expect(filterSchoolActions(items, [completed], "prazo vencido", "", "2026-11-04")).toEqual([]);
+    expect(filterSchoolActions(items, [], "sem prazo", "", "2026-11-04").map((a) => a.id)).toEqual(["a2"]);
+  });
+  it("filtra por responsável, descrição ou prazo sem alterar a lista original", () => {
+    const a2 = { ...action, id: "a2", description: "Revisar iluminação", responsible_label: "José", due_on: null };
+    const source = [a2, action];
+    expect(filterSchoolActions(source, [], "todas", "joSE", "2026-11-04").map((a) => a.id)).toEqual(["a2"]);
+    expect(filterSchoolActions(source, [], "todas", "ACERVO", "2026-11-04").map((a) => a.id)).toEqual(["a1"]);
+    expect(filterSchoolActions(source, [], "todas", "2026-10", "2026-11-04").map((a) => a.id)).toEqual(["a1"]);
+    expect(source.map((a) => a.id)).toEqual(["a2", "a1"]);
   });
   it("total de escolas acessíveis não é igual às visitadas", () => {
     const n = networkIndicators([
