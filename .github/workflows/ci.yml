@@ -72,6 +72,8 @@ jobs:
           set -euo pipefail
           psql -h localhost -U postgres -d followup_ci -v ON_ERROR_STOP=1 \
             -f supabase/tests/fixtures/0613_followup_isolated_bootstrap.sql \
+            -f supabase/tests/0613_followup_clone_preflight_readonly.sql \
             -f drizzle/migrations/0613_school_institutional_followup.sql \
+            -f supabase/tests/0613_followup_clone_postflight_readonly.sql \
             -f supabase/tests/0613_school_institutional_followup.sql \
             -f supabase/tests/0613_followup_isolated_positive.sql
