@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, filterNetworkPending, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -69,6 +69,28 @@ describe("acompanhamento das unidades — projeções", () => {
     expect(filterNetworkRows(rows, "", "visitadas").map((r) => r.school_id)).toEqual(["b", "c"]);
     expect(filterNetworkRows(rows, "33001000", "todas").map((r) => r.school_id)).toEqual(["a"]);
     expect(rows).toHaveLength(3);
+  });
+  it("filtros de providências não confundem prazo vencido com ausência de atualização", () => {
+    const items = [
+      { action_id: "b", school_id: "b", school_name: "Escola Sul", inep: "33000001",
+        description: "Organizar biblioteca", responsible_label: "Direção", due_on: null,
+        situation: "sem atualização", last_update_on: null, created_at: "2026-11-01T12:00:00Z" },
+      { action_id: "a", school_id: "a", school_name: "Escola Norte", inep: null,
+        description: "Revisar telhado", responsible_label: null, due_on: "2026-11-02",
+        situation: "em andamento", last_update_on: "2026-11-03", created_at: "2026-10-02T12:00:00Z" },
+      { action_id: "c", school_id: "b", school_name: "Escola Sul", inep: "33000001",
+        description: "Revisar salas", responsible_label: "Coordenação", due_on: "2026-11-15",
+        situation: "não realizada", last_update_on: "2026-11-01", created_at: "2026-11-01T12:00:00Z" },
+    ];
+    const selected = (view: Parameters<typeof filterNetworkPending>[1], term = "") =>
+      filterNetworkPending(items, view, term, "2026-11-04").map((a) => a.action_id);
+    expect(selected("todas")).toEqual(["a", "c", "b"]);
+    expect(selected("vencidas")).toEqual(["a"]);
+    expect(selected("sem prazo")).toEqual(["b"]);
+    expect(selected("sem atualização")).toEqual(["b"]);
+    expect(selected("não realizada")).toEqual(["c"]);
+    expect(selected("todas", "33000001")).toEqual(["c", "b"]);
+    expect(items[0]?.action_id).toBe("b");
   });
   it("total de escolas acessíveis não é igual às visitadas", () => {
     const n = networkIndicators([
