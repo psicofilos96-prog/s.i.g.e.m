@@ -3,6 +3,7 @@ import {
   type ReportDefinition, type ReportResult,
 } from "@/features/reports/report-engine";
 import { civilDateOf, formatDateTime } from "@/lib/academic-date";
+import { UserFacingError } from "@/lib/observability/governed-errors";
 import { currentSituation, type NetworkRow, type SchoolSnapshot } from "./model";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
@@ -88,7 +89,7 @@ function joinDescriptions(...parts: [string, string | null | undefined][]): stri
   return text || null;
 }
 
-export function schoolFollowupReport(snapshot: SchoolSnapshot, schoolId: string): ReportResult {
+function followupRows(snapshot: SchoolSnapshot): Record<string, string | number | null>[] {
   const rows: Record<string, string | number | null>[] = [];
   for (const v of [...snapshot.visits, ...snapshot.visit_history]) {
     rows.push({
@@ -128,9 +129,45 @@ export function schoolFollowupReport(snapshot: SchoolSnapshot, schoolId: string)
       detail: joinDescriptions(["Resultados", u.results], ["Encaminhamentos", u.referrals]),
     });
   }
-  return runReport(FOLLOWUP_SCHOOL_REPORT, { params: { school: schoolId },
-    sort: [{ column: "event_date", dir: "desc" }] }, rows);
+  return rows;
 }
+
+export function schoolFollowupReport(snapshot: SchoolSnapshot, schoolId: string): ReportResult {
+  return runReport(FOLLOWUP_SCHOOL_REPORT, { params: { school: schoolId },
+    sort: [{ column: "event_date", dir: "desc" }] }, followupRows(snapshot));
+}
+
+/** Relatório de uma visita, suas versões e as medidas daquela visita (sem outras unidades). */
+export const FOLLOWUP_VISIT_REPORT: ReportDefinition = {
+  id: "acompanhamento-institucional-relatorio-visita", version: 1,
+  title: "Relatório individual de visita institucional",
+  description: "Diagnóstico, retificações, medidas e evoluções de uma visita da unidade autorizada.",
+  source: "school_institutional_followup_school",
+  params: [
+    { id: "school", label: "Unidade", type: "text", required: true, maxLength: 200 },
+    { id: "visit", label: "Visita", type: "text", required: true, maxLength: 200 },
+  ],
+  columns: FOLLOWUP_SCHOOL_REPORT.columns,
+  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 10000,
+};
+
+export function visitFollowupReport(snapshot: SchoolSnapshot, schoolId: string, visitId: string): ReportResult {
+  const visit = snapshot.visits.find((v) => v.id === visitId && v.school_id === schoolId);
+  if (!visit) throw new UserFacingError("A visita selecionada não está disponível. Atualize o histórico da escola.");
+  const actions = snapshot.actions.filter((a) =>
+    a.school_id === schoolId && a.visit_logical_id === visit.logical_id);
+  const actionIds = new Set(actions.map((a) => a.id));
+  const subset: SchoolSnapshot = {
+    visits: [visit],
+    visit_history: snapshot.visit_history.filter((v) =>
+      v.school_id === schoolId && v.logical_id === visit.logical_id),
+    actions,
+    updates: snapshot.updates.filter((u) => actionIds.has(u.action_id)),
+  };
+  return runReport(FOLLOWUP_VISIT_REPORT, { params: { school: schoolId, visit: visitId },
+    sort: [{ column: "event_date", dir: "desc" }] }, followupRows(subset));
+}
+
 
 export async function exportFollowupSchool(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string, format: "csv" | "xlsx" | "pdf",
@@ -149,6 +186,37 @@ export async function exportFollowupSchool(
   ];
   const slug = schoolId.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 70);
   const base = `ficha-acompanhamento-${slug}`;
+  if (format === "csv") {
+    downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
+  } else if (format === "xlsx") {
+    const bytes = await toXlsx(result, branding, meta);
+    downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  } else {
+    const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    downloadBlob(base + ".pdf", pdf);
+  }
+}
+
+export async function exportFollowupVisit(
+  snapshot: SchoolSnapshot, schoolId: string, schoolName: string,
+  visitId: string, format: "csv" | "xlsx" | "pdf",
+): Promise<void> {
+  const result = visitFollowupReport(snapshot, schoolId, visitId);
+  if (result.mode !== "sync") throw new UserFacingError("O relatório excedeu o limite de exportação.");
+  const visit = snapshot.visits.find((v) => v.id === visitId)!;
+  const branding = {
+    headerLines: ["Secretaria Municipal de Educação", schoolName],
+    title: FOLLOWUP_VISIT_REPORT.title,
+  };
+  const meta = [
+    `Visita de ${visit.visit_date} · ${visit.author_name || "Autoria institucional registrada"}`,
+    "Inclui as retificações, medidas vinculadas e sua evolução posterior, inclusive em outras visitas.",
+    "Data do fato e data/hora do registro são distintas, usando o horário oficial de Brasília.",
+    "Informações declaradas pela equipe; não equivalem à homologação ou cobrança administrativa.",
+  ];
+  const safeSchool = schoolId.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 70);
+  const safeVisit = visitId.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 40);
+  const base = `relatorio-visita-${safeSchool}-${visit.visit_date}-${safeVisit}`;
   if (format === "csv") {
     downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
   } else if (format === "xlsx") {

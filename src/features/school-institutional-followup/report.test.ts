@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { schoolFollowupReport, FOLLOWUP_SCHOOL_REPORT } from "./report";
+import { schoolFollowupReport, visitFollowupReport, FOLLOWUP_SCHOOL_REPORT, FOLLOWUP_VISIT_REPORT } from "./report";
 import { toCsv } from "@/features/reports/report-engine";
 import type { SchoolSnapshot } from "./model";
 
@@ -74,6 +74,37 @@ describe("ficha de acompanhamento por unidade", () => {
     const currentVisit = r.rows.find((x) => x[idx("event_type")] === "Visita vigente (v2)")!;
     expect(currentVisit[idx("event_date")]).toBe("2026-11-02");
     expect(currentVisit[idx("recorded_at")]).toBe("03/11/2026 06:00");
+  });
+  it("relatório de visita isola seu plano e conserva todas as retificações", () => {
+    const otherVisit: SchoolSnapshot["visits"][number] = {
+      ...snapshot.visits[0]!, id: "other-v1", logical_id: "other-logical",
+      version: 1, visit_date: "2026-11-03", supersedes_id: null, diagnosis: "Outra visita",
+    };
+    const otherAction: SchoolSnapshot["actions"][number] = {
+      ...snapshot.actions[0]!, id: "other-action", visit_logical_id: "other-logical",
+      description: "Medida de outra visita",
+    };
+    const expanded: SchoolSnapshot = {
+      ...snapshot, visits: [...snapshot.visits, otherVisit],
+      actions: [...snapshot.actions, otherAction],
+      updates: [...snapshot.updates, { ...snapshot.updates[0]!, id: "other-update", action_id: "other-action",
+        done_text: "Não incluir" }],
+    };
+    const r = visitFollowupReport(expanded, "s1", "visit-v2");
+    expect(r.definitionId).toBe(FOLLOWUP_VISIT_REPORT.id);
+    expect(r.rows).toHaveLength(4);
+    const joined = r.rows.map((line) => line.join(" ")).join(" ");
+    expect(joined).toContain("Situação retificada");
+    expect(joined).toContain("Diagnóstico original");
+    expect(joined).toContain("=1+2");
+    expect(joined).toContain("Separadas as pastas");
+    expect(joined).not.toContain("Medida de outra visita");
+    expect(joined).not.toContain("Não incluir");
+    expect(joined).not.toContain("Outra visita");
+  });
+  it("recusa pedido para visita de outra escola ou não disponível", () => {
+    expect(() => visitFollowupReport(snapshot, "outra-escola", "visit-v2")).toThrow("não está disponível");
+    expect(() => visitFollowupReport(snapshot, "s1", "id-desconhecido")).toThrow("não está disponível");
   });
   it("usa a neutralização do motor para fórmulas fornecidas pelo usuário", () => {
     const r = schoolFollowupReport(snapshot, "s1");

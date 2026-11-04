@@ -9,7 +9,7 @@ import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
-import { exportFollowupNetwork, exportFollowupSchool } from "./report";
+import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
@@ -117,6 +117,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setExporting(true); setError("");
     try {
       await exportFollowupSchool(detail.data, school, selected?.school_name ?? school, format);
+    } catch (e) { setError(presentError(e)); }
+    finally { setExporting(false); }
+  }
+  async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf") {
+    if (!school || !detail.isSuccess || exporting) return;
+    setExporting(true); setError("");
+    try {
+      await exportFollowupVisit(detail.data, school, selected?.school_name ?? school, visitId, format);
     } catch (e) { setError(presentError(e)); }
     finally { setExporting(false); }
   }
@@ -509,6 +517,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                   </li>)}
               </ol>
             </details>}
+            <div className="flex flex-wrap gap-2" aria-label="Exportar relatório individual da visita">
+              <Button type="button" size="sm" variant="outline" disabled={exporting}
+                onClick={() => void exportVisitReport(v.id, "pdf")}>Relatório da visita PDF</Button>
+              <Button type="button" size="sm" variant="outline" disabled={exporting}
+                onClick={() => void exportVisitReport(v.id, "xlsx")}>Excel</Button>
+              <Button type="button" size="sm" variant="outline" disabled={exporting}
+                onClick={() => void exportVisitReport(v.id, "csv")}>CSV</Button>
+            </div>
             {canRecord && <div className="flex flex-wrap gap-2">
               <Button type="button" size="sm" variant="outline" onClick={() => startMeasure(v)}>
                 Acrescentar medida ao plano
