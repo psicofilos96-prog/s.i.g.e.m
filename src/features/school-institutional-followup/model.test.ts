@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, isEvolutionDraftDirty, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -31,6 +31,21 @@ describe("acompanhamento das unidades — projeções", () => {
       { description: "Criar cronograma", responsible: "Coordenação", due: "2026-11-04" },
       { description: "", responsible: "", due: "" },
     ], day)).toBeNull();
+  });
+  it("protege a evolução em preenchimento de trocas de medida", () => {
+    const empty = {
+      day: "2026-11-04", initialDay: "2026-11-04", situation: "prevista",
+      linkedVisitId: "", done: "", notDone: "", results: "", referrals: "",
+    };
+    expect(isEvolutionDraftDirty(empty)).toBe(false);
+    expect(isEvolutionDraftDirty({ ...empty, done: "  " })).toBe(false);
+    expect(isEvolutionDraftDirty({ ...empty, done: "Mobiliário entregue" })).toBe(true);
+    expect(isEvolutionDraftDirty({ ...empty, notDone: "Ainda pendente" })).toBe(true);
+    expect(isEvolutionDraftDirty({ ...empty, referrals: "Nova avaliação" })).toBe(true);
+    expect(isEvolutionDraftDirty({ ...empty, results: "Resultado observado" })).toBe(true);
+    expect(isEvolutionDraftDirty({ ...empty, situation: "em andamento" })).toBe(true);
+    expect(isEvolutionDraftDirty({ ...empty, linkedVisitId: "visit-return" })).toBe(true);
+    expect(isEvolutionDraftDirty({ ...empty, day: "2026-11-03" })).toBe(true);
   });
   it("não converte ausência de atualização em não realizada", () => {
     expect(currentSituation(action, [])).toBe("sem atualização");
