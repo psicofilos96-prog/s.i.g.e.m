@@ -60,6 +60,12 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("old.situation IS NOT DISTINCT FROM btrim(_situation)");
     expect(sql).toContain("followup:request-conflict");
   });
+  it("preserva cronologia entre visitas, evoluções e suas retificações", () => {
+    expect(sql).toContain("followup:update-before-origin-visit");
+    expect(sql).toContain("followup:update-before-linked-visit");
+    expect(sql).toContain("followup:date-after-action-update");
+    expect(sql).toContain("WHERE fv.logical_id = a.visit_logical_id");
+  });
   it("separa agregações mensais e situação vigente por autorização escolar", () => {
     expect(sql).toContain("CREATE FUNCTION public.school_institutional_followup_monthly(");
     expect(sql).toContain("CREATE FUNCTION public.school_institutional_followup_statuses()");
