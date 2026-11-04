@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
-import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
+import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
+import { InstitutionalPendingPanel } from "./pending-panel";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
@@ -74,6 +75,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     queryKey: ["institutional-followup-monthly", sessionKey, from, to],
     queryFn: () => monthlyFollowup(from, to), enabled: Boolean(from && to && from <= to), retry: false,
   });
+  const pending = useQuery({
+    queryKey: ["institutional-followup-pending", sessionKey],
+    queryFn: networkPendingFollowup, retry: false,
+  });
   const statuses = useQuery({
     queryKey: ["institutional-followup-statuses", sessionKey],
     queryFn: followupStatuses, retry: false,
@@ -133,6 +138,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-network", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-monthly", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-statuses", sessionKey] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-pending", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-school", sessionKey, school] }),
     ]);
   }
@@ -315,8 +321,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </>}
       </>}
     </section>
+    <InstitutionalPendingPanel rows={pending.data ?? []} loading={pending.isPending}
+      error={pending.isError ? pending.error : null} today={today} onOpenSchool={changeSchool} />
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
-    {school && <section className="space-y-5" aria-label="Detalhamento da escola">
+    {school && <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div><h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
           <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
