@@ -305,4 +305,30 @@ BEGIN
 END $volume$;
 
 RESET ROLE;
+
+-- Mais de 5.000 medidas abertas não podem ser truncadas silenciosamente no Gabinete.
+INSERT INTO public.school_institutional_followup_actions(
+  school_id, visit_logical_id, description, author_user_id,
+  author_person_id, request_key)
+SELECT 'school-a', 'bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb'::uuid,
+  'Medida sintética de carga', '11111111-1111-4111-8111-111111111111'::uuid,
+  '11111111-1111-4111-8111-111111111111'::uuid, gen_random_uuid()
+FROM generate_series(1,5001);
+
+SET ROLE authenticated;
+DO $pending_limit$
+DECLARE denied boolean := false;
+BEGIN
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', '11111111-1111-4111-8111-111111111111', 'role', 'authenticated')::text, true);
+  BEGIN
+    PERFORM public.school_institutional_followup_pending();
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:network-pending-volume-exceeded' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:silent-network-pending-truncation'; END IF;
+  RAISE NOTICE 'FOLLOWUP_0613_PENDING_VOLUME_FAIL_CLOSED_OK';
+END $pending_limit$;
+
+RESET ROLE;
 ROLLBACK;
