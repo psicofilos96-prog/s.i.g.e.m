@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, filterSchoolActions, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -57,6 +57,18 @@ describe("acompanhamento das unidades — projeções", () => {
     expect(filterSchoolActions(source, [], "todas", "ACERVO", "2026-11-04").map((a) => a.id)).toEqual(["a1"]);
     expect(filterSchoolActions(source, [], "todas", "2026-10", "2026-11-04").map((a) => a.id)).toEqual(["a1"]);
     expect(source.map((a) => a.id)).toEqual(["a2", "a1"]);
+  });
+  it("filtra escolas por acompanhamento sem criar ranking ou perder as demais", () => {
+    const rows = [
+      { school_id: "a", school_name: "Escola José", inep: "33001000", visits: 0, actions: 1, completed: 0, overdue: 0, last_visit: null },
+      { school_id: "b", school_name: "Escola Bela", inep: null, visits: 2, actions: 2, completed: 1, overdue: 1, last_visit: "2026-10-20" },
+      { school_id: "c", school_name: "Escola Serra", inep: null, visits: 1, actions: 0, completed: 0, overdue: 0, last_visit: "2026-11-01" },
+    ];
+    expect(filterNetworkRows(rows, "", "sem visita").map((r) => r.school_id)).toEqual(["a"]);
+    expect(filterNetworkRows(rows, "", "com prazo vencido").map((r) => r.school_id)).toEqual(["b"]);
+    expect(filterNetworkRows(rows, "", "visitadas").map((r) => r.school_id)).toEqual(["b", "c"]);
+    expect(filterNetworkRows(rows, "33001000", "todas").map((r) => r.school_id)).toEqual(["a"]);
+    expect(rows).toHaveLength(3);
   });
   it("total de escolas acessíveis não é igual às visitadas", () => {
     const n = networkIndicators([
