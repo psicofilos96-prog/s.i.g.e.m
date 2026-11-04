@@ -310,7 +310,8 @@ RESET ROLE;
 INSERT INTO public.school_institutional_followup_actions(
   school_id, visit_logical_id, description, author_user_id,
   author_person_id, request_key)
-SELECT 'school-a', 'bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb'::uuid,
+SELECT 'school-a', (SELECT logical_id FROM public.school_institutional_followup_visits
+    WHERE school_id = 'school-a' ORDER BY recorded_at DESC LIMIT 1),
   'Medida sintética de carga', '11111111-1111-4111-8111-111111111111'::uuid,
   '11111111-1111-4111-8111-111111111111'::uuid, gen_random_uuid()
 FROM generate_series(1,5001);
