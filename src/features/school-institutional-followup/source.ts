@@ -33,6 +33,7 @@ export async function networkFollowup(from: string, to: string): Promise<Network
   if (!Array.isArray(rows)) throw new Error("A consulta da rede retornou um formato inesperado.");
   return rows.map((r: Record<string, unknown>) => ({
     school_id: String(r['school_id']), school_name: String(r['school_name']),
+    inep: r["inep"] == null ? null : String(r["inep"]),
     visits: Number(r['visits']), actions: Number(r['actions']),
     completed: Number(r['completed']), overdue: Number(r['overdue']),
     last_visit: r['last_visit'] == null ? null : String(r['last_visit']),
