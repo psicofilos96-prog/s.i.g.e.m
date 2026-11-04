@@ -14,7 +14,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   snapshot: SchoolSnapshot; schoolId: string; schoolName: string; inep: string | null;
   today: string; onInspect: (actionId: string) => void;
   /** O Gabinete não recebe esse callback: nenhuma operação de escrita é oferecida. */
-  onStartUpdate?: (actionId: string) => void;
+  onStartUpdate?: ((actionId: string) => void) | undefined;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [exporting, setExporting] = useState(false);
