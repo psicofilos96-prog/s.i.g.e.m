@@ -46,6 +46,17 @@ BEGIN
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-positive:changed-payload-accepted'; END IF;
 
+  -- Mesmo diagnóstico, mas outra lista de medidas com a mesma chave: conflito.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_bundle(
+      'school-a', day_, 'Diagnóstico de teste', 'Equipe engajada',
+      'Acervo desorganizado', 'Reorganizar a biblioteca', request_, '[]'::jsonb);
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:request-conflict' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:changed-action-list-accepted'; END IF;
+
   -- Se a segunda medida é inválida, nem a visita nem a primeira medida persistem.
   denied := false;
   BEGIN
