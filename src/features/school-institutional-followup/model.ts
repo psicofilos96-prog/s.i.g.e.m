@@ -186,3 +186,25 @@ export function isEvolutionDraftDirty(draft: {
     || [draft.done, draft.notDone, draft.results, draft.referrals]
       .some((value) => value.trim().length > 0);
 }
+
+/** Reconhece texto efetivo no formulário de medida, sem confundir linha vazia com rascunho. */
+export function isFollowupActionDraftDirty(draft: Readonly<FollowupActionDraft>): boolean {
+  return Boolean(draft.description.trim() || draft.responsible.trim() || draft.due);
+}
+
+/** Evita perder diagnósticos e planos da visita ao navegar entre escolas.
+ *  Uma retificação aberta é um contexto de edição, mesmo antes de alterar o texto.
+ */
+export function isFollowupVisitDraftDirty(draft: {
+  day: string; initialDay: string; correctionBase: string | null;
+  diagnosis: string; strengths: string; weaknesses: string; summary: string;
+  participants: string; purpose: string; correctionReason: string;
+  actions: readonly FollowupActionDraft[];
+}): boolean {
+  return draft.correctionBase !== null
+    || draft.day !== draft.initialDay
+    || [draft.diagnosis, draft.strengths, draft.weaknesses, draft.summary,
+      draft.participants, draft.purpose, draft.correctionReason]
+      .some((value) => value.trim().length > 0)
+    || draft.actions.some(isFollowupActionDraftDirty);
+}
