@@ -19,7 +19,9 @@ import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, cu
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
 const dateLabel = (d: string | null) => d ? d.split("-").reverse().join("/") : "Não informado";
-const newAction = () => ({ description: "", responsible: "", due: "" });
+// Identificador local estável: remover a medida do meio nunca reatribui campos às demais.
+let draftRowSequence = 0;
+const newAction = () => ({ draftKey: ++draftRowSequence, description: "", responsible: "", due: "" });
 type ActionDraft = ReturnType<typeof newAction>;
 
 export function InstitutionalSchoolFollowupPage() {
@@ -50,7 +52,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [purpose, setPurpose] = useState("");
   const [correctionBase, setCorrectionBase] = useState<string | null>(null);
   const [correctionReason, setCorrectionReason] = useState("");
-  const [draftActions, setDraftActions] = useState<ActionDraft[]>([newAction()]);
+  const [draftActions, setDraftActions] = useState<ActionDraft[]>(() => [newAction()]);
   const [saving, setSaving] = useState(false);
   const [savingUpdate, setSavingUpdate] = useState(false);
   const [savingMeasure, setSavingMeasure] = useState(false);
@@ -61,7 +63,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const updateRequest = useRef<{ signature: string; request: string } | null>(null);
   const measureRequest = useRef<{ signature: string; request: string } | null>(null);
   const [measureVisitId, setMeasureVisitId] = useState("");
-  const [measureDraft, setMeasureDraft] = useState<ActionDraft>(newAction());
+  const [measureDraft, setMeasureDraft] = useState<ActionDraft>(newAction);
   const [actionView, setActionView] = useState<ActionView>("todas");
   const [actionQuery, setActionQuery] = useState("");
   const [actionId, setActionId] = useState("");
@@ -530,23 +532,28 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             onChange={(e) => setCorrectionReason(e.target.value)} />
         </label>}
         {!correctionBase && <><h4 className="font-medium">Plano de ação — medidas propostas</h4>
-        {draftActions.map((a, i) => <div key={i} className="space-y-2 rounded-lg bg-muted/30 p-3">
+        {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg bg-muted/30 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h5 className="text-sm font-medium">Medida {i + 1}</h5>
+            {draftActions.length > 1 && <Button type="button" size="sm" variant="ghost" disabled={saving}
+              aria-label={`Remover medida ${i + 1}`}
+              onClick={() => {
+                setDraftActions((prev) => prev.filter((x) => x.draftKey !== a.draftKey));
+                visitRequests.current = null;
+              }}>Remover esta medida</Button>}
+          </div>
           <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
-            onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, description: e.target.value } : x))} /></label>
+            onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, description: e.target.value } : x))} /></label>
           <div className="grid gap-2 md:grid-cols-2">
             <label className="block text-sm">Responsável declarado<input className={input} maxLength={250} value={a.responsible}
-              onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, responsible: e.target.value } : x))} /></label>
+              onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, responsible: e.target.value } : x))} /></label>
             <label className="block text-sm">Prazo, se houver<DateInput className={input} min={day} value={a.due}
-              onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, due: e.target.value } : x))} /></label>
+              onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, due: e.target.value } : x))} /></label>
           </div>
         </div>)}</>}
         <div className="flex flex-wrap gap-2">
-          {!correctionBase && <>
-            <Button type="button" variant="outline" disabled={draftActions.length >= 50}
-              onClick={() => { setDraftActions((a) => a.length < 50 ? [...a, newAction()] : a); visitRequests.current = null; }}>Adicionar medida</Button>
-            {draftActions.length > 1 && <Button type="button" variant="ghost"
-              onClick={() => { setDraftActions((a) => a.slice(0, -1)); visitRequests.current = null; }}>Remover última</Button>}
-          </>}
+          {!correctionBase && <Button type="button" variant="outline" disabled={saving || draftActions.length >= 50}
+            onClick={() => { setDraftActions((a) => a.length < 50 ? [...a, newAction()] : a); visitRequests.current = null; }}>Adicionar medida</Button>}
           <Button type="submit" disabled={saving || !diagnosis.trim() || Boolean(correctionBase && !correctionReason.trim())}>
             {saving ? "Registrando…" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
           </Button>
