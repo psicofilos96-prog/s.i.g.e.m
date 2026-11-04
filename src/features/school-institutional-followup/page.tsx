@@ -10,7 +10,7 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { exportFollowupNetwork, exportFollowupSchool } from "./report";
-import { currentSituation, currentUpdate, filterSchoolActions, isOverdue, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS, NO_UPDATE, type ActionView } from "./model";
+import { currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
@@ -35,6 +35,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [from, setFrom] = useState(today.slice(0, 4) + "-01-01");
   const [to, setTo] = useState(today);
   const [search, setSearch] = useState("");
+  const [networkView, setNetworkView] = useState<NetworkView>("todas");
   const [school, setSchool] = useState("");
   const [day, setDay] = useState(today);
   const [diagnosis, setDiagnosis] = useState("");
@@ -81,7 +82,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     queryKey: ["institutional-followup-school", sessionKey, school],
     queryFn: () => schoolFollowup(school), enabled: Boolean(school), retry: false,
   });
-  const rows = searchableNetwork(network.data ?? [], search);
+  const rows = filterNetworkRows(network.data ?? [], search, networkView);
   const totals = networkIndicators(network.data ?? []);
   const selected = network.data?.find((r) => r.school_id === school);
   const canRecord = Boolean(authority.person) && authority.capabilities.some((c) =>
@@ -236,6 +237,15 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
         <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
         <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome ou código INEP" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
+        <label className="text-sm">Situação das escolas
+          <select className={input} value={networkView}
+            onChange={(e) => setNetworkView(e.target.value as NetworkView)}>
+            <option value="todas">Todas as unidades</option>
+            <option value="visitadas">Com visitas no período</option>
+            <option value="sem visita">Sem visitas no período</option>
+            <option value="com prazo vencido">Com medidas vencidas</option>
+          </select>
+        </label>
         <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
         {network.isSuccess && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
@@ -267,6 +277,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
         </p>}
         <h2 className="font-semibold">Escolas e visitas realizadas</h2>
+        <p className="text-xs text-muted-foreground">
+          {rows.length} de {network.data.length} escolas acessíveis na lista e na exportação.
+          Os indicadores e gráficos acima consideram todas as escolas autorizadas.
+          A lista é descritiva, sem ranking de qualidade.
+        </p>
         {rows.length === 0 ? <EmptyState title="Nenhuma escola disponível" description="Nenhuma unidade foi encontrada neste escopo ou filtro." /> : <>
           <div className="space-y-2">
             {rows.slice(0, 8).map((r) => <div key={r.school_id} className="grid grid-cols-[minmax(0,1fr)_2fr_auto] items-center gap-2 text-xs">
