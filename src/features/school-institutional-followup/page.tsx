@@ -12,7 +12,7 @@ import { InstitutionalFollowupAnalytics } from "./analytics";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
-import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, isEvolutionDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
+import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
@@ -72,6 +72,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [results, setResults] = useState("");
   const [referrals, setReferrals] = useState("");
   const [evolutionNotice, setEvolutionNotice] = useState("");
+  const [visitDraftNotice, setVisitDraftNotice] = useState("");
+  const [measureDraftNotice, setMeasureDraftNotice] = useState("");
 
   const network = useQuery({
     queryKey: ["institutional-followup-network", sessionKey, from, to],
@@ -116,6 +118,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     day: updateDay, initialDay: today, situation, linkedVisitId: updateVisitId,
     done, notDone, results, referrals,
   });
+  const visitDraftIsDirty = isFollowupVisitDraftDirty({
+    day, initialDay: today, correctionBase, diagnosis, strengths, weaknesses,
+    summary, participants, purpose, correctionReason, actions: draftActions,
+  });
+  const measureDraftIsDirty = isFollowupActionDraftDirty(measureDraft);
   useEffect(() => {
     if (correctionBase) document.getElementById("followup-visit-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -208,13 +215,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           })),
         });
       }
-      setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
-      setParticipants(""); setPurpose("");
-      setDraftActions([newAction()]); visitRequests.current = null;
+      resetVisitDraft();
       setNotice(correctionBase === null
         ? "Visita e ações registradas. O histórico da escola foi preservado."
         : "Retificação registrada com justificativa. A versão anterior continua preservada.");
-      setCorrectionBase(null); setCorrectionReason("");
       await refresh();
     } catch (e) {
       setError(presentError(e));
@@ -259,21 +263,47 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         responsible: measureDraft.responsible, due: measureDraft.due || null,
         request: measureRequest.current.request,
       });
-      measureRequest.current = null;
-      setMeasureVisitId(""); setMeasureDraft(newAction());
+      resetMeasureDraft();
       setNotice("Nova medida adicionada ao plano da visita, com autoria e histórico preservados.");
       await refresh();
     } catch (e) { setError(presentError(e)); }
     finally { setSavingMeasure(false); }
   }
+  function resetMeasureDraft() {
+    setMeasureVisitId(""); setMeasureDraft(newAction());
+    setMeasureDraftNotice(""); measureRequest.current = null;
+  }
+  function resetVisitDraft() {
+    setDay(today); setDiagnosis(""); setStrengths(""); setWeaknesses("");
+    setSummary(""); setParticipants(""); setPurpose(""); setCorrectionBase(null);
+    setCorrectionReason(""); setDraftActions([newAction()]);
+    setVisitDraftNotice(""); visitRequests.current = null;
+  }
   function startMeasure(visit: NonNullable<typeof detail.data>["visits"][number]) {
-    if (!canRecord) return;
+    if (!canRecord || savingMeasure) return;
+    if (measureVisitId === visit.id) {
+      document.getElementById("followup-measure-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (measureVisitId && (measureDraftIsDirty || measureRequest.current !== null)) {
+      setMeasureDraftNotice("Há uma medida em preenchimento. Salve ou cancele antes de selecionar outra visita.");
+      document.getElementById("followup-measure-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
     setMeasureVisitId(visit.id); setMeasureDraft(newAction());
-    measureRequest.current = null; setError(""); setNotice("");
-
+    measureRequest.current = null; setMeasureDraftNotice(""); setError(""); setNotice("");
   }
   function startCorrection(visit: NonNullable<typeof detail.data>["visits"][number]) {
-    if (!canRecord || !visit.can_correct) return;
+    if (!canRecord || !visit.can_correct || saving) return;
+    if (correctionBase === visit.id) {
+      document.getElementById("followup-visit-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (visitDraftIsDirty || visitRequests.current !== null) {
+      setVisitDraftNotice("Existe uma visita em preenchimento. Salve ou descarte os dados atuais antes de retificar outra visita.");
+      document.getElementById("followup-visit-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
     setCorrectionBase(visit.id);
     setCorrectionReason("");
     setDay(visit.visit_date);
@@ -284,9 +314,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setWeaknesses(visit.weaknesses);
     setSummary(visit.summary ?? "");
     setDraftActions([newAction()]);
-    visitRequests.current = null;
+    visitRequests.current = null; setVisitDraftNotice("");
     setError(""); setNotice("Preencha a justificativa e confira os dados da visita original.");
-
   }
   function startEvolution(nextActionId: string) {
     // UI boundary complements the writer's school capability check; never trust the ID alone.
@@ -314,18 +343,25 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   }
   function changeSchool(id: string): boolean {
     if (id === school) return true;
+    if (saving || visitDraftIsDirty || visitRequests.current !== null) {
+      setVisitDraftNotice("Há dados de visita ainda não registrados. Salve ou descarte o preenchimento antes de trocar de escola.");
+      document.getElementById("followup-visit-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return false;
+    }
+    if (savingMeasure || (measureVisitId && (measureDraftIsDirty || measureRequest.current !== null))) {
+      setMeasureDraftNotice("Há uma medida ainda não registrada. Salve ou cancele antes de trocar de escola.");
+      document.getElementById("followup-measure-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return false;
+    }
     if (actionId && (savingUpdate || evolutionDraftIsDirty || updateRequest.current !== null)) {
       setEvolutionNotice("Há uma evolução em preenchimento. Salve ou cancele antes de mudar de escola.");
       document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
       return false;
     }
     setSchool(id); cancelEvolution(); setTargetActionId("");
-    setMeasureVisitId(""); setMeasureDraft(newAction());
+    resetMeasureDraft(); resetVisitDraft();
     setActionView("todas"); setActionQuery("");
-    setNotice(""); setError(""); visitRequests.current = null; measureRequest.current = null;
-    setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
-    setParticipants(""); setPurpose(""); setDraftActions([newAction()]);
-    setDay(today); setCorrectionBase(null); setCorrectionReason("");
+    setNotice(""); setError("");
     return true;
   }
   function openMeasure(schoolId: string, measureId: string) {
@@ -447,6 +483,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
       {canRecord && <form id="followup-visit-form" className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
         <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
+        {visitDraftNotice && <p role="alert" className="text-sm text-destructive">{visitDraftNotice}</p>}
         {correctionBase && <p className="text-sm text-muted-foreground">
           Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
         </p>}
@@ -497,17 +534,17 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <Button type="submit" disabled={saving || !diagnosis.trim() || Boolean(correctionBase && !correctionReason.trim())}>
             {saving ? "Registrando…" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
           </Button>
-          {correctionBase && <Button type="button" variant="outline" onClick={() => {
-            setCorrectionBase(null); setCorrectionReason(""); setDiagnosis(""); setStrengths("");
-            setWeaknesses(""); setSummary(""); setParticipants(""); setPurpose("");
-            setDraftActions([newAction()]); setDay(today); visitRequests.current = null;
-          }}>Cancelar retificação</Button>}
+          {(correctionBase || visitDraftIsDirty || visitRequests.current !== null) && <Button
+            type="button" variant="outline" disabled={saving} onClick={resetVisitDraft}>
+            {correctionBase ? "Cancelar retificação" : "Descartar preenchimento"}
+          </Button>}
         </div>
         <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
       </form>}
       {detail.data && canRecord && measureVisitId && <form id="followup-measure-form"
         className="space-y-3 rounded-xl border p-4" onSubmit={(e) => void saveMeasure(e)}>
         <h3 className="font-semibold">Acrescentar medida a uma visita existente</h3>
+        {measureDraftNotice && <p role="alert" className="text-sm text-destructive">{measureDraftNotice}</p>}
         <p className="text-sm text-muted-foreground">
           Visita de {dateLabel(detail.data.visits.find((v) => v.id === measureVisitId)?.visit_date ?? null)}.
           A nova medida é adicionada ao plano sem alterar o diagnóstico ou medidas anteriores.
@@ -533,9 +570,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <Button type="submit" disabled={savingMeasure || !measureDraft.description.trim()}>
             {savingMeasure ? "Salvando…" : "Acrescentar medida"}
           </Button>
-          <Button type="button" variant="outline" onClick={() => {
-            setMeasureVisitId(""); setMeasureDraft(newAction()); measureRequest.current = null;
-          }}>Cancelar</Button>
+          <Button type="button" variant="outline" disabled={savingMeasure}
+            onClick={resetMeasureDraft}>Cancelar</Button>
         </div>
       </form>}
       {detail.data && <>
@@ -640,7 +676,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               Boolean(updateMinDay && updateDay < updateMinDay)}>
               {savingUpdate ? "Salvando…" : "Registrar atualização"}
             </Button>
-            <Button type="button" variant="outline" onClick={cancelEvolution}>Cancelar</Button></div>
+            <Button type="button" variant="outline" disabled={savingUpdate}
+              onClick={cancelEvolution}>Cancelar</Button></div>
         </form>}
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Histórico de visitas</h3>
