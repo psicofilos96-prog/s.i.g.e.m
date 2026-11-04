@@ -2,7 +2,8 @@
 export type FollowupVisit = {
   id: string; logical_id: string; version: number; school_id: string; visit_date: string;
   diagnosis: string; strengths: string; weaknesses: string; summary: string | null;
-  created_at: string; author_name: string | null;
+  correction_reason: string | null; supersedes_id: string | null;
+  can_correct?: boolean; created_at: string; author_name: string | null;
 };
 export type FollowupAction = {
   id: string; school_id: string; visit_logical_id: string;
@@ -16,7 +17,8 @@ export type FollowupUpdate = {
   created_at: string; author_name: string | null;
 };
 export type SchoolSnapshot = {
-  visits: FollowupVisit[]; actions: FollowupAction[]; updates: FollowupUpdate[];
+  visits: FollowupVisit[]; visit_history: FollowupVisit[];
+  actions: FollowupAction[]; updates: FollowupUpdate[];
 };
 export type NetworkRow = {
   school_id: string; school_name: string; visits: number; actions: number;
