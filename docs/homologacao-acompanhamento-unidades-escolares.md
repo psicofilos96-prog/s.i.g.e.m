@@ -54,14 +54,27 @@ Foram acrescentados dois arquivos de pré/pós-verificação no repositório:
 
 **Ambos executam dentro de `BEGIN TRANSACTION READ ONLY`, terminam em `ROLLBACK` e não criam contas, não concedem capacidades e não alteram o banco.** Validar previamente o host, nome do banco e isolamento: uma pré-checagem estrutural jamais demonstra que o endpoint aponta para um clone.
 
-Exemplo de execução em estação técnica, após configurar e confirmar a URL do **clone integral isolado**:
+#### Executor com bloqueio de endpoints remotos
+
+Para clones **locais**, utilize `scripts/followup-clone-readonly.mjs`, que executa somente o pré ou o pós-check. Ele requer confirmação explícita, bloqueia endereços remotos (inclusive endpoints do Supabase), compara o nome informado com o banco efetivamente conectado e não inclui qualquer opção para aplicar migrations. Segredos ficam apenas nas variáveis de ambiente do processo, nunca nos argumentos enviados ao `psql`.
+
+Exemplo para Windows PowerShell, depois de criar um clone PostgreSQL realmente isolado:
+
+```powershell
+$env:SIGEM_CLONE_CONFIRMATION = "CONFIRMO_CLONE_LOCAL_ISOLADO"
+$env:SIGEM_CLONE_EXPECTED_DATABASE = "sigem_followup_clone"
+$env:SIGEM_CLONE_DATABASE_URL = "postgresql://USUARIO:SENHA@127.0.0.1:54322/sigem_followup_clone"
+node scripts/followup-clone-readonly.mjs --pre
+# A aplicação da migration 0613, SE APROVADA, é um procedimento manual SEPARADO e exclusivo do clone.
+node scripts/followup-clone-readonly.mjs --post
+```
+
+Substitua usuário/senha somente em ambiente técnico privado; **nunca publique a URL ou credenciais no GitHub**. Exige-se Node.js e `psql` disponíveis. O runner não cria o clone, não instala a migration e não substitui autorização da gestão técnica. **Localhost também pode apontar para um túnel SSH:** a equipe precisa atestar que não existe túnel, proxy ou redirecionamento para produção. A proteção não é prova criptográfica de isolamento.
+
+Para simular o bloqueio sem qualquer banco, os testes locais são:
 
 ```bash
-psql "$SIGEM_CLONE_DATABASE_URL" -X -v ON_ERROR_STOP=1 \
-  -f supabase/tests/0613_followup_clone_preflight_readonly.sql
-# Somente no clone e pela rotina autorizada: aplicar migration 0613.
-psql "$SIGEM_CLONE_DATABASE_URL" -X -v ON_ERROR_STOP=1 \
-  -f supabase/tests/0613_followup_clone_postflight_readonly.sql
+node --test scripts/followup-clone-readonly.test.mjs
 ```
 
 O GitHub Actions agora usa essas mesmas verificações na fixture mínima, o que testa o roteiro técnico, **mas não fornece o clone institucional nem uma execução no esquema real**. O pós-check não comprova os escopos das pessoas nem o comportamento da UI: a matriz de aceite abaixo permanece obrigatória. Se o pré-check reprovar, parar e analisar diferenças, sem adaptar funções ou alterar permissões em produção.
