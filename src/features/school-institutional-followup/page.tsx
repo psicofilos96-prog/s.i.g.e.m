@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
@@ -10,7 +10,7 @@ import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns"
 import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { exportFollowupNetwork, exportFollowupSchool } from "./report";
-import { currentSituation, currentUpdate, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS } from "./model";
+import { currentSituation, currentUpdate, filterSchoolActions, isOverdue, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS, NO_UPDATE, type ActionView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
@@ -55,6 +55,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const measureRequest = useRef<{ signature: string; request: string } | null>(null);
   const [measureVisitId, setMeasureVisitId] = useState("");
   const [measureDraft, setMeasureDraft] = useState<ActionDraft>(newAction());
+  const [actionView, setActionView] = useState<ActionView>("todas");
+  const [actionQuery, setActionQuery] = useState("");
   const [actionId, setActionId] = useState("");
   const [situation, setSituation] = useState(SITUATIONS[0].value as string);
   const [updateDay, setUpdateDay] = useState(today);
@@ -86,7 +88,18 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     c.capabilityId === "registrar-acompanhamento-institucional"
     && (c.schoolId === null || c.schoolId === school));
   const stats = detail.data ? schoolIndicators(detail.data, today) : null;
+  const visibleActions = detail.data
+    ? filterSchoolActions(detail.data.actions, detail.data.updates, actionView, actionQuery, today)
+    : [];
   const maxVisits = Math.max(1, ...rows.map((r) => r.visits));
+  useEffect(() => {
+    if (correctionBase) document.getElementById("followup-visit-form")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [correctionBase]);
+  useEffect(() => {
+    if (measureVisitId) document.getElementById("followup-measure-form")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [measureVisitId]);
   async function exportReport(format: "csv" | "xlsx" | "pdf") {
     if (!network.isSuccess || exporting) return;
     setExporting(true); setError("");
@@ -192,7 +205,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     if (!canRecord) return;
     setMeasureVisitId(visit.id); setMeasureDraft(newAction());
     measureRequest.current = null; setError(""); setNotice("");
-    document.getElementById("followup-measure-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
   }
   function startCorrection(visit: NonNullable<typeof detail.data>["visits"][number]) {
     if (!canRecord || !visit.can_correct) return;
@@ -206,10 +219,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setDraftActions([newAction()]);
     visitRequests.current = null;
     setError(""); setNotice("Preencha a justificativa e confira os dados da visita original.");
-    document.getElementById("followup-visit-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
   }
   function changeSchool(id: string) {
     setSchool(id); setActionId(""); setMeasureVisitId(""); setMeasureDraft(newAction());
+    setActionView("todas"); setActionQuery("");
     setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null; measureRequest.current = null;
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
     setDay(today); setCorrectionBase(null); setCorrectionReason("");
@@ -381,13 +395,42 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </form>}
       {detail.data && <>
         <div className="space-y-3 rounded-xl border p-4">
-          <h3 className="font-semibold">Ações e evolução</h3>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-semibold">Ações e evolução</h3>
+            <span className="text-xs text-muted-foreground">{visibleActions.length} de {detail.data.actions.length} medidas</span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-sm">Filtrar por situação e prazo
+              <select className={input} value={actionView}
+                onChange={(e) => setActionView(e.target.value as ActionView)}>
+                <option value="todas">Todas as medidas</option>
+                <option value="prazo vencido">Com prazo vencido</option>
+                <option value="sem prazo">Sem prazo declarado</option>
+                <option value={NO_UPDATE}>Sem atualização registrada</option>
+                {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+            </label>
+            <label className="text-sm">Buscar medida ou responsável
+              <input className={input} type="search" placeholder="Descrição, responsável ou data"
+                value={actionQuery} onChange={(e) => setActionQuery(e.target.value)} />
+            </label>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Medidas ordenadas pelo prazo declarado mais próximo; medidas sem prazo aparecem por último.
+            Sem atualização não significa não realizada.
+          </p>
           {!detail.data.actions.length && <p className="text-sm text-muted-foreground">Nenhuma medida cadastrada.</p>}
-          {detail.data.actions.map((a) => {
+          {detail.data.actions.length > 0 && visibleActions.length === 0 &&
+            <p className="text-sm text-muted-foreground">Nenhuma medida corresponde aos filtros. Os registros permanecem no histórico.</p>}
+          {visibleActions.map((a) => {
             const latest = currentUpdate(a, detail.data!.updates);
             return <div key={a.id} className="space-y-2 border-b pb-3 last:border-0">
               <p className="font-medium">{a.description}</p>
-              <p className="text-xs text-muted-foreground">Responsável: {a.responsible_label || "Não informado"} • Registro: {a.author_name || "Autoria registrada"} • Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detail.data!.updates)}</p>
+              <p className="text-xs text-muted-foreground">
+                Responsável: {a.responsible_label || "Não informado"} • Registro: {a.author_name || "Autoria registrada"}
+                {" • "}Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detail.data!.updates)}
+                {isOverdue(a, detail.data!.updates, today) && <strong className="text-destructive"> • Prazo vencido</strong>}
+              </p>
               {latest && <p className="text-sm">Última atualização ({dateLabel(latest.occurred_on)}): {latest.situation}</p>}
               {detail.data!.updates.some((u) => u.action_id === a.id) && <details className="rounded-lg bg-muted/30 p-3 text-sm">
                 <summary className="cursor-pointer font-medium">Consultar histórico completo desta ação</summary>
