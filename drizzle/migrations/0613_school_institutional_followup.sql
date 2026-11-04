@@ -264,16 +264,36 @@ RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS 
 DECLARE _res jsonb;
 BEGIN
   IF NOT public.school_institutional_followup_can_read(_school) THEN RAISE EXCEPTION 'followup:read-denied'; END IF;
+  -- Um histórico cortado silenciosamente produziria contagens e estados falsos.
+  -- Enquanto a paginação canônica não existir, falha fechada com erro identificável.
+  IF (SELECT count(*) FROM public.school_institutional_followup_visits
+       WHERE school_id = _school AND supersedes_id IS NULL) > 1000
+    OR (SELECT count(*) FROM public.school_institutional_followup_actions
+       WHERE school_id = _school) > 2000
+    OR (SELECT count(*) FROM public.school_institutional_followup_updates u
+       JOIN public.school_institutional_followup_actions a ON a.id = u.action_id
+       WHERE a.school_id = _school) > 5000
+  THEN RAISE EXCEPTION 'followup:history-volume-exceeded'; END IF;
   SELECT jsonb_build_object(
     'visits', coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.visit_date DESC, t.created_at DESC)
       FROM (SELECT v.id, v.logical_id, v.version, v.school_id, v.visit_date, v.diagnosis,
-        v.strengths, v.weaknesses, v.summary, v.recorded_at AS created_at,
-        p.display_name AS author_name
+        v.strengths, v.weaknesses, v.summary, v.correction_reason, v.supersedes_id,
+        v.recorded_at AS created_at, p.display_name AS author_name,
+        (v.author_user_id = auth.uid()) AS can_correct
         FROM public.school_institutional_followup_visits v
         LEFT JOIN public.institutional_persons p ON p.id = v.author_person_id
         WHERE v.school_id = _school AND NOT EXISTS
          (SELECT 1 FROM public.school_institutional_followup_visits next WHERE next.supersedes_id = v.id)
         ORDER BY v.visit_date DESC, v.recorded_at DESC LIMIT 1000) t),'[]'::jsonb),
+    'visit_history', coalesce((SELECT jsonb_agg(to_jsonb(h) ORDER BY h.created_at DESC)
+      FROM (SELECT v.id, v.logical_id, v.version, v.school_id, v.visit_date, v.diagnosis,
+        v.strengths, v.weaknesses, v.summary, v.correction_reason, v.supersedes_id,
+        v.recorded_at AS created_at, p.display_name AS author_name
+        FROM public.school_institutional_followup_visits v
+        LEFT JOIN public.institutional_persons p ON p.id = v.author_person_id
+        WHERE v.school_id = _school AND EXISTS
+          (SELECT 1 FROM public.school_institutional_followup_visits later WHERE later.supersedes_id = v.id)
+        ORDER BY v.recorded_at DESC LIMIT 1000) h),'[]'::jsonb),
     'actions', coalesce((SELECT jsonb_agg(to_jsonb(a) ORDER BY a.created_at DESC)
       FROM (SELECT a.id, a.school_id, a.visit_logical_id, a.description, a.responsible_label,
         a.due_on, a.recorded_at AS created_at, p.display_name AS author_name
