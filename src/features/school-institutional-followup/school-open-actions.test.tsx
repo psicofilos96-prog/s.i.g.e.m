@@ -34,6 +34,26 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ver acompanhamento da medida: Reorganizar biblioteca" }));
     expect(inspect).toHaveBeenCalledExactlyOnceWith("a1");
   });
+  it("permite iniciar uma evolução somente para equipe com escrita, sem gravar automaticamente", () => {
+    const inspect = vi.fn();
+    const startUpdate = vi.fn();
+    const data = snapshot([
+      action("a1", "Corrigir iluminação", "2026-11-03"),
+      action("a2", "Concluída", "2026-11-01"),
+    ], [update("a2", "concluída")]);
+    const { rerender } = render(<SchoolOpenActionsPanel
+      schoolId="s1" schoolName="Escola Centro" inep={null} today="2026-11-04"
+      onInspect={inspect} snapshot={data} />);
+    expect(screen.queryByRole("button", { name: /Registrar evolução da medida:/ })).toBeNull();
+    expect(screen.getByRole("button", { name: "Ver acompanhamento da medida: Corrigir iluminação" })).toBeTruthy();
+    rerender(<SchoolOpenActionsPanel
+      schoolId="s1" schoolName="Escola Centro" inep={null} today="2026-11-04"
+      onInspect={inspect} onStartUpdate={startUpdate} snapshot={data} />);
+    fireEvent.click(screen.getByRole("button", { name: "Registrar evolução da medida: Corrigir iluminação" }));
+    expect(startUpdate).toHaveBeenCalledExactlyOnceWith("a1");
+    expect(inspect).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Registrar evolução da medida: Concluída" })).toBeNull();
+  });
   it("mostra mais medidas sob demanda, sem perdê-las ou mudar a ordenação", () => {
     const actions = Array.from({ length: 7 }, (_, i) => action("a"+i, "Medida "+i, `2026-11-${String(5+i).padStart(2, "0")}`));
     render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null} today="2026-11-04" onInspect={vi.fn()} snapshot={snapshot(actions)} />);
