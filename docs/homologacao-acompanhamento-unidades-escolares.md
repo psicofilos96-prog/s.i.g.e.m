@@ -102,6 +102,10 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] Pesquisa por nome e INEP, filtros, acesso direto à medida e exports PDF/XLSX/CSV funcionam em sessões dos perfis autorizados.
 - [ ] Dados textuais nos exports não executam fórmulas de planilha.
 - [ ] O sistema recusa consulta incompleta quando excedidos os limites atuais: 1.000 versões de visitas / 2.000 medidas / 5.000 evoluções por unidade e 5.000 medidas pendentes na rede.
+- [ ] Com visita nova parcialmente preenchida, a troca de escola e o fechamento da ficha são recusados sem apagar textos; **Descartar preenchimento** limpa apenas depois de ação explícita.
+- [ ] Com retificação aberta, uma tentativa de retificar outra visita ou mudar de escola preserva a primeira.
+- [ ] Com medida adicional em edição, trocar visita ou escola preserva os dados até salvar ou cancelar; os botões de cancelar ficam desabilitados durante o envio.
+- [ ] Com evolução em edição, trocar medida ou escola preserva os campos; uma evolução limpa pode ser cancelada sem criar evento.
 - [ ] UI é conferida em navegador real, inclusive smartphone, com sessão de cada perfil.
 
 ## 5. Critérios de publicação e contingência
