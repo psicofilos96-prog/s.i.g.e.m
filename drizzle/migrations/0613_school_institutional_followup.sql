@@ -354,17 +354,48 @@ REVOKE ALL ON FUNCTION public.school_institutional_followup_network(date,date) F
 GRANT EXECUTE ON FUNCTION public.school_institutional_followup_network(date,date) TO authenticated;
 
 
+-- Assinatura imutável do bundle: a mesma chave não pode representar uma lista diferente de medidas.
+CREATE TABLE public.school_institutional_followup_bundles (
+  request_key uuid PRIMARY KEY,
+  visit_id uuid NOT NULL REFERENCES public.school_institutional_followup_visits(id),
+  school_id text NOT NULL REFERENCES public.institutional_schools(id),
+  author_user_id uuid NOT NULL,
+  payload_hash text NOT NULL CHECK (length(payload_hash) = 64),
+  recorded_at timestamptz NOT NULL DEFAULT clock_timestamp()
+);
+REVOKE ALL ON public.school_institutional_followup_bundles
+  FROM PUBLIC, anon, authenticated, service_role;
+ALTER TABLE public.school_institutional_followup_bundles ENABLE ROW LEVEL SECURITY;
+CREATE TRIGGER followup_bundle_immutable BEFORE UPDATE OR DELETE
+  ON public.school_institutional_followup_bundles
+  FOR EACH ROW EXECUTE FUNCTION public.school_institutional_followup_immutable();
+
 -- Uma visita e suas ações são um único ato transacional: erro em uma ação desfaz todas.
 CREATE FUNCTION public.record_school_institutional_followup_bundle(
   _school text, _day date, _diagnosis text, _strengths text, _weaknesses text,
   _summary text, _request uuid, _actions jsonb)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$
 DECLARE _visit uuid; a jsonb; _request_action uuid;
+  _fingerprint text; _saved public.school_institutional_followup_bundles;
 BEGIN
   IF _actions IS NOT NULL AND pg_catalog.jsonb_typeof(_actions) <> 'array'
     THEN RAISE EXCEPTION 'followup:actions-invalid'; END IF;
   IF pg_catalog.jsonb_array_length(coalesce(_actions, '[]'::jsonb)) > 50
     THEN RAISE EXCEPTION 'followup:too-many-actions'; END IF;
+  IF _request IS NULL THEN RAISE EXCEPTION 'followup:request-required'; END IF;
+  _fingerprint := pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(
+    jsonb_build_object('school', _school, 'day', _day, 'diagnosis', _diagnosis,
+      'strengths', _strengths, 'weaknesses', _weaknesses, 'summary', _summary,
+      'actions', coalesce(_actions, '[]'::jsonb))::text, 'UTF8')), 'hex');
+  SELECT * INTO _saved FROM public.school_institutional_followup_bundles WHERE request_key = _request;
+  IF FOUND THEN
+    PERFORM public.school_institutional_followup_person(_school);
+    IF _saved.author_user_id IS DISTINCT FROM auth.uid()
+      OR _saved.school_id IS DISTINCT FROM _school
+      OR _saved.payload_hash IS DISTINCT FROM _fingerprint
+    THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
+    RETURN _saved.visit_id;
+  END IF;
   _visit := public.record_school_institutional_followup_visit(
     _school, _day, _diagnosis, _strengths, _weaknesses,
     _summary, NULL, NULL, _request
@@ -384,8 +415,18 @@ BEGIN
       );
     END IF;
   END LOOP;
+  INSERT INTO public.school_institutional_followup_bundles
+    (request_key, visit_id, school_id, author_user_id, payload_hash)
+  VALUES (_request, _visit, _school, auth.uid(), _fingerprint)
+  ON CONFLICT (request_key) DO NOTHING;
+  SELECT * INTO _saved FROM public.school_institutional_followup_bundles WHERE request_key = _request;
+  IF _saved.visit_id IS DISTINCT FROM _visit
+    OR _saved.author_user_id IS DISTINCT FROM auth.uid()
+    OR _saved.school_id IS DISTINCT FROM _school
+    OR _saved.payload_hash IS DISTINCT FROM _fingerprint
+  THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
   RETURN _visit;
-END $$;
+END $;
 REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
   FROM PUBLIC, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
