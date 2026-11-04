@@ -12,7 +12,7 @@ import { InstitutionalFollowupAnalytics } from "./analytics";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
-import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
+import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, isEvolutionDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
@@ -71,6 +71,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [notDone, setNotDone] = useState("");
   const [results, setResults] = useState("");
   const [referrals, setReferrals] = useState("");
+  const [evolutionNotice, setEvolutionNotice] = useState("");
 
   const network = useQuery({
     queryKey: ["institutional-followup-network", sessionKey, from, to],
@@ -119,6 +120,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     if (measureVisitId) document.getElementById("followup-measure-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [measureVisitId]);
+  useEffect(() => {
+    if (actionId) {
+      const form = document.getElementById("followup-update-form");
+      form?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      form?.focus?.({ preventScroll: true });
+    }
+  }, [actionId]);
   // O quadro transversal aponta para a medida específica, não apenas para a escola.
   useEffect(() => {
     if (!targetActionId || !school || !detail.isSuccess) return;
@@ -224,7 +232,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         done, notDone, results, referrals, request: updateRequest.current.request,
       });
       updateRequest.current = null;
-      setActionId(""); setUpdateVisitId("");
+      setActionId(""); setUpdateVisitId(""); setEvolutionNotice("");
       setDone(""); setNotDone(""); setResults(""); setReferrals("");
       setNotice("Evolução da ação registrada, sem apagar as atualizações anteriores.");
       await refresh();
@@ -276,11 +284,38 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setError(""); setNotice("Preencha a justificativa e confira os dados da visita original.");
 
   }
+  function startEvolution(nextActionId: string) {
+    // UI boundary complements the writer's school capability check; never trust the ID alone.
+    if (!canRecord || !detail.data?.actions.some((a) =>
+      a.id === nextActionId && a.school_id === school)) return;
+    if (actionId === nextActionId) {
+      document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (actionId && (isEvolutionDraftDirty({
+      day: updateDay, initialDay: today, situation, linkedVisitId: updateVisitId,
+      done, notDone, results, referrals,
+    }) || updateRequest.current !== null)) {
+      setEvolutionNotice("Existe uma evolução em preenchimento. Salve ou cancele o formulário atual antes de selecionar outra medida.");
+      document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    setActionId(nextActionId);
+    setUpdateDay(today); setUpdateVisitId(""); setSituation(SITUATIONS[0].value);
+    setDone(""); setNotDone(""); setResults(""); setReferrals("");
+    updateRequest.current = null;
+    setEvolutionNotice(""); setNotice(""); setError("");
+  }
+  function cancelEvolution() {
+    setActionId(""); setUpdateDay(today); setUpdateVisitId(""); setSituation(SITUATIONS[0].value);
+    setDone(""); setNotDone(""); setResults(""); setReferrals("");
+    updateRequest.current = null; setEvolutionNotice("");
+  }
   function changeSchool(id: string) {
-    setSchool(id); setActionId(""); setUpdateVisitId(""); setTargetActionId("");
+    setSchool(id); cancelEvolution(); setTargetActionId("");
     setMeasureVisitId(""); setMeasureDraft(newAction());
     setActionView("todas"); setActionQuery("");
-    setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null; measureRequest.current = null;
+    setNotice(""); setError(""); visitRequests.current = null; measureRequest.current = null;
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
     setParticipants(""); setPurpose(""); setDraftActions([newAction()]);
     setDay(today); setCorrectionBase(null); setCorrectionReason("");
@@ -400,7 +435,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
       {detail.data && <SchoolOpenActionsPanel key={school} snapshot={detail.data} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
-        onInspect={inspectSchoolMeasure} />}
+        onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
       {canRecord && <form id="followup-visit-form" className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
         <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
         {correctionBase && <p className="text-sm text-muted-foreground">
@@ -551,14 +586,20 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                     </li>)}
                 </ol>
               </details>}
-              {canRecord && <Button size="sm" variant="outline" onClick={() => {
-                setActionId(a.id); setUpdateVisitId(""); updateRequest.current = null;
-              }}>Registrar evolução</Button>}
+              {canRecord && <Button size="sm" variant="outline"
+                onClick={() => startEvolution(a.id)}>Registrar evolução</Button>}
             </div>;
           })}
         </div>
-        {canRecord && actionId && <form className="space-y-3 rounded-xl border p-4" onSubmit={(e) => void saveUpdate(e)}>
+        {canRecord && actionId && <form id="followup-update-form" tabIndex={-1}
+          className="scroll-mt-24 space-y-3 rounded-xl border p-4 focus:outline-2 focus:outline-primary"
+          onSubmit={(e) => void saveUpdate(e)}>
           <h3 className="font-semibold">Nova atualização da ação</h3>
+          <p className="text-sm text-muted-foreground">
+            Medida selecionada: <strong>{selectedAction?.description ?? "Não disponível"}</strong>.
+            Os campos começam vazios e só serão registrados ao confirmar o formulário.
+          </p>
+          {evolutionNotice && <p role="alert" className="text-sm text-destructive">{evolutionNotice}</p>
           <label className="block text-sm">Data da evolução
             <DateInput className={input} required min={updateMinDay ?? undefined} max={today}
               value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} />
@@ -590,7 +631,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               Boolean(updateMinDay && updateDay < updateMinDay)}>
               {savingUpdate ? "Salvando…" : "Registrar atualização"}
             </Button>
-            <Button type="button" variant="outline" onClick={() => { setActionId(""); setUpdateVisitId(""); }}>Cancelar</Button></div>
+            <Button type="button" variant="outline" onClick={cancelEvolution}>Cancelar</Button></div>
         </form>}
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Histórico de visitas</h3>
