@@ -11,7 +11,7 @@ import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatu
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
-import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
+import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
@@ -169,6 +169,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     event.preventDefault();
     if (!school || !canRecord || !diagnosis.trim() || !day || day > today || saving
       || (correctionBase !== null && !correctionReason.trim())) return;
+    if (correctionBase === null) {
+      const planError = validateFollowupActionDrafts(draftActions, day);
+      if (planError) { setError(planError); return; }
+    }
     setSaving(true); setError(""); setNotice("");
     // Só repetir a mesma chave de operação quando o conteúdo for idêntico.
     const signature = JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary,
