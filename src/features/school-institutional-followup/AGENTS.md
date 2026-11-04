@@ -45,3 +45,5 @@
 - **Alerta de saída de aba:** `useUnsavedFollowupWarning` instala `beforeunload` apenas enquanto houver formulário de visita/medida/evolução não salvo ou gravação em curso; remove imediatamente após cancelamento/salvamento. Nunca gravar conteúdo de rascunhos no armazenamento local. O aviso nativo é uma proteção parcial, não substitui persistência, guarda de rotas SPA ou controle de autorização.
 
 - **Navegação entre rotas:** combinar `useFollowupRouteGuard` (bloqueio SPA com `confirmAction`, negando saída quando a confirmação falhar) e `useUnsavedFollowupWarning` (beforeunload nativo). Ambos recebem a mesma detecção de formulários em edição; não duplique listeners. O bloqueio não persiste dados, não concede acesso e deve desaparecer após salvar/cancelar.
+
+- **Testes de página:** `page-integration.test.tsx` deve exercer o fluxo React real com `QueryClientProvider` e fontes de dados simuladas, garantindo leitura do Gabinete sem gravação, inclusão de visita/plano pelo servidor e preservação de diagnóstico até descarte explícito. Não considerar mocks substitutos da RLS/RPC ou de aceitação com perfis institucionais reais.
