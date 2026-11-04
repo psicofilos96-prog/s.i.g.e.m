@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, isEvolutionDraftDirty, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -46,6 +46,37 @@ describe("acompanhamento das unidades — projeções", () => {
     expect(isEvolutionDraftDirty({ ...empty, situation: "em andamento" })).toBe(true);
     expect(isEvolutionDraftDirty({ ...empty, linkedVisitId: "visit-return" })).toBe(true);
     expect(isEvolutionDraftDirty({ ...empty, day: "2026-11-03" })).toBe(true);
+  });
+  it("identifica medidas não salvas sem considerar espaços ou linhas opcionais", () => {
+    expect(isFollowupActionDraftDirty({ description: "", responsible: "", due: "" })).toBe(false);
+    expect(isFollowupActionDraftDirty({ description: "  ", responsible: " ", due: "" })).toBe(false);
+    expect(isFollowupActionDraftDirty({ description: "", responsible: "Coordenação", due: "" })).toBe(true);
+    expect(isFollowupActionDraftDirty({ description: "", responsible: "", due: "2026-11-12" })).toBe(true);
+    expect(isFollowupActionDraftDirty({ description: "Ajustar biblioteca", responsible: "", due: "" })).toBe(true);
+  });
+  it("protege diagnóstico e plano não salvos, incluindo a retificação em edição", () => {
+    const blank = {
+      day: "2026-11-04", initialDay: "2026-11-04", correctionBase: null,
+      diagnosis: "", strengths: "", weaknesses: "", summary: "", participants: "",
+      purpose: "", correctionReason: "",
+      actions: [{ description: "", responsible: "", due: "" }],
+    };
+    expect(isFollowupVisitDraftDirty(blank)).toBe(false);
+    expect(isFollowupVisitDraftDirty({ ...blank, diagnosis: "Diagnóstico observado" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({ ...blank, strengths: "Pontos fortes" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({ ...blank, weaknesses: "Necessidades" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({ ...blank, participants: "Servidor 2" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({ ...blank, purpose: "Acompanhamento" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({ ...blank, summary: "Orientações" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({ ...blank, correctionReason: "Motivo da correção" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({ ...blank, day: "2026-11-03" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({ ...blank, correctionBase: "visit-1" })).toBe(true);
+    expect(isFollowupVisitDraftDirty({
+      ...blank, actions: [{ description: "", responsible: "Direção", due: "" }],
+    })).toBe(true);
+    expect(isFollowupVisitDraftDirty({
+      ...blank, actions: [blank.actions[0]!, { description: "", responsible: "", due: "" }],
+    })).toBe(false);
   });
   it("não converte ausência de atualização em não realizada", () => {
     expect(currentSituation(action, [])).toBe("sem atualização");
