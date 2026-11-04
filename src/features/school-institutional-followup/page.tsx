@@ -236,8 +236,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {[
             ["Escolas acessíveis", totals.schools], ["Visitadas no período", totals.visitedSchools],
+            ["Ainda sem visita no período", totals.schools - totals.visitedSchools],
             ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
             ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
+            ["Ações sem atualização", statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? "Não apurado"],
           ].map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className="text-2xl font-semibold tabular-nums">{value}</p>
