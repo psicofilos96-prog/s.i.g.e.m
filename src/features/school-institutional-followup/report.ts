@@ -16,6 +16,7 @@ export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
   ],
   columns: [
     { id: "school_name", label: "Unidade escolar", kind: "text" },
+    { id: "inep", label: "INEP", kind: "text" },
     { id: "visits", label: "Visitas no período", kind: "number" },
     { id: "actions", label: "Ações registradas", kind: "number" },
     { id: "completed", label: "Concluídas (declaradas)", kind: "number" },
@@ -27,7 +28,7 @@ export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
 export function followupReport(rows: readonly NetworkRow[], from: string, to: string): ReportResult {
   return runReport(FOLLOWUP_NETWORK_REPORT, { params: { from, to } },
     rows.map((r) => ({
-      school_name: r.school_name, visits: r.visits, actions: r.actions,
+      school_name: r.school_name, inep: r.inep ?? null, visits: r.visits, actions: r.actions,
       completed: r.completed, overdue: r.overdue, last_visit: r.last_visit,
     })));
 }
