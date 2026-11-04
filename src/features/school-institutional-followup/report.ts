@@ -2,6 +2,7 @@ import {
   runReport, toCsv, toPdfFile, toXlsx, downloadBlob,
   type ReportDefinition, type ReportResult,
 } from "@/features/reports/report-engine";
+import { civilDateOf, formatDateTime } from "@/lib/academic-date";
 import { currentSituation, type NetworkRow, type SchoolSnapshot } from "./model";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
@@ -60,7 +61,7 @@ export async function exportFollowupNetwork(
 
 /** Ficha cronológica de uma unidade, montada somente com o snapshot já autorizado pela RPC. */
 export const FOLLOWUP_SCHOOL_REPORT: ReportDefinition = {
-  id: "acompanhamento-institucional-ficha-escola", version: 1,
+  id: "acompanhamento-institucional-ficha-escola", version: 2,
   title: "Ficha de acompanhamento da unidade escolar",
   description: "Histórico completo de visitas, medidas e evoluções da unidade autorizada.",
   source: "school_institutional_followup_school",
@@ -69,6 +70,7 @@ export const FOLLOWUP_SCHOOL_REPORT: ReportDefinition = {
   ],
   columns: [
     { id: "event_date", label: "Data do fato", kind: "date" },
+    { id: "recorded_at", label: "Registrado em (Brasília)", kind: "text" },
     { id: "event_type", label: "Registro", kind: "text" },
     { id: "description", label: "Descrição e diagnóstico", kind: "text" },
     { id: "responsible", label: "Responsável declarado", kind: "text" },
@@ -91,6 +93,7 @@ export function schoolFollowupReport(snapshot: SchoolSnapshot, schoolId: string)
   for (const v of [...snapshot.visits, ...snapshot.visit_history]) {
     rows.push({
       event_date: v.visit_date,
+      recorded_at: formatDateTime(v.created_at),
       event_type: snapshot.visit_history.some((old) => old.id === v.id)
         ? `Visita substituída (v${v.version})` : `Visita vigente (v${v.version})`,
       description: joinDescriptions(["Diagnóstico", v.diagnosis], ["Pontos fortes", v.strengths],
@@ -103,7 +106,8 @@ export function schoolFollowupReport(snapshot: SchoolSnapshot, schoolId: string)
   for (const a of snapshot.actions) {
     const visit = snapshot.visits.find((v) => v.logical_id === a.visit_logical_id);
     rows.push({
-      event_date: a.created_at.slice(0, 10),
+      event_date: civilDateOf(a.created_at),
+      recorded_at: formatDateTime(a.created_at),
       event_type: "Medida proposta",
       description: a.description, responsible: a.responsible_label,
       deadline: a.due_on, situation: currentSituation(a, snapshot.updates),
@@ -114,7 +118,8 @@ export function schoolFollowupReport(snapshot: SchoolSnapshot, schoolId: string)
   for (const u of snapshot.updates) {
     const action = snapshot.actions.find((a) => a.id === u.action_id);
     rows.push({
-      event_date: u.occurred_on, event_type: "Evolução de medida",
+      event_date: u.occurred_on, recorded_at: formatDateTime(u.created_at),
+      event_type: "Evolução de medida",
       description: joinDescriptions(["Medida", action?.description], ["Realizado", u.done_text],
         ["Não realizado", u.not_done_text]),
       responsible: action?.responsible_label ?? null,
@@ -138,6 +143,7 @@ export async function exportFollowupSchool(
   };
   const meta = [
     "Registros da unidade autorizada, incluindo versões anteriores e atualizações cronológicas.",
+    "Data do fato é a data efetiva declarada; registrado em é a data/hora da gravação no SIGEM (horário de Brasília).",
     "Conclusão e execução são informações declaradas pela equipe, sem homologação do Gabinete.",
     "Dados provenientes da consulta institucional; não constituem cobrança administrativa.",
   ];

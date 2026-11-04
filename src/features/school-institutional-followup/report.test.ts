@@ -49,6 +49,32 @@ describe("ficha de acompanhamento por unidade", () => {
     const old = r.rows.find((x) => x[col("event_type")] === "Visita substituída (v1)")!;
     expect(String(old[col("description")])).toContain("Diagnóstico original");
   });
+  it("separa data efetiva de registro e converte instantes UTC ao dia de Itaperuna", () => {
+    const altered: SchoolSnapshot = {
+      ...snapshot,
+      actions: [{
+        ...snapshot.actions[0]!,
+        created_at: "2026-11-04T01:30:00Z",
+      }],
+      updates: [{
+        ...snapshot.updates[0]!,
+        occurred_on: "2026-11-02",
+        created_at: "2026-11-04T01:30:00Z",
+      }],
+    };
+    const r = schoolFollowupReport(altered, "s1");
+    const idx = (col: string) => r.columns.findIndex((c) => c.id === col);
+    const action = r.rows.find((x) => x[idx("event_type")] === "Medida proposta")!;
+    const update = r.rows.find((x) => x[idx("event_type")] === "Evolução de medida")!;
+    expect(FOLLOWUP_SCHOOL_REPORT.version).toBe(2);
+    expect(action[idx("event_date")]).toBe("2026-11-03");
+    expect(action[idx("recorded_at")]).toBe("03/11/2026 22:30");
+    expect(update[idx("event_date")]).toBe("2026-11-02");
+    expect(update[idx("recorded_at")]).toBe("03/11/2026 22:30");
+    const currentVisit = r.rows.find((x) => x[idx("event_type")] === "Visita vigente (v2)")!;
+    expect(currentVisit[idx("event_date")]).toBe("2026-11-02");
+    expect(currentVisit[idx("recorded_at")]).toBe("03/11/2026 06:00");
+  });
   it("usa a neutralização do motor para fórmulas fornecidas pelo usuário", () => {
     const r = schoolFollowupReport(snapshot, "s1");
     const csv = toCsv(r, { headerLines: [], title: "Ficha da escola" });
