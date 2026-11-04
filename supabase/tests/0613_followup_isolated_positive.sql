@@ -349,9 +349,8 @@ BEGIN
   PERFORM set_config('request.jwt.claims',
     jsonb_build_object('sub', '44444444-4444-4444-8444-444444444444',
       'role', 'authenticated')::text, true);
-  IF NOT public.school_institutional_followup_grant(
-    'registrar-acompanhamento-institucional', 'school-a')
-    THEN RAISE EXCEPTION 'followup-positive:nonhuman-fixture-not-authorized'; END IF;
+  -- A autorização será exercitada indiretamente pelo escritor público;
+  -- a função de grant é interna e não deve ter EXECUTE direto.
   BEGIN
     PERFORM public.record_school_institutional_followup_visit(
       'school-a', (now() AT TIME ZONE 'America/Sao_Paulo')::date,
