@@ -292,7 +292,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
       return;
     }
-    if (actionId && (isEvolutionDraftDirty({
+    if (actionId && (savingUpdate || isEvolutionDraftDirty({
       day: updateDay, initialDay: today, situation, linkedVisitId: updateVisitId,
       done, notDone, results, referrals,
     }) || updateRequest.current !== null)) {
