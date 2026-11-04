@@ -237,3 +237,5 @@ O alerta nativo `beforeunload` não cobre de modo confiável as transições den
 - Os testes incluem navegação limpa, cancelamento, confirmação positiva, falha do diálogo e desativação após salvar/cancelar.
 
 **Limites:** isso não cria salvamento persistente, não garante proteção contra crash ou encerramento forçado e não substitui a validação de navegação real em desktop e celular. O Gabinete permanece sem acesso às operações de escrita.
+
+Complemento de segurança: durante uma gravação ativa de visita, medida ou evolução, a navegação interna é **bloqueada sem opção de descarte** até a resposta do servidor. O diálogo de descarte só pode ser apresentado para campos em edição, nunca para uma RPC cujo resultado ainda é desconhecido. A proteção de recarregamento/fechamento segue dependente dos limites do navegador.

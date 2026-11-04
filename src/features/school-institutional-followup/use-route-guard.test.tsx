@@ -43,6 +43,13 @@ describe("navegação entre telas com formulários escolares em edição", () =>
     expect(await blockerFromLastRender()()).toBe(false);
   });
 
+  it("impede saída enquanto uma gravação está em curso, mesmo com confirmação previamente concedida", async () => {
+    vi.mocked(confirmAction).mockResolvedValue(true);
+    renderHook(() => useFollowupRouteGuard(true, true));
+    expect(await blockerFromLastRender()()).toBe(true);
+    expect(confirmAction).not.toHaveBeenCalled();
+  });
+
   it("falha fechado quando a confirmação não está disponível", async () => {
     vi.mocked(confirmAction).mockRejectedValueOnce(new Error("Host indisponível"));
     renderHook(() => useFollowupRouteGuard(true));

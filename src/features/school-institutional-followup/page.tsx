@@ -134,7 +134,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     || (Boolean(actionId) && (evolutionDraftIsDirty || updateRequest.current !== null))
   );
   useUnsavedFollowupWarning(hasUnsavedFollowup);
-  useFollowupRouteGuard(hasUnsavedFollowup);
+  useFollowupRouteGuard(hasUnsavedFollowup, saving || savingUpdate || savingMeasure);
   useEffect(() => {
     if (correctionBase) document.getElementById("followup-visit-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });

@@ -5,9 +5,11 @@ import { confirmAction } from "@/components/sigem/confirm-action";
  * Proteção de navegação interna, em complemento ao alerta beforeunload.
  * Não armazena dados do formulário e não bloqueia a leitura do Gabinete.
  */
-export function useFollowupRouteGuard(hasUnsavedChanges: boolean): void {
+export function useFollowupRouteGuard(hasUnsavedChanges: boolean, isSubmitting = false): void {
   useBlocker({
     shouldBlockFn: async () => {
+      // Nunca oferecer descarte durante envio ativo: a RPC pode já estar confirmando.
+      if (isSubmitting) return true;
       if (!hasUnsavedChanges) return false;
       try {
         const discard = await confirmAction({
