@@ -183,3 +183,11 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 - Exibe cinco itens prioritários por prazo inicialmente e oferece `Mostrar todas` para consultar o restante. A ausência de prazo não é considerada vencimento; uma declaração de conclusão não constitui homologação.
 - `Ver acompanhamento` abre diretamente o histórico completo da medida dentro da mesma escola, removendo filtros locais que poderiam ocultá-la. Não descarta textos de formulários em edição nem concede capacidade de escrita.
 - O painel reutiliza o snapshot escolar já verificado no SQL (sem nova RPC), com testes de situação, vencimento, expansão e navegação. Continua sendo necessário homologar em clone e com contas reais antes de publicar.
+
+## 11.10. Roteiro de preparação da próxima visita — 04/11/2026
+- O painel da ficha escolar oferece **Roteiro PDF / Excel / CSV** para levar à visita, quando existem medidas ainda não declaradas concluídas.
+- Exporta **todas** as medidas não concluídas do snapshot escolar autorizado, inclusive além das cinco exibidas inicialmente no painel. Ordena pelo prazo declarado; sem prazo vai ao final, sem presumir vencimento.
+- Para cada medida, exibe visita de origem vigente, responsável declarado, prazo, situação, data efetiva da evolução mais recente e o relato daquela evolução (feito, não feito, resultados e encaminhamentos), preservando lacunas como dados não informados.
+- Nome e INEP vêm da consulta autorizada e do cadastro canônico. O relatório é apenas um roteiro informativo, **não registra visita, não substitui evolução no SIGEM, não homologa e não cobra**.
+- Testes unitários cobrem ordenação, exclusão de conclusão, escopo de unidade, cronologia da última atualização, ausência de dados e neutralização de fórmulas em CSV. Nenhuma RPC, capability ou migration nova é necessária.
+- A publicação institucional continua condicionada à homologação com contas autorizadas e esquema completo isolado.
