@@ -26,6 +26,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run check:migrations
+      # Offline safety tests: never contacts or modifies a database.
+      - run: node --test scripts/followup-clone-readonly.test.mjs
       # Falhar cedo se um novo guia não foi incorporado ao índice técnico.
       - run: node scripts/docs-index.mjs --check
       - run: bun run typecheck
