@@ -16,6 +16,12 @@ CREATE TABLE public.sigem_capability_catalog (
 CREATE TABLE public.institutional_schools (
   id text PRIMARY KEY
 );
+CREATE TABLE public.institutional_school_identifiers (
+  school_id text NOT NULL REFERENCES public.institutional_schools(id),
+  identifier_kind text NOT NULL,
+  value text NOT NULL,
+  PRIMARY KEY (school_id, identifier_kind)
+);
 CREATE TABLE public.institutional_school_record_versions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   school_id text NOT NULL REFERENCES public.institutional_schools(id),
@@ -50,6 +56,8 @@ REVOKE ALL ON public.test_followup_capabilities FROM PUBLIC, anon, authenticated
 REVOKE ALL ON FUNCTION public.effective_scope_capabilities(date) FROM PUBLIC, anon, authenticated, service_role;
 
 INSERT INTO public.institutional_schools(id) VALUES ('school-a'),('school-b');
+INSERT INTO public.institutional_school_identifiers(school_id,identifier_kind,value)
+VALUES ('school-a','inep','33000001'),('school-b','inep','33000002');
 INSERT INTO public.institutional_school_record_versions(school_id, version_number, official_name)
 VALUES ('school-a',1,'Escola de Prova A'),('school-b',1,'Escola de Prova B');
 INSERT INTO public.institutional_persons(id, display_name, actor_nature)
