@@ -19,7 +19,7 @@ const snapshot = (actions: FollowupAction[], updates: FollowupUpdate[] = []): Sc
 describe("preparação da visita a partir da ficha já autorizada", () => {
   it("distingue prazo vencido de falta de atualização, excluindo conclusão declarada", () => {
     const inspect = vi.fn();
-    render(<SchoolOpenActionsPanel today="2026-11-04" onInspect={inspect}
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null} today="2026-11-04" onInspect={inspect}
       snapshot={snapshot([
         action("a1", "Reorganizar biblioteca", "2026-11-02"),
         action("a2", "Instalar mobiliário", null),
@@ -29,12 +29,14 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     expect(screen.getByText("1 com prazo vencido")).toBeTruthy();
     expect(screen.getByText("1 sem atualização")).toBeTruthy();
     expect(screen.queryByText("Plano concluído")).toBeNull();
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).toBeTruthy();
+    expect(screen.getByText(/inclui todas as medidas sem conclusão declarada/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Ver acompanhamento da medida: Reorganizar biblioteca" }));
     expect(inspect).toHaveBeenCalledExactlyOnceWith("a1");
   });
   it("mostra mais medidas sob demanda, sem perdê-las ou mudar a ordenação", () => {
     const actions = Array.from({ length: 7 }, (_, i) => action("a"+i, "Medida "+i, `2026-11-${String(5+i).padStart(2, "0")}`));
-    render(<SchoolOpenActionsPanel today="2026-11-04" onInspect={vi.fn()} snapshot={snapshot(actions)} />);
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null} today="2026-11-04" onInspect={vi.fn()} snapshot={snapshot(actions)} />);
     expect(screen.getAllByRole("button", { name: /Ver acompanhamento da medida:/ })).toHaveLength(5);
     fireEvent.click(screen.getByRole("button", { name: "Mostrar todas as 7 medidas" }));
     expect(screen.getAllByRole("button", { name: /Ver acompanhamento da medida:/ })).toHaveLength(7);
@@ -42,12 +44,13 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     expect(screen.getAllByRole("button", { name: /Ver acompanhamento da medida:/ })).toHaveLength(5);
   });
   it("não trata ausência de medidas ou conclusões declaradas como homologação", () => {
-    const { rerender } = render(<SchoolOpenActionsPanel today="2026-11-04"
+    const { rerender } = render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null} today="2026-11-04"
       onInspect={vi.fn()} snapshot={snapshot([])} />);
     expect(screen.getByText("Nenhuma medida cadastrada para esta unidade.")).toBeTruthy();
-    rerender(<SchoolOpenActionsPanel today="2026-11-04" onInspect={vi.fn()}
+    rerender(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null} today="2026-11-04" onInspect={vi.fn()}
       snapshot={snapshot([action("a1", "Medida declarada concluída", null)], [update("a1", "concluída")])} />);
     expect(screen.getByText(/A conclusão não foi homologada pelo Gabinete/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Ver acompanhamento da medida:/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Roteiro PDF" })).toBeNull();
   });
 });
