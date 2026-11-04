@@ -426,7 +426,7 @@ BEGIN
     OR _saved.payload_hash IS DISTINCT FROM _fingerprint
   THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
   RETURN _visit;
-END $;
+END $$;
 REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
   FROM PUBLIC, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
