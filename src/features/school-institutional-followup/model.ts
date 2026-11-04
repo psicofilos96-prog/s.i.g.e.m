@@ -174,3 +174,15 @@ export function searchableNetwork(rows: readonly NetworkRow[], term: string): Ne
   const q = normalizeText(term.trim());
   return rows.filter((r) => normalizeText(r.school_name + " " + r.school_id + " " + (r.inep ?? "")).includes(q));
 }
+
+/** Evita trocar a medida e descartar uma evolução em edição sem aviso. */
+export function isEvolutionDraftDirty(draft: {
+  day: string; initialDay: string; situation: string; linkedVisitId: string;
+  done: string; notDone: string; results: string; referrals: string;
+}): boolean {
+  return draft.day !== draft.initialDay
+    || draft.situation !== SITUATIONS[0].value
+    || Boolean(draft.linkedVisitId)
+    || [draft.done, draft.notDone, draft.results, draft.referrals]
+      .some((value) => value.trim().length > 0);
+}
