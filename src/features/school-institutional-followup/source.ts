@@ -25,7 +25,8 @@ export async function schoolFollowup(school: string): Promise<SchoolSnapshot> {
   const value = await call("school_institutional_followup_school", { _school: school });
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Resposta da escola inválida.");
   const obj = value as Record<string, unknown>;
-  if (!Array.isArray(obj['visits']) || !Array.isArray(obj['actions']) || !Array.isArray(obj['updates'])) {
+  if (!Array.isArray(obj['visits']) || !Array.isArray(obj['visit_history'])
+    || !Array.isArray(obj['actions']) || !Array.isArray(obj['updates'])) {
     throw new Error("O histórico da escola veio incompleto.");
   }
   return obj as unknown as SchoolSnapshot;
