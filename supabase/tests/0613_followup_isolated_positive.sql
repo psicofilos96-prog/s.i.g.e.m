@@ -1,5 +1,21 @@
 -- Prova completa de execução SQL no banco efêmero do CI, sempre com ROLLBACK.
 BEGIN;
+-- Escola B possui providência própria, usada para provar isolamento entre contas.
+INSERT INTO public.school_institutional_followup_visits(
+  logical_id, version, school_id, visit_date, diagnosis, author_user_id,
+  author_person_id, request_key)
+VALUES ('bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb'::uuid, 1, 'school-b',
+  (now() AT TIME ZONE 'America/Sao_Paulo')::date, 'Diagnóstico sentinela B',
+  '22222222-2222-4222-8222-222222222222'::uuid,
+  '22222222-2222-4222-8222-222222222222'::uuid, gen_random_uuid());
+INSERT INTO public.school_institutional_followup_actions(
+  school_id, visit_logical_id, description, responsible_label,
+  due_on, author_user_id, author_person_id, request_key)
+VALUES ('school-b', 'bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb'::uuid,
+  'Providência restrita à Escola B', 'Coordenação B',
+  (now() AT TIME ZONE 'America/Sao_Paulo')::date - 1,
+  '22222222-2222-4222-8222-222222222222'::uuid,
+  '22222222-2222-4222-8222-222222222222'::uuid, gen_random_uuid());
 SET ROLE authenticated;
 
 DO $positive$
@@ -25,6 +41,13 @@ BEGIN
   action1 := (doc->'actions'->0->>'id')::uuid;
   IF action1 IS NULL OR (doc->'actions'->0->>'author_name') <> 'Servidor de Prova'
     THEN RAISE EXCEPTION 'followup-positive:author-absent'; END IF;
+
+  -- O servidor da escola A não pode enxergar a providência sentinela da escola B.
+  doc := public.school_institutional_followup_pending();
+  IF jsonb_array_length(doc->'pending') <> 1
+    OR doc->'pending'->0->>'school_id' <> 'school-a'
+    OR doc->'pending'->0->>'situation' <> 'sem atualização'
+    THEN RAISE EXCEPTION 'followup-positive:writer-pending-scope'; END IF;
 
   -- Retentativa idêntica reaproveita os identificadores e não cria duplicatas.
   visit2 := public.record_school_institutional_followup_bundle(
@@ -94,6 +117,10 @@ BEGIN
   SELECT situation INTO status_ FROM public.school_institutional_followup_statuses() LIMIT 1;
   IF status_ <> 'concluída' THEN RAISE EXCEPTION 'followup-positive:wrong-current-status %', status_; END IF;
 
+  doc := public.school_institutional_followup_pending();
+  IF jsonb_array_length(doc->'pending') <> 0
+    THEN RAISE EXCEPTION 'followup-positive:completed-still-pending'; END IF;
+
   -- O banco rejeita valores fora do catálogo e conserva o histórico existente.
   denied := false;
   BEGIN
@@ -162,6 +189,11 @@ BEGIN
     jsonb_build_object('sub', gabinete, 'role', 'authenticated')::text, true);
   SELECT count(*) INTO count_ FROM public.school_institutional_followup_network(day_,day_);
   IF count_ <> 2 THEN RAISE EXCEPTION 'followup-positive:gabinete-no-network'; END IF;
+  doc := public.school_institutional_followup_pending();
+  IF jsonb_array_length(doc->'pending') <> 1
+    OR doc->'pending'->0->>'school_id' <> 'school-b'
+    OR doc->'pending'->0->>'description' <> 'Providência restrita à Escola B'
+    THEN RAISE EXCEPTION 'followup-positive:gabinete-pending-scope'; END IF;
   doc := public.school_institutional_followup_school('school-a');
   IF jsonb_array_length(doc->'actions') <> 1 THEN
     RAISE EXCEPTION 'followup-positive:gabinete-no-read'; END IF;
@@ -179,6 +211,9 @@ BEGIN
     jsonb_build_object('sub', stranger, 'role', 'authenticated')::text, true);
   SELECT count(*) INTO count_ FROM public.school_institutional_followup_network(day_,day_);
   IF count_ <> 0 THEN RAISE EXCEPTION 'followup-positive:outsider-leak'; END IF;
+  doc := public.school_institutional_followup_pending();
+  IF jsonb_array_length(doc->'pending') <> 0
+    THEN RAISE EXCEPTION 'followup-positive:outsider-pending-leak'; END IF;
   denied := false;
   BEGIN
     PERFORM public.school_institutional_followup_school('school-a');
