@@ -45,6 +45,17 @@ describe("acompanhamento das unidades — projeções", () => {
     ]);
     expect(n).toEqual({ schools: 2, visitedSchools: 1, visits: 2, actions: 4, completed: 2, overdue: 1 });
   });
+  it("encontra unidade pelo INEP canônico sem inferir código ausente", () => {
+    const schools = [
+      { school_id: "school-a", school_name: "Escola do Centro", inep: "33000001",
+        visits: 1, actions: 1, completed: 0, overdue: 0, last_visit: "2026-11-03" },
+      { school_id: "school-b", school_name: "Escola Rural", inep: null,
+        visits: 0, actions: 0, completed: 0, overdue: 0, last_visit: null },
+    ];
+    expect(searchableNetwork(schools, "33000001").map((s) => s.school_id)).toEqual(["school-a"]);
+    expect(searchableNetwork(schools, "33000002")).toEqual([]);
+    expect(searchableNetwork(schools, "rural").map((s) => s.school_id)).toEqual(["school-b"]);
+  });
   it("pesquisa por nome ignora acentos", () => {
     expect(normalizeText("São João")).toBe("sao joao");
     expect(searchableNetwork([
