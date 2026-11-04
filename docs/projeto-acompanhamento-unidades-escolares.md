@@ -135,3 +135,19 @@ O solicitante possui autonomia para substituir a planilha idealizada no document
 - É necessário visibilidade às escolas ou, inicialmente, apenas à equipe e ao Gabinete?
 
 Estas pendências não impedem projetar a arquitetura e as interfaces, mas impedem transformar opções em normas institucionais definitivas.
+
+## 11.3. Roteiro de homologação para ativação institucional
+**Nenhuma das verificações abaixo deve modificar a base oficial sem aprovação da gestão técnica.**
+
+1. Criar um ambiente isolado com cópia **do esquema**, contendo as migrações efetivamente aplicadas no SIGEM, e dados sintéticos suficientes para testar unidades, pessoas e capacidades. Não clonar dados de estudantes para esse teste.
+2. Rodar `0613_school_institutional_followup.sql` e os cenários em `supabase/tests/0613_school_institutional_followup.sql` / `supabase/tests/0613_followup_isolated_positive.sql`, adaptados à política institucional efetiva (o fixture mínimo do CI não substitui esta etapa).
+3. Validar os dois servidores nominados como pessoas naturais com `registrar-acompanhamento-institucional` nos escopos aprovados. Um servidor sem tal capacidade não registra nem retifica, mesmo com URL ou UUID da escola.
+4. Validar contas de leitura do Gabinete com `consultar-acompanhamento-institucional`: podem ver apenas escolas em escopo e gerar relatórios, nunca escrever, corrigir ou alterar situações.
+5. Validar a presença/ausência de INEP diretamente no cadastro de escola; a pesquisa deve encontrar códigos existentes e não fabricar códigos não cadastrados.
+6. Executar fluxo real de interface: visita com mais de uma medida, adicionar medida posterior, registrar duas evoluções contraditórias por datas efetivas, retificar a visita com justificativa e confirmar histórico completo.
+7. Conferir o mesmo período no painel, gráfico, lista e exportação, inclusive a distinção entre data da visita e situação vigente da ação.
+8. Confirmar revisão de privacidade, política de retenção, tratamento de erros e procedimento de suporte para volume que exceda o limite de consulta por escola.
+9. Somente após validação técnica e autorização institucional explícita: planejar a aplicação da migration e a concessão versionada de capacidades pela administração do SIGEM.
+
+**Pendências identificadas:** não há ambiente staging institucional comprovado com o esquema completo; os identificadores das contas autorizadas e o ato que homologa os escopos ainda não estão definidos neste PR. Nenhuma capacidade é concedida automaticamente.
+
