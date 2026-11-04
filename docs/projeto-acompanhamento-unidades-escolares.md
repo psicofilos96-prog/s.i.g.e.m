@@ -191,3 +191,12 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 - Nome e INEP vêm da consulta autorizada e do cadastro canônico. O relatório é apenas um roteiro informativo, **não registra visita, não substitui evolução no SIGEM, não homologa e não cobra**.
 - Testes unitários cobrem ordenação, exclusão de conclusão, escopo de unidade, cronologia da última atualização, ausência de dados e neutralização de fórmulas em CSV. Nenhuma RPC, capability ou migration nova é necessária.
 - A publicação institucional continua condicionada à homologação com contas autorizadas e esquema completo isolado.
+
+
+## 11.11. Evolução diretamente do roteiro de preparação — 04/11/2026
+- Cada medida sem conclusão declarada na ficha autorizada pode apresentar **Registrar evolução** ao lado de **Ver acompanhamento**. O botão de escrita só é ofertado à equipe com capacidade de registro no escopo da unidade; o Gabinete continua com leitura e exportações, sem poder gravar.
+- O atalho **somente abre** o formulário existente da medida selecionada e foca a área de preenchimento; não altera situação, não antecipa conclusão e não cria evolução automática. A RPC de escrita continua validando pessoa natural e escopo no PostgreSQL.
+- O formulário informa qual medida foi selecionada. Textos, data, situação e vínculo a visita anterior começam limpos ao iniciar uma nova evolução. Dados em edição não são apagados silenciosamente: para trocar de medida, a equipe deve concluir ou cancelar o formulário corrente.
+- Ao cancelar ou trocar de escola, o rascunho local da evolução é limpo, evitando reaproveitar textos de outra medida/escola. O mesmo fluxo é utilizado pelo atalho do painel e pelo botão do histórico.
+- Testes verificam que o Gabinete não recebe o botão de escrita, que a ação concluída não aparece no roteiro, que o callback recebe o identificador correto e que o detector de rascunho reconhece alterações em data, visita, situação ou textos.
+- Não foram criadas migrations, RPCs, permissões novas nem automações administrativas. A homologação continua condicionada a CI e clone institucional integral isolado.
