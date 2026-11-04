@@ -214,3 +214,13 @@ A abertura de outra visita para retificação ou de outra medida também protege
 **Limites:** não há persistência de rascunho no servidor nem armazenamento offline. A proteção cobre a navegação dentro deste módulo; encerramento da aba, saída para outra rota ou perda de sessão ainda podem perder conteúdo em edição. A futura funcionalidade de **Salvar rascunho** prevista no PRD depende de decisão sobre segurança, persistência e autorização; não é simulada por este mecanismo.
 
 Testes unitários validam detecção de alterações substantivas (inclusive prazo sem descrição e correção aberta) e preservam o caso de linhas adicionais totalmente vazias.
+
+## 11.13. Alerta de saída do navegador com formulário não registrado — 04/11/2026
+
+Complemento aos bloqueios de troca de escola dentro do módulo: enquanto existir visita, retificação, medida adicional ou evolução em preenchimento, ou uma requisição de escrita em andamento, o SIGEM registra um `beforeunload` temporário. Navegadores compatíveis **podem** apresentar confirmação ao tentar **recarregar a página, fechar a aba ou sair da página por navegação completa**; o diálogo é controlado pelo navegador, não pelo SIGEM.
+
+- O alerta é desativado quando a equipe salva/cancela o último formulário ainda pendente e é removido ao desmontar o componente.
+- Uma mensagem discreta na ficha indica a existência de preenchimento ainda não registrado.
+- Nenhum campo é copiado para `localStorage`, `sessionStorage`, armazenamento offline ou API externa; o alerta não representa salvamento de rascunho.
+- **Limites importantes:** o navegador pode suprimir o diálogo em certas situações, sobretudo em aparelhos móveis. Navegações internas client-side (SPA), saída forçada do aplicativo, perda de sessão e falhas do dispositivo **não** estão cobertas de maneira garantida. Persistência real e bloqueio de rotas são etapas futuras independentes.
+- Um teste jsdom valida montagem/desmontagem do listener e ativação/desativação mediante o estado de rascunho.
