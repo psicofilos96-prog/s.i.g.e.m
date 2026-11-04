@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
+import { presentError } from "@/lib/observability/governed-errors";
+import { exportFollowupPreparation } from "./preparation-report";
 import {
   currentSituation, filterSchoolActions, isOverdue, NO_UPDATE, type SchoolSnapshot,
 } from "./model";
@@ -8,10 +10,13 @@ import {
 const INITIAL_SHOWN = 5;
 
 /** Preparação da visita: somente dados da ficha escolar já autorizada no PostgreSQL. */
-export function SchoolOpenActionsPanel({ snapshot, today, onInspect }: {
-  snapshot: SchoolSnapshot; today: string; onInspect: (actionId: string) => void;
+export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, today, onInspect }: {
+  snapshot: SchoolSnapshot; schoolId: string; schoolName: string; inep: string | null;
+  today: string; onInspect: (actionId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
   const ordered = filterSchoolActions(snapshot.actions, snapshot.updates, "todas", "", today);
   const pending = ordered.filter((a) =>
     currentSituation(a, snapshot.updates) !== "concluída");
@@ -19,6 +24,17 @@ export function SchoolOpenActionsPanel({ snapshot, today, onInspect }: {
   const withoutUpdate = pending.filter((a) =>
     currentSituation(a, snapshot.updates) === NO_UPDATE).length;
   const visible = expanded ? pending : pending.slice(0, INITIAL_SHOWN);
+  async function exportPreparation(format: "csv" | "xlsx" | "pdf") {
+    if (exporting || pending.length === 0) return;
+    setExportError(""); setExporting(true);
+    try {
+      await exportFollowupPreparation(snapshot, schoolId, schoolName, inep, today, format);
+    } catch (error) {
+      setExportError(presentError(error));
+    } finally {
+      setExporting(false);
+    }
+  }
 
   return <section className="space-y-3 rounded-xl border border-border p-4"
     aria-label="Providências da unidade para preparação da visita">
@@ -34,6 +50,22 @@ export function SchoolOpenActionsPanel({ snapshot, today, onInspect }: {
       <span className="rounded-md bg-muted/40 p-2">{overdue} com prazo vencido</span>
       <span className="rounded-md bg-muted/40 p-2">{withoutUpdate} sem atualização</span>
     </div>
+    {pending.length > 0 && <div className="space-y-2">
+      <div className="flex flex-wrap items-center gap-2" aria-label="Exportar roteiro de preparação da visita">
+        <span className="text-sm text-muted-foreground">Levar à visita:</span>
+        <Button size="sm" variant="outline" disabled={exporting}
+          onClick={() => void exportPreparation("pdf")}>Roteiro PDF</Button>
+        <Button size="sm" variant="outline" disabled={exporting}
+          onClick={() => void exportPreparation("xlsx")}>Excel</Button>
+        <Button size="sm" variant="outline" disabled={exporting}
+          onClick={() => void exportPreparation("csv")}>CSV</Button>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        O roteiro inclui todas as medidas sem conclusão declarada da unidade, mesmo as que não aparecem nesta prévia,
+        e a última evolução informada. É uma consulta, não uma nova visita ou ordem de cobrança.
+      </p>
+      {exportError && <p role="alert" className="text-sm text-destructive">{exportError}</p>}
+    </div>}
     {snapshot.actions.length === 0 && <p className="text-sm text-muted-foreground">
       Nenhuma medida cadastrada para esta unidade.
     </p>}
