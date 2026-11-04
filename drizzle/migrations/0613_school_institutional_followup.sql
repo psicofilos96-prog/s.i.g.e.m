@@ -150,6 +150,12 @@ BEGIN
     IF EXISTS (SELECT 1 FROM public.school_institutional_followup_visits WHERE supersedes_id = _base)
       THEN RAISE EXCEPTION 'followup:base-superseded'; END IF;
     IF length(btrim(coalesce(_reason,''))) = 0 THEN RAISE EXCEPTION 'followup:reason-required'; END IF;
+    -- Retificar a data não pode colocar a visita depois do prazo de medidas já vinculadas.
+    IF EXISTS (
+      SELECT 1 FROM public.school_institutional_followup_actions a
+      WHERE a.visit_logical_id = _base_row.logical_id
+        AND a.school_id = _school AND a.due_on IS NOT NULL AND a.due_on < _day
+    ) THEN RAISE EXCEPTION 'followup:date-after-plan-deadline'; END IF;
   END IF;
   INSERT INTO public.school_institutional_followup_visits (
     logical_id, version, supersedes_id, school_id, visit_date, diagnosis,
