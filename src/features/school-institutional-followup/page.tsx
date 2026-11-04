@@ -112,6 +112,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     ? filterSchoolActions(detail.data.actions, detail.data.updates, actionView, actionQuery, today)
     : [];
   const maxVisits = Math.max(1, ...rows.map((r) => r.visits));
+  const evolutionDraftIsDirty = isEvolutionDraftDirty({
+    day: updateDay, initialDay: today, situation, linkedVisitId: updateVisitId,
+    done, notDone, results, referrals,
+  });
   useEffect(() => {
     if (correctionBase) document.getElementById("followup-visit-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -292,10 +296,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
       return;
     }
-    if (actionId && (savingUpdate || isEvolutionDraftDirty({
-      day: updateDay, initialDay: today, situation, linkedVisitId: updateVisitId,
-      done, notDone, results, referrals,
-    }) || updateRequest.current !== null)) {
+    if (actionId && (savingUpdate || evolutionDraftIsDirty || updateRequest.current !== null)) {
       setEvolutionNotice("Existe uma evolução em preenchimento. Salve ou cancele o formulário atual antes de selecionar outra medida.");
       document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
       return;
@@ -311,7 +312,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setDone(""); setNotDone(""); setResults(""); setReferrals("");
     updateRequest.current = null; setEvolutionNotice("");
   }
-  function changeSchool(id: string) {
+  function changeSchool(id: string): boolean {
+    if (id === school) return true;
+    if (actionId && (savingUpdate || evolutionDraftIsDirty || updateRequest.current !== null)) {
+      setEvolutionNotice("Há uma evolução em preenchimento. Salve ou cancele antes de mudar de escola.");
+      document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return false;
+    }
     setSchool(id); cancelEvolution(); setTargetActionId("");
     setMeasureVisitId(""); setMeasureDraft(newAction());
     setActionView("todas"); setActionQuery("");
@@ -319,9 +326,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
     setParticipants(""); setPurpose(""); setDraftActions([newAction()]);
     setDay(today); setCorrectionBase(null); setCorrectionReason("");
+    return true;
   }
   function openMeasure(schoolId: string, measureId: string) {
-    changeSchool(schoolId);
+    if (!changeSchool(schoolId)) return;
+    setActionView("todas"); setActionQuery("");
     setTargetActionId(measureId);
   }
   function inspectSchoolMeasure(measureId: string) {
