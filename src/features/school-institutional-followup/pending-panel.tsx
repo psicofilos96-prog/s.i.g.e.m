@@ -9,9 +9,9 @@ const field = "mt-1 w-full rounded-md border border-input bg-background px-3 py-
 const PAGE_SIZE = 25;
 
 /** Consulta e exportação; nenhuma ação de cobrança ou alteração de dados. */
-export function InstitutionalPendingPanel({ rows, loading, error, today, onOpenSchool }: {
+export function InstitutionalPendingPanel({ rows, loading, error, today, onOpenAction }: {
   rows: readonly NetworkPendingAction[]; loading: boolean; error: unknown;
-  today: string; onOpenSchool: (schoolId: string) => void;
+  today: string; onOpenAction: (schoolId: string, actionId: string) => void;
 }) {
   const [view, setView] = useState<PendingView>("todas");
   const [search, setSearch] = useState("");
@@ -115,7 +115,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, onOpenS
                 </p>
               </td>
               <td className="p-2"><Button type="button" size="sm" variant="outline"
-                onClick={() => onOpenSchool(r.school_id)}>Abrir escola</Button>
+                onClick={() => onOpenAction(r.school_id, r.action_id)}>Ver medida</Button>
               </td>
             </tr>)}</tbody>
           </table>

@@ -60,6 +60,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [actionView, setActionView] = useState<ActionView>("todas");
   const [actionQuery, setActionQuery] = useState("");
   const [actionId, setActionId] = useState("");
+  const [targetActionId, setTargetActionId] = useState("");
   const [situation, setSituation] = useState(SITUATIONS[0].value as string);
   const [updateDay, setUpdateDay] = useState(today);
   const [done, setDone] = useState("");
@@ -110,6 +111,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     if (measureVisitId) document.getElementById("followup-measure-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [measureVisitId]);
+  // O quadro transversal aponta para a medida específica, não apenas para a escola.
+  useEffect(() => {
+    if (!targetActionId || !school || !detail.isSuccess) return;
+    if (!detail.data.actions.some((a) => a.id === targetActionId)) {
+      setNotice("A medida selecionada não consta mais no histórico consultado. Atualize o quadro de providências.");
+      setTargetActionId("");
+      return;
+    }
+    const element = document.getElementById(`followup-action-${targetActionId}`);
+    if (element) {
+      element.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      element.focus({ preventScroll: true });
+      setTargetActionId("");
+    }
+  }, [targetActionId, school, detail.isSuccess, detail.data]);
   async function exportReport(format: "csv" | "xlsx" | "pdf") {
     if (!network.isSuccess || exporting) return;
     setExporting(true); setError("");
@@ -242,11 +258,15 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
 
   }
   function changeSchool(id: string) {
-    setSchool(id); setActionId(""); setMeasureVisitId(""); setMeasureDraft(newAction());
+    setSchool(id); setActionId(""); setTargetActionId(""); setMeasureVisitId(""); setMeasureDraft(newAction());
     setActionView("todas"); setActionQuery("");
     setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null; measureRequest.current = null;
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
     setDay(today); setCorrectionBase(null); setCorrectionReason("");
+  }
+  function openMeasure(schoolId: string, measureId: string) {
+    changeSchool(schoolId);
+    setTargetActionId(measureId);
   }
   return <div className="space-y-6">
     <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
@@ -322,7 +342,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </>}
     </section>
     <InstitutionalPendingPanel rows={pending.data ?? []} loading={pending.isPending}
-      error={pending.isError ? pending.error : null} today={today} onOpenSchool={changeSchool} />
+      error={pending.isError ? pending.error : null} today={today} onOpenAction={openMeasure} />
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
     {school && <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -460,7 +480,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             <p className="text-sm text-muted-foreground">Nenhuma medida corresponde aos filtros. Os registros permanecem no histórico.</p>}
           {visibleActions.map((a) => {
             const latest = currentUpdate(a, detail.data!.updates);
-            return <div key={a.id} className="space-y-2 border-b pb-3 last:border-0">
+            return <div key={a.id} id={`followup-action-${a.id}`} tabIndex={-1}
+              className="scroll-mt-24 space-y-2 border-b pb-3 last:border-0 focus:outline-2 focus:outline-offset-2 focus:outline-primary">
               <p className="font-medium">{a.description}</p>
               <p className="text-xs text-muted-foreground">
                 Responsável: {a.responsible_label || "Não informado"} • Registro: {a.author_name || "Autoria registrada"}

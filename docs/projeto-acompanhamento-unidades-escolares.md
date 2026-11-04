@@ -164,3 +164,7 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 - O PostgreSQL verifica o escopo de cada escola antes de agregar o resultado, inclusive para contas do Gabinete; não permite que um usuário escolar consulte registros da outra escola. A leitura usa JSONB para não sofrer o limite de linhas da API. Se houver mais de 5.000 medidas abertas autorizadas, interrompe com erro explícito para evitar informações parcialmente exportadas.
 - Provas SQL incluem uma providência sentinela na escola B, inacessível para o servidor da escola A e visível ao Gabinete leitor, além de teste de carga da proteção contra truncamento.
 - Nenhum controle de cobrança, sanção, aprovação ou alteração de situação foi acrescentado para o Gabinete.
+## 11.6. Navegação do quadro transversal para a medida
+- O botão **Ver medida** transfere os identificadores de unidade e medida da RPC autorizada para a ficha escolar, restabelecendo a visão integral dos registros e focalizando o item correto depois do carregamento.
+- Os filtros anteriores da escola não escondem a medida selecionada. A navegação é apenas de leitura; a escrita segue exigindo permissão própria no PostgreSQL.
+- Se a medida não constar do snapshot autorizado, o sistema informa que os dados devem ser atualizados, sem navegar para outra unidade ou fabricar registro.
