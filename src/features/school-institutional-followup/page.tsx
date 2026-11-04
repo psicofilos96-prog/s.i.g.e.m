@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
-import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordUpdate, schoolFollowup } from "./source";
+import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { exportFollowupNetwork } from "./report";
 import { currentSituation, currentUpdate, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS } from "./model";
@@ -46,11 +46,15 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [draftActions, setDraftActions] = useState<ActionDraft[]>([newAction()]);
   const [saving, setSaving] = useState(false);
   const [savingUpdate, setSavingUpdate] = useState(false);
+  const [savingMeasure, setSavingMeasure] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const visitRequests = useRef<{ signature: string; visit: string; actions: string[] } | null>(null);
   const updateRequest = useRef<{ signature: string; request: string } | null>(null);
+  const measureRequest = useRef<{ signature: string; request: string } | null>(null);
+  const [measureVisitId, setMeasureVisitId] = useState("");
+  const [measureDraft, setMeasureDraft] = useState<ActionDraft>(newAction());
   const [actionId, setActionId] = useState("");
   const [situation, setSituation] = useState(SITUATIONS[0].value as string);
   const [updateDay, setUpdateDay] = useState(today);
@@ -153,6 +157,35 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     } catch (e) { setError(presentError(e)); }
     finally { setSavingUpdate(false); }
   }
+  async function saveMeasure(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const visit = detail.data?.visits.find((v) => v.id === measureVisitId);
+    if (!school || !canRecord || !visit || !measureDraft.description.trim() || savingMeasure
+      || (measureDraft.due && measureDraft.due < visit.visit_date)) return;
+    setSavingMeasure(true); setError(""); setNotice("");
+    const signature = JSON.stringify({ school, visitId: visit.id, measureDraft });
+    if (measureRequest.current?.signature !== signature) {
+      measureRequest.current = { signature, request: crypto.randomUUID() };
+    }
+    try {
+      await recordAction({
+        visit: visit.id, description: measureDraft.description,
+        responsible: measureDraft.responsible, due: measureDraft.due || null,
+        request: measureRequest.current.request,
+      });
+      measureRequest.current = null;
+      setMeasureVisitId(""); setMeasureDraft(newAction());
+      setNotice("Nova medida adicionada ao plano da visita, com autoria e histórico preservados.");
+      await refresh();
+    } catch (e) { setError(presentError(e)); }
+    finally { setSavingMeasure(false); }
+  }
+  function startMeasure(visit: NonNullable<typeof detail.data>["visits"][number]) {
+    if (!canRecord) return;
+    setMeasureVisitId(visit.id); setMeasureDraft(newAction());
+    measureRequest.current = null; setError(""); setNotice("");
+    document.getElementById("followup-measure-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
   function startCorrection(visit: NonNullable<typeof detail.data>["visits"][number]) {
     if (!canRecord || !visit.can_correct) return;
     setCorrectionBase(visit.id);
@@ -168,7 +201,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     document.getElementById("followup-visit-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
   function changeSchool(id: string) {
-    setSchool(id); setActionId(""); setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null;
+    setSchool(id); setActionId(""); setMeasureVisitId(""); setMeasureDraft(newAction());
+    setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null; measureRequest.current = null;
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
     setDay(today); setCorrectionBase(null); setCorrectionReason("");
   }
@@ -290,6 +324,39 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </div>
         <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
       </form>}
+      {detail.data && canRecord && measureVisitId && <form id="followup-measure-form"
+        className="space-y-3 rounded-xl border p-4" onSubmit={(e) => void saveMeasure(e)}>
+        <h3 className="font-semibold">Acrescentar medida a uma visita existente</h3>
+        <p className="text-sm text-muted-foreground">
+          Visita de {dateLabel(detail.data.visits.find((v) => v.id === measureVisitId)?.visit_date ?? null)}.
+          A nova medida é adicionada ao plano sem alterar o diagnóstico ou medidas anteriores.
+        </p>
+        <label className="block text-sm">O que precisa ser feito
+          <textarea className={textArea} required maxLength={4000}
+            value={measureDraft.description}
+            onChange={(e) => setMeasureDraft((d) => ({ ...d, description: e.target.value }))} />
+        </label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="block text-sm">Responsável declarado
+            <input className={input} maxLength={250} value={measureDraft.responsible}
+              onChange={(e) => setMeasureDraft((d) => ({ ...d, responsible: e.target.value }))} />
+          </label>
+          <label className="block text-sm">Prazo, se houver
+            <DateInput className={input}
+              min={detail.data.visits.find((v) => v.id === measureVisitId)?.visit_date}
+              value={measureDraft.due}
+              onChange={(e) => setMeasureDraft((d) => ({ ...d, due: e.target.value }))} />
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" disabled={savingMeasure || !measureDraft.description.trim()}>
+            {savingMeasure ? "Salvando…" : "Acrescentar medida"}
+          </Button>
+          <Button type="button" variant="outline" onClick={() => {
+            setMeasureVisitId(""); setMeasureDraft(newAction()); measureRequest.current = null;
+          }}>Cancelar</Button>
+        </div>
+      </form>}
       {detail.data && <>
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Ações e evolução</h3>
@@ -357,8 +424,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                   </li>)}
               </ol>
             </details>}
-            {canRecord && v.can_correct && <Button type="button" size="sm" variant="outline"
-              onClick={() => startCorrection(v)}>Retificar esta visita</Button>}
+            {canRecord && <div className="flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="outline" onClick={() => startMeasure(v)}>
+                Acrescentar medida ao plano
+              </Button>
+              {v.can_correct && <Button type="button" size="sm" variant="outline"
+                onClick={() => startCorrection(v)}>Retificar esta visita</Button>}
+            </div>}
           </article>)}
         </div>
       </>}
