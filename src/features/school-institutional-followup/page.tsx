@@ -399,6 +399,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
       {detail.data && <SchoolOpenActionsPanel key={school} snapshot={detail.data} today={today}
+        schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} />}
       {canRecord && <form id="followup-visit-form" className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
         <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
