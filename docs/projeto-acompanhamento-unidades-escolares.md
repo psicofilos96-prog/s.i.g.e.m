@@ -200,3 +200,17 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 - Ao cancelar, o rascunho local é limpo. Trocar de escola com evolução em preenchimento é bloqueado até salvar ou cancelar; quando não houver edição em andamento, a troca limpa o formulário para evitar reaproveitamento de textos entre unidades. O mesmo fluxo é utilizado pelo atalho do painel e pelo botão do histórico.
 - Testes verificam que o Gabinete não recebe o botão de escrita, que a ação concluída não aparece no roteiro, que o callback recebe o identificador correto e que o detector de rascunho reconhece alterações em data, visita, situação ou textos.
 - Não foram criadas migrations, RPCs, permissões novas nem automações administrativas. A homologação continua condicionada a CI e clone institucional integral isolado.
+
+## 11.12. Proteção de preenchimentos ainda não registrados — 04/11/2026
+
+A seleção de outra escola, incluindo o quadro transversal de providências e o comando **Fechar escola**, não descarta silenciosamente formulários em edição. Antes de trocar, a interface verifica, nesta ordem:
+
+- **Visita/retificação:** diagnóstico, objetivo, participantes, pontos fortes, fragilidades, observações, data, justificativa, medidas do plano e contexto de retificação; impede a troca enquanto houver dados em edição ou gravação em curso.
+- **Medida adicional:** descrição, responsável, prazo e tentativa de gravação pendente; orienta salvar ou cancelar a medida aberta.
+- **Evolução de medida:** data, situação, visita vinculada, o que foi/não foi feito, resultados e encaminhamentos; preserva o formulário até registro ou cancelamento.
+
+A abertura de outra visita para retificação ou de outra medida também protege o respectivo formulário já preenchido. **Descartar preenchimento** limpa a visita nova mediante ação explícita; **Cancelar retificação**, **Cancelar** medida e **Cancelar** evolução continuam disponíveis, mas não durante o envio para o servidor. Depois de salvar, os campos voltam ao estado inicial.
+
+**Limites:** não há persistência de rascunho no servidor nem armazenamento offline. A proteção cobre a navegação dentro deste módulo; encerramento da aba, saída para outra rota ou perda de sessão ainda podem perder conteúdo em edição. A futura funcionalidade de **Salvar rascunho** prevista no PRD depende de decisão sobre segurança, persistência e autorização; não é simulada por este mecanismo.
+
+Testes unitários validam detecção de alterações substantivas (inclusive prazo sem descrição e correção aberta) e preservam o caso de linhas adicionais totalmente vazias.
