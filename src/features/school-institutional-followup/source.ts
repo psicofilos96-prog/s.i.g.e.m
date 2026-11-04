@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { UserFacingError } from "@/lib/observability/governed-errors";
-import type { NetworkRow, SchoolSnapshot } from "./model";
+import type { NetworkPendingAction, NetworkRow, SchoolSnapshot } from "./model";
 
 // Leitura e escrita exclusivamente por RPCs institucionais: sem DML direto do navegador.
 type RpcResponse = { data: unknown; error: { message: string } | null };
@@ -10,6 +10,11 @@ const rpc: Rpc = (fn, args) => (supabase.rpc as unknown as Rpc)(fn, args);
 async function call(fn: string, args: Record<string, unknown>): Promise<unknown> {
   const { data, error } = await rpc(fn, args);
   if (error) {
+    if (error.message.includes("followup:network-pending-volume-exceeded")) {
+      throw new UserFacingError(
+        "Há mais de 5.000 medidas não concluídas neste escopo. Para evitar um relatório incompleto, solicite uma consulta paginada ao suporte.",
+      );
+    }
     if (error.message.includes("followup:history-volume-exceeded")) {
       throw new UserFacingError(
         "O histórico desta unidade é muito extenso para esta tela. Para evitar mostrar dados incompletos, a consulta foi interrompida. Solicite ao suporte a consulta paginada.",
@@ -120,4 +125,32 @@ export async function followupStatuses(): Promise<FollowupStatus[]> {
   return rows.map((r: Record<string, unknown>) => ({
     situation: String(r["situation"]), actions: Number(r["actions"]),
   }));
+}
+/** JSONB evita o limite implícito de linhas da API; a autorização ocorre na RPC. */
+export async function networkPendingFollowup(): Promise<NetworkPendingAction[]> {
+  const value = await call("school_institutional_followup_pending", {});
+  if (!value || typeof value !== "object" || Array.isArray(value)
+    || !Array.isArray((value as Record<string, unknown>)["pending"])) {
+    throw new Error("A relação de providências retornou um formato inesperado.");
+  }
+  const rows = (value as { pending: unknown[] }).pending;
+  if (rows.length > 5000) throw new Error("O quadro excedeu o limite esperado.");
+  return rows.map((item) => {
+    if (!item || typeof item !== "object" || Array.isArray(item))
+      throw new Error("Registro inválido no quadro de providências.");
+    const r = item as Record<string, unknown>;
+    if (typeof r["action_id"] !== "string" || typeof r["school_id"] !== "string"
+      || typeof r["school_name"] !== "string" || typeof r["description"] !== "string"
+      || typeof r["situation"] !== "string" || typeof r["created_at"] !== "string")
+      throw new Error("Registro incompleto no quadro de providências.");
+    return {
+      action_id: r["action_id"], school_id: r["school_id"], school_name: r["school_name"],
+      inep: r["inep"] == null ? null : String(r["inep"]), description: r["description"],
+      responsible_label: r["responsible_label"] == null ? null : String(r["responsible_label"]),
+      due_on: r["due_on"] == null ? null : String(r["due_on"]),
+      situation: r["situation"],
+      last_update_on: r["last_update_on"] == null ? null : String(r["last_update_on"]),
+      created_at: r["created_at"],
+    };
+  });
 }
