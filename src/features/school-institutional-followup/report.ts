@@ -99,11 +99,12 @@ function followupRows(
       recorded_at: formatDateTime(v.created_at),
       event_type: snapshot.visit_history.some((old) => old.id === v.id)
         ? `Visita substituída (v${v.version})` : `Visita vigente (v${v.version})`,
-      description: joinDescriptions(["Diagnóstico", v.diagnosis], ["Pontos fortes", v.strengths],
-        ["Fragilidades", v.weaknesses]),
+      description: joinDescriptions(["Objetivo", v.purpose_note], ["Diagnóstico", v.diagnosis],
+        ["Pontos fortes", v.strengths], ["Fragilidades", v.weaknesses]),
       responsible: null, deadline: null, situation: null,
       author: v.author_name,
-      detail: joinDescriptions(["Observações", v.summary], ["Justificativa de retificação", v.correction_reason]),
+      detail: joinDescriptions(["Demais participantes informados", v.participants_note],
+        ["Observações", v.summary], ["Justificativa de retificação", v.correction_reason]),
     });
   }
   for (const a of snapshot.actions) {

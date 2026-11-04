@@ -63,12 +63,14 @@ export async function schoolFollowup(school: string): Promise<SchoolSnapshot> {
 }
 export async function recordVisit(input: {
   school: string; day: string; diagnosis: string; strengths: string; weaknesses: string;
-  summary: string; request: string; base?: string | null; reason?: string | null;
+  summary: string; participants: string; purpose: string;
+  request: string; base?: string | null; reason?: string | null;
 }): Promise<string> {
   const id = await call("record_school_institutional_followup_visit", {
     _school: input.school, _day: input.day, _diagnosis: input.diagnosis,
     _strengths: input.strengths, _weaknesses: input.weaknesses, _summary: input.summary,
     _base: input.base ?? null, _reason: input.reason ?? null, _request: input.request,
+    _participants: input.participants, _purpose: input.purpose,
   });
   if (typeof id !== "string") throw new Error("Não foi possível confirmar a visita.");
   return id;
@@ -98,13 +100,14 @@ export async function recordUpdate(input: {
 
 export async function recordVisitBundle(input: {
   school: string; day: string; diagnosis: string; strengths: string; weaknesses: string;
-  summary: string; request: string;
+  summary: string; participants: string; purpose: string; request: string;
   actions: { description: string; responsible: string; due: string | null; request: string }[];
 }): Promise<string> {
   const id = await call("record_school_institutional_followup_bundle", {
     _school: input.school, _day: input.day, _diagnosis: input.diagnosis,
     _strengths: input.strengths, _weaknesses: input.weaknesses,
     _summary: input.summary, _request: input.request, _actions: input.actions,
+    _participants: input.participants, _purpose: input.purpose,
   });
   if (typeof id !== "string") throw new Error("Não foi possível confirmar a visita e o plano.");
   return id;

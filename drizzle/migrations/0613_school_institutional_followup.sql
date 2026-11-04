@@ -16,6 +16,8 @@ CREATE TABLE public.school_institutional_followup_visits (
   strengths text NOT NULL DEFAULT '' CHECK (length(strengths) <= 10000),
   weaknesses text NOT NULL DEFAULT '' CHECK (length(weaknesses) <= 10000),
   summary text CHECK (summary IS NULL OR length(summary) <= 10000),
+  participants_note text CHECK (participants_note IS NULL AND true OR length(participants_note) <= 500),
+  purpose_note text CHECK (purpose_note IS NULL AND true OR length(purpose_note) <= 1000),
   correction_reason text,
   author_user_id uuid NOT NULL,
   author_person_id uuid NOT NULL,
@@ -119,7 +121,8 @@ REVOKE ALL ON FUNCTION public.school_institutional_followup_person(text) FROM PU
 
 CREATE FUNCTION public.record_school_institutional_followup_visit(
   _school text, _day date, _diagnosis text, _strengths text, _weaknesses text,
-  _summary text, _base uuid, _reason text, _request uuid)
+  _summary text, _base uuid, _reason text, _request uuid,
+  _participants text DEFAULT NULL, _purpose text DEFAULT NULL)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$
 DECLARE _person uuid; _base_row public.school_institutional_followup_visits; _id uuid;
 BEGIN
@@ -136,6 +139,8 @@ BEGIN
         AND old.strengths IS NOT DISTINCT FROM coalesce(_strengths,'')
         AND old.weaknesses IS NOT DISTINCT FROM coalesce(_weaknesses,'')
         AND old.summary IS NOT DISTINCT FROM nullif(btrim(_summary),'')
+        AND old.participants_note IS NOT DISTINCT FROM nullif(btrim(_participants),'')
+        AND old.purpose_note IS NOT DISTINCT FROM nullif(btrim(_purpose),'')
         AND old.supersedes_id IS NOT DISTINCT FROM _base
         AND old.correction_reason IS NOT DISTINCT FROM nullif(btrim(_reason),'')
     ) THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
@@ -165,12 +170,14 @@ BEGIN
   END IF;
   INSERT INTO public.school_institutional_followup_visits (
     logical_id, version, supersedes_id, school_id, visit_date, diagnosis,
-    strengths, weaknesses, summary, correction_reason, author_user_id, author_person_id, request_key)
+    strengths, weaknesses, summary, participants_note, purpose_note,
+    correction_reason, author_user_id, author_person_id, request_key)
   VALUES (
     coalesce(_base_row.logical_id, gen_random_uuid()), coalesce(_base_row.version, 0) + 1,
     _base, _school, _day, btrim(_diagnosis), coalesce(_strengths,''),
-    coalesce(_weaknesses,''), nullif(btrim(_summary),''), nullif(btrim(_reason),''),
-    auth.uid(), _person, _request)
+    coalesce(_weaknesses,''), nullif(btrim(_summary),''),
+    nullif(btrim(_participants),''), nullif(btrim(_purpose),''),
+    nullif(btrim(_reason),''), auth.uid(), _person, _request)
   ON CONFLICT (request_key) DO NOTHING RETURNING id INTO _id;
   IF _id IS NULL THEN
     SELECT id INTO _id FROM public.school_institutional_followup_visits
@@ -185,13 +192,15 @@ BEGIN
       AND old.strengths IS NOT DISTINCT FROM coalesce(_strengths,'')
       AND old.weaknesses IS NOT DISTINCT FROM coalesce(_weaknesses,'')
       AND old.summary IS NOT DISTINCT FROM nullif(btrim(_summary),'')
+      AND old.participants_note IS NOT DISTINCT FROM nullif(btrim(_participants),'')
+      AND old.purpose_note IS NOT DISTINCT FROM nullif(btrim(_purpose),'')
       AND old.supersedes_id IS NOT DISTINCT FROM _base
       AND old.correction_reason IS NOT DISTINCT FROM nullif(btrim(_reason),'')
   ) THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
   RETURN _id;
 END $$;
-REVOKE ALL ON FUNCTION public.record_school_institutional_followup_visit(text,date,text,text,text,text,uuid,text,uuid) FROM PUBLIC, anon, service_role;
-GRANT EXECUTE ON FUNCTION public.record_school_institutional_followup_visit(text,date,text,text,text,text,uuid,text,uuid) TO authenticated;
+REVOKE ALL ON FUNCTION public.record_school_institutional_followup_visit(text,date,text,text,text,text,uuid,text,uuid,text,text) FROM PUBLIC, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.record_school_institutional_followup_visit(text,date,text,text,text,text,uuid,text,uuid,text,text) TO authenticated;
 
 CREATE FUNCTION public.record_school_institutional_followup_action(
   _visit uuid, _description text, _responsible text, _due date, _request uuid)
@@ -301,7 +310,8 @@ BEGIN
   SELECT jsonb_build_object(
     'visits', coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.visit_date DESC, t.created_at DESC)
       FROM (SELECT v.id, v.logical_id, v.version, v.school_id, v.visit_date, v.diagnosis,
-        v.strengths, v.weaknesses, v.summary, v.correction_reason, v.supersedes_id,
+        v.strengths, v.weaknesses, v.summary, v.participants_note, v.purpose_note,
+        v.correction_reason, v.supersedes_id,
         v.recorded_at AS created_at, p.display_name AS author_name,
         (v.author_user_id = auth.uid()) AS can_correct
         FROM public.school_institutional_followup_visits v
@@ -311,7 +321,8 @@ BEGIN
         ORDER BY v.visit_date DESC, v.recorded_at DESC LIMIT 1000) t),'[]'::jsonb),
     'visit_history', coalesce((SELECT jsonb_agg(to_jsonb(h) ORDER BY h.created_at DESC)
       FROM (SELECT v.id, v.logical_id, v.version, v.school_id, v.visit_date, v.diagnosis,
-        v.strengths, v.weaknesses, v.summary, v.correction_reason, v.supersedes_id,
+        v.strengths, v.weaknesses, v.summary, v.participants_note, v.purpose_note,
+        v.correction_reason, v.supersedes_id,
         v.recorded_at AS created_at, p.display_name AS author_name
         FROM public.school_institutional_followup_visits v
         LEFT JOIN public.institutional_persons p ON p.id = v.author_person_id
@@ -393,7 +404,8 @@ CREATE TRIGGER followup_bundle_immutable BEFORE UPDATE OR DELETE
 -- Uma visita e suas ações são um único ato transacional: erro em uma ação desfaz todas.
 CREATE FUNCTION public.record_school_institutional_followup_bundle(
   _school text, _day date, _diagnosis text, _strengths text, _weaknesses text,
-  _summary text, _request uuid, _actions jsonb)
+  _summary text, _request uuid, _actions jsonb,
+  _participants text DEFAULT NULL, _purpose text DEFAULT NULL)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$
 DECLARE _visit uuid; a jsonb; _request_action uuid;
   _fingerprint text; _saved public.school_institutional_followup_bundles;
@@ -406,6 +418,7 @@ BEGIN
   _fingerprint := pg_catalog.encode(pg_catalog.sha256(pg_catalog.convert_to(
     jsonb_build_object('school', _school, 'day', _day, 'diagnosis', _diagnosis,
       'strengths', _strengths, 'weaknesses', _weaknesses, 'summary', _summary,
+      'participants', nullif(btrim(_participants),''), 'purpose', nullif(btrim(_purpose),''),
       'actions', coalesce(_actions, '[]'::jsonb))::text, 'UTF8')), 'hex');
   SELECT * INTO _saved FROM public.school_institutional_followup_bundles WHERE request_key = _request;
   IF FOUND THEN
@@ -418,7 +431,7 @@ BEGIN
   END IF;
   _visit := public.record_school_institutional_followup_visit(
     _school, _day, _diagnosis, _strengths, _weaknesses,
-    _summary, NULL, NULL, _request
+    _summary, NULL, NULL, _request, _participants, _purpose
   );
   FOR a IN SELECT value FROM pg_catalog.jsonb_array_elements(coalesce(_actions, '[]'::jsonb))
   LOOP
@@ -447,9 +460,9 @@ BEGIN
   THEN RAISE EXCEPTION 'followup:request-conflict'; END IF;
   RETURN _visit;
 END $$;
-REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
+REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb,text,text)
   FROM PUBLIC, anon, service_role;
-GRANT EXECUTE ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)
+GRANT EXECUTE ON FUNCTION public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb,text,text)
   TO authenticated;
 
 

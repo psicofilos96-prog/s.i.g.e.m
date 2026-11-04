@@ -2,6 +2,8 @@
 export type FollowupVisit = {
   id: string; logical_id: string; version: number; school_id: string; visit_date: string;
   diagnosis: string; strengths: string; weaknesses: string; summary: string | null;
+  /** Texto declarado, separado do autor identificado por auth.uid(). */
+  participants_note?: string | null; purpose_note?: string | null;
   correction_reason: string | null; supersedes_id: string | null;
   can_correct?: boolean; created_at: string; author_name: string | null;
 };

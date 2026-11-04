@@ -43,6 +43,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [strengths, setStrengths] = useState("");
   const [weaknesses, setWeaknesses] = useState("");
   const [summary, setSummary] = useState("");
+  const [participants, setParticipants] = useState("");
+  const [purpose, setPurpose] = useState("");
   const [correctionBase, setCorrectionBase] = useState<string | null>(null);
   const [correctionReason, setCorrectionReason] = useState("");
   const [draftActions, setDraftActions] = useState<ActionDraft[]>([newAction()]);
@@ -170,17 +172,19 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setSaving(true); setError(""); setNotice("");
     // Só repetir a mesma chave de operação quando o conteúdo for idêntico.
     const signature = JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary,
-      draftActions: correctionBase === null ? draftActions : [], correctionBase, correctionReason });
+      participants, purpose, draftActions: correctionBase === null ? draftActions : [],
+      correctionBase, correctionReason });
     const requests = visitRequests.current?.signature === signature ? visitRequests.current
       : { signature, visit: crypto.randomUUID(), actions: draftActions.map(() => crypto.randomUUID()) };
     visitRequests.current = requests;
     try {
       if (correctionBase !== null) {
         await recordVisit({ school, day, diagnosis, strengths, weaknesses, summary,
-          base: correctionBase, reason: correctionReason, request: requests.visit });
+          participants, purpose, base: correctionBase, reason: correctionReason, request: requests.visit });
       } else {
         await recordVisitBundle({
-          school, day, diagnosis, strengths, weaknesses, summary, request: requests.visit,
+          school, day, diagnosis, strengths, weaknesses, summary,
+          participants, purpose, request: requests.visit,
           actions: draftActions.map((a, index) => ({
             description: a.description, responsible: a.responsible,
             due: a.due || null, request: requests.actions[index] ?? crypto.randomUUID(),
@@ -188,6 +192,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         });
       }
       setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
+      setParticipants(""); setPurpose("");
       setDraftActions([newAction()]); visitRequests.current = null;
       setNotice(correctionBase === null
         ? "Visita e ações registradas. O histórico da escola foi preservado."
@@ -256,6 +261,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setCorrectionReason("");
     setDay(visit.visit_date);
     setDiagnosis(visit.diagnosis);
+    setParticipants(visit.participants_note ?? "");
+    setPurpose(visit.purpose_note ?? "");
     setStrengths(visit.strengths);
     setWeaknesses(visit.weaknesses);
     setSummary(visit.summary ?? "");
@@ -269,7 +276,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setMeasureVisitId(""); setMeasureDraft(newAction());
     setActionView("todas"); setActionQuery("");
     setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null; measureRequest.current = null;
-    setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
+    setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
+    setParticipants(""); setPurpose(""); setDraftActions([newAction()]);
     setDay(today); setCorrectionBase(null); setCorrectionReason("");
   }
   function openMeasure(schoolId: string, measureId: string) {
@@ -386,6 +394,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
         </p>}
         <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="block text-sm">Objetivo da visita (opcional)
+            <textarea className={textArea} maxLength={1000} value={purpose}
+              onChange={(e) => setPurpose(e.target.value)} placeholder="Por exemplo: acompanhar a organização pedagógica" />
+          </label>
+          <label className="block text-sm">Demais participantes informados (opcional)
+            <textarea className={textArea} maxLength={500} value={participants}
+              onChange={(e) => setParticipants(e.target.value)}
+              placeholder="Servidor ou equipe que também participou" />
+          </label>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          A autoria é atribuída automaticamente à conta que salva o registro. Participantes informados não
+          constituem assinatura, confirmação de presença ou autorização para escrever no sistema.
+        </p>
         <label className="block text-sm">Diagnóstico da realidade<textarea className={textArea} required maxLength={10000} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} /></label>
         <div className="grid gap-3 md:grid-cols-2">
           <label className="block text-sm">Pontos fortes<textarea className={textArea} maxLength={10000} value={strengths} onChange={(e) => setStrengths(e.target.value)} /></label>
@@ -419,7 +442,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </Button>
           {correctionBase && <Button type="button" variant="outline" onClick={() => {
             setCorrectionBase(null); setCorrectionReason(""); setDiagnosis(""); setStrengths("");
-            setWeaknesses(""); setSummary(""); setDraftActions([newAction()]); setDay(today); visitRequests.current = null;
+            setWeaknesses(""); setSummary(""); setParticipants(""); setPurpose("");
+            setDraftActions([newAction()]); setDay(today); visitRequests.current = null;
           }}>Cancelar retificação</Button>}
         </div>
         <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
@@ -560,6 +584,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           {!detail.data.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
           {detail.data.visits.map((v) => <article key={v.id} className="space-y-2 border-b pb-3 last:border-0">
             <p className="text-sm font-medium">{dateLabel(v.visit_date)} • {v.author_name || "Autoria institucional registrada"} {v.version > 1 ? `(retificação v${v.version})` : ""}</p>
+            {v.purpose_note && <p className="text-sm"><strong>Objetivo:</strong> {v.purpose_note}</p>}
+            {v.participants_note && <p className="text-sm"><strong>Demais participantes informados:</strong> {v.participants_note}</p>}
             <p className="text-sm"><strong>Diagnóstico:</strong> {v.diagnosis}</p>
             <p className="text-sm"><strong>Pontos fortes:</strong> {v.strengths || "Não informado"}</p>
             <p className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses || "Não informado"}</p>
@@ -573,6 +599,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                 {detail.data!.visit_history.filter((h) => h.logical_id === v.logical_id)
                   .sort((a, b) => b.version - a.version).map((h) => <li key={h.id} className="space-y-1 border-b pb-2 last:border-0">
                     <p className="font-semibold">Versão {h.version} • {dateLabel(h.visit_date)} • {h.author_name || "Autoria registrada"}</p>
+                    {h.purpose_note && <p><strong>Objetivo:</strong> {h.purpose_note}</p>}
+                    {h.participants_note && <p><strong>Demais participantes informados:</strong> {h.participants_note}</p>}
                     <p><strong>Diagnóstico:</strong> {h.diagnosis}</p>
                     <p><strong>Pontos fortes:</strong> {h.strengths || "Não informado"}</p>
                     <p><strong>Fragilidades:</strong> {h.weaknesses || "Não informado"}</p>
