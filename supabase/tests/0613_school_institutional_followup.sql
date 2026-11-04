@@ -25,6 +25,9 @@ BEGIN
     OR has_table_privilege('authenticated', 'public.school_institutional_followup_actions', 'SELECT')
     OR has_table_privilege('authenticated', 'public.school_institutional_followup_updates', 'SELECT')
     OR has_table_privilege('anon', 'public.school_institutional_followup_visits', 'SELECT')
+    OR has_table_privilege('service_role', 'public.school_institutional_followup_visits', 'SELECT')
+    OR has_table_privilege('service_role', 'public.school_institutional_followup_actions', 'INSERT')
+    OR has_table_privilege('service_role', 'public.school_institutional_followup_updates', 'DELETE')
     THEN RAISE EXCEPTION 'followup-test:table-grants-leak'; END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_class c
     JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
@@ -39,6 +42,8 @@ BEGIN
       'public.record_school_institutional_followup_visit(text,date,text,text,text,text,uuid,text,uuid,text,text)', 'EXECUTE')
     OR has_function_privilege('authenticated',
       'public.school_institutional_followup_grant(text,text)', 'EXECUTE')
+    OR has_function_privilege('service_role',
+      'public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb,text,text)', 'EXECUTE')
     THEN RAISE EXCEPTION 'followup-test:function-grants-leak'; END IF;
 
   SELECT id INTO s FROM public.institutional_schools ORDER BY id LIMIT 1;
