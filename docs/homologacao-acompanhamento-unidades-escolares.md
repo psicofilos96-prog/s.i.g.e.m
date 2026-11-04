@@ -106,6 +106,7 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] Com retificação aberta, uma tentativa de retificar outra visita ou mudar de escola preserva a primeira.
 - [ ] Com medida adicional em edição, trocar visita ou escola preserva os dados até salvar ou cancelar; os botões de cancelar ficam desabilitados durante o envio.
 - [ ] Com evolução em edição, trocar medida ou escola preserva os campos; uma evolução limpa pode ser cancelada sem criar evento.
+- [ ] Com visita/medida/evolução em edição, **recarregar ou fechar a aba** aciona confirmação nativa nos navegadores que a suportem; após salvar/cancelar, o alerta deixa de ser apresentado. Conferir limites em smartphones e que nenhum texto é persistido offline.
 - [ ] UI é conferida em navegador real, inclusive smartphone, com sessão de cada perfil.
 
 ## 5. Critérios de publicação e contingência
