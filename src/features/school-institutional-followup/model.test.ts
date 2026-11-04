@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -15,6 +15,23 @@ const completed: FollowupUpdate = {
   done_text: "Concluída", created_at: "2026-10-18T10:00:00Z",
 };
 describe("acompanhamento das unidades — projeções", () => {
+  it("recusa medida parcial em vez de descartar responsável ou prazo", () => {
+    const day = "2026-11-04";
+    expect(validateFollowupActionDrafts([{ description: "", responsible: "", due: "" }], day)).toBeNull();
+    expect(validateFollowupActionDrafts([
+      { description: "   ", responsible: "Direção", due: "" },
+    ], day)).toContain("sem descrição");
+    expect(validateFollowupActionDrafts([
+      { description: "", responsible: " ", due: "2026-11-08" },
+    ], day)).toContain("sem descrição");
+    expect(validateFollowupActionDrafts([
+      { description: "Criar cronograma", responsible: "Coordenação", due: "2026-11-01" },
+    ], day)).toContain("não pode ser anterior");
+    expect(validateFollowupActionDrafts([
+      { description: "Criar cronograma", responsible: "Coordenação", due: "2026-11-04" },
+      { description: "", responsible: "", due: "" },
+    ], day)).toBeNull();
+  });
   it("não converte ausência de atualização em não realizada", () => {
     expect(currentSituation(action, [])).toBe("sem atualização");
     expect(currentUpdate(action, [])).toBe(null);
