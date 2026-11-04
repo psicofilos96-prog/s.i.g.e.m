@@ -156,6 +156,12 @@ BEGIN
       WHERE a.visit_logical_id = _base_row.logical_id
         AND a.school_id = _school AND a.due_on IS NOT NULL AND a.due_on < _day
     ) THEN RAISE EXCEPTION 'followup:date-after-plan-deadline'; END IF;
+    IF EXISTS (
+      SELECT 1 FROM public.school_institutional_followup_updates u
+      JOIN public.school_institutional_followup_actions a ON a.id = u.action_id
+      WHERE a.visit_logical_id = _base_row.logical_id AND a.school_id = _school
+        AND u.occurred_on < _day
+    ) THEN RAISE EXCEPTION 'followup:date-after-action-update'; END IF;
   END IF;
   INSERT INTO public.school_institutional_followup_visits (
     logical_id, version, supersedes_id, school_id, visit_date, diagnosis,
@@ -223,12 +229,23 @@ CREATE FUNCTION public.record_school_institutional_followup_update(
   _action uuid, _visit uuid, _day date, _situation text, _done text, _not_done text,
   _results text, _referrals text, _request uuid)
 RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$
-DECLARE a public.school_institutional_followup_actions; v public.school_institutional_followup_visits; _person uuid; _id uuid;
+DECLARE a public.school_institutional_followup_actions; v public.school_institutional_followup_visits;
+  _person uuid; _id uuid; _origin_day date;
 BEGIN
   SELECT * INTO a FROM public.school_institutional_followup_actions WHERE id = _action;
   IF a.id IS NULL THEN RAISE EXCEPTION 'followup:action-not-found'; END IF;
   _person := public.school_institutional_followup_person(a.school_id);
   IF _day IS NULL OR _day > (now() AT TIME ZONE 'America/Sao_Paulo')::date THEN RAISE EXCEPTION 'followup:invalid-date'; END IF;
+  SELECT fv.visit_date INTO _origin_day
+  FROM public.school_institutional_followup_visits fv
+  WHERE fv.logical_id = a.visit_logical_id AND fv.school_id = a.school_id
+    AND NOT EXISTS (
+      SELECT 1 FROM public.school_institutional_followup_visits successor
+      WHERE successor.supersedes_id = fv.id
+    )
+  ORDER BY fv.version DESC LIMIT 1;
+  IF _origin_day IS NULL THEN RAISE EXCEPTION 'followup:origin-visit-not-found'; END IF;
+  IF _day < _origin_day THEN RAISE EXCEPTION 'followup:update-before-origin-visit'; END IF;
   IF btrim(coalesce(_situation,'')) NOT IN ('prevista', 'em andamento', 'concluída', 'não realizada', 'suspensa')
     THEN RAISE EXCEPTION 'followup:situation-invalid'; END IF;
   IF _request IS NULL THEN RAISE EXCEPTION 'followup:request-required'; END IF;
@@ -237,6 +254,7 @@ BEGIN
     IF v.id IS NULL OR v.school_id <> a.school_id OR EXISTS
       (SELECT 1 FROM public.school_institutional_followup_visits s WHERE s.supersedes_id = v.id)
       THEN RAISE EXCEPTION 'followup:visit-mismatch'; END IF;
+    IF _day < v.visit_date THEN RAISE EXCEPTION 'followup:update-before-linked-visit'; END IF;
   END IF;
   INSERT INTO public.school_institutional_followup_updates (
     action_id, visit_logical_id, occurred_on, situation, done_text, not_done_text,
