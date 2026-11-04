@@ -438,6 +438,14 @@ BEGIN
     IF pg_catalog.jsonb_typeof(a) <> 'object' THEN
       RAISE EXCEPTION 'followup:action-invalid';
     END IF;
+    -- Nunca descartar silenciosamente responsável/prazo quando a descrição está vazia.
+    -- A linha totalmente vazia é apenas o espaço opcional padrão do formulário.
+    IF nullif(pg_catalog.btrim(coalesce(a->>'description','')), '') IS NULL
+      AND (
+        nullif(pg_catalog.btrim(coalesce(a->>'responsible','')), '') IS NOT NULL
+        OR nullif(pg_catalog.btrim(coalesce(a->>'due','')), '') IS NOT NULL
+      )
+    THEN RAISE EXCEPTION 'followup:action-description-required'; END IF;
     IF nullif(pg_catalog.btrim(coalesce(a->>'description','')), '') IS NOT NULL THEN
       IF nullif(pg_catalog.btrim(coalesce(a->>'request','')), '') IS NULL
         THEN RAISE EXCEPTION 'followup:action-request-required'; END IF;
