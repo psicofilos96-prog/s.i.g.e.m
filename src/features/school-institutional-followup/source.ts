@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { UserFacingError } from "@/lib/observability/governed-errors";
 import type { NetworkRow, SchoolSnapshot } from "./model";
 
 // Leitura e escrita exclusivamente por RPCs institucionais: sem DML direto do navegador.
@@ -8,7 +9,23 @@ const rpc: Rpc = (fn, args) => (supabase.rpc as unknown as Rpc)(fn, args);
 
 async function call(fn: string, args: Record<string, unknown>): Promise<unknown> {
   const { data, error } = await rpc(fn, args);
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (error.message.includes("followup:history-volume-exceeded")) {
+      throw new UserFacingError(
+        "O histórico desta unidade é muito extenso para esta tela. Para evitar mostrar dados incompletos, a consulta foi interrompida. Solicite ao suporte a consulta paginada.",
+      );
+    }
+    if (error.message.includes("followup:base-superseded")) {
+      throw new UserFacingError("Esta visita já foi retificada. Atualize o histórico antes de registrar outra correção.");
+    }
+    if (error.message.includes("followup:date-after-plan-deadline")) {
+      throw new UserFacingError("A nova data da visita não pode ser posterior ao prazo de uma medida vinculada.");
+    }
+    if (error.message.includes("followup:request-conflict")) {
+      throw new UserFacingError("O registro enviado não corresponde à tentativa anterior. Atualize os dados antes de repetir.");
+    }
+    throw new Error(error.message);
+  }
   return data;
 }
 export async function networkFollowup(from: string, to: string): Promise<NetworkRow[]> {
