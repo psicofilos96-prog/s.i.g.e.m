@@ -158,3 +158,9 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 - **Mensagem ao usuário:** erros de cronologia são traduzidos em linguagem operacional; a causa detalhada permanece na validação SQL. Os cenários negativos são testados no PostgreSQL descartável.
 - **Eficiência do CI:** novas revisões de um mesmo PR cancelam as execuções obsoletas, mantendo idêntica cobertura para a revisão mais recente. O `main` e outros PRs usam grupos independentes.
 
+## 11.5. Quadro de providências da rede
+- Consulta transversal das medidas ainda não declaradas concluídas, com unidade, INEP oficial quando disponível, descrição, responsável informado, prazo, situação vigente e data efetiva da última evolução.
+- Filtros por texto, responsável, situação, prazo vencido, falta de prazo e falta de atualização. Paginação da tabela em 25 itens; exportação PDF, XLSX ou CSV das linhas filtradas autorizadas.
+- O PostgreSQL verifica o escopo de cada escola antes de agregar o resultado, inclusive para contas do Gabinete; não permite que um usuário escolar consulte registros da outra escola. A leitura usa JSONB para não sofrer o limite de linhas da API. Se houver mais de 5.000 medidas abertas autorizadas, interrompe com erro explícito para evitar informações parcialmente exportadas.
+- Provas SQL incluem uma providência sentinela na escola B, inacessível para o servidor da escola A e visível ao Gabinete leitor, além de teste de carga da proteção contra truncamento.
+- Nenhum controle de cobrança, sanção, aprovação ou alteração de situação foi acrescentado para o Gabinete.
