@@ -258,10 +258,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             <label className="block text-sm">Prazo, se houver<DateInput className={input} min={day} value={a.due}
               onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, due: e.target.value } : x))} /></label>
           </div>
-        </div>)}
+        </div>)}</>}
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" onClick={() => { setDraftActions((a) => [...a, newAction()]); visitRequests.current = null; }}>Adicionar medida</Button>
-          {draftActions.length > 1 && <Button type="button" variant="ghost" onClick={() => { setDraftActions((a) => a.slice(0, -1)); visitRequests.current = null; }}>Remover última</Button>}
+          {!correctionBase && <>
+            <Button type="button" variant="outline" disabled={draftActions.length >= 50}
+              onClick={() => { setDraftActions((a) => a.length < 50 ? [...a, newAction()] : a); visitRequests.current = null; }}>Adicionar medida</Button>
+            {draftActions.length > 1 && <Button type="button" variant="ghost"
+              onClick={() => { setDraftActions((a) => a.slice(0, -1)); visitRequests.current = null; }}>Remover última</Button>}
           </>}
           <Button type="submit" disabled={saving || !diagnosis.trim() || Boolean(correctionBase && !correctionReason.trim())}>
             {saving ? "Registrando…" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
