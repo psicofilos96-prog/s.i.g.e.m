@@ -117,3 +117,7 @@ Só liberar a PR do estado **draft** e considerar merge após: (a) CI da última
 **Falha operacional:** preferir reverter a publicação da interface ou desabilitar temporariamente as capacidades homologadas. Não apagar tabelas, revisões ou ledgers de acompanhamento, que são append-only e formam trilha de auditoria. Não aplicar `DROP TABLE` como rotina de rollback. Qualquer reversão de estrutura deve ser avaliada como intervenção separada, com backup e aprovação explícita.
 
 **Separação de responsabilidades:** a equipe de acompanhamento registra fatos e evolução; o Gabinete consulta e decide providências pelos processos institucionais existentes. Este módulo não realiza cobranças, sanções ou homologações automáticas.
+
+### Testes de integração da página (sessões simuladas)
+
+A suíte `src/features/school-institutional-followup/page-integration.test.tsx` cobre consulta pelo Gabinete sem botões de escrita, registro de visita e plano por servidor, ausência de acesso sem sessão e prevenção de perda de diagnóstico durante troca de escola. Ela executa a página React com respostas e capacidades **simuladas**, sem acessar nem alterar Supabase. Os testes não comprovam políticas de autorização do banco, escopo real, autenticação institucional ou navegação em navegador físico; a matriz de aceite manual acima continua pendente.
