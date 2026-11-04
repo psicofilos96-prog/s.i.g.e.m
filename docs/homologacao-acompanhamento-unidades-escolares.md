@@ -45,6 +45,27 @@ ORDER BY table_name, ordinal_position;
 
 Se faltar qualquer dependência, **interromper**: não improvisar grants, políticas ou migrações na base oficial.
 
+### Verificações SQL somente leitura para o clone (adição de 04/11/2026)
+
+Foram acrescentados dois arquivos de pré/pós-verificação no repositório:
+
+- `supabase/tests/0613_followup_clone_preflight_readonly.sql` — rodar no **clone antes de aplicar 0613**. Verifica a presença e os tipos das colunas canônicas, assinaturas de `auth.uid()` e `effective_scope_capabilities(date)`, papéis e funções necessárias; também detecta objetos de 0613 já existentes e INEP duplicado por escola.
+- `supabase/tests/0613_followup_clone_postflight_readonly.sql` — rodar no **clone depois de aplicar 0613**. Confere quatro tabelas privadas com RLS, negação de DML/SELECT aos papéis cliente, RPCs abertas exclusivamente a `authenticated`, funções auxiliares privadas, `SECURITY DEFINER` e `search_path` declarado.
+
+**Ambos executam dentro de `BEGIN TRANSACTION READ ONLY`, terminam em `ROLLBACK` e não criam contas, não concedem capacidades e não alteram o banco.** Validar previamente o host, nome do banco e isolamento: uma pré-checagem estrutural jamais demonstra que o endpoint aponta para um clone.
+
+Exemplo de execução em estação técnica, após configurar e confirmar a URL do **clone integral isolado**:
+
+```bash
+psql "$SIGEM_CLONE_DATABASE_URL" -X -v ON_ERROR_STOP=1 \
+  -f supabase/tests/0613_followup_clone_preflight_readonly.sql
+# Somente no clone e pela rotina autorizada: aplicar migration 0613.
+psql "$SIGEM_CLONE_DATABASE_URL" -X -v ON_ERROR_STOP=1 \
+  -f supabase/tests/0613_followup_clone_postflight_readonly.sql
+```
+
+O GitHub Actions agora usa essas mesmas verificações na fixture mínima, o que testa o roteiro técnico, **mas não fornece o clone institucional nem uma execução no esquema real**. O pós-check não comprova os escopos das pessoas nem o comportamento da UI: a matriz de aceite abaixo permanece obrigatória. Se o pré-check reprovar, parar e analisar diferenças, sem adaptar funções ou alterar permissões em produção.
+
 ## 3. Matriz de aceitação institucional
 
 | Perfil testado | Acesso à escola própria | Acesso a outras escolas | Registra/retifica/evolui | Exporta |
