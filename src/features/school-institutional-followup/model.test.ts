@@ -33,7 +33,7 @@ describe("acompanhamento das unidades — projeções", () => {
   });
   it("indicadores distinguem conclusão, vencimento e registro ausente", () => {
     const s = schoolIndicators({
-      visits: [], actions: [action, { ...action, id: "a2", due_on: null }],
+      visits: [], visit_history: [], actions: [action, { ...action, id: "a2", due_on: null }],
       updates: [progress],
     }, "2026-11-03");
     expect(s).toEqual({ visits: 0, actions: 2, completed: 0, overdue: 1, noDueDate: 1, withoutUpdate: 1 });
