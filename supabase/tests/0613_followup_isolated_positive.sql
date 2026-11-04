@@ -151,6 +151,9 @@ BEGIN
   IF NOT denied THEN RAISE EXCEPTION 'followup-positive:cross-school-read'; END IF;
   SELECT count(*) INTO count_ FROM public.school_institutional_followup_network(day_, day_);
   IF count_ <> 1 THEN RAISE EXCEPTION 'followup-positive:writer-network-scope'; END IF;
+  SELECT count(*) INTO count_ FROM public.school_institutional_followup_network(day_, day_)
+    WHERE school_id = 'school-a' AND inep = '33000001';
+  IF count_ <> 1 THEN RAISE EXCEPTION 'followup-positive:writer-inep-missing'; END IF;
   SELECT coalesce(sum(visits),0) INTO count_ FROM public.school_institutional_followup_monthly(day_,day_);
   IF count_ <> 1 THEN RAISE EXCEPTION 'followup-positive:wrong-monthly-count'; END IF;
 
