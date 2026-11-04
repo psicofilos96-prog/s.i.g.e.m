@@ -64,10 +64,12 @@ INSERT INTO public.institutional_persons(id, display_name, actor_nature)
 VALUES
   ('11111111-1111-4111-8111-111111111111','Servidor de Prova','pessoa-natural'),
   ('22222222-2222-4222-8222-222222222222','Gabinete de Prova','pessoa-natural'),
-  ('33333333-3333-4333-8333-333333333333','Usuário sem Acesso','pessoa-natural');
+  ('33333333-3333-4333-8333-333333333333','Usuário sem Acesso','pessoa-natural'),
+  ('44444444-4444-4444-8444-444444444444','Identidade institucional simulada','orgao-institucional');
 INSERT INTO public.user_person_links(user_id,person_id)
 SELECT id,id FROM public.institutional_persons;
 INSERT INTO public.test_followup_capabilities(user_id,capability_id,scope_level,school_id)
 VALUES
  ('11111111-1111-4111-8111-111111111111','registrar-acompanhamento-institucional','escola','school-a'),
- ('22222222-2222-4222-8222-222222222222','consultar-acompanhamento-institucional','rede',NULL);
+ ('22222222-2222-4222-8222-222222222222','consultar-acompanhamento-institucional','rede',NULL),
+ ('44444444-4444-4444-8444-444444444444','registrar-acompanhamento-institucional','escola','school-a');
