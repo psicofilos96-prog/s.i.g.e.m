@@ -25,6 +25,24 @@ describe("NPERM.3 — menu × rota × capacidade", () => {
     expect(pathAllowed({ status: "signed-in", capabilities: [cap("manter-contas-institucionais")] }, "/estacao-administrativa")).toBe(false);
     expect(pathAllowed({ status: "signed-in", capabilities: [cap("registrar-politica-de-capacidades")] }, "/estacao-administrativa")).toBe(true);
   });
+  it("acompanhamento das unidades exige capacidade explícita e mantém leitura distinta da gravação", () => {
+    const uri = "/acompanhamento-unidades";
+    const outsider = { status: "signed-in" as const, capabilities: [cap("consultar-acompanhamento-da-supervisao")] };
+    const gabinete = { status: "signed-in" as const, capabilities: [cap("consultar-acompanhamento-institucional")] };
+    const servidor = { status: "signed-in" as const, capabilities: [cap("registrar-acompanhamento-institucional")] };
+    expect(pathAllowed(outsider, uri)).toBe(false);
+    expect(pathAllowed(gabinete, uri)).toBe(true);
+    expect(pathAllowed(servidor, uri)).toBe(true);
+    expect(navItemAllowed(uri, [])).toBe(false);
+    expect(pathAllowed({
+      ...gabinete, principal: { id: "p", station: "secretaria_escolar" as const,
+        scope: "school" as const, schoolId: "a" },
+    }, uri)).toBe(false);
+    expect(pathAllowed({
+      ...servidor, principal: { id: "p", station: "supervisao" as const,
+        scope: "network" as const, schoolId: null },
+    }, uri)).toBe(true);
+  });
   it("consulta e fragmento não contornam a capacidade da rota", () => {
     for (const p of ["/central-de-acessos?aba=contas", "/central-de-acessos#pessoas", "/integracoes?origem=menu"]) {
       expect(navItemAllowed(p, [])).toBe(false);
