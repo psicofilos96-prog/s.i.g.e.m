@@ -221,7 +221,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
         <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
-        <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome da escola" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
+        <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome ou código INEP" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
         <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
         {network.isSuccess && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
@@ -263,7 +263,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-background"><tr>
               <th scope="col" className="p-2">Unidade escolar</th><th scope="col" className="p-2">Visitas</th><th scope="col" className="p-2">Ações</th><th scope="col" className="p-2">Prazo vencido</th>
             </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className="border-t">
-              <td className="p-2"><button type="button" className="text-left font-medium text-primary underline-offset-2 hover:underline" onClick={() => changeSchool(r.school_id)}>{r.school_name}</button></td>
+              <td className="p-2"><button type="button" className="text-left font-medium text-primary underline-offset-2 hover:underline" onClick={() => changeSchool(r.school_id)}>{r.school_name}</button>
+                {r.inep && <p className="text-xs text-muted-foreground">INEP: {r.inep}</p>}</td>
               <td className="p-2 tabular-nums">{r.visits}</td><td className="p-2 tabular-nums">{r.actions}</td><td className="p-2 tabular-nums">{r.overdue}</td>
             </tr>)}</tbody></table>
           </div>
@@ -273,7 +274,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
     {school && <section className="space-y-5" aria-label="Detalhamento da escola">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
+        <div><h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
+          <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
         <div className="flex flex-wrap items-center gap-2">
           {detail.isSuccess && <>
             <Button size="sm" variant="outline" disabled={exporting}
