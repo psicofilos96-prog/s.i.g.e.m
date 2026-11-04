@@ -47,3 +47,6 @@
 - **Navegação entre rotas:** combinar `useFollowupRouteGuard` (bloqueio SPA com `confirmAction`, negando saída quando a confirmação falhar) e `useUnsavedFollowupWarning` (beforeunload nativo). Ambos recebem a mesma detecção de formulários em edição; não duplique listeners. O bloqueio não persiste dados, não concede acesso e deve desaparecer após salvar/cancelar.
 
 - **Testes de página:** `page-integration.test.tsx` deve exercer o fluxo React real com `QueryClientProvider` e fontes de dados simuladas, garantindo leitura do Gabinete sem gravação, inclusão de visita/plano pelo servidor e preservação de diagnóstico até descarte explícito. Não considerar mocks substitutos da RLS/RPC ou de aceitação com perfis institucionais reais.
+
+
+- **Medidas do plano ainda não registradas:** cada linha editável deve ter chave local estável e remoção seletiva; jamais vincular valores de campos ao índice mutável. O botão remove apenas o rascunho daquela linha, reinicia a assinatura de idempotência pendente e não oferece remoção de medidas que já estejam no PostgreSQL. O formulário de visita não permite acrescentar/remover linhas enquanto salva.
