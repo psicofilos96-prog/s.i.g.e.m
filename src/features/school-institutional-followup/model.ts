@@ -90,6 +90,19 @@ export function networkIndicators(rows: readonly NetworkRow[]) {
 export function normalizeText(value: string): string {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pt-BR");
 }
+/** Visões descritivas, não categorias de qualidade escolar nem ranking. */
+export type NetworkView = "todas" | "visitadas" | "sem visita" | "com prazo vencido";
+
+export function filterNetworkRows(rows: readonly NetworkRow[], term: string, view: NetworkView): NetworkRow[] {
+  const matched = searchableNetwork(rows, term);
+  return matched.filter((row) => {
+    if (view === "visitadas") return row.visits > 0;
+    if (view === "sem visita") return row.visits === 0;
+    if (view === "com prazo vencido") return row.overdue > 0;
+    return true;
+  });
+}
+
 export function searchableNetwork(rows: readonly NetworkRow[], term: string): NetworkRow[] {
   const q = normalizeText(term.trim());
   return rows.filter((r) => normalizeText(r.school_name + " " + r.school_id + " " + (r.inep ?? "")).includes(q));
