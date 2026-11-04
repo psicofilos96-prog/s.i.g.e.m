@@ -494,3 +494,52 @@ END $$;
 REVOKE ALL ON FUNCTION public.school_institutional_followup_statuses()
   FROM PUBLIC, anon, service_role;
 GRANT EXECUTE ON FUNCTION public.school_institutional_followup_statuses() TO authenticated;
+ 
+-- Quadro de providências não declaradas concluídas, estritamente no escopo de leitura.
+-- JSONB evita truncamento por limite de linhas da API; acima de 5000 recusa a consulta.
+CREATE FUNCTION public.school_institutional_followup_pending()
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $$
+DECLARE _n integer; _rows jsonb;
+BEGIN
+  IF auth.uid() IS NULL THEN RAISE EXCEPTION 'followup:session-required'; END IF;
+  SELECT count(*) INTO _n FROM (
+    SELECT a.id FROM public.school_institutional_followup_actions a
+    LEFT JOIN LATERAL (
+      SELECT u.situation FROM public.school_institutional_followup_updates u
+      WHERE u.action_id = a.id
+      ORDER BY u.occurred_on DESC, u.recorded_at DESC, u.id DESC LIMIT 1
+    ) latest ON true
+    WHERE public.school_institutional_followup_can_read(a.school_id)
+      AND latest.situation IS DISTINCT FROM 'concluída'
+    LIMIT 5001
+  ) capped;
+  IF _n > 5000 THEN RAISE EXCEPTION 'followup:network-pending-volume-exceeded'; END IF;
+  SELECT coalesce(jsonb_agg(to_jsonb(p)
+      ORDER BY p.due_on ASC NULLS LAST, p.school_name, p.action_id), '[]'::jsonb)
+    INTO _rows
+  FROM (
+    SELECT a.school_id, coalesce(n.official_name, s.id)::text AS school_name,
+      ident.value AS inep, a.id AS action_id, a.description, a.responsible_label,
+      a.due_on, coalesce(latest.situation, 'sem atualização')::text AS situation,
+      latest.occurred_on AS last_update_on, a.recorded_at AS created_at
+    FROM public.school_institutional_followup_actions a
+    JOIN public.institutional_schools s ON s.id = a.school_id
+    LEFT JOIN public.institutional_school_identifiers ident
+      ON ident.school_id = s.id AND ident.identifier_kind = 'inep'
+    LEFT JOIN LATERAL (
+      SELECT v.official_name FROM public.institutional_school_record_versions v
+      WHERE v.school_id = a.school_id ORDER BY v.version_number DESC LIMIT 1
+    ) n ON true
+    LEFT JOIN LATERAL (
+      SELECT u.situation, u.occurred_on FROM public.school_institutional_followup_updates u
+      WHERE u.action_id = a.id
+      ORDER BY u.occurred_on DESC, u.recorded_at DESC, u.id DESC LIMIT 1
+    ) latest ON true
+    WHERE public.school_institutional_followup_can_read(a.school_id)
+      AND latest.situation IS DISTINCT FROM 'concluída'
+  ) p;
+  RETURN jsonb_build_object('pending', _rows);
+END $$;
+REVOKE ALL ON FUNCTION public.school_institutional_followup_pending()
+  FROM PUBLIC, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.school_institutional_followup_pending() TO authenticated;
