@@ -102,6 +102,28 @@ describe("ficha de acompanhamento por unidade", () => {
     expect(joined).not.toContain("Não incluir");
     expect(joined).not.toContain("Outra visita");
   });
+  it("exporta o vínculo da evolução à visita de retorno, sem misturar medidas de outras visitas", () => {
+    const returnVisit: SchoolSnapshot["visits"][number] = {
+      ...snapshot.visits[0]!, id: "return-v1", logical_id: "return-logical",
+      version: 1, visit_date: "2026-11-03", supersedes_id: null,
+      diagnosis: "Visita de retorno", correction_reason: null,
+    };
+    const expanded: SchoolSnapshot = {
+      ...snapshot, visits: [...snapshot.visits, returnVisit],
+      updates: [{ ...snapshot.updates[0]!, visit_logical_id: "return-logical" }],
+    };
+    const school = schoolFollowupReport(expanded, "s1");
+    const visit = visitFollowupReport(expanded, "s1", "visit-v2");
+    const d = (report: typeof visit) => report.columns.findIndex((c) => c.id === "detail");
+    const t = (report: typeof visit) => report.columns.findIndex((c) => c.id === "event_type");
+    const event = (report: typeof visit) => report.rows.find((r) => r[t(report)] === "Evolução de medida");
+    expect(String(event(school)?.[d(school)])).toContain("Visita associada: Visita de 2026-11-03");
+    expect(String(event(visit)?.[d(visit)])).toContain("Visita associada: Visita de 2026-11-03");
+    expect(visit.rows).toHaveLength(4);
+    expect(visit.rows.map((r) => r[t(visit)])).not.toContain("Visita de retorno");
+    const without = schoolFollowupReport({ ...expanded, updates: snapshot.updates }, "s1");
+    expect(String(event(without)?.[d(without)])).not.toContain("Visita associada:");
+  });
   it("recusa pedido para visita de outra escola ou não disponível", () => {
     expect(() => visitFollowupReport(snapshot, "outra-escola", "visit-v2")).toThrow("não está disponível");
     expect(() => visitFollowupReport(snapshot, "s1", "id-desconhecido")).toThrow("não está disponível");

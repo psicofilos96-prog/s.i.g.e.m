@@ -168,3 +168,8 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 - O botão **Ver medida** transfere os identificadores de unidade e medida da RPC autorizada para a ficha escolar, restabelecendo a visão integral dos registros e focalizando o item correto depois do carregamento.
 - Os filtros anteriores da escola não escondem a medida selecionada. A navegação é apenas de leitura; a escrita segue exigindo permissão própria no PostgreSQL.
 - Se a medida não constar do snapshot autorizado, o sistema informa que os dados devem ser atualizados, sem navegar para outra unidade ou fabricar registro.
+## 11.7. Vínculo da evolução com visita de retorno
+- Ao atualizar uma medida, a equipe pode associar a evolução a uma visita vigente da própria unidade, ocorrida até a data informada para o fato. O vínculo é opcional, pois a equipe também pode receber atualizações sem deslocamento presencial.
+- A visita de retorno não substitui a visita original do plano: a origem permanece em `action.visit_logical_id`; o registro evolutivo guarda `update.visit_logical_id` da visita em que o fato foi observado.
+- A referência aparece no histórico da ação, na ficha da unidade e no relatório individual da visita de origem. Retificações de visitas mantêm o vínculo lógico e a data vigente é exibida; registros de outras escolas não podem ser associados.
+- Testes verificam candidatos disponíveis, exclusão de outras escolas e de visitas futuras, vínculo lógico persistido e recusas SQL para vínculo entre escolas e evolução anterior à visita.

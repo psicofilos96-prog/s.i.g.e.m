@@ -4,7 +4,7 @@ import {
 } from "@/features/reports/report-engine";
 import { civilDateOf, formatDateTime } from "@/lib/academic-date";
 import { UserFacingError } from "@/lib/observability/governed-errors";
-import { currentSituation, type NetworkPendingAction, type NetworkRow, type SchoolSnapshot } from "./model";
+import { currentSituation, type FollowupVisit, type NetworkPendingAction, type NetworkRow, type SchoolSnapshot } from "./model";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
 export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
@@ -89,7 +89,9 @@ function joinDescriptions(...parts: [string, string | null | undefined][]): stri
   return text || null;
 }
 
-function followupRows(snapshot: SchoolSnapshot): Record<string, string | number | null>[] {
+function followupRows(
+  snapshot: SchoolSnapshot, linkedVisits: readonly FollowupVisit[] = snapshot.visits,
+): Record<string, string | number | null>[] {
   const rows: Record<string, string | number | null>[] = [];
   for (const v of [...snapshot.visits, ...snapshot.visit_history]) {
     rows.push({
@@ -118,6 +120,9 @@ function followupRows(snapshot: SchoolSnapshot): Record<string, string | number 
   }
   for (const u of snapshot.updates) {
     const action = snapshot.actions.find((a) => a.id === u.action_id);
+    const linkedVisit = u.visit_logical_id
+      ? linkedVisits.find((v) => v.logical_id === u.visit_logical_id)
+      : null;
     rows.push({
       event_date: u.occurred_on, recorded_at: formatDateTime(u.created_at),
       event_type: "Evolução de medida",
@@ -126,7 +131,10 @@ function followupRows(snapshot: SchoolSnapshot): Record<string, string | number 
       responsible: action?.responsible_label ?? null,
       deadline: action?.due_on ?? null, situation: u.situation,
       author: u.author_name,
-      detail: joinDescriptions(["Resultados", u.results], ["Encaminhamentos", u.referrals]),
+      detail: joinDescriptions(["Resultados", u.results], ["Encaminhamentos", u.referrals],
+        ["Visita associada", u.visit_logical_id
+          ? linkedVisit ? `Visita de ${linkedVisit.visit_date}` : "Referência não encontrada no histórico"
+          : null]),
     });
   }
   return rows;
@@ -165,7 +173,7 @@ export function visitFollowupReport(snapshot: SchoolSnapshot, schoolId: string, 
     updates: snapshot.updates.filter((u) => actionIds.has(u.action_id)),
   };
   return runReport(FOLLOWUP_VISIT_REPORT, { params: { school: schoolId, visit: visitId },
-    sort: [{ column: "event_date", dir: "desc" }] }, followupRows(subset));
+    sort: [{ column: "event_date", dir: "desc" }] }, followupRows(subset, snapshot.visits));
 }
 
 

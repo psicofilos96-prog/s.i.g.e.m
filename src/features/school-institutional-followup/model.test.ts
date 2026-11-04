@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, filterNetworkPending, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -91,6 +91,29 @@ describe("acompanhamento das unidades — projeções", () => {
     expect(selected("não realizada")).toEqual(["c"]);
     expect(selected("todas", "33000001")).toEqual(["c", "b"]);
     expect(items[0]?.action_id).toBe("b");
+  });
+  it("oferece apenas visitas vigentes, da mesma escola e anteriores à evolução", () => {
+    const visit = (id: string, logical: string, school: string, day: string) => ({
+      id, logical_id: logical, school_id: school, visit_date: day, version: 1,
+      diagnosis: "Diagnóstico", strengths: "", weaknesses: "", summary: null,
+      correction_reason: null, supersedes_id: null, created_at: "2026-11-04T12:00:00Z",
+      author_name: "Equipe",
+    });
+    const origin = visit("v1", "origin", "s1", "2026-10-15");
+    const returnVisit = visit("v2", "return", "s1", "2026-11-02");
+    const other = visit("v3", "other", "s2", "2026-11-01");
+    const future = visit("v4", "future", "s1", "2026-11-06");
+    const snap = { visits: [future, other, origin, returnVisit], visit_history: [],
+      actions: [], updates: [] };
+    const measure = { ...action, visit_logical_id: "origin" };
+    expect(availableFollowupVisits(snap, measure, "2026-11-03").map((v) => v.id))
+      .toEqual(["v2", "v1"]);
+    expect(availableFollowupVisits(snap, measure, "2026-10-20").map((v) => v.id))
+      .toEqual(["v1"]);
+    expect(availableFollowupVisits(snap, { ...measure, visit_logical_id: "unknown" }, "2026-11-03"))
+      .toEqual([]);
+    expect(followupVisitByLogicalId(snap.visits, "return")?.id).toBe("v2");
+    expect(followupVisitByLogicalId(snap.visits, null)).toBeNull();
   });
   it("total de escolas acessíveis não é igual às visitadas", () => {
     const n = networkIndicators([

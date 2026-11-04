@@ -20,6 +20,25 @@ export type SchoolSnapshot = {
   visits: FollowupVisit[]; visit_history: FollowupVisit[];
   actions: FollowupAction[]; updates: FollowupUpdate[];
 };
+
+/** Vinculações sempre usam visitas vigentes: retificações preservam o logical_id. */
+export function followupVisitByLogicalId(
+  visits: readonly FollowupVisit[], logicalId: string | null,
+): FollowupVisit | null {
+  return logicalId ? visits.find((v) => v.logical_id === logicalId) ?? null : null;
+}
+
+/** Só oferece visitas da mesma unidade, até a data da evolução e não anteriores à origem. */
+export function availableFollowupVisits(
+  snapshot: SchoolSnapshot, action: FollowupAction | undefined, day: string,
+): FollowupVisit[] {
+  if (!action || !day) return [];
+  const origin = followupVisitByLogicalId(snapshot.visits, action.visit_logical_id);
+  if (!origin || origin.school_id !== action.school_id) return [];
+  return snapshot.visits.filter((v) =>
+    v.school_id === action.school_id && v.visit_date >= origin.visit_date && v.visit_date <= day
+  ).sort((a, b) => b.visit_date.localeCompare(a.visit_date) || a.id.localeCompare(b.id));
+}
 export type NetworkRow = {
   school_id: string; school_name: string; inep?: string | null; visits: number; actions: number;
   completed: number; overdue: number; last_visit: string | null;

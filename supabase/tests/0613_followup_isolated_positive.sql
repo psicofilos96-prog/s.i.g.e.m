@@ -2,9 +2,10 @@
 BEGIN;
 -- Escola B possui providência própria, usada para provar isolamento entre contas.
 INSERT INTO public.school_institutional_followup_visits(
-  logical_id, version, school_id, visit_date, diagnosis, author_user_id,
+  id, logical_id, version, school_id, visit_date, diagnosis, author_user_id,
   author_person_id, request_key)
-VALUES ('bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb'::uuid, 1, 'school-b',
+VALUES ('77777777-7777-4777-8777-777777777777'::uuid,
+  'bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb'::uuid, 1, 'school-b',
   (now() AT TIME ZONE 'America/Sao_Paulo')::date, 'Diagnóstico sentinela B',
   '22222222-2222-4222-8222-222222222222'::uuid,
   '22222222-2222-4222-8222-222222222222'::uuid, gen_random_uuid());
@@ -272,6 +273,41 @@ BEGIN
     IF SQLERRM = 'followup:date-after-action-update' THEN denied := true; ELSE RAISE; END IF;
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-positive:correction-after-event'; END IF;
+
+  -- A equipe identifica a visita de retorno; o PostgreSQL persiste seu vínculo lógico.
+  visit2 := public.record_school_institutional_followup_visit(
+    'school-a', day_ - 2, 'Visita de retorno', '', '', '', NULL, NULL, gen_random_uuid());
+  PERFORM public.record_school_institutional_followup_update(
+    action1, visit2, day_ - 1, 'em andamento', 'Retorno constatado', '', '', '', gen_random_uuid());
+  doc := public.school_institutional_followup_school('school-a');
+  IF NOT EXISTS (
+    SELECT 1 FROM jsonb_array_elements(doc->'updates') u
+    JOIN LATERAL jsonb_array_elements(doc->'visits') v ON v->>'id' = visit2::text
+    WHERE u->>'action_id' = action1::text
+      AND u->>'visit_logical_id' = v->>'logical_id'
+      AND u->>'done_text' = 'Retorno constatado'
+  ) THEN RAISE EXCEPTION 'followup-positive:return-visit-link-lost'; END IF;
+
+  -- Data da evolução não pode anteceder a visita associada, mesmo após a origem.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_update(
+      action1, visit2, day_ - 3, 'prevista', '', '', '', '', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:update-before-linked-visit' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:linked-visit-date-bypassed'; END IF;
+
+  -- O ID físico da sentinela da outra escola é conhecido; não pode vincular-se à medida A.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_update(
+      action1, '77777777-7777-4777-8777-777777777777'::uuid, day_,
+      'prevista', '', '', '', '', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:visit-mismatch' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:foreign-visit-linked'; END IF;
 
   RAISE NOTICE 'FOLLOWUP_0613_POSITIVE_AND_NEGATIVE_OK';
 END $positive$;

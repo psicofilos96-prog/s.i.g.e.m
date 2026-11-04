@@ -11,7 +11,7 @@ import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatu
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
-import { currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
+import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
@@ -60,6 +60,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [actionView, setActionView] = useState<ActionView>("todas");
   const [actionQuery, setActionQuery] = useState("");
   const [actionId, setActionId] = useState("");
+  const [updateVisitId, setUpdateVisitId] = useState("");
   const [targetActionId, setTargetActionId] = useState("");
   const [situation, setSituation] = useState(SITUATIONS[0].value as string);
   const [updateDay, setUpdateDay] = useState(today);
@@ -96,9 +97,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     && (c.schoolId === null || c.schoolId === school));
   const stats = detail.data ? schoolIndicators(detail.data, today) : null;
   const selectedAction = detail.data?.actions.find((a) => a.id === actionId);
-  const updateMinDay = detail.data?.visits.find(
-    (v) => v.logical_id === selectedAction?.visit_logical_id,
-  )?.visit_date ?? null;
+  const updateMinDay = detail.data
+    ? followupVisitByLogicalId(detail.data.visits, selectedAction?.visit_logical_id ?? null)?.visit_date ?? null
+    : null;
+  const updateVisitChoices = detail.data
+    ? availableFollowupVisits(detail.data, selectedAction, updateDay)
+    : [];
+  const updateVisitIsValid = !updateVisitId || updateVisitChoices.some((v) => v.id === updateVisitId);
   const visibleActions = detail.data
     ? filterSchoolActions(detail.data.actions, detail.data.updates, actionView, actionQuery, today)
     : [];
@@ -196,19 +201,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   async function saveUpdate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!actionId || !school || !canRecord || savingUpdate || !updateDay || updateDay > today
-      || (updateMinDay !== null && updateDay < updateMinDay)) return;
+      || !updateVisitIsValid || (updateMinDay !== null && updateDay < updateMinDay)) return;
     setSavingUpdate(true); setError(""); setNotice("");
-    const signature = JSON.stringify({ actionId, school, updateDay, situation, done, notDone, results, referrals });
+    const signature = JSON.stringify({ actionId, school, updateDay, updateVisitId,
+      situation, done, notDone, results, referrals });
     if (updateRequest.current?.signature !== signature) {
       updateRequest.current = { signature, request: crypto.randomUUID() };
     }
     try {
       await recordUpdate({
-        action: actionId, visit: null, day: updateDay, situation,
+        action: actionId, visit: updateVisitId || null, day: updateDay, situation,
         done, notDone, results, referrals, request: updateRequest.current.request,
       });
       updateRequest.current = null;
-      setActionId(""); setDone(""); setNotDone(""); setResults(""); setReferrals("");
+      setActionId(""); setUpdateVisitId("");
+      setDone(""); setNotDone(""); setResults(""); setReferrals("");
       setNotice("Evolução da ação registrada, sem apagar as atualizações anteriores.");
       await refresh();
     } catch (e) { setError(presentError(e)); }
@@ -258,7 +265,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
 
   }
   function changeSchool(id: string) {
-    setSchool(id); setActionId(""); setTargetActionId(""); setMeasureVisitId(""); setMeasureDraft(newAction());
+    setSchool(id); setActionId(""); setUpdateVisitId(""); setTargetActionId("");
+    setMeasureVisitId(""); setMeasureDraft(newAction());
     setActionView("todas"); setActionQuery("");
     setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null; measureRequest.current = null;
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
@@ -500,16 +508,40 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                       <p><strong>O que não foi feito:</strong> {u.not_done_text || "Não informado"}</p>
                       <p><strong>Resultados:</strong> {u.results || "Não informado"}</p>
                       <p><strong>Encaminhamentos:</strong> {u.referrals || "Não informado"}</p>
+                      <p><strong>Visita associada:</strong> {u.visit_logical_id
+                        ? (dateLabel(followupVisitByLogicalId(detail.data!.visits, u.visit_logical_id)?.visit_date ?? null))
+                        : "Nenhuma visita informada"}</p>
                     </li>)}
                 </ol>
               </details>}
-              {canRecord && <Button size="sm" variant="outline" onClick={() => { setActionId(a.id); updateRequest.current = null; }}>Registrar evolução</Button>}
+              {canRecord && <Button size="sm" variant="outline" onClick={() => {
+                setActionId(a.id); setUpdateVisitId(""); updateRequest.current = null;
+              }}>Registrar evolução</Button>}
             </div>;
           })}
         </div>
         {canRecord && actionId && <form className="space-y-3 rounded-xl border p-4" onSubmit={(e) => void saveUpdate(e)}>
           <h3 className="font-semibold">Nova atualização da ação</h3>
-          <label className="block text-sm">Data<DateInput className={input} required min={updateMinDay ?? undefined} max={today} value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} /></label>
+          <label className="block text-sm">Data da evolução
+            <DateInput className={input} required min={updateMinDay ?? undefined} max={today}
+              value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} />
+          </label>
+          <label className="block text-sm">Visita em que a evolução foi constatada (opcional)
+            <select className={input} value={updateVisitId}
+              onChange={(e) => { setUpdateVisitId(e.target.value); updateRequest.current = null; }}>
+              <option value="">Sem visita vinculada</option>
+              {updateVisitId && !updateVisitIsValid &&
+                <option value={updateVisitId} disabled>Visita selecionada incompatível com a data</option>}
+              {updateVisitChoices.map((v) =>
+                <option key={v.id} value={v.id}>Visita de {dateLabel(v.visit_date)} — {v.diagnosis.slice(0, 90)}</option>)}
+            </select>
+          </label>
+          {!updateVisitIsValid && <p role="alert" className="text-sm text-destructive">
+            A visita selecionada é posterior à data da evolução ou deixou de estar disponível. Escolha outra visita ou desvincule-a.
+          </p>}
+          <p className="text-xs text-muted-foreground">
+            O vínculo é opcional. Somente visitas vigentes desta escola, anteriores ou iguais à data da evolução, podem ser selecionadas.
+          </p>
           <label className="block text-sm">Situação declarada<select className={input} value={situation} onChange={(e) => setSituation(e.target.value)}>
             {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select></label>
@@ -517,8 +549,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <label className="block text-sm">O que não foi feito<textarea className={textArea} maxLength={4000} value={notDone} onChange={(e) => setNotDone(e.target.value)} /></label>
           <label className="block text-sm">Resultados<textarea className={textArea} maxLength={4000} value={results} onChange={(e) => setResults(e.target.value)} /></label>
           <label className="block text-sm">Encaminhamentos<textarea className={textArea} maxLength={4000} value={referrals} onChange={(e) => setReferrals(e.target.value)} /></label>
-          <div className="flex gap-2"><Button type="submit" disabled={savingUpdate}>{savingUpdate ? "Salvando…" : "Registrar atualização"}</Button>
-            <Button type="button" variant="outline" onClick={() => setActionId("")}>Cancelar</Button></div>
+          <div className="flex gap-2"><Button type="submit" disabled={savingUpdate || !updateVisitIsValid ||
+              Boolean(updateMinDay && updateDay < updateMinDay)}>
+              {savingUpdate ? "Salvando…" : "Registrar atualização"}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => { setActionId(""); setUpdateVisitId(""); }}>Cancelar</Button></div>
         </form>}
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Histórico de visitas</h3>
