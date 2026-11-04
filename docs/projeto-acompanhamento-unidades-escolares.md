@@ -114,6 +114,12 @@ O solicitante possui autonomia para substituir a planilha idealizada no document
 - [ ] Build, lint, testes e invariantes relevantes do SIGEM passam após implementação.
 - [ ] O sistema é a ferramenta oficial do acompanhamento, sem planilha paralela.
 
+## 11.2. Recursos operacionais acrescentados em 04/11/2026
+- **Acompanhamento contínuo:** após registrar uma visita, a equipe pode acrescentar medidas ao respectivo plano, sem criar nova visita nem alterar o texto anterior. A medida recebe autoria, data de registro, prazo opcional e chave de idempotência.
+- **Identificação das escolas:** o painel apresenta o INEP, quando informado no cadastro oficial, e permite pesquisa por nome ou código INEP. O relatório consolidado inclui esse identificador sem replicar o cadastro.
+- **Ficha cronológica por unidade:** exportação em PDF, XLSX e CSV com as versões de visitas, medidas, situação vigente, prazos, autores, registros do que foi e não foi executado, resultados e encaminhamentos. Os dados vêm somente da consulta por escola já autorizada.
+- **Limite da implementação:** as medidas do MVP são descritivas e não constituem cobrança administrativa do Gabinete. Rascunhos formais, anexos de evidências privadas, categorias configuráveis, filtros de região/equipe e paginação do histórico ainda dependem de implementação e/ou decisão institucional.
+
 ## 11.1. Reforços de integridade implementados em PR #7
 - As visitas e os respectivos planos são gravados no mesmo ato transacional, com assinatura SHA-256 do conteúdo completo, evitando repetição de chave com ações distintas.
 - Retificação de visita: somente o autor original com competência de escrita; nova versão com justificativa; anteriores consultáveis sem apagamento de ações e atualizações já vinculadas.
