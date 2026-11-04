@@ -25,7 +25,7 @@ DECLARE
   gabinete constant uuid := '22222222-2222-4222-8222-222222222222';
   stranger constant uuid := '33333333-3333-4333-8333-333333333333';
   day_ date := (now() AT TIME ZONE 'America/Sao_Paulo')::date;
-  visit1 uuid; visit2 uuid; action1 uuid; doc jsonb;
+  visit1 uuid; visit2 uuid; visit3 uuid; origin3 uuid; action1 uuid; action3 uuid; doc jsonb;
   denied boolean; count_ integer; status_ text;
   request_ constant uuid := 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
   actions_ constant jsonb := '[{"description":"Organizar o acervo escolar","responsible":"Direção","request":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb"}]'::jsonb;
@@ -343,6 +343,66 @@ BEGIN
     IF SQLERRM = 'followup:update-before-linked-visit' THEN denied := true; ELSE RAISE; END IF;
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-positive:linked-visit-date-bypassed'; END IF;
+
+  -- A origem não pode ser movida para depois de uma visita de retorno vinculada
+  -- ainda que a evolução tenha ocorrido em data posterior à nova origem.
+  origin3 := public.record_school_institutional_followup_visit(
+    'school-a', day_ - 7, 'Origem independente de um retorno', '', '', '',
+    NULL, NULL, gen_random_uuid());
+  action3 := public.record_school_institutional_followup_action(
+    origin3, 'Acompanhar ação em visita de retorno', 'Direção',
+    NULL, gen_random_uuid());
+  PERFORM public.record_school_institutional_followup_update(
+    action3, visit2, day_ - 1, 'em andamento', 'Retorno documentado',
+    '', '', '', gen_random_uuid());
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_visit(
+      'school-a', day_ - 1, 'Origem corrigida após retorno', '', '', '',
+      origin3, 'Retificação temporal indevida', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:origin-after-linked-return'
+      THEN denied := true;
+    ELSE RAISE;
+    END IF;
+  END;
+  IF NOT denied THEN
+    RAISE EXCEPTION 'followup-positive:origin-after-linked-return-accepted'; END IF;
+
+  -- Uma visita associada também não pode retroceder para antes da origem
+  -- de qualquer medida que nela tenha sido reavaliada.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_visit(
+      'school-a', day_ - 8, 'Retorno anterior à origem', '', '', '',
+      visit2, 'Retificação temporal indevida', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:linked-return-before-origin'
+      THEN denied := true;
+    ELSE RAISE;
+    END IF;
+  END;
+  IF NOT denied THEN
+    RAISE EXCEPTION 'followup-positive:return-before-origin-accepted'; END IF;
+
+  -- A mesma regra é verificada no cadastro de evolução, inclusive para quem
+  -- tente contornar a lista de visitas válidas exibida pela interface.
+  visit3 := public.record_school_institutional_followup_visit(
+    'school-a', day_ - 8, 'Visita anterior à origem da medida', '', '', '',
+    NULL, NULL, gen_random_uuid());
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_update(
+      action3, visit3, day_ - 1, 'em andamento', '', '', '', '',
+      gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:linked-visit-before-origin'
+      THEN denied := true;
+    ELSE RAISE;
+    END IF;
+  END;
+  IF NOT denied THEN
+    RAISE EXCEPTION 'followup-positive:early-visit-accepted-as-return'; END IF;
 
   -- O ID físico da sentinela da outra escola é conhecido; não pode vincular-se à medida A.
   denied := false;
