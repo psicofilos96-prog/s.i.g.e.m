@@ -89,6 +89,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     c.capabilityId === "registrar-acompanhamento-institucional"
     && (c.schoolId === null || c.schoolId === school));
   const stats = detail.data ? schoolIndicators(detail.data, today) : null;
+  const selectedAction = detail.data?.actions.find((a) => a.id === actionId);
+  const updateMinDay = detail.data?.visits.find(
+    (v) => v.logical_id === selectedAction?.visit_logical_id,
+  )?.visit_date ?? null;
   const visibleActions = detail.data
     ? filterSchoolActions(detail.data.actions, detail.data.updates, actionView, actionQuery, today)
     : [];
@@ -161,7 +165,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   }
   async function saveUpdate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!actionId || !school || !canRecord || savingUpdate || !updateDay || updateDay > today) return;
+    if (!actionId || !school || !canRecord || savingUpdate || !updateDay || updateDay > today
+      || (updateMinDay !== null && updateDay < updateMinDay)) return;
     setSavingUpdate(true); setError(""); setNotice("");
     const signature = JSON.stringify({ actionId, school, updateDay, situation, done, notDone, results, referrals });
     if (updateRequest.current?.signature !== signature) {
@@ -467,7 +472,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </div>
         {canRecord && actionId && <form className="space-y-3 rounded-xl border p-4" onSubmit={(e) => void saveUpdate(e)}>
           <h3 className="font-semibold">Nova atualização da ação</h3>
-          <label className="block text-sm">Data<DateInput className={input} required max={today} value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} /></label>
+          <label className="block text-sm">Data<DateInput className={input} required min={updateMinDay ?? undefined} max={today} value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} /></label>
           <label className="block text-sm">Situação declarada<select className={input} value={situation} onChange={(e) => setSituation(e.target.value)}>
             {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select></label>
