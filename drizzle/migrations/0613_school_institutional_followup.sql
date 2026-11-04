@@ -167,6 +167,15 @@ BEGIN
       WHERE a.visit_logical_id = _base_row.logical_id AND a.school_id = _school
         AND u.occurred_on < _day
     ) THEN RAISE EXCEPTION 'followup:date-after-action-update'; END IF;
+    -- Uma visita de retorno também pode estar associada à evolução de medida
+    -- iniciada em OUTRA visita. Sua retificação não pode tornar a evolução
+    -- anterior à data da visita associada.
+    IF EXISTS (
+      SELECT 1 FROM public.school_institutional_followup_updates u
+      JOIN public.school_institutional_followup_actions a ON a.id = u.action_id
+      WHERE u.visit_logical_id = _base_row.logical_id
+        AND a.school_id = _school AND u.occurred_on < _day
+    ) THEN RAISE EXCEPTION 'followup:date-after-linked-update'; END IF;
   END IF;
   INSERT INTO public.school_institutional_followup_visits (
     logical_id, version, supersedes_id, school_id, visit_date, diagnosis,
