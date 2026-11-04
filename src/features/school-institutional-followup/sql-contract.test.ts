@@ -66,6 +66,14 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("followup:date-after-action-update");
     expect(sql).toContain("WHERE fv.logical_id = a.visit_logical_id");
   });
+  it("quadro de providências filtra escopo e recusa consulta incompleta", () => {
+    expect(sql).toContain("CREATE FUNCTION public.school_institutional_followup_pending()");
+    expect(sql).toContain("public.school_institutional_followup_can_read(a.school_id)");
+    expect(sql).toContain("followup:network-pending-volume-exceeded");
+    expect(sql).toContain("jsonb_build_object('pending', _rows)");
+    expect(sql).toContain("latest.situation IS DISTINCT FROM 'concluída'");
+    expect(sql).toContain("REVOKE ALL ON FUNCTION public.school_institutional_followup_pending()");
+  });
   it("separa agregações mensais e situação vigente por autorização escolar", () => {
     expect(sql).toContain("CREATE FUNCTION public.school_institutional_followup_monthly(");
     expect(sql).toContain("CREATE FUNCTION public.school_institutional_followup_statuses()");
