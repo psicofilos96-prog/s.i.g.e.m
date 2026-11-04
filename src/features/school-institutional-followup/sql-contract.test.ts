@@ -37,6 +37,7 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("CREATE FUNCTION public.record_school_institutional_followup_bundle(");
     expect(sql).toContain("pg_catalog.jsonb_array_length(");
     expect(sql).toContain("followup:too-many-actions");
+    expect(sql).toContain("followup:action-description-required");
     expect(sql).toContain("ON CONFLICT (request_key) DO NOTHING");
     expect(sql).toContain("REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle");
   });
