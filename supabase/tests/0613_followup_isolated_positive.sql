@@ -177,4 +177,32 @@ BEGIN
 END $positive$;
 
 RESET ROLE;
+
+-- O limite não pode ocultar visitas sem aviso e produzir uma leitura aparentemente integral.
+INSERT INTO public.school_institutional_followup_visits(
+  logical_id, version, school_id, visit_date, diagnosis, author_user_id,
+  author_person_id, request_key)
+SELECT gen_random_uuid(), 1, 'school-a', CURRENT_DATE,
+  'Registro sintético para ensaio de limite',
+  '11111111-1111-4111-8111-111111111111'::uuid,
+  '11111111-1111-4111-8111-111111111111'::uuid,
+  gen_random_uuid()
+FROM generate_series(1,1001);
+
+SET ROLE authenticated;
+DO $volume$
+DECLARE denied boolean := false;
+BEGIN
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', '11111111-1111-4111-8111-111111111111', 'role', 'authenticated')::text, true);
+  BEGIN
+    PERFORM public.school_institutional_followup_school('school-a');
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:history-volume-exceeded' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:silent-history-truncation'; END IF;
+  RAISE NOTICE 'FOLLOWUP_0613_VOLUME_FAIL_CLOSED_OK';
+END $volume$;
+
+RESET ROLE;
 ROLLBACK;
