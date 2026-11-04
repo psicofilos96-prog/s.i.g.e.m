@@ -1,5 +1,5 @@
 # PRD — Acompanhamento das Unidades Escolares (SIGEM)
-**Status:** proposta funcional inicial, para validação institucional.  
+**Status:** primeira versão funcional implementada em PR #7 (rascunho), com testes automatizados e banco efêmero; implantação institucional e validação com contas reais pendentes.  
 **Origem:** seção 4, “Planilha de acompanhamento das unidades escolares”, e seção 5, “Considerações finais”, de documento apresentado pelo solicitante em 03/11/2026.  
 **Princípio:** apoiar o acompanhamento sistemático da Rede Municipal de Ensino sem transformar o registro da equipe em procedimento de fiscalização formal.
 
@@ -113,6 +113,13 @@ O solicitante possui autonomia para substituir a planilha idealizada no document
 - [ ] Correções são justificadas e preservam histórico.
 - [ ] Build, lint, testes e invariantes relevantes do SIGEM passam após implementação.
 - [ ] O sistema é a ferramenta oficial do acompanhamento, sem planilha paralela.
+
+## 11.1. Reforços de integridade implementados em PR #7
+- As visitas e os respectivos planos são gravados no mesmo ato transacional, com assinatura SHA-256 do conteúdo completo, evitando repetição de chave com ações distintas.
+- Retificação de visita: somente o autor original com competência de escrita; nova versão com justificativa; anteriores consultáveis sem apagamento de ações e atualizações já vinculadas.
+- Consulta de históricos: se ultrapassar o limite interno do MVP, a leitura é recusada explicitamente, nunca apresentada como um histórico completo falso. Paginação futura deverá eliminar esse limite sem perda de registros.
+- Testes SQL reproduzíveis em PostgreSQL 17 descartável: equipes autorizadas, Gabinete leitor, pessoa sem acesso, idempotência, rollback, histórico de retificação e proteção contra truncamento.
+- O teste com fixture isolada não substitui a homologação no esquema integral do SIGEM nem as decisões institucionais sobre quem recebe capacidades.
 
 ## 12. Pendências para homologação
 - Quem é o setor dono do instrumento e quem autoriza as contas da equipe e do Gabinete?
