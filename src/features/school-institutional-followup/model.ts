@@ -24,6 +24,31 @@ export type NetworkRow = {
   school_id: string; school_name: string; inep?: string | null; visits: number; actions: number;
   completed: number; overdue: number; last_visit: string | null;
 };
+/** Apenas medidas não declaradas concluídas, vindas do leitor de escopo do banco. */
+export type NetworkPendingAction = {
+  action_id: string; school_id: string; school_name: string; inep: string | null;
+  description: string; responsible_label: string | null; due_on: string | null;
+  situation: string; last_update_on: string | null; created_at: string;
+};
+export type PendingView = "todas" | "vencidas" | "sem prazo" | "sem atualização"
+  | "em andamento" | "prevista" | "não realizada" | "suspensa";
+export function filterNetworkPending(
+  rows: readonly NetworkPendingAction[], view: PendingView, search: string, today: string,
+): NetworkPendingAction[] {
+  const term = normalizeText(search.trim());
+  return rows.filter((row) => {
+    if (view === "vencidas" && (!row.due_on || row.due_on >= today)) return false;
+    if (view === "sem prazo" && row.due_on !== null) return false;
+    if (!["todas", "vencidas", "sem prazo"].includes(view) && row.situation !== view) return false;
+    if (term && !normalizeText([
+      row.school_name, row.inep ?? "", row.description, row.responsible_label ?? "",
+      row.situation, row.due_on ?? "",
+    ].join(" ")).includes(term)) return false;
+    return true;
+  }).sort((a, b) => (a.due_on ?? "9999-12-31").localeCompare(b.due_on ?? "9999-12-31")
+    || a.school_name.localeCompare(b.school_name, "pt-BR") || a.action_id.localeCompare(b.action_id));
+}
+
 /** Sem atualização registrada não se conclui que houve omissão: é dado ainda não informado. */
 export const NO_UPDATE = "sem atualização";
 export const SITUATIONS = [
