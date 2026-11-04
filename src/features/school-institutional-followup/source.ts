@@ -21,6 +21,13 @@ async function call(fn: string, args: Record<string, unknown>): Promise<unknown>
     if (error.message.includes("followup:date-after-plan-deadline")) {
       throw new UserFacingError("A nova data da visita não pode ser posterior ao prazo de uma medida vinculada.");
     }
+    if (error.message.includes("followup:date-after-action-update")) {
+      throw new UserFacingError("A nova data da visita não pode ser posterior a uma evolução já registrada para seu plano.");
+    }
+    if (error.message.includes("followup:update-before-origin-visit")
+      || error.message.includes("followup:update-before-linked-visit")) {
+      throw new UserFacingError("A data da evolução não pode anteceder a visita a que a medida está vinculada.");
+    }
     if (error.message.includes("followup:request-conflict")) {
       throw new UserFacingError("O registro enviado não corresponde à tentativa anterior. Atualize os dados antes de repetir.");
     }
