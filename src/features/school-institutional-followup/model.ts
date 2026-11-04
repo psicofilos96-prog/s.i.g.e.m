@@ -21,7 +21,7 @@ export type SchoolSnapshot = {
   actions: FollowupAction[]; updates: FollowupUpdate[];
 };
 export type NetworkRow = {
-  school_id: string; school_name: string; visits: number; actions: number;
+  school_id: string; school_name: string; inep?: string | null; visits: number; actions: number;
   completed: number; overdue: number; last_visit: string | null;
 };
 /** Sem atualização registrada não se conclui que houve omissão: é dado ainda não informado. */
@@ -66,5 +66,5 @@ export function normalizeText(value: string): string {
 }
 export function searchableNetwork(rows: readonly NetworkRow[], term: string): NetworkRow[] {
   const q = normalizeText(term.trim());
-  return rows.filter((r) => normalizeText(r.school_name + " " + r.school_id).includes(q));
+  return rows.filter((r) => normalizeText(r.school_name + " " + r.school_id + " " + (r.inep ?? "")).includes(q));
 }
