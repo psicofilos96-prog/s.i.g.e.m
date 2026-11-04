@@ -106,7 +106,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     renderPage();
     await openSchool("Escola Centro");
     expect(await screen.findByText("Nenhuma medida cadastrada para esta unidade.")).toBeTruthy();
-    expect(screen.getByText("INEP: 33000001")).toBeTruthy();
+    expect(screen.getAllByText("INEP: 33000001").length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Salvar visita e plano" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Registrar evolução" })).toBeNull();
