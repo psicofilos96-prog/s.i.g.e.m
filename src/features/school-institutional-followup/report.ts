@@ -4,7 +4,7 @@ import {
 } from "@/features/reports/report-engine";
 import { civilDateOf, formatDateTime } from "@/lib/academic-date";
 import { UserFacingError } from "@/lib/observability/governed-errors";
-import { currentSituation, type NetworkRow, type SchoolSnapshot } from "./model";
+import { currentSituation, type NetworkPendingAction, type NetworkRow, type SchoolSnapshot } from "./model";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
 export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
@@ -217,6 +217,55 @@ export async function exportFollowupVisit(
   const safeSchool = schoolId.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 70);
   const safeVisit = visitId.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 40);
   const base = `relatorio-visita-${safeSchool}-${visit.visit_date}-${safeVisit}`;
+  if (format === "csv") {
+    downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
+  } else if (format === "xlsx") {
+    const bytes = await toXlsx(result, branding, meta);
+    downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  } else {
+    const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    downloadBlob(base + ".pdf", pdf);
+  }
+}
+/** Quadro do Gabinete: linhas previamente autorizadas, sem dados de outras unidades. */
+export const FOLLOWUP_PENDING_REPORT: ReportDefinition = {
+  id: "acompanhamento-institucional-providencias", version: 1,
+  title: "Quadro de providências — Acompanhamento institucional",
+  description: "Medidas ainda não declaradas concluídas, sem atribuir qualidade às escolas.",
+  source: "school_institutional_followup_pending",
+  params: [],
+  columns: [
+    { id: "school_name", label: "Unidade escolar", kind: "text" },
+    { id: "inep", label: "INEP", kind: "text" },
+    { id: "description", label: "Medida proposta", kind: "text" },
+    { id: "responsible_label", label: "Responsável declarado", kind: "text" },
+    { id: "due_on", label: "Prazo declarado", kind: "date" },
+    { id: "situation", label: "Situação declarada", kind: "text" },
+    { id: "last_update_on", label: "Última evolução efetiva", kind: "date" },
+  ],
+  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
+};
+export function networkPendingReport(rows: readonly NetworkPendingAction[]): ReportResult {
+  return runReport(FOLLOWUP_PENDING_REPORT, { params: {} }, rows.map((r) => ({
+    school_name: r.school_name, inep: r.inep, description: r.description,
+    responsible_label: r.responsible_label, due_on: r.due_on,
+    situation: r.situation, last_update_on: r.last_update_on,
+  })));
+}
+export async function exportNetworkPending(
+  rows: readonly NetworkPendingAction[], format: "csv" | "xlsx" | "pdf",
+): Promise<void> {
+  const result = networkPendingReport(rows);
+  if (result.mode !== "sync") throw new Error("O quadro excedeu o limite de exportação.");
+  const branding = {
+    headerLines: ["Secretaria Municipal de Educação"], title: FOLLOWUP_PENDING_REPORT.title,
+  };
+  const meta = [
+    "Medidas ainda não declaradas concluídas; apenas unidades do escopo autorizado.",
+    "Sem atualização não significa não realizada; prazos são os informados pela equipe.",
+    `Medidas no filtro: ${rows.length}. Situações declaradas não equivalem à homologação do Gabinete.`,
+  ];
+  const base = "quadro-providencias-institucionais";
   if (format === "csv") {
     downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
   } else if (format === "xlsx") {
