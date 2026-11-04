@@ -32,6 +32,13 @@ async function call(fn: string, args: Record<string, unknown>): Promise<unknown>
     if (error.message.includes("followup:date-after-linked-update")) {
       throw new UserFacingError("Esta visita está vinculada à evolução de uma medida. Sua data não pode ficar depois da data dessa evolução.");
     }
+    if (error.message.includes("followup:origin-after-linked-return")) {
+      throw new UserFacingError("A data desta visita não pode ficar depois de uma visita de retorno já associada à evolução do seu plano.");
+    }
+    if (error.message.includes("followup:linked-return-before-origin")
+      || error.message.includes("followup:linked-visit-before-origin")) {
+      throw new UserFacingError("A visita de retorno não pode anteceder a visita que originou a medida.");
+    }
     if (error.message.includes("followup:update-before-origin-visit")
       || error.message.includes("followup:update-before-linked-visit")) {
       throw new UserFacingError("A data da evolução não pode anteceder a visita a que a medida está vinculada.");
