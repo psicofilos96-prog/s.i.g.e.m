@@ -165,11 +165,12 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setDraftActions([newAction()]);
     visitRequests.current = null;
     setError(""); setNotice("Preencha a justificativa e confira os dados da visita original.");
+    document.getElementById("followup-visit-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
   function changeSchool(id: string) {
     setSchool(id); setActionId(""); setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null;
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
-    setCorrectionBase(null); setCorrectionReason("");
+    setDay(today); setCorrectionBase(null); setCorrectionReason("");
   }
   return <div className="space-y-6">
     <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
@@ -245,7 +246,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </div>}
       {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
-      {canRecord && <form className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
+      {canRecord && <form id="followup-visit-form" className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
         <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
         {correctionBase && <p className="text-sm text-muted-foreground">
           Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
@@ -284,7 +285,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </Button>
           {correctionBase && <Button type="button" variant="outline" onClick={() => {
             setCorrectionBase(null); setCorrectionReason(""); setDiagnosis(""); setStrengths("");
-            setWeaknesses(""); setSummary(""); setDraftActions([newAction()]); visitRequests.current = null;
+            setWeaknesses(""); setSummary(""); setDraftActions([newAction()]); setDay(today); visitRequests.current = null;
           }}>Cancelar retificação</Button>}
         </div>
         <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
