@@ -322,13 +322,13 @@ REVOKE ALL ON FUNCTION public.school_institutional_followup_school(text) FROM PU
 GRANT EXECUTE ON FUNCTION public.school_institutional_followup_school(text) TO authenticated;
 
 CREATE FUNCTION public.school_institutional_followup_network(_from date, _to date)
-RETURNS TABLE(school_id text, school_name text, visits integer, actions integer,
+RETURNS TABLE(school_id text, school_name text, inep text, visits integer, actions integer,
   completed integer, overdue integer, last_visit date)
 LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $$
 BEGIN
   IF auth.uid() IS NULL THEN RAISE EXCEPTION 'followup:session-required'; END IF;
   IF _from IS NULL OR _to IS NULL OR _from > _to THEN RAISE EXCEPTION 'followup:period-invalid'; END IF;
-  RETURN QUERY SELECT s.id, coalesce(n.official_name, s.id),
+  RETURN QUERY SELECT s.id, coalesce(n.official_name, s.id), ident.value,
     (SELECT count(*)::integer FROM public.school_institutional_followup_visits v
       WHERE v.school_id = s.id AND v.visit_date BETWEEN _from AND _to
       AND NOT EXISTS (SELECT 1 FROM public.school_institutional_followup_visits newer WHERE newer.supersedes_id = v.id)),
@@ -345,6 +345,8 @@ BEGIN
       WHERE v.school_id = s.id AND NOT EXISTS
         (SELECT 1 FROM public.school_institutional_followup_visits newer WHERE newer.supersedes_id = v.id))
   FROM public.institutional_schools s
+  LEFT JOIN public.institutional_school_identifiers ident
+    ON ident.school_id = s.id AND ident.identifier_kind = 'inep'
   LEFT JOIN LATERAL (SELECT v.official_name FROM public.institutional_school_record_versions v
     WHERE v.school_id = s.id ORDER BY v.version_number DESC LIMIT 1) n ON true
   WHERE public.school_institutional_followup_can_read(s.id)
