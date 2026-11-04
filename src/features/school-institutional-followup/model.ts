@@ -70,6 +70,27 @@ export function filterNetworkPending(
     || a.school_name.localeCompare(b.school_name, "pt-BR") || a.action_id.localeCompare(b.action_id));
 }
 
+/** Validação de plano no navegador, espelhada pelo escritor SQL.
+ * Uma linha totalmente vazia é opcional; uma parcialmente preenchida não pode sumir.
+ */
+export type FollowupActionDraft = { description: string; responsible: string; due: string };
+export function validateFollowupActionDrafts(
+  actions: readonly FollowupActionDraft[], visitDate: string,
+): string | null {
+  for (const action of actions) {
+    if (!action.description.trim()) {
+      if (action.responsible.trim() || action.due) {
+        return "Uma medida possui responsável ou prazo, mas está sem descrição. Descreva o que precisa ser feito ou limpe essa medida.";
+      }
+      continue;
+    }
+    if (action.due && action.due < visitDate) {
+      return "O prazo da medida não pode ser anterior à data da visita.";
+    }
+  }
+  return null;
+}
+
 /** Sem atualização registrada não se conclui que houve omissão: é dado ainda não informado. */
 export const NO_UPDATE = "sem atualização";
 export const SITUATIONS = [
