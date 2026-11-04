@@ -34,7 +34,9 @@ BEGIN
   IF has_function_privilege('anon',
       'public.school_institutional_followup_school(text)', 'EXECUTE')
     OR has_function_privilege('anon',
-      'public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb)', 'EXECUTE')
+      'public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb,text,text)', 'EXECUTE')
+    OR has_function_privilege('anon',
+      'public.record_school_institutional_followup_visit(text,date,text,text,text,text,uuid,text,uuid,text,text)', 'EXECUTE')
     OR has_function_privilege('authenticated',
       'public.school_institutional_followup_grant(text,text)', 'EXECUTE')
     THEN RAISE EXCEPTION 'followup-test:function-grants-leak'; END IF;
