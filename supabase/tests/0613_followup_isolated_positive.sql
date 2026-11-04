@@ -313,6 +313,27 @@ BEGIN
       AND u->>'done_text' = 'Retorno constatado'
   ) THEN RAISE EXCEPTION 'followup-positive:return-visit-link-lost'; END IF;
 
+  -- A retificação da visita de retorno não pode deslocá-la para DEPOIS da
+  -- evolução que ocorreu nela: o plano nasceu em outra visita, e ambas importam.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_visit(
+      'school-a', day_, 'Retorno com data incoerente', '', '', '',
+      visit2, 'Correção de data da visita de retorno', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:date-after-linked-update'
+      THEN denied := true;
+    ELSE RAISE;
+    END IF;
+  END;
+  IF NOT denied THEN
+    RAISE EXCEPTION 'followup-positive:linked-return-correction-after-event'; END IF;
+  doc := public.school_institutional_followup_school('school-a');
+  IF NOT EXISTS (
+    SELECT 1 FROM jsonb_array_elements(doc->'visits') v
+    WHERE v->>'id' = visit2::text AND (v->>'visit_date')::date = day_ - 2
+  ) THEN RAISE EXCEPTION 'followup-positive:rejected-return-correction-changed-visit'; END IF;
+
   -- Data da evolução não pode anteceder a visita associada, mesmo após a origem.
   denied := false;
   BEGIN
