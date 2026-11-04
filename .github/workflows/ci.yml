@@ -26,6 +26,8 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run check:migrations
+      # Falhar cedo se um novo guia não foi incorporado ao índice técnico.
+      - run: node scripts/docs-index.mjs --check
       - run: bun run typecheck
       # Large jsdom route scenarios must not compete across test files.
       - run: bun run test -- --no-file-parallelism
