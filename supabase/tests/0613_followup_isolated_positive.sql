@@ -96,6 +96,32 @@ BEGIN
   IF jsonb_array_length(doc->'updates') <> 2
     THEN RAISE EXCEPTION 'followup-positive:invalid-situation-persisted'; END IF;
 
+  -- O autor corrige uma visita por nova versão; diagnóstico e trilha anteriores sobrevivem.
+  visit2 := public.record_school_institutional_followup_visit(
+    'school-a', day_, 'Diagnóstico retificado', 'Equipe engajada',
+    'Acervo desorganizado', 'Reorganizar a biblioteca',
+    visit1, 'Correção de descrição no diagnóstico', '99999999-9999-4999-8999-999999999999'::uuid);
+  doc := public.school_institutional_followup_school('school-a');
+  IF jsonb_array_length(doc->'visits') <> 1
+    OR jsonb_array_length(doc->'visit_history') <> 1
+    OR (doc->'visits'->0->>'id')::uuid IS DISTINCT FROM visit2
+    OR (doc->'visits'->0->>'can_correct')::boolean IS NOT TRUE
+    OR (doc->'visit_history'->0->>'id')::uuid IS DISTINCT FROM visit1
+    OR jsonb_array_length(doc->'actions') <> 1
+    OR jsonb_array_length(doc->'updates') <> 2
+    THEN RAISE EXCEPTION 'followup-positive:correction-history-invalid'; END IF;
+
+  -- Versão substituída não pode ser corrigida novamente.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_visit(
+      'school-a', day_, 'Segunda correção inválida', '', '', '',
+      visit1, 'Correção de base antiga', gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:base-superseded' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:stale-correction-accepted'; END IF;
+
   -- Escola fora do escopo de escrita e leitura do servidor permanece isolada.
   denied := false;
   BEGIN
