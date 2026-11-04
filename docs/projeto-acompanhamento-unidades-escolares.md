@@ -245,3 +245,10 @@ Complemento de segurança: durante uma gravação ativa de visita, medida ou evo
 Além dos testes de componentes e dos testes SQL em PostgreSQL descartável, a página inteira passa a ter cenários de integração React para ausência de sessão, Gabinete com consulta sem botão de gravação, servidor com autorização de registro e fluxo de visita/plano, e navegação protegida quando o diagnóstico ainda não foi salvo. A gravação de visita e plano verifica um único envio atômico ao `recordVisitBundle`, com idempotência e vínculo correto da escola; o conteúdo só é enviado quando o servidor escolhe salvar.
 
 Esses testes usam **mocks de dados e capacidades** e não são prova de concessão institucional, de autorização real em RLS/RPC, de desempenho em navegador ou de aceitação dos usuários. A migração 0613 continua dependente da homologação no clone integral isolado e dos perfis reais autorizados.
+
+
+## 11.16. Edição de medidas no plano antes de salvar — 04/11/2026
+
+O formulário de visita permite retirar **qualquer medida proposta**, inclusive a intermediária, sem apagar o conteúdo das demais. As linhas possuem identidade local estável (somente React) e continuam ordenadas conforme a digitação; cada botão informa o número da medida. O último campo vazio permanece para permitir criar um plano novo. A remoção é exclusivamente **anterior ao registro**: após a gravação institucional, medidas e evoluções permanecem no histórico e nunca são apagadas por essa interface.
+
+O sistema não permite remover uma medida ou acrescentar outra enquanto a visita estiver sendo enviada. Os testes integrados verificam exclusão da segunda entre três medidas e persistência das descrições/responsáveis da primeira e terceira no envio final.
