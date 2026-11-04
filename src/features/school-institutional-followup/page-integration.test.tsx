@@ -153,6 +153,45 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.recordAction).not.toHaveBeenCalled();
   });
 
+  it("remove a medida intermediária sem apagar descrição ou responsável das demais", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Acompanhamento da infraestrutura" } });
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+
+    const descriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    const responsibles = fields.getAllByRole("textbox", { name: "Responsável declarado" });
+    expect(descriptions).toHaveLength(3);
+    fireEvent.change(descriptions[0]!, { target: { value: "Providência A" } });
+    fireEvent.change(descriptions[1]!, { target: { value: "Providência B" } });
+    fireEvent.change(descriptions[2]!, { target: { value: "Providência C" } });
+    fireEvent.change(responsibles[0]!, { target: { value: "Direção" } });
+    fireEvent.change(responsibles[1]!, { target: { value: "Equipe intermediária" } });
+    fireEvent.change(responsibles[2]!, { target: { value: "Coordenação" } });
+
+    fireEvent.click(fields.getByRole("button", { name: "Remover medida 2" }));
+    const remainingDescriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    const remainingResponsibles = fields.getAllByRole("textbox", { name: "Responsável declarado" });
+    expect(remainingDescriptions).toHaveLength(2);
+    expect(remainingDescriptions[0]).toHaveValue("Providência A");
+    expect(remainingDescriptions[1]).toHaveValue("Providência C");
+    expect(remainingResponsibles[0]).toHaveValue("Direção");
+    expect(remainingResponsibles[1]).toHaveValue("Coordenação");
+
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    const sent = mocks.recordVisitBundle.mock.calls[0]?.[0] as { actions: { description: string; responsible: string }[] };
+    expect(sent.actions.map((item) => [item.description, item.responsible])).toEqual([
+      ["Providência A", "Direção"], ["Providência C", "Coordenação"],
+    ]);
+  });
+
   it("impede troca de escola com diagnóstico pendente até descarte explícito", async () => {
     setSession(true);
     renderPage();
