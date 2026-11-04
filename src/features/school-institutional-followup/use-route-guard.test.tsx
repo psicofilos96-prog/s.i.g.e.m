@@ -8,10 +8,15 @@ vi.mock("@tanstack/react-router", () => ({ useBlocker: vi.fn() }));
 vi.mock("@/components/sigem/confirm-action", () => ({ confirmAction: vi.fn() }));
 
 function blockerFromLastRender() {
-  const config = vi.mocked(useBlocker).mock.lastCall?.[0];
+  // useBlocker possui overload legado e overload com opções: no teste, capturamos
+  // explicitamente a configuração enviada ao overload utilizado pela página.
+  const config = vi.mocked(useBlocker).mock.lastCall?.[0] as unknown as {
+    enableBeforeUnload?: boolean;
+    shouldBlockFn: () => boolean | Promise<boolean>;
+  } | undefined;
   expect(config).toBeDefined();
   expect(config?.enableBeforeUnload).toBe(false);
-  return () => config!.shouldBlockFn({} as never);
+  return () => config!.shouldBlockFn();
 }
 
 describe("navegação entre telas com formulários escolares em edição", () => {
