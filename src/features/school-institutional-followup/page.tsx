@@ -9,7 +9,7 @@ import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
-import { exportFollowupNetwork } from "./report";
+import { exportFollowupNetwork, exportFollowupSchool } from "./report";
 import { currentSituation, currentUpdate, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
@@ -92,6 +92,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setExporting(true); setError("");
     try { await exportFollowupNetwork(rows, from, to, format); }
     catch (e) { setError(presentError(e)); }
+    finally { setExporting(false); }
+  }
+  async function exportSchoolReport(format: "csv" | "xlsx" | "pdf") {
+    if (!school || !detail.isSuccess || exporting) return;
+    setExporting(true); setError("");
+    try {
+      await exportFollowupSchool(detail.data, school, selected?.school_name ?? school, format);
+    } catch (e) { setError(presentError(e)); }
     finally { setExporting(false); }
   }
   async function refresh() {
@@ -266,7 +274,17 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     {school && <section className="space-y-5" aria-label="Detalhamento da escola">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
-        <Button variant="outline" onClick={() => changeSchool("")}>Fechar escola</Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {detail.isSuccess && <>
+            <Button size="sm" variant="outline" disabled={exporting}
+              onClick={() => void exportSchoolReport("pdf")}>Ficha PDF</Button>
+            <Button size="sm" variant="outline" disabled={exporting}
+              onClick={() => void exportSchoolReport("xlsx")}>Ficha Excel</Button>
+            <Button size="sm" variant="outline" disabled={exporting}
+              onClick={() => void exportSchoolReport("csv")}>Ficha CSV</Button>
+          </>}
+          <Button variant="outline" onClick={() => changeSchool("")}>Fechar escola</Button>
+        </div>
       </div>
       {detail.isPending && <p role="status">Carregando histórico…</p>}
       {detail.isError && <StatePanel tone="danger" title="Histórico indisponível"
