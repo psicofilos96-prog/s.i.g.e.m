@@ -11,6 +11,7 @@ import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatu
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
+import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
@@ -123,6 +124,15 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     summary, participants, purpose, correctionReason, actions: draftActions,
   });
   const measureDraftIsDirty = isFollowupActionDraftDirty(measureDraft);
+  // O alerta cobre a recarga/fechamento da aba; ações internas preservam o
+  // formulário pelos bloqueios já existentes em changeSchool/startCorrection.
+  const hasUnsavedFollowup = Boolean(school) && (
+    saving || savingMeasure || savingUpdate || visitDraftIsDirty
+    || visitRequests.current !== null
+    || (Boolean(measureVisitId) && (measureDraftIsDirty || measureRequest.current !== null))
+    || (Boolean(actionId) && (evolutionDraftIsDirty || updateRequest.current !== null))
+  );
+  useUnsavedFollowupWarning(hasUnsavedFollowup);
   useEffect(() => {
     if (correctionBase) document.getElementById("followup-visit-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -478,6 +488,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </div>}
       {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
+      {hasUnsavedFollowup && <p role="status" className="text-xs text-muted-foreground">
+        Há um formulário em preenchimento ou envio. Salve ou cancele antes de sair desta página;
+        uma recarga ou fechamento de aba pode exibir confirmação do navegador.
+      </p>}
       {detail.data && <SchoolOpenActionsPanel key={school} snapshot={detail.data} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
