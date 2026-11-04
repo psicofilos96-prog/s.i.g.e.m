@@ -153,6 +153,19 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     } catch (e) { setError(presentError(e)); }
     finally { setSavingUpdate(false); }
   }
+  function startCorrection(visit: NonNullable<typeof detail.data>["visits"][number]) {
+    if (!canRecord || !visit.can_correct) return;
+    setCorrectionBase(visit.id);
+    setCorrectionReason("");
+    setDay(visit.visit_date);
+    setDiagnosis(visit.diagnosis);
+    setStrengths(visit.strengths);
+    setWeaknesses(visit.weaknesses);
+    setSummary(visit.summary ?? "");
+    setDraftActions([newAction()]);
+    visitRequests.current = null;
+    setError(""); setNotice("Preencha a justificativa e confira os dados da visita original.");
+  }
   function changeSchool(id: string) {
     setSchool(id); setActionId(""); setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null;
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
@@ -326,6 +339,25 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             <p className="text-sm"><strong>Pontos fortes:</strong> {v.strengths || "Não informado"}</p>
             <p className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses || "Não informado"}</p>
             {v.summary && <p className="text-sm"><strong>Encaminhamentos:</strong> {v.summary}</p>}
+            {v.correction_reason && <p className="text-sm"><strong>Justificativa da última retificação:</strong> {v.correction_reason}</p>}
+            {v.version > 1 && <details className="rounded-md bg-muted/30 p-3 text-sm">
+              <summary className="cursor-pointer font-medium">
+                Ver {detail.data!.visit_history.filter((h) => h.logical_id === v.logical_id).length} versão(ões) anteriores
+              </summary>
+              <ol className="mt-2 space-y-3">
+                {detail.data!.visit_history.filter((h) => h.logical_id === v.logical_id)
+                  .sort((a, b) => b.version - a.version).map((h) => <li key={h.id} className="space-y-1 border-b pb-2 last:border-0">
+                    <p className="font-semibold">Versão {h.version} • {dateLabel(h.visit_date)} • {h.author_name || "Autoria registrada"}</p>
+                    <p><strong>Diagnóstico:</strong> {h.diagnosis}</p>
+                    <p><strong>Pontos fortes:</strong> {h.strengths || "Não informado"}</p>
+                    <p><strong>Fragilidades:</strong> {h.weaknesses || "Não informado"}</p>
+                    <p><strong>Encaminhamentos:</strong> {h.summary || "Não informado"}</p>
+                    {h.correction_reason && <p><strong>Motivo da correção desta versão:</strong> {h.correction_reason}</p>}
+                  </li>)}
+              </ol>
+            </details>}
+            {canRecord && v.can_correct && <Button type="button" size="sm" variant="outline"
+              onClick={() => startCorrection(v)}>Retificar esta visita</Button>}
           </article>)}
         </div>
       </>}
