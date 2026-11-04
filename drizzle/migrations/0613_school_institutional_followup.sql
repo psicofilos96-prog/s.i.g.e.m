@@ -176,6 +176,35 @@ BEGIN
       WHERE u.visit_logical_id = _base_row.logical_id
         AND a.school_id = _school AND u.occurred_on < _day
     ) THEN RAISE EXCEPTION 'followup:date-after-linked-update'; END IF;
+    -- Como ORIGEM do plano: não mover a visita para depois da visita
+    -- de retorno que já documentou a evolução de uma de suas medidas.
+    IF EXISTS (
+      SELECT 1 FROM public.school_institutional_followup_updates u
+      JOIN public.school_institutional_followup_actions a ON a.id = u.action_id
+      JOIN public.school_institutional_followup_visits v
+        ON v.logical_id = u.visit_logical_id AND v.school_id = _school
+      WHERE a.school_id = _school AND a.visit_logical_id = _base_row.logical_id
+        AND u.visit_logical_id <> _base_row.logical_id
+        AND v.visit_date < _day
+        AND NOT EXISTS (
+          SELECT 1 FROM public.school_institutional_followup_visits next
+          WHERE next.supersedes_id = v.id
+        )
+    ) THEN RAISE EXCEPTION 'followup:origin-after-linked-return'; END IF;
+    -- Como RETORNO associado: não antecipar a visita para antes da origem.
+    IF EXISTS (
+      SELECT 1 FROM public.school_institutional_followup_updates u
+      JOIN public.school_institutional_followup_actions a ON a.id = u.action_id
+      JOIN public.school_institutional_followup_visits v
+        ON v.logical_id = a.visit_logical_id AND v.school_id = _school
+      WHERE a.school_id = _school AND u.visit_logical_id = _base_row.logical_id
+        AND a.visit_logical_id <> _base_row.logical_id
+        AND v.visit_date > _day
+        AND NOT EXISTS (
+          SELECT 1 FROM public.school_institutional_followup_visits next
+          WHERE next.supersedes_id = v.id
+        )
+    ) THEN RAISE EXCEPTION 'followup:linked-return-before-origin'; END IF;
   END IF;
   INSERT INTO public.school_institutional_followup_visits (
     logical_id, version, supersedes_id, school_id, visit_date, diagnosis,
@@ -273,6 +302,8 @@ BEGIN
       (SELECT 1 FROM public.school_institutional_followup_visits s WHERE s.supersedes_id = v.id)
       THEN RAISE EXCEPTION 'followup:visit-mismatch'; END IF;
     IF _day < v.visit_date THEN RAISE EXCEPTION 'followup:update-before-linked-visit'; END IF;
+    IF v.visit_date < _origin_day
+      THEN RAISE EXCEPTION 'followup:linked-visit-before-origin'; END IF;
   END IF;
   INSERT INTO public.school_institutional_followup_updates (
     action_id, visit_logical_id, occurred_on, situation, done_text, not_done_text,
