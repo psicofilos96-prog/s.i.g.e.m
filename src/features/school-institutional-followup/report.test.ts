@@ -42,7 +42,7 @@ describe("ficha de acompanhamento por unidade", () => {
     expect(r.rows.map((x) => x[col("event_type")])).toContain("Visita vigente (v2)");
     expect(r.rows.map((x) => x[col("event_type")])).toContain("Medida proposta");
     expect(r.rows.map((x) => x[col("event_type")])).toContain("Evolução de medida");
-    expect(r.rows[0][col("event_date")]).toBe("2026-11-03");
+    expect(r.rows[0]?.[col("event_date")]).toBe("2026-11-03");
     const measure = r.rows.find((x) => x[col("event_type")] === "Medida proposta")!;
     expect(measure[col("situation")]).toBe("em andamento");
     expect(measure[col("deadline")]).toBeNull();
