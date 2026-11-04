@@ -10,9 +10,11 @@ import {
 const INITIAL_SHOWN = 5;
 
 /** Preparação da visita: somente dados da ficha escolar já autorizada no PostgreSQL. */
-export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, today, onInspect }: {
+export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, today, onInspect, onStartUpdate }: {
   snapshot: SchoolSnapshot; schoolId: string; schoolName: string; inep: string | null;
   today: string; onInspect: (actionId: string) => void;
+  /** O Gabinete não recebe esse callback: nenhuma operação de escrita é oferecida. */
+  onStartUpdate?: (actionId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -87,9 +89,14 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
               Situação: {situation}{expired ? " · Prazo vencido" : ""}
             </p>
           </div>
-          <Button size="sm" variant="outline" className="shrink-0"
-            aria-label={`Ver acompanhamento da medida: ${a.description}`}
-            onClick={() => onInspect(a.id)}>Ver acompanhamento</Button>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Button size="sm" variant="outline"
+              aria-label={`Ver acompanhamento da medida: ${a.description}`}
+              onClick={() => onInspect(a.id)}>Ver acompanhamento</Button>
+            {onStartUpdate && <Button size="sm" variant="outline"
+              aria-label={`Registrar evolução da medida: ${a.description}`}
+              onClick={() => onStartUpdate(a.id)}>Registrar evolução</Button>}
+          </div>
         </li>;
       })}
     </ul>}
@@ -100,7 +107,8 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
     </Button>}
     <p className="text-xs text-muted-foreground">
       A lista é ordenada pelo prazo declarado; medidas sem prazo vêm por último.
-      Sem atualização não significa não realizada. Ver acompanhamento abre o histórico da medida, sem alterar registros.
+      Sem atualização não significa não realizada. Ver acompanhamento abre o histórico sem alterar registros.
+      Registrar evolução apenas abre o formulário para servidores autorizados; nada é gravado automaticamente.
     </p>
   </section>;
 }
