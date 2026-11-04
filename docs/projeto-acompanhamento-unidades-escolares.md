@@ -173,3 +173,8 @@ Estas pendências não impedem projetar a arquitetura e as interfaces, mas imped
 - A visita de retorno não substitui a visita original do plano: a origem permanece em `action.visit_logical_id`; o registro evolutivo guarda `update.visit_logical_id` da visita em que o fato foi observado.
 - A referência aparece no histórico da ação, na ficha da unidade e no relatório individual da visita de origem. Retificações de visitas mantêm o vínculo lógico e a data vigente é exibida; registros de outras escolas não podem ser associados.
 - Testes verificam candidatos disponíveis, exclusão de outras escolas e de visitas futuras, vínculo lógico persistido e recusas SQL para vínculo entre escolas e evolução anterior à visita.
+## 11.8. Identificação de participantes e objetivo da visita
+- Os dois servidores podem registrar quem mais participou da visita em campo opcional, com a indicação de um objetivo específico para aquela atividade. Esses textos são **declarações**, não assinaturas ou concessões de acesso.
+- O autor responsável por gravar o fato permanece identificado automaticamente pelo usuário e pessoa natural autenticados, sem depender dos participantes digitados.
+- Objetivo e participantes são mantidos na versão original e nas retificações, com exportação na ficha da unidade e no relatório da visita. Retentativas idempotentes recusam alterações desses conteúdos sem nova chave.
+- O teste PostgreSQL assegura persistência, identificação do autor e detecção de conflito de chave. Dados pessoais de estudantes e laudos não devem ser incluídos.

@@ -75,6 +75,31 @@ describe("ficha de acompanhamento por unidade", () => {
     expect(currentVisit[idx("event_date")]).toBe("2026-11-02");
     expect(currentVisit[idx("recorded_at")]).toBe("03/11/2026 06:00");
   });
+  it("registra objetivo e participantes sem tratá-los como autoria autenticada", () => {
+    const data: SchoolSnapshot = {
+      ...snapshot,
+      visits: [{ ...snapshot.visits[0]!,
+        participants_note: "Equipe de acompanhamento; orientação pedagógica",
+        purpose_note: "Observar andamento das providências",
+      }],
+      visit_history: [{ ...snapshot.visit_history[0]!,
+        participants_note: "Acompanhante original",
+        purpose_note: "Diagnóstico inicial",
+      }],
+    };
+    const report = schoolFollowupReport(data, "s1");
+    const type = report.columns.findIndex((c) => c.id === "event_type");
+    const desc = report.columns.findIndex((c) => c.id === "description");
+    const detail = report.columns.findIndex((c) => c.id === "detail");
+    const author = report.columns.findIndex((c) => c.id === "author");
+    const current = report.rows.find((row) => row[type] === "Visita vigente (v2)")!;
+    const old = report.rows.find((row) => row[type] === "Visita substituída (v1)")!;
+    expect(String(current[desc])).toContain("Objetivo: Observar andamento das providências");
+    expect(String(current[detail])).toContain("Demais participantes informados: Equipe de acompanhamento");
+    expect(current[author]).toBe("Servidor A");
+    expect(String(old[desc])).toContain("Objetivo: Diagnóstico inicial");
+    expect(String(old[detail])).toContain("Acompanhante original");
+  });
   it("relatório de visita isola seu plano e conserva todas as retificações", () => {
     const otherVisit: SchoolSnapshot["visits"][number] = {
       ...snapshot.visits[0]!, id: "other-v1", logical_id: "other-logical",

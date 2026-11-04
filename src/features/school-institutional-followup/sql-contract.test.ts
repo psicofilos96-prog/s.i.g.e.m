@@ -40,6 +40,15 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("ON CONFLICT (request_key) DO NOTHING");
     expect(sql).toContain("REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle");
   });
+  it("preserva autoria autenticada separada de participantes e objetivo declarados", () => {
+    expect(sql).toContain("participants_note text CHECK");
+    expect(sql).toContain("purpose_note text CHECK");
+    expect(sql).toContain("old.participants_note IS NOT DISTINCT FROM");
+    expect(sql).toContain("old.purpose_note IS NOT DISTINCT FROM");
+    expect(sql).toContain("'participants', nullif(btrim(_participants),'')");
+    expect(sql).toContain("v.strengths, v.weaknesses, v.summary, v.participants_note, v.purpose_note");
+    expect(sql).toContain("author_user_id uuid NOT NULL");
+  });
   it("preserva versões antigas e recusa projeção parcial de histórico", () => {
     expect(sql).toContain("'visit_history', coalesce(");
     expect(sql).toContain("'followup:history-volume-exceeded'");

@@ -309,6 +309,30 @@ BEGIN
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-positive:foreign-visit-linked'; END IF;
 
+  -- Objetivo e participantes são dados declarados, distintos da identidade do autor.
+  visit2 := public.record_school_institutional_followup_bundle(
+    'school-a', day_, 'Visita com participantes', '', '', '', gen_random_uuid(),
+    '[]'::jsonb, 'Equipe Acompanhamento e Direção', 'Observar situação da biblioteca');
+  doc := public.school_institutional_followup_school('school-a');
+  IF NOT EXISTS (
+    SELECT 1 FROM jsonb_array_elements(doc->'visits') v
+    WHERE v->>'id' = visit2::text
+      AND v->>'participants_note' = 'Equipe Acompanhamento e Direção'
+      AND v->>'purpose_note' = 'Observar situação da biblioteca'
+      AND v->>'author_name' = 'Servidor de Prova'
+  ) THEN RAISE EXCEPTION 'followup-positive:visit-participant-or-purpose-missing'; END IF;
+
+  -- Reutilização da chave da visita com participantes diferentes nunca deve ser silenciosa.
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_visit(
+      'school-a', day_, 'Visita com participantes', '', '', '', NULL, NULL, request_,
+      'Participantes alterados', 'Objetivo alterado');
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:request-conflict' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-positive:visit-identity-payload-conflict'; END IF;
+
   RAISE NOTICE 'FOLLOWUP_0613_POSITIVE_AND_NEGATIVE_OK';
 END $positive$;
 
