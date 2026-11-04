@@ -40,6 +40,20 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("ON CONFLICT (request_key) DO NOTHING");
     expect(sql).toContain("REVOKE ALL ON FUNCTION public.record_school_institutional_followup_bundle");
   });
+  it("preserva versões antigas e recusa projeção parcial de histórico", () => {
+    expect(sql).toContain("'visit_history', coalesce(");
+    expect(sql).toContain("'followup:history-volume-exceeded'");
+    expect(sql).toContain("v.correction_reason, v.supersedes_id");
+    expect(sql).toContain("v.author_user_id = auth.uid()");
+    expect(sql).toContain("followup:date-after-plan-deadline");
+  });
+  it("a assinatura da transação também cobre a lista de medidas", () => {
+    expect(sql).toContain("CREATE TABLE public.school_institutional_followup_bundles (");
+    expect(sql).toContain("public.school_institutional_followup_bundles ENABLE ROW LEVEL SECURITY");
+    expect(sql).toContain("'actions', coalesce(_actions, '[]'::jsonb)");
+    expect(sql).toContain("_saved.payload_hash IS DISTINCT FROM _fingerprint");
+    expect(sql).toContain("followup_bundle_immutable");
+  });
   it("rejeita reutilização de chaves de idempotência com payload diferente", () => {
     expect(sql).toContain("old.diagnosis IS NOT DISTINCT FROM btrim(_diagnosis)");
     expect(sql).toContain("old.description IS NOT DISTINCT FROM btrim(_description)");
