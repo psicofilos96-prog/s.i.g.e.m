@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
-import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordUpdate, schoolFollowup } from "./source";
+import { networkFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { exportFollowupNetwork } from "./report";
 import { currentSituation, currentUpdate, networkIndicators, searchableNetwork, schoolIndicators, SITUATIONS } from "./model";
@@ -41,6 +41,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [strengths, setStrengths] = useState("");
   const [weaknesses, setWeaknesses] = useState("");
   const [summary, setSummary] = useState("");
+  const [correctionBase, setCorrectionBase] = useState<string | null>(null);
+  const [correctionReason, setCorrectionReason] = useState("");
   const [draftActions, setDraftActions] = useState<ActionDraft[]>([newAction()]);
   const [saving, setSaving] = useState(false);
   const [savingUpdate, setSavingUpdate] = useState(false);
@@ -98,24 +100,34 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   }
   async function saveVisit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!school || !canRecord || !diagnosis.trim() || !day || day > today || saving) return;
+    if (!school || !canRecord || !diagnosis.trim() || !day || day > today || saving
+      || (correctionBase !== null && !correctionReason.trim())) return;
     setSaving(true); setError(""); setNotice("");
     // Só repetir a mesma chave de operação quando o conteúdo for idêntico.
-    const signature = JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary, draftActions });
+    const signature = JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary,
+      draftActions: correctionBase === null ? draftActions : [], correctionBase, correctionReason });
     const requests = visitRequests.current?.signature === signature ? visitRequests.current
       : { signature, visit: crypto.randomUUID(), actions: draftActions.map(() => crypto.randomUUID()) };
     visitRequests.current = requests;
     try {
-      await recordVisitBundle({
-        school, day, diagnosis, strengths, weaknesses, summary, request: requests.visit,
-        actions: draftActions.map((a, index) => ({
-          description: a.description, responsible: a.responsible,
-          due: a.due || null, request: requests.actions[index] ?? crypto.randomUUID(),
-        })),
-      });
+      if (correctionBase !== null) {
+        await recordVisit({ school, day, diagnosis, strengths, weaknesses, summary,
+          base: correctionBase, reason: correctionReason, request: requests.visit });
+      } else {
+        await recordVisitBundle({
+          school, day, diagnosis, strengths, weaknesses, summary, request: requests.visit,
+          actions: draftActions.map((a, index) => ({
+            description: a.description, responsible: a.responsible,
+            due: a.due || null, request: requests.actions[index] ?? crypto.randomUUID(),
+          })),
+        });
+      }
       setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary("");
       setDraftActions([newAction()]); visitRequests.current = null;
-      setNotice("Visita e ações registradas. O histórico da escola foi preservado.");
+      setNotice(correctionBase === null
+        ? "Visita e ações registradas. O histórico da escola foi preservado."
+        : "Retificação registrada com justificativa. A versão anterior continua preservada.");
+      setCorrectionBase(null); setCorrectionReason("");
       await refresh();
     } catch (e) {
       setError(presentError(e));
@@ -144,6 +156,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   function changeSchool(id: string) {
     setSchool(id); setActionId(""); setNotice(""); setError(""); visitRequests.current = null; updateRequest.current = null;
     setDiagnosis(""); setStrengths(""); setWeaknesses(""); setSummary(""); setDraftActions([newAction()]);
+    setCorrectionBase(null); setCorrectionReason("");
   }
   return <div className="space-y-6">
     <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
@@ -220,7 +233,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
       {canRecord && <form className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
-        <h3 className="font-semibold">Registrar nova visita</h3>
+        <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
+        {correctionBase && <p className="text-sm text-muted-foreground">
+          Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
+        </p>}
         <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
         <label className="block text-sm">Diagnóstico da realidade<textarea className={textArea} required maxLength={10000} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} /></label>
         <div className="grid gap-3 md:grid-cols-2">
@@ -228,7 +244,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <label className="block text-sm">Fragilidades e necessidades<textarea className={textArea} maxLength={10000} value={weaknesses} onChange={(e) => setWeaknesses(e.target.value)} /></label>
         </div>
         <label className="block text-sm">Observações e encaminhamentos da visita<textarea className={textArea} maxLength={10000} value={summary} onChange={(e) => setSummary(e.target.value)} /></label>
-        <h4 className="font-medium">Plano de ação — medidas propostas</h4>
+        {correctionBase && <label className="block text-sm">Justificativa obrigatória da retificação
+          <textarea className={textArea} required maxLength={4000} value={correctionReason}
+            onChange={(e) => setCorrectionReason(e.target.value)} />
+        </label>}
+        {!correctionBase && <><h4 className="font-medium">Plano de ação — medidas propostas</h4>
         {draftActions.map((a, i) => <div key={i} className="space-y-2 rounded-lg bg-muted/30 p-3">
           <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
             onChange={(e) => setDraftActions((prev) => prev.map((x, j) => j === i ? { ...x, description: e.target.value } : x))} /></label>
@@ -242,7 +262,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" onClick={() => { setDraftActions((a) => [...a, newAction()]); visitRequests.current = null; }}>Adicionar medida</Button>
           {draftActions.length > 1 && <Button type="button" variant="ghost" onClick={() => { setDraftActions((a) => a.slice(0, -1)); visitRequests.current = null; }}>Remover última</Button>}
-          <Button type="submit" disabled={saving || !diagnosis.trim()}>{saving ? "Registrando…" : "Salvar visita e plano"}</Button>
+          </>}
+          <Button type="submit" disabled={saving || !diagnosis.trim() || Boolean(correctionBase && !correctionReason.trim())}>
+            {saving ? "Registrando…" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
+          </Button>
+          {correctionBase && <Button type="button" variant="outline" onClick={() => {
+            setCorrectionBase(null); setCorrectionReason(""); setDiagnosis(""); setStrengths("");
+            setWeaknesses(""); setSummary(""); setDraftActions([newAction()]); visitRequests.current = null;
+          }}>Cancelar retificação</Button>}
         </div>
         <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
       </form>}
