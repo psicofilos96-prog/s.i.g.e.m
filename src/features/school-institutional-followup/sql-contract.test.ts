@@ -74,6 +74,8 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("followup:update-before-origin-visit");
     expect(sql).toContain("followup:update-before-linked-visit");
     expect(sql).toContain("followup:date-after-action-update");
+    expect(sql).toContain("followup:date-after-linked-update");
+    expect(sql).toContain("u.visit_logical_id = _base_row.logical_id");
     expect(sql).toContain("WHERE fv.logical_id = a.visit_logical_id");
   });
   it("quadro de providências filtra escopo e recusa consulta incompleta", () => {
