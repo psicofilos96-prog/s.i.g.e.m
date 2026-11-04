@@ -224,3 +224,16 @@ Complemento aos bloqueios de troca de escola dentro do módulo: enquanto existir
 - Nenhum campo é copiado para `localStorage`, `sessionStorage`, armazenamento offline ou API externa; o alerta não representa salvamento de rascunho.
 - **Limites importantes:** o navegador pode suprimir o diálogo em certas situações, sobretudo em aparelhos móveis. Navegações internas client-side (SPA), saída forçada do aplicativo, perda de sessão e falhas do dispositivo **não** estão cobertas de maneira garantida. Persistência real e bloqueio de rotas são etapas futuras independentes.
 - Um teste jsdom valida montagem/desmontagem do listener e ativação/desativação mediante o estado de rascunho.
+
+
+## 11.14. Proteção de navegação entre telas internas — 04/11/2026
+
+O alerta nativo `beforeunload` não cobre de modo confiável as transições dentro do aplicativo. O módulo agora utiliza também o bloqueador de rotas do TanStack Router, seguindo a mesma interface de confirmação institucional já presente em Diário de Classe e Avaliação.
+
+- Com dados de visita, retificação, medida ou evolução ainda em edição, a tentativa de sair para outra rota do SIGEM solicita confirmação para **Sair e descartar**. Cancelar mantém a pessoa na tela atual com os campos preenchidos.
+- A confirmação explicita que o preenchimento ainda não registrado será perdido; não envia os dados para outra aplicação e não modifica os registros históricos.
+- Sem dados em edição, nenhuma confirmação aparece. Caso a infraestrutura de confirmação esteja indisponível, a operação falha fechada (não descarta silenciosamente).
+- A proteção de rotas internas e o alerta de recarga/fechamento são separados para evitar ouvintes duplicados de `beforeunload`.
+- Os testes incluem navegação limpa, cancelamento, confirmação positiva, falha do diálogo e desativação após salvar/cancelar.
+
+**Limites:** isso não cria salvamento persistente, não garante proteção contra crash ou encerramento forçado e não substitui a validação de navegação real em desktop e celular. O Gabinete permanece sem acesso às operações de escrita.

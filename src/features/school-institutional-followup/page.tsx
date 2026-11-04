@@ -12,6 +12,7 @@ import { InstitutionalFollowupAnalytics } from "./analytics";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
+import { useFollowupRouteGuard } from "./use-route-guard";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
@@ -133,6 +134,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     || (Boolean(actionId) && (evolutionDraftIsDirty || updateRequest.current !== null))
   );
   useUnsavedFollowupWarning(hasUnsavedFollowup);
+  useFollowupRouteGuard(hasUnsavedFollowup);
   useEffect(() => {
     if (correctionBase) document.getElementById("followup-visit-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
