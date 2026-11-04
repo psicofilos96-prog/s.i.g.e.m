@@ -5,6 +5,12 @@ on:
   pull_request:
   push:
     branches: [main]
+# Novos commits no mesmo PR substituem execuções anteriores, sem reduzir testes.
+# PRs distintos e main têm grupos separados.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:
