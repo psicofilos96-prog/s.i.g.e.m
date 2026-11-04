@@ -75,6 +75,9 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("followup:update-before-linked-visit");
     expect(sql).toContain("followup:date-after-action-update");
     expect(sql).toContain("followup:date-after-linked-update");
+    expect(sql).toContain("followup:origin-after-linked-return");
+    expect(sql).toContain("followup:linked-return-before-origin");
+    expect(sql).toContain("followup:linked-visit-before-origin");
     expect(sql).toContain("u.visit_logical_id = _base_row.logical_id");
     expect(sql).toContain("WHERE fv.logical_id = a.visit_logical_id");
   });
