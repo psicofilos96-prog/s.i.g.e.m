@@ -608,7 +608,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             Medida selecionada: <strong>{selectedAction?.description ?? "Não disponível"}</strong>.
             Os campos começam vazios e só serão registrados ao confirmar o formulário.
           </p>
-          {evolutionNotice && <p role="alert" className="text-sm text-destructive">{evolutionNotice}</p>
+          {evolutionNotice && <p role="alert" className="text-sm text-destructive">{evolutionNotice}</p>}
           <label className="block text-sm">Data da evolução
             <DateInput className={input} required min={updateMinDay ?? undefined} max={today}
               value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} />
