@@ -6,7 +6,7 @@ Prevalência: `AGENTS.md` > `sigem-documentacao-canonica.md` > Referência vigen
 Memórias `sigem-memoria-*` citam documentos-fonte enviados (fora do repositório) e não são checadas por nome.
 Decisões válidas vivem em `AGENTS.md` (técnicas) e na memória do projeto (institucionais); este índice só aponta onde estão.
 
-Documentos: 351. Sem classe: 1. Com referência quebrada: 0.
+Documentos: 352. Sem classe: 2. Com referência quebrada: 0.
 
 ## Arquitetura, regras e invariantes
 
@@ -247,7 +247,7 @@ Documentos: 351. Sem classe: 1. Com referência quebrada: 0.
 - `unidades-escolares-nschool1.md`: DEPENDE_DECISAO, INTERACTIVE_BROWSER_VALIDATION_PENDING
 - `varredura-demonstracao-contexto-real.md`: INTERACTIVE_BROWSER_VALIDATION_PENDING
 
-**Histórico (substituído; consultar só para contexto):** `b1-2-administrador-geral.md`, `b2-4-anos-e-organizacoes.md`, `b4-8-atribuicao-docente.md`, `baseline-2026-vs-operacao-2027.md`, `bq0-preflight-configuracao-2027.md`, `campanha-noturna-sigem.md`, `estado-final-do-sigem.md`, `frente-ab2-acompanhamento-2027.md`, `frente-be-network-analytics.md`, `frente-bf-administracao-governada.md`, `frente-u-organizacao-pedagogica-2027.md`, `frente-x-necessidade-professor.md`, `frente-z-planejamento-2027.md`, `hardening-prontidao-producao-2026-10-05.md`, `inventario-visual-rotas.md`, `laboratorio-6D.3.2.5-B.md`, `performance-baseline-au.md`, `piloto-e2e-escola-2026.md`, `projeto-acompanhamento-unidades-escolares.md`, `roadmap-pos-base-real.md`, `security-hardening-final.md`, `seguranca-leitura-ampla-nsec3.md`, `sigem-memoria-fontes-historicas.md`
+**Histórico (substituído; consultar só para contexto):** `b1-2-administrador-geral.md`, `b2-4-anos-e-organizacoes.md`, `b4-8-atribuicao-docente.md`, `baseline-2026-vs-operacao-2027.md`, `bq0-preflight-configuracao-2027.md`, `campanha-noturna-sigem.md`, `estado-final-do-sigem.md`, `frente-ab2-acompanhamento-2027.md`, `frente-be-network-analytics.md`, `frente-bf-administracao-governada.md`, `frente-u-organizacao-pedagogica-2027.md`, `frente-x-necessidade-professor.md`, `frente-z-planejamento-2027.md`, `hardening-prontidao-producao-2026-10-05.md`, `homologacao-acompanhamento-unidades-escolares.md`, `inventario-visual-rotas.md`, `laboratorio-6D.3.2.5-B.md`, `performance-baseline-au.md`, `piloto-e2e-escola-2026.md`, `projeto-acompanhamento-unidades-escolares.md`, `roadmap-pos-base-real.md`, `security-hardening-final.md`, `seguranca-leitura-ampla-nsec3.md`, `sigem-memoria-fontes-historicas.md`
 
 ## Referências quebradas
 
