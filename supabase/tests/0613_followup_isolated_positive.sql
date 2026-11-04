@@ -338,6 +338,40 @@ END $positive$;
 
 RESET ROLE;
 
+-- Identidade de órgão/setor não pode assinar registros, mesmo se uma regra
+-- de autorização lhe conceder explicitamente a capacidade de escrita.
+SET ROLE authenticated;
+DO $nonhuman$
+DECLARE
+  denied boolean := false;
+  doc jsonb;
+BEGIN
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', '44444444-4444-4444-8444-444444444444',
+      'role', 'authenticated')::text, true);
+  IF NOT public.school_institutional_followup_grant(
+    'registrar-acompanhamento-institucional', 'school-a')
+    THEN RAISE EXCEPTION 'followup-positive:nonhuman-fixture-not-authorized'; END IF;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_visit(
+      'school-a', (now() AT TIME ZONE 'America/Sao_Paulo')::date,
+      'Diagnóstico que não deve existir', '', '', '', NULL, NULL, gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:natural-person-required' THEN
+      denied := true;
+    ELSE RAISE;
+    END IF;
+  END;
+  IF NOT denied THEN
+    RAISE EXCEPTION 'followup-positive:nonhuman-writer-accepted'; END IF;
+  doc := public.school_institutional_followup_school('school-a');
+  IF EXISTS (SELECT 1 FROM jsonb_array_elements(doc->'visits') v
+    WHERE v->>'diagnosis' = 'Diagnóstico que não deve existir')
+    THEN RAISE EXCEPTION 'followup-positive:nonhuman-visit-persisted'; END IF;
+  RAISE NOTICE 'FOLLOWUP_0613_NONHUMAN_WRITER_DENIED_OK';
+END $nonhuman$;
+RESET ROLE;
+
 -- O limite não pode ocultar visitas sem aviso e produzir uma leitura aparentemente integral.
 INSERT INTO public.school_institutional_followup_visits(
   logical_id, version, school_id, visit_date, diagnosis, author_user_id,
