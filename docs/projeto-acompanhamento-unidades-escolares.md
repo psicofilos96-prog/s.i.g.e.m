@@ -239,3 +239,9 @@ O alerta nativo `beforeunload` não cobre de modo confiável as transições den
 **Limites:** isso não cria salvamento persistente, não garante proteção contra crash ou encerramento forçado e não substitui a validação de navegação real em desktop e celular. O Gabinete permanece sem acesso às operações de escrita.
 
 Complemento de segurança: durante uma gravação ativa de visita, medida ou evolução, a navegação interna é **bloqueada sem opção de descarte** até a resposta do servidor. O diálogo de descarte só pode ser apresentado para campos em edição, nunca para uma RPC cujo resultado ainda é desconhecido. A proteção de recarregamento/fechamento segue dependente dos limites do navegador.
+
+## 11.15. Testes integrados da página com capacidades simuladas — 04/11/2026
+
+Além dos testes de componentes e dos testes SQL em PostgreSQL descartável, a página inteira passa a ter cenários de integração React para ausência de sessão, Gabinete com consulta sem botão de gravação, servidor com autorização de registro e fluxo de visita/plano, e navegação protegida quando o diagnóstico ainda não foi salvo. A gravação de visita e plano verifica um único envio atômico ao `recordVisitBundle`, com idempotência e vínculo correto da escola; o conteúdo só é enviado quando o servidor escolhe salvar.
+
+Esses testes usam **mocks de dados e capacidades** e não são prova de concessão institucional, de autorização real em RLS/RPC, de desempenho em navegador ou de aceitação dos usuários. A migração 0613 continua dependente da homologação no clone integral isolado e dos perfis reais autorizados.
