@@ -47,6 +47,34 @@ BEGIN
     END LOOP;
   END LOOP;
 
+  -- Os quatro conjuntos de fatos são append-only. RLS e REVOKE não bastam
+  -- para preservar o histórico se um operador privilegiado desabilitar ou
+  -- remover o gatilho de imutabilidade; exigir o trigger ativo e vinculado
+  -- à função canônica para cada tabela.
+  FOR p IN SELECT * FROM (VALUES
+    ('school_institutional_followup_visits', 'followup_visit_immutable'),
+    ('school_institutional_followup_actions', 'followup_action_immutable'),
+    ('school_institutional_followup_updates', 'followup_update_immutable'),
+    ('school_institutional_followup_bundles', 'followup_bundle_immutable')
+  ) AS required(table_name, trigger_name)
+  LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_catalog.pg_trigger t
+      JOIN pg_catalog.pg_class c ON c.oid = t.tgrelid
+      JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relname = p.table_name
+        AND t.tgname = p.trigger_name AND NOT t.tgisinternal
+        AND t.tgenabled IN ('O', 'A')
+        -- ROW (1) + BEFORE (2) + DELETE (8) + UPDATE (16)
+        AND (t.tgtype::integer & 27) = 27
+        AND t.tgfoid = pg_catalog.to_regprocedure(
+          'public.school_institutional_followup_immutable()'
+        )
+    ) THEN
+      RAISE EXCEPTION 'followup-postflight:immutable-trigger-missing-or-disabled:%', p.table_name;
+    END IF;
+  END LOOP;
+
   -- As funções privadas não são APIs públicas e não devem ser invocáveis pelo cliente.
   FOREACH function_signature IN ARRAY ARRAY[
     'public.school_institutional_followup_grant(text,text)',
