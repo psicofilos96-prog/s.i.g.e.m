@@ -59,6 +59,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [savingUpdate, setSavingUpdate] = useState(false);
   const [savingMeasure, setSavingMeasure] = useState(false);
   const [exporting, setExporting] = useState(false);
+  // One active conversion per workspace. A canceled async conversion may finish
+  // computing, but must never download a document from an obsolete school/view.
+  const activeReportExport = useRef<AbortController | null>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const visitRequests = useRef<{ signature: string; visit: string; actions: string[] } | null>(null);
@@ -159,6 +162,19 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   );
   useUnsavedFollowupWarning(hasUnsavedFollowup);
   useFollowupRouteGuard(hasUnsavedFollowup, saving || savingUpdate || savingMeasure);
+  useEffect(() => () => {
+    activeReportExport.current?.abort();
+    activeReportExport.current = null;
+  }, []);
+  useEffect(() => {
+    // A different school, a changed filter/period, or fresh scoped data
+    // invalidates the report being rendered. Keep only current snapshots.
+    if (activeReportExport.current) {
+      activeReportExport.current.abort();
+      activeReportExport.current = null;
+      setExporting(false);
+    }
+  }, [school, detail.data, network.data, from, to, search, networkView]);
   useEffect(() => {
     if (correctionBase) document.getElementById("followup-visit-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -189,28 +205,38 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       setTargetActionId("");
     }
   }, [targetActionId, school, detail.isSuccess, detail.data]);
+  async function withReportExport(run: (signal: AbortSignal) => Promise<void>) {
+    // The ref prevents two downloads when clicks happen before React rerenders.
+    if (activeReportExport.current) return;
+    const controller = new AbortController();
+    activeReportExport.current = controller;
+    setExporting(true);
+    setError("");
+    try {
+      await run(controller.signal);
+    } catch (e) {
+      if (!controller.signal.aborted) setError(presentError(e));
+    } finally {
+      // A canceled conversion may settle after a newer report has started.
+      if (activeReportExport.current === controller) {
+        activeReportExport.current = null;
+        setExporting(false);
+      }
+    }
+  }
   async function exportReport(format: "csv" | "xlsx" | "pdf") {
-    if (!network.isSuccess || exporting) return;
-    setExporting(true); setError("");
-    try { await exportFollowupNetwork(rows, from, to, format); }
-    catch (e) { setError(presentError(e)); }
-    finally { setExporting(false); }
+    if (!network.isSuccess) return;
+    await withReportExport((signal) => exportFollowupNetwork(rows, from, to, format, signal));
   }
   async function exportSchoolReport(format: "csv" | "xlsx" | "pdf") {
-    if (!school || !detail.isSuccess || exporting) return;
-    setExporting(true); setError("");
-    try {
-      await exportFollowupSchool(detail.data, school, selected?.school_name ?? school, format);
-    } catch (e) { setError(presentError(e)); }
-    finally { setExporting(false); }
+    if (!school || !detail.isSuccess) return;
+    await withReportExport((signal) =>
+      exportFollowupSchool(detail.data, school, selected?.school_name ?? school, format, signal));
   }
   async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf") {
-    if (!school || !detail.isSuccess || exporting) return;
-    setExporting(true); setError("");
-    try {
-      await exportFollowupVisit(detail.data, school, selected?.school_name ?? school, visitId, format);
-    } catch (e) { setError(presentError(e)); }
-    finally { setExporting(false); }
+    if (!school || !detail.isSuccess) return;
+    await withReportExport((signal) =>
+      exportFollowupVisit(detail.data, school, selected?.school_name ?? school, visitId, format, signal));
   }
   async function refresh() {
     await Promise.all([
