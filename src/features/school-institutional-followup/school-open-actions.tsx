@@ -41,6 +41,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   const staleSelectedCount = selectedIds.size - selectedPendingIds.length;
   const selectedExportReady = selectedPendingIds.length > 0 && staleSelectedCount === 0;
   function clearStaleSelection() {
+    if (exporting) return;
     const remaining = new Set(selectedPendingIds);
     setSelectedIds(remaining);
     if (remaining.size === 0) {
@@ -49,6 +50,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
     }
   }
   function toggleSelection(actionId: string, checked: boolean) {
+    if (exporting) return;
     setSelectedIds((previous) => {
       const next = new Set(previous);
       if (checked) next.add(actionId);
@@ -90,7 +92,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         {staleSelectedCount} medida(s) selecionada(s) não constam mais entre as pendentes.
         Confira a seleção antes de exportar um roteiro de foco.
       </p>
-      <Button type="button" size="sm" variant="outline"
+      <Button type="button" size="sm" variant="outline" disabled={exporting}
         onClick={clearStaleSelection}>
         {pending.length === 0 ? "Limpar seleção desatualizada" : "Retirar medidas não pendentes"}
       </Button>
@@ -99,7 +101,8 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm">Filtrar providências da visita
           <select className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            value={view} onChange={(e) => { setView(e.target.value as PreparationFilter); setExpanded(false); }}>
+            value={view} disabled={exporting}
+            onChange={(e) => { setView(e.target.value as PreparationFilter); setExpanded(false); }}>
             <option value="todas">Todas sem conclusão declarada</option>
             <option value="selecionadas">Somente selecionadas ({selectedPendingIds.length})</option>
             <option value="prazo vencido">Com prazo vencido</option>
@@ -109,7 +112,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         </label>
         <label className="text-sm">Pesquisar descrição ou responsável
           <input type="search" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            placeholder="Descrição, responsável ou data" value={search}
+            placeholder="Descrição, responsável ou data" value={search} disabled={exporting}
             onChange={(e) => { setSearch(e.target.value); setExpanded(false); }} />
         </label>
       </div>
@@ -118,12 +121,12 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         Os totais acima não mudam com a seleção.
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <Button type="button" size="sm" variant="outline" disabled={filtered.length === 0}
+        <Button type="button" size="sm" variant="outline" disabled={exporting || filtered.length === 0}
           onClick={() => {
             setSelectedIds((old) => new Set([...old, ...filtered.map((a) => a.id)]));
             setExportScope("selected");
           }}>Selecionar todas do filtro ({filtered.length})</Button>
-        <Button type="button" size="sm" variant="outline" disabled={selectedIds.size === 0}
+        <Button type="button" size="sm" variant="outline" disabled={exporting || selectedIds.size === 0}
           onClick={() => { setSelectedIds(new Set()); setExportScope("all"); setView("todas"); }}>Limpar seleção</Button>
         <span role="status" className="text-xs text-muted-foreground">
           {selectedPendingIds.length} medidas selecionadas para roteiro de foco.
@@ -132,7 +135,8 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
       <div className="flex flex-wrap items-end gap-2" aria-label="Exportar roteiro de preparação da visita">
         <label className="text-sm">Conteúdo do roteiro
           <select className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-            value={exportScope} onChange={(e) => setExportScope(e.target.value as "all" | "selected")}>
+            value={exportScope} disabled={exporting}
+            onChange={(e) => setExportScope(e.target.value as "all" | "selected")}>
             <option value="all">Todas as medidas sem conclusão declarada</option>
             <option value="selected">Somente as medidas selecionadas ({selectedPendingIds.length})</option>
           </select>
@@ -152,6 +156,9 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         O roteiro selecionado inclui apenas as medidas marcadas, inclusive em outro filtro, e a última evolução informada.
         A seleção é temporária e não cria visita, nova medida ou ordem de cobrança.
       </p>
+      {exporting && <p role="status" className="text-sm text-muted-foreground">
+        Preparando o roteiro selecionado para download. Os filtros e as medidas ficam bloqueados até concluir.
+      </p>}
       {exportError && <p role="alert" className="text-sm text-destructive">{exportError}</p>}
     </div>}
     {snapshot.actions.length === 0 && <p className="text-sm text-muted-foreground">
@@ -171,7 +178,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         const expired = isOverdue(a, snapshot.updates, today);
         return <li key={a.id} className="flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between">
           <label className="flex shrink-0 items-center gap-2 text-xs">
-            <input type="checkbox" checked={selectedIds.has(a.id)}
+            <input type="checkbox" checked={selectedIds.has(a.id)} disabled={exporting}
               aria-label={`Incluir no roteiro selecionado: ${a.description}`}
               onChange={(e) => toggleSelection(a.id, e.target.checked)} />
             Incluir no roteiro
@@ -201,10 +208,10 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
             </details> : <p className="text-xs text-muted-foreground">Sem evolução registrada para esta medida.</p>}
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <Button size="sm" variant="outline"
+            <Button size="sm" variant="outline" disabled={exporting}
               aria-label={`Ver acompanhamento da medida: ${a.description}`}
               onClick={() => onInspect(a.id)}>Ver acompanhamento</Button>
-            {onStartUpdate && <Button size="sm" variant="outline"
+            {onStartUpdate && <Button size="sm" variant="outline" disabled={exporting}
               aria-label={`Registrar evolução da medida: ${a.description}`}
               onClick={() => onStartUpdate(a.id)}>Registrar evolução</Button>}
           </div>
@@ -212,7 +219,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
       })}
     </ul>}
     {filtered.length > INITIAL_SHOWN && <Button size="sm" variant="outline"
-      onClick={() => setExpanded((v) => !v)}
+      disabled={exporting} onClick={() => setExpanded((v) => !v)}
       aria-expanded={expanded}>
       {expanded ? "Mostrar menos medidas" : `Mostrar todas as ${filtered.length} medidas`}
     </Button>}

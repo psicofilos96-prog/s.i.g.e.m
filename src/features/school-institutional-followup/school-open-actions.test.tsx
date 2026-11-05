@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
 import type { FollowupAction, FollowupUpdate, SchoolSnapshot } from "./model";
 import { exportFollowupPreparation } from "./preparation-report";
@@ -215,6 +215,50 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
       expect.objectContaining({ actions: data.actions, updates: [expect.objectContaining({ situation: "concluída" })] }),
       "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a2"],
     ));
+  });
+
+  it("congela seleção, filtros e atalhos enquanto um roteiro é exportado", async () => {
+    let finish!: () => void;
+    const pending = new Promise<void>((resolve) => { finish = resolve; });
+    vi.mocked(exportFollowupPreparation).mockReturnValueOnce(pending);
+    const inspect = vi.fn();
+    const updateAction = vi.fn();
+    const data = snapshot([
+      action("a1", "Verificar biblioteca", "2026-11-03"),
+      action("a2", "Revisar instalações", null),
+    ]);
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro"
+      inep={null} today="2026-11-04" onInspect={inspect}
+      onStartUpdate={updateAction} snapshot={data} />);
+    const checkbox = screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Verificar biblioteca",
+    });
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
+    await waitFor(() => expect(screen.getByText(/Preparando o roteiro selecionado para download/)).toBeTruthy());
+    expect(checkbox).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "Filtrar providências da visita" })).toBeDisabled();
+    expect(screen.getByRole("combobox", { name: "Conteúdo do roteiro" })).toBeDisabled();
+    expect(screen.getByRole("searchbox", { name: "Pesquisar descrição ou responsável" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Selecionar todas do filtro (2)" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Limpar seleção" })).toBeDisabled();
+    expect(screen.getByRole("button", {
+      name: "Ver acompanhamento da medida: Verificar biblioteca",
+    })).toBeDisabled();
+    expect(screen.getByRole("button", {
+      name: "Registrar evolução da medida: Verificar biblioteca",
+    })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).toBeDisabled();
+    expect(vi.mocked(exportFollowupPreparation)).toHaveBeenLastCalledWith(
+      data, "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a1"],
+    );
+    await act(async () => { finish(); await pending; });
+    await waitFor(() => expect(screen.queryByText(/Preparando o roteiro selecionado para download/)).toBeNull());
+    expect(checkbox).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "Limpar seleção" })).not.toBeDisabled();
+    expect(inspect).not.toHaveBeenCalled();
+    expect(updateAction).not.toHaveBeenCalled();
   });
 
   it("informa ausência de evolução sem inferir falta de execução", () => {
