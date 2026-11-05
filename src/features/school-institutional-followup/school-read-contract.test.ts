@@ -108,6 +108,34 @@ describe("limite de confiança do histórico institucional por escola", () => {
     }, "school-a")).toThrow(/evolução inválida/);
   });
 
+  it("recusa cronologia inconsistente entre visita, prazo e evolução, sem ocultar linhas", () => {
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, actions: [{ ...a1, due_on: "2026-09-30" }],
+    }, "school-a")).toThrow(/medida inválida/);
+
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, updates: [{ ...u1, occurred_on: "2026-09-30" }],
+    }, "school-a")).toThrow(/evolução inválida/);
+
+    const returnVisit = { ...v1, id: "return-visit", logical_id: "return-logical",
+      visit_date: "2026-10-10" };
+    const withReturn = { ...school, visits: [v1, returnVisit] };
+    expect(() => parseSchoolFollowupSnapshot({
+      ...withReturn, updates: [{ ...u1, visit_logical_id: "return-logical" }],
+    }, "school-a")).toThrow(/evolução inválida/);
+
+    // Um retorno anterior à origem é incoerente mesmo quando a evolução é posterior.
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, visits: [v1, { ...returnVisit, visit_date: "2026-09-30" }],
+      updates: [{ ...u1, visit_logical_id: "return-logical" }],
+    }, "school-a")).toThrow(/evolução inválida/);
+
+    expect(() => parseSchoolFollowupSnapshot({
+      ...withReturn, updates: [{ ...u1, visit_logical_id: "return-logical",
+        occurred_on: "2026-10-10" }],
+    }, "school-a")).not.toThrow();
+  });
+
   it("recusa identificadores duplicados e limites silenciosamente ultrapassados", () => {
     expect(() => parseSchoolFollowupSnapshot({
       ...school, actions: [a1, a1],
