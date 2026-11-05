@@ -951,6 +951,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       due_on: "2026-11-10", situation: "sem atualização", last_update_on: null,
       created_at: "2026-10-15T13:00:00Z",
     };
+    mocks.networkFollowup.mockResolvedValue([{ ...schools[0]!, actions: 1 }, schools[1]!]);
     mocks.networkPendingFollowup.mockResolvedValue([pendingA]);
     renderPage();
     expect(await screen.findByText("Providência exclusiva da escola A")).toBeTruthy();
@@ -974,6 +975,7 @@ describe("acompanhamento institucional — integração da página e capacidades
 
   it("oculta pendências em cache se a reconferência do panorama autorizado falhar", async () => {
     setSession(false);
+    mocks.networkFollowup.mockResolvedValue([{ ...schools[0]!, actions: 1 }, schools[1]!]);
     mocks.networkPendingFollowup.mockResolvedValue([{
       action_id: "action-a", school_id: "school-a",
       school_name: "Escola Centro", inep: "33000001",
@@ -990,6 +992,59 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(within(panel).queryByText("Medida inicialmente autorizada")).toBeNull();
     expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
     expect(exportNetworkPending).not.toHaveBeenCalled();
+  });
+
+  it("não oferece relatório de providências quando faltam medidas do mesmo escopo", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([
+      { ...schools[0]!, actions: 2, completed: 0, overdue: 0 }, schools[1]!,
+    ]);
+    const measure = {
+      action_id: "pending-1", school_id: "school-a",
+      school_name: "Escola Centro", inep: "33000001",
+      description: "Medida retornada", responsible_label: null,
+      due_on: null, situation: "sem atualização", last_update_on: null,
+      created_at: "2026-11-01T12:00:00Z",
+    };
+    mocks.networkPendingFollowup.mockResolvedValue([measure]);
+    renderPage();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/quantidade de providências/);
+    expect(within(panel).queryByText("Medida retornada")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+
+    // A second authorized RPC delivers the missing action; nothing is fabricated locally.
+    mocks.networkPendingFollowup.mockResolvedValue([
+      measure, { ...measure, action_id: "pending-2", description: "Outra medida retornada" },
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await within(panel).findByText("Medida retornada")).toBeTruthy();
+    expect(await within(panel).findByText("Outra medida retornada")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  it("recusa quadro com prazo vencido divergente mesmo quando a quantidade de medidas coincide", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([
+      { ...schools[0]!, actions: 1, completed: 0, overdue: 1 }, schools[1]!,
+    ]);
+    const measure = {
+      action_id: "pending-1", school_id: "school-a",
+      school_name: "Escola Centro", inep: "33000001",
+      description: "Prazo diferente entre consultas", responsible_label: null,
+      due_on: "2026-11-06", situation: "em andamento",
+      last_update_on: "2026-11-03", created_at: "2026-11-01T12:00:00Z",
+    };
+    mocks.networkPendingFollowup.mockResolvedValue([measure]);
+    renderPage();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/vencidas não coincide/);
+    expect(within(panel).queryByText("Prazo diferente entre consultas")).toBeNull();
+
+    mocks.networkPendingFollowup.mockResolvedValue([{ ...measure, due_on: "2026-11-02" }]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await within(panel).findByText("Prazo diferente entre consultas")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
   });
 
   it("isola ficha, rascunho e exportação quando uma conta diferente assume a sessão", async () => {
