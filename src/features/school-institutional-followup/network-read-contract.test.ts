@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseFollowupMonths, parseFollowupNetworkRows, parseFollowupStatuses, reconcileFollowupNetworkIndicators } from "./network-read-contract";
+import { parseFollowupMonths, parseFollowupNetworkRows, parseFollowupStatuses, reconcileFollowupNetworkIndicators, reconcileFollowupPendingIndicators } from "./network-read-contract";
+import type { NetworkPendingAction } from "./model";
 
 const network = [{
   school_id: "school-a", school_name: "Escola Centro", inep: "33000001",
@@ -99,6 +100,42 @@ describe("contratos de leitura do panorama institucional", () => {
     expect(reconcileFollowupNetworkIndicators(network,
       [{ month: "2026-11", visits: Number.MAX_SAFE_INTEGER }, { month: "2026-10", visits: 1 }],
       statuses).monthlyConsistent).toBe(false);
+  });
+
+  it("concilia providências pendentes e vencidas com o panorama e recusa snapshots incompletos", () => {
+    const pending: NetworkPendingAction[] = [
+      { action_id: "a", school_id: "school-a", school_name: "Escola Centro",
+        inep: "33000001", description: "Medida A", responsible_label: null,
+        situation: "em andamento", due_on: "2026-11-03",
+        last_update_on: "2026-11-03", created_at: "2026-11-01T12:00:00Z" },
+      { action_id: "b", school_id: "school-a", school_name: "Escola Centro",
+        inep: "33000001", description: "Medida B", responsible_label: null,
+        situation: "prevista", due_on: "2026-11-06",
+        last_update_on: "2026-11-04", created_at: "2026-11-01T12:00:00Z" },
+      { action_id: "c", school_id: "school-a", school_name: "Escola Centro",
+        inep: "33000001", description: "Medida C", responsible_label: null,
+        situation: "sem atualização", due_on: null,
+        last_update_on: null, created_at: "2026-11-01T12:00:00Z" },
+    ];
+    const today = "2026-11-05";
+    expect(reconcileFollowupPendingIndicators(network, pending, today)).toEqual({
+      pendingCountConsistent: true, overdueConsistent: true,
+    });
+    expect(reconcileFollowupPendingIndicators(network, pending.slice(0, 2), today)).toEqual({
+      pendingCountConsistent: false, overdueConsistent: true,
+    });
+    expect(reconcileFollowupPendingIndicators(network, pending.map((row) =>
+      row.action_id === "a" ? { ...row, due_on: "2026-11-06" } : row), today)).toEqual({
+      pendingCountConsistent: true, overdueConsistent: false,
+    });
+    expect(reconcileFollowupPendingIndicators([], [], today)).toEqual({
+      pendingCountConsistent: true, overdueConsistent: true,
+    });
+    const overflow = [
+      { ...network[0]!, actions: Number.MAX_SAFE_INTEGER, completed: 0, overdue: 0 },
+      { ...network[0]!, school_id: "school-b", actions: 2, completed: 0, overdue: 0 },
+    ];
+    expect(reconcileFollowupPendingIndicators(overflow, [], today).pendingCountConsistent).toBe(false);
   });
 
 });
