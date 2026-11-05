@@ -14,7 +14,7 @@ import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
 import { useFollowupRouteGuard } from "./use-route-guard";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
-import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
+import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
@@ -535,12 +535,28 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg bg-muted/30 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h5 className="text-sm font-medium">Medida {i + 1}</h5>
-            {draftActions.length > 1 && <Button type="button" size="sm" variant="ghost" disabled={saving}
-              aria-label={`Remover medida ${i + 1}`}
-              onClick={() => {
-                setDraftActions((prev) => prev.filter((x) => x.draftKey !== a.draftKey));
-                visitRequests.current = null;
-              }}>Remover esta medida</Button>}
+            <div className="flex flex-wrap gap-1">
+              <Button type="button" size="sm" variant="outline" disabled={saving || i === 0}
+                aria-label={`Subir medida ${i + 1}`}
+                onClick={() => {
+                  setDraftActions((prev) => moveFollowupActionDraft(prev,
+                    prev.findIndex((x) => x.draftKey === a.draftKey), "up"));
+                  visitRequests.current = null;
+                }}>Subir</Button>
+              <Button type="button" size="sm" variant="outline" disabled={saving || i === draftActions.length - 1}
+                aria-label={`Descer medida ${i + 1}`}
+                onClick={() => {
+                  setDraftActions((prev) => moveFollowupActionDraft(prev,
+                    prev.findIndex((x) => x.draftKey === a.draftKey), "down"));
+                  visitRequests.current = null;
+                }}>Descer</Button>
+              {draftActions.length > 1 && <Button type="button" size="sm" variant="ghost" disabled={saving}
+                aria-label={`Remover medida ${i + 1}`}
+                onClick={() => {
+                  setDraftActions((prev) => prev.filter((x) => x.draftKey !== a.draftKey));
+                  visitRequests.current = null;
+                }}>Remover esta medida</Button>}
+            </div>
           </div>
           <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
             onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, description: e.target.value } : x))} /></label>

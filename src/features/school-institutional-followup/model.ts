@@ -175,6 +175,18 @@ export function searchableNetwork(rows: readonly NetworkRow[], term: string): Ne
   return rows.filter((r) => normalizeText(r.school_name + " " + r.school_id + " " + (r.inep ?? "")).includes(q));
 }
 
+/** Reordena medidas ainda não gravadas sem trocar campos de uma linha por outra. */
+export function moveFollowupActionDraft<T>(
+  actions: readonly T[], index: number, direction: "up" | "down",
+): T[] {
+  const target = index + (direction === "up" ? -1 : 1);
+  if (!Number.isInteger(index) || index < 0 || target < 0
+    || index >= actions.length || target >= actions.length) return [...actions];
+  const reordered = [...actions];
+  [reordered[index], reordered[target]] = [reordered[target]!, reordered[index]!];
+  return reordered;
+}
+
 /** Evita trocar a medida e descartar uma evolução em edição sem aviso. */
 export function isEvolutionDraftDirty(draft: {
   day: string; initialDay: string; situation: string; linkedVisitId: string;

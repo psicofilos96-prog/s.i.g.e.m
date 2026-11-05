@@ -252,3 +252,9 @@ Esses testes usam **mocks de dados e capacidades** e não são prova de concess�
 O formulário de visita permite retirar **qualquer medida proposta**, inclusive a intermediária, sem apagar o conteúdo das demais. As linhas possuem identidade local estável (somente React) e continuam ordenadas conforme a digitação; cada botão informa o número da medida. O último campo vazio permanece para permitir criar um plano novo. A remoção é exclusivamente **anterior ao registro**: após a gravação institucional, medidas e evoluções permanecem no histórico e nunca são apagadas por essa interface.
 
 O sistema não permite remover uma medida ou acrescentar outra enquanto a visita estiver sendo enviada. Os testes integrados verificam exclusão da segunda entre três medidas e persistência das descrições/responsáveis da primeira e terceira no envio final.
+
+## 11.17. Ordenação manual de medidas propostas — 04/11/2026
+
+Antes de salvar uma visita, a equipe pode usar **Subir** e **Descer** em cada medida proposta para estabelecer a sequência do plano. A identificação local estável da linha preserva descrição, responsável e prazo, independentemente da posição. Os movimentos inválidos nas extremidades e todas as operações de reorganização durante o envio ficam desabilitados.
+
+A alteração atinge exclusivamente a lista em memória ainda não registrada; a assinatura de tentativa de gravação anterior é invalidada quando a ordem muda. Após a confirmação de gravação, o histórico institucional é imutável pelo módulo, sem remoção ou reorganização retroativa. Testes puros e de integração cobrem reordenação e sequência final enviada, além de escrita limitada à escola com capacidade explícita. A UI de permissões não substitui a validação da RPC/RLS no banco.

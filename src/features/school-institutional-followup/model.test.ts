@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -15,6 +15,24 @@ const completed: FollowupUpdate = {
   done_text: "Concluída", created_at: "2026-10-18T10:00:00Z",
 };
 describe("acompanhamento das unidades — projeções", () => {
+  it("reordena medidas apenas em memória sem alterar campos associados e sem mutar a origem", () => {
+    const original = [
+      { draftKey: 1, description: "A", responsible: "Direção", due: "2026-11-09" },
+      { draftKey: 2, description: "B", responsible: "Equipe", due: "" },
+      { draftKey: 3, description: "C", responsible: "Coordenação", due: "2026-11-10" },
+    ];
+    const up = moveFollowupActionDraft(original, 2, "up");
+    expect(up.map((a) => a.draftKey)).toEqual([1, 3, 2]);
+    expect(up[1]).toBe(original[2]);
+    expect(up[2]).toBe(original[1]);
+    expect(original.map((a) => a.draftKey)).toEqual([1, 2, 3]);
+    expect(moveFollowupActionDraft(up, 1, "down").map((a) => a.draftKey))
+      .toEqual([1, 2, 3]);
+    expect(moveFollowupActionDraft(original, 0, "up")).toEqual(original);
+    expect(moveFollowupActionDraft(original, 2, "down")).toEqual(original);
+    expect(moveFollowupActionDraft(original, -1, "down")).toEqual(original);
+  });
+
   it("recusa medida parcial em vez de descartar responsável ou prazo", () => {
     const day = "2026-11-04";
     expect(validateFollowupActionDrafts([{ description: "", responsible: "", due: "" }], day)).toBeNull();

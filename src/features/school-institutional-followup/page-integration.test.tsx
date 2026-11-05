@@ -56,13 +56,13 @@ const schools = [
 ];
 const blankSchool = { visits: [], visit_history: [], actions: [], updates: [] };
 
-function setSession(writable: boolean) {
+function setSession(writable: boolean, writableSchoolId: string | null = null) {
   mocks.session = {
     status: "signed-in", sessionRevision: 1, user: { id: "test-user" },
     person: writable ? { id: "staff-person", displayName: "Servidor" } : null,
     capabilities: [
       { capabilityId: "consultar-acompanhamento-institucional", schoolId: null },
-      ...(writable ? [{ capabilityId: "registrar-acompanhamento-institucional", schoolId: null }] : []),
+      ...(writable ? [{ capabilityId: "registrar-acompanhamento-institucional", schoolId: writableSchoolId }] : []),
     ],
   };
 }
@@ -113,6 +113,21 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
     expect(mocks.recordAction).not.toHaveBeenCalled();
     expect(mocks.recordUpdate).not.toHaveBeenCalled();
+  });
+
+  it("limita formulário de escrita à escola explicitamente autorizada, mantendo leitura nas demais", async () => {
+    setSession(true, "school-a");
+    renderPage();
+    await openSchool("Escola Serra");
+    expect(await screen.findByText("Nenhuma medida cadastrada para esta unidade.")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Salvar visita e plano" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Escola Centro" }));
+    await screen.findByRole("heading", { name: "Escola Centro" });
+    expect(screen.getByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Salvar visita e plano" })).toBeDisabled();
   });
 
   it("servidor registra visita e plano com autoria vinculada à sessão e sem gravar campos incompletos", async () => {
@@ -189,6 +204,51 @@ describe("acompanhamento institucional — integração da página e capacidades
     const sent = mocks.recordVisitBundle.mock.calls[0]?.[0] as { actions: { description: string; responsible: string }[] };
     expect(sent.actions.map((item) => [item.description, item.responsible])).toEqual([
       ["Providência A", "Direção"], ["Providência C", "Coordenação"],
+    ]);
+  });
+
+  it("permite ordenar três medidas propostas sem misturar responsáveis no envio", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Acompanhamento em andamento" } });
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+
+    const descriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    const responsibles = fields.getAllByRole("textbox", { name: "Responsável declarado" });
+    for (const [i, name, responsible] of [
+      [0, "Ajustar biblioteca", "Direção"],
+      [1, "Organizar transporte", "Equipe"],
+      [2, "Revisar equipamentos", "Coordenação"],
+    ] as const) {
+      fireEvent.change(descriptions[i]!, { target: { value: name } });
+      fireEvent.change(responsibles[i]!, { target: { value: responsible } });
+    }
+    expect(fields.getByRole("button", { name: "Subir medida 1" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Descer medida 3" })).toBeDisabled();
+
+    fireEvent.click(fields.getByRole("button", { name: "Subir medida 3" }));
+    const moved = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    expect(moved.map((input) => (input as HTMLTextAreaElement).value))
+      .toEqual(["Ajustar biblioteca", "Revisar equipamentos", "Organizar transporte"]);
+    expect(fields.getAllByRole("textbox", { name: "Responsável declarado" })
+      .map((input) => (input as HTMLInputElement).value))
+      .toEqual(["Direção", "Coordenação", "Equipe"]);
+
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    const sent = mocks.recordVisitBundle.mock.calls[0]?.[0] as {
+      actions: { description: string; responsible: string }[];
+    };
+    expect(sent.actions.map((a) => [a.description, a.responsible])).toEqual([
+      ["Ajustar biblioteca", "Direção"],
+      ["Revisar equipamentos", "Coordenação"],
+      ["Organizar transporte", "Equipe"],
     ]);
   });
 
