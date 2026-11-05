@@ -344,6 +344,36 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     await act(async () => { release(); await pendingExport; });
   });
 
+  it("cancela o roteiro se a consulta da mesma escola mudar enquanto o arquivo é gerado", async () => {
+    vi.mocked(exportFollowupPreparation).mockReset();
+    let release!: () => void;
+    const running = new Promise<void>((resolve) => { release = resolve; });
+    vi.mocked(exportFollowupPreparation).mockReturnValueOnce(running);
+    const data = snapshot([action("a1", "Verificar laboratórios", null)]);
+    const { rerender } = render(<SchoolOpenActionsPanel schoolId="s1"
+      schoolName="Escola Centro" inep={null} today="2026-11-04"
+      onInspect={vi.fn()} snapshot={data} />);
+    fireEvent.click(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Verificar laboratórios",
+    }));
+    fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
+    const signal = vi.mocked(exportFollowupPreparation).mock.lastCall?.[7];
+    expect(signal).toBeInstanceOf(AbortSignal);
+    expect(signal?.aborted).toBe(false);
+    rerender(<SchoolOpenActionsPanel schoolId="s1"
+      schoolName="Escola Centro" inep={null} today="2026-11-04"
+      onInspect={vi.fn()}
+      snapshot={snapshot(data.actions, [update("a1", "em andamento")])} />);
+    await waitFor(() => expect(signal?.aborted).toBe(true));
+    expect(screen.getByRole("alert")).toHaveTextContent(/download anterior foi cancelado/);
+    await act(async () => { release(); await running; });
+    expect(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Verificar laboratórios",
+    })).toBeChecked();
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
+    expect(screen.queryByRole("button", { name: "Tentar novamente o PDF" })).toBeNull();
+  });
+
   it("informa ausência de evolução sem inferir falta de execução", () => {
     render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
       today="2026-11-04" onInspect={vi.fn()}

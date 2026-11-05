@@ -28,6 +28,18 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   const exportAbort = useRef<AbortController | null>(null);
   // Never download an obsolete school's document after leaving its ficha.
   useEffect(() => () => { exportAbort.current?.abort(); }, [schoolId]);
+  const previousSnapshot = useRef(snapshot);
+  const [outdatedExportNotice, setOutdatedExportNotice] = useState(false);
+  // A same-school refetch can change the pending measures while PDF/XLSX is converting.
+  // Cancel the old file instead of downloading a report from a stale snapshot.
+  useEffect(() => {
+    if (previousSnapshot.current === snapshot) return;
+    previousSnapshot.current = snapshot;
+    if (exportAbort.current && !exportAbort.current.signal.aborted) {
+      exportAbort.current.abort();
+      setOutdatedExportNotice(true);
+    }
+  }, [snapshot]);
   const [failedExport, setFailedExport] = useState<FailedExport | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [exportScope, setExportScope] = useState<"all" | "selected">("all");
@@ -80,7 +92,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
     const controller = new AbortController();
     exportAbort.current = controller;
     const requestedSelection = selectionKey;
-    setFailedExport(null); setExporting(true);
+    setFailedExport(null); setOutdatedExportNotice(false); setExporting(true);
     try {
       await exportFollowupPreparation(snapshot, schoolId, schoolName, inep, today, format,
         exportScope === "selected" ? selectedPendingIds : undefined, controller.signal);
@@ -119,6 +131,10 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         {pending.length === 0 ? "Limpar seleção desatualizada" : "Retirar medidas não pendentes"}
       </Button>
     </div>}
+    {outdatedExportNotice && <p role="alert" className="text-sm text-destructive">
+      O histórico da escola foi atualizado durante a geração do roteiro. O download anterior foi cancelado.
+      Confira as providências e gere o arquivo novamente.
+    </p>}
     {pending.length > 0 && <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm">Filtrar providências da visita
