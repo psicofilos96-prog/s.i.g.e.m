@@ -138,4 +138,47 @@ describe("contratos de leitura do panorama institucional", () => {
     expect(reconcileFollowupPendingIndicators(overflow, [], today).pendingCountConsistent).toBe(false);
   });
 
+  it("recusa compensações entre escolas que escondem pendências ou vencimentos incorretos", () => {
+    const authorized = [
+      { ...network[0]!, actions: 2, completed: 0, overdue: 1 },
+      { ...network[0]!, school_id: "school-b", school_name: "Escola Serra",
+        actions: 1, completed: 0, overdue: 0 },
+    ];
+    const base: NetworkPendingAction[] = [
+      { action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+        inep: "33000001", description: "Medida A", responsible_label: null,
+        due_on: "2026-11-01", situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+      { action_id: "measure-b", school_id: "school-a", school_name: "Escola Centro",
+        inep: "33000001", description: "Medida B", responsible_label: null,
+        due_on: null, situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+      { action_id: "measure-c", school_id: "school-b", school_name: "Escola Serra",
+        inep: null, description: "Medida C", responsible_label: null,
+        due_on: null, situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+    ];
+    const today = "2026-11-05";
+    expect(reconcileFollowupPendingIndicators(authorized, base, today)).toEqual({
+      pendingCountConsistent: true, overdueConsistent: true,
+    });
+    // The total is still three actions, but A has one too few and B one too many.
+    const compensating = base.map((item) => item.action_id === "measure-b"
+      ? { ...item, school_id: "school-b", school_name: "Escola Serra" } : item);
+    expect(reconcileFollowupPendingIndicators(authorized, compensating, today)).toEqual({
+      pendingCountConsistent: false, overdueConsistent: true,
+    });
+    // The network's global overdue total also matches, but it is attributed
+    // to the wrong school in the independent reader.
+    const shiftedOverdue = [
+      { ...authorized[0]!, overdue: 0 }, { ...authorized[1]!, overdue: 1 },
+    ];
+    expect(reconcileFollowupPendingIndicators(shiftedOverdue, base, today)).toEqual({
+      pendingCountConsistent: true, overdueConsistent: false,
+    });
+    expect(reconcileFollowupPendingIndicators(authorized,
+      [...base, { ...base[0]!, action_id: "outside", school_id: "other" }], today))
+      .toEqual({ pendingCountConsistent: false, overdueConsistent: false });
+  });
+
 });
