@@ -6,7 +6,7 @@ import { operationalToday } from "@/lib/academic-date";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { confirmAction } from "@/components/sigem/confirm-action";
-import { presentError } from "@/lib/observability/governed-errors";
+import { presentError, UserFacingError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
@@ -145,7 +145,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const scopedPending = networkReady && pendingReady && !pendingScopeMismatch
     ? pending.data : [];
   const pendingScopeError = pendingScopeMismatch
-    ? new Error("O quadro de providências não corresponde ao escopo atual da rede. Atualize as consultas antes de visualizar ou exportar.")
+    ? new UserFacingError("O quadro de providências não corresponde ao escopo atual da rede. Atualize as consultas antes de visualizar ou exportar.")
     : network.isError ? network.error : pending.isError ? pending.error : null;
   const canRecord = Boolean(detailData) && Boolean(authority.person) && authority.capabilities.some((c) =>
     c.capabilityId === "registrar-acompanhamento-institucional"
