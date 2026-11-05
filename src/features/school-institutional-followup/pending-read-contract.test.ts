@@ -51,6 +51,8 @@ describe("contrato do quadro de providências autorizado", () => {
       { ...action, situation: "sem atualização", last_update_on: "2026-11-04" },
       { ...action, situation: "em andamento", last_update_on: null },
       { ...action, created_at: "ontem" },
+      { ...action, created_at: "2026-02-30T14:03:04Z" },
+      { ...action, created_at: "2026-11-31T14:03:04+00:00" },
     ]) {
       expect(() => parseNetworkPendingFollowup({ pending: [row] }))
         .toThrow(/medida incompleta ou inválida/);
