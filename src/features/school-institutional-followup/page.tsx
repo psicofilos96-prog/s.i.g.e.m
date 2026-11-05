@@ -554,7 +554,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {detail.data && <SchoolOpenActionsPanel key={school} snapshot={detail.data} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
-      {canRecord && <form id="followup-visit-form" className="space-y-4 rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
+      {canRecord && <form id="followup-visit-form" className="rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
+        <fieldset disabled={saving} className="min-w-0 space-y-4">
         <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
         {visitDraftNotice && <p role="alert" className="text-sm text-destructive">{visitDraftNotice}</p>}
         {correctionBase && <p className="text-sm text-muted-foreground">
@@ -653,9 +654,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </Button>}
         </div>
         <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
+        </fieldset>
       </form>}
       {detail.data && canRecord && measureVisitId && <form id="followup-measure-form"
-        className="space-y-3 rounded-xl border p-4" onSubmit={(e) => void saveMeasure(e)}>
+        className="rounded-xl border p-4" onSubmit={(e) => void saveMeasure(e)}>
+        <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
         <h3 className="font-semibold">Acrescentar medida a uma visita existente</h3>
         {measureDraftNotice && <p role="alert" className="text-sm text-destructive">{measureDraftNotice}</p>}
         <p className="text-sm text-muted-foreground">
@@ -686,7 +689,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <Button type="button" variant="outline" disabled={savingMeasure}
             onClick={() => void discardMeasureDraft()}>Cancelar</Button>
         </div>
-      </form>}
+        </fieldset>
+      </form>
       {detail.data && <>
         <div className="space-y-3 rounded-xl border p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -750,8 +754,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           })}
         </div>
         {canRecord && actionId && <form id="followup-update-form" tabIndex={-1}
-          className="scroll-mt-24 space-y-3 rounded-xl border p-4 focus:outline-2 focus:outline-primary"
+          className="scroll-mt-24 rounded-xl border p-4 focus:outline-2 focus:outline-primary"
           onSubmit={(e) => void saveUpdate(e)}>
+          <fieldset disabled={savingUpdate} className="min-w-0 space-y-3">
           <h3 className="font-semibold">Nova atualização da ação</h3>
           <p className="text-sm text-muted-foreground">
             Medida selecionada: <strong>{selectedAction?.description ?? "Não disponível"}</strong>.
@@ -791,7 +796,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             </Button>
             <Button type="button" variant="outline" disabled={savingUpdate}
               onClick={() => void discardEvolutionDraft()}>Cancelar</Button></div>
-        </form>}
+          </fieldset>
+        </form>
         <FollowupVisitComparison key={school} schoolId={school} visits={detail.data.visits} />
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Histórico de visitas</h3>

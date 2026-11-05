@@ -60,6 +60,24 @@ const schools = [
 ];
 const blankSchool = { visits: [], visit_history: [], actions: [], updates: [] };
 
+function pendingWrite() {
+  let resolve!: (value: string) => void;
+  const promise = new Promise<string>((r) => { resolve = r; });
+  return { promise, resolve };
+}
+const sampleVisit = {
+  id: "visit-a", logical_id: "logical-visit-a", version: 1, school_id: "school-a",
+  visit_date: "2026-10-15", diagnosis: "Visita anterior", strengths: "",
+  weaknesses: "", summary: null, participants_note: null, purpose_note: null,
+  correction_reason: null, supersedes_id: null, can_correct: false,
+  created_at: "2026-10-15T12:00:00Z", author_name: "Servidor",
+};
+const sampleAction = {
+  id: "action-a", school_id: "school-a", visit_logical_id: "logical-visit-a",
+  description: "Organizar salas", responsible_label: "Direção", due_on: "2026-11-06",
+  created_at: "2026-10-15T13:00:00Z", author_name: "Servidor",
+};
+
 function setSession(writable: boolean, writableSchoolId: string | null = null) {
   mocks.session = {
     status: "signed-in", sessionRevision: 1, user: { id: "test-user" },
@@ -196,6 +214,84 @@ describe("acompanhamento institucional — integração da página e capacidades
     }));
     expect(mocks.recordVisit).not.toHaveBeenCalled();
     expect(mocks.recordAction).not.toHaveBeenCalled();
+  });
+
+  it("congela todos os campos da visita durante a escrita e os libera após confirmação", async () => {
+    setSession(true);
+    const delayed = pendingWrite();
+    mocks.recordVisitBundle.mockReturnValueOnce(delayed.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Relato em gravação" } });
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Inventariar material" } });
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "O que precisa ser feito" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Responsável declarado" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Data da visita" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Adicionar medida" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Registrando…" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Fechar escola" }));
+    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
+    expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
+
+    await act(async () => { delayed.resolve("visit-created"); });
+    await waitFor(() => expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" })).not.toBeDisabled());
+    expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue("");
+  });
+
+  it("congela a medida adicional durante o envio e restabelece o formulário após falha", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({ ...blankSchool, visits: [sampleVisit] });
+    const delayed = pendingWrite();
+    mocks.recordAction.mockReturnValueOnce(delayed.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(screen.getByRole("button", { name: "Acrescentar medida ao plano" }));
+    const form = screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Melhorar a iluminação" } });
+    fireEvent.click(fields.getByRole("button", { name: "Acrescentar medida" }));
+    await waitFor(() => expect(mocks.recordAction).toHaveBeenCalledTimes(1));
+    expect(fields.getByRole("textbox", { name: "O que precisa ser feito" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Responsável declarado" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Prazo, se houver" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Cancelar" })).toBeDisabled();
+    await act(async () => { delayed.resolve("action-created"); });
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Acrescentar medida a uma visita existente" })).toBeNull());
+  });
+
+  it("congela a evolução durante a gravação, preservando o texto antes da confirmação", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [sampleVisit], actions: [sampleAction],
+    });
+    const delayed = pendingWrite();
+    mocks.recordUpdate.mockReturnValueOnce(delayed.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(screen.getByRole("button", { name: "Registrar evolução" }));
+    const form = screen.getByRole("heading", { name: "Nova atualização da ação" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.change(fields.getByRole("textbox", { name: "O que foi feito" }),
+      { target: { value: "Inventário realizado" } });
+    fireEvent.click(fields.getByRole("button", { name: "Registrar atualização" }));
+    await waitFor(() => expect(mocks.recordUpdate).toHaveBeenCalledTimes(1));
+    expect(fields.getByRole("textbox", { name: "O que foi feito" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "O que não foi feito" })).toBeDisabled();
+    expect(fields.getByRole("combobox", { name: "Situação declarada" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Data da evolução" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Cancelar" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "O que foi feito" })).toHaveValue("Inventário realizado");
+    await act(async () => { delayed.resolve("update-created"); });
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Nova atualização da ação" })).toBeNull());
+    expect(mocks.recordUpdate).toHaveBeenCalledTimes(1);
   });
 
   it("identifica medida parcialmente preenchida em tempo real e só libera envio após correção", async () => {

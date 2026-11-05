@@ -115,6 +115,7 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] Com visita nova parcialmente preenchida, a troca de escola e o fechamento da ficha são recusados sem apagar textos; **Descartar preenchimento** limpa apenas depois de ação explícita.
 - [ ] Com retificação aberta, uma tentativa de retificar outra visita ou mudar de escola preserva a primeira.
 - [ ] Com medida adicional em edição, trocar visita ou escola preserva os dados até salvar ou cancelar; os botões de cancelar ficam desabilitados durante o envio.
+- [ ] Enquanto qualquer formulário (visita, medida ou evolução) está enviando dados, todos os campos, datas, seletores e botões internos ficam desabilitados; em erro voltam a ser editáveis com os valores preservados.
 - [ ] Com evolução em edição, trocar medida ou escola preserva os campos; uma evolução limpa pode ser cancelada sem criar evento.
 - [ ] Com visita/medida/evolução em edição, **recarregar ou fechar a aba** aciona confirmação nativa nos navegadores que a suportem; após salvar/cancelar, o alerta deixa de ser apresentado. Conferir limites em smartphones e que nenhum texto é persistido offline.
 - [ ] Com formulário não salvo, mudar para **outra rota interna** do SIGEM abre confirmação institucional; cancelar preserva o formulário e confirmar permite a saída. Sem rascunho, não há bloqueio. Validar também quando a interface de confirmação estiver indisponível.
