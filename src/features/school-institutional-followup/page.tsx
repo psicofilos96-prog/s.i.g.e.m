@@ -587,7 +587,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </>}
     </section>
     <InstitutionalPendingPanel rows={pending.data ?? []} loading={pending.isPending}
-      error={pending.isError ? pending.error : null} today={today} onOpenAction={openMeasure} />
+      error={pending.isError ? pending.error : null} today={today} selectedSchoolId={school}
+      onOpenAction={openMeasure} />
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
     {school && <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
       <div className="flex flex-wrap items-center justify-between gap-2">
