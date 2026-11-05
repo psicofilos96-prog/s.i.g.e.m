@@ -167,16 +167,23 @@ BEGIN
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-two-visitors:outsider-read'; END IF;
 
-  -- A auditoria da autoria é persistida na tabela, nunca inferida dos participantes.
-  RESET ROLE; -- Não necessário para o writer: consulta final sob privilégio do fixture.
-  IF NOT EXISTS (
-    SELECT 1 FROM public.school_institutional_followup_visits
-    WHERE id = visit_a AND author_user_id = visitor_a AND author_person_id = visitor_a
-  ) OR NOT EXISTS (
-    SELECT 1 FROM public.school_institutional_followup_visits
-    WHERE id = visit_b AND author_user_id = visitor_b AND author_person_id = visitor_b
-  ) THEN RAISE EXCEPTION 'followup-two-visitors:authorship-mismatch'; END IF;
-  RAISE NOTICE 'FOLLOWUP_0613_TWO_VISITORS_OK';
+  RAISE NOTICE 'FOLLOWUP_0613_TWO_VISITORS_SCOPES_OK';
 END $two_visitors$;
+
+-- Auditoria da autoria persistida sob o papel de fixture, fora da sessão cliente.
+RESET ROLE;
+DO $audit$
+BEGIN
+  IF (SELECT count(*) FROM public.school_institutional_followup_visits
+    WHERE diagnosis = 'Diagnóstico A' AND school_id = 'school-a'
+      AND author_user_id = '11111111-1111-4111-8111-111111111111'::uuid
+      AND author_person_id = '11111111-1111-4111-8111-111111111111'::uuid) <> 1
+    OR (SELECT count(*) FROM public.school_institutional_followup_visits
+    WHERE diagnosis = 'Diagnóstico B' AND school_id = 'school-b'
+      AND author_user_id = '55555555-5555-4555-8555-555555555555'::uuid
+      AND author_person_id = '55555555-5555-4555-8555-555555555555'::uuid) <> 1
+  THEN RAISE EXCEPTION 'followup-two-visitors:authorship-mismatch'; END IF;
+  RAISE NOTICE 'FOLLOWUP_0613_TWO_VISITORS_OK';
+END $audit$;
 
 ROLLBACK;
