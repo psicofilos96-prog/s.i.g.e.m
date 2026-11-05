@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseFollowupMonths, parseFollowupNetworkRows, parseFollowupStatuses } from "./network-read-contract";
+import { parseFollowupMonths, parseFollowupNetworkRows, parseFollowupStatuses, reconcileFollowupNetworkIndicators } from "./network-read-contract";
 
 const network = [{
   school_id: "school-a", school_name: "Escola Centro", inep: "33000001",
@@ -71,4 +71,34 @@ describe("contratos de leitura do panorama institucional", () => {
     expect(() => parseFollowupStatuses([rows[0], rows[0]])).toThrow(/inválido/);
     expect(() => parseFollowupStatuses(null)).toThrow(/indisponíveis/);
   });
+  it("concilia totais de visitas e situações entre RPCs independentes da mesma rede", () => {
+    const months = [{ month: "2026-10", visits: 1 }, { month: "2026-11", visits: 3 }];
+    const statuses = [
+      { situation: "sem atualização", actions: 1 },
+      { situation: "em andamento", actions: 2 },
+      { situation: "concluída", actions: 2 },
+    ];
+    expect(reconcileFollowupNetworkIndicators(network, months, statuses)).toEqual({
+      monthlyConsistent: true, statusesConsistent: true,
+    });
+    expect(reconcileFollowupNetworkIndicators(network, [], statuses)).toEqual({
+      monthlyConsistent: false, statusesConsistent: true,
+    });
+    expect(reconcileFollowupNetworkIndicators(network, months, statuses.slice(0, 2))).toEqual({
+      monthlyConsistent: true, statusesConsistent: false,
+    });
+    // A soma total ainda pode coincidir enquanto a categoria de concluídas diverge.
+    expect(reconcileFollowupNetworkIndicators(network, months,
+      [{ situation: "sem atualização", actions: 3 }, { situation: "concluída", actions: 1 },
+        { situation: "em andamento", actions: 1 }])).toEqual({
+      monthlyConsistent: true, statusesConsistent: false,
+    });
+    expect(reconcileFollowupNetworkIndicators([], [], [])).toEqual({
+      monthlyConsistent: true, statusesConsistent: true,
+    });
+    expect(reconcileFollowupNetworkIndicators(network,
+      [{ month: "2026-11", visits: Number.MAX_SAFE_INTEGER }, { month: "2026-10", visits: 1 }],
+      statuses).monthlyConsistent).toBe(false);
+  });
+
 });
