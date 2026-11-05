@@ -147,4 +147,15 @@ jobs:
           "${db[@]}" -c "DROP TRIGGER followup_bundle_immutable ON public.school_institutional_followup_bundles;"
           expect_postflight_failure "followup-postflight:immutable-trigger-missing-or-disabled:school_institutional_followup_bundles"
           "${db[@]}" -c "CREATE TRIGGER followup_bundle_immutable BEFORE UPDATE OR DELETE ON public.school_institutional_followup_bundles FOR EACH ROW EXECUTE FUNCTION public.school_institutional_followup_immutable();"
+          # SECURITY DEFINER functions cannot inherit a writable search path.
+          # Both a maliciously broad path and a missing setting must fail.
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) SET search_path TO public;"
+          expect_postflight_failure "followup-postflight:search-path-not-empty:school_institutional_followup_network"
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) RESET search_path;"
+          expect_postflight_failure "followup-postflight:search-path-not-empty:school_institutional_followup_network"
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) SET search_path TO '';"
+          # The immutable trigger routine is intentionally SECURITY INVOKER.
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_immutable() SECURITY DEFINER;"
+          expect_postflight_failure "followup-postflight:immutable-must-be-invoker"
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_immutable() SECURITY INVOKER;"
           "${db[@]}" -f supabase/tests/0613_followup_clone_postflight_readonly.sql
