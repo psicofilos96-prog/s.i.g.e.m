@@ -153,6 +153,12 @@ Só liberar a PR do estado **draft** e considerar merge após: (a) CI da última
 
 **Separação de responsabilidades:** a equipe de acompanhamento registra fatos e evolução; o Gabinete consulta e decide providências pelos processos institucionais existentes. Este módulo não realiza cobranças, sanções ou homologações automáticas.
 
+### Exportações gerais canceladas ao mudar de contexto (revisão de 05/11/2026)
+
+As exportações **PDF, Excel e CSV** do panorama, da ficha escolar e da visita individual agora conferem `AbortSignal` antes do download. A página cancela a exportação ao trocar de escola, sair do módulo, alterar filtros/período ou receber nova resposta autorizada. O cancelamento ocorre de forma síncrona antes da troca de escola, e a conclusão tardia de uma conversão antiga não libera nem interfere no arquivo novo. A função do quadro de providências também admite o sinal opcional, para uso por interfaces que controlam seu ciclo de vida. A conversão pode terminar em memória, mas não entrega um arquivo obsoleto.
+
+Testes com promessas assíncronas controladas comprovam que PDFs e planilhas cancelados não produzem downloads, e que a exportação de uma nova escola continua independente da anterior. Os testes não equivalem a uma simulação de revogação real de sessão no Supabase nem à homologação em clone integral.
+
 ### Integridade das cadeias de retificações (revisão de 05/11/2026)
 
 O leitor de ficha escolar agora confere não só o vínculo das ações a visitas vigentes, mas também a **cadeia completa das versões**: cada visita vigente deve percorrer suas antecessoras por `supersedes_id` até a versão original (`version = 1`), com versões consecutivas e um mesmo `logical_id`. O JSON completo é rejeitado se faltar versão histórica, existir predecessor incorreto, cadeia órfã ou retificação com versão saltada. Há regressões automatizadas para uma visita com três versões, duas visitas independentes e diferentes histórias malformadas. Esta validação da interface não altera a escrita append-only do banco nem substitui a homologação da migration sobre o esquema completo.
