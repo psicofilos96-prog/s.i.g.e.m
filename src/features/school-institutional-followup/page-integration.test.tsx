@@ -217,6 +217,44 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.recordAction).not.toHaveBeenCalled();
   });
 
+  it("repete a mesma chave de idempotência após falha de visita e usa outra quando o relato muda", async () => {
+    setSession(true);
+    const pending = pendingWrite();
+    mocks.recordVisitBundle.mockReturnValueOnce(pending.promise);
+    mocks.recordVisitBundle.mockRejectedValueOnce(new Error("Falha de conexão simulada"));
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Diagnóstico em andamento" } });
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Realizar inventário" } });
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    const first = mocks.recordVisitBundle.mock.calls[0]?.[0] as {
+      request: string; actions: { request: string }[];
+    };
+    await act(async () => { pending.reject(new Error("Falha de conexão simulada")); });
+    await waitFor(() => expect(fields.getByRole("button", { name: "Salvar visita e plano" })).not.toBeDisabled());
+    expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }))
+      .toHaveValue("Diagnóstico em andamento");
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(2));
+    const retry = mocks.recordVisitBundle.mock.calls[1]?.[0] as typeof first;
+    expect(retry.request).toBe(first.request);
+    expect(retry.actions[0]?.request).toBe(first.actions[0]?.request);
+    await waitFor(() => expect(fields.getByRole("button", { name: "Salvar visita e plano" })).not.toBeDisabled());
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Diagnóstico corrigido antes da nova tentativa" } });
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(3));
+    const changed = mocks.recordVisitBundle.mock.calls[2]?.[0] as typeof first;
+    expect(changed.request).not.toBe(first.request);
+    expect(changed.actions[0]?.request).not.toBe(first.actions[0]?.request);
+  });
+
   it("congela todos os campos da visita durante a escrita e os libera após confirmação", async () => {
     setSession(true);
     const delayed = pendingWrite();
@@ -253,7 +291,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.recordAction.mockReturnValueOnce(delayed.promise);
     renderPage();
     await openSchool("Escola Centro");
-    fireEvent.click(screen.getByRole("button", { name: "Acrescentar medida ao plano" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Acrescentar medida ao plano" }));
     const form = screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" }).closest("form")!;
     const fields = within(form);
     fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
@@ -269,7 +307,14 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(fields.getByRole("textbox", { name: "O que precisa ser feito" }))
       .toHaveValue("Melhorar a iluminação");
     expect(fields.getByRole("button", { name: "Acrescentar medida" })).not.toBeDisabled();
+    const firstCall = mocks.recordAction.mock.calls[0]?.[0] as { request: string };
     expect(mocks.recordAction).toHaveBeenCalledTimes(1);
+    fireEvent.click(fields.getByRole("button", { name: "Acrescentar medida" }));
+    await waitFor(() => expect(mocks.recordAction).toHaveBeenCalledTimes(2));
+    const retry = mocks.recordAction.mock.calls[1]?.[0] as { request: string };
+    expect(retry.request).toBe(firstCall.request);
+    expect(retry).toEqual(firstCall);
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Acrescentar medida a uma visita existente" })).toBeNull());
   });
 
   it("congela a evolução durante a gravação, preservando o texto antes da confirmação", async () => {
@@ -281,7 +326,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.recordUpdate.mockReturnValueOnce(delayed.promise);
     renderPage();
     await openSchool("Escola Centro");
-    fireEvent.click(screen.getByRole("button", { name: "Registrar evolução" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução", exact: true }));
     const form = screen.getByRole("heading", { name: "Nova atualização da ação" }).closest("form")!;
     const fields = within(form);
     fireEvent.change(fields.getByRole("textbox", { name: "O que foi feito" }),
