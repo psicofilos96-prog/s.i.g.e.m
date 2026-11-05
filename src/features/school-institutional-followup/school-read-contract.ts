@@ -37,7 +37,7 @@ export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): S
 
   const visitIds = new Set<string>();
   const currentLogicalIds = new Set<string>();
-  const allLogicalIds = new Set<string>();
+  const currentVisitDates = new Map<string, string>();
   for (const [index, item] of [...visits, ...history].entries()) {
     if (!isRow(item) || !hasText(item, "id") || !hasText(item, "logical_id") ||
         !Number.isInteger(item["version"]) || (item["version"] as number) < 1 ||
@@ -53,22 +53,27 @@ export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): S
       throw new Error("O histórico da unidade contém uma visita inválida ou fora do escopo.");
     }
     visitIds.add(item["id"] as string);
-    allLogicalIds.add(item["logical_id"] as string);
-    if (index < visits.length) currentLogicalIds.add(item["logical_id"] as string);
+    if (index < visits.length) {
+      currentLogicalIds.add(item["logical_id"] as string);
+      currentVisitDates.set(item["logical_id"] as string, item["visit_date"] as string);
+    }
   }
 
   const actionIds = new Set<string>();
+  const actionOriginDates = new Map<string, string>();
   for (const item of actions) {
     if (!isRow(item) || !hasText(item, "id") || item["school_id"] !== schoolId ||
-        !hasText(item, "visit_logical_id") || !allLogicalIds.has(item["visit_logical_id"] as string) ||
+        !hasText(item, "visit_logical_id") || !currentVisitDates.has(item["visit_logical_id"] as string) ||
         !hasText(item, "description") || !timestamp(item["created_at"]) ||
         !optionalText(item, "responsible_label") ||
         !optionalText(item, "author_name") ||
-        (item["due_on"] != null && !date(item["due_on"])) ||
+        (item["due_on"] != null && (!date(item["due_on"]) ||
+          (item["due_on"] as string) < currentVisitDates.get(item["visit_logical_id"] as string)!)) ||
         actionIds.has(item["id"] as string)) {
       throw new Error("O histórico da unidade contém uma medida inválida ou sem visita de origem.");
     }
     actionIds.add(item["id"] as string);
+    actionOriginDates.set(item["id"] as string, currentVisitDates.get(item["visit_logical_id"] as string)!);
   }
 
   const updateIds = new Set<string>();
@@ -77,8 +82,15 @@ export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): S
     if (!isRow(item) || !hasText(item, "id") ||
         !hasText(item, "action_id") || !actionIds.has(item["action_id"] as string) ||
         (item["visit_logical_id"] != null &&
-          (!hasText(item, "visit_logical_id") || !allLogicalIds.has(item["visit_logical_id"] as string))) ||
-        !date(item["occurred_on"]) || !situations.has(String(item["situation"])) ||
+          (!hasText(item, "visit_logical_id") ||
+            !currentVisitDates.has(item["visit_logical_id"] as string) ||
+            currentVisitDates.get(item["visit_logical_id"] as string)! <
+              actionOriginDates.get(item["action_id"] as string)!)) ||
+        !date(item["occurred_on"]) ||
+        (item["occurred_on"] as string) < actionOriginDates.get(item["action_id"] as string)! ||
+        (item["visit_logical_id"] != null &&
+          (item["occurred_on"] as string) < currentVisitDates.get(item["visit_logical_id"] as string)!) ||
+        !situations.has(String(item["situation"])) ||
         !timestamp(item["created_at"]) || !optionalText(item, "done_text") ||
         !optionalText(item, "not_done_text") || !optionalText(item, "results") ||
         !optionalText(item, "referrals") || !optionalText(item, "author_name") ||
