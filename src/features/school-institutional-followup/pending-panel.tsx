@@ -9,9 +9,11 @@ const field = "mt-1 w-full rounded-md border border-input bg-background px-3 py-
 const PAGE_SIZE = 25;
 
 /** Consulta e exportação; nenhuma ação de cobrança ou alteração de dados. */
-export function InstitutionalPendingPanel({ rows, loading, error, today, selectedSchoolId, onOpenAction }: {
+export function InstitutionalPendingPanel({ rows, loading, error, today, selectedSchoolId, cancelExportRef, onOpenAction }: {
   rows: readonly NetworkPendingAction[]; loading: boolean; error: unknown;
   today: string; selectedSchoolId?: string;
+  // Parent actions (especially "Atualizar") must abort before the next React render.
+  cancelExportRef?: { current: (() => void) | null };
   onOpenAction: (schoolId: string, actionId: string) => void;
 }) {
   const [view, setView] = useState<PendingView>("todas");
@@ -33,6 +35,13 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
     activeExport.current?.abort();
     activeExport.current = null;
   }, []);
+  useEffect(() => {
+    if (!cancelExportRef) return;
+    cancelExportRef.current = cancelStaleExport;
+    return () => {
+      if (cancelExportRef.current === cancelStaleExport) cancelExportRef.current = null;
+    };
+  }, [cancelExportRef, cancelStaleExport]);
   // A refreshed set of authorized measures (or a different school/scope)
   // invalidates any report still converting asynchronously.
   useEffect(() => {
