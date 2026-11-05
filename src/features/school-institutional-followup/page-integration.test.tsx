@@ -167,6 +167,72 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.recordUpdate).not.toHaveBeenCalled();
   });
 
+  it("exibe indicadores somente quando as séries mensais e situações conciliam com o panorama", async () => {
+    setSession(false);
+    const withTotals = [
+      { ...schools[0]!, visits: 3, actions: 5, completed: 2, overdue: 1, last_visit: "2026-11-01" },
+      schools[1]!,
+    ];
+    mocks.networkFollowup.mockResolvedValue(withTotals);
+    mocks.monthlyFollowup.mockResolvedValue([{ month: "2026-11", visits: 3 }]);
+    mocks.followupStatuses.mockResolvedValue([
+      { situation: "sem atualização", actions: 1 },
+      { situation: "em andamento", actions: 2 },
+      { situation: "concluída", actions: 2 },
+    ]);
+    renderPage();
+    expect(await screen.findByTestId("network-analytics")).toBeTruthy();
+    expect(screen.queryByText(/Os totais da rede, a série mensal/)).toBeNull();
+  });
+
+  it("oculta gráficos e total por situação até reconciliar respostas de momentos distintos", async () => {
+    setSession(false);
+    const withTotals = [
+      { ...schools[0]!, visits: 3, actions: 5, completed: 2, overdue: 1, last_visit: "2026-11-01" },
+      schools[1]!,
+    ];
+    mocks.networkFollowup.mockResolvedValue(withTotals);
+    mocks.monthlyFollowup.mockResolvedValue([{ month: "2026-11", visits: 2 }]);
+    mocks.followupStatuses.mockResolvedValue([
+      { situation: "sem atualização", actions: 2 },
+      { situation: "concluída", actions: 1 },
+    ]);
+    renderPage();
+    const mismatch = await screen.findByText(/Os totais da rede, a série mensal e a distribuição/);
+    expect(mismatch).toBeTruthy();
+    expect(screen.queryByTestId("network-analytics")).toBeNull();
+    expect(screen.getByText("Não apurado")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Escola Centro" })).toBeTruthy();
+
+    // Refresh both readers, not only the chart, until they match the network.
+    mocks.monthlyFollowup.mockResolvedValue([{ month: "2026-11", visits: 3 }]);
+    mocks.followupStatuses.mockResolvedValue([
+      { situation: "sem atualização", actions: 1 },
+      { situation: "em andamento", actions: 2 },
+      { situation: "concluída", actions: 2 },
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await screen.findByTestId("network-analytics")).toBeTruthy();
+    expect(screen.queryByText(/Os totais da rede, a série mensal e a distribuição/)).toBeNull();
+    expect(screen.queryByText("Não apurado")).toBeNull();
+  });
+
+  it("não apresenta uma distribuição divergente mesmo quando a soma das ações coincide", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([
+      { ...schools[0]!, visits: 0, actions: 5, completed: 2, overdue: 1 },
+      schools[1]!,
+    ]);
+    mocks.followupStatuses.mockResolvedValue([
+      { situation: "em andamento", actions: 4 },
+      { situation: "concluída", actions: 1 },
+    ]);
+    renderPage();
+    expect(await screen.findByText(/Os totais da rede, a série mensal e a distribuição/)).toBeTruthy();
+    expect(screen.queryByTestId("network-analytics")).toBeNull();
+    expect(screen.getByText("Não apurado")).toBeTruthy();
+  });
+
   it("Gabinete consulta unidades, mas não pode registrar visita ou medida", async () => {
     setSession(false);
     renderPage();
