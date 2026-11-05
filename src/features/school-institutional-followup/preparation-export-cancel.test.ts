@@ -49,15 +49,15 @@ describe("cancelamento de exportação de roteiro ao deixar a unidade", () => {
   });
 
   it("não baixa Excel de escola anterior após cancelamento durante conversão", async () => {
-    let finish!: (value: Uint8Array) => void;
-    const pending = new Promise<Uint8Array>((resolve) => { finish = resolve; });
+    let finish!: (value: ArrayBuffer) => void;
+    const pending = new Promise<ArrayBuffer>((resolve) => { finish = resolve; });
     vi.mocked(toXlsx).mockReturnValueOnce(pending);
     const abort = new AbortController();
     const work = exportFollowupPreparation(snapshot, "school-a", "Escola Centro", null,
       "2026-11-05", "xlsx", undefined, abort.signal);
     expect(toXlsx).toHaveBeenCalledTimes(1);
     abort.abort();
-    finish(new Uint8Array([1, 2, 3]));
+    finish(new Uint8Array([1, 2, 3]).buffer);
     await work;
     expect(downloadBlob).not.toHaveBeenCalled();
   });
