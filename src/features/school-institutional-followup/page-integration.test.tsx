@@ -1047,6 +1047,76 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(within(panel).queryByRole("alert")).toBeNull();
   });
 
+  it("bloqueia o quadro quando pendências das escolas A e B se compensam no total da rede", async () => {
+    setSession(false);
+    const schoolA = { ...schools[0]!, actions: 2, completed: 0, overdue: 1 };
+    const schoolB = { ...schools[1]!, actions: 1, completed: 0, overdue: 0 };
+    mocks.networkFollowup.mockResolvedValue([schoolA, schoolB]);
+    const measures = [
+      { action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+        inep: "33000001", description: "Pendência A", responsible_label: null,
+        due_on: "2026-11-01", situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+      { action_id: "measure-b", school_id: "school-b", school_name: "Escola Serra",
+        inep: "33000002", description: "Pendência deslocada", responsible_label: null,
+        due_on: null, situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+      { action_id: "measure-c", school_id: "school-b", school_name: "Escola Serra",
+        inep: "33000002", description: "Pendência B", responsible_label: null,
+        due_on: null, situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+    ];
+    mocks.networkPendingFollowup.mockResolvedValue(measures);
+    renderPage();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/quantidade de providências/);
+    expect(within(panel).queryByText("Pendência deslocada")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+    expect(exportNetworkPending).not.toHaveBeenCalled();
+
+    // Restoring the correct school for B restores the report; no records
+    // have been created in the browser.
+    mocks.networkPendingFollowup.mockResolvedValue(
+      measures.map((item) => item.action_id === "measure-b"
+        ? { ...item, school_id: "school-a", school_name: "Escola Centro", inep: "33000001" }
+        : item));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await within(panel).findByText("Pendência deslocada")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  it("recusa vencimentos atribuídos à escola incorreta mesmo se o total global for igual", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([
+      { ...schools[0]!, actions: 1, completed: 0, overdue: 0 },
+      { ...schools[1]!, actions: 1, completed: 0, overdue: 1 },
+    ]);
+    const measureA = {
+      action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+      inep: "33000001", description: "Prazo da escola A", responsible_label: null,
+      due_on: "2026-11-01", situation: "sem atualização", last_update_on: null,
+      created_at: "2026-10-01T12:00:00Z",
+    };
+    const measureB = {
+      ...measureA, action_id: "measure-b", school_id: "school-b",
+      school_name: "Escola Serra", inep: "33000002", description: "Prazo da escola B",
+      due_on: null,
+    };
+    mocks.networkPendingFollowup.mockResolvedValue([measureA, measureB]);
+    renderPage();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/vencidas não coincide/);
+    expect(within(panel).queryByText("Prazo da escola A")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+
+    mocks.networkPendingFollowup.mockResolvedValue([
+      { ...measureA, due_on: null }, { ...measureB, due_on: "2026-11-01" },
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await within(panel).findByText("Prazo da escola B")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
   it("isola ficha, rascunho e exportação quando uma conta diferente assume a sessão", async () => {
     setSession(true);
     mocks.schoolFollowup.mockResolvedValue({
