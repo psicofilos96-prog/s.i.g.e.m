@@ -126,8 +126,39 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
       inep={null} today="2026-11-04" onInspect={vi.fn()}
       snapshot={snapshot(data.actions, [update("a1", "concluída")])} />);
     expect(screen.getByRole("alert")).toHaveTextContent(/não constam mais entre as pendentes/);
+    expect(screen.queryByRole("button", { name: "Roteiro PDF" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Limpar seleção desatualizada" })).not.toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Limpar seleção desatualizada" }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText(/Todas as medidas cadastradas constam como concluídas/)).toBeTruthy();
+  });
+
+  it("mantém aviso se uma medida selecionada foi concluída, preservando exportação integral", async () => {
+    vi.mocked(exportFollowupPreparation).mockResolvedValue(undefined);
+    const data = snapshot([
+      action("a1", "Rever biblioteca", "2026-11-02"),
+      action("a2", "Reparar iluminação", null),
+    ]);
+    const { rerender } = render(<SchoolOpenActionsPanel schoolId="s1"
+      schoolName="Escola Centro" inep={null} today="2026-11-04"
+      onInspect={vi.fn()} snapshot={data} />);
+    fireEvent.click(screen.getByRole("button", { name: "Selecionar todas do filtro (2)" }));
+    rerender(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro"
+      inep={null} today="2026-11-04" onInspect={vi.fn()}
+      snapshot={snapshot(data.actions, [update("a1", "concluída")])} />);
+    expect(screen.getByRole("alert")).toHaveTextContent(/não constam mais entre as pendentes/);
     expect(screen.getByRole("button", { name: "Roteiro PDF" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Limpar seleção" })).not.toBeDisabled();
+    fireEvent.change(screen.getByRole("combobox", { name: "Conteúdo do roteiro" }),
+      { target: { value: "all" } });
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
+    await waitFor(() => expect(exportFollowupPreparation).toHaveBeenLastCalledWith(
+      expect.objectContaining({ actions: data.actions }), "s1", "Escola Centro", null,
+      "2026-11-04", "pdf", undefined,
+    ));
+    fireEvent.click(screen.getByRole("button", { name: "Limpar seleção" }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText(/0 medidas selecionadas para roteiro de foco/)).toBeTruthy();
   });
 
   it("informa ausência de evolução sem inferir falta de execução", () => {
@@ -200,7 +231,7 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     expect(screen.queryByRole("button", { name: /Ver acompanhamento da medida:/ })).toBeNull();
     expect(screen.getByText(/Nenhuma providência corresponde aos filtros desta visita/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
-    expect(screen.getByText(/inclusive as ocultadas pelos filtros/)).toBeTruthy();
+    expect(screen.getByText(/mesmo fora dos filtros ou da prévia/)).toBeTruthy();
     expect(screen.getByText("4 sem conclusão declarada")).toBeTruthy();
     expect(screen.queryByText("Plano encerrado")).toBeNull();
   });

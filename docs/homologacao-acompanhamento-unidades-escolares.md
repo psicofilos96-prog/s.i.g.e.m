@@ -108,6 +108,7 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] No quadro de preparação da próxima visita, a última evolução de cada medida aparece em detalhe expansível, com relato, data e autoria, sem ocultar o histórico antigo e sem oferecer escrita ao Gabinete.
 - [ ] É possível marcar medidas para um **roteiro de foco**, inclusive com filtros e prévia de cinco itens; PDF/Excel/CSV seletivos contêm somente as medidas marcadas, e o roteiro integral continua incluindo todas as pendentes. A seleção não duplica medidas nem registra visita.
 - [ ] Se uma medida selecionada deixar de estar pendente durante atualização do histórico, o roteiro seletivo é bloqueado até revisão/limpeza, sem excluir uma medida silenciosamente.
+- [ ] Se **todas** as medidas selecionadas forem concluídas após atualização, o aviso de seleção obsoleta e o botão de limpeza continuam visíveis, mesmo com zero pendências; se algumas permanecerem pendentes, o roteiro integral ainda pode ser exportado normalmente.
 - [ ] A comparação entre duas visitas mostra apenas versões vigentes da escola autorizada, permite escolher encontros diferentes, não conta retificação como visita e permanece somente leitura para o Gabinete.
 - [ ] Filtros de vencidas, sem atualização e sem prazo, mais pesquisa de responsável/descrição, alteram só a prévia da unidade: totais e roteiro completo exportado continuam abrangendo todas as providências sem conclusão declarada.
 - [ ] Medida sem evolução mostra ausência de registro (não presume que algo deixou de ser realizado).

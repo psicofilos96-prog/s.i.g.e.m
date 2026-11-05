@@ -74,6 +74,16 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
       <span className="rounded-md bg-muted/40 p-2">{overdue} com prazo vencido</span>
       <span className="rounded-md bg-muted/40 p-2">{withoutUpdate} sem atualização</span>
     </div>
+    {staleSelectedCount > 0 && <div role="alert" className="space-y-2 rounded-md border border-destructive/30 p-3 text-sm">
+      <p className="text-destructive">
+        {staleSelectedCount} medida(s) selecionada(s) não constam mais entre as pendentes.
+        Confira a seleção antes de exportar um roteiro de foco.
+      </p>
+      {pending.length === 0 && <Button type="button" size="sm" variant="outline"
+        onClick={() => { setSelectedIds(new Set()); setExportScope("all"); }}>
+        Limpar seleção desatualizada
+      </Button>}
+    </div>}
     {pending.length > 0 && <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="text-sm">Filtrar providências da visita
@@ -107,10 +117,6 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
           {selectedPendingIds.length} medidas selecionadas para roteiro de foco.
         </span>
       </div>
-      {staleSelectedCount > 0 && <p role="alert" className="text-sm text-destructive">
-        {staleSelectedCount} medida(s) selecionada(s) não constam mais entre as pendentes.
-        Limpe a seleção antes de exportar somente as selecionadas.
-      </p>}
       <div className="flex flex-wrap items-end gap-2" aria-label="Exportar roteiro de preparação da visita">
         <label className="text-sm">Conteúdo do roteiro
           <select className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
