@@ -490,6 +490,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
       return false;
     }
+    // Abort synchronously before the school context changes; do not rely
+    // solely on the subsequent React effect while a file conversion settles.
+    if (activeReportExport.current) {
+      activeReportExport.current.abort();
+      activeReportExport.current = null;
+      setExporting(false);
+    }
     setSchool(id); cancelEvolution(); setTargetActionId("");
     resetMeasureDraft(); resetVisitDraft();
     setActionView("todas"); setActionQuery("");
