@@ -76,6 +76,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   // One active conversion per workspace. A canceled async conversion may finish
   // computing, but must never download a document from an obsolete school/view.
   const activeReportExport = useRef<AbortController | null>(null);
+  // Child exports must be canceled in the same event as a refresh/school change.
+  const pendingExportCancel = useRef<(() => void) | null>(null);
   const liveSchoolScope = useRef("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -295,7 +297,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal));
   }
   async function refresh() {
-    // An explicit refresh invalidates the exported snapshot immediately, even before RPCs settle.
+    // Both report areas stop before any asynchronous revalidation begins.
+    pendingExportCancel.current?.();
     activeReportExport.current?.abort();
     activeReportExport.current = null;
     setExporting(false);
@@ -552,6 +555,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     }
     // Abort synchronously before the school context changes; do not rely
     // solely on the subsequent React effect while a file conversion settles.
+    pendingExportCancel.current?.();
     if (activeReportExport.current) {
       activeReportExport.current.abort();
       activeReportExport.current = null;
@@ -684,7 +688,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     <InstitutionalPendingPanel rows={scopedPending}
       loading={network.isPending || network.isFetching || pending.isPending || pending.isFetching}
       error={pendingScopeError} today={today} selectedSchoolId={school}
-      onOpenAction={openMeasure} />
+      cancelExportRef={pendingExportCancel} onOpenAction={openMeasure} />
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
     {school && network.isSuccess && !network.isFetching && !selected && <section
       className="space-y-2 rounded-xl border border-border p-4"
