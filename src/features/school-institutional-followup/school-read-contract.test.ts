@@ -119,7 +119,7 @@ describe("limite de confiança do histórico institucional por escola", () => {
     }
     // A data de 29 de fevereiro em ano bissexto continua válida.
     expect(() => parseSchoolFollowupSnapshot({
-      ...school, visits: [{ ...v1, visit_date: "2028-02-29" }],
+      ...school, visits: [{ ...v1, visit_date: "2024-02-29" }],
     }, "school-a")).not.toThrow();
 
     for (const created_at of ["texto qualquer", "2026-02-30T12:00:00Z", "2026-10-01T25:00:00Z"]) {
