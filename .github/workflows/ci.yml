@@ -127,3 +127,24 @@ jobs:
             -f supabase/tests/0613_school_institutional_followup.sql \
             -f supabase/tests/0613_followup_isolated_positive.sql \
             -f supabase/tests/0613_followup_two_visitors.sql
+          # Negative postflight checks operate ONLY on the disposable CI database:
+          # a disabled or removed append-only trigger must invalidate the clone.
+          expect_postflight_failure() {
+            local expected="$1"
+            if "${db[@]}" -f supabase/tests/0613_followup_clone_postflight_readonly.sql >"$collision_log" 2>&1; then
+              echo "Postflight unexpectedly accepted an unsafe audit trigger: $expected" >&2
+              exit 1
+            fi
+            if ! grep -Fq "$expected" "$collision_log"; then
+              cat "$collision_log"
+              echo "Postflight failed for an unexpected reason: $expected" >&2
+              exit 1
+            fi
+          }
+          "${db[@]}" -c "ALTER TABLE public.school_institutional_followup_actions DISABLE TRIGGER followup_action_immutable;"
+          expect_postflight_failure "followup-postflight:immutable-trigger-missing-or-disabled:school_institutional_followup_actions"
+          "${db[@]}" -c "ALTER TABLE public.school_institutional_followup_actions ENABLE TRIGGER followup_action_immutable;"
+          "${db[@]}" -c "DROP TRIGGER followup_bundle_immutable ON public.school_institutional_followup_bundles;"
+          expect_postflight_failure "followup-postflight:immutable-trigger-missing-or-disabled:school_institutional_followup_bundles"
+          "${db[@]}" -c "CREATE TRIGGER followup_bundle_immutable BEFORE UPDATE OR DELETE ON public.school_institutional_followup_bundles FOR EACH ROW EXECUTE FUNCTION public.school_institutional_followup_immutable();"
+          "${db[@]}" -f supabase/tests/0613_followup_clone_postflight_readonly.sql
