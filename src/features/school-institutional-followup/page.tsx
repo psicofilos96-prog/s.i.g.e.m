@@ -15,7 +15,7 @@ import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
 import { useFollowupRouteGuard } from "./use-route-guard";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
-import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
+import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, followupActionDraftIssue, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
 const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 const textArea = input + " min-h-20";
@@ -128,6 +128,12 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     summary, participants, purpose, correctionReason, actions: draftActions,
   });
   const measureDraftIsDirty = isFollowupActionDraftDirty(measureDraft);
+  // Diagnóstico local por linha, sem requisições ou gravação. Reage inclusive
+  // à alteração da data da visita após os prazos terem sido preenchidos.
+  const actionDraftIssues = correctionBase === null
+    ? draftActions.map((a) => followupActionDraftIssue(a, day)) : [];
+  const invalidActionCount = actionDraftIssues.filter((issue) => issue !== null).length;
+  const describedActionCount = draftActions.filter((a) => a.description.trim()).length;
   // O alerta cobre a recarga/fechamento da aba; ações internas preservam o
   // formulário pelos bloqueios já existentes em changeSchool/startCorrection.
   const hasUnsavedFollowup = Boolean(school) && (
@@ -580,6 +586,12 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             onChange={(e) => setCorrectionReason(e.target.value)} />
         </label>}
         {!correctionBase && <><h4 className="font-medium">Plano de ação — medidas propostas</h4>
+        <p role="status" className="text-sm text-muted-foreground">
+          {describedActionCount} {describedActionCount === 1 ? "medida descrita" : "medidas descritas"}.
+          {invalidActionCount > 0
+            ? ` ${invalidActionCount} ${invalidActionCount === 1 ? "medida precisa" : "medidas precisam"} de correção antes de salvar.`
+            : " Nenhuma inconsistência no plano."}
+        </p>
         <p className="text-xs text-muted-foreground">
           Subir e descer organiza apenas a sequência de envio das medidas nesta visita.
           O histórico poderá apresentá-las em outra ordem, por exemplo por prazo.
@@ -608,18 +620,29 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             </div>
           </div>
           <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
+            aria-invalid={actionDraftIssues[i] === "description"}
+            aria-describedby={actionDraftIssues[i] === "description" ? `followup-draft-error-${a.draftKey}` : undefined}
             onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, description: e.target.value } : x))} /></label>
           <div className="grid gap-2 md:grid-cols-2">
             <label className="block text-sm">Responsável declarado<input className={input} maxLength={250} value={a.responsible}
               onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, responsible: e.target.value } : x))} /></label>
             <label className="block text-sm">Prazo, se houver<DateInput className={input} min={day} value={a.due}
+              aria-invalid={actionDraftIssues[i] === "due"}
+              aria-describedby={actionDraftIssues[i] === "due" ? `followup-draft-error-${a.draftKey}` : undefined}
               onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, due: e.target.value } : x))} /></label>
           </div>
+          {actionDraftIssues[i] && <p id={`followup-draft-error-${a.draftKey}`}
+            role="alert" className="text-sm text-destructive">
+            Medida {i + 1}: {actionDraftIssues[i] === "description"
+              ? "informe a descrição ou remova os dados de responsável e prazo."
+              : "o prazo não pode ser anterior à data da visita."}
+          </p>}
         </div>)}</>}
         <div className="flex flex-wrap gap-2">
           {!correctionBase && <Button type="button" variant="outline" disabled={saving || draftActions.length >= 50}
             onClick={() => { setDraftActions((a) => a.length < 50 ? [...a, newAction()] : a); visitRequests.current = null; }}>Adicionar medida</Button>}
-          <Button type="submit" disabled={saving || !diagnosis.trim() || Boolean(correctionBase && !correctionReason.trim())}>
+          <Button type="submit" disabled={saving || !diagnosis.trim() || invalidActionCount > 0
+            || Boolean(correctionBase && !correctionReason.trim())}>
             {saving ? "Registrando…" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
           </Button>
           {(correctionBase || visitDraftIsDirty || visitRequests.current !== null) && <Button

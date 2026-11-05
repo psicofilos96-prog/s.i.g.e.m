@@ -173,6 +173,73 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.recordAction).not.toHaveBeenCalled();
   });
 
+  it("identifica medida parcialmente preenchida em tempo real e só libera envio após correção", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Relato da escola" } });
+    const submit = fields.getByRole("button", { name: "Salvar visita e plano" });
+    expect(submit).not.toBeDisabled();
+    expect(fields.getByText(/Nenhuma inconsistência no plano/)).toBeTruthy();
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Responsável declarado" }),
+      { target: { value: "Direção" } });
+    expect(fields.getByRole("alert")).toHaveTextContent(
+      "Medida 1: informe a descrição ou remova os dados de responsável e prazo."
+    );
+    expect(fields.getByText(/1 medida precisa de correção antes de salvar/)).toBeTruthy();
+    expect(submit).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "O que precisa ser feito" }))
+      .toHaveAttribute("aria-invalid", "true");
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Reorganizar a biblioteca" } });
+    expect(fields.queryByRole("alert")).toBeNull();
+    expect(fields.getByText(/Nenhuma inconsistência no plano/)).toBeTruthy();
+    expect(submit).not.toBeDisabled();
+    fireEvent.click(submit);
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+  });
+
+  it("revalida prazos quando a data da visita muda e recupera o envio ao corrigir", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Análise pedagógica" } });
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Instalar equipamentos" } });
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Data da visita" }),
+      { target: { value: "02/11/2026" } });
+    fireEvent.change(fields.getByRole("textbox", { name: "Prazo, se houver" }),
+      { target: { value: "03/11/2026" } });
+    expect(fields.queryByRole("alert")).toBeNull();
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Data da visita" }),
+      { target: { value: "04/11/2026" } });
+    expect(fields.getByRole("alert")).toHaveTextContent(
+      "Medida 1: o prazo não pode ser anterior à data da visita."
+    );
+    expect(fields.getByRole("button", { name: "Salvar visita e plano" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Prazo, se houver" }))
+      .toHaveAttribute("aria-invalid", "true");
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Prazo, se houver" }),
+      { target: { value: "04/11/2026" } });
+    expect(fields.queryByRole("alert")).toBeNull();
+    expect(fields.getByRole("button", { name: "Salvar visita e plano" })).not.toBeDisabled();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
   it("remove a medida intermediária sem apagar descrição ou responsável das demais", async () => {
     setSession(true);
     renderPage();

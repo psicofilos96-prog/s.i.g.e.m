@@ -96,6 +96,8 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] Uma visita permite registrar objetivo, participantes, diagnóstico, pontos fortes, fragilidades e observações.
 - [ ] Um plano permite medidas, responsável declarado e prazo; medidas podem ser adicionadas posteriormente.
 - [ ] Antes do salvamento, é possível subir, descer e remover medidas específicas mantendo descrição/responsável/prazo corretos; registros históricos permanecem sem edição destrutiva.
+- [ ] Se uma medida possui responsável ou prazo, mas não possui descrição, o formulário mostra erro na linha e bloqueia salvar até corrigir.
+- [ ] Se a data da visita é alterada e torna o prazo de uma medida anterior a ela, o erro aparece imediatamente e desaparece após corrigir; linhas totalmente vazias continuam opcionais.
 - [ ] Remover uma medida já preenchida exige confirmação explícita e não altera outras linhas; recusar o descarte preserva o texto. Linha vazia pode ser removida sem diálogo.
 - [ ] Descartar uma visita ou cancelar uma retificação/medida/evolução com dados exige confirmação; recusar mantém os valores e não grava nada no banco.
 - [ ] Usuário com escrita limitada a apenas uma unidade consegue consultar outras escolas no escopo de leitura, mas não recebe formulário de escrita fora da unidade autorizada.

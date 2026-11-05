@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
+import { currentSituation, currentUpdate, availableFollowupVisits, followupVisitByLogicalId, filterSchoolActions, filterNetworkRows, filterNetworkPending, validateFollowupActionDrafts, followupActionDraftIssue, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, isOverdue, networkIndicators, normalizeText, schoolIndicators, searchableNetwork, type FollowupAction, type FollowupUpdate } from "./model";
 
 const action: FollowupAction = {
   id: "a1", school_id: "s1", visit_logical_id: "v1", description: "Organizar o acervo",
@@ -31,6 +31,21 @@ describe("acompanhamento das unidades — projeções", () => {
     expect(moveFollowupActionDraft(original, 0, "up")).toEqual(original);
     expect(moveFollowupActionDraft(original, 2, "down")).toEqual(original);
     expect(moveFollowupActionDraft(original, -1, "down")).toEqual(original);
+  });
+
+  it("identifica precisamente o campo incompleto ou o prazo incompatível com a visita", () => {
+    const date = "2026-11-04";
+    expect(followupActionDraftIssue({ description: "", responsible: "", due: "" }, date)).toBeNull();
+    expect(followupActionDraftIssue({ description: "  ", responsible: "Equipe", due: "" }, date))
+      .toBe("description");
+    expect(followupActionDraftIssue({ description: "", responsible: "", due: "2026-11-05" }, date))
+      .toBe("description");
+    expect(followupActionDraftIssue({ description: "Entregar materiais", responsible: "", due: "2026-11-03" }, date))
+      .toBe("due");
+    expect(followupActionDraftIssue({ description: "Entregar materiais", responsible: "", due: "2026-11-04" }, date))
+      .toBeNull();
+    expect(followupActionDraftIssue({ description: "Entregar materiais", responsible: "", due: "" }, date))
+      .toBeNull();
   });
 
   it("recusa medida parcial em vez de descartar responsável ou prazo", () => {

@@ -74,19 +74,23 @@ export function filterNetworkPending(
  * Uma linha totalmente vazia é opcional; uma parcialmente preenchida não pode sumir.
  */
 export type FollowupActionDraft = { description: string; responsible: string; due: string };
+/** Retorna o campo que precisa ser corrigido na medida ainda não enviada. */
+export function followupActionDraftIssue(
+  action: Readonly<FollowupActionDraft>, visitDate: string,
+): "description" | "due" | null {
+  if (!action.description.trim() && (action.responsible.trim() || action.due)) return "description";
+  if (action.description.trim() && action.due && action.due < visitDate) return "due";
+  return null;
+}
 export function validateFollowupActionDrafts(
   actions: readonly FollowupActionDraft[], visitDate: string,
 ): string | null {
   for (const action of actions) {
-    if (!action.description.trim()) {
-      if (action.responsible.trim() || action.due) {
-        return "Uma medida possui responsável ou prazo, mas está sem descrição. Descreva o que precisa ser feito ou limpe essa medida.";
-      }
-      continue;
-    }
-    if (action.due && action.due < visitDate) {
+    const issue = followupActionDraftIssue(action, visitDate);
+    if (issue === "description")
+      return "Uma medida possui responsável ou prazo, mas está sem descrição. Descreva o que precisa ser feito ou limpe essa medida.";
+    if (issue === "due")
       return "O prazo da medida não pode ser anterior à data da visita.";
-    }
   }
   return null;
 }
