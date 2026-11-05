@@ -851,6 +851,7 @@ describe("acompanhamento institucional — integração da página e capacidades
 
     // Mesma conta e mesma sessionRevision: mudou apenas a autorização efetiva.
     mocks.networkFollowup.mockResolvedValue([schools[1]!]);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
     mocks.session = {
       ...mocks.session,
       capabilities: [
