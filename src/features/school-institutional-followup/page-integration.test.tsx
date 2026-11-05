@@ -106,6 +106,31 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.schoolFollowup).not.toHaveBeenCalled();
   });
 
+  it("Gabinete compara duas visitas vigentes da própria unidade sem acessar formulários de escrita", async () => {
+    setSession(false);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool,
+      visits: [
+        { id: "v1", logical_id: "logical-v1", school_id: "school-a", visit_date: "2026-09-10",
+          diagnosis: "Diagnóstico anterior", strengths: "", weaknesses: "", summary: null,
+          participants_note: null, purpose_note: null, correction_reason: null, supersedes_id: null,
+          version: 1, created_at: "2026-09-10T12:00:00Z", author_name: "Equipe", can_correct: false },
+        { id: "v2", logical_id: "logical-v2", school_id: "school-a", visit_date: "2026-10-10",
+          diagnosis: "Diagnóstico posterior", strengths: "", weaknesses: "", summary: null,
+          participants_note: null, purpose_note: null, correction_reason: null, supersedes_id: null,
+          version: 1, created_at: "2026-10-10T12:00:00Z", author_name: "Equipe", can_correct: false },
+      ],
+    });
+    renderPage();
+    await openSchool("Escola Centro");
+    const compare = await screen.findByRole("region", { name: "Comparar visitas registradas" });
+    expect(within(compare).getByText("Diagnóstico anterior")).toBeTruthy();
+    expect(within(compare).getByText("Diagnóstico posterior")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+    expect(mocks.recordUpdate).not.toHaveBeenCalled();
+  });
+
   it("Gabinete consulta unidades, mas não pode registrar visita ou medida", async () => {
     setSession(false);
     renderPage();

@@ -12,6 +12,7 @@ import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatu
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
+import { FollowupVisitComparison } from "./visit-comparison";
 import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
 import { useFollowupRouteGuard } from "./use-route-guard";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
@@ -791,6 +792,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             <Button type="button" variant="outline" disabled={savingUpdate}
               onClick={() => void discardEvolutionDraft()}>Cancelar</Button></div>
         </form>}
+        <FollowupVisitComparison key={school} schoolId={school} visits={detail.data.visits} />
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Histórico de visitas</h3>
           {!detail.data.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
