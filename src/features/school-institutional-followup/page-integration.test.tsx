@@ -781,6 +781,70 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
   });
 
+  it("oculta ficha em cache quando o panorama atualizado exclui a escola antes autorizada", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool,
+      visits: [{ ...sampleVisit, diagnosis: "Diagnóstico privativo da escola A" }],
+      actions: [sampleAction],
+    });
+    const delayed = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(delayed.promise.then(() => undefined));
+    renderPage();
+    await openSchool("Escola Centro");
+    expect(await screen.findByText("Diagnóstico privativo da escola A")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Ficha PDF" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    // A consulta por escola ainda retorna o cache antigo, mas a rede excluiu A.
+    mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy());
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    expect(screen.queryByText("Diagnóstico privativo da escola A")).toBeNull();
+    expect(screen.queryByText("Organizar salas")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha PDF" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.getByRole("heading", {
+      name: "A unidade não consta mais no escopo autorizado",
+    })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Fechar ficha indisponível" }));
+    await openSchool("Escola Serra");
+    await act(async () => { delayed.resolve(true); await delayed.promise; });
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("preserva rascunho após perda de escopo até confirmação explícita de descarte", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Anotação ainda não enviada" } });
+
+    mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    const discard = await screen.findByRole("button", { name: "Descartar rascunhos e fechar" });
+    expect(screen.queryByDisplayValue("Anotação ainda não enviada")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    mocks.confirmAction.mockResolvedValueOnce(false);
+    await act(async () => { fireEvent.click(discard); });
+    expect(mocks.confirmAction).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Descartar rascunhos e fechar" })).toBeTruthy();
+
+    mocks.confirmAction.mockResolvedValueOnce(true);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Descartar rascunhos e fechar" }));
+    });
+    await waitFor(() => expect(screen.queryByText("A unidade não consta mais no escopo autorizado")).toBeNull());
+    await openSchool("Escola Serra");
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+    expect(mocks.recordUpdate).not.toHaveBeenCalled();
+  });
+
   it("isola ficha, rascunho e exportação quando uma conta diferente assume a sessão", async () => {
     setSession(true);
     mocks.schoolFollowup.mockResolvedValue({
