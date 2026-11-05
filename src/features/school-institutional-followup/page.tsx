@@ -104,23 +104,28 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     queryKey: ["institutional-followup-school", sessionKey, school],
     queryFn: () => schoolFollowup(school), enabled: Boolean(school), retry: false,
   });
-  const rows = filterNetworkRows(network.data ?? [], search, networkView);
-  const totals = networkIndicators(network.data ?? []);
-  const selected = network.data?.find((r) => r.school_id === school);
-  const canRecord = Boolean(authority.person) && authority.capabilities.some((c) =>
+  // React Query may retain its last successful result when a refetch fails.
+  // Never render or export that cached institutional snapshot while scope is unverified.
+  const networkData = network.isSuccess && !network.isFetching ? network.data : [];
+  const detailData = detail.isSuccess && !detail.isFetching
+    && network.isSuccess && !network.isFetching ? detail.data : undefined;
+  const rows = filterNetworkRows(networkData, search, networkView);
+  const totals = networkIndicators(networkData);
+  const selected = networkData.find((r) => r.school_id === school);
+  const canRecord = Boolean(detailData) && Boolean(authority.person) && authority.capabilities.some((c) =>
     c.capabilityId === "registrar-acompanhamento-institucional"
     && (c.schoolId === null || c.schoolId === school));
-  const stats = detail.data ? schoolIndicators(detail.data, today) : null;
-  const selectedAction = detail.data?.actions.find((a) => a.id === actionId);
-  const updateMinDay = detail.data
-    ? followupVisitByLogicalId(detail.data.visits, selectedAction?.visit_logical_id ?? null)?.visit_date ?? null
+  const stats = detailData ? schoolIndicators(detailData, today) : null;
+  const selectedAction = detailData?.actions.find((a) => a.id === actionId);
+  const updateMinDay = detailData
+    ? followupVisitByLogicalId(detailData.visits, selectedAction?.visit_logical_id ?? null)?.visit_date ?? null
     : null;
-  const updateVisitChoices = detail.data
-    ? availableFollowupVisits(detail.data, selectedAction, updateDay)
+  const updateVisitChoices = detailData
+    ? availableFollowupVisits(detailData, selectedAction, updateDay)
     : [];
   const updateVisitIsValid = !updateVisitId || updateVisitChoices.some((v) => v.id === updateVisitId);
-  const visibleActions = detail.data
-    ? filterSchoolActions(detail.data.actions, detail.data.updates, actionView, actionQuery, today)
+  const visibleActions = detailData
+    ? filterSchoolActions(detailData.actions, detailData.updates, actionView, actionQuery, today)
     : [];
   const maxVisits = Math.max(1, ...rows.map((r) => r.visits));
   const evolutionDraftIsDirty = isEvolutionDraftDirty({
@@ -174,7 +179,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       activeReportExport.current = null;
       setExporting(false);
     }
-  }, [school, detail.data, network.data, from, to, search, networkView]);
+  }, [school, detailData, detail.isFetching, detail.isSuccess, network.data, network.isFetching, network.isSuccess, from, to, search, networkView]);
   useEffect(() => {
     if (correctionBase) document.getElementById("followup-visit-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -193,7 +198,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   // O quadro transversal aponta para a medida específica, não apenas para a escola.
   useEffect(() => {
     if (!targetActionId || !school || !detail.isSuccess) return;
-    if (!detail.data.actions.some((a) => a.id === targetActionId)) {
+    if (!detailData.actions.some((a) => a.id === targetActionId)) {
       setNotice("A medida selecionada não consta mais no histórico consultado. Atualize o quadro de providências.");
       setTargetActionId("");
       return;
@@ -204,7 +209,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       element.focus({ preventScroll: true });
       setTargetActionId("");
     }
-  }, [targetActionId, school, detail.isSuccess, detail.data]);
+  }, [targetActionId, school, detail.isSuccess, detailData]);
   async function withReportExport(run: (signal: AbortSignal) => Promise<void>) {
     // The ref prevents two downloads when clicks happen before React rerenders.
     if (activeReportExport.current) return;
@@ -225,20 +230,24 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     }
   }
   async function exportReport(format: "csv" | "xlsx" | "pdf") {
-    if (!network.isSuccess) return;
+    if (!network.isSuccess || network.isFetching) return;
     await withReportExport((signal) => exportFollowupNetwork(rows, from, to, format, signal));
   }
   async function exportSchoolReport(format: "csv" | "xlsx" | "pdf") {
-    if (!school || !detail.isSuccess) return;
+    if (!school || !detailData) return;
     await withReportExport((signal) =>
-      exportFollowupSchool(detail.data, school, selected?.school_name ?? school, format, signal));
+      exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal));
   }
   async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf") {
-    if (!school || !detail.isSuccess) return;
+    if (!school || !detailData) return;
     await withReportExport((signal) =>
-      exportFollowupVisit(detail.data, school, selected?.school_name ?? school, visitId, format, signal));
+      exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal));
   }
   async function refresh() {
+    // An explicit refresh invalidates the exported snapshot immediately, even before RPCs settle.
+    activeReportExport.current?.abort();
+    activeReportExport.current = null;
+    setExporting(false);
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-network", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-monthly", sessionKey] }),
@@ -311,7 +320,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   }
   async function saveMeasure(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const visit = detail.data?.visits.find((v) => v.id === measureVisitId);
+    const visit = detailData?.visits.find((v) => v.id === measureVisitId);
     if (!school || !canRecord || !visit || !measureDraft.description.trim() || savingMeasure
       || (measureDraft.due && measureDraft.due < visit.visit_date)) return;
     setSavingMeasure(true); setError(""); setNotice("");
@@ -411,7 +420,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setCorrectionReason(""); setDraftActions([newAction()]);
     setVisitDraftNotice(""); visitRequests.current = null;
   }
-  function startMeasure(visit: NonNullable<typeof detail.data>["visits"][number]) {
+  function startMeasure(visit: NonNullable<typeof detailData>["visits"][number]) {
     if (!canRecord || savingMeasure) return;
     if (measureVisitId === visit.id) {
       document.getElementById("followup-measure-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
@@ -425,7 +434,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setMeasureVisitId(visit.id); setMeasureDraft(newAction());
     measureRequest.current = null; setMeasureDraftNotice(""); setError(""); setNotice("");
   }
-  function startCorrection(visit: NonNullable<typeof detail.data>["visits"][number]) {
+  function startCorrection(visit: NonNullable<typeof detailData>["visits"][number]) {
     if (!canRecord || !visit.can_correct || saving) return;
     if (correctionBase === visit.id) {
       document.getElementById("followup-visit-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
@@ -451,7 +460,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   }
   function startEvolution(nextActionId: string) {
     // UI boundary complements the writer's school capability check; never trust the ID alone.
-    if (!canRecord || !detail.data?.actions.some((a) =>
+    if (!canRecord || !detailData?.actions.some((a) =>
       a.id === nextActionId && a.school_id === school)) return;
     if (actionId === nextActionId) {
       document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
@@ -531,30 +540,30 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </select>
         </label>
         <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
-        {network.isSuccess && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
+        {network.isSuccess && !network.isFetching && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("xlsx")}>Excel</Button>
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("csv")}>CSV</Button>
         </div>}
       </div>
-      {network.isPending && <p role="status" className="text-sm text-muted-foreground">Lendo registros autorizados…</p>}
+      {(network.isPending || network.isFetching) && <p role="status" className="text-sm text-muted-foreground">Lendo registros autorizados…</p>}
       {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
         description={presentError(network.error)} />}
-      {network.isSuccess && <>
+      {network.isSuccess && !network.isFetching && <>
         <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
           {[
             ["Escolas acessíveis", totals.schools], ["Visitadas no período", totals.visitedSchools],
             ["Ainda sem visita no período", totals.schools - totals.visitedSchools],
             ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
             ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
-            ["Ações sem atualização", statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? "Não apurado"],
+            ["Ações sem atualização", statuses.isSuccess && !statuses.isFetching ? (statuses.data.find((r) => r.situation === "sem atualização")?.actions ?? "Não apurado") : "Não apurado"],
           ].map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className="text-2xl font-semibold tabular-nums">{value}</p>
           </div>)}
         </div>
         <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
-        {monthly.isSuccess && statuses.isSuccess && <InstitutionalFollowupAnalytics
+        {monthly.isSuccess && statuses.isSuccess && !monthly.isFetching && !statuses.isFetching && <InstitutionalFollowupAnalytics
           months={monthly.data} statuses={statuses.data}
           period={`${dateLabel(from)} a ${dateLabel(to)}`} />}
         {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
@@ -586,7 +595,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </>}
       </>}
     </section>
-    <InstitutionalPendingPanel rows={pending.data ?? []} loading={pending.isPending}
+    <InstitutionalPendingPanel rows={pending.isSuccess && !pending.isFetching ? pending.data : []}
+      loading={pending.isPending || pending.isFetching}
       error={pending.isError ? pending.error : null} today={today} selectedSchoolId={school}
       onOpenAction={openMeasure} />
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
@@ -595,7 +605,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         <div><h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
           <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
         <div className="flex flex-wrap items-center gap-2">
-          {detail.isSuccess && <>
+          {detailData && <>
             <Button size="sm" variant="outline" disabled={exporting}
               onClick={() => void exportSchoolReport("pdf")}>Ficha PDF</Button>
             <Button size="sm" variant="outline" disabled={exporting}
@@ -606,7 +616,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <Button variant="outline" onClick={() => changeSchool("")}>Fechar escola</Button>
         </div>
       </div>
-      {detail.isPending && <p role="status">Carregando histórico…</p>}
+      {(detail.isPending || detail.isFetching) && <p role="status">Carregando histórico…</p>}
       {detail.isError && <StatePanel tone="danger" title="Histórico indisponível"
         description={presentError(detail.error)} />}
       {stats && <div className="flex flex-wrap gap-2 text-xs">
@@ -622,7 +632,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         Há um formulário em preenchimento ou envio. Salve ou cancele antes de sair desta página;
         uma recarga ou fechamento de aba pode exibir confirmação do navegador.
       </p>}
-      {detail.data && <SchoolOpenActionsPanel key={school} snapshot={detail.data} today={today}
+      {detailData && <SchoolOpenActionsPanel key={school} snapshot={detailData} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
       {canRecord && <form id="followup-visit-form" className="rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
@@ -727,13 +737,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
         </fieldset>
       </form>}
-      {detail.data && canRecord && measureVisitId && <form id="followup-measure-form"
+      {detailData && canRecord && measureVisitId && <form id="followup-measure-form"
         className="rounded-xl border p-4" onSubmit={(e) => void saveMeasure(e)}>
         <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
         <h3 className="font-semibold">Acrescentar medida a uma visita existente</h3>
         {measureDraftNotice && <p role="alert" className="text-sm text-destructive">{measureDraftNotice}</p>}
         <p className="text-sm text-muted-foreground">
-          Visita de {dateLabel(detail.data.visits.find((v) => v.id === measureVisitId)?.visit_date ?? null)}.
+          Visita de {dateLabel(detailData.visits.find((v) => v.id === measureVisitId)?.visit_date ?? null)}.
           A nova medida é adicionada ao plano sem alterar o diagnóstico ou medidas anteriores.
         </p>
         <label className="block text-sm">O que precisa ser feito
@@ -748,7 +758,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </label>
           <label className="block text-sm">Prazo, se houver
             <DateInput className={input}
-              min={detail.data.visits.find((v) => v.id === measureVisitId)?.visit_date}
+              min={detailData.visits.find((v) => v.id === measureVisitId)?.visit_date}
               value={measureDraft.due}
               onChange={(e) => setMeasureDraft((d) => ({ ...d, due: e.target.value }))} />
           </label>
@@ -762,11 +772,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </div>
         </fieldset>
       </form>}
-      {detail.data && <>
+      {detailData && <>
         <div className="space-y-3 rounded-xl border p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-semibold">Ações e evolução</h3>
-            <span className="text-xs text-muted-foreground">{visibleActions.length} de {detail.data.actions.length} medidas</span>
+            <span className="text-xs text-muted-foreground">{visibleActions.length} de {detailData.actions.length} medidas</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="text-sm">Filtrar por situação e prazo
@@ -788,24 +798,24 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             Medidas ordenadas pelo prazo declarado mais próximo; medidas sem prazo aparecem por último.
             Sem atualização não significa não realizada.
           </p>
-          {!detail.data.actions.length && <p className="text-sm text-muted-foreground">Nenhuma medida cadastrada.</p>}
-          {detail.data.actions.length > 0 && visibleActions.length === 0 &&
+          {!detailData.actions.length && <p className="text-sm text-muted-foreground">Nenhuma medida cadastrada.</p>}
+          {detailData.actions.length > 0 && visibleActions.length === 0 &&
             <p className="text-sm text-muted-foreground">Nenhuma medida corresponde aos filtros. Os registros permanecem no histórico.</p>}
           {visibleActions.map((a) => {
-            const latest = currentUpdate(a, detail.data!.updates);
+            const latest = currentUpdate(a, detailData!.updates);
             return <div key={a.id} id={`followup-action-${a.id}`} tabIndex={-1}
               className="scroll-mt-24 space-y-2 border-b pb-3 last:border-0 focus:outline-2 focus:outline-offset-2 focus:outline-primary">
               <p className="font-medium">{a.description}</p>
               <p className="text-xs text-muted-foreground">
                 Responsável: {a.responsible_label || "Não informado"} • Registro: {a.author_name || "Autoria registrada"}
-                {" • "}Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detail.data!.updates)}
-                {isOverdue(a, detail.data!.updates, today) && <strong className="text-destructive"> • Prazo vencido</strong>}
+                {" • "}Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detailData!.updates)}
+                {isOverdue(a, detailData!.updates, today) && <strong className="text-destructive"> • Prazo vencido</strong>}
               </p>
               {latest && <p className="text-sm">Última atualização ({dateLabel(latest.occurred_on)}): {latest.situation}</p>}
-              {detail.data!.updates.some((u) => u.action_id === a.id) && <details className="rounded-lg bg-muted/30 p-3 text-sm">
+              {detailData!.updates.some((u) => u.action_id === a.id) && <details className="rounded-lg bg-muted/30 p-3 text-sm">
                 <summary className="cursor-pointer font-medium">Consultar histórico completo desta ação</summary>
                 <ol className="mt-3 space-y-3">
-                  {detail.data!.updates.filter((u) => u.action_id === a.id)
+                  {detailData!.updates.filter((u) => u.action_id === a.id)
                     .sort((x, y) => y.occurred_on.localeCompare(x.occurred_on) || y.created_at.localeCompare(x.created_at))
                     .map((u) => <li key={u.id} className="space-y-1 border-b pb-2 last:border-0">
                       <p className="font-medium">{dateLabel(u.occurred_on)} — {u.situation} • {u.author_name || "Autoria registrada"}</p>
@@ -814,7 +824,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                       <p><strong>Resultados:</strong> {u.results || "Não informado"}</p>
                       <p><strong>Encaminhamentos:</strong> {u.referrals || "Não informado"}</p>
                       <p><strong>Visita associada:</strong> {u.visit_logical_id
-                        ? (dateLabel(followupVisitByLogicalId(detail.data!.visits, u.visit_logical_id)?.visit_date ?? null))
+                        ? (dateLabel(followupVisitByLogicalId(detailData!.visits, u.visit_logical_id)?.visit_date ?? null))
                         : "Nenhuma visita informada"}</p>
                     </li>)}
                 </ol>
@@ -869,11 +879,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               onClick={() => void discardEvolutionDraft()}>Cancelar</Button></div>
           </fieldset>
         </form>}
-        <FollowupVisitComparison key={school} schoolId={school} visits={detail.data.visits} />
+        <FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} />
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Histórico de visitas</h3>
-          {!detail.data.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
-          {detail.data.visits.map((v) => <article key={v.id} className="space-y-2 border-b pb-3 last:border-0">
+          {!detailData.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
+          {detailData.visits.map((v) => <article key={v.id} className="space-y-2 border-b pb-3 last:border-0">
             <p className="text-sm font-medium">{dateLabel(v.visit_date)} • {v.author_name || "Autoria institucional registrada"} {v.version > 1 ? `(retificação v${v.version})` : ""}</p>
             {v.purpose_note && <p className="text-sm"><strong>Objetivo:</strong> {v.purpose_note}</p>}
             {v.participants_note && <p className="text-sm"><strong>Demais participantes informados:</strong> {v.participants_note}</p>}
@@ -884,10 +894,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             {v.correction_reason && <p className="text-sm"><strong>Justificativa da última retificação:</strong> {v.correction_reason}</p>}
             {v.version > 1 && <details className="rounded-md bg-muted/30 p-3 text-sm">
               <summary className="cursor-pointer font-medium">
-                Ver {detail.data!.visit_history.filter((h) => h.logical_id === v.logical_id).length} versão(ões) anteriores
+                Ver {detailData!.visit_history.filter((h) => h.logical_id === v.logical_id).length} versão(ões) anteriores
               </summary>
               <ol className="mt-2 space-y-3">
-                {detail.data!.visit_history.filter((h) => h.logical_id === v.logical_id)
+                {detailData!.visit_history.filter((h) => h.logical_id === v.logical_id)
                   .sort((a, b) => b.version - a.version).map((h) => <li key={h.id} className="space-y-1 border-b pb-2 last:border-0">
                     <p className="font-semibold">Versão {h.version} • {dateLabel(h.visit_date)} • {h.author_name || "Autoria registrada"}</p>
                     {h.purpose_note && <p><strong>Objetivo:</strong> {h.purpose_note}</p>}
