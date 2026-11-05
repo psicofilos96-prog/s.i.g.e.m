@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { UserFacingError } from "@/lib/observability/governed-errors";
 import type { NetworkPendingAction, NetworkRow, SchoolSnapshot } from "./model";
+import { parseSchoolFollowupSnapshot } from "./school-read-contract";
 
 // Leitura e escrita exclusivamente por RPCs institucionais: sem DML direto do navegador.
 type RpcResponse = { data: unknown; error: { message: string } | null };
@@ -69,13 +70,7 @@ export async function networkFollowup(from: string, to: string): Promise<Network
 }
 export async function schoolFollowup(school: string): Promise<SchoolSnapshot> {
   const value = await call("school_institutional_followup_school", { _school: school });
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Resposta da escola inválida.");
-  const obj = value as Record<string, unknown>;
-  if (!Array.isArray(obj['visits']) || !Array.isArray(obj['visit_history'])
-    || !Array.isArray(obj['actions']) || !Array.isArray(obj['updates'])) {
-    throw new Error("O histórico da escola veio incompleto.");
-  }
-  return obj as unknown as SchoolSnapshot;
+  return parseSchoolFollowupSnapshot(value, school);
 }
 export async function recordVisit(input: {
   school: string; day: string; diagnosis: string; strengths: string; weaknesses: string;
