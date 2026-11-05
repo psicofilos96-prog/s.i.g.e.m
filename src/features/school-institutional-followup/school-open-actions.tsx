@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { presentError } from "@/lib/observability/governed-errors";
@@ -9,6 +9,8 @@ import {
 
 const INITIAL_SHOWN = 5;
 type PreparationFilter = "todas" | "prazo vencido" | "sem prazo" | typeof NO_UPDATE | "selecionadas";
+type ExportFormat = "csv" | "xlsx" | "pdf";
+type FailedExport = { format: ExportFormat; selectionKey: string; message: string };
 
 /** Preparação da visita: somente dados da ficha escolar já autorizada no PostgreSQL. */
 export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, today, onInspect, onStartUpdate }: {
@@ -21,7 +23,9 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   const [view, setView] = useState<PreparationFilter>("todas");
   const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
-  const [exportError, setExportError] = useState("");
+  // A ref prevents two immediate clicks from starting downloads before React rerenders.
+  const exportInFlight = useRef(false);
+  const [failedExport, setFailedExport] = useState<FailedExport | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [exportScope, setExportScope] = useState<"all" | "selected">("all");
   const ordered = filterSchoolActions(snapshot.actions, snapshot.updates, "todas", "", today);
@@ -40,6 +44,13 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   const selectedPendingIds = [...selectedIds].filter((id) => pendingIds.has(id));
   const staleSelectedCount = selectedIds.size - selectedPendingIds.length;
   const selectedExportReady = selectedPendingIds.length > 0 && staleSelectedCount === 0;
+  // Retry is a new, explicit export of the current snapshot, never a stored copy of school data.
+  const selectionKey = JSON.stringify([
+    schoolId, exportScope, exportScope === "selected" ? [...selectedIds].sort() : [],
+  ]);
+  const canRetryFailed = pending.length > 0 &&
+    (exportScope === "all" || selectedExportReady) &&
+    failedExport?.selectionKey === selectionKey;
   function clearStaleSelection() {
     if (exporting) return;
     const remaining = new Set(selectedPendingIds);
@@ -59,16 +70,19 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
     });
     if (checked) setExportScope("selected");
   }
-  async function exportPreparation(format: "csv" | "xlsx" | "pdf") {
-    if (exporting || pending.length === 0 ||
+  async function exportPreparation(format: ExportFormat) {
+    if (exportInFlight.current || exporting || pending.length === 0 ||
         (exportScope === "selected" && !selectedExportReady)) return;
-    setExportError(""); setExporting(true);
+    exportInFlight.current = true;
+    const requestedSelection = selectionKey;
+    setFailedExport(null); setExporting(true);
     try {
       await exportFollowupPreparation(snapshot, schoolId, schoolName, inep, today, format,
         exportScope === "selected" ? selectedPendingIds : undefined);
     } catch (error) {
-      setExportError(presentError(error));
+      setFailedExport({ format, selectionKey: requestedSelection, message: presentError(error) });
     } finally {
+      exportInFlight.current = false;
       setExporting(false);
     }
   }
@@ -157,9 +171,19 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         A seleção é temporária e não cria visita, nova medida ou ordem de cobrança.
       </p>
       {exporting && <p role="status" className="text-sm text-muted-foreground">
-        Preparando o roteiro selecionado para download. Os filtros e as medidas ficam bloqueados até concluir.
+        Preparando o roteiro {exportScope === "selected" ? "selecionado" : "integral"} para download.
+        Os filtros e as medidas ficam bloqueados até concluir.
       </p>}
-      {exportError && <p role="alert" className="text-sm text-destructive">{exportError}</p>}
+      {failedExport && failedExport.selectionKey === selectionKey && <div className="space-y-2">
+        <p role="alert" className="text-sm text-destructive">{failedExport.message}</p>
+        <Button type="button" size="sm" variant="outline" disabled={exporting || !canRetryFailed}
+          onClick={() => void exportPreparation(failedExport.format)}>
+          Tentar novamente o {failedExport.format === "pdf" ? "PDF" : failedExport.format === "xlsx" ? "Excel" : "CSV"}
+        </Button>
+        <p className="text-xs text-muted-foreground">
+          A nova tentativa usa os dados atuais da unidade; nenhuma medida ou visita é criada.
+        </p>
+      </div>}
     </div>}
     {snapshot.actions.length === 0 && <p className="text-sm text-muted-foreground">
       Nenhuma medida cadastrada para esta unidade.

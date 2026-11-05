@@ -261,6 +261,72 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     expect(updateAction).not.toHaveBeenCalled();
   });
 
+  it("preserva a seleção após falha e permite repetir o PDF com confirmação explícita", async () => {
+    vi.mocked(exportFollowupPreparation).mockReset();
+    vi.mocked(exportFollowupPreparation).mockRejectedValueOnce(new Error("failed to fetch"))
+      .mockResolvedValueOnce(undefined);
+    const data = snapshot([
+      action("a1", "Conferir acervo", "2026-11-03"),
+      action("a2", "Revisar estoque", null),
+    ]);
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
+      today="2026-11-04" onInspect={vi.fn()} snapshot={data} />);
+    const first = screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Conferir acervo",
+    });
+    fireEvent.click(first);
+    fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
+    const retry = await screen.findByRole("button", { name: "Tentar novamente o PDF" });
+    expect(retry).not.toBeDisabled();
+    expect(first).toBeChecked();
+    expect(screen.getByRole("combobox", { name: "Conteúdo do roteiro" })).toHaveValue("selected");
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
+    fireEvent.click(retry);
+    await waitFor(() => expect(exportFollowupPreparation).toHaveBeenCalledTimes(2));
+    expect(vi.mocked(exportFollowupPreparation)).toHaveBeenLastCalledWith(
+      data, "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a1"],
+    );
+    await waitFor(() => expect(screen.queryByRole("button", {
+      name: "Tentar novamente o PDF",
+    })).toBeNull());
+    expect(first).toBeChecked();
+  });
+
+  it("não oferece repetição antiga quando a seleção mudou após a falha", async () => {
+    vi.mocked(exportFollowupPreparation).mockReset().mockRejectedValueOnce(new Error("failed to fetch"));
+    const data = snapshot([
+      action("a1", "Conferir transporte", null), action("a2", "Rever biblioteca", null),
+    ]);
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
+      today="2026-11-04" onInspect={vi.fn()} snapshot={data} />);
+    fireEvent.click(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Conferir transporte",
+    }));
+    fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
+    expect(await screen.findByRole("button", { name: "Tentar novamente o PDF" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Rever biblioteca",
+    }));
+    expect(screen.queryByRole("button", { name: "Tentar novamente o PDF" })).toBeNull();
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
+    expect(exportFollowupPreparation).toHaveBeenCalledTimes(1);
+  });
+
+  it("ignora cliques concorrentes no download antes da atualização do React", async () => {
+    vi.mocked(exportFollowupPreparation).mockReset();
+    let release!: () => void;
+    const pending = new Promise<void>((resolve) => { release = resolve; });
+    vi.mocked(exportFollowupPreparation).mockReturnValueOnce(pending);
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
+      today="2026-11-04" onInspect={vi.fn()}
+      snapshot={snapshot([action("a1", "Rever laboratório", null)])} />);
+    const pdf = screen.getByRole("button", { name: "Roteiro PDF" });
+    act(() => { fireEvent.click(pdf); fireEvent.click(pdf); });
+    expect(exportFollowupPreparation).toHaveBeenCalledTimes(1);
+    await act(async () => { release(); await pending; });
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
+  });
+
   it("informa ausência de evolução sem inferir falta de execução", () => {
     render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
       today="2026-11-04" onInspect={vi.fn()}
