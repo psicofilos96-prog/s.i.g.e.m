@@ -3,6 +3,7 @@ import { UserFacingError } from "@/lib/observability/governed-errors";
 import type { NetworkPendingAction, NetworkRow, SchoolSnapshot } from "./model";
 import { parseSchoolFollowupSnapshot } from "./school-read-contract";
 import { parseFollowupNetworkRows, parseFollowupMonths, parseFollowupStatuses } from "./network-read-contract";
+import { parseNetworkPendingFollowup } from "./pending-read-contract";
 
 // Leitura e escrita exclusivamente por RPCs institucionais: sem DML direto do navegador.
 type RpcResponse = { data: unknown; error: { message: string } | null };
@@ -131,28 +132,5 @@ export async function followupStatuses(): Promise<FollowupStatus[]> {
 /** JSONB evita o limite implícito de linhas da API; a autorização ocorre na RPC. */
 export async function networkPendingFollowup(): Promise<NetworkPendingAction[]> {
   const value = await call("school_institutional_followup_pending", {});
-  if (!value || typeof value !== "object" || Array.isArray(value)
-    || !Array.isArray((value as Record<string, unknown>)["pending"])) {
-    throw new Error("A relação de providências retornou um formato inesperado.");
-  }
-  const rows = (value as { pending: unknown[] }).pending;
-  if (rows.length > 5000) throw new Error("O quadro excedeu o limite esperado.");
-  return rows.map((item) => {
-    if (!item || typeof item !== "object" || Array.isArray(item))
-      throw new Error("Registro inválido no quadro de providências.");
-    const r = item as Record<string, unknown>;
-    if (typeof r["action_id"] !== "string" || typeof r["school_id"] !== "string"
-      || typeof r["school_name"] !== "string" || typeof r["description"] !== "string"
-      || typeof r["situation"] !== "string" || typeof r["created_at"] !== "string")
-      throw new Error("Registro incompleto no quadro de providências.");
-    return {
-      action_id: r["action_id"], school_id: r["school_id"], school_name: r["school_name"],
-      inep: r["inep"] == null ? null : String(r["inep"]), description: r["description"],
-      responsible_label: r["responsible_label"] == null ? null : String(r["responsible_label"]),
-      due_on: r["due_on"] == null ? null : String(r["due_on"]),
-      situation: r["situation"],
-      last_update_on: r["last_update_on"] == null ? null : String(r["last_update_on"]),
-      created_at: r["created_at"],
-    };
-  });
+  return parseNetworkPendingFollowup(value);
 }
