@@ -2,6 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserFacingError } from "@/lib/observability/governed-errors";
 import type { NetworkPendingAction, NetworkRow, SchoolSnapshot } from "./model";
 import { parseSchoolFollowupSnapshot } from "./school-read-contract";
+import { parseFollowupNetworkRows, parseFollowupMonths, parseFollowupStatuses } from "./network-read-contract";
 
 // Leitura e escrita exclusivamente por RPCs institucionais: sem DML direto do navegador.
 type RpcResponse = { data: unknown; error: { message: string } | null };
@@ -59,14 +60,7 @@ async function call(fn: string, args: Record<string, unknown>): Promise<unknown>
 }
 export async function networkFollowup(from: string, to: string): Promise<NetworkRow[]> {
   const rows = await call("school_institutional_followup_network", { _from: from, _to: to });
-  if (!Array.isArray(rows)) throw new Error("A consulta da rede retornou um formato inesperado.");
-  return rows.map((r: Record<string, unknown>) => ({
-    school_id: String(r['school_id']), school_name: String(r['school_name']),
-    inep: r["inep"] == null ? null : String(r["inep"]),
-    visits: Number(r['visits']), actions: Number(r['actions']),
-    completed: Number(r['completed']), overdue: Number(r['overdue']),
-    last_visit: r['last_visit'] == null ? null : String(r['last_visit']),
-  }));
+  return parseFollowupNetworkRows(rows);
 }
 export async function schoolFollowup(school: string): Promise<SchoolSnapshot> {
   const value = await call("school_institutional_followup_school", { _school: school });
@@ -128,17 +122,11 @@ export type FollowupMonth = { month: string; visits: number };
 export type FollowupStatus = { situation: string; actions: number };
 export async function monthlyFollowup(from: string, to: string): Promise<FollowupMonth[]> {
   const rows = await call("school_institutional_followup_monthly", { _from: from, _to: to });
-  if (!Array.isArray(rows)) throw new Error("Série mensal indisponível.");
-  return rows.map((r: Record<string, unknown>) => ({
-    month: String(r["month"]), visits: Number(r["visits"]),
-  }));
+  return parseFollowupMonths(rows, from, to);
 }
 export async function followupStatuses(): Promise<FollowupStatus[]> {
   const rows = await call("school_institutional_followup_statuses", {});
-  if (!Array.isArray(rows)) throw new Error("Situações indisponíveis.");
-  return rows.map((r: Record<string, unknown>) => ({
-    situation: String(r["situation"]), actions: Number(r["actions"]),
-  }));
+  return parseFollowupStatuses(rows);
 }
 /** JSONB evita o limite implícito de linhas da API; a autorização ocorre na RPC. */
 export async function networkPendingFollowup(): Promise<NetworkPendingAction[]> {
