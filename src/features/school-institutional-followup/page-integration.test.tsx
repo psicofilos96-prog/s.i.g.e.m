@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { InstitutionalSchoolFollowupPage } from "./page";
+import { exportFollowupNetwork, exportFollowupSchool } from "./report";
 
 const mocks = vi.hoisted(() => ({
   session: { status: "signed-out" } as Record<string, unknown>,
@@ -626,6 +627,52 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(done).toHaveValue("Atividade revisada");
     expect(fields.getByRole("alert")).toHaveTextContent(/evolução mudou durante a confirmação/);
     expect(mocks.recordUpdate).not.toHaveBeenCalled();
+  });
+
+  it("cancela exportação da ficha antiga na troca de escola sem interromper a nova", async () => {
+    setSession(false);
+    const first = pendingDecision();
+    const second = pendingDecision();
+    vi.mocked(exportFollowupSchool)
+      .mockReturnValueOnce(first.promise.then(() => undefined))
+      .mockReturnValueOnce(second.promise.then(() => undefined));
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(screen.getByRole("button", { name: "Ficha Excel" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const firstSignal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(firstSignal.aborted).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    await screen.findByRole("heading", { name: "Escola Serra" });
+    await waitFor(() => expect(firstSignal.aborted).toBe(true));
+    fireEvent.click(screen.getByRole("button", { name: "Ficha PDF" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(2));
+    const secondSignal = vi.mocked(exportFollowupSchool).mock.calls[1]?.[4] as AbortSignal;
+    expect(secondSignal.aborted).toBe(false);
+    await act(async () => { first.resolve(true); await first.promise; });
+    expect(screen.getByRole("button", { name: "Ficha PDF" })).toBeDisabled();
+    await act(async () => { second.resolve(true); await second.promise; });
+    await waitFor(() => expect(screen.getByRole("button", { name: "Ficha PDF" })).not.toBeDisabled());
+    expect(secondSignal.aborted).toBe(false);
+  });
+
+  it("cancela exportação do panorama quando o filtro de escolas muda", async () => {
+    setSession(false);
+    const pending = pendingDecision();
+    vi.mocked(exportFollowupNetwork).mockReturnValueOnce(pending.promise.then(() => undefined));
+    renderPage();
+    await screen.findByRole("button", { name: "Escola Centro" });
+    fireEvent.click(screen.getByRole("button", { name: "Excel" }));
+    await waitFor(() => expect(exportFollowupNetwork).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupNetwork).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Buscar unidade" }),
+      { target: { value: "Serra" } });
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    await act(async () => { pending.resolve(true); await pending.promise; });
+    expect(screen.getByRole("button", { name: "Excel" })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy();
   });
 
   it("mantém diagnóstico e escola quando o descarte do formulário é recusado", async () => {
