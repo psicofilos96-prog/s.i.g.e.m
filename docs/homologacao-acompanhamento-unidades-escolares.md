@@ -8,9 +8,9 @@ O GitHub Actions executa em cada revisão:
 
 - `required`: integridade das migrations, TypeScript, testes e build;
 - `deep`: suíte de testes aprofundados;
-- `followup-sql`: PostgreSQL 17 descartável, esquema mínimo de teste, migration `0613` e provas SQL negativas/positivas.
+- `followup-sql`: PostgreSQL 17 descartável, esquema mínimo de teste, migration `0613` e provas SQL negativas/positivas (inclusive segregação entre dois visitantes simulados).
 
-A prova PostgreSQL verifica escrita por servidor natural, leitura de rede pelo Gabinete, isolamento entre escolas, retificação append-only, autoria, datas, idempotência, transação atômica e limites explícitos de volume. Um teste adicional verifica que **identidade de órgão/setor não pode registrar visita**, ainda que a política lhe conceda capacidade de escrita. A fixture não reproduz todas as migrations do SIGEM; portanto, **CI verde não valida compatibilidade com o esquema institucional completo**.
+A prova PostgreSQL verifica escrita por servidor natural, leitura de rede pelo Gabinete, isolamento entre escolas, retificação append-only, autoria, datas, idempotência, transação atômica e limites explícitos de volume. O ensaio `0613_followup_two_visitors.sql` usa **dois servidores sintéticos distintos**, com gravação limitada respectivamente às escolas A e B; confirma autoria persistida, bloqueio de leituras/escritas/evoluções cruzadas, panorama filtrado e leitura das duas escolas pelo Gabinete sem capacidade de registrar. Um teste adicional verifica que **identidade de órgão/setor não pode registrar visita**, ainda que a política lhe conceda capacidade de escrita. A fixture não reproduz todas as migrations do SIGEM; portanto, **CI verde não valida compatibilidade com o esquema institucional completo**.
 
 ## 2. Pré-requisitos para homologação em ambiente isolado
 
@@ -78,6 +78,10 @@ node --test scripts/followup-clone-readonly.test.mjs
 ```
 
 O GitHub Actions agora usa essas mesmas verificações na fixture mínima, o que testa o roteiro técnico, **mas não fornece o clone institucional nem uma execução no esquema real**. O pós-check não comprova os escopos das pessoas nem o comportamento da UI: a matriz de aceite abaixo permanece obrigatória. Se o pré-check reprovar, parar e analisar diferenças, sem adaptar funções ou alterar permissões em produção.
+
+### Limite do teste com dois servidores simulados
+
+A fixture de CI vincula o Servidor 1 à escola A e o Servidor 2 à escola B por capacidades de teste, em transações descartadas. Isso comprova o comportamento esperado **para aquelas permissões sintéticas**; não valida concessões reais, vínculos de lotação, configuração de autenticação do Supabase nem a política definitiva de quais unidades cada servidor poderá visitar. Antes de implantar, os responsáveis devem registrar o escopo nominal aprovado e realizar a matriz abaixo com sessões reais em um ambiente institucional isolado.
 
 ## 3. Matriz de aceitação institucional
 
