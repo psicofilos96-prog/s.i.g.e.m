@@ -8,8 +8,15 @@ const hasText = (row: Row, field: string): boolean =>
   typeof row[field] === "string" && (row[field] as string).length > 0;
 const optionalText = (row: Row, field: string): boolean =>
   row[field] == null || typeof row[field] === "string";
-const date = (value: unknown): boolean =>
-  typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+const date = (value: unknown): boolean => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(value + "T00:00:00.000Z");
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+};
+const timestamp = (value: unknown): boolean =>
+  typeof value === "string"
+  && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
+  && Number.isFinite(Date.parse(value));
 
 /** Fail closed on malformed/incomplete scoped read results; never silently hide rows. */
 export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): SchoolSnapshot {
@@ -35,7 +42,7 @@ export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): S
         !Number.isInteger(item["version"]) || (item["version"] as number) < 1 ||
         item["school_id"] !== schoolId || !date(item["visit_date"]) ||
         !hasText(item, "diagnosis") || typeof item["strengths"] !== "string" ||
-        typeof item["weaknesses"] !== "string" || !hasText(item, "created_at") ||
+        typeof item["weaknesses"] !== "string" || !timestamp(item["created_at"]) ||
         !optionalText(item, "summary") || !optionalText(item, "correction_reason") ||
         !optionalText(item, "supersedes_id") || !optionalText(item, "participants_note") ||
         !optionalText(item, "purpose_note") || !optionalText(item, "author_name") ||
@@ -53,7 +60,7 @@ export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): S
   for (const item of actions) {
     if (!isRow(item) || !hasText(item, "id") || item["school_id"] !== schoolId ||
         !hasText(item, "visit_logical_id") || !allLogicalIds.has(item["visit_logical_id"] as string) ||
-        !hasText(item, "description") || !hasText(item, "created_at") ||
+        !hasText(item, "description") || !timestamp(item["created_at"]) ||
         !optionalText(item, "responsible_label") ||
         !optionalText(item, "author_name") ||
         (item["due_on"] != null && !date(item["due_on"])) ||
@@ -71,7 +78,7 @@ export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): S
         (item["visit_logical_id"] != null &&
           (!hasText(item, "visit_logical_id") || !allLogicalIds.has(item["visit_logical_id"] as string))) ||
         !date(item["occurred_on"]) || !situations.has(String(item["situation"])) ||
-        !hasText(item, "created_at") || !optionalText(item, "done_text") ||
+        !timestamp(item["created_at"]) || !optionalText(item, "done_text") ||
         !optionalText(item, "not_done_text") || !optionalText(item, "results") ||
         !optionalText(item, "referrals") || !optionalText(item, "author_name") ||
         updateIds.has(item["id"] as string)) {
