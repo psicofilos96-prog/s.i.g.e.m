@@ -10,7 +10,7 @@ import { presentError, UserFacingError } from "@/lib/observability/governed-erro
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
-import { reconcileFollowupNetworkIndicators } from "./network-read-contract";
+import { reconcileFollowupNetworkIndicators, reconcileFollowupPendingIndicators } from "./network-read-contract";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { FollowupVisitComparison } from "./visit-comparison";
@@ -150,11 +150,19 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const allowedSchools = new Set(networkData.map((row) => row.school_id));
   const pendingScopeMismatch = networkReady && pendingReady &&
     pending.data.some((row) => !allowedSchools.has(row.school_id));
-  const scopedPending = networkReady && pendingReady && !pendingScopeMismatch
-    ? pending.data : [];
+  // Matching school IDs alone cannot detect an incomplete or older list.
+  // Compare the number of open actions and overdue actions in both RPCs.
+  const pendingTotals = networkReady && pendingReady && !pendingScopeMismatch
+    ? reconcileFollowupPendingIndicators(networkData, pending.data, today) : null;
+  const pendingTotalsMismatch = pendingTotals !== null &&
+    (!pendingTotals.pendingCountConsistent || !pendingTotals.overdueConsistent);
+  const scopedPending = networkReady && pendingReady &&
+    !pendingScopeMismatch && !pendingTotalsMismatch ? pending.data : [];
   const pendingScopeError = pendingScopeMismatch
     ? new UserFacingError("O quadro de providências não corresponde ao escopo atual da rede. Atualize as consultas antes de visualizar ou exportar.")
-    : network.isError ? network.error : pending.isError ? pending.error : null;
+    : pendingTotalsMismatch
+      ? new UserFacingError("A quantidade de providências não concluídas ou vencidas não coincide com o panorama da rede. Atualize as consultas antes de visualizar ou exportar.")
+      : network.isError ? network.error : pending.isError ? pending.error : null;
   const canRecord = Boolean(detailData) && Boolean(authority.person) && authority.capabilities.some((c) =>
     c.capabilityId === "registrar-acompanhamento-institucional"
     && (c.schoolId === null || c.schoolId === school));
