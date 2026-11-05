@@ -24,7 +24,11 @@ vi.mock("@/features/authority/session-authority", () => ({
     a.status === "signed-in" ? `${a.user?.id}#${a.sessionRevision}` : null,
 }));
 vi.mock("@/features/authority/nav-capabilities", () => ({
-  pathAllowed: (_authority: unknown, path: string) => path === "/acompanhamento-unidades",
+  pathAllowed: (authority: { status: string; capabilities?: { capabilityId: string }[] }, path: string) =>
+    path === "/acompanhamento-unidades" && authority.status === "signed-in"
+    && Boolean(authority.capabilities?.some((cap) =>
+      cap.capabilityId === "consultar-acompanhamento-institucional"
+      || cap.capabilityId === "registrar-acompanhamento-institucional")),
 }));
 vi.mock("@/lib/academic-date", async (original) => ({
   ...(await original<typeof import("@/lib/academic-date")>()),
@@ -870,6 +874,43 @@ describe("acompanhamento institucional — integração da página e capacidades
     await act(async () => { unfinished.resolve(true); await unfinished.promise; });
     expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
     expect(mocks.networkFollowup).toHaveBeenCalledTimes(2);
+  });
+
+  it("fecha o módulo e interrompe PDF pendente quando todas as capacidades são revogadas", async () => {
+    setSession(false);
+    const unfinished = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(unfinished.promise.then(() => undefined));
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha PDF" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    mocks.session = { ...mocks.session, capabilities: [] };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    expect(screen.getByText("Acesso não disponível")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Escola Centro" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha PDF" })).toBeNull();
+    expect(screen.queryByText("Visita anterior")).toBeNull();
+    await act(async () => { unfinished.resolve(true); await unfinished.promise; });
+    expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
+  });
+
+  it("ordem diferente das mesmas capacidades não desmonta rascunho nem refaz consultas", async () => {
+    setSession(true, "school-a");
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Preenchimento ainda em andamento" } });
+    const count = mocks.networkFollowup.mock.calls.length;
+    const auth = mocks.session as { capabilities: unknown[] };
+    mocks.session = { ...mocks.session, capabilities: [...auth.capabilities].reverse() };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    expect(screen.getByDisplayValue("Preenchimento ainda em andamento")).toBeTruthy();
+    expect(mocks.networkFollowup).toHaveBeenCalledTimes(count);
   });
 
 });
