@@ -20,7 +20,8 @@ CREATE TABLE public.institutional_school_identifiers (
   school_id text NOT NULL REFERENCES public.institutional_schools(id),
   identifier_kind text NOT NULL,
   value text NOT NULL,
-  PRIMARY KEY (school_id, identifier_kind)
+  PRIMARY KEY (school_id, identifier_kind),
+  CONSTRAINT institutional_school_identifiers_kind_value_key UNIQUE (identifier_kind, value)
 );
 CREATE TABLE public.institutional_school_record_versions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
