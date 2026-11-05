@@ -168,4 +168,7 @@ jobs:
           "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) OWNER TO authenticated;"
           expect_postflight_failure "followup-postflight:untrusted-function-owner"
           "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) OWNER TO postgres;"
+          # Ownership transfers can reset grants associated with the old owner;
+          # restore only the original migration's authenticated EXECUTE grant.
+          "${db[@]}" -c "GRANT EXECUTE ON FUNCTION public.school_institutional_followup_network(date,date) TO authenticated;"
           "${db[@]}" -f supabase/tests/0613_followup_clone_postflight_readonly.sql
