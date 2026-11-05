@@ -8,6 +8,7 @@ import {
 } from "./model";
 
 const INITIAL_SHOWN = 5;
+type PreparationFilter = "todas" | "prazo vencido" | "sem prazo" | typeof NO_UPDATE;
 
 /** Preparação da visita: somente dados da ficha escolar já autorizada no PostgreSQL. */
 export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, today, onInspect, onStartUpdate }: {
@@ -17,6 +18,8 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   onStartUpdate?: ((actionId: string) => void) | undefined;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [view, setView] = useState<PreparationFilter>("todas");
+  const [search, setSearch] = useState("");
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
   const ordered = filterSchoolActions(snapshot.actions, snapshot.updates, "todas", "", today);
@@ -25,7 +28,9 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   const overdue = pending.filter((a) => isOverdue(a, snapshot.updates, today)).length;
   const withoutUpdate = pending.filter((a) =>
     currentSituation(a, snapshot.updates) === NO_UPDATE).length;
-  const visible = expanded ? pending : pending.slice(0, INITIAL_SHOWN);
+  // Filtros locais sobre a ficha já autorizada. A exportação permanece integral.
+  const filtered = filterSchoolActions(pending, snapshot.updates, view, search, today);
+  const visible = expanded ? filtered : filtered.slice(0, INITIAL_SHOWN);
   async function exportPreparation(format: "csv" | "xlsx" | "pdf") {
     if (exporting || pending.length === 0) return;
     setExportError(""); setExporting(true);
@@ -52,7 +57,27 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
       <span className="rounded-md bg-muted/40 p-2">{overdue} com prazo vencido</span>
       <span className="rounded-md bg-muted/40 p-2">{withoutUpdate} sem atualização</span>
     </div>
-    {pending.length > 0 && <div className="space-y-2">
+    {pending.length > 0 && <div className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="text-sm">Filtrar providências da visita
+          <select className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            value={view} onChange={(e) => { setView(e.target.value as PreparationFilter); setExpanded(false); }}>
+            <option value="todas">Todas sem conclusão declarada</option>
+            <option value="prazo vencido">Com prazo vencido</option>
+            <option value={NO_UPDATE}>Sem atualização registrada</option>
+            <option value="sem prazo">Sem prazo declarado</option>
+          </select>
+        </label>
+        <label className="text-sm">Pesquisar descrição ou responsável
+          <input type="search" className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+            placeholder="Descrição, responsável ou data" value={search}
+            onChange={(e) => { setSearch(e.target.value); setExpanded(false); }} />
+        </label>
+      </div>
+      <p role="status" className="text-xs text-muted-foreground">
+        {filtered.length} de {pending.length} medidas sem conclusão declarada correspondem aos filtros.
+        Os totais acima não mudam com a seleção.
+      </p>
       <div className="flex flex-wrap items-center gap-2" aria-label="Exportar roteiro de preparação da visita">
         <span className="text-sm text-muted-foreground">Levar à visita:</span>
         <Button size="sm" variant="outline" disabled={exporting}
@@ -63,8 +88,8 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
           onClick={() => void exportPreparation("csv")}>CSV</Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        O roteiro inclui todas as medidas sem conclusão declarada da unidade, mesmo as que não aparecem nesta prévia,
-        e a última evolução informada. É uma consulta, não uma nova visita ou ordem de cobrança.
+        O roteiro inclui todas as medidas sem conclusão declarada da unidade, inclusive as ocultadas pelos filtros
+        ou pela prévia de cinco itens, e a última evolução informada. É uma consulta, não uma nova visita ou ordem de cobrança.
       </p>
       {exportError && <p role="alert" className="text-sm text-destructive">{exportError}</p>}
     </div>}
@@ -75,7 +100,10 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
       <p className="text-sm text-muted-foreground">
         Todas as medidas cadastradas constam como concluídas pela equipe. A conclusão não foi homologada pelo Gabinete.
       </p>}
-    {pending.length > 0 && <ul className="space-y-2">
+    {pending.length > 0 && filtered.length === 0 && <p className="text-sm text-muted-foreground">
+      Nenhuma providência corresponde aos filtros desta visita. Ajuste a pesquisa ou a situação; os registros não foram excluídos.
+    </p>}
+    {filtered.length > 0 && <ul className="space-y-2">
       {visible.map((a) => {
         const situation = currentSituation(a, snapshot.updates);
         const last = currentUpdate(a, snapshot.updates);
@@ -116,13 +144,13 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         </li>;
       })}
     </ul>}
-    {pending.length > INITIAL_SHOWN && <Button size="sm" variant="outline"
+    {filtered.length > INITIAL_SHOWN && <Button size="sm" variant="outline"
       onClick={() => setExpanded((v) => !v)}
       aria-expanded={expanded}>
-      {expanded ? "Mostrar menos medidas" : `Mostrar todas as ${pending.length} medidas`}
+      {expanded ? "Mostrar menos medidas" : `Mostrar todas as ${filtered.length} medidas`}
     </Button>}
     <p className="text-xs text-muted-foreground">
-      A lista é ordenada pelo prazo declarado; medidas sem prazo vêm por último.
+      A lista visível segue os filtros e é ordenada pelo prazo declarado; medidas sem prazo vêm por último.
       Sem atualização não significa não realizada. O resumo mostra somente a última evolução declarada;
       as anteriores permanecem no histórico. Ver acompanhamento abre o histórico sem alterar registros.
       Registrar evolução apenas abre o formulário para servidores autorizados; nada é gravado automaticamente.

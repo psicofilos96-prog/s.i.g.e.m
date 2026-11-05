@@ -106,6 +106,7 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] Retificação da própria visita exige justificativa e preserva a versão original.
 - [ ] Gabinete visualiza rede, gráfico mensal, situações, quadro de pendências e histórico por unidade, sem poder gravar.
 - [ ] No quadro de preparação da próxima visita, a última evolução de cada medida aparece em detalhe expansível, com relato, data e autoria, sem ocultar o histórico antigo e sem oferecer escrita ao Gabinete.
+- [ ] Filtros de vencidas, sem atualização e sem prazo, mais pesquisa de responsável/descrição, alteram só a prévia da unidade: totais e roteiro completo exportado continuam abrangendo todas as providências sem conclusão declarada.
 - [ ] Medida sem evolução mostra ausência de registro (não presume que algo deixou de ser realizado).
 - [ ] Pesquisa por nome e INEP, filtros, acesso direto à medida e exports PDF/XLSX/CSV funcionam em sessões dos perfis autorizados.
 - [ ] Dados textuais nos exports não executam fórmulas de planilha.

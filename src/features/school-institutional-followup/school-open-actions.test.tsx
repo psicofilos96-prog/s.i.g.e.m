@@ -93,6 +93,64 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     expect(inspect).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Registrar evolução da medida: Concluída" })).toBeNull();
   });
+  it("filtra somente pendências por prazo, atualização e responsável sem alterar totais", () => {
+    const inspect = vi.fn();
+    const data = snapshot([
+      action("a1", "Reorganizar biblioteca", "2026-11-01"),
+      { ...action("a2", "Instalar iluminação", null), responsible_label: "Coordenação pedagógica" },
+      action("a3", "Organizar acervo", "2026-11-11"),
+      action("a4", "Revisar manutenção", "2026-11-03"),
+      action("a5", "Plano encerrado", "2026-10-01"),
+    ], [
+      update("a2", "em andamento"), update("a3", "em andamento"),
+      update("a4", "prevista"), update("a5", "concluída"),
+    ]);
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
+      today="2026-11-04" onInspect={inspect} snapshot={data} />);
+
+    const filter = screen.getByRole("combobox", { name: "Filtrar providências da visita" });
+    const search = screen.getByRole("searchbox", { name: "Pesquisar descrição ou responsável" });
+    expect(screen.getByText("4 sem conclusão declarada")).toBeTruthy();
+    expect(screen.getByText("2 com prazo vencido")).toBeTruthy();
+    expect(screen.getByText("1 sem atualização")).toBeTruthy();
+
+    fireEvent.change(filter, { target: { value: "prazo vencido" } });
+    expect(screen.getAllByRole("button", { name: /Ver acompanhamento da medida:/ })).toHaveLength(2);
+    expect(screen.getByText(/2 de 4 medidas sem conclusão declarada correspondem aos filtros/)).toBeTruthy();
+    expect(screen.queryByText("Instalar iluminação")).toBeNull();
+
+    fireEvent.change(filter, { target: { value: "sem atualização" } });
+    expect(screen.getAllByRole("button", { name: /Ver acompanhamento da medida:/ })).toHaveLength(1);
+    expect(screen.getByText("Reorganizar biblioteca")).toBeTruthy();
+
+    fireEvent.change(filter, { target: { value: "sem prazo" } });
+    fireEvent.change(search, { target: { value: "COORDENACAO PEDAGOGICA" } });
+    expect(screen.getAllByRole("button", { name: /Ver acompanhamento da medida:/ })).toHaveLength(1);
+    expect(screen.getByText("Instalar iluminação")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Ver acompanhamento da medida: Instalar iluminação" }));
+    expect(inspect).toHaveBeenCalledExactlyOnceWith("a2");
+
+    fireEvent.change(search, { target: { value: "inexistente" } });
+    expect(screen.queryByRole("button", { name: /Ver acompanhamento da medida:/ })).toBeNull();
+    expect(screen.getByText(/Nenhuma providência corresponde aos filtros desta visita/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
+    expect(screen.getByText(/inclusive as ocultadas pelos filtros/)).toBeTruthy();
+    expect(screen.getByText("4 sem conclusão declarada")).toBeTruthy();
+    expect(screen.queryByText("Plano encerrado")).toBeNull();
+  });
+
+  it("recolhe a prévia ao mudar filtros sem perder medidas", () => {
+    const actions = Array.from({ length: 7 }, (_, i) =>
+      action("a"+i, "Medida "+i, `2026-11-${String(5+i).padStart(2, "0")}`));
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
+      today="2026-11-04" onInspect={vi.fn()} snapshot={snapshot(actions)} />);
+    fireEvent.click(screen.getByRole("button", { name: "Mostrar todas as 7 medidas" }));
+    expect(screen.getAllByRole("button", { name: /Ver acompanhamento da medida:/ })).toHaveLength(7);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Pesquisar descrição ou responsável" }),
+      { target: { value: "Medida" } });
+    expect(screen.getAllByRole("button", { name: /Ver acompanhamento da medida:/ })).toHaveLength(5);
+    expect(screen.getByRole("button", { name: "Mostrar todas as 7 medidas" })).toHaveAttribute("aria-expanded", "false");
+  });
   it("mostra mais medidas sob demanda, sem perdê-las ou mudar a ordenação", () => {
     const actions = Array.from({ length: 7 }, (_, i) => action("a"+i, "Medida "+i, `2026-11-${String(5+i).padStart(2, "0")}`));
     render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null} today="2026-11-04" onInspect={vi.fn()} snapshot={snapshot(actions)} />);
