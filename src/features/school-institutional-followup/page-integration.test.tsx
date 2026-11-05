@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { InstitutionalSchoolFollowupPage } from "./page";
-import { exportFollowupNetwork, exportFollowupSchool } from "./report";
+import { exportFollowupNetwork, exportFollowupSchool, exportNetworkPending } from "./report";
 
 const mocks = vi.hoisted(() => ({
   session: { status: "signed-out" } as Record<string, unknown>,
@@ -55,6 +55,7 @@ vi.mock("./use-unsaved-warning", () => ({ useUnsavedFollowupWarning: () => undef
 vi.mock("./use-route-guard", () => ({ useFollowupRouteGuard: () => undefined }));
 vi.mock("./report", () => ({
   exportFollowupNetwork: vi.fn(), exportFollowupSchool: vi.fn(), exportFollowupVisit: vi.fn(),
+  exportNetworkPending: vi.fn(),
 }));
 vi.mock("./preparation-report", () => ({ exportFollowupPreparation: vi.fn() }));
 
@@ -873,6 +874,56 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(screen.getByDisplayValue("Rascunho preservado após voltar o acesso")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("bloqueia quadro e exportação quando a rede deixa de autorizar uma escola ainda presente na RPC de pendências", async () => {
+    setSession(false);
+    const pendingA = {
+      action_id: "pending-from-school-a", school_id: "school-a",
+      school_name: "Escola Centro", inep: "33000001",
+      description: "Providência exclusiva da escola A", responsible_label: "Direção",
+      due_on: "2026-11-10", situation: "sem atualização", last_update_on: null,
+      created_at: "2026-10-15T13:00:00Z",
+    };
+    mocks.networkPendingFollowup.mockResolvedValue([pendingA]);
+    renderPage();
+    expect(await screen.findByText("Providência exclusiva da escola A")).toBeTruthy();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(within(panel).getByLabelText("Exportar quadro filtrado")).toBeTruthy();
+
+    // The network RPC now contains only B, but the pending RPC still returns A.
+    mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy());
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/escopo atual da rede/);
+    expect(screen.queryByText("Providência exclusiva da escola A")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+    expect(exportNetworkPending).not.toHaveBeenCalled();
+
+    // A later consistent response restores the quadro without preserving old data.
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await screen.findByText("Providência exclusiva da escola A")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  it("oculta pendências em cache se a reconferência do panorama autorizado falhar", async () => {
+    setSession(false);
+    mocks.networkPendingFollowup.mockResolvedValue([{
+      action_id: "action-a", school_id: "school-a",
+      school_name: "Escola Centro", inep: "33000001",
+      description: "Medida inicialmente autorizada", responsible_label: null,
+      due_on: null, situation: "sem atualização", last_update_on: null,
+      created_at: "2026-10-15T13:00:00Z",
+    }]);
+    renderPage();
+    expect(await screen.findByText("Medida inicialmente autorizada")).toBeTruthy();
+    mocks.networkFollowup.mockRejectedValueOnce(new Error("escopo indisponível"));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await screen.findByText("Não foi possível consultar a rede")).toBeTruthy();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(within(panel).queryByText("Medida inicialmente autorizada")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+    expect(exportNetworkPending).not.toHaveBeenCalled();
   });
 
   it("isola ficha, rascunho e exportação quando uma conta diferente assume a sessão", async () => {
