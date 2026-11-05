@@ -105,6 +105,8 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] Evolução pode se vincular a visita posterior da mesma escola; vínculo e histórico resistem a retificações.
 - [ ] Retificação da própria visita exige justificativa e preserva a versão original.
 - [ ] Gabinete visualiza rede, gráfico mensal, situações, quadro de pendências e histórico por unidade, sem poder gravar.
+- [ ] No quadro de preparação da próxima visita, a última evolução de cada medida aparece em detalhe expansível, com relato, data e autoria, sem ocultar o histórico antigo e sem oferecer escrita ao Gabinete.
+- [ ] Medida sem evolução mostra ausência de registro (não presume que algo deixou de ser realizado).
 - [ ] Pesquisa por nome e INEP, filtros, acesso direto à medida e exports PDF/XLSX/CSV funcionam em sessões dos perfis autorizados.
 - [ ] Dados textuais nos exports não executam fórmulas de planilha.
 - [ ] O sistema recusa consulta incompleta quando excedidos os limites atuais: 1.000 versões de visitas / 2.000 medidas / 5.000 evoluções por unidade e 5.000 medidas pendentes na rede.

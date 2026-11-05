@@ -34,6 +34,45 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ver acompanhamento da medida: Reorganizar biblioteca" }));
     expect(inspect).toHaveBeenCalledExactlyOnceWith("a1");
   });
+  it("mostra o relato da última evolução em detalhe expansível, sem substituir o histórico", () => {
+    const old: FollowupUpdate = {
+      ...update("a1", "prevista"), id: "old", occurred_on: "2026-10-10",
+      created_at: "2026-10-10T09:00:00Z", done_text: "Primeira vistoria",
+    };
+    const last: FollowupUpdate = {
+      ...update("a1", "em andamento"), id: "latest", occurred_on: "2026-11-03",
+      created_at: "2026-11-03T10:00:00Z", done_text: "Materiais separados",
+      not_done_text: "Entrega pendente", results: "Inventário conferido",
+      referrals: "Revisar prazo", author_name: "Servidora de acompanhamento",
+    };
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
+      today="2026-11-04" onInspect={vi.fn()}
+      snapshot={snapshot([action("a1", "Reorganizar almoxarifado", "2026-11-02")], [old, last])} />);
+
+    const summary = screen.getByText("Última evolução declarada: 03/11/2026 — em andamento");
+    const details = summary.closest("details");
+    expect(details).not.toBeNull();
+    expect(details).not.toHaveAttribute("open");
+    expect(details).toHaveTextContent("Materiais separados");
+    expect(details).toHaveTextContent("Entrega pendente");
+    expect(details).toHaveTextContent("Inventário conferido");
+    expect(details).toHaveTextContent("Revisar prazo");
+    expect(details).toHaveTextContent("Servidora de acompanhamento");
+    expect(details).not.toHaveTextContent("Primeira vistoria");
+    fireEvent.click(summary);
+    expect(details).toHaveAttribute("open");
+    expect(screen.queryByRole("button", { name: /Registrar evolução da medida:/ })).toBeNull();
+  });
+
+  it("informa ausência de evolução sem inferir falta de execução", () => {
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
+      today="2026-11-04" onInspect={vi.fn()}
+      snapshot={snapshot([action("a1", "Organizar arquivo", null)])} />);
+    expect(screen.getByText("Sem evolução registrada para esta medida.")).toBeTruthy();
+    expect(screen.queryByText(/Última evolução declarada:/)).toBeNull();
+    expect(screen.getByText(/Sem atualização não significa não realizada/)).toBeTruthy();
+  });
+
   it("permite iniciar uma evolução somente para equipe com escrita, sem gravar automaticamente", () => {
     const inspect = vi.fn();
     const startUpdate = vi.fn();

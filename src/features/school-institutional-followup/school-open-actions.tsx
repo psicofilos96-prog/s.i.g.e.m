@@ -4,7 +4,7 @@ import { formatAcademicDate } from "@/lib/academic-date";
 import { presentError } from "@/lib/observability/governed-errors";
 import { exportFollowupPreparation } from "./preparation-report";
 import {
-  currentSituation, filterSchoolActions, isOverdue, NO_UPDATE, type SchoolSnapshot,
+  currentSituation, currentUpdate, filterSchoolActions, isOverdue, NO_UPDATE, type SchoolSnapshot,
 } from "./model";
 
 const INITIAL_SHOWN = 5;
@@ -78,6 +78,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
     {pending.length > 0 && <ul className="space-y-2">
       {visible.map((a) => {
         const situation = currentSituation(a, snapshot.updates);
+        const last = currentUpdate(a, snapshot.updates);
         const expired = isOverdue(a, snapshot.updates, today);
         return <li key={a.id} className="flex flex-col gap-2 rounded-lg border p-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 space-y-1">
@@ -88,6 +89,21 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
             <p className="text-xs text-muted-foreground">
               Situação: {situation}{expired ? " · Prazo vencido" : ""}
             </p>
+            {last ? <details className="rounded-md border border-border/70 p-2 text-sm">
+              <summary className="cursor-pointer font-medium">
+                Última evolução declarada: {formatAcademicDate(last.occurred_on)} — {last.situation}
+              </summary>
+              <div className="mt-2 space-y-1 text-sm">
+                <p><strong>Registrada por:</strong> {last.author_name || "Autoria institucional registrada"}</p>
+                <p><strong>O que foi feito:</strong> {last.done_text || "Não informado"}</p>
+                <p><strong>O que não foi feito:</strong> {last.not_done_text || "Não informado"}</p>
+                <p><strong>Resultados:</strong> {last.results || "Não informado"}</p>
+                <p><strong>Encaminhamentos:</strong> {last.referrals || "Não informado"}</p>
+                <p className="text-xs text-muted-foreground">
+                  Consulte o histórico completo para ver as evoluções anteriores e visitas vinculadas.
+                </p>
+              </div>
+            </details> : <p className="text-xs text-muted-foreground">Sem evolução registrada para esta medida.</p>}
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
             <Button size="sm" variant="outline"
@@ -107,7 +123,8 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
     </Button>}
     <p className="text-xs text-muted-foreground">
       A lista é ordenada pelo prazo declarado; medidas sem prazo vêm por último.
-      Sem atualização não significa não realizada. Ver acompanhamento abre o histórico sem alterar registros.
+      Sem atualização não significa não realizada. O resumo mostra somente a última evolução declarada;
+      as anteriores permanecem no histórico. Ver acompanhamento abre o histórico sem alterar registros.
       Registrar evolução apenas abre o formulário para servidores autorizados; nada é gravado automaticamente.
     </p>
   </section>;
