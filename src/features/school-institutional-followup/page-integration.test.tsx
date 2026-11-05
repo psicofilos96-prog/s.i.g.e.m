@@ -759,6 +759,74 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy();
   });
 
+  it("interrompe o download do quadro antes de iniciar qualquer invalidação de consultas", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([{ ...schools[0]!, actions: 1 }, schools[1]!]);
+    mocks.networkPendingFollowup.mockResolvedValue([{
+      action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+      inep: "33000001", description: "Providência sob acompanhamento",
+      responsible_label: "Direção", due_on: null, situation: "sem atualização",
+      last_update_on: null, created_at: "2026-10-15T13:00:00Z",
+    }]);
+    const unfinished = pendingDecision();
+    vi.mocked(exportNetworkPending).mockReturnValueOnce(unfinished.promise.then(() => undefined));
+    const { client } = renderPage();
+    expect(await screen.findByText("Providência sob acompanhamento")).toBeTruthy();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    fireEvent.click(within(within(panel).getByLabelText("Exportar quadro filtrado"))
+      .getByRole("button", { name: "Excel" }));
+    expect(exportNetworkPending).toHaveBeenCalledTimes(1);
+    const signal = vi.mocked(exportNetworkPending).mock.calls[0]?.[2] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    // An effect after the new render is too late: the first query invalidation
+    // must observe an already aborted download.
+    const originalInvalidate = client.invalidateQueries.bind(client);
+    const invalidate = vi.spyOn(client, "invalidateQueries").mockImplementation((...args) => {
+      expect(signal.aborted).toBe(true);
+      return originalInvalidate(...args);
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(signal.aborted).toBe(true);
+    expect(invalidate).toHaveBeenCalled();
+    await act(async () => { unfinished.resolve(true); await unfinished.promise; });
+    await waitFor(() => expect(within(panel).getByLabelText("Exportar quadro filtrado")).toBeTruthy());
+    expect(within(panel).getByText(/download anterior foi cancelado/)).toBeTruthy();
+  });
+
+  it("interrompe download de pendências ao trocar de escola e ignora o resultado antigo", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([{ ...schools[0]!, actions: 1 }, schools[1]!]);
+    mocks.networkPendingFollowup.mockResolvedValue([{
+      action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+      inep: "33000001", description: "Providência da primeira escola",
+      responsible_label: null, due_on: null, situation: "sem atualização",
+      last_update_on: null, created_at: "2026-10-15T13:00:00Z",
+    }]);
+    const first = pendingDecision();
+    const next = pendingDecision();
+    vi.mocked(exportNetworkPending)
+      .mockReturnValueOnce(first.promise.then(() => undefined))
+      .mockReturnValueOnce(next.promise.then(() => undefined));
+    renderPage();
+    expect(await screen.findByText("Providência da primeira escola")).toBeTruthy();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    const toolbar = within(panel).getByLabelText("Exportar quadro filtrado");
+    fireEvent.click(within(toolbar).getByRole("button", { name: "PDF" }));
+    const firstSignal = vi.mocked(exportNetworkPending).mock.calls[0]?.[2] as AbortSignal;
+    expect(firstSignal.aborted).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    expect(firstSignal.aborted).toBe(true);
+    fireEvent.click(within(toolbar).getByRole("button", { name: "CSV" }));
+    expect(exportNetworkPending).toHaveBeenCalledTimes(2);
+    const nextSignal = vi.mocked(exportNetworkPending).mock.calls[1]?.[2] as AbortSignal;
+    expect(nextSignal.aborted).toBe(false);
+    await act(async () => { first.resolve(true); await first.promise; });
+    expect(within(toolbar).getByRole("button", { name: "CSV" })).toBeDisabled();
+    await act(async () => { next.resolve(true); await next.promise; });
+    expect(within(toolbar).getByRole("button", { name: "CSV" })).not.toBeDisabled();
+  });
+
   it("mantém diagnóstico e escola quando o descarte do formulário é recusado", async () => {
     setSession(true);
     renderPage();
