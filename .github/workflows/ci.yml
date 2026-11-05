@@ -72,8 +72,31 @@ jobs:
       - name: Execute migration and scoped-access tests in disposable PostgreSQL
         run: |
           set -euo pipefail
-          psql -h localhost -U postgres -d followup_ci -v ON_ERROR_STOP=1 \
-            -f supabase/tests/fixtures/0613_followup_isolated_bootstrap.sql \
+          db=(psql -h localhost -U postgres -d followup_ci -v ON_ERROR_STOP=1)
+          "${db[@]}" -f supabase/tests/fixtures/0613_followup_isolated_bootstrap.sql
+          # Synthetic collisions live only in this disposable PostgreSQL database.
+          collision_log=$(mktemp)
+          trap 'rm -f "$collision_log"' EXIT
+          expect_preflight_failure() {
+            local expected="$1"
+            if "${db[@]}" -f supabase/tests/0613_followup_clone_preflight_readonly.sql >"$collision_log" 2>&1; then
+              echo "Preflight unexpectedly accepted a collision: $expected" >&2
+              exit 1
+            fi
+            if ! grep -Fq "$expected" "$collision_log"; then
+              cat "$collision_log"
+              echo "Preflight failed for an unexpected reason: $expected" >&2
+              exit 1
+            fi
+          }
+          "${db[@]}" -c "CREATE FUNCTION public.school_institutional_followup_sentinel() RETURNS integer LANGUAGE sql AS 'SELECT 1';"
+          expect_preflight_failure "followup-preflight:preexisting-function-family"
+          "${db[@]}" -c "DROP FUNCTION public.school_institutional_followup_sentinel();"
+          "${db[@]}" -c "CREATE INDEX school_institutional_followup_actions_school ON public.institutional_schools (id);"
+          expect_preflight_failure "followup-preflight:preexisting-index-name:school_institutional_followup_actions_school"
+          "${db[@]}" -c "DROP INDEX public.school_institutional_followup_actions_school;"
+          # Clean schema must pass the preflight, migration, postflight and access matrix.
+          "${db[@]}" \
             -f supabase/tests/0613_followup_clone_preflight_readonly.sql \
             -f drizzle/migrations/0613_school_institutional_followup.sql \
             -f supabase/tests/0613_followup_clone_postflight_readonly.sql \
