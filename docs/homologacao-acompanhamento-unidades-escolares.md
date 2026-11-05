@@ -96,6 +96,8 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] Uma visita permite registrar objetivo, participantes, diagnóstico, pontos fortes, fragilidades e observações.
 - [ ] Um plano permite medidas, responsável declarado e prazo; medidas podem ser adicionadas posteriormente.
 - [ ] Antes do salvamento, é possível subir, descer e remover medidas específicas mantendo descrição/responsável/prazo corretos; registros históricos permanecem sem edição destrutiva.
+- [ ] Remover uma medida já preenchida exige confirmação explícita e não altera outras linhas; recusar o descarte preserva o texto. Linha vazia pode ser removida sem diálogo.
+- [ ] Descartar uma visita ou cancelar uma retificação/medida/evolução com dados exige confirmação; recusar mantém os valores e não grava nada no banco.
 - [ ] Usuário com escrita limitada a apenas uma unidade consegue consultar outras escolas no escopo de leitura, mas não recebe formulário de escrita fora da unidade autorizada.
 - [ ] Evoluções distinguem previsto, em andamento, concluída, não realizada e suspensa, sem inferir que ausência de registro equivale a omissão.
 - [ ] Evolução pode se vincular a visita posterior da mesma escola; vínculo e histórico resistem a retificações.

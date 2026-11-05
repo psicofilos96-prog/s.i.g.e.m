@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { InstitutionalSchoolFollowupPage } from "./page";
 
@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   recordVisit: vi.fn(),
   recordAction: vi.fn(),
   recordUpdate: vi.fn(),
+  confirmAction: vi.fn(),
 }));
 
 vi.mock("@/features/authority/session-authority", () => ({
@@ -37,6 +38,9 @@ vi.mock("./source", () => ({
   recordVisit: mocks.recordVisit,
   recordAction: mocks.recordAction,
   recordUpdate: mocks.recordUpdate,
+}));
+vi.mock("@/components/sigem/confirm-action", () => ({
+  confirmAction: mocks.confirmAction,
 }));
 vi.mock("./analytics", () => ({
   InstitutionalFollowupAnalytics: () => <div data-testid="network-analytics">Resumo da rede</div>,
@@ -92,6 +96,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.recordVisit.mockResolvedValue("visit-corrected");
     mocks.recordAction.mockResolvedValue("action-created");
     mocks.recordUpdate.mockResolvedValue("update-created");
+    mocks.confirmAction.mockResolvedValue(true);
   });
 
   it("nega acesso à página sem sessão e não consulta os dados institucionais", () => {
@@ -190,7 +195,12 @@ describe("acompanhamento institucional — integração da página e capacidades
     fireEvent.change(responsibles[1]!, { target: { value: "Equipe intermediária" } });
     fireEvent.change(responsibles[2]!, { target: { value: "Coordenação" } });
 
-    fireEvent.click(fields.getByRole("button", { name: "Remover medida 2" }));
+    await act(async () => {
+      fireEvent.click(fields.getByRole("button", { name: "Remover medida 2" }));
+    });
+    expect(mocks.confirmAction).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      title: "Remover medida em preenchimento?", destructive: true,
+    }));
     const remainingDescriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
     const remainingResponsibles = fields.getAllByRole("textbox", { name: "Responsável declarado" });
     expect(remainingDescriptions).toHaveLength(2);
@@ -253,6 +263,53 @@ describe("acompanhamento institucional — integração da página e capacidades
     ]);
   });
 
+  it("preserva medida preenchida e todo o plano quando a remoção não é confirmada", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    const descriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    fireEvent.change(descriptions[0]!, { target: { value: "Reformar o pátio" } });
+    mocks.confirmAction.mockResolvedValueOnce(false);
+    await act(async () => {
+      fireEvent.click(fields.getByRole("button", { name: "Remover medida 1" }));
+    });
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })).toHaveLength(2);
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })[0])
+      .toHaveValue("Reformar o pátio");
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("remove uma medida vazia sem diálogo e mantém a outra linha", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    fireEvent.click(fields.getByRole("button", { name: "Remover medida 2" }));
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })).toHaveLength(1);
+    expect(mocks.confirmAction).not.toHaveBeenCalled();
+  });
+
+  it("mantém diagnóstico e escola quando o descarte do formulário é recusado", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Relato da escola" } });
+    mocks.confirmAction.mockResolvedValueOnce(false);
+    await act(async () => {
+      fireEvent.click(within(form).getByRole("button", { name: "Descartar preenchimento" }));
+    });
+    expect(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue("Relato da escola");
+    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
   it("impede troca de escola com diagnóstico pendente até descarte explícito", async () => {
     setSession(true);
     renderPage();
@@ -268,7 +325,12 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }))
       .toHaveValue("Diagnóstico ainda não registrado");
 
-    fireEvent.click(within(form).getByRole("button", { name: "Descartar preenchimento" }));
+    await act(async () => {
+      fireEvent.click(within(form).getByRole("button", { name: "Descartar preenchimento" }));
+    });
+    expect(mocks.confirmAction).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      title: "Descartar visita em preenchimento?", destructive: true,
+    }));
     expect(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue("");
     fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
     await waitFor(() => expect(screen.getByRole("heading", { name: "Escola Serra" })).toBeTruthy());

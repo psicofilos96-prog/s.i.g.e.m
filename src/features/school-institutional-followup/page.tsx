@@ -5,6 +5,7 @@ import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { operationalToday } from "@/lib/academic-date";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
+import { confirmAction } from "@/components/sigem/confirm-action";
 import { presentError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
@@ -283,6 +284,53 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     } catch (e) { setError(presentError(e)); }
     finally { setSavingMeasure(false); }
   }
+  async function confirmLocalDiscard(title: string, consequence: string, actionLabel: string): Promise<boolean> {
+    try {
+      return await confirmAction({ title, consequence, actionLabel, destructive: true });
+    } catch {
+      // Falha fechada: nunca apagar um relato sem confirmação disponível.
+      return false;
+    }
+  }
+  async function removeProposedAction(target: ActionDraft) {
+    if (saving || !draftActions.some((a) => a.draftKey === target.draftKey)) return;
+    if (isFollowupActionDraftDirty(target) && !await confirmLocalDiscard(
+      "Remover medida em preenchimento?",
+      "A descrição, o responsável e o prazo digitados nesta medida serão descartados. As outras medidas continuarão no formulário.",
+      "Remover esta medida",
+    )) return;
+    if (saving) return;
+    setDraftActions((prev) => prev.length > 1
+      ? prev.filter((a) => a.draftKey !== target.draftKey) : prev);
+    visitRequests.current = null;
+  }
+  async function discardVisitDraft() {
+    if (saving) return;
+    if ((visitDraftIsDirty || visitRequests.current !== null) && !await confirmLocalDiscard(
+      correctionBase ? "Cancelar retificação da visita?" : "Descartar visita em preenchimento?",
+      "Os campos e as medidas preenchidos nesta visita serão descartados sem registro no histórico da escola.",
+      correctionBase ? "Cancelar e descartar" : "Descartar preenchimento",
+    )) return;
+    if (!saving) resetVisitDraft();
+  }
+  async function discardMeasureDraft() {
+    if (savingMeasure) return;
+    if ((measureDraftIsDirty || measureRequest.current !== null) && !await confirmLocalDiscard(
+      "Cancelar medida em preenchimento?",
+      "A medida ainda não registrada será descartada. O histórico da visita não será alterado.",
+      "Cancelar e descartar",
+    )) return;
+    if (!savingMeasure) resetMeasureDraft();
+  }
+  async function discardEvolutionDraft() {
+    if (savingUpdate) return;
+    if ((evolutionDraftIsDirty || updateRequest.current !== null) && !await confirmLocalDiscard(
+      "Cancelar evolução em preenchimento?",
+      "As informações de evolução ainda não registradas serão descartadas. O histórico anterior permanecerá preservado.",
+      "Cancelar e descartar",
+    )) return;
+    if (!savingUpdate) cancelEvolution();
+  }
   function resetMeasureDraft() {
     setMeasureVisitId(""); setMeasureDraft(newAction());
     setMeasureDraftNotice(""); measureRequest.current = null;
@@ -556,10 +604,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                 }}>Descer</Button>
               {draftActions.length > 1 && <Button type="button" size="sm" variant="ghost" disabled={saving}
                 aria-label={`Remover medida ${i + 1}`}
-                onClick={() => {
-                  setDraftActions((prev) => prev.filter((x) => x.draftKey !== a.draftKey));
-                  visitRequests.current = null;
-                }}>Remover esta medida</Button>}
+                onClick={() => void removeProposedAction(a)}>Remover esta medida</Button>}
             </div>
           </div>
           <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
@@ -578,7 +623,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             {saving ? "Registrando…" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
           </Button>
           {(correctionBase || visitDraftIsDirty || visitRequests.current !== null) && <Button
-            type="button" variant="outline" disabled={saving} onClick={resetVisitDraft}>
+            type="button" variant="outline" disabled={saving}
+            onClick={() => void discardVisitDraft()}>
             {correctionBase ? "Cancelar retificação" : "Descartar preenchimento"}
           </Button>}
         </div>
@@ -614,7 +660,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             {savingMeasure ? "Salvando…" : "Acrescentar medida"}
           </Button>
           <Button type="button" variant="outline" disabled={savingMeasure}
-            onClick={resetMeasureDraft}>Cancelar</Button>
+            onClick={() => void discardMeasureDraft()}>Cancelar</Button>
         </div>
       </form>}
       {detail.data && <>
@@ -720,7 +766,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               {savingUpdate ? "Salvando…" : "Registrar atualização"}
             </Button>
             <Button type="button" variant="outline" disabled={savingUpdate}
-              onClick={cancelEvolution}>Cancelar</Button></div>
+              onClick={() => void discardEvolutionDraft()}>Cancelar</Button></div>
         </form>}
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Histórico de visitas</h3>
