@@ -157,6 +157,12 @@ Só liberar a PR do estado **draft** e considerar merge após: (a) CI da última
 
 **Separação de responsabilidades:** a equipe de acompanhamento registra fatos e evolução; o Gabinete consulta e decide providências pelos processos institucionais existentes. Este módulo não realiza cobranças, sanções ou homologações automáticas.
 
+### Revogação parcial de escola após atualização da rede (05/11/2026)
+
+Uma resposta ainda bem-sucedida da RPC escolar **não autoriza**, sozinha, exibir um cache antigo se a consulta atualizada da rede já deixou de listar a unidade. A página verifica a interseção do `school_id` selecionado com o panorama recém-confirmado antes de renderizar a ficha, formulários, medidas ou oferecer exportações. Quando a escola deixa de estar no escopo, exibe apenas uma orientação sem conteúdo institucional antigo. Se existirem rascunhos locais, estes só são descartados após confirmação explícita; confirmações obsoletas não apagam preenchimentos modificados. Isso cobre revogação parcial e mudanças de vínculo no mesmo login sem depender da falha da RPC individual.
+
+Os testes simulados exercitam uma rede inicialmente A+B que passa a B, mantendo a resposta anterior de A no leitor escolar, e verificam bloqueio de exportações/escrita, cancelamento do arquivo em execução e descarte seguro. Ainda é necessário ensaiar os mesmos cenários com contas reais e políticas efetivas em um clone integral isolado.
+
 ### Quadro de providências: cancelamento por atualização ou troca de contexto (05/11/2026)
 
 O quadro transversal do Gabinete também cancela exportações PDF/Excel/CSV se a consulta autorizada for recarregada, a escola selecionada mudar, o usuário editar pesquisa/filtro, abrir uma medida, a data operacional mudar ou o componente for desmontado (inclusive na troca de sessão). O cancelamento é imediato para eventos do próprio painel e é verificado pelo sinal na função exportadora antes do download. Promessas antigas não podem liberar a interface nem prejudicar uma exportação mais recente. Um aviso explica que é necessário conferir os dados e exportar novamente. Testes de interface com promessas controladas cobrem atualização do quadro, filtro, troca de escola, navegação e resolução tardia do arquivo anterior. A validação não substitui o ensaio de revogação com usuários reais no clone integral.
