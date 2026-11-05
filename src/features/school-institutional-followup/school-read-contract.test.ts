@@ -41,6 +41,39 @@ describe("limite de confiança do histórico institucional por escola", () => {
     expect(result.visit_history).toHaveLength(1);
   });
 
+  it("aceita cadeias completas de retificação, sem contar versões antigas como novas visitas", () => {
+    const v2 = { ...v1, id: "visit-2", version: 2, supersedes_id: v1.id,
+      correction_reason: "Ajuste do relatório" };
+    const v3 = { ...v2, id: "visit-3", version: 3, supersedes_id: v2.id,
+      correction_reason: "Correção da data" };
+    const second = { ...v1, id: "second-visit", logical_id: "logical-2" };
+    const result = parseSchoolFollowupSnapshot({
+      visits: [v3, second], visit_history: [v1, v2], actions: [a1], updates: [u1],
+    }, "school-a");
+    expect(result.visits).toHaveLength(2);
+    expect(result.visit_history).toHaveLength(2);
+  });
+
+  it("recusa versões perdidas, órfãs ou vinculadas a outra visita lógica", () => {
+    const v2 = { ...v1, id: "visit-2", version: 2, supersedes_id: v1.id,
+      correction_reason: "Correção" };
+    const v3 = { ...v2, id: "visit-3", version: 3, supersedes_id: v2.id };
+    const cases = [
+      { visits: [v2], visit_history: [] },
+      { visits: [v3], visit_history: [v1] },
+      { visits: [v2], visit_history: [{ ...v1, logical_id: "other-logical" }] },
+      { visits: [v2], visit_history: [{ ...v1, id: "orphan-visit" }] },
+      { visits: [v1], visit_history: [{ ...v2, id: "orphan-visit" }] },
+      { visits: [{ ...v1, supersedes_id: "missing" }], visit_history: [] },
+      { visits: [{ ...v2, version: 4 }], visit_history: [v1] },
+    ];
+    for (const invalid of cases) {
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, ...invalid,
+      }, "school-a")).toThrow(/retificações inválida|versão sem visita vigente/);
+    }
+  });
+
   it("recusa o retrato malformado ou incompleto, sem produzir contadores artificiais", () => {
     for (const invalid of [null, [], {}, { visits: [], visit_history: [], actions: [] },
       { visits: null, visit_history: [], actions: [], updates: [] }]) {
