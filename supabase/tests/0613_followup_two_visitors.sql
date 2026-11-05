@@ -19,14 +19,10 @@ DECLARE
   denied boolean;
   n integer;
 BEGIN
-  -- Cada servidor só tem a capability de registrar em sua própria escola.
+  -- Cada servidor usa somente as RPCs públicas. O helper privado de grant
+  -- não está disponível ao papel authenticated por desenho de segurança.
   PERFORM set_config('request.jwt.claims',
     jsonb_build_object('sub', visitor_a, 'role', 'authenticated')::text, true);
-  IF NOT public.school_institutional_followup_grant(
-    'registrar-acompanhamento-institucional', 'school-a')
-    OR public.school_institutional_followup_grant(
-      'registrar-acompanhamento-institucional', 'school-b')
-  THEN RAISE EXCEPTION 'followup-two-visitors:visitor-a-grant'; END IF;
 
   visit_a := public.record_school_institutional_followup_bundle(
     'school-a', today_, 'Diagnóstico A', '', '', '',
@@ -51,12 +47,6 @@ BEGIN
   -- O segundo servidor registra independentemente na escola B.
   PERFORM set_config('request.jwt.claims',
     jsonb_build_object('sub', visitor_b, 'role', 'authenticated')::text, true);
-  IF NOT public.school_institutional_followup_grant(
-    'registrar-acompanhamento-institucional', 'school-b')
-    OR public.school_institutional_followup_grant(
-      'registrar-acompanhamento-institucional', 'school-a')
-  THEN RAISE EXCEPTION 'followup-two-visitors:visitor-b-grant'; END IF;
-
   visit_b := public.record_school_institutional_followup_bundle(
     'school-b', today_, 'Diagnóstico B', '', '', '',
     gen_random_uuid(), jsonb_build_array(jsonb_build_object(
