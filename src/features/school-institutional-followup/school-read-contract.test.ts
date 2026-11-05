@@ -78,6 +78,36 @@ describe("limite de confiança do histórico institucional por escola", () => {
     }
   });
 
+  it("recusa datas civis impossíveis ou timestamps inválidos em qualquer coleção", () => {
+    for (const visit_date of ["2026-02-30", "2026-13-01", "2026-00-10", "2026-02-29"]) {
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, visits: [{ ...v1, visit_date }],
+      }, "school-a")).toThrow(/visita inválida/);
+    }
+    // A data de 29 de fevereiro em ano bissexto continua válida.
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, visits: [{ ...v1, visit_date: "2028-02-29" }],
+    }, "school-a")).not.toThrow();
+
+    for (const created_at of ["texto qualquer", "2026-02-30T12:00:00Z", "2026-10-01T25:00:00Z"]) {
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, visits: [{ ...v1, created_at }],
+      }, "school-a")).toThrow(/visita inválida/);
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, actions: [{ ...a1, created_at }],
+      }, "school-a")).toThrow(/medida inválida/);
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, updates: [{ ...u1, created_at }],
+      }, "school-a")).toThrow(/evolução inválida/);
+    }
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, actions: [{ ...a1, due_on: "2026-04-31" }],
+    }, "school-a")).toThrow(/medida inválida/);
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, updates: [{ ...u1, occurred_on: "2026-11-31" }],
+    }, "school-a")).toThrow(/evolução inválida/);
+  });
+
   it("recusa identificadores duplicados e limites silenciosamente ultrapassados", () => {
     expect(() => parseSchoolFollowupSnapshot({
       ...school, actions: [a1, a1],
