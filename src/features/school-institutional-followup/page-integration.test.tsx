@@ -213,6 +213,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     await openSchool("Escola Centro");
     const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
     const fields = within(form);
+    expect(fields.getByText(/Subir e descer organiza apenas a sequência de envio/)).toBeTruthy();
 
     fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Acompanhamento em andamento" } });

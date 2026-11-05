@@ -52,3 +52,5 @@
 - **Medidas do plano ainda não registradas:** cada linha editável deve ter chave local estável e remoção seletiva; jamais vincular valores de campos ao índice mutável. O botão remove apenas o rascunho daquela linha, reinicia a assinatura de idempotência pendente e não oferece remoção de medidas que já estejam no PostgreSQL. O formulário de visita não permite acrescentar/remover linhas enquanto salva.
 
 - **Ordenação das medidas propostas:** permitir Subir/Descer somente em rascunhos locais, preservando `draftKey` e valores de cada linha. Primeira/última linha têm movimento inválido desabilitado. Operações durante `saving` devem ser bloqueadas; cada movimento invalida a assinatura idempotente anterior. Nunca reordenar ou apagar ações já persistidas. Testar ordem e vínculo dos responsáveis no payload final.
+
+- **Limite de ordem das medidas:** o campo `draftKey` e a posição de cada linha são efêmeros. A migration 0613 não armazena ordinal da medida; a lista de histórico é apresentada por critérios de consulta, frequentemente prazo. A UI deve esclarecer que Subir/Descer organiza a sequência do envio, não uma ordenação permanente do plano.

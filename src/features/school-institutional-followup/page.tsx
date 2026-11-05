@@ -532,6 +532,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             onChange={(e) => setCorrectionReason(e.target.value)} />
         </label>}
         {!correctionBase && <><h4 className="font-medium">Plano de ação — medidas propostas</h4>
+        <p className="text-xs text-muted-foreground">
+          Subir e descer organiza apenas a sequência de envio das medidas nesta visita.
+          O histórico poderá apresentá-las em outra ordem, por exemplo por prazo.
+        </p>
         {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg bg-muted/30 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h5 className="text-sm font-medium">Medida {i + 1}</h5>
