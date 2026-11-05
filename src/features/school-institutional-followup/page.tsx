@@ -134,6 +134,19 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     && network.isSuccess && !network.isFetching ? detail.data : undefined;
   const rows = filterNetworkRows(networkData, search, networkView);
   const totals = networkIndicators(networkData);
+  // Independent RPCs can complete with different effective scopes after a
+  // live revocation. Never disclose pending measures from a school that the
+  // fresh network reader no longer recognizes as authorized.
+  const networkReady = network.isSuccess && !network.isFetching;
+  const pendingReady = pending.isSuccess && !pending.isFetching;
+  const allowedSchools = new Set(networkData.map((row) => row.school_id));
+  const pendingScopeMismatch = networkReady && pendingReady &&
+    pending.data.some((row) => !allowedSchools.has(row.school_id));
+  const scopedPending = networkReady && pendingReady && !pendingScopeMismatch
+    ? pending.data : [];
+  const pendingScopeError = pendingScopeMismatch
+    ? new Error("O quadro de providências não corresponde ao escopo atual da rede. Atualize as consultas antes de visualizar ou exportar.")
+    : network.isError ? network.error : pending.isError ? pending.error : null;
   const canRecord = Boolean(detailData) && Boolean(authority.person) && authority.capabilities.some((c) =>
     c.capabilityId === "registrar-acompanhamento-institucional"
     && (c.schoolId === null || c.schoolId === school));
@@ -647,9 +660,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </>}
       </>}
     </section>
-    <InstitutionalPendingPanel rows={pending.isSuccess && !pending.isFetching ? pending.data : []}
-      loading={pending.isPending || pending.isFetching}
-      error={pending.isError ? pending.error : null} today={today} selectedSchoolId={school}
+    <InstitutionalPendingPanel rows={scopedPending}
+      loading={network.isPending || network.isFetching || pending.isPending || pending.isFetching}
+      error={pendingScopeError} today={today} selectedSchoolId={school}
       onOpenAction={openMeasure} />
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
     {school && network.isSuccess && !network.isFetching && !selected && <section
