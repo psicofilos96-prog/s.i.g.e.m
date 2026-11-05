@@ -163,6 +163,12 @@ As RPCs de panorama, série mensal e situações das ações são independentes:
 
 **Limite:** consistência numérica não prova leitura transacional nem protege contra discrepâncias que preservem todos esses totais. RLS e verificações de escopo seguem obrigatórias na origem; um snapshot comum na RPC é uma evolução posterior, sujeita a homologação de SQL em clone completo.
 
+### Reconciliação numérica do quadro transversal (05/11/2026)
+
+Além de validar cada `school_id` contra o panorama autorizado, o SIGEM agora compara os totais entre as RPCs de panorama e de pendências: **providências não concluídas = todas as ações menos as concluídas declaradas**, e **providências vencidas = medidas com prazo anterior à data operacional de São Paulo, ainda não declaradas concluídas**. Caso uma linha falte ou os prazos não coincidam, o quadro de providências do Gabinete e suas exportações são bloqueados com aviso; o panorama escolar continua consultável. Isso evita o falso relatório de pendências integral com dados de épocas distintas, mesmo quando ambos os leitores retornam o mesmo conjunto de escolas.
+
+Testes isolados e de interface cobrem omissão de linha, mesma quantidade com vencimentos discordantes, leitura íntegra e restauração após `Atualizar`. A comparação reduz inconsistências visíveis, mas não garante transação entre RPCs; homologar a fonte SQL em um clone institucional integral antes da publicação.
+
 ### Consistência de escopo no quadro de providências (05/11/2026)
 
 O quadro transversal consulta uma RPC específica, independente do panorama de escolas. Para impedir divulgação ou exportação de pendências do escopo anterior após uma revogação parcial, a interface exige que o panorama esteja atualizado e confronte **todos** os `school_id` das pendências com as unidades confirmadas no panorama. Havendo divergência, recusa o quadro inteiro e informa que é necessário atualizar as consultas; não filtra silenciosamente linhas, porque isso produziria relatórios incompletos apresentados como integrais. Uma falha ou atualização em andamento no panorama também oculta o quadro, mesmo se a RPC de pendências ainda conservar dados em cache.
