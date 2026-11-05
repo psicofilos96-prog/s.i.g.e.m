@@ -76,6 +76,7 @@ BEGIN
   -- registros atuais. Um índice único parcial/expressão não basta.
   FOR dep IN SELECT * FROM (VALUES
     ('institutional_school_identifiers', ARRAY['school_id','identifier_kind']::text[]),
+    ('institutional_school_identifiers', ARRAY['identifier_kind','value']::text[]),
     ('institutional_school_record_versions', ARRAY['school_id','version_number']::text[]),
     ('user_person_links', ARRAY['user_id']::text[]),
     ('institutional_persons', ARRAY['id']::text[])
