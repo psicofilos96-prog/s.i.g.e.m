@@ -100,6 +100,11 @@ jobs:
           "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers DROP CONSTRAINT institutional_school_identifiers_pkey;"
           expect_preflight_failure "followup-preflight:missing-unique-key:institutional_school_identifiers.school_id,identifier_kind"
           "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers ADD CONSTRAINT institutional_school_identifiers_pkey PRIMARY KEY (school_id, identifier_kind);"
+          # Global identifier uniqueness prevents the same INEP from
+          # being canonically assigned to two different schools.
+          "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers DROP CONSTRAINT institutional_school_identifiers_kind_value_key;"
+          expect_preflight_failure "followup-preflight:missing-unique-key:institutional_school_identifiers.identifier_kind,value"
+          "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers ADD CONSTRAINT institutional_school_identifiers_kind_value_key UNIQUE (identifier_kind, value);"
           # Clean schema must pass the preflight, migration, postflight and access matrix.
           "${db[@]}" \
             -f supabase/tests/0613_followup_clone_preflight_readonly.sql \
