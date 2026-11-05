@@ -78,4 +78,5 @@ jobs:
             -f drizzle/migrations/0613_school_institutional_followup.sql \
             -f supabase/tests/0613_followup_clone_postflight_readonly.sql \
             -f supabase/tests/0613_school_institutional_followup.sql \
-            -f supabase/tests/0613_followup_isolated_positive.sql
+            -f supabase/tests/0613_followup_isolated_positive.sql \
+            -f supabase/tests/0613_followup_two_visitors.sql
