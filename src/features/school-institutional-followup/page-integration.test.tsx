@@ -849,7 +849,7 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("não descarta o rascunho se o escopo foi restaurado durante a confirmação antiga", async () => {
     setSession(true);
     mocks.schoolFollowup.mockResolvedValue(blankSchool);
-    const { rerender, client } = renderPage();
+    renderPage();
     await openSchool("Escola Centro");
     const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
     fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
@@ -873,9 +873,6 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(screen.getByDisplayValue("Rascunho preservado após voltar o acesso")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
-    // The workspace identity is stable; no navigation was required for this protection.
-    expect(client).toBeTruthy();
-    expect(rerender).toBeTruthy();
   });
 
   it("isola ficha, rascunho e exportação quando uma conta diferente assume a sessão", async () => {
