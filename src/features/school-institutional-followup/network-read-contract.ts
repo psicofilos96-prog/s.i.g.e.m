@@ -1,5 +1,5 @@
 import type { NetworkRow } from "./model";
-import { NO_UPDATE, SITUATIONS } from "./model";
+import { NO_UPDATE, SITUATIONS, networkIndicators } from "./model";
 import type { FollowupMonth, FollowupStatus } from "./source";
 
 type Row = Record<string, unknown>;
@@ -81,4 +81,26 @@ export function parseFollowupStatuses(value: unknown): FollowupStatus[] {
     seen.add(item["situation"]);
     return { situation: item["situation"], actions: item["actions"] };
   });
+}
+
+/**
+ * Independent read-only RPCs are not an atomic database snapshot. Prevent a
+ * mixed-time or mixed-scope response from being presented as a coherent chart.
+ * The monthly sum must equal current visits in the requested period; status
+ * counts must account for every action and agree on completed actions.
+ */
+export function reconcileFollowupNetworkIndicators(
+  network: readonly NetworkRow[],
+  months: readonly FollowupMonth[],
+  statuses: readonly FollowupStatus[],
+): { monthlyConsistent: boolean; statusesConsistent: boolean } {
+  const totals = networkIndicators(network);
+  const monthVisits = months.reduce((sum, item) => sum + item.visits, 0);
+  const statusActions = statuses.reduce((sum, item) => sum + item.actions, 0);
+  const completed = statuses.find((item) => item.situation === "concluída")?.actions ?? 0;
+  return {
+    monthlyConsistent: Number.isSafeInteger(monthVisits) && monthVisits === totals.visits,
+    statusesConsistent: Number.isSafeInteger(statusActions) &&
+      statusActions === totals.actions && completed === totals.completed,
+  };
 }
