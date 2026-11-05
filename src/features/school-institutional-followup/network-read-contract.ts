@@ -1,4 +1,4 @@
-import type { NetworkRow } from "./model";
+import type { NetworkRow, NetworkPendingAction } from "./model";
 import { NO_UPDATE, SITUATIONS, networkIndicators } from "./model";
 import type { FollowupMonth, FollowupStatus } from "./source";
 
@@ -102,5 +102,30 @@ export function reconcileFollowupNetworkIndicators(
     monthlyConsistent: Number.isSafeInteger(monthVisits) && monthVisits === totals.visits,
     statusesConsistent: Number.isSafeInteger(statusActions) &&
       statusActions === totals.actions && completed === totals.completed,
+  };
+}
+
+/**
+ * The network and pending RPCs also execute independently. The pending list
+ * must account for every action not currently declared completed, and for
+ * every overdue action in the same authorized network scope. A count mismatch
+ * is a stale or incomplete snapshot, not an empty or partially valid report.
+ *
+ * Overdue uses the same operational São Paulo date passed to the page.
+ */
+export function reconcileFollowupPendingIndicators(
+  network: readonly NetworkRow[],
+  pending: readonly NetworkPendingAction[],
+  today: string,
+): { pendingCountConsistent: boolean; overdueConsistent: boolean } {
+  const totals = networkIndicators(network);
+  const expectedPending = totals.actions - totals.completed;
+  const actualOverdue = pending.filter((item) =>
+    item.due_on !== null && item.due_on < today).length;
+  return {
+    pendingCountConsistent: Number.isSafeInteger(expectedPending)
+      && expectedPending >= 0 && pending.length === expectedPending,
+    overdueConsistent: Number.isSafeInteger(totals.overdue)
+      && actualOverdue === totals.overdue,
   };
 }
