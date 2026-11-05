@@ -152,6 +152,10 @@ Só liberar a PR do estado **draft** e considerar merge após: (a) CI da última
 
 **Separação de responsabilidades:** a equipe de acompanhamento registra fatos e evolução; o Gabinete consulta e decide providências pelos processos institucionais existentes. Este módulo não realiza cobranças, sanções ou homologações automáticas.
 
+### Validação de datas nas leituras (revisão de 05/11/2026)
+
+Os contratos da ficha escolar e do quadro de providências rejeitam **dias inexistentes no calendário** (não apenas strings com máscara `AAAA-MM-DD`) e timestamps de registro inválidos, incluindo casos em que a conversão automática de JavaScript normalizaria 30 de fevereiro para março. Há testes para data bissexta válida, dia impossível de visita, prazo de medida, data de evolução e datas de criação. Uma resposta inválida interrompe a leitura integral antes de apresentar ou exportar o histórico. Essa verificação é defesa de interface e não substitui as RPCs de autorização no banco.
+
 ### Testes de integração da página (sessões simuladas)
 
 A suíte `src/features/school-institutional-followup/page-integration.test.tsx` cobre consulta pelo Gabinete sem botões de escrita, registro de visita e plano por servidor, ausência de acesso sem sessão e prevenção de perda de diagnóstico durante troca de escola. Ela executa a página React com respostas e capacidades **simuladas**, sem acessar nem alterar Supabase. Os testes não comprovam políticas de autorização do banco, escopo real, autenticação institucional ou navegação em navegador físico; a matriz de aceite manual acima continua pendente.
