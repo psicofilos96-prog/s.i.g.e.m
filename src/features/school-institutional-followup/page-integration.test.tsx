@@ -60,6 +60,12 @@ const schools = [
 ];
 const blankSchool = { visits: [], visit_history: [], actions: [], updates: [] };
 
+function pendingDecision() {
+  let resolve!: (accepted: boolean) => void;
+  const promise = new Promise<boolean>((r) => { resolve = r; });
+  return { promise, resolve };
+}
+
 function pendingWrite() {
   let resolve!: (value: string) => void;
   let reject!: (error: unknown) => void;
@@ -530,6 +536,96 @@ describe("acompanhamento institucional — integração da página e capacidades
     fireEvent.click(fields.getByRole("button", { name: "Remover medida 2" }));
     expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })).toHaveLength(1);
     expect(mocks.confirmAction).not.toHaveBeenCalled();
+  });
+
+  it("preserva diagnóstico alterado depois de abrir uma confirmação de descarte", async () => {
+    setSession(true);
+    const pending = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(pending.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    const diagnosis = fields.getByRole("textbox", { name: "Diagnóstico da realidade" });
+    fireEvent.change(diagnosis, { target: { value: "Diagnóstico original" } });
+    fireEvent.click(fields.getByRole("button", { name: "Descartar preenchimento" }));
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+    fireEvent.change(diagnosis, { target: { value: "Nova informação registrada durante a confirmação" } });
+    await act(async () => { pending.resolve(true); });
+    expect(diagnosis).toHaveValue("Nova informação registrada durante a confirmação");
+    expect(fields.getByRole("alert")).toHaveTextContent(/visita mudou durante a confirmação/);
+    expect(fields.getByRole("button", { name: "Descartar preenchimento" })).not.toBeDisabled();
+    await act(async () => { fireEvent.click(fields.getByRole("button", { name: "Descartar preenchimento" })); });
+    expect(diagnosis).toHaveValue("");
+    expect(mocks.confirmAction).toHaveBeenCalledTimes(2);
+  });
+
+  it("não remove medida se qualquer parte do plano mudou durante a confirmação", async () => {
+    setSession(true);
+    const pending = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(pending.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    const [first, second] = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    fireEvent.change(first!, { target: { value: "Primeira providência" } });
+    fireEvent.change(second!, { target: { value: "Segunda providência" } });
+    fireEvent.click(fields.getByRole("button", { name: "Remover medida 1" }));
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+    fireEvent.change(second!, { target: { value: "Segunda providência revisada" } });
+    await act(async () => { pending.resolve(true); });
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })).toHaveLength(2);
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })[0]).toHaveValue("Primeira providência");
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })[1]).toHaveValue("Segunda providência revisada");
+    expect(fields.getByRole("alert")).toHaveTextContent(/plano mudou durante a confirmação/);
+  });
+
+  it("preserva uma medida adicional alterada enquanto o cancelamento está pendente", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({ ...blankSchool, visits: [sampleVisit] });
+    const pending = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(pending.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Acrescentar medida ao plano" }));
+    const form = screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" }).closest("form")!;
+    const fields = within(form);
+    const description = fields.getByRole("textbox", { name: "O que precisa ser feito" });
+    fireEvent.change(description, { target: { value: "Providência original" } });
+    fireEvent.click(fields.getByRole("button", { name: "Cancelar" }));
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+    fireEvent.change(description, { target: { value: "Providência ampliada" } });
+    await act(async () => { pending.resolve(true); });
+    expect(screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" })).toBeTruthy();
+    expect(description).toHaveValue("Providência ampliada");
+    expect(fields.getByRole("alert")).toHaveTextContent(/medida mudou durante a confirmação/);
+    expect(mocks.recordAction).not.toHaveBeenCalled();
+  });
+
+  it("preserva evolução alterada enquanto o cancelamento está pendente", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [sampleVisit], actions: [sampleAction],
+    });
+    const pending = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(pending.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução" }));
+    const form = screen.getByRole("heading", { name: "Nova atualização da ação" }).closest("form")!;
+    const fields = within(form);
+    const done = fields.getByRole("textbox", { name: "O que foi feito" });
+    fireEvent.change(done, { target: { value: "Atividade inicial" } });
+    fireEvent.click(fields.getByRole("button", { name: "Cancelar" }));
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+    fireEvent.change(done, { target: { value: "Atividade revisada" } });
+    await act(async () => { pending.resolve(true); });
+    expect(screen.getByRole("heading", { name: "Nova atualização da ação" })).toBeTruthy();
+    expect(done).toHaveValue("Atividade revisada");
+    expect(fields.getByRole("alert")).toHaveTextContent(/evolução mudou durante a confirmação/);
+    expect(mocks.recordUpdate).not.toHaveBeenCalled();
   });
 
   it("mantém diagnóstico e escola quando o descarte do formulário é recusado", async () => {

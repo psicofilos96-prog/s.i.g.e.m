@@ -120,6 +120,7 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 - [ ] Com evolução em edição, trocar medida ou escola preserva os campos; uma evolução limpa pode ser cancelada sem criar evento.
 - [ ] Com visita/medida/evolução em edição, **recarregar ou fechar a aba** aciona confirmação nativa nos navegadores que a suportem; após salvar/cancelar, o alerta deixa de ser apresentado. Conferir limites em smartphones e que nenhum texto é persistido offline.
 - [ ] Com formulário não salvo, mudar para **outra rota interna** do SIGEM abre confirmação institucional; cancelar preserva o formulário e confirmar permite a saída. Sem rascunho, não há bloqueio. Validar também quando a interface de confirmação estiver indisponível.
+- [ ] Em cada confirmação destrutiva (descarte de visita, remoção de medida, cancelamento de medida ou evolução), modificar o texto enquanto o diálogo está aberto e confirmar: a operação antiga deve ser recusada e os novos dados preservados, com aviso para solicitar nova confirmação.
 - [ ] UI é conferida em navegador real, inclusive smartphone, com sessão de cada perfil.
 
 ## 5. Critérios de publicação e contingência

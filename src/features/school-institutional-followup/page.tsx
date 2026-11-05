@@ -135,6 +135,20 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     ? draftActions.map((a) => followupActionDraftIssue(a, day)) : [];
   const invalidActionCount = actionDraftIssues.filter((issue) => issue !== null).length;
   const describedActionCount = draftActions.filter((a) => a.description.trim()).length;
+  // Mantém a versão atual de cada formulário acessível após um await de confirmação.
+  // A confirmação aprova somente os dados exibidos quando foi solicitada, não
+  // alterações feitas posteriormente nem um formulário de outra escola/medida.
+  const liveDraftSignatures = useRef({ visit: "", measure: "", evolution: "" });
+  liveDraftSignatures.current = {
+    visit: JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary,
+      participants, purpose, correctionBase, correctionReason, draftActions,
+      request: visitRequests.current?.signature }),
+    measure: JSON.stringify({ school, measureVisitId, measureDraft,
+      request: measureRequest.current?.signature }),
+    evolution: JSON.stringify({ school, actionId, updateDay, updateVisitId,
+      situation, done, notDone, results, referrals, request: updateRequest.current?.signature }),
+  };
+  const localDiscardPending = useRef(false);
   // O alerta cobre a recarga/fechamento da aba; ações internas preservam o
   // formulário pelos bloqueios já existentes em changeSchool/startCorrection.
   const hasUnsavedFollowup = Boolean(school) && (
@@ -292,51 +306,74 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     finally { setSavingMeasure(false); }
   }
   async function confirmLocalDiscard(title: string, consequence: string, actionLabel: string): Promise<boolean> {
+    if (localDiscardPending.current) return false;
+    localDiscardPending.current = true;
     try {
       return await confirmAction({ title, consequence, actionLabel, destructive: true });
     } catch {
       // Falha fechada: nunca apagar um relato sem confirmação disponível.
       return false;
+    } finally {
+      localDiscardPending.current = false;
     }
   }
   async function removeProposedAction(target: ActionDraft) {
     if (saving || !draftActions.some((a) => a.draftKey === target.draftKey)) return;
+    const snapshot = liveDraftSignatures.current.visit;
     if (isFollowupActionDraftDirty(target) && !await confirmLocalDiscard(
       "Remover medida em preenchimento?",
       "A descrição, o responsável e o prazo digitados nesta medida serão descartados. As outras medidas continuarão no formulário.",
       "Remover esta medida",
     )) return;
-    if (saving) return;
+    if (saving || liveDraftSignatures.current.visit !== snapshot) {
+      setVisitDraftNotice("O plano mudou durante a confirmação. Confira os dados e solicite a remoção novamente.");
+      return;
+    }
     setDraftActions((prev) => prev.length > 1
       ? prev.filter((a) => a.draftKey !== target.draftKey) : prev);
     visitRequests.current = null;
   }
   async function discardVisitDraft() {
     if (saving) return;
+    const snapshot = liveDraftSignatures.current.visit;
     if ((visitDraftIsDirty || visitRequests.current !== null) && !await confirmLocalDiscard(
       correctionBase ? "Cancelar retificação da visita?" : "Descartar visita em preenchimento?",
       "Os campos e as medidas preenchidos nesta visita serão descartados sem registro no histórico da escola.",
       correctionBase ? "Cancelar e descartar" : "Descartar preenchimento",
     )) return;
-    if (!saving) resetVisitDraft();
+    if (saving || liveDraftSignatures.current.visit !== snapshot) {
+      setVisitDraftNotice("A visita mudou durante a confirmação. Os dados foram preservados; confira e solicite o descarte novamente.");
+      return;
+    }
+    resetVisitDraft();
   }
   async function discardMeasureDraft() {
     if (savingMeasure) return;
+    const snapshot = liveDraftSignatures.current.measure;
     if ((measureDraftIsDirty || measureRequest.current !== null) && !await confirmLocalDiscard(
       "Cancelar medida em preenchimento?",
       "A medida ainda não registrada será descartada. O histórico da visita não será alterado.",
       "Cancelar e descartar",
     )) return;
-    if (!savingMeasure) resetMeasureDraft();
+    if (savingMeasure || liveDraftSignatures.current.measure !== snapshot) {
+      setMeasureDraftNotice("A medida mudou durante a confirmação. Os dados foram preservados; confira e solicite o cancelamento novamente.");
+      return;
+    }
+    resetMeasureDraft();
   }
   async function discardEvolutionDraft() {
     if (savingUpdate) return;
+    const snapshot = liveDraftSignatures.current.evolution;
     if ((evolutionDraftIsDirty || updateRequest.current !== null) && !await confirmLocalDiscard(
       "Cancelar evolução em preenchimento?",
       "As informações de evolução ainda não registradas serão descartadas. O histórico anterior permanecerá preservado.",
       "Cancelar e descartar",
     )) return;
-    if (!savingUpdate) cancelEvolution();
+    if (savingUpdate || liveDraftSignatures.current.evolution !== snapshot) {
+      setEvolutionNotice("A evolução mudou durante a confirmação. Os dados foram preservados; confira e solicite o cancelamento novamente.");
+      return;
+    }
+    cancelEvolution();
   }
   function resetMeasureDraft() {
     setMeasureVisitId(""); setMeasureDraft(newAction());
