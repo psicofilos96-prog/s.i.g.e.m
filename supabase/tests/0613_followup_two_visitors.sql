@@ -40,6 +40,14 @@ BEGIN
   THEN RAISE EXCEPTION 'followup-two-visitors:visitor-a-record'; END IF;
   action_a := (doc->'actions'->0->>'id')::uuid;
 
+  PERFORM public.record_school_institutional_followup_update(
+    action_a, NULL, today_, 'em andamento', 'Evolução da escola A',
+    '', '', '', gen_random_uuid());
+  doc := public.school_institutional_followup_school('school-a');
+  IF jsonb_array_length(doc->'updates') <> 1
+    OR doc->'updates'->0->>'author_name' <> 'Servidor de Prova'
+  THEN RAISE EXCEPTION 'followup-two-visitors:visitor-a-update'; END IF;
+
   -- O segundo servidor registra independentemente na escola B.
   PERFORM set_config('request.jwt.claims',
     jsonb_build_object('sub', visitor_b, 'role', 'authenticated')::text, true);
@@ -61,6 +69,14 @@ BEGIN
     OR (doc->'visits'->0->>'can_correct')::boolean IS NOT TRUE
   THEN RAISE EXCEPTION 'followup-two-visitors:visitor-b-record'; END IF;
   action_b := (doc->'actions'->0->>'id')::uuid;
+
+  PERFORM public.record_school_institutional_followup_update(
+    action_b, NULL, today_, 'em andamento', 'Evolução da escola B',
+    '', '', '', gen_random_uuid());
+  doc := public.school_institutional_followup_school('school-b');
+  IF jsonb_array_length(doc->'updates') <> 1
+    OR doc->'updates'->0->>'author_name' <> 'Segundo Servidor de Prova'
+  THEN RAISE EXCEPTION 'followup-two-visitors:visitor-b-update'; END IF;
 
   SELECT count(*) INTO n
     FROM public.school_institutional_followup_network(today_, today_)
