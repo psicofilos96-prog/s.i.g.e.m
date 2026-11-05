@@ -136,7 +136,12 @@ BEGIN
     IF p.proname = 'school_institutional_followup_immutable' AND p.prosecdef THEN
       RAISE EXCEPTION 'followup-postflight:immutable-must-be-invoker';
     END IF;
-    IF p.proconfig IS NULL OR NOT ('search_path=' = ANY(p.proconfig)) THEN
+    -- pg_proc.proconfig can serialize an empty GUC as search_path=""
+    -- (rather than search_path=). Both spellings mean an empty path.
+    IF p.proconfig IS NULL OR NOT EXISTS (
+      SELECT 1 FROM pg_catalog.unnest(p.proconfig) AS config(value)
+      WHERE config.value IN ('search_path=', 'search_path=""')
+    ) THEN
       RAISE EXCEPTION 'followup-postflight:search-path-not-empty:%', p.proname;
     END IF;
   END LOOP;
