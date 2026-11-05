@@ -783,11 +783,12 @@ describe("acompanhamento institucional — integração da página e capacidades
 
   it("oculta ficha em cache quando o panorama atualizado exclui a escola antes autorizada", async () => {
     setSession(true);
-    mocks.schoolFollowup.mockResolvedValue({
-      ...blankSchool,
-      visits: [{ ...sampleVisit, diagnosis: "Diagnóstico privativo da escola A" }],
-      actions: [sampleAction],
-    });
+    mocks.schoolFollowup.mockImplementation(async (schoolId: string) =>
+      schoolId === "school-a" ? {
+        ...blankSchool,
+        visits: [{ ...sampleVisit, diagnosis: "Diagnóstico privativo da escola A" }],
+        actions: [sampleAction],
+      } : blankSchool);
     const delayed = pendingDecision();
     vi.mocked(exportFollowupSchool).mockReturnValueOnce(delayed.promise.then(() => undefined));
     renderPage();
