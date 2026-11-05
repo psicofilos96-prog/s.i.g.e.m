@@ -834,4 +834,41 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
   });
 
+  it("refaz consultas e cancela relatórios quando a capability muda na mesma sessão", async () => {
+    setSession(true, "school-a");
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [{ ...sampleVisit, diagnosis: "Dados do escopo A" }],
+    });
+    const unfinished = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(unfinished.promise.then(() => undefined));
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    expect(await screen.findByText("Dados do escopo A")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Ficha CSV" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    // Mesma conta e mesma sessionRevision: mudou apenas a autorização efetiva.
+    mocks.networkFollowup.mockResolvedValue([schools[1]!]);
+    mocks.session = {
+      ...mocks.session,
+      capabilities: [
+        { capabilityId: "consultar-acompanhamento-institucional", schoolId: "school-b" },
+        { capabilityId: "registrar-acompanhamento-institucional", schoolId: "school-b" },
+      ],
+    };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    expect(await screen.findByRole("button", { name: "Escola Serra" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Escola Centro" })).toBeNull();
+    expect(screen.queryByText("Dados do escopo A")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha CSV" })).toBeNull();
+    await openSchool("Escola Serra");
+    expect(await screen.findByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+    await act(async () => { unfinished.resolve(true); await unfinished.promise; });
+    expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
+    expect(mocks.networkFollowup).toHaveBeenCalledTimes(2);
+  });
+
 });
