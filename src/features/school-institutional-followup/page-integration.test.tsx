@@ -62,8 +62,9 @@ const blankSchool = { visits: [], visit_history: [], actions: [], updates: [] };
 
 function pendingWrite() {
   let resolve!: (value: string) => void;
-  const promise = new Promise<string>((r) => { resolve = r; });
-  return { promise, resolve };
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<string>((res, rej) => { resolve = res; reject = rej; });
+  return { promise, resolve, reject };
 }
 const sampleVisit = {
   id: "visit-a", logical_id: "logical-visit-a", version: 1, school_id: "school-a",
@@ -263,8 +264,12 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(fields.getByRole("textbox", { name: "Responsável declarado" })).toBeDisabled();
     expect(fields.getByRole("textbox", { name: "Prazo, se houver" })).toBeDisabled();
     expect(fields.getByRole("button", { name: "Cancelar" })).toBeDisabled();
-    await act(async () => { delayed.resolve("action-created"); });
-    await waitFor(() => expect(screen.queryByRole("heading", { name: "Acrescentar medida a uma visita existente" })).toBeNull());
+    await act(async () => { delayed.reject(new Error("Erro simulado da gravação")); });
+    await waitFor(() => expect(fields.getByRole("textbox", { name: "O que precisa ser feito" })).not.toBeDisabled());
+    expect(fields.getByRole("textbox", { name: "O que precisa ser feito" }))
+      .toHaveValue("Melhorar a iluminação");
+    expect(fields.getByRole("button", { name: "Acrescentar medida" })).not.toBeDisabled();
+    expect(mocks.recordAction).toHaveBeenCalledTimes(1);
   });
 
   it("congela a evolução durante a gravação, preservando o texto antes da confirmação", async () => {

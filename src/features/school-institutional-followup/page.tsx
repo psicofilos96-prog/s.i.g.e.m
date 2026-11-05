@@ -690,7 +690,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             onClick={() => void discardMeasureDraft()}>Cancelar</Button>
         </div>
         </fieldset>
-      </form>
+      </form>}
       {detail.data && <>
         <div className="space-y-3 rounded-xl border p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -797,7 +797,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             <Button type="button" variant="outline" disabled={savingUpdate}
               onClick={() => void discardEvolutionDraft()}>Cancelar</Button></div>
           </fieldset>
-        </form>
+        </form>}
         <FollowupVisitComparison key={school} schoolId={school} visits={detail.data.visits} />
         <div className="space-y-3 rounded-xl border p-4">
           <h3 className="font-semibold">Histórico de visitas</h3>
