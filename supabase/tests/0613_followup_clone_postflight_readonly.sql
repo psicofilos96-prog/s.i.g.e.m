@@ -118,7 +118,10 @@ BEGIN
     END IF;
   END LOOP;
 
-  -- Todas as funções do módulo usam SECURITY DEFINER e um search_path declarado.
+  -- SECURITY DEFINER must not resolve unqualified objects through a
+  -- caller-writable schema. Every 0613 function explicitly uses an EMPTY
+  -- search_path and schema-qualified references; checking only the presence
+  -- of search_path= would incorrectly accept "public" or "$user, public".
   FOR p IN
     SELECT proc.proname, proc.prosecdef, proc.proconfig
     FROM pg_catalog.pg_proc proc
@@ -130,11 +133,11 @@ BEGIN
     IF NOT p.prosecdef AND p.proname <> 'school_institutional_followup_immutable' THEN
       RAISE EXCEPTION 'followup-postflight:security-definer-missing:%', p.proname;
     END IF;
-    IF p.proconfig IS NULL OR NOT EXISTS (
-      SELECT 1 FROM pg_catalog.unnest(p.proconfig) AS config(value)
-      WHERE config.value LIKE 'search_path=%'
-    ) THEN
-      RAISE EXCEPTION 'followup-postflight:search-path-not-fixed:%', p.proname;
+    IF p.proname = 'school_institutional_followup_immutable' AND p.prosecdef THEN
+      RAISE EXCEPTION 'followup-postflight:immutable-must-be-invoker';
+    END IF;
+    IF p.proconfig IS NULL OR NOT ('search_path=' = ANY(p.proconfig)) THEN
+      RAISE EXCEPTION 'followup-postflight:search-path-not-empty:%', p.proname;
     END IF;
   END LOOP;
 
