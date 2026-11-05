@@ -133,6 +133,22 @@ BEGIN
     RAISE EXCEPTION 'followup-postflight:unexpected-function-family-member';
   END IF;
 
+  -- A client database role must never OWN a SECURITY DEFINER RPC.
+  -- Ownership permits altering the routine, regardless of ordinary EXECUTE
+  -- grants. The migration must retain trusted administrative ownership;
+  -- different trusted admin names are allowed across isolated clones.
+  IF EXISTS (
+    SELECT 1 FROM pg_catalog.pg_proc proc
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = proc.pronamespace
+    JOIN pg_catalog.pg_roles owner ON owner.oid = proc.proowner
+    WHERE ns.nspname = 'public'
+      AND (proc.proname LIKE 'school_institutional_followup_%'
+        OR proc.proname LIKE 'record_school_institutional_followup_%')
+      AND owner.rolname IN ('anon', 'authenticated', 'service_role')
+  ) THEN
+    RAISE EXCEPTION 'followup-postflight:untrusted-function-owner';
+  END IF;
+
   -- SECURITY DEFINER must not resolve unqualified objects through a
   -- caller-writable schema. Every 0613 function explicitly uses an EMPTY
   -- search_path and schema-qualified references; checking only the presence
