@@ -71,6 +71,36 @@ BEGIN
     END IF;
   END LOOP;
 
+  -- A consulta por escola e o vínculo da autoria pressupõem unicidade
+  -- estrutural no cadastro canônico, não apenas ausência de duplicatas nos
+  -- registros atuais. Um índice único parcial/expressão não basta.
+  FOR dep IN SELECT * FROM (VALUES
+    ('institutional_school_identifiers', ARRAY['school_id','identifier_kind']::text[]),
+    ('institutional_school_record_versions', ARRAY['school_id','version_number']::text[]),
+    ('user_person_links', ARRAY['user_id']::text[]),
+    ('institutional_persons', ARRAY['id']::text[])
+  ) AS required(table_name, key_columns)
+  LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_catalog.pg_index i
+      JOIN pg_catalog.pg_class t ON t.oid = i.indrelid
+      JOIN pg_catalog.pg_namespace n ON n.oid = t.relnamespace
+      WHERE n.nspname = 'public' AND t.relname = dep.table_name
+        AND i.indisunique AND i.indisvalid AND i.indpred IS NULL
+        AND i.indexprs IS NULL
+        AND i.indnkeyatts = pg_catalog.cardinality(dep.key_columns)
+        AND (
+          SELECT pg_catalog.array_agg(a.attname::text ORDER BY positions.pos)
+          FROM pg_catalog.generate_series(0, i.indnkeyatts - 1) AS positions(pos)
+          JOIN pg_catalog.pg_attribute a
+            ON a.attrelid = t.oid AND a.attnum = i.indkey[positions.pos]
+        ) = dep.key_columns
+    ) THEN
+      RAISE EXCEPTION 'followup-preflight:missing-unique-key:%.%',
+        dep.table_name, pg_catalog.array_to_string(dep.key_columns, ',');
+    END IF;
+  END LOOP;
+
   IF pg_catalog.to_regprocedure('public.effective_scope_capabilities(date)') IS NULL THEN
     RAISE EXCEPTION 'followup-preflight:missing-effective-scope-function';
   END IF;
