@@ -105,8 +105,7 @@ BEGIN
     SELECT 1 FROM pg_catalog.pg_proc p
     JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
     WHERE n.nspname = 'public'
-      AND (p.proname LIKE 'school\\_institutional\\_followup\\_%' ESCAPE '\\'
-        OR p.proname LIKE 'record\\_school\\_institutional\\_followup\\_%' ESCAPE '\\')
+      AND p.proname ~ '^(school_institutional_followup_|record_school_institutional_followup_)'
   ) THEN
     RAISE EXCEPTION 'followup-preflight:preexisting-function-family';
   END IF;
