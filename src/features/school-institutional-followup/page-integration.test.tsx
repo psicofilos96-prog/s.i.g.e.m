@@ -719,4 +719,51 @@ describe("acompanhamento institucional — integração da página e capacidades
     await waitFor(() => expect(screen.getByRole("heading", { name: "Escola Serra" })).toBeTruthy());
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
   });
+  it("oculta histórico em cache e cancela exportação quando a consulta escolar falha após atualizar", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [sampleVisit], actions: [sampleAction],
+    });
+    const pending = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(pending.promise.then(() => undefined));
+    renderPage();
+    await openSchool("Escola Centro");
+    await waitFor(() => expect(screen.getAllByText("Organizar salas").length).toBeGreaterThan(0));
+    expect(screen.getByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha Excel" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    mocks.schoolFollowup.mockRejectedValueOnce(new Error("permissão escolar revogada"));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(signal.aborted).toBe(true);
+    expect(await screen.findByText("Histórico indisponível")).toBeTruthy();
+    expect(screen.queryAllByText("Organizar salas")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "Ficha Excel" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+
+    await act(async () => { pending.resolve(true); await pending.promise; });
+  });
+
+  it("não exibe a ficha em cache quando a atualização do escopo da rede falha", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [sampleVisit], actions: [sampleAction],
+    });
+    renderPage();
+    await openSchool("Escola Centro");
+    await waitFor(() => expect(screen.getAllByText("Organizar salas").length).toBeGreaterThan(0));
+
+    mocks.networkFollowup.mockRejectedValueOnce(new Error("escopo de rede não autorizado"));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await screen.findByText("Não foi possível consultar a rede")).toBeTruthy();
+    expect(screen.queryAllByText("Organizar salas")).toHaveLength(0);
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Escola Serra" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
 });
