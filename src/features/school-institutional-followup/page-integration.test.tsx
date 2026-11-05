@@ -106,7 +106,11 @@ function renderPage() {
 async function openSchool(name: string) {
   const button = await screen.findByRole("button", { name });
   fireEvent.click(button);
-  return screen.findByRole("heading", { name });
+  const heading = await screen.findByRole("heading", { name });
+  // A escrita agora só aparece depois de uma leitura escolar autorizada.
+  // Esperar o término da consulta evita afirmar que o formulário é imediato.
+  await waitFor(() => expect(screen.queryByText("Carregando histórico…")).toBeNull());
+  return heading;
 }
 
 describe("acompanhamento institucional — integração da página e capacidades", () => {
@@ -182,7 +186,7 @@ describe("acompanhamento institucional — integração da página e capacidades
 
     fireEvent.click(screen.getByRole("button", { name: "Escola Centro" }));
     await screen.findByRole("heading", { name: "Escola Centro" });
-    expect(screen.getByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Salvar visita e plano" })).toBeDisabled();
   });
 
