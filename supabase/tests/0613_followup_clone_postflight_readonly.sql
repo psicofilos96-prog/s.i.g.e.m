@@ -118,6 +118,21 @@ BEGIN
     END IF;
   END LOOP;
 
+  -- The migration defines exactly 13 public-schema functions in these
+  -- families: four private helpers, five readers and four writers. Individual
+  -- signature checks above establish the required members; reject extras
+  -- (including overloads that could make PostgREST resolution ambiguous).
+  IF (
+    SELECT pg_catalog.count(*)
+    FROM pg_catalog.pg_proc proc
+    JOIN pg_catalog.pg_namespace ns ON ns.oid = proc.pronamespace
+    WHERE ns.nspname = 'public'
+      AND (proc.proname LIKE 'school_institutional_followup_%'
+        OR proc.proname LIKE 'record_school_institutional_followup_%')
+  ) <> 13 THEN
+    RAISE EXCEPTION 'followup-postflight:unexpected-function-family-member';
+  END IF;
+
   -- SECURITY DEFINER must not resolve unqualified objects through a
   -- caller-writable schema. Every 0613 function explicitly uses an EMPTY
   -- search_path and schema-qualified references; checking only the presence
