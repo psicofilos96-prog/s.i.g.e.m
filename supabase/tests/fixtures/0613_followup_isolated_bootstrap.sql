@@ -26,7 +26,8 @@ CREATE TABLE public.institutional_school_record_versions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   school_id text NOT NULL REFERENCES public.institutional_schools(id),
   version_number integer NOT NULL,
-  official_name text NOT NULL
+  official_name text NOT NULL,
+  UNIQUE (school_id, version_number)
 );
 CREATE TABLE public.institutional_persons (
   id uuid PRIMARY KEY,
