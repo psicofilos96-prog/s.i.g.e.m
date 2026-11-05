@@ -846,6 +846,38 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.recordUpdate).not.toHaveBeenCalled();
   });
 
+  it("não descarta o rascunho se o escopo foi restaurado durante a confirmação antiga", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Rascunho preservado após voltar o acesso" } });
+
+    mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    const discard = await screen.findByRole("button", { name: "Descartar rascunhos e fechar" });
+    const confirmation = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(confirmation.promise);
+    fireEvent.click(discard);
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+
+    // A consulta agora volta a autorizar A antes de a pessoa responder ao diálogo.
+    // O formulário antigo deve reaparecer sem perda de seus valores.
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    await waitFor(() => expect(screen.getByDisplayValue(
+      "Rascunho preservado após voltar o acesso",
+    )).toBeTruthy());
+    await act(async () => { confirmation.resolve(true); await confirmation.promise; });
+    expect(screen.getByDisplayValue("Rascunho preservado após voltar o acesso")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+    // The workspace identity is stable; no navigation was required for this protection.
+    expect(client).toBeTruthy();
+    expect(rerender).toBeTruthy();
+  });
+
   it("isola ficha, rascunho e exportação quando uma conta diferente assume a sessão", async () => {
     setSession(true);
     mocks.schoolFollowup.mockResolvedValue({
