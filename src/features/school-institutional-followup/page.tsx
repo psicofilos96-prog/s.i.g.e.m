@@ -197,7 +197,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   }, [actionId]);
   // O quadro transversal aponta para a medida específica, não apenas para a escola.
   useEffect(() => {
-    if (!targetActionId || !school || !detail.isSuccess) return;
+    if (!targetActionId || !school || !detailData) return;
     if (!detailData.actions.some((a) => a.id === targetActionId)) {
       setNotice("A medida selecionada não consta mais no histórico consultado. Atualize o quadro de providências.");
       setTargetActionId("");
@@ -209,7 +209,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       element.focus({ preventScroll: true });
       setTargetActionId("");
     }
-  }, [targetActionId, school, detail.isSuccess, detailData]);
+  }, [targetActionId, school, detailData]);
   async function withReportExport(run: (signal: AbortSignal) => Promise<void>) {
     // The ref prevents two downloads when clicks happen before React rerenders.
     if (activeReportExport.current) return;
