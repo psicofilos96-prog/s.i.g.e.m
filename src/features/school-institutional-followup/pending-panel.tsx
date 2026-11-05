@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { presentError } from "@/lib/observability/governed-errors";
@@ -9,15 +9,35 @@ const field = "mt-1 w-full rounded-md border border-input bg-background px-3 py-
 const PAGE_SIZE = 25;
 
 /** Consulta e exportação; nenhuma ação de cobrança ou alteração de dados. */
-export function InstitutionalPendingPanel({ rows, loading, error, today, onOpenAction }: {
+export function InstitutionalPendingPanel({ rows, loading, error, today, selectedSchoolId, onOpenAction }: {
   rows: readonly NetworkPendingAction[]; loading: boolean; error: unknown;
-  today: string; onOpenAction: (schoolId: string, actionId: string) => void;
+  today: string; selectedSchoolId?: string;
+  onOpenAction: (schoolId: string, actionId: string) => void;
 }) {
   const [view, setView] = useState<PendingView>("todas");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
+  const [exportNotice, setExportNotice] = useState("");
+  const activeExport = useRef<AbortController | null>(null);
+  const cancelStaleExport = useCallback(() => {
+    if (!activeExport.current) return;
+    activeExport.current.abort();
+    activeExport.current = null;
+    setExporting(false);
+    setExportError("");
+    setExportNotice("O quadro, a escola ou o filtro mudou durante a geração. O download anterior foi cancelado; confira os dados e exporte novamente.");
+  }, []);
+  useEffect(() => () => {
+    activeExport.current?.abort();
+    activeExport.current = null;
+  }, []);
+  // A refreshed set of authorized measures (or a different school/scope)
+  // invalidates any report still converting asynchronously.
+  useEffect(() => {
+    cancelStaleExport();
+  }, [rows, loading, error, today, selectedSchoolId, cancelStaleExport]);
   const filtered = filterNetworkPending(rows, view, search, today);
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const active = Math.min(page, pages - 1);
@@ -26,11 +46,22 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, onOpenA
   const noUpdate = rows.filter((r) => r.situation === "sem atualização").length;
   const noDeadline = rows.filter((r) => !r.due_on).length;
   async function exportRows(format: "csv" | "xlsx" | "pdf") {
-    if (exporting || loading || error) return;
-    setExportError(""); setExporting(true);
-    try { await exportNetworkPending(filtered, format); }
-    catch (e) { setExportError(presentError(e)); }
-    finally { setExporting(false); }
+    // A ref (rather than only React state) rejects two clicks in one tick.
+    if (activeExport.current || loading || error) return;
+    const controller = new AbortController();
+    activeExport.current = controller;
+    setExportError(""); setExportNotice(""); setExporting(true);
+    try {
+      await exportNetworkPending(filtered, format, controller.signal);
+    } catch (e) {
+      if (!controller.signal.aborted) setExportError(presentError(e));
+    } finally {
+      // A canceled conversion may resolve after a newer report starts.
+      if (activeExport.current === controller) {
+        activeExport.current = null;
+        setExporting(false);
+      }
+    }
   }
   return <section className="space-y-4 rounded-xl border border-border p-4" aria-label="Quadro de providências da rede">
     <div>
@@ -59,11 +90,11 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, onOpenA
       <div className="flex flex-wrap items-end gap-3">
         <label className="min-w-48 flex-1 text-sm">Pesquisar medida, escola, INEP ou responsável
           <input className={field} type="search" value={search} placeholder="Pesquisar entre medidas autorizadas"
-            onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
+            onChange={(e) => { cancelStaleExport(); setSearch(e.target.value); setPage(0); }} />
         </label>
         <label className="text-sm">Situação
           <select className={field} value={view} onChange={(e) => {
-            setView(e.target.value as PendingView); setPage(0);
+            cancelStaleExport(); setView(e.target.value as PendingView); setPage(0);
           }}>
             <option value="todas">Todas as não concluídas</option>
             <option value="vencidas">Prazo vencido</option>
@@ -82,6 +113,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, onOpenA
         </div>
       </div>
       {exportError && <p role="alert" className="text-sm text-destructive">{exportError}</p>}
+      {exportNotice && <p role="status" className="text-sm text-muted-foreground">{exportNotice}</p>}
       <p className="text-xs text-muted-foreground">
         {filtered.length} medidas no filtro. Ordenação por prazo declarado; sem prazo por último.
         Sem atualização não significa não realizada.
@@ -115,7 +147,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, onOpenA
                 </p>
               </td>
               <td className="p-2"><Button type="button" size="sm" variant="outline"
-                onClick={() => onOpenAction(r.school_id, r.action_id)}>Ver medida</Button>
+                onClick={() => { cancelStaleExport(); onOpenAction(r.school_id, r.action_id); }}>Ver medida</Button>
               </td>
             </tr>)}</tbody>
           </table>
