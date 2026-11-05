@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
 import type { FollowupAction, FollowupUpdate, SchoolSnapshot } from "./model";
+import { exportFollowupPreparation } from "./preparation-report";
+
+vi.mock("./preparation-report", () => ({ exportFollowupPreparation: vi.fn() }));
 
 const action = (id: string, description: string, due_on: string | null): FollowupAction => ({
   id, school_id: "s1", visit_logical_id: "v1", description, responsible_label: "Equipe escolar",
@@ -62,6 +65,69 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     fireEvent.click(summary);
     expect(details).toHaveAttribute("open");
     expect(screen.queryByRole("button", { name: /Registrar evolução da medida:/ })).toBeNull();
+  });
+
+  it("gera roteiro de foco com IDs explícitos e preserva roteiro integral independente do filtro", async () => {
+    vi.mocked(exportFollowupPreparation).mockResolvedValue(undefined);
+    const data = snapshot([
+      action("a1", "Reorganizar biblioteca", "2026-11-02"),
+      action("a2", "Instalar mobiliário", null),
+      action("a3", "Plano concluído", "2026-10-31"),
+    ], [update("a3", "concluída")]);
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep="33000001"
+      today="2026-11-04" onInspect={vi.fn()} snapshot={data} />);
+    fireEvent.click(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Reorganizar biblioteca",
+    }));
+    expect(screen.getByRole("combobox", { name: "Conteúdo do roteiro" }))
+      .toHaveValue("selected");
+    fireEvent.change(screen.getByRole("combobox", { name: "Filtrar providências da visita" }),
+      { target: { value: "sem prazo" } });
+    expect(screen.queryByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Reorganizar biblioteca",
+    })).toBeNull();
+    expect(screen.getByText(/1 medidas selecionadas para roteiro de foco/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
+    await waitFor(() => expect(exportFollowupPreparation).toHaveBeenLastCalledWith(
+      data, "s1", "Escola Centro", "33000001", "2026-11-04", "pdf", ["a1"],
+    ));
+    fireEvent.change(screen.getByRole("combobox", { name: "Conteúdo do roteiro" }),
+      { target: { value: "all" } });
+    fireEvent.click(screen.getByRole("button", { name: "Excel" }));
+    await waitFor(() => expect(exportFollowupPreparation).toHaveBeenLastCalledWith(
+      data, "s1", "Escola Centro", "33000001", "2026-11-04", "xlsx", undefined,
+    ));
+    expect(screen.queryByText("Plano concluído")).toBeNull();
+  });
+
+  it("seleciona todas as correspondentes ao filtro mesmo além da prévia e não permite roteiro vazio", () => {
+    const data = snapshot(Array.from({ length: 7 }, (_, i) =>
+      action("a"+i, "Medida "+i, `2026-11-${String(5+i).padStart(2, "0")}`)));
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
+      today="2026-11-04" onInspect={vi.fn()} snapshot={data} />);
+    expect(screen.getAllByRole("checkbox")).toHaveLength(5);
+    fireEvent.click(screen.getByRole("button", { name: "Selecionar todas do filtro (7)" }));
+    expect(screen.getByText(/7 medidas selecionadas para roteiro de foco/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Limpar seleção" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Conteúdo do roteiro" }),
+      { target: { value: "selected" } });
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Excel" })).toBeDisabled();
+  });
+
+  it("recusa exportar seleção desatualizada após atualização do histórico", () => {
+    const data = snapshot([action("a1", "Providência pendente", null)]);
+    const { rerender } = render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro"
+      inep={null} today="2026-11-04" onInspect={vi.fn()} snapshot={data} />);
+    fireEvent.click(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Providência pendente",
+    }));
+    rerender(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro"
+      inep={null} today="2026-11-04" onInspect={vi.fn()}
+      snapshot={snapshot(data.actions, [update("a1", "concluída")])} />);
+    expect(screen.getByRole("alert")).toHaveTextContent(/não constam mais entre as pendentes/);
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Limpar seleção" })).not.toBeDisabled();
   });
 
   it("informa ausência de evolução sem inferir falta de execução", () => {

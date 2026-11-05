@@ -52,6 +52,29 @@ describe("roteiro da próxima visita a partir de snapshot autorizado", () => {
     expect(String(r.rows[0]?.[col("last_notes")])).not.toContain("Material aguardado");
   });
 
+  it("gera roteiro de foco apenas com pendências escolhidas, preservando a ordem do prazo", () => {
+    const onlySecond = preparationFollowupReport(snapshot, "s1", "2026-11-04", ["a2"]);
+    const c = onlySecond.columns.findIndex((v) => v.id === "description");
+    expect(onlySecond.rows.map((row) => row[c])).toEqual(["Revisar mobiliário"]);
+    const ordered = preparationFollowupReport(snapshot, "s1", "2026-11-04", ["a2", "a1"]);
+    expect(ordered.rows.map((row) => row[c])).toEqual(["=1+2", "Revisar mobiliário"]);
+    expect(preparationFollowupReport(snapshot, "s1", "2026-11-04").rows).toHaveLength(2);
+  });
+
+  it("falha fechado para seleção vazia, obsoleta, duplicada ou de outra unidade", () => {
+    for (const ids of [[], ["a1", "a1"], ["a3"], ["outside"], ["missing"], ["a1", "missing"]]) {
+      expect(() => preparationFollowupReport(snapshot, "s1", "2026-11-04", ids))
+        .toThrow(/seleção do roteiro/);
+    }
+    const changed = { ...snapshot, updates: [...snapshot.updates, {
+      id: "u4", action_id: "a2", visit_logical_id: null, occurred_on: "2026-11-04",
+      situation: "concluída", done_text: "Concluído", not_done_text: null,
+      results: null, referrals: null, created_at: "2026-11-04T15:00:00Z", author_name: "Servidor",
+    }] };
+    expect(() => preparationFollowupReport(changed, "s1", "2026-11-04", ["a2"]))
+      .toThrow(/seleção do roteiro/);
+  });
+
   it("preserva ausência de prazo, atualização, responsável e visita de origem", () => {
     const r = preparationFollowupReport({ ...snapshot, visits: [] }, "s1", "2026-11-04");
     const c = (id: string) => r.columns.findIndex((v) => v.id === id);
