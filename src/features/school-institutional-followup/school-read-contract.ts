@@ -38,6 +38,7 @@ export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): S
   const visitIds = new Set<string>();
   const currentLogicalIds = new Set<string>();
   const currentVisitDates = new Map<string, string>();
+  const versionsById = new Map<string, { logicalId: string; version: number; supersedesId: string | null }>();
   for (const [index, item] of [...visits, ...history].entries()) {
     if (!isRow(item) || !hasText(item, "id") || !hasText(item, "logical_id") ||
         !Number.isInteger(item["version"]) || (item["version"] as number) < 1 ||
@@ -53,10 +54,47 @@ export function parseSchoolFollowupSnapshot(value: unknown, schoolId: string): S
       throw new Error("O histórico da unidade contém uma visita inválida ou fora do escopo.");
     }
     visitIds.add(item["id"] as string);
+    versionsById.set(item["id"] as string, {
+      logicalId: item["logical_id"] as string,
+      version: item["version"] as number,
+      supersedesId: (item["supersedes_id"] as string | null) ?? null,
+    });
     if (index < visits.length) {
       currentLogicalIds.add(item["logical_id"] as string);
       currentVisitDates.set(item["logical_id"] as string, item["visit_date"] as string);
     }
+  }
+
+  // Every historical version must be reachable from exactly one current
+  // version, via its direct predecessor. A missing link is an incomplete
+  // response and must not be reported as a complete audit trail.
+  const chainedIds = new Set<string>();
+  for (const item of visits) {
+    const current = item as Row;
+    let id = current["id"] as string;
+    let expected = current["version"] as number;
+    while (true) {
+      const node = versionsById.get(id);
+      if (!node || node.version !== expected ||
+          node.logicalId !== current["logical_id"] || chainedIds.has(id)) {
+        throw new Error("O histórico da unidade contém uma cadeia de retificações inválida ou incompleta.");
+      }
+      chainedIds.add(id);
+      if (expected === 1) {
+        if (node.supersedesId !== null) {
+          throw new Error("O histórico da unidade contém uma cadeia de retificações inválida ou incompleta.");
+        }
+        break;
+      }
+      if (!node.supersedesId) {
+        throw new Error("O histórico da unidade contém uma cadeia de retificações inválida ou incompleta.");
+      }
+      id = node.supersedesId;
+      expected -= 1;
+    }
+  }
+  if (chainedIds.size !== versionsById.size) {
+    throw new Error("O histórico da unidade contém uma versão sem visita vigente ou vínculo válido.");
   }
 
   const actionIds = new Set<string>();
