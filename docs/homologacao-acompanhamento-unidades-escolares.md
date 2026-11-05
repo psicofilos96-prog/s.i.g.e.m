@@ -163,6 +163,12 @@ As RPCs de panorama, série mensal e situações das ações são independentes:
 
 **Limite:** consistência numérica não prova leitura transacional nem protege contra discrepâncias que preservem todos esses totais. RLS e verificações de escopo seguem obrigatórias na origem; um snapshot comum na RPC é uma evolução posterior, sujeita a homologação de SQL em clone completo.
 
+### Reconciliação por unidade escolar, mesmo com total global correto (05/11/2026)
+
+O quadro de providências deve fechar **por unidade**, não apenas no total municipal. Para cada `school_id` retornado pela rede autorizada, confronta o número de medidas ainda não concluídas (`actions - completed`) com o número de linhas da RPC de pendências daquela escola; também confronta os respectivos vencimentos (`overdue`). Assim, uma medida ausente na escola A e outra excedente em B não se anulam na auditoria; o mesmo vale para vencimentos deslocados entre escolas. A interface oculta a relação inteira e suas exportações até nova leitura coerente, sem trocar a escola de uma medida no cliente.
+
+Testes unitários e de interface simulam ambos os cenários com somas globais idênticas, além da recuperação após atualização. A medida de proteção não é substituta de RLS, validação de autoria ou de consulta SQL transacional em ambiente institucional homologado.
+
 ### Reconciliação numérica do quadro transversal (05/11/2026)
 
 Além de validar cada `school_id` contra o panorama autorizado, o SIGEM agora compara os totais entre as RPCs de panorama e de pendências: **providências não concluídas = todas as ações menos as concluídas declaradas**, e **providências vencidas = medidas com prazo anterior à data operacional de São Paulo, ainda não declaradas concluídas**. Caso uma linha falte ou os prazos não coincidam, o quadro de providências do Gabinete e suas exportações são bloqueados com aviso; o panorama escolar continua consultável. Isso evita o falso relatório de pendências integral com dados de épocas distintas, mesmo quando ambos os leitores retornam o mesmo conjunto de escolas.
