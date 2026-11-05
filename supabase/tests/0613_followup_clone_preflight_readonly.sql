@@ -97,6 +97,32 @@ BEGIN
     END IF;
   END LOOP;
 
+  -- A 0613 usa CREATE FUNCTION (não CREATE OR REPLACE). Qualquer função
+  -- preexistente desta família, inclusive overload, indica esquema não virgem
+  -- e deve interromper antes de tocar no clone. RPC com overload poderia ainda
+  -- tornar a resolução PostgREST ambígua.
+  IF EXISTS (
+    SELECT 1 FROM pg_catalog.pg_proc p
+    JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+    WHERE n.nspname = 'public'
+      AND (p.proname LIKE 'school\\_institutional\\_followup\\_%' ESCAPE '\\'
+        OR p.proname LIKE 'record\\_school\\_institutional\\_followup\\_%' ESCAPE '\\')
+  ) THEN
+    RAISE EXCEPTION 'followup-preflight:preexisting-function-family';
+  END IF;
+
+  -- CREATE INDEX também exige nomes livres no esquema, mesmo se a tabela
+  -- homônima ainda não existir. Verificar todos os nomes explícitos da 0613.
+  FOREACH followup_name IN ARRAY ARRAY[
+    'school_institutional_followup_visits_school_date',
+    'school_institutional_followup_actions_school',
+    'school_institutional_followup_updates_action'
+  ] LOOP
+    IF pg_catalog.to_regclass('public.' || followup_name) IS NOT NULL THEN
+      RAISE EXCEPTION 'followup-preflight:preexisting-index-name:%', followup_name;
+    END IF;
+  END LOOP;
+
   -- A resolução por escola/INEP no leitor não pode multiplicar escolas.
   IF EXISTS (
     SELECT 1 FROM public.institutional_school_identifiers
