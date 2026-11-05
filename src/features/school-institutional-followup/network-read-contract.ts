@@ -118,14 +118,23 @@ export function reconcileFollowupPendingIndicators(
   pending: readonly NetworkPendingAction[],
   today: string,
 ): { pendingCountConsistent: boolean; overdueConsistent: boolean } {
-  const totals = networkIndicators(network);
-  const expectedPending = totals.actions - totals.completed;
-  const actualOverdue = pending.filter((item) =>
-    item.due_on !== null && item.due_on < today).length;
-  return {
-    pendingCountConsistent: Number.isSafeInteger(expectedPending)
-      && expectedPending >= 0 && pending.length === expectedPending,
-    overdueConsistent: Number.isSafeInteger(totals.overdue)
-      && actualOverdue === totals.overdue,
-  };
+  // Global sums alone miss errors that compensate across schools:
+  // one missing action in A plus one unexpected action in B may total correctly.
+  const bySchool = new Map<string, { pending: number; overdue: number }>();
+  for (const item of pending) {
+    const counts = bySchool.get(item.school_id) ?? { pending: 0, overdue: 0 };
+    counts.pending++;
+    if (item.due_on !== null && item.due_on < today) counts.overdue++;
+    bySchool.set(item.school_id, counts);
+  }
+  const authorized = new Set(network.map((row) => row.school_id));
+  const allPendingAuthorized = pending.every((item) => authorized.has(item.school_id));
+  const pendingCountConsistent = allPendingAuthorized && network.every((row) => {
+    const expected = row.actions - row.completed;
+    return Number.isSafeInteger(expected) && expected >= 0
+      && (bySchool.get(row.school_id)?.pending ?? 0) === expected;
+  });
+  const overdueConsistent = allPendingAuthorized && network.every((row) =>
+    (bySchool.get(row.school_id)?.overdue ?? 0) === row.overdue);
+  return { pendingCountConsistent, overdueConsistent };
 }
