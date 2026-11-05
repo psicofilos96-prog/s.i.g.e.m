@@ -20,7 +20,8 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/features/authority/session-authority", () => ({
   useSessionAuthority: () => mocks.session,
-  sessionContextKey: (a: { status: string }) => a.status === "signed-in" ? "test-session#1" : null,
+  sessionContextKey: (a: { status: string; user?: { id: string }; sessionRevision?: number }) =>
+    a.status === "signed-in" ? `${a.user?.id}#${a.sessionRevision}` : null,
 }));
 vi.mock("@/features/authority/nav-capabilities", () => ({
   pathAllowed: (_authority: unknown, path: string) => path === "/acompanhamento-unidades",
@@ -774,6 +775,63 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Escola Serra" })).toBeNull();
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("isola ficha, rascunho e exportação quando uma conta diferente assume a sessão", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [{ ...sampleVisit, diagnosis: "Relato privativo da conta anterior" }],
+    });
+    const unfinished = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(unfinished.promise.then(() => undefined));
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    expect(await screen.findByText("Relato privativo da conta anterior")).toBeTruthy();
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Anotação ainda não salva da primeira conta" } });
+
+    // O arquivo antigo não pode ser baixado após a troca de identidade.
+    fireEvent.click(screen.getByRole("button", { name: "Ficha PDF" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    mocks.networkFollowup.mockResolvedValue([schools[1]!]);
+    mocks.session = {
+      status: "signed-in", sessionRevision: 2, user: { id: "second-user" }, person: null,
+      capabilities: [{ capabilityId: "consultar-acompanhamento-institucional", schoolId: null }],
+    };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    expect(await screen.findByRole("button", { name: "Escola Serra" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Escola Centro" })).toBeNull();
+    expect(screen.queryByText("Relato privativo da conta anterior")).toBeNull();
+    expect(screen.queryByDisplayValue("Anotação ainda não salva da primeira conta")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha PDF" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    await act(async () => { unfinished.resolve(true); await unfinished.promise; });
+    expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
+  });
+
+  it("novo login da mesma conta não restaura rascunhos nem ficha da sessão anterior", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    const first = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(first).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Rascunho da sessão encerrada" } });
+
+    // No SIGEM, o contador da sessão diferencia logout e novo login, ainda que o user.id seja igual.
+    setSession(true);
+    mocks.session = { ...mocks.session, sessionRevision: 2 };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    expect(screen.queryByDisplayValue("Rascunho da sessão encerrada")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Escola Centro" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha CSV" })).toBeNull();
+    await screen.findByRole("button", { name: "Escola Centro" });
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
   });
 
 });
