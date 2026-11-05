@@ -163,4 +163,9 @@ jobs:
           "${db[@]}" -c "CREATE FUNCTION public.school_institutional_followup_network(_from integer, _to integer) RETURNS jsonb LANGUAGE sql AS 'SELECT NULL::jsonb';"
           expect_postflight_failure "followup-postflight:unexpected-function-family-member"
           "${db[@]}" -c "DROP FUNCTION public.school_institutional_followup_network(integer,integer);"
+          # The ordinary authenticated client role must not own a SECURITY DEFINER
+          # RPC: owners can change its body independently of EXECUTE grants.
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) OWNER TO authenticated;"
+          expect_postflight_failure "followup-postflight:untrusted-function-owner"
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) OWNER TO postgres;"
           "${db[@]}" -f supabase/tests/0613_followup_clone_postflight_readonly.sql
