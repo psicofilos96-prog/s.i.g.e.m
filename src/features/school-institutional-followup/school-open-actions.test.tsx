@@ -161,6 +161,62 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     expect(screen.getByText(/0 medidas selecionadas para roteiro de foco/)).toBeTruthy();
   });
 
+  it("revisa somente medidas selecionadas sem confundir filtro e conteúdo integral", () => {
+    const data = snapshot([
+      action("a1", "Rever transporte", "2026-11-02"),
+      action("a2", "Ajustar biblioteca", "2026-11-06"),
+      action("a3", "Revisar inventário", null),
+    ]);
+    render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro"
+      inep={null} today="2026-11-04" onInspect={vi.fn()} snapshot={data} />);
+    fireEvent.click(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Rever transporte",
+    }));
+    fireEvent.click(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Revisar inventário",
+    }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Filtrar providências da visita" }),
+      { target: { value: "selecionadas" } });
+    expect(screen.getAllByRole("checkbox")).toHaveLength(2);
+    expect(screen.getByText("Rever transporte")).toBeTruthy();
+    expect(screen.getByText("Revisar inventário")).toBeTruthy();
+    expect(screen.queryByText("Ajustar biblioteca")).toBeNull();
+    fireEvent.click(screen.getByRole("checkbox", {
+      name: "Incluir no roteiro selecionado: Rever transporte",
+    }));
+    expect(screen.getAllByRole("checkbox")).toHaveLength(1);
+    expect(screen.getByText(/1 de 3 medidas sem conclusão declarada correspondem aos filtros/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Limpar seleção" }));
+    expect(screen.getByRole("combobox", { name: "Filtrar providências da visita" })).toHaveValue("todas");
+    expect(screen.getAllByRole("checkbox")).toHaveLength(3);
+  });
+
+  it("retira apenas seleções obsoletas sem perder as pendentes após atualização", async () => {
+    vi.mocked(exportFollowupPreparation).mockResolvedValue(undefined);
+    const data = snapshot([
+      action("a1", "Providência concluída depois", "2026-11-02"),
+      action("a2", "Providência ainda pendente", null),
+    ]);
+    const { rerender } = render(<SchoolOpenActionsPanel schoolId="s1"
+      schoolName="Escola Centro" inep={null} today="2026-11-04"
+      onInspect={vi.fn()} snapshot={data} />);
+    fireEvent.click(screen.getByRole("button", { name: "Selecionar todas do filtro (2)" }));
+    rerender(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro"
+      inep={null} today="2026-11-04" onInspect={vi.fn()}
+      snapshot={snapshot(data.actions, [update("a1", "concluída")])} />);
+    expect(screen.getByRole("alert")).toHaveTextContent(/não constam mais entre as pendentes/);
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Retirar medidas não pendentes" }));
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(screen.getByText(/1 medidas selecionadas para roteiro de foco/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
+    await waitFor(() => expect(exportFollowupPreparation).toHaveBeenLastCalledWith(
+      expect.objectContaining({ actions: data.actions, updates: [expect.objectContaining({ situation: "concluída" })] }),
+      "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a2"],
+    ));
+  });
+
   it("informa ausência de evolução sem inferir falta de execução", () => {
     render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro" inep={null}
       today="2026-11-04" onInspect={vi.fn()}

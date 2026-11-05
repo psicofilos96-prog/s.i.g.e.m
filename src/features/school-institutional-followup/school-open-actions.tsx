@@ -8,7 +8,7 @@ import {
 } from "./model";
 
 const INITIAL_SHOWN = 5;
-type PreparationFilter = "todas" | "prazo vencido" | "sem prazo" | typeof NO_UPDATE;
+type PreparationFilter = "todas" | "prazo vencido" | "sem prazo" | typeof NO_UPDATE | "selecionadas";
 
 /** Preparação da visita: somente dados da ficha escolar já autorizada no PostgreSQL. */
 export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, today, onInspect, onStartUpdate }: {
@@ -30,13 +30,24 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   const overdue = pending.filter((a) => isOverdue(a, snapshot.updates, today)).length;
   const withoutUpdate = pending.filter((a) =>
     currentSituation(a, snapshot.updates) === NO_UPDATE).length;
-  // Filtros locais sobre a ficha já autorizada. A exportação permanece integral.
-  const filtered = filterSchoolActions(pending, snapshot.updates, view, search, today);
+  // A seleção sobrevive à troca de filtros, mas nunca ignora a pendência vigente.
+  // A exportação integral permanece independente tanto do filtro quanto da seleção.
+  const filtered = filterSchoolActions(pending, snapshot.updates,
+    view === "selecionadas" ? "todas" : view, search, today)
+    .filter((a) => view !== "selecionadas" || selectedIds.has(a.id));
   const visible = expanded ? filtered : filtered.slice(0, INITIAL_SHOWN);
   const pendingIds = new Set(pending.map((a) => a.id));
   const selectedPendingIds = [...selectedIds].filter((id) => pendingIds.has(id));
   const staleSelectedCount = selectedIds.size - selectedPendingIds.length;
   const selectedExportReady = selectedPendingIds.length > 0 && staleSelectedCount === 0;
+  function clearStaleSelection() {
+    const remaining = new Set(selectedPendingIds);
+    setSelectedIds(remaining);
+    if (remaining.size === 0) {
+      setExportScope("all");
+      setView("todas");
+    }
+  }
   function toggleSelection(actionId: string, checked: boolean) {
     setSelectedIds((previous) => {
       const next = new Set(previous);
@@ -79,10 +90,10 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         {staleSelectedCount} medida(s) selecionada(s) não constam mais entre as pendentes.
         Confira a seleção antes de exportar um roteiro de foco.
       </p>
-      {pending.length === 0 && <Button type="button" size="sm" variant="outline"
-        onClick={() => { setSelectedIds(new Set()); setExportScope("all"); }}>
-        Limpar seleção desatualizada
-      </Button>}
+      <Button type="button" size="sm" variant="outline"
+        onClick={clearStaleSelection}>
+        {pending.length === 0 ? "Limpar seleção desatualizada" : "Retirar medidas não pendentes"}
+      </Button>
     </div>}
     {pending.length > 0 && <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -90,6 +101,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
           <select className="mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             value={view} onChange={(e) => { setView(e.target.value as PreparationFilter); setExpanded(false); }}>
             <option value="todas">Todas sem conclusão declarada</option>
+            <option value="selecionadas">Somente selecionadas ({selectedPendingIds.length})</option>
             <option value="prazo vencido">Com prazo vencido</option>
             <option value={NO_UPDATE}>Sem atualização registrada</option>
             <option value="sem prazo">Sem prazo declarado</option>
@@ -112,7 +124,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
             setExportScope("selected");
           }}>Selecionar todas do filtro ({filtered.length})</Button>
         <Button type="button" size="sm" variant="outline" disabled={selectedIds.size === 0}
-          onClick={() => { setSelectedIds(new Set()); setExportScope("all"); }}>Limpar seleção</Button>
+          onClick={() => { setSelectedIds(new Set()); setExportScope("all"); setView("todas"); }}>Limpar seleção</Button>
         <span role="status" className="text-xs text-muted-foreground">
           {selectedPendingIds.length} medidas selecionadas para roteiro de foco.
         </span>
@@ -210,6 +222,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
       as anteriores permanecem no histórico. Ver acompanhamento abre o histórico sem alterar registros.
       Registrar evolução apenas abre o formulário para servidores autorizados; nada é gravado automaticamente.
       A seleção para o roteiro de foco permanece apenas nesta tela e não altera as medidas.
+      Use "Somente selecionadas" para rever medidas marcadas mesmo que outros filtros estejam ativos.
     </p>
   </section>;
 }
