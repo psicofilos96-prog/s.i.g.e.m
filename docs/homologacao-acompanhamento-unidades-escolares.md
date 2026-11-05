@@ -104,7 +104,7 @@ As políticas de concessão devem ser homologadas pelos responsáveis institucio
 
 ### Transição de sessão (contas de teste no ambiente isolado)
 
-Além da matriz de capacidades, confirmar na mesma aba do navegador: **servidor A → logout → Gabinete B** e **servidor A → logout → novo login de A**. Ao trocar de identidade, nenhuma ficha, medida, rascunho ou exportação pendente da sessão anterior deve reaparecer; as consultas devem ser realizadas novamente com o escopo da sessão nova. Exportações antigas em conversão não podem produzir download depois da troca. Essa prova visual deve usar apenas escolas e contas fictícias ou devidamente autorizadas no ambiente de homologação. O teste React automatizado correspondente usa `QueryClient` único, contas sintéticas e RPCs mockadas; **não substitui a verificação autenticada das políticas no PostgreSQL isolado**.
+Além da matriz de capacidades, confirmar na mesma aba do navegador: **servidor A → logout → Gabinete B**, **servidor A → logout → novo login de A** e **alteração do escopo autorizado do servidor A com sessão ativa, seguida de atualização da autoridade pelo cliente**. Ao trocar de identidade, nenhuma ficha, medida, rascunho ou exportação pendente da sessão anterior deve reaparecer; as consultas devem ser realizadas novamente com o escopo da sessão nova. Exportações antigas em conversão não podem produzir download depois da troca. Essa prova visual deve usar apenas escolas e contas fictícias ou devidamente autorizadas no ambiente de homologação. O teste React automatizado correspondente usa `QueryClient` único, contas sintéticas e RPCs mockadas; **não substitui a verificação autenticada das políticas no PostgreSQL isolado**.
 
 ## 4. Roteiro funcional para o aceite
 
