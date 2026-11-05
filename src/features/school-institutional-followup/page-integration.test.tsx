@@ -638,7 +638,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       .mockReturnValueOnce(second.promise.then(() => undefined));
     renderPage();
     await openSchool("Escola Centro");
-    fireEvent.click(screen.getByRole("button", { name: "Ficha Excel" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha Excel" }));
     await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
     const firstSignal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
     expect(firstSignal.aborted).toBe(false);
@@ -646,7 +646,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
     await screen.findByRole("heading", { name: "Escola Serra" });
     await waitFor(() => expect(firstSignal.aborted).toBe(true));
-    fireEvent.click(screen.getByRole("button", { name: "Ficha PDF" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha PDF" }));
     await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(2));
     const secondSignal = vi.mocked(exportFollowupSchool).mock.calls[1]?.[4] as AbortSignal;
     expect(secondSignal.aborted).toBe(false);
@@ -663,7 +663,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     vi.mocked(exportFollowupNetwork).mockReturnValueOnce(pending.promise.then(() => undefined));
     renderPage();
     await screen.findByRole("button", { name: "Escola Centro" });
-    fireEvent.click(screen.getByRole("button", { name: "Excel" }));
+    fireEvent.click(within(screen.getByLabelText("Exportar panorama autorizado"))
+      .getByRole("button", { name: "Excel" }));
     await waitFor(() => expect(exportFollowupNetwork).toHaveBeenCalledTimes(1));
     const signal = vi.mocked(exportFollowupNetwork).mock.calls[0]?.[4] as AbortSignal;
     expect(signal.aborted).toBe(false);
@@ -671,7 +672,8 @@ describe("acompanhamento institucional — integração da página e capacidades
       { target: { value: "Serra" } });
     await waitFor(() => expect(signal.aborted).toBe(true));
     await act(async () => { pending.resolve(true); await pending.promise; });
-    expect(screen.getByRole("button", { name: "Excel" })).not.toBeDisabled();
+    expect(within(screen.getByLabelText("Exportar panorama autorizado"))
+      .getByRole("button", { name: "Excel" })).not.toBeDisabled();
     expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy();
   });
 
