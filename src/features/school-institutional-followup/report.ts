@@ -36,7 +36,9 @@ export function followupReport(rows: readonly NetworkRow[], from: string, to: st
 }
 export async function exportFollowupNetwork(
   rows: readonly NetworkRow[], from: string, to: string, format: "csv" | "xlsx" | "pdf",
+  signal?: AbortSignal,
 ): Promise<void> {
+  if (signal?.aborted) return;
   const result = followupReport(rows, from, to);
   const branding = {
     headerLines: ["Secretaria Municipal de Educação"],
@@ -49,12 +51,15 @@ export async function exportFollowupNetwork(
   ];
   const base = `acompanhamento-unidades-${from}-${to}`;
   if (format === "csv") {
+    if (signal?.aborted) return;
     downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
   } else if (format === "xlsx") {
     const bytes = await toXlsx(result, branding, meta);
+    if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
     const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    if (signal?.aborted) return;
     downloadBlob(base + ".pdf", pdf);
   }
 }
@@ -180,7 +185,9 @@ export function visitFollowupReport(snapshot: SchoolSnapshot, schoolId: string, 
 
 export async function exportFollowupSchool(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string, format: "csv" | "xlsx" | "pdf",
+  signal?: AbortSignal,
 ): Promise<void> {
+  if (signal?.aborted) return;
   const result = schoolFollowupReport(snapshot, schoolId);
   if (result.mode !== "sync") throw new Error("O relatório excedeu o limite de exportação.");
   const branding = {
@@ -196,12 +203,15 @@ export async function exportFollowupSchool(
   const slug = schoolId.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 70);
   const base = `ficha-acompanhamento-${slug}`;
   if (format === "csv") {
+    if (signal?.aborted) return;
     downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
   } else if (format === "xlsx") {
     const bytes = await toXlsx(result, branding, meta);
+    if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
     const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    if (signal?.aborted) return;
     downloadBlob(base + ".pdf", pdf);
   }
 }
@@ -209,7 +219,9 @@ export async function exportFollowupSchool(
 export async function exportFollowupVisit(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string,
   visitId: string, format: "csv" | "xlsx" | "pdf",
+  signal?: AbortSignal,
 ): Promise<void> {
+  if (signal?.aborted) return;
   const result = visitFollowupReport(snapshot, schoolId, visitId);
   if (result.mode !== "sync") throw new UserFacingError("O relatório excedeu o limite de exportação.");
   const visit = snapshot.visits.find((v) => v.id === visitId)!;
@@ -227,12 +239,15 @@ export async function exportFollowupVisit(
   const safeVisit = visitId.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 40);
   const base = `relatorio-visita-${safeSchool}-${visit.visit_date}-${safeVisit}`;
   if (format === "csv") {
+    if (signal?.aborted) return;
     downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
   } else if (format === "xlsx") {
     const bytes = await toXlsx(result, branding, meta);
+    if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
     const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    if (signal?.aborted) return;
     downloadBlob(base + ".pdf", pdf);
   }
 }
@@ -263,7 +278,9 @@ export function networkPendingReport(rows: readonly NetworkPendingAction[]): Rep
 }
 export async function exportNetworkPending(
   rows: readonly NetworkPendingAction[], format: "csv" | "xlsx" | "pdf",
+  signal?: AbortSignal,
 ): Promise<void> {
+  if (signal?.aborted) return;
   const result = networkPendingReport(rows);
   if (result.mode !== "sync") throw new Error("O quadro excedeu o limite de exportação.");
   const branding = {
@@ -276,12 +293,15 @@ export async function exportNetworkPending(
   ];
   const base = "quadro-providencias-institucionais";
   if (format === "csv") {
+    if (signal?.aborted) return;
     downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
   } else if (format === "xlsx") {
     const bytes = await toXlsx(result, branding, meta);
+    if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
     const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    if (signal?.aborted) return;
     downloadBlob(base + ".pdf", pdf);
   }
 }
