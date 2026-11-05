@@ -59,6 +59,9 @@ BEGIN
     OR (doc->'visits'->0->>'can_correct')::boolean IS NOT TRUE
   THEN RAISE EXCEPTION 'followup-two-visitors:visitor-b-record'; END IF;
   action_b := (doc->'actions'->0->>'id')::uuid;
+  -- Preserva somente o ID sintético dentro desta transação de teste, para
+  -- tentar uma evolução depois que a capability de B tiver sido revogada.
+  PERFORM set_config('sigem.followup_test_action_b', action_b::text, true);
 
   PERFORM public.record_school_institutional_followup_update(
     action_b, NULL, today_, 'em andamento', 'Evolução da escola B',
@@ -179,6 +182,7 @@ END $two_visitors$;
 -- Auditoria da autoria persistida sob o papel de fixture, fora da sessão cliente.
 RESET ROLE;
 DO $audit$
+DECLARE removed_count integer;
 BEGIN
   IF (SELECT count(*) FROM public.school_institutional_followup_visits
     WHERE diagnosis = 'Diagnóstico A' AND school_id = 'school-a'
@@ -191,5 +195,75 @@ BEGIN
   THEN RAISE EXCEPTION 'followup-two-visitors:authorship-mismatch'; END IF;
   RAISE NOTICE 'FOLLOWUP_0613_TWO_VISITORS_OK';
 END $audit$;
+
+-- O aceite anterior não deve ficar em cache quando a autorização é retirada.
+-- Apenas a fixture sintética é modificada, dentro da transação revertida.
+DELETE FROM public.test_followup_capabilities
+WHERE user_id = '55555555-5555-4555-8555-555555555555'::uuid
+  AND capability_id = 'registrar-acompanhamento-institucional'
+  AND scope_level = 'escola' AND school_id = 'school-b';
+
+SET ROLE authenticated;
+DO $revoked$
+DECLARE
+  denied boolean;
+  n integer;
+  doc jsonb;
+  today_ date := (now() AT TIME ZONE 'America/Sao_Paulo')::date;
+BEGIN
+  -- A mesma sessão autenticada de B não conserva acesso após a revogação.
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', '55555555-5555-4555-8555-555555555555',
+                       'role', 'authenticated')::text, true);
+  SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_, today_);
+  IF n <> 0 THEN RAISE EXCEPTION 'followup-two-visitors:revoked-network-leak'; END IF;
+  doc := public.school_institutional_followup_pending();
+  IF jsonb_array_length(doc->'pending') <> 0
+  THEN RAISE EXCEPTION 'followup-two-visitors:revoked-pending-leak'; END IF;
+  denied := false;
+  BEGIN
+    PERFORM public.school_institutional_followup_school('school-b');
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:read-denied' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-two-visitors:revoked-school-read'; END IF;
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_bundle(
+      'school-b', today_, 'Visita sem autorização vigente', '', '', '',
+      gen_random_uuid(), '[]'::jsonb);
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:recording-denied' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-two-visitors:revoked-visit-write'; END IF;
+  denied := false;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_update(
+      current_setting('sigem.followup_test_action_b')::uuid,
+      NULL, today_, 'em andamento', 'Tentativa após revogação', '', '', '',
+      gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM = 'followup:recording-denied' THEN denied := true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-two-visitors:revoked-update-write'; END IF;
+
+  -- A revogação de B não pode remover o direito independente de A.
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', '11111111-1111-4111-8111-111111111111',
+                       'role', 'authenticated')::text, true);
+  SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_, today_);
+  IF n <> 1 THEN RAISE EXCEPTION 'followup-two-visitors:revocation-affected-a'; END IF;
+
+  -- A consulta do Gabinete continua mostrando B após a saída do servidor.
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', '22222222-2222-4222-8222-222222222222',
+                       'role', 'authenticated')::text, true);
+  SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_, today_);
+  IF n <> 2 THEN RAISE EXCEPTION 'followup-two-visitors:revocation-affected-cabinet'; END IF;
+  IF jsonb_array_length(public.school_institutional_followup_school('school-b')->'visits') <> 1
+  THEN RAISE EXCEPTION 'followup-two-visitors:revocation-erased-history'; END IF;
+  RAISE NOTICE 'FOLLOWUP_0613_CAPABILITY_REVOCATION_OK';
+END $revoked$;
+RESET ROLE;
 
 ROLLBACK;
