@@ -120,11 +120,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   // React Query may retain its last successful result when a refetch fails.
   // Never render or export that cached institutional snapshot while scope is unverified.
   const networkData = network.isSuccess && !network.isFetching ? network.data : [];
-  const detailData = detail.isSuccess && !detail.isFetching
+  // The current network scope must still include this school. A previously
+  // successful per-school query is not proof of ongoing network authorization.
+  const selected = networkData.find((r) => r.school_id === school);
+  const detailData = detail.isSuccess && !detail.isFetching && selected
     && network.isSuccess && !network.isFetching ? detail.data : undefined;
   const rows = filterNetworkRows(networkData, search, networkView);
   const totals = networkIndicators(networkData);
-  const selected = networkData.find((r) => r.school_id === school);
   const canRecord = Boolean(detailData) && Boolean(authority.person) && authority.capabilities.some((c) =>
     c.capabilityId === "registrar-acompanhamento-institucional"
     && (c.schoolId === null || c.schoolId === school));
@@ -525,6 +527,35 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setNotice(""); setError("");
     return true;
   }
+  async function discardInaccessibleSchoolDrafts() {
+    // Never silently erase unsaved work after an authorization change.
+    if (!school || selected || !network.isSuccess || network.isFetching
+      || saving || savingMeasure || savingUpdate) return;
+    const signatures = JSON.stringify(liveDraftSignatures.current);
+    if (!await confirmLocalDiscard(
+      "Descartar rascunhos da escola sem acesso confirmado?",
+      "As informações ainda não salvas desta escola serão descartadas. Nenhuma visita, medida ou evolução será gravada.",
+      "Descartar rascunhos e fechar",
+    )) return;
+    if (saving || savingMeasure || savingUpdate ||
+        signatures !== JSON.stringify(liveDraftSignatures.current) ||
+        !network.isSuccess || network.isFetching || selected) {
+      setNotice("O contexto mudou durante a confirmação. Os rascunhos foram preservados; confira o acesso antes de tentar novamente.");
+      return;
+    }
+    activeReportExport.current?.abort();
+    activeReportExport.current = null;
+    setExporting(false);
+    resetVisitDraft();
+    resetMeasureDraft();
+    cancelEvolution();
+    setSchool("");
+    setTargetActionId("");
+    setActionView("todas");
+    setActionQuery("");
+    setError("");
+    setNotice("");
+  }
   function openMeasure(schoolId: string, measureId: string) {
     if (!changeSchool(schoolId)) return;
     setActionView("todas"); setActionQuery("");
@@ -613,7 +644,26 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       error={pending.isError ? pending.error : null} today={today} selectedSchoolId={school}
       onOpenAction={openMeasure} />
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
-    {school && <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
+    {school && network.isSuccess && !network.isFetching && !selected && <section
+      className="space-y-2 rounded-xl border border-border p-4"
+      aria-label="Escola fora do escopo autorizado">
+      <h2 className="font-semibold">A unidade não consta mais no escopo autorizado</h2>
+      <p className="text-sm text-muted-foreground">
+        O histórico e as exportações desta escola foram ocultados após a atualização do acesso.
+        Se necessário, solicite a conferência das permissões institucionais.
+      </p>
+      {hasUnsavedFollowup && <Button type="button" variant="outline"
+        disabled={saving || savingMeasure || savingUpdate}
+        onClick={() => void discardInaccessibleSchoolDrafts()}>
+        Descartar rascunhos e fechar
+      </Button>}
+      {!hasUnsavedFollowup && <Button type="button" variant="outline" onClick={() => changeSchool("")}>
+        Fechar ficha indisponível
+      </Button>}
+      {notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}
+    </section>}
+    {school && (!network.isSuccess || network.isFetching || Boolean(selected)) &&
+      <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div><h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
           <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
