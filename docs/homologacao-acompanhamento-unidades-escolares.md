@@ -153,6 +153,10 @@ Só liberar a PR do estado **draft** e considerar merge após: (a) CI da última
 
 **Separação de responsabilidades:** a equipe de acompanhamento registra fatos e evolução; o Gabinete consulta e decide providências pelos processos institucionais existentes. Este módulo não realiza cobranças, sanções ou homologações automáticas.
 
+### Quadro de providências: cancelamento por atualização ou troca de contexto (05/11/2026)
+
+O quadro transversal do Gabinete também cancela exportações PDF/Excel/CSV se a consulta autorizada for recarregada, a escola selecionada mudar, o usuário editar pesquisa/filtro, abrir uma medida, a data operacional mudar ou o componente for desmontado (inclusive na troca de sessão). O cancelamento é imediato para eventos do próprio painel e é verificado pelo sinal na função exportadora antes do download. Promessas antigas não podem liberar a interface nem prejudicar uma exportação mais recente. Um aviso explica que é necessário conferir os dados e exportar novamente. Testes de interface com promessas controladas cobrem atualização do quadro, filtro, troca de escola, navegação e resolução tardia do arquivo anterior. A validação não substitui o ensaio de revogação com usuários reais no clone integral.
+
 ### Exportações gerais canceladas ao mudar de contexto (revisão de 05/11/2026)
 
 As exportações **PDF, Excel e CSV** do panorama, da ficha escolar e da visita individual agora conferem `AbortSignal` antes do download. A página cancela a exportação ao trocar de escola, sair do módulo, alterar filtros/período ou receber nova resposta autorizada. O cancelamento ocorre de forma síncrona antes da troca de escola, e a conclusão tardia de uma conversão antiga não libera nem interfere no arquivo novo. A função do quadro de providências também admite o sinal opcional, para uso por interfaces que controlam seu ciclo de vida. A conversão pode terminar em memória, mas não entrega um arquivo obsoleto.
