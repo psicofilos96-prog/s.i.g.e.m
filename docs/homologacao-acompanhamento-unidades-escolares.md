@@ -157,6 +157,12 @@ Só liberar a PR do estado **draft** e considerar merge após: (a) CI da última
 
 **Separação de responsabilidades:** a equipe de acompanhamento registra fatos e evolução; o Gabinete consulta e decide providências pelos processos institucionais existentes. Este módulo não realiza cobranças, sanções ou homologações automáticas.
 
+### Conciliação dos indicadores entre consultas independentes (05/11/2026)
+
+As RPCs de panorama, série mensal e situações das ações são independentes: suas respostas podem representar momentos diferentes após registros, retificações ou mudanças de acesso. A interface não deve combinar números incompatíveis como se fossem um único retrato da rede. Antes dos gráficos, confere que (1) a soma de visitas por mês coincide com as visitas do período no panorama, (2) a soma de todas as situações coincide com o número total de ações e (3) as ações declaradas concluídas coincidem com o total de concluídas apresentado no panorama. Se falhar, os gráficos são ocultados, a contagem derivada da distribuição de situações não é apresentada e uma mensagem orienta atualizar; a lista de escolas do panorama autorizado permanece consultável. Os testes cobrem divergência, total de situações coincidente mas conclusão divergente e recuperação por atualização.
+
+**Limite:** consistência numérica não prova leitura transacional nem protege contra discrepâncias que preservem todos esses totais. RLS e verificações de escopo seguem obrigatórias na origem; um snapshot comum na RPC é uma evolução posterior, sujeita a homologação de SQL em clone completo.
+
 ### Consistência de escopo no quadro de providências (05/11/2026)
 
 O quadro transversal consulta uma RPC específica, independente do panorama de escolas. Para impedir divulgação ou exportação de pendências do escopo anterior após uma revogação parcial, a interface exige que o panorama esteja atualizado e confronte **todos** os `school_id` das pendências com as unidades confirmadas no panorama. Havendo divergência, recusa o quadro inteiro e informa que é necessário atualizar as consultas; não filtra silenciosamente linhas, porque isso produziria relatórios incompletos apresentados como integrais. Uma falha ou atualização em andamento no panorama também oculta o quadro, mesmo se a RPC de pendências ainda conservar dados em cache.
