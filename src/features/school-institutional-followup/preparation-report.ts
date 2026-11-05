@@ -86,7 +86,9 @@ export async function exportFollowupPreparation(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string,
   inep: string | null, today: string, format: "csv" | "xlsx" | "pdf",
   selectedIds?: readonly string[],
+  signal?: AbortSignal,
 ): Promise<void> {
+  if (signal?.aborted) return;
   const result = preparationFollowupReport(snapshot, schoolId, today, selectedIds);
   if (result.mode !== "sync") throw new UserFacingError("O roteiro excedeu o limite de exportação.");
   const branding = {
@@ -106,13 +108,18 @@ export async function exportFollowupPreparation(
   ];
   const safeId = schoolId.replace(/[^A-Za-z0-9_-]/g, "-").slice(0, 70);
   const base = `${selectedIds === undefined ? "preparacao-visita" : "preparacao-foco-visita"}-${safeId}-${today}`;
+  if (signal?.aborted) return;
   if (format === "csv") {
-    downloadBlob(base + ".csv", new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" }));
+    const csv = toCsv(result, branding, meta);
+    if (signal?.aborted) return;
+    downloadBlob(base + ".csv", new Blob([csv], { type: "text/csv;charset=utf-8" }));
   } else if (format === "xlsx") {
     const bytes = await toXlsx(result, branding, meta);
+    if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
     const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    if (signal?.aborted) return;
     downloadBlob(base + ".pdf", pdf);
   }
 }

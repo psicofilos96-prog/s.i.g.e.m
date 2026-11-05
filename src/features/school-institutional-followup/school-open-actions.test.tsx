@@ -89,13 +89,13 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     expect(screen.getByText(/1 medidas selecionadas para roteiro de foco/)).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
     await waitFor(() => expect(exportFollowupPreparation).toHaveBeenLastCalledWith(
-      data, "s1", "Escola Centro", "33000001", "2026-11-04", "pdf", ["a1"],
+      data, "s1", "Escola Centro", "33000001", "2026-11-04", "pdf", ["a1"], expect.any(AbortSignal),
     ));
     fireEvent.change(screen.getByRole("combobox", { name: "Conteúdo do roteiro" }),
       { target: { value: "all" } });
     fireEvent.click(screen.getByRole("button", { name: "Excel" }));
     await waitFor(() => expect(exportFollowupPreparation).toHaveBeenLastCalledWith(
-      data, "s1", "Escola Centro", "33000001", "2026-11-04", "xlsx", undefined,
+      data, "s1", "Escola Centro", "33000001", "2026-11-04", "xlsx", undefined, expect.any(AbortSignal),
     ));
     expect(screen.queryByText("Plano concluído")).toBeNull();
   });
@@ -154,7 +154,7 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
     await waitFor(() => expect(exportFollowupPreparation).toHaveBeenLastCalledWith(
       expect.objectContaining({ actions: data.actions }), "s1", "Escola Centro", null,
-      "2026-11-04", "pdf", undefined,
+      "2026-11-04", "pdf", undefined, expect.any(AbortSignal),
     ));
     fireEvent.click(screen.getByRole("button", { name: "Limpar seleção" }));
     expect(screen.queryByRole("alert")).toBeNull();
@@ -213,7 +213,7 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
     await waitFor(() => expect(exportFollowupPreparation).toHaveBeenLastCalledWith(
       expect.objectContaining({ actions: data.actions, updates: [expect.objectContaining({ situation: "concluída" })] }),
-      "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a2"],
+      "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a2"], expect.any(AbortSignal),
     ));
   });
 
@@ -251,7 +251,7 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Roteiro PDF" })).toBeDisabled();
     expect(vi.mocked(exportFollowupPreparation)).toHaveBeenLastCalledWith(
-      data, "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a1"],
+      data, "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a1"], expect.any(AbortSignal),
     );
     await act(async () => { finish(); await pending; });
     await waitFor(() => expect(screen.queryByText(/Preparando o roteiro selecionado para download/)).toBeNull());
@@ -284,7 +284,7 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     fireEvent.click(retry);
     await waitFor(() => expect(exportFollowupPreparation).toHaveBeenCalledTimes(2));
     expect(vi.mocked(exportFollowupPreparation)).toHaveBeenLastCalledWith(
-      data, "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a1"],
+      data, "s1", "Escola Centro", null, "2026-11-04", "pdf", ["a1"], expect.any(AbortSignal),
     );
     await waitFor(() => expect(screen.queryByRole("button", {
       name: "Tentar novamente o PDF",
@@ -325,6 +325,23 @@ describe("preparação da visita a partir da ficha já autorizada", () => {
     expect(exportFollowupPreparation).toHaveBeenCalledTimes(1);
     await act(async () => { release(); await pending; });
     expect(screen.getByRole("button", { name: "Roteiro PDF" })).not.toBeDisabled();
+  });
+
+  it("cancela a exportação da escola ao desmontar a ficha durante processamento", async () => {
+    vi.mocked(exportFollowupPreparation).mockReset();
+    let release!: () => void;
+    const pendingExport = new Promise<void>((resolve) => { release = resolve; });
+    vi.mocked(exportFollowupPreparation).mockReturnValueOnce(pendingExport);
+    const data = snapshot([action("a1", "Revisar acervo", null)]);
+    const { unmount } = render(<SchoolOpenActionsPanel schoolId="s1" schoolName="Escola Centro"
+      inep={null} today="2026-11-04" onInspect={vi.fn()} snapshot={data} />);
+    fireEvent.click(screen.getByRole("button", { name: "Roteiro PDF" }));
+    const signal = vi.mocked(exportFollowupPreparation).mock.lastCall?.[7];
+    expect(signal).toBeInstanceOf(AbortSignal);
+    expect(signal?.aborted).toBe(false);
+    unmount();
+    expect(signal?.aborted).toBe(true);
+    await act(async () => { release(); await pendingExport; });
   });
 
   it("informa ausência de evolução sem inferir falta de execução", () => {

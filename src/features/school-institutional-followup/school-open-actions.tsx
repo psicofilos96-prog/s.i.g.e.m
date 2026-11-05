@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { presentError } from "@/lib/observability/governed-errors";
@@ -25,6 +25,9 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   const [exporting, setExporting] = useState(false);
   // A ref prevents two immediate clicks from starting downloads before React rerenders.
   const exportInFlight = useRef(false);
+  const exportAbort = useRef<AbortController | null>(null);
+  // Never download an obsolete school's document after leaving its ficha.
+  useEffect(() => () => { exportAbort.current?.abort(); }, [schoolId]);
   const [failedExport, setFailedExport] = useState<FailedExport | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
   const [exportScope, setExportScope] = useState<"all" | "selected">("all");
@@ -74,14 +77,19 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
     if (exportInFlight.current || exporting || pending.length === 0 ||
         (exportScope === "selected" && !selectedExportReady)) return;
     exportInFlight.current = true;
+    const controller = new AbortController();
+    exportAbort.current = controller;
     const requestedSelection = selectionKey;
     setFailedExport(null); setExporting(true);
     try {
       await exportFollowupPreparation(snapshot, schoolId, schoolName, inep, today, format,
-        exportScope === "selected" ? selectedPendingIds : undefined);
+        exportScope === "selected" ? selectedPendingIds : undefined, controller.signal);
     } catch (error) {
-      setFailedExport({ format, selectionKey: requestedSelection, message: presentError(error) });
+      if (!controller.signal.aborted) {
+        setFailedExport({ format, selectionKey: requestedSelection, message: presentError(error) });
+      }
     } finally {
+      if (exportAbort.current === controller) exportAbort.current = null;
       exportInFlight.current = false;
       setExporting(false);
     }
