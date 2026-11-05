@@ -158,4 +158,9 @@ jobs:
           "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_immutable() SECURITY DEFINER;"
           expect_postflight_failure "followup-postflight:immutable-must-be-invoker"
           "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_immutable() SECURITY INVOKER;"
+          # An extra RPC overload can be callable via PostgREST despite all
+          # required original signatures retaining their safe grants.
+          "${db[@]}" -c "CREATE FUNCTION public.school_institutional_followup_network(_from integer, _to integer) RETURNS jsonb LANGUAGE sql AS 'SELECT NULL::jsonb';"
+          expect_postflight_failure "followup-postflight:unexpected-function-family-member"
+          "${db[@]}" -c "DROP FUNCTION public.school_institutional_followup_network(integer,integer);"
           "${db[@]}" -f supabase/tests/0613_followup_clone_postflight_readonly.sql
