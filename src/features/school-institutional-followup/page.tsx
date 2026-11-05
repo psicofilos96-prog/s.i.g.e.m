@@ -10,6 +10,7 @@ import { presentError, UserFacingError } from "@/lib/observability/governed-erro
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
+import { reconcileFollowupNetworkIndicators } from "./network-read-contract";
 import { InstitutionalPendingPanel } from "./pending-panel";
 import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { FollowupVisitComparison } from "./visit-comparison";
@@ -134,6 +135,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     && network.isSuccess && !network.isFetching ? detail.data : undefined;
   const rows = filterNetworkRows(networkData, search, networkView);
   const totals = networkIndicators(networkData);
+  const analyticsReady = network.isSuccess && !network.isFetching &&
+    monthly.isSuccess && !monthly.isFetching &&
+    statuses.isSuccess && !statuses.isFetching;
+  const reconciledIndicators = analyticsReady
+    ? reconcileFollowupNetworkIndicators(networkData, monthly.data, statuses.data) : null;
+  const chartsConsistent = reconciledIndicators?.monthlyConsistent === true &&
+    reconciledIndicators.statusesConsistent === true;
   // Independent RPCs can complete with different effective scopes after a
   // live revocation. Never disclose pending measures from a school that the
   // fresh network reader no longer recognizes as authorized.
@@ -621,16 +629,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             ["Ainda sem visita no período", totals.schools - totals.visitedSchools],
             ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
             ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
-            ["Ações sem atualização", statuses.isSuccess && !statuses.isFetching ? (statuses.data.find((r) => r.situation === "sem atualização")?.actions ?? "Não apurado") : "Não apurado"],
+            ["Ações sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
           ].map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3">
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className="text-2xl font-semibold tabular-nums">{value}</p>
           </div>)}
         </div>
         <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
-        {monthly.isSuccess && statuses.isSuccess && !monthly.isFetching && !statuses.isFetching && <InstitutionalFollowupAnalytics
-          months={monthly.data} statuses={statuses.data}
+        {chartsConsistent && <InstitutionalFollowupAnalytics
+          months={monthly.data!} statuses={statuses.data!}
           period={`${dateLabel(from)} a ${dateLabel(to)}`} />}
+        {analyticsReady && !chartsConsistent && <p role="alert" className="text-sm text-muted-foreground">
+          Os totais da rede, a série mensal e a distribuição por situação não coincidem.
+          Os gráficos foram ocultados para evitar uma leitura incompleta ou desatualizada.
+          Atualize as consultas; a lista de escolas permanece disponível.
+        </p>}
         {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
           Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
         </p>}
