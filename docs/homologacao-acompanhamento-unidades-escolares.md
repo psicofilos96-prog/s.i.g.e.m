@@ -152,9 +152,9 @@ Só liberar a PR do estado **draft** e considerar merge após: (a) CI da última
 
 **Separação de responsabilidades:** a equipe de acompanhamento registra fatos e evolução; o Gabinete consulta e decide providências pelos processos institucionais existentes. Este módulo não realiza cobranças, sanções ou homologações automáticas.
 
-### Validação de datas nas leituras (revisão de 05/11/2026)
+### Validação de datas e cronologia nas leituras (revisão de 05/11/2026)
 
-Os contratos da ficha escolar e do quadro de providências rejeitam **dias inexistentes no calendário** (não apenas strings com máscara `AAAA-MM-DD`) e timestamps de registro inválidos, incluindo casos em que a conversão automática de JavaScript normalizaria 30 de fevereiro para março. Há testes para data bissexta válida, dia impossível de visita, prazo de medida, data de evolução e datas de criação. Uma resposta inválida interrompe a leitura integral antes de apresentar ou exportar o histórico. Essa verificação é defesa de interface e não substitui as RPCs de autorização no banco.
+Os contratos da ficha escolar e do quadro de providências rejeitam **dias inexistentes no calendário** (não apenas strings com máscara `AAAA-MM-DD`) e timestamps de registro inválidos, incluindo casos em que a conversão automática de JavaScript normalizaria 30 de fevereiro para março. Há testes para data bissexta válida, dia impossível de visita, prazo de medida, data de evolução e datas de criação. O contrato também confere a **cronologia entre registros**: prazo da medida não antecede a visita de origem vigente; evolução não antecede a origem ou o retorno vinculado; retorno associado à medida não pode anteceder a visita de origem. Retificações continuam referenciadas pelo mesmo ID lógico. A suíte cobre exemplos válidos e inválidos. Uma resposta inválida interrompe a leitura integral antes de apresentar ou exportar o histórico. Essa verificação é defesa de interface e não substitui as RPCs de autorização no banco.
 
 ### Testes de integração da página (sessões simuladas)
 
