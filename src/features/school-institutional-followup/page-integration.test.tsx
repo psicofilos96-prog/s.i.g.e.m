@@ -326,7 +326,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.recordUpdate.mockReturnValueOnce(delayed.promise);
     renderPage();
     await openSchool("Escola Centro");
-    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução", exact: true }));
+    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução" }));
     const form = screen.getByRole("heading", { name: "Nova atualização da ação" }).closest("form")!;
     const fields = within(form);
     fireEvent.change(fields.getByRole("textbox", { name: "O que foi feito" }),
