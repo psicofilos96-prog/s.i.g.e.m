@@ -95,6 +95,11 @@ jobs:
           "${db[@]}" -c "CREATE INDEX school_institutional_followup_actions_school ON public.institutional_schools (id);"
           expect_preflight_failure "followup-preflight:preexisting-index-name:school_institutional_followup_actions_school"
           "${db[@]}" -c "DROP INDEX public.school_institutional_followup_actions_school;"
+          # The preflight must reject a missing canonical unique key, even if
+          # the fixture currently has no duplicated school identifiers.
+          "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers DROP CONSTRAINT institutional_school_identifiers_pkey;"
+          expect_preflight_failure "followup-preflight:missing-unique-key:institutional_school_identifiers.school_id,identifier_kind"
+          "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers ADD CONSTRAINT institutional_school_identifiers_pkey PRIMARY KEY (school_id, identifier_kind);"
           # Clean schema must pass the preflight, migration, postflight and access matrix.
           "${db[@]}" \
             -f supabase/tests/0613_followup_clone_preflight_readonly.sql \
