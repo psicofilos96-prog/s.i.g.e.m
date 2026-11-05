@@ -75,6 +75,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   // One active conversion per workspace. A canceled async conversion may finish
   // computing, but must never download a document from an obsolete school/view.
   const activeReportExport = useRef<AbortController | null>(null);
+  const liveSchoolScope = useRef("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const visitRequests = useRef<{ signature: string; visit: string; actions: string[] } | null>(null);
@@ -123,6 +124,12 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   // The current network scope must still include this school. A previously
   // successful per-school query is not proof of ongoing network authorization.
   const selected = networkData.find((r) => r.school_id === school);
+  // Read the *current* scope after an asynchronous destructive confirmation,
+  // never a stale render captured when the dialog first opened.
+  liveSchoolScope.current = JSON.stringify({
+    sessionKey, school, networkReady: network.isSuccess && !network.isFetching,
+    authorizedSchool: selected?.school_id ?? null,
+  });
   const detailData = detail.isSuccess && !detail.isFetching && selected
     && network.isSuccess && !network.isFetching ? detail.data : undefined;
   const rows = filterNetworkRows(networkData, search, networkView);
@@ -532,6 +539,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     if (!school || selected || !network.isSuccess || network.isFetching
       || saving || savingMeasure || savingUpdate) return;
     const signatures = JSON.stringify(liveDraftSignatures.current);
+    const scopeSignature = liveSchoolScope.current;
     if (!await confirmLocalDiscard(
       "Descartar rascunhos da escola sem acesso confirmado?",
       "As informações ainda não salvas desta escola serão descartadas. Nenhuma visita, medida ou evolução será gravada.",
@@ -539,7 +547,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     )) return;
     if (saving || savingMeasure || savingUpdate ||
         signatures !== JSON.stringify(liveDraftSignatures.current) ||
-        !network.isSuccess || network.isFetching || selected) {
+        scopeSignature !== liveSchoolScope.current) {
       setNotice("O contexto mudou durante a confirmação. Os rascunhos foram preservados; confira o acesso antes de tentar novamente.");
       return;
     }
