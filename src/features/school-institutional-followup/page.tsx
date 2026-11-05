@@ -26,9 +26,22 @@ let draftRowSequence = 0;
 const newAction = () => ({ draftKey: ++draftRowSequence, description: "", responsible: "", due: "" });
 type ActionDraft = ReturnType<typeof newAction>;
 
+// A refreshed authority payload can change effective scope without changing user.id
+// or the authentication session. Key the workspace AND its queries by that scope.
+// Stable sorting avoids remounts solely because a query returned rows in a new order.
+function followupAuthorityKey(authority: ReturnType<typeof useSessionAuthority>): string | null {
+  const sessionKey = sessionContextKey(authority);
+  if (!sessionKey || authority.status !== "signed-in") return null;
+  const scope = authority.capabilities.map((c) => JSON.stringify([
+    c.capabilityId, c.engagementId, c.policyId, c.policyVersion,
+    c.classId, c.periodId, c.schoolId, c.componentId,
+  ])).sort();
+  return JSON.stringify([sessionKey, authority.person?.id ?? null, authority.principal?.id ?? null, scope]);
+}
+
 export function InstitutionalSchoolFollowupPage() {
   const authority = useSessionAuthority();
-  const key = sessionContextKey(authority);
+  const key = followupAuthorityKey(authority);
   if (authority.status !== "signed-in" || !key || !pathAllowed(authority, "/acompanhamento-unidades")) {
     return <StatePanel tone="info" title={authority.status === "loading" ? "Verificando acesso…" : "Acesso não disponível"}
       description="Entre com uma conta institucional autorizada para consultar ou registrar o acompanhamento." />;
