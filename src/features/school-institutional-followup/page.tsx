@@ -16,6 +16,7 @@ import { SchoolOpenActionsPanel } from "./school-open-actions";
 import { FollowupVisitComparison } from "./visit-comparison";
 import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
 import { useFollowupRouteGuard } from "./use-route-guard";
+import { SeatAdminPanel } from "./seat-admin-panel";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, followupActionDraftIssue, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
@@ -610,6 +611,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   return <div className="space-y-6">
     <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
       description="A equipe registra o diagnóstico e a evolução das ações. O Gabinete consulta o panorama da rede e seus históricos." />
+    {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <SeatAdminPanel sessionKey={sessionKey} />}
     <section className="space-y-3 rounded-xl border border-border p-4" aria-label="Panorama da rede">
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
