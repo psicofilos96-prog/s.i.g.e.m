@@ -662,7 +662,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
           Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
         </p>}
-        <h2 className="font-semibold">Escolas e visitas realizadas</h2>
+        <h2 className="font-display text-lg font-semibold">Escolas e visitas realizadas</h2>
         <p className="text-xs text-muted-foreground">
           {rows.length} de {network.data.length} escolas acessíveis na lista e na exportação.
           Os indicadores e gráficos acima consideram todas as escolas autorizadas.
@@ -714,8 +714,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     </section>}
     {school && (!network.isSuccess || network.isFetching || Boolean(selected)) &&
       <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div><h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
+        <div><h2 className="font-display text-xl font-semibold">{selected?.school_name ?? school}</h2>
           <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
         <div className="flex flex-wrap items-center gap-2">
           {detailData && <>
@@ -748,9 +748,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {detailData && <SchoolOpenActionsPanel key={school} snapshot={detailData} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
-      {canRecord && <form id="followup-visit-form" className="rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
+      {canRecord && <form id="followup-visit-form" className="rounded-2xl border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveVisit(e)}>
         <fieldset disabled={saving} className="min-w-0 space-y-4">
-        <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
+        <h3 className="font-display text-lg font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
         {visitDraftNotice && <p role="alert" className="text-sm text-destructive">{visitDraftNotice}</p>}
         {correctionBase && <p className="text-sm text-muted-foreground">
           Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
