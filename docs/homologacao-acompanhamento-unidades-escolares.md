@@ -216,3 +216,25 @@ A suíte `src/features/school-institutional-followup/page-integration.test.tsx` 
 ### Cancelamento imediato de relatórios do quadro na atualização explícita (05/11/2026)
 
 Além de cancelar relatórios gerais, o comando **Atualizar** agora interrompe também o PDF/Excel/CSV ainda em geração do quadro de providências **no próprio evento**, antes de iniciar as invalidações de consultas. A troca de escola também interrompe imediatamente a exportação do quadro; o componente preserva a proteção adicional que aborta quando recebe novos dados, filtros ou autorização. A comunicação entre página e painel é um callback registrado em ref e desregistrado ao desmontar, sem compartilhar dados ou alterar escopos. Testes de integração simulados verificam o sinal já abortado no início de `invalidateQueries` e impedem que a conclusão tardia da exportação antiga interfira na nova. O cancelamento protege downloads futuros, não arquivos já baixados, e não substitui a validação real em clone institucional.
+
+
+## Auditoria de ambientes Lovable Cloud — 05/11/2026
+
+Registro de consultas **somente leitura** efetuadas nos projetos Lovable conectados. Estes dados são evidências de estado observado e não autorizam publicação nem implantação de banco.
+
+| Critério | Resultado observado |
+| --- | --- |
+| Branch de trabalho | `feat/acompanhamento-unidades-escolares`, PR #7, HEAD `eccf035d6832b251b69372505ab98e019df5762f`, **rascunho, sem merge** |
+| GitHub Actions no HEAD | Execução [42128502934](https://github.com/psicofilos96-prog/s.i.g.e.m/actions/runs/42128502934) concluída com sucesso: jobs `required`, `deep`, `followup-contract` e `followup-sql` |
+| Lovable isolado | Projeto `9968079a-eab7-4f27-aec9-a049cb8e159b` (“SIGEM Homologação Escolar”); PostgreSQL **17.11**, **11 tabelas públicas** e 27 tabelas no esquema `auth`; **não equivale ao esquema integral do SIGEM** |
+| Isolado: tabelas de 0613 | As quatro tabelas `school_institutional_followup_{visits,actions,updates,bundles}` existem, com **RLS habilitada em todas** |
+| Isolado: acesso direto | `has_table_privilege` para `anon`, `authenticated`, `service_role`: nenhuma das quatro tabelas concede **SELECT/INSERT/UPDATE/DELETE** diretamente a esses papéis |
+| Isolado: funções e resíduos | Exatamente **13** funções da família `school_institutional_followup_*` / `record_school_institutional_followup_*`; contagem real de registros **0** em cada uma das quatro tabelas |
+| Outro projeto Lovable | `SIGEM 2.0` (`2a288ac3-f204-4816-b0e2-123b6b6673d9`): PostgreSQL **17.6**, **75 tabelas públicas**, **20** iniciadas por `institutional_` e nenhuma das quatro tabelas da 0613; inspeção somente leitura |
+| Compatibilidade preliminar do SIGEM 2.0 | Há `institutional_schools`, identificadores, versões, pessoas, vínculos e `effective_scope_capabilities(date)`, mas **não há `sigem_capability_catalog`** e o campo **`institutional_persons.actor_nature`** não existe nessa instância. Portanto, **falha nos pré-requisitos estruturais mínimos da 0613** e não pode ser assumido como clone homologado |
+| Outros projetos | Dois bancos adicionais não puderam ser inspecionados via Lovable (`query_error`: possivelmente indisponíveis). Ausência de resposta **não comprova** ausência de dados ou de esquema |
+| Divergência do clone | O projeto isolado possui commit Lovable próprio após ajustes locais de backend (SHA `f9a46eb553306909b8b5a604ad61a18d3d02a0f0`); CI do GitHub aprova o HEAD do PR, não automaticamente esse commit local |
+
+**Fronteira dos resultados:** esta auditoria verificou RLS, concessões diretas, contagem de funções, resíduos e estado do CI; o relato de execução dos roteiros SQL no ambiente isolado consta de sessão anterior. Não foi repetido aqui o fluxo completo de autenticação com usuários finais, nem o ensaio de 0613 sobre um **clone integral**. Não confundir a compatibilidade da fixture sintética com a do esquema de produção.
+
+**Pendências bloqueadoras para sair de rascunho:** identificar inequivocamente o Cloud de destino realmente associado à aplicação institucional; produzir clone **integral e separado** do esquema desse destino (sem importar dados pessoais) ou reconstruí-lo por migrações canônicas verificadas; executar pré/pós-checks e testes SQL no clone completo; homologar a política nominal dos dois servidores e leitores do Gabinete; validar o login e os fluxos reais com usuários sintéticos e sessões distintas; confirmar plano de publicação/reversão. **Não conceder capabilities, aplicar 0613, fazer merge nem publicar sobre o ambiente institucional antes dessas etapas.**
