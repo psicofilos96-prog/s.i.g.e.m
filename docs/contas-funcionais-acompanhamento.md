@@ -1,5 +1,7 @@
 # Contas funcionais do acompanhamento escolar — desenho e ativação
 
+**Classe documental: Referência vigente.** Identidades funcionais pendentes; ativação sujeita a autorização institucional.
+
 **Estado verificado em 06/11/2026:** as três identidades foram pré-cadastradas **no Auth do SIGEM publicado**, via API oficial Auth Admin, no Cloud `crfqhyqkujhhlbiyhdbc`. Cada endereço existe exatamente uma vez, com e-mail não confirmado, sem convite, sem login anterior, sem `user_person_links`, sem principal setorial e com `app_metadata.sigem_account='followup-functional-pending'`. Nenhuma senha foi fornecida na criação; o serviço preencheu o campo interno de senha criptografada, portanto não se deve afirmar inatividade absoluta. **Não** foram concedidas capacidades; a migração 0613 ainda não foi instalada na produção.
 
 ## Três endereços estáveis solicitados
