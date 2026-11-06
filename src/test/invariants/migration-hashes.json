@@ -663,5 +663,5 @@
  "drizzle/migrations/0612_secretariat_movement_search_observation_fix.sql": "8896f8a57d67a2849cb6fc847a4b37cd13142a2335cd7d15534a264e44f81ddc",
  "drizzle/migrations/0613_school_institutional_followup.sql": "5f0c2a3816aac5a0a074b92dd0a932695fd86d7f923708181e7ed0d7486a18e9",
  "drizzle/migrations/0614_followup_functional_seat_session_guard.sql": "57365ec705ce731a98c466b35b557fd1a3870c0f538f6fdafdaa206ae103abb3",
- "drizzle/migrations/0615_followup_functional_seat_segregation.sql": "69c0da187d253b65588549c066ffb452255014f1b23a91a1d52f25c98e8e2d68"
+ "drizzle/migrations/0615_followup_functional_seat_segregation.sql": "2bf3d28dceac5eb8545636cf6db4dafcce68a3f3a8c2554c27d82032fa8d201a"
 }
