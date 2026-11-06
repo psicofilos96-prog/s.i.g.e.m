@@ -846,9 +846,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>}
       {detailData && canRecord && measureVisitId && <form id="followup-measure-form"
-        className="rounded-xl border p-4" onSubmit={(e) => void saveMeasure(e)}>
+        className="rounded-2xl border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveMeasure(e)}>
         <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
-        <h3 className="font-semibold">Acrescentar medida a uma visita existente</h3>
+        <h3 className="font-display text-lg font-semibold">Acrescentar medida a uma visita existente</h3>
         {measureDraftNotice && <p role="alert" className="text-sm text-destructive">{measureDraftNotice}</p>}
         <p className="text-sm text-muted-foreground">
           Visita de {dateLabel(detailData.visits.find((v) => v.id === measureVisitId)?.visit_date ?? null)}.
@@ -925,10 +925,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                     .sort((x, y) => y.occurred_on.localeCompare(x.occurred_on) || y.created_at.localeCompare(x.created_at))
                     .map((u) => <li key={u.id} className="space-y-1 border-b pb-2 last:border-0">
                       <p className="font-medium">{dateLabel(u.occurred_on)} — {u.situation} • {u.author_name || "Autoria registrada"}</p>
-                      <p><strong>O que foi feito:</strong> {u.done_text || "Não informado"}</p>
-                      <p><strong>O que não foi feito:</strong> {u.not_done_text || "Não informado"}</p>
-                      <p><strong>Resultados:</strong> {u.results || "Não informado"}</p>
-                      <p><strong>Encaminhamentos:</strong> {u.referrals || "Não informado"}</p>
+                      <div><strong>O que foi feito:</strong> {u.done_text ? <FormattedText text={u.done_text} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+                      <div><strong>O que não foi feito:</strong> {u.not_done_text ? <FormattedText text={u.not_done_text} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+                      <div><strong>Resultados:</strong> {u.results ? <FormattedText text={u.results} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+                      <div><strong>Encaminhamentos:</strong> {u.referrals ? <FormattedText text={u.referrals} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
                       <p><strong>Visita associada:</strong> {u.visit_logical_id
                         ? (dateLabel(followupVisitByLogicalId(detailData!.visits, u.visit_logical_id)?.visit_date ?? null))
                         : "Nenhuma visita informada"}</p>
@@ -941,10 +941,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           })}
         </div>
         {canRecord && actionId && <form id="followup-update-form" tabIndex={-1}
-          className="scroll-mt-24 rounded-xl border p-4 focus:outline-2 focus:outline-primary"
+           className="scroll-mt-24 rounded-2xl border border-border/70 bg-card p-5 shadow-panel focus:outline-2 focus:outline-primary"
           onSubmit={(e) => void saveUpdate(e)}>
           <fieldset disabled={savingUpdate} className="min-w-0 space-y-3">
-          <h3 className="font-semibold">Nova atualização da ação</h3>
+          <h3 className="font-display text-lg font-semibold">Nova atualização da ação</h3>
           <p className="text-sm text-muted-foreground">
             Medida selecionada: <strong>{selectedAction?.description ?? "Não disponível"}</strong>.
             Os campos começam vazios e só serão registrados ao confirmar o formulário.
