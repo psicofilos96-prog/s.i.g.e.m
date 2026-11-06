@@ -2,7 +2,7 @@
 
 **Classe documental: Referência vigente.** Identidades funcionais pendentes; ativação sujeita a autorização institucional.
 
-**Estado verificado em 06/11/2026:** as três identidades foram pré-cadastradas **no Auth do SIGEM publicado**, via API oficial Auth Admin, no Cloud `crfqhyqkujhhlbiyhdbc`. Cada endereço existe exatamente uma vez, com e-mail não confirmado, sem convite, sem login anterior, sem `user_person_links`, sem principal setorial e com `app_metadata.sigem_account='followup-functional-pending'`. Nenhuma senha foi fornecida na criação; o serviço preencheu o campo interno de senha criptografada, portanto não se deve afirmar inatividade absoluta. **Não** foram concedidas capacidades; a migração 0613 ainda não foi instalada na produção.
+**Estado verificado em 06/11/2026:** as três identidades foram pré-cadastradas **no Auth do SIGEM publicado**, via API oficial Auth Admin, no Cloud `crfqhyqkujhhlbiyhdbc`. Cada endereço existe exatamente uma vez, **com login confirmado administrativamente em 06/11/2026**, sem convite, sem login anterior, sem `user_person_links`, sem principal setorial e com `app_metadata.sigem_account='followup-functional-pending'`. Nenhuma senha foi fornecida na criação; o serviço preencheu o campo interno de senha criptografada, portanto não se deve afirmar inatividade absoluta. **Não** foram concedidas capacidades, entregues senhas nem enviados e-mails; a migração 0613 ainda não foi instalada na produção.
 
 ## Três endereços estáveis solicitados
 
@@ -22,7 +22,7 @@ Portanto, **os postos de escrita não podem ser ativados apontando para pessoa i
 
 ## Ciclo seguro de implantação
 
-1. **Pré-cadastro no Auth — CONCLUÍDO:** as três identidades foram criadas pela API Auth Admin oficial, sem fornecer senha, sem convite e sem capacidades; unicidade, não confirmação e ausência de vínculo confirmadas. Nenhum login operacional foi ativado.
+1. **Pré-cadastro e confirmação administrativa do identificador — CONCLUÍDOS:** as três identidades foram criadas pela API Auth Admin oficial, sem fornecer senha, sem convite e sem capacidades; os identificadores foram confirmados administrativamente em 06/11/2026, como previsto para o domínio sem caixa postal. Unicidade, confirmação e ausência de vínculos verificadas. Nenhum login operacional foi ativado.
 2. **Antes da ativação:** instalar e validar a migração 0613 no banco institucional, com backup/plano de reversão; fazer o aceite expresso da política de capacidades e das duas designações vigentes; não conceder poderes por `app_metadata`.
 3. **Vinculação do posto:** associar cada conta de escrita a uma única **pessoa natural designada**, com ato, início de validade e política homologada; evitar pessoa fictícia. A conta do Gabinete é de leitura e requer um sujeito institucional autorizado, conforme políticas canônicas.
 4. **Credencial:** usar mecanismo seguro de ativação individual, sem senha em planilhas, GitHub ou conversa; verificar acesso ao endereço institucional antes de solicitar recuperação. Recomenda-se autenticação individual e MFA sempre que suportados.
@@ -40,7 +40,7 @@ Evitar compartilhar uma única senha entre servidores: isso impede atribuir com 
 
 Os endereços `@sigem.itap.gov.br` são identificadores de login no Auth, **não caixas postais**, conforme decisão canônica já registrada em `docs/sigem-contas-padrao.md` (04/10/2026). A verificação DNS pública pelo runtime do Lovable retornou `ENOTFOUND` para `sigem.itap.gov.br` e para `itap.gov.br`: não há MX público acessível. Não se deve enviar senha, convite, link de confirmação nem recuperação de credencial para esses identificadores. O domínio `itaperuna.rj.gov.br` apresentou MX, mas isso não prova que exista qualquer uma das caixas pretendidas; **não migrar os três logins para esse domínio sem decisão administrativa**.
 
-A confirmação de identidade do Auth, quando autorizada, é uma operação **administrativa de login** por `auth.admin.updateUserById(id, { email_confirm: true })`, conforme o fluxo já adotado pelo SIGEM para contas que não são caixas postais. Ela não deve criar vínculo, política nem capacidade, e não equivale à identificação de quem opera a conta. A credencial será entregue uma única vez por administração autorizada, pelo fluxo de redefinição e sem exposição em GitHub, chat ou arquivo compartilhado.
+A confirmação de identidade do Auth, **já executada para as três contas em 06/11/2026**, é uma operação **administrativa de login** por `auth.admin.updateUserById(id, { email_confirm: true })`, conforme o fluxo já adotado pelo SIGEM para contas que não são caixas postais. Ela não deve criar vínculo, política nem capacidade, e não equivale à identificação de quem opera a conta. A credencial será entregue uma única vez por administração autorizada, pelo fluxo de redefinição e sem exposição em GitHub, chat ou arquivo compartilhado.
 
 ## Critérios para ativação operacional — bloquear por padrão
 
