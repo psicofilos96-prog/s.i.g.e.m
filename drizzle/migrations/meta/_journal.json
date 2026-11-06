@@ -4299,6 +4299,13 @@
       "when": 1793725200000,
       "tag": "0613_school_institutional_followup",
       "breakpoints": true
+    },
+    {
+      "idx": 614,
+      "version": "7",
+      "when": 1794010000000,
+      "tag": "0614_followup_functional_seat_session_guard",
+      "breakpoints": true
     }
   ]
 }
