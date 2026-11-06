@@ -95,11 +95,15 @@ export function navItemAllowed(path: string, caps: readonly EffectiveCapability[
  */
 export type PathAuthority =
   | { status: "loading" | "signed-out" }
-  | { status: "signed-in"; principal?: SectorPrincipal | null; capabilities: readonly EffectiveCapability[] };
+  | { status: "signed-in"; principal?: SectorPrincipal | null; followupSeat?: string | null; capabilities: readonly EffectiveCapability[] };
+
+/** Postos funcionais do acompanhamento (decisão do proprietário, 06/11/2026) só veem esta área. */
+export const FOLLOWUP_SEAT_PATHS: ReadonlySet<string> = new Set(["/acompanhamento-unidades", "/ajuda"]);
 
 export function pathAllowed(authority: PathAuthority, path: string): boolean {
   if (authority.status !== "signed-in") return false;
   const clean = (path.split(/[?#]/)[0] ?? "").replace(/\/\$[a-z]+$/i, "");
+  if (authority.followupSeat) return FOLLOWUP_SEAT_PATHS.has(clean) && navItemAllowed(clean, authority.capabilities);
   const principal = authority.principal ?? null;
   if (principal && !stationAllowsPath(principal.station, clean)) return false;
   return navItemAllowed(clean, authority.capabilities);

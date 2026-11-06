@@ -82,6 +82,8 @@ export type SessionAuthority =
       person: { id: string; displayName: string } | null;
       /** BQ.1 — principal institucional da conta de setor; null para contas humanas. */
       principal?: SectorPrincipal | null;
+      /** Posto funcional do acompanhamento (acomp1/acomp2/gab): só enxerga essa área. */
+      followupSeat?: string | null;
       capabilities: readonly EffectiveCapability[];
     };
 
@@ -217,9 +219,11 @@ export function useSessionAuthority(): SessionAuthority {
         if (rows.some((r) => r.person_id !== rows[0]?.person_id)) {
           throw new Error("Designações funcionais ambíguas.");
         }
+        const seat = user.app_metadata?.["followup_seat"];
         return {
           person: rows.length ? { id: rows[0]!.person_id, displayName: rows[0]!.person_name } : null,
           principal: null,
+          followupSeat: typeof seat === "string" ? seat : "pendente",
           capabilities: mapCaps(rows),
         };
       }
@@ -249,6 +253,7 @@ export function useSessionAuthority(): SessionAuthority {
     sessionRevision: revision,
     person: q.data.person,
     principal: q.data.principal ?? null,
+    followupSeat: "followupSeat" in q.data ? (q.data.followupSeat ?? null) : null,
     capabilities: q.data.capabilities,
   };
 }
