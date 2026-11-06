@@ -97,3 +97,17 @@ describe("NPERM.3 — menu × rota × capacidade", () => {
     expect(shell).toMatch(/<StationGate pathname=\{pathname\}>/);
   });
 });
+
+describe("Postos do acompanhamento — só a própria área (decisão de 06/11/2026)", () => {
+  const cap = (capabilityId: string) => ({ capabilityId, engagementId: "a", policyId: null, policyVersion: null, classId: null, periodId: null, schoolId: null, componentId: null });
+  const gab = { status: "signed-in" as const, followupSeat: "gab", capabilities: [cap("consultar-acompanhamento-institucional"), cap("administrar-postos-de-acompanhamento")] };
+  it("Gabinete abre o acompanhamento e nada mais", () => {
+    expect(pathAllowed(gab, "/acompanhamento-unidades")).toBe(true);
+    expect(pathAllowed(gab, "/alunos")).toBe(false);
+    expect(pathAllowed(gab, "/calendario-escolar")).toBe(false);
+    expect(pathAllowed(gab, "/diario")).toBe(false);
+  });
+  it("posto sem designação não abre o acompanhamento", () => {
+    expect(pathAllowed({ status: "signed-in", followupSeat: "acomp1", capabilities: [] }, "/acompanhamento-unidades")).toBe(false);
+  });
+});

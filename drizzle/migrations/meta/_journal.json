@@ -4320,6 +4320,13 @@
       "when": 1794018000000,
       "tag": "0616_followup_seat_authority_sao_paulo_date",
       "breakpoints": true
+    },
+    {
+      "idx": 617,
+      "version": "7",
+      "when": 1794018000001,
+      "tag": "0617_followup_seat_owner_decision_and_cabinet_management",
+      "breakpoints": true
     }
   ]
 }

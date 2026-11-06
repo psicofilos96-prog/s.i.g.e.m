@@ -664,5 +664,6 @@
  "drizzle/migrations/0613_school_institutional_followup.sql": "5f0c2a3816aac5a0a074b92dd0a932695fd86d7f923708181e7ed0d7486a18e9",
  "drizzle/migrations/0614_followup_functional_seat_session_guard.sql": "57365ec705ce731a98c466b35b557fd1a3870c0f538f6fdafdaa206ae103abb3",
  "drizzle/migrations/0615_followup_functional_seat_segregation.sql": "2bf3d28dceac5eb8545636cf6db4dafcce68a3f3a8c2554c27d82032fa8d201a",
- "drizzle/migrations/0616_followup_seat_authority_sao_paulo_date.sql": "a4beb27898cd25efdcd0b989bba97cd468c04e3f1201fc0a76597447a1a47a1a"
+ "drizzle/migrations/0616_followup_seat_authority_sao_paulo_date.sql": "a4beb27898cd25efdcd0b989bba97cd468c04e3f1201fc0a76597447a1a47a1a",
+ "drizzle/migrations/0617_followup_seat_owner_decision_and_cabinet_management.sql": "61c2aba14fd6403d938af74329770d6104a6d6da48d4b8d525da1a57eb2c7769"
 }
