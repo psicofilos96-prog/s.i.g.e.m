@@ -2,6 +2,15 @@
 -- Não usar contas reais. Nenhuma modificação sobrevive ao ROLLBACK.
 BEGIN;
 
+-- Helpers SECURITY DEFINER permanecem privados, mesmo após o hardening.
+DO $test$
+BEGIN
+  IF has_function_privilege('anon', 'public.followup_functional_seat_current_session()', 'EXECUTE')
+    OR has_function_privilege('authenticated', 'public.followup_functional_seat_current_session()', 'EXECUTE')
+    OR has_function_privilege('authenticated', 'public.followup_functional_seat_link_guard()', 'EXECUTE')
+  THEN RAISE EXCEPTION 'followup-0614:private-functions-exposed'; END IF;
+END $test$;
+
 -- A conta sintética A torna-se o posto funcional 1. A ligação inicial foi
 -- anterior à sessão válida, e o JWT velho precede esse vínculo.
 UPDATE public.user_person_links
@@ -11,11 +20,17 @@ UPDATE auth.users
 SET email = 'acomp1@sigem.itap.gov.br',
     raw_app_meta_data = '{"sigem_account":"followup-functional-pending","followup_seat":"acomp1"}'::jsonb
 WHERE id = '11111111-1111-4111-8111-111111111111'::uuid;
-INSERT INTO auth.sessions(id,user_id,created_at) VALUES
+INSERT INTO auth.sessions(id,user_id,created_at,not_after) VALUES
   ('aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa',
-    '11111111-1111-4111-8111-111111111111', clock_timestamp() - interval '1 hour'),
+    '11111111-1111-4111-8111-111111111111', clock_timestamp() - interval '1 hour', NULL),
   ('bbbbbbbb-2222-4222-8222-bbbbbbbbbbbb',
-    '11111111-1111-4111-8111-111111111111', clock_timestamp() - interval '10 minutes');
+    '11111111-1111-4111-8111-111111111111', clock_timestamp() - interval '10 minutes', NULL),
+  ('dddddddd-4444-4444-8444-dddddddddddd',
+    '11111111-1111-4111-8111-111111111111',
+    clock_timestamp() - interval '10 minutes', clock_timestamp() - interval '1 second'),
+  ('eeeeeeee-5555-4555-8555-eeeeeeeeeeee',
+    '55555555-5555-4555-8555-555555555555',
+    clock_timestamp() - interval '10 minutes', NULL);
 
 SET ROLE authenticated;
 DO $test$
@@ -29,7 +44,8 @@ DECLARE
 BEGIN
   -- JWT autenticado ANTIGO não pode herdar o vínculo criado depois.
   PERFORM set_config('request.jwt.claims',
-    jsonb_build_object('sub', a, 'role', 'authenticated', 'session_id', old_session)::text, true);
+    jsonb_build_object('sub', a, 'role', 'authenticated', 'session_id', old_session,
+      'iat', extract(epoch FROM now() + interval '1 hour')::bigint)::text, true);
   SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_,today_);
   IF n <> 0 THEN RAISE EXCEPTION 'followup-0614:old-session-network-leak'; END IF;
   denied := false;
@@ -42,6 +58,27 @@ BEGIN
   END;
   IF NOT denied THEN RAISE EXCEPTION 'followup-0614:old-session-write'; END IF;
 
+  -- Ausência, UUID malformado, sessão expirada ou de outra pessoa
+  -- não concedem poderes a uma conta funcional.
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', a, 'role', 'authenticated')::text, true);
+  SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_,today_);
+  IF n <> 0 THEN RAISE EXCEPTION 'followup-0614:missing-session'; END IF;
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', a, 'role', 'authenticated', 'session_id', 'not-a-uuid')::text, true);
+  SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_,today_);
+  IF n <> 0 THEN RAISE EXCEPTION 'followup-0614:malformed-session'; END IF;
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', a, 'role', 'authenticated',
+      'session_id', 'dddddddd-4444-4444-8444-dddddddddddd')::text, true);
+  SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_,today_);
+  IF n <> 0 THEN RAISE EXCEPTION 'followup-0614:expired-session'; END IF;
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', a, 'role', 'authenticated',
+      'session_id', 'eeeeeeee-5555-4555-8555-eeeeeeeeeeee')::text, true);
+  SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_,today_);
+  IF n <> 0 THEN RAISE EXCEPTION 'followup-0614:foreign-session'; END IF;
+
   -- Nova autenticação após a ligação vigente pode usar o escopo canônico.
   PERFORM set_config('request.jwt.claims',
     jsonb_build_object('sub', a, 'role', 'authenticated', 'session_id', current_session)::text, true);
@@ -50,6 +87,14 @@ BEGIN
   PERFORM public.record_school_institutional_followup_bundle(
     'school-a', today_, 'Autoria anterior ao remanejamento', '', '', '',
     gen_random_uuid(), '[]'::jsonb);
+
+  -- Login humano comum continua com autorização canônica, inclusive
+  -- tokens históricos sem session_id.
+  PERFORM set_config('request.jwt.claims',
+    jsonb_build_object('sub', '55555555-5555-4555-8555-555555555555',
+      'role', 'authenticated')::text, true);
+  SELECT count(*) INTO n FROM public.school_institutional_followup_network(today_,today_);
+  IF n <> 1 THEN RAISE EXCEPTION 'followup-0614:human-login-regression'; END IF;
 END $test$;
 RESET ROLE;
 
