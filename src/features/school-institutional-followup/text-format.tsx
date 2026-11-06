@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useId, useRef, type ReactNode } from "react";
 import { Bold, Italic, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
