@@ -87,6 +87,7 @@ export function FollowupTextArea({
   describedBy?: string;
 }) {
   const ref = useRef<HTMLTextAreaElement | null>(null);
+  const id = useId();
   const apply = (kind: TextFormatKind) => {
     const el = ref.current;
     if (!el) return;
@@ -98,9 +99,9 @@ export function FollowupTextArea({
     });
   };
   return (
-    <label className="block text-sm">
-      <span className="flex flex-wrap items-center justify-between gap-2">
-        <span>{label}</span>
+    <div className="block text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <label htmlFor={id}>{label}</label>
         <span className="flex gap-1" aria-label={`Formatação do campo ${label}`}>
           <Button type="button" size="sm" variant="ghost" className="h-7 px-2" title="Negrito"
             aria-label={`Negrito em ${label}`} onClick={() => apply("bold")}>
@@ -115,11 +116,11 @@ export function FollowupTextArea({
             <List className="h-3.5 w-3.5" />
           </Button>
         </span>
-      </span>
-      <textarea ref={ref} className={className} maxLength={maxLength} required={required}
+      </div>
+      <textarea id={id} ref={ref} className={className} maxLength={maxLength} required={required}
         placeholder={placeholder} rows={rows} value={value}
         aria-invalid={invalid || undefined} aria-describedby={describedBy}
         onChange={(e) => onChange(e.target.value)} />
-    </label>
+    </div>
   );
 }
