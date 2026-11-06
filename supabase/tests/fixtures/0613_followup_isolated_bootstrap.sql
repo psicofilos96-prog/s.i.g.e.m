@@ -5,15 +5,15 @@ CREATE ROLE authenticated NOLOGIN;
 CREATE ROLE service_role NOLOGIN;
 
 CREATE SCHEMA auth;
-CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE SET search_path TO '' AS $
+CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE SET search_path TO '' AS $$
   SELECT nullif((coalesce(nullif(current_setting('request.jwt.claims', true),''), '{}')::jsonb ->> 'sub'), '')::uuid
-$;
+$$;
 
 -- Mimic the minimum official Auth relations and JWT helper for the
 -- isolated session-rotation regression (0614). Never use as prod schema.
-CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE SET search_path TO '' AS $
+CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE SET search_path TO '' AS $$
   SELECT coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
-$;
+$$;
 CREATE TABLE auth.users (
   id uuid PRIMARY KEY,
   email text NOT NULL UNIQUE,
