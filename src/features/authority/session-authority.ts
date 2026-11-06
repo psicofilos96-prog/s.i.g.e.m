@@ -26,7 +26,7 @@ const FOLLOWUP_SEAT_EMAILS = new Set([
 ]);
 function isFollowupSeat(user: User): boolean {
   return FOLLOWUP_SEAT_EMAILS.has(user.email?.toLowerCase() ?? "")
-    || user.app_metadata?.sigem_account === "followup-functional-pending";
+    || user.app_metadata?.["sigem_account"] === "followup-functional-pending";
 }
 async function readFollowupSeatAuthority(user: User): Promise<{
   data: FollowupSeatRow[] | null; error: { message: string } | null;
