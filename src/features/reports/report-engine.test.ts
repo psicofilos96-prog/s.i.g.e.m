@@ -57,8 +57,14 @@ describe("motor de relatórios", () => {
     const dataUrl = "data:image/png;base64,iVBORw0KGgo=";
     expect(toPrintableHtml(r, { ...B, logoUrl: dataUrl })).toContain(`src="${dataUrl}"`);
     expect(toPrintableHtml(r, { ...B, logoUrl: "https://e.com/l.png" })).toContain('src="https://e.com/l.png"');
-    for (const bad of ["javascript:alert(1)", "data:text/html;base64,PHNjcmlwdD4=", "file:///x.png", "http://e.com/l.png"])
-      expect(toPrintableHtml(r, { ...B, logoUrl: bad })).not.toContain("<img");
+    // O cabeçalho institucional (brasão + logo da Secretaria) é fixo e da mesma origem;
+    // o logo livre do relatório continua restrito a https/data:image.
+    for (const bad of ["javascript:alert(1)", "data:text/html;base64,PHNjcmlwdD4=", "file:///x.png", "http://e.com/l.png"]) {
+      const out = toPrintableHtml(r, { ...B, logoUrl: bad });
+      expect(out).not.toContain(bad);
+      expect(out).toContain('alt="Brasão do município"');
+      expect(out).toContain('alt="Secretaria Municipal de Educação"');
+    }
   });
   it("relatório grande vai para modo assíncrono", () => {
     const big = Array.from({ length: 10 }, (_, i) => ({ nome: `n${i}`, v: i, cpf: "", esc: "A" }));
