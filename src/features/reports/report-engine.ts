@@ -6,6 +6,9 @@
  * Ausência (null) nunca vira zero em nenhum formato.
  */
 
+import brasaoAsset from "@/assets/brasao-itaperuna.png.asset.json";
+import educacaoAsset from "@/assets/logo-educacao.png.asset.json";
+
 export type ParamType = "date" | "datetime" | "integer" | "text" | "enum";
 export type ParamDef = Readonly<{ id: string; label: string; type: ParamType; required: boolean; min?: number; max?: number; options?: readonly string[]; maxLength?: number }>;
 export type CellValue = string | number | null;
