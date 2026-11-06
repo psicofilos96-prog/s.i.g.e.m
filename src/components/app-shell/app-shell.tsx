@@ -565,6 +565,29 @@ function StationLoadError({ error }: { error: unknown }) {
   );
 }
 
+function FollowupSeatReloginNotice() {
+  const queryClient = useQueryClient();
+  return (
+    <section role="alert" data-sigem-access-denied="followup-seat-relogin" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
+      <h1 className="font-display text-xl font-semibold text-foreground">Saia e entre de novo para liberar o acesso</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Esta conta recebeu o acesso ao acompanhamento depois que você entrou. Por segurança, ele só vale a partir de uma nova entrada.
+        Se mesmo assim não abrir, peça à administração da rede para conferir quem ocupa este login.
+      </p>
+      <Button
+        size="lg"
+        className="mt-6"
+        onClick={() => {
+          void queryClient.cancelQueries();
+          void signOutNow({ clearCache: () => queryClient.clear(), signOut: () => supabase.auth.signOut({ scope: "local" }) });
+        }}
+      >
+        Sair e entrar de novo
+      </Button>
+    </section>
+  );
+}
+
 /** BQ.1 Lote 2 — rota fora da estação da conta de setor não renderiza o conteúdo. */
 function StationGate({ pathname, children }: { pathname: string; children: ReactNode }) {
   const authority = useSessionAuthority();
@@ -596,6 +619,10 @@ function StationGate({ pathname, children }: { pathname: string; children: React
   }
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
   if (authority.status !== "signed-in" || pathAllowed(authority, pathname)) return <>{children}</>;
+  // Posto de acompanhamento: designação só vale para sessão iniciada depois dela (o banco exige).
+  if (authority.followupSeat && authority.capabilities.length === 0) {
+    return <FollowupSeatReloginNotice />;
+  }
   // NACL.UI.1: deep link sem a capacidade exigida pela tela ⇒ AccessDenied (o servidor recusa de todo modo).
   if (!principal || stationAllowsPath(principal.station, pathname)) {
     return (
