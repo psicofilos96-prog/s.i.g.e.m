@@ -17,6 +17,7 @@ import { FollowupVisitComparison } from "./visit-comparison";
 import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
 import { useFollowupRouteGuard } from "./use-route-guard";
 import { SeatAdminPanel } from "./seat-admin-panel";
+import { FollowupTextArea, FormattedText } from "./text-format";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, followupActionDraftIssue, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
@@ -612,7 +613,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
       description="A equipe registra o diagnóstico e a evolução das ações. O Gabinete consulta o panorama da rede e seus históricos." />
     {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <SeatAdminPanel sessionKey={sessionKey} />}
-    <section className="space-y-3 rounded-xl border border-border p-4" aria-label="Panorama da rede">
+    <section className="space-y-4 rounded-2xl border border-border/70 bg-card p-5 shadow-panel" aria-label="Panorama da rede">
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
         <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
@@ -644,9 +645,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
             ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
             ["Ações sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
-          ].map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3">
+          ].map(([label, value]) => <div key={label} className="rounded-xl border border-border/60 bg-background p-3 shadow-sm">
             <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-2xl font-semibold tabular-nums">{value}</p>
+            <p className="font-display text-2xl font-semibold tabular-nums">{value}</p>
           </div>)}
         </div>
         <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
