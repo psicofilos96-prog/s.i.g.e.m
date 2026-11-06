@@ -89,10 +89,10 @@ CREATE TABLE public.capability_policy_rules (
 );
 -- Gestão exclusivamente sintética; não reproduz concessão nem credencial real.
 CREATE FUNCTION public.has_network_capability(_capability text)
-RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO '' AS $
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO '' AS $$
   SELECT auth.uid() = '99999999-9999-4999-8999-999999999999'::uuid
     AND _capability IN ('manter-contas-institucionais','manter-atuacoes-institucionais')
-$;
+$$;
 REVOKE ALL ON FUNCTION public.has_network_capability(text)
   FROM PUBLIC, anon, authenticated, service_role;
 
