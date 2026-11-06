@@ -130,6 +130,42 @@ export async function toXlsx(result: ReportResult, branding: Branding, meta: rea
 const html = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 /** Logo do cabeçalho: endereço https ou imagem embutida (data:) lida do armazenamento da escola; qualquer outro esquema é recusado. */
 export const allowedLogoUrl = (u: string) => /^https:\/\//.test(u) || /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(u);
+
+/**
+ * Identidade oficial dos documentos emitidos pelo SIGEM: brasão do município no canto
+ * superior esquerdo e logo da Secretaria Municipal de Educação no canto superior direito.
+ * As imagens são ativos institucionais fixos da mesma origem — nunca vêm de entrada do usuário.
+ */
+export const DOCUMENT_CREST_URL: string = brasaoAsset.url;
+export const DOCUMENT_SECRETARIAT_LOGO_URL: string = educacaoAsset.url;
+
+type HeaderImage = { dataUrl: string; width: number; height: number };
+/** Lê um ativo institucional da mesma origem como data URL, com dimensões naturais. Falha = sem imagem, nunca quebra a exportação. */
+async function loadHeaderImage(url: string): Promise<HeaderImage | null> {
+  try {
+    const res = await fetch(new URL(url, window.location.origin).href);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    if (!/^image\/(png|jpeg|webp)$/.test(blob.type)) return null;
+    const dataUrl = await new Promise<string | null>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : null);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+    if (!dataUrl) return null;
+    const dims = await new Promise<{ width: number; height: number } | null>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    });
+    if (!dims || !dims.width || !dims.height) return null;
+    return { dataUrl, ...dims };
+  } catch {
+    return null;
+  }
+}
 /** PDF = documento HTML imprimível, com escape total (sem HTML do usuário). */
 /** Bordas vetoriais em pt (≥0,75pt, preto, separate+spacing 0): linhas de 1px cinza com collapse somem ao reduzir o zoom do PDF. */
 export const PRINT_BORDER = "0.75pt solid #222";
