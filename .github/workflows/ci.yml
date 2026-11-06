@@ -127,7 +127,9 @@ jobs:
             -f supabase/tests/0613_followup_clone_postflight_readonly.sql \
             -f supabase/tests/0613_school_institutional_followup.sql \
             -f supabase/tests/0613_followup_isolated_positive.sql \
-            -f supabase/tests/0613_followup_two_visitors.sql
+            -f supabase/tests/0613_followup_two_visitors.sql \
+            -f drizzle/migrations/0614_followup_functional_seat_session_guard.sql \
+            -f supabase/tests/0614_followup_functional_seat_sessions.sql
           # Negative postflight checks operate ONLY on the disposable CI database:
           # a disabled or removed append-only trigger must invalidate the clone.
           expect_postflight_failure() {
