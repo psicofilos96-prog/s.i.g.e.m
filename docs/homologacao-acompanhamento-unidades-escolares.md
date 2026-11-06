@@ -274,3 +274,11 @@ Essas comparações de catálogo aumentam a confiança na **correspondência est
 **O que permanece não homologado:** login real via Auth e navegação/fluxos UI da branch do PR no clone integral; políticas nominais aprovadas para os servidores reais e Gabinete; implementação/reversão na aplicação publicada. Um projeto Lovable de homologação contém o esquema integral com 0613, mas a árvore de código daquele projeto ainda era uma cópia da aplicação anterior ao PR no começo desta etapa. Foi aberta uma tarefa de atualização **somente nele**, com proteção explícita para não importar a referência ao backend original. Não confundir sessão de SQL com claims sintéticos com login real em navegador.
 
 **Decisão:** manter PR #7 em rascunho até concluir Auth/UX e aceite institucional; não executar migration 0613 nem modificar políticas ou dados no banco publicado por esta auditoria.
+
+
+### Pré-checagem da base publicada (somente leitura)
+
+Na mesma rodada de 05/11/2026, o roteiro versionado `supabase/tests/0613_followup_clone_preflight_readonly.sql` foi executado **sem modificações de SQL** contra o banco do projeto Lovable publicado `a5d0ed94-feb8-485b-8fe0-2d52377f3418`, estritamente dentro de `BEGIN TRANSACTION READ ONLY` e `ROLLBACK`. **Resultado: PASSOU**, sem exceções. Este resultado confirma os pré-requisitos estruturais exigidos para uma instalação futura e que a família de objetos da 0613 ainda não se encontra instalada nesse destino. Não houve execução da migration nem qualquer escrita no ambiente publicado. A pré-checagem **não** concede capacidade, não garante ausência de divergências futuras e não autoriza deploy automático.
+
+A configuração `vite.config.ts` do projeto publicado contém a referência canônica `crfqhyqkujhhlbiyhdbc`. No clone integral, a configuração `supabase/config.toml` aponta para o Cloud isolado `nyupdcodzfmwkpxpourt`, **mas o `vite.config.ts` ainda continha fallback com `crfqhyqkujhhlbiyhdbc` quando inspecionado**. Por isso, o aceite de navegação com login foi conscientemente **bloqueado até corrigir o fallback no clone** e comprovar que a compilação aponta exclusivamente para o banco de homologação. Não imprimir ou versionar chaves do `.env`.
+
