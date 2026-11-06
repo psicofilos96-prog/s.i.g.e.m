@@ -17,7 +17,8 @@ $$;
 CREATE TABLE auth.users (
   id uuid PRIMARY KEY,
   email text NOT NULL UNIQUE,
-  raw_app_meta_data jsonb NOT NULL DEFAULT '{}'::jsonb
+  raw_app_meta_data jsonb NOT NULL DEFAULT '{}'::jsonb,
+  email_confirmed_at timestamptz
 );
 CREATE TABLE auth.sessions (
   id uuid PRIMARY KEY,
@@ -58,6 +59,43 @@ CREATE TABLE public.user_person_links (
   person_id uuid NOT NULL REFERENCES public.institutional_persons(id),
   created_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
+-- Canônicas mínimas para o contrato independente dos postos funcionais 0615.
+-- A base oficial contém versões muito mais amplas destas estruturas.
+CREATE TABLE public.institutional_sector_principals (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  auth_user_id uuid NOT NULL
+);
+CREATE TABLE public.institutional_engagements (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  person_id uuid NOT NULL REFERENCES public.institutional_persons(id),
+  engagement_kind_id text NOT NULL,
+  scope_level text NOT NULL,
+  school_id text,
+  valid_from date NOT NULL,
+  valid_until date
+);
+CREATE TABLE public.capability_policies (
+  id uuid PRIMARY KEY,
+  version integer NOT NULL,
+  status text NOT NULL,
+  valid_from date,
+  valid_until date,
+  supersedes_version_id uuid
+);
+CREATE TABLE public.capability_policy_rules (
+  policy_id uuid NOT NULL REFERENCES public.capability_policies(id),
+  engagement_kind_id text NOT NULL,
+  capability_id text NOT NULL
+);
+-- Gestão exclusivamente sintética; não reproduz concessão nem credencial real.
+CREATE FUNCTION public.has_network_capability(_capability text)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO '' AS $
+  SELECT auth.uid() = '99999999-9999-4999-8999-999999999999'::uuid
+    AND _capability IN ('manter-contas-institucionais','manter-atuacoes-institucionais')
+$;
+REVOKE ALL ON FUNCTION public.has_network_capability(text)
+  FROM PUBLIC, anon, authenticated, service_role;
+
 CREATE TABLE public.test_followup_capabilities (
   user_id uuid NOT NULL,
   capability_id text NOT NULL,
@@ -91,6 +129,23 @@ VALUES
 INSERT INTO auth.users(id,email)
 SELECT id, 'fixture-' || id::text || '@example.invalid'
 FROM public.institutional_persons;
+INSERT INTO auth.users(id,email,email_confirmed_at)
+VALUES ('99999999-9999-4999-8999-999999999999','synthetic-admin@example.invalid',now());
+INSERT INTO public.capability_policies(id,version,status,valid_from)
+VALUES ('fafafafa-1111-4111-8111-fafafafafafa',1,'homologated',CURRENT_DATE-30);
+INSERT INTO public.institutional_engagements
+  (person_id,engagement_kind_id,scope_level,school_id,valid_from)
+VALUES
+  ('11111111-1111-4111-8111-111111111111','test-followup-writer','escola','school-a',CURRENT_DATE-30),
+  ('55555555-5555-4555-8555-555555555555','test-followup-writer','escola','school-b',CURRENT_DATE-30),
+  ('22222222-2222-4222-8222-222222222222','test-followup-cabinet','rede',NULL,CURRENT_DATE-30);
+INSERT INTO public.capability_policy_rules(policy_id,engagement_kind_id,capability_id)
+VALUES
+  ('fafafafa-1111-4111-8111-fafafafafafa','test-followup-writer','registrar-acompanhamento-institucional'),
+  ('fafafafa-1111-4111-8111-fafafafafafa','test-followup-writer','manter-contas-institucionais'),
+  ('fafafafa-1111-4111-8111-fafafafafafa','test-followup-cabinet','consultar-acompanhamento-institucional'),
+  ('fafafafa-1111-4111-8111-fafafafafafa','test-followup-cabinet','registrar-acompanhamento-institucional');
+
 INSERT INTO public.user_person_links(user_id,person_id)
 SELECT id,id FROM public.institutional_persons;
 INSERT INTO public.test_followup_capabilities(user_id,capability_id,scope_level,school_id)
