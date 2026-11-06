@@ -854,11 +854,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           Visita de {dateLabel(detailData.visits.find((v) => v.id === measureVisitId)?.visit_date ?? null)}.
           A nova medida é adicionada ao plano sem alterar o diagnóstico ou medidas anteriores.
         </p>
-        <label className="block text-sm">O que precisa ser feito
-          <textarea className={textArea} required maxLength={4000}
-            value={measureDraft.description}
-            onChange={(e) => setMeasureDraft((d) => ({ ...d, description: e.target.value }))} />
-        </label>
+        <FollowupTextArea label="O que precisa ser feito" className={textArea} required maxLength={4000}
+          value={measureDraft.description}
+          onChange={(next) => setMeasureDraft((d) => ({ ...d, description: next }))} />
         <div className="grid gap-3 md:grid-cols-2">
           <label className="block text-sm">Responsável declarado
             <input className={input} maxLength={250} value={measureDraft.responsible}
@@ -975,10 +973,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <label className="block text-sm">Situação declarada<select className={input} value={situation} onChange={(e) => setSituation(e.target.value)}>
             {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select></label>
-          <label className="block text-sm">O que foi feito<textarea className={textArea} maxLength={4000} value={done} onChange={(e) => setDone(e.target.value)} /></label>
-          <label className="block text-sm">O que não foi feito<textarea className={textArea} maxLength={4000} value={notDone} onChange={(e) => setNotDone(e.target.value)} /></label>
-          <label className="block text-sm">Resultados<textarea className={textArea} maxLength={4000} value={results} onChange={(e) => setResults(e.target.value)} /></label>
-          <label className="block text-sm">Encaminhamentos<textarea className={textArea} maxLength={4000} value={referrals} onChange={(e) => setReferrals(e.target.value)} /></label>
+          <FollowupTextArea label="O que foi feito" className={textArea} maxLength={4000} value={done} onChange={setDone} />
+          <FollowupTextArea label="O que não foi feito" className={textArea} maxLength={4000} value={notDone} onChange={setNotDone} />
+          <FollowupTextArea label="Resultados" className={textArea} maxLength={4000} value={results} onChange={setResults} />
+          <FollowupTextArea label="Encaminhamentos" className={textArea} maxLength={4000} value={referrals} onChange={setReferrals} />
           <div className="flex gap-2"><Button type="submit" disabled={savingUpdate || !updateVisitIsValid ||
               Boolean(updateMinDay && updateDay < updateMinDay)}>
               {savingUpdate ? "Salvando…" : "Registrar atualização"}
