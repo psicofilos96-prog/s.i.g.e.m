@@ -235,9 +235,13 @@ BEGIN
     'school-b',today_,'Visita do posto A após troca','','','',
     gen_random_uuid(),'[]'::jsonb);
 
-  SELECT id INTO original_visit FROM public.school_institutional_followup_visits
-    WHERE diagnosis='Visita do posto A antes da troca';
+  -- Uma conta cliente não tem SELECT direto na tabela privada: obter
+  -- apenas a visita devolvida pelo leitor autorizado do módulo.
   doc:=public.school_institutional_followup_school('school-a');
+  SELECT (v->>'id')::uuid INTO original_visit
+  FROM jsonb_array_elements(doc->'visits') v
+  WHERE v->>'diagnosis'='Visita do posto A antes da troca';
+  IF original_visit IS NULL THEN RAISE EXCEPTION 'followup-0615:old-visit-not-visible'; END IF;
   IF EXISTS (
     SELECT 1 FROM jsonb_array_elements(doc->'visits') visit
     WHERE visit->>'id'=original_visit::text
