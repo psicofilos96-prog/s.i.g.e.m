@@ -236,7 +236,19 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: opts.landscape ? "landscape" : "portrait", unit: "mm", format: "a4" });
   const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 12;
-  let y = M + 2;
+  // Brasão do município à esquerda e logo da Secretaria à direita, em todo documento emitido.
+  const [crest, secretariat] = await Promise.all([
+    loadHeaderImage(DOCUMENT_CREST_URL), loadHeaderImage(DOCUMENT_SECRETARIAT_LOGO_URL),
+  ]);
+  const logoH = 16;
+  const drawLogo = (img: HeaderImage, x: number) => {
+    const w = Math.min(34, (logoH * img.width) / img.height);
+    const format = img.dataUrl.includes("image/jpeg") ? "JPEG" : "PNG";
+    doc.addImage(img.dataUrl, format, x, M - 2, w, logoH);
+  };
+  if (crest) drawLogo(crest, M);
+  if (secretariat) { const w = Math.min(34, (logoH * secretariat.width) / secretariat.height); drawLogo(secretariat, W - M - w); }
+  let y = M + (crest || secretariat ? logoH + 2 : 2);
   doc.setFont("times", "normal"); doc.setFontSize(10);
   for (const l of branding.headerLines) { doc.text(l, W / 2, y, { align: "center" }); y += 5; }
   doc.setFont("times", "bold"); doc.setFontSize(13);
