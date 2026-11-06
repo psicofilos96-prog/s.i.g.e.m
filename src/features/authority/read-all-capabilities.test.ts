@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { readAllEffectiveCapabilities, readRpcPages, expandGrants, type GrantRow } from "./read-all-capabilities";
 
 function chain(rows: unknown[], calls: Array<[number, number]> = []) {
@@ -42,5 +42,53 @@ describe("PERF.LOADING.3 — capacidades efetivas sem truncamento", () => {
     const bad = { order: () => bad, range: () => Promise.resolve({ data: null, error: { message: "x" } }) };
     const db = { rpc: (fn: string) => fn === "effective_capability_grants" ? chain([g("a", "rede")]) : fn === "effective_capability_scope_classes" ? bad : chain([]) };
     expect(await readAllEffectiveCapabilities(db)).toEqual({ data: null, error: { message: "x" } });
+  });
+});
+
+
+describe("NDATE — autorização usa o dia operacional da rede", () => {
+  it("não adianta a data de São Paulo após a virada UTC em todas as RPCs", async () => {
+    vi.useFakeTimers();
+    try {
+      // 06/11 às 01:30 UTC ainda é 05/11 às 22:30 em São Paulo.
+      vi.setSystemTime(new Date("2026-11-06T01:30:00.000Z"));
+      const calls: Array<{ fn: string; on: unknown }> = [];
+      const db = {
+        rpc: (fn: string, args: Record<string, unknown>) => {
+          calls.push({ fn, on: args._on });
+          return chain(fn === "effective_capability_grants" ? [g("registrar-acompanhamento-institucional", "escola", "school-a")] : []);
+        },
+      };
+      const result = await readAllEffectiveCapabilities(db);
+      expect(result.error).toBeNull();
+      expect(calls.map((call) => call.fn)).toEqual([
+        "effective_capabilities",
+        "effective_capability_grants",
+        "effective_capability_scope_classes",
+      ]);
+      expect(calls.map((call) => call.on)).toEqual(["2026-11-05", "2026-11-05", "2026-11-05"]);
+      expect((result.data as Array<{ capability_id: string }>)[0]?.capability_id).toBe("registrar-acompanhamento-institucional");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("preserva um _on histórico explícito, inclusive na RPC legada", async () => {
+    const calls: Array<{ fn: string; on: unknown }> = [];
+    const db = {
+      rpc: (fn: string, args: Record<string, unknown>) => {
+        calls.push({ fn, on: args._on });
+        return chain([]);
+      },
+    };
+    await readAllEffectiveCapabilities(db, { _on: "2026-10-01" });
+    expect(calls.map((call) => call.on)).toEqual(["2026-10-01", "2026-10-01", "2026-10-01"]);
+
+    const legacy = { rpc: (fn: string, args: Record<string, unknown>) => {
+      calls.push({ fn, on: args._on });
+      return Promise.resolve({ data: [], error: null });
+    } };
+    await readAllEffectiveCapabilities(legacy, { _on: "2026-09-30" });
+    expect(calls.at(-1)).toEqual({ fn: "effective_capabilities", on: "2026-09-30" });
   });
 });
