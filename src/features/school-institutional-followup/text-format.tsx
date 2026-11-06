@@ -83,8 +83,8 @@ export function FollowupTextArea({
   required?: boolean;
   placeholder?: string;
   rows?: number;
-  invalid?: boolean;
-  describedBy?: string;
+  invalid?: boolean | undefined;
+  describedBy?: string | undefined;
 }) {
   const ref = useRef<HTMLTextAreaElement | null>(null);
   const id = useId();
