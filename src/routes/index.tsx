@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUpRight, BookOpenText, CalendarDays, FileBarChart2, GraduationCap, School, Users } from "lucide-react";
 import heroImage from "@/assets/itaperuna-home.png.asset.json";
@@ -57,6 +57,8 @@ const tasks = [
 function HomePage() {
   const { user, loading } = useSessionUser();
   const authority = useSessionAuthority();
+  // Postos do acompanhamento só usam esse módulo: o início é a própria área.
+  if (user && authority.status === "signed-in" && authority.followupSeat) return <Navigate to="/acompanhamento-unidades" replace />;
   if (user && authority.status === "signed-in") return <SimpleHome userId={user.id} authority={authority} />;
   if (loading || authority.status === "loading") return <p role={authority.status === "loading" && authority.error ? "alert" : "status"} className="p-6 text-muted-foreground">{authority.status === "loading" && authority.error ? "Não foi possível confirmar seu acesso. Recarregue a página para tentar novamente." : "Conferindo seu acesso…"}</p>;
   return <PublicHomePage />;

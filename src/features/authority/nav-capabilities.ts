@@ -98,7 +98,7 @@ export type PathAuthority =
   | { status: "signed-in"; principal?: SectorPrincipal | null; followupSeat?: string | null; capabilities: readonly EffectiveCapability[] };
 
 /** Postos funcionais do acompanhamento (decisão do proprietário, 06/11/2026) só veem esta área. */
-export const FOLLOWUP_SEAT_PATHS: ReadonlySet<string> = new Set(["/acompanhamento-unidades", "/ajuda"]);
+export const FOLLOWUP_SEAT_PATHS: ReadonlySet<string> = new Set(["/", "/acompanhamento-unidades", "/ajuda"]);
 
 export function pathAllowed(authority: PathAuthority, path: string): boolean {
   if (authority.status !== "signed-in") return false;
