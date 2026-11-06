@@ -13,6 +13,22 @@ const rpc: Rpc = (fn, args) => (supabase.rpc as unknown as Rpc)(fn, args);
 async function call(fn: string, args: Record<string, unknown>): Promise<unknown> {
   const { data, error } = await rpc(fn, args);
   if (error) {
+    if (error.message.includes("followup:recording-denied")
+      || error.message.includes("followup:read-denied")) {
+      throw new UserFacingError(
+        "Seu acesso ao acompanhamento desta escola não está mais autorizado. Atualize a página e peça à administração que confira a designação antes de continuar.",
+      );
+    }
+    if (error.message.includes("followup:session-required")) {
+      throw new UserFacingError(
+        "Sua sessão não está mais válida. Entre novamente no SIGEM para continuar.",
+      );
+    }
+    if (error.message.includes("followup:natural-person-required")) {
+      throw new UserFacingError(
+        "Não foi identificado um responsável autorizado para este acesso. Solicite à administração a regularização do vínculo antes de registrar visitas.",
+      );
+    }
     if (error.message.includes("followup:network-pending-volume-exceeded")) {
       throw new UserFacingError(
         "Há mais de 5.000 medidas não concluídas neste escopo. Para evitar um relatório incompleto, solicite uma consulta paginada ao suporte.",
