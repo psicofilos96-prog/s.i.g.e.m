@@ -52,3 +52,25 @@ A confirmação de identidade do Auth, **já executada para as três contas em 0
 - O pré-cadastro e a verificação de estado são auditáveis com `node scripts/followup-functional-seats-preflight.mjs` no runtime seguro, com `SIGEM_FOLLOWUP_EXPECTED_BACKEND` definido e chaves administrativas somente no servidor. Esse comando **não grava dados**, não libera acesso e rejeita backend incorreto. A confirmação administrativa do e-mail, se houver, aparecerá como `CONFIRMADO_SEM_VINCULO`, nunca como permissão de uso.
 
 **Decisão arquitetural de segurança:** contas genéricas não devem ser senhas coletivas nem representar vários operadores simultâneos. Para manter endereços fixos com a rotatividade pretendida, o mecanismo de troca de responsável deve registrar início, término, ato e autoridade da designação; invalidar as sessões anteriores; e preservar as autorias antigas sem as atribuir retroativamente ao novo responsável.
+
+## Provas de rotatividade e revogação no clone integral (06/11/2026)
+
+A rodada foi executada exclusivamente no projeto de homologação `f17b6abd-c100-4603-bb6b-2fec9aa47dda`, backend `nyupdcodzfmwkpxpourt` (não é a produção). O clone mantém dados exclusivamente sintéticos. As operações de teste de troca de vínculo foram envolvidas em transação com **ROLLBACK**.
+
+**Achado P0 de segurança confirmado:** o SQL canônico `current_person_id()` lê `user_person_links` a cada requisição. O teste demonstrou que, ao alterar `user_person_links.person_id` de servidor A para servidor B mantendo o **mesmo JWT antigo**, a conta passou a acessar a escola B e perdeu o acesso à A. Logo, não basta rotacionar senha ou sessão de refresh para afirmar que o responsável antigo perdeu imediatamente o poder de atuar como outro servidor.
+
+**Condições de NO-GO da ativação dos três logins:**
+
+1. **Proibir reatribuição simples de `user_person_links.person_id`.** A troca exige protocolo auditado com pessoa anterior e nova, início, ato e operador responsável, sem alterar `author_person_id` das visitas históricas.
+2. **Invalidar tokens anteriores no próprio servidor.** Antes de liberar a conta para um novo ocupante, cada writer e reader da área precisa conferir que `auth.jwt()->>'session_id'` é uma sessão efetiva e que `auth.sessions.created_at` não antecede o início aprovado da nova ocupação. **Não usar somente `iat`**: um refresh de JWT da sessão antiga não representa uma nova autenticação.
+3. **Revalidar autoridade em outras áreas.** Vincular o mesmo `auth.user.id` a uma pessoa que já tenha atuações escolares pode fazer o login funcional herdar **outras capabilities** por `effective_scope_capabilities`. A vedação não pode existir apenas no menu: deve atuar também nas RPCs e RLS dos outros módulos, ou o desenho deve preferir autenticação pessoal com delegação do posto. Ainda **não foi demonstrado** isolamento global seguro para essas três contas.
+4. **Proteger a entrega de credenciais:** fazer a troca fora do chat e do GitHub, revogar sessões, trocar o segredo e exigir nova autenticação. Nenhuma conta de setor pode ter dois responsáveis usando a mesma senha simultaneamente.
+5. **Homologar em clone:** provar com dois navegadores/sessões que o JWT antigo recebe negação de leitura e de escrita **antes de expirar**, e o novo JWT só pode atuar no escopo autorizado, com a autoria individual correta e sem adquirir outras capacidades.
+
+**Revogação durante a sessão — PASS para os escritores do módulo:** uma versão sintética de política sem capabilities foi homologada no clone enquanto a ficha da Escola A permanecia aberta. A RPC recusou nova gravação e leitura; após atualizar, o navegador ocultou os dados e o botão de salvar; o recarregamento exibiu acesso negado. Nenhuma visita do ensaio foi gravada. A interface inicialmente mostrou erro técnico genérico; foi adicionada tradução de `followup:recording-denied` e `followup:read-denied` na branch do PR, ainda sujeita à CI.
+
+**Zoom nativo de navegador a 200% — validação parcial:** foi aplicada escala 2 no Chromium; o layout medido não produziu overflow horizontal da página, e o botão de salvar foi alcançado por Tab. As capturas visuais ficaram incompletas; a região da tabela rolável não recebia foco. Foi acrescentado `tabIndex={0}` com papel e rótulo de região no PR, ainda sujeito a testes de acessibilidade com navegador visível.
+
+**Estado do clone após ensaio:** conta Auth temporária excluída; permanecem exclusivamente pessoas, escolas, vínculos órfãos e versões da política **sintéticos de teste**, não copiados nem aplicados na produção. As políticas de teste usadas tinham validade até 06/11/2026.
+
+**Decisão:** confirmações do Auth e CI verde são pré-requisitos, não uma autorização para ativar os postos. A **troca segura do responsável ainda não foi implementada**; não prometer que a conta funcional possa ser compartilhada ou transferida com segurança até fechar os itens acima.
