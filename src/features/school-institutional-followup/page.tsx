@@ -673,7 +673,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               <span className="tabular-nums">{r.visits}</span>
             </div>)}
           </div>
-          <div className="max-h-72 overflow-auto rounded-lg border">
+          <div className="max-h-72 overflow-auto rounded-lg border" tabIndex={0}
+            role="region" aria-label="Tabela de escolas — área rolável por teclado">
             <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-background"><tr>
               <th scope="col" className="p-2">Unidade escolar</th><th scope="col" className="p-2">Visitas</th><th scope="col" className="p-2">Ações</th><th scope="col" className="p-2">Prazo vencido</th>
             </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className="border-t">
