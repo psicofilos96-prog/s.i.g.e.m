@@ -5,6 +5,7 @@ import {
 import { civilDateOf, formatDateTime } from "@/lib/academic-date";
 import { UserFacingError } from "@/lib/observability/governed-errors";
 import { currentSituation, type FollowupVisit, type NetworkPendingAction, type NetworkRow, type SchoolSnapshot } from "./model";
+import { stripTextFormat } from "./text-format";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
 export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
