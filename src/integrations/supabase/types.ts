@@ -17088,6 +17088,36 @@ export type Database = {
           },
         ]
       }
+      followup_seat_capability_decisions: {
+        Row: {
+          capability_id: string
+          decision_ref: string
+          id: string
+          recorded_at: string
+          scope_level: string
+          seat_code: string
+          valid_from: string
+        }
+        Insert: {
+          capability_id: string
+          decision_ref: string
+          id?: string
+          recorded_at?: string
+          scope_level?: string
+          seat_code: string
+          valid_from: string
+        }
+        Update: {
+          capability_id?: string
+          decision_ref?: string
+          id?: string
+          recorded_at?: string
+          scope_level?: string
+          seat_code?: string
+          valid_from?: string
+        }
+        Relationships: []
+      }
       followup_seat_revocations: {
         Row: {
           assignment_id: string
@@ -45149,6 +45179,20 @@ export type Database = {
           school_id: string
         }[]
       }
+      followup_seat_cabinet_manager: { Args: never; Returns: boolean }
+      followup_seat_cabinet_replace: {
+        Args: {
+          _person: string
+          _reason: string
+          _request: string
+          _seat: string
+        }
+        Returns: string
+      }
+      followup_seat_cabinet_vacate: {
+        Args: { _reason: string; _request: string; _seat: string }
+        Returns: number
+      }
       followup_seat_effective_grants: {
         Args: { _on: string }
         Returns: {
@@ -45163,6 +45207,15 @@ export type Database = {
         }[]
       }
       followup_seat_is_account: { Args: { _user?: string }; Returns: boolean }
+      followup_seat_person_search: {
+        Args: { _q: string }
+        Returns: {
+          display_name: string
+          login: string
+          person_id: string
+        }[]
+      }
+      followup_seat_roster: { Args: never; Returns: Json }
       freeze_statistical_map: {
         Args: { _month: number; _note?: string; _school: string; _year: number }
         Returns: {
