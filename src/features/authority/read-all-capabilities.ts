@@ -78,7 +78,7 @@ export async function readAllEffectiveCapabilities(db: Rpcish, args: Record<stri
   // O CURRENT_DATE padrão do PostgreSQL pode antecipar a virada para UTC quando
   // ainda é noite em São Paulo, fazendo menu e writer discordarem no mesmo login.
   // Um _on explícito continua prevalecendo (consultas históricas).
-  const scopedArgs = args._on === undefined ? { ...args, _on: operationalToday() } : args;
+  const scopedArgs = args["_on"] === undefined ? { ...args, _on: operationalToday() } : args;
   // O construtor do cliente real é preguiçoso (só executa ao ser aguardado): esta sonda não gera requisição.
   const probe = db.rpc("effective_capabilities", scopedArgs);
   // Duplo de teste legado (sem construtor): mantém o contrato antigo de uma chamada.
