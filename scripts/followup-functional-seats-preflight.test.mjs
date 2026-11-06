@@ -41,13 +41,14 @@ test("recusa duplicatas e ausências sem inventar contas", () => {
     ["CONFLITO_DUPLICADO", "PRE_CADASTRADO_PENDENTE", "AUSENTE"]);
 });
 
-test("marcação alterada, confirmação, convite e login anterior bloqueiam aceite automático", () => {
+test("confirmação de login não equivale a ativação; metadados ou sessões inesperadas exigem revisão", () => {
   const data = users();
   data[0].app_metadata = { followup_seat: "gab" };
   data[1].email_confirmed_at = "2026-11-06T00:00:00Z";
   data[2].invited_at = "2026-11-06T00:00:00Z";
-  assert.deepEqual(assessFunctionalSeats(data).map(x=>x.estado),
-    Array(3).fill("REVISAR_ANTES_DE_ATIVAR"));
+  assert.deepEqual(assessFunctionalSeats(data).map(x=>x.estado), [
+    "REVISAR_ANTES_DE_ATIVAR", "CONFIRMADO_SEM_VINCULO", "REVISAR_ANTES_DE_ATIVAR",
+  ]);
   const signed = users(); signed[0].last_sign_in_at = "2026-11-06T12:00:00Z";
   assert.equal(assessFunctionalSeats(signed)[0].estado, "REVISAR_ANTES_DE_ATIVAR");
 });
@@ -76,6 +77,7 @@ test("execução somente leitura consulta Auth e vínculos sem alterar dados", a
     expectedBackend: REF, createClient: () => admin,
   });
   assert.equal(report.tres_pre_cadastros_pendentes, true);
+  assert.equal(report.tres_identidades_sem_vinculo, true);
   assert.equal(report.acesso_operacional_liberado, false);
   assert.equal(JSON.stringify(report).includes("fixture-never-printed"), false);
   assert.deepEqual(invoked, [
@@ -83,6 +85,23 @@ test("execução somente leitura consulta Auth e vínculos sem alterar dados", a
     ["from", "user_person_links"],
     ["from", "institutional_sector_principals"],
   ]);
+});
+
+test("três logins confirmados permanecem sem capacidade enquanto não há vínculos", async () => {
+  const confirmed = users().map((u) => ({ ...u, email_confirmed_at: "2026-11-06T11:00:00Z" }));
+  assert.deepEqual(assessFunctionalSeats(confirmed).map((u) => u.estado),
+    Array(3).fill("CONFIRMADO_SEM_VINCULO"));
+  const admin = {
+    auth: { admin: { listUsers: async () => ({ data: { users: confirmed }, error: null }) } },
+    from: () => ({ select: () => ({ in: async () => ({ data: [], error: null }) }) }),
+  };
+  const result = await runPreflight({
+    url: `https://${REF}.supabase.co`,
+    expectedBackend: REF, serviceRoleKey: "fixture", createClient: () => admin,
+  });
+  assert.equal(result.tres_pre_cadastros_pendentes, false);
+  assert.equal(result.tres_identidades_sem_vinculo, true);
+  assert.equal(result.acesso_operacional_liberado, false);
 });
 
 test("sem segredo ou com servidor errado não cria cliente nem consulta usuário", async () => {
