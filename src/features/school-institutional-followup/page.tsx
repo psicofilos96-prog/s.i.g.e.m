@@ -879,9 +879,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>}
       {detailData && <>
-        <div className="space-y-3 rounded-xl border p-4">
+        <div className="space-y-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="font-semibold">Ações e evolução</h3>
+            <h3 className="font-display text-lg font-semibold">Ações e evolução</h3>
             <span className="text-xs text-muted-foreground">{visibleActions.length} de {detailData.actions.length} medidas</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -911,7 +911,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             const latest = currentUpdate(a, detailData!.updates);
             return <div key={a.id} id={`followup-action-${a.id}`} tabIndex={-1}
               className="scroll-mt-24 space-y-2 border-b pb-3 last:border-0 focus:outline-2 focus:outline-offset-2 focus:outline-primary">
-              <p className="font-medium">{a.description}</p>
+              <FormattedText text={a.description} className="space-y-1 font-medium" />
               <p className="text-xs text-muted-foreground">
                 Responsável: {a.responsible_label || "Não informado"} • Registro: {a.author_name || "Autoria registrada"}
                 {" • "}Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detailData!.updates)}
@@ -986,17 +986,17 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </fieldset>
         </form>}
         <FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} />
-        <div className="space-y-3 rounded-xl border p-4">
-          <h3 className="font-semibold">Histórico de visitas</h3>
+        <div className="space-y-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
+          <h3 className="font-display text-lg font-semibold">Histórico de visitas</h3>
           {!detailData.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
           {detailData.visits.map((v) => <article key={v.id} className="space-y-2 border-b pb-3 last:border-0">
             <p className="text-sm font-medium">{dateLabel(v.visit_date)} • {v.author_name || "Autoria institucional registrada"} {v.version > 1 ? `(retificação v${v.version})` : ""}</p>
-            {v.purpose_note && <p className="text-sm"><strong>Objetivo:</strong> {v.purpose_note}</p>}
-            {v.participants_note && <p className="text-sm"><strong>Demais participantes informados:</strong> {v.participants_note}</p>}
-            <p className="text-sm"><strong>Diagnóstico:</strong> {v.diagnosis}</p>
-            <p className="text-sm"><strong>Pontos fortes:</strong> {v.strengths || "Não informado"}</p>
-            <p className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses || "Não informado"}</p>
-            {v.summary && <p className="text-sm"><strong>Encaminhamentos:</strong> {v.summary}</p>}
+            {v.purpose_note && <div className="text-sm"><strong>Objetivo:</strong> <FormattedText text={v.purpose_note} className="mt-0.5 space-y-1" /></div>}
+            {v.participants_note && <div className="text-sm"><strong>Demais participantes informados:</strong> <FormattedText text={v.participants_note} className="mt-0.5 space-y-1" /></div>}
+            <div className="text-sm"><strong>Diagnóstico:</strong> <FormattedText text={v.diagnosis} className="mt-0.5 space-y-1" /></div>
+            <div className="text-sm"><strong>Pontos fortes:</strong> {v.strengths ? <FormattedText text={v.strengths} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+            <div className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses ? <FormattedText text={v.weaknesses} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+            {v.summary && <div className="text-sm"><strong>Encaminhamentos:</strong> <FormattedText text={v.summary} className="mt-0.5 space-y-1" /></div>}
             {v.correction_reason && <p className="text-sm"><strong>Justificativa da última retificação:</strong> {v.correction_reason}</p>}
             {v.version > 1 && <details className="rounded-md bg-muted/30 p-3 text-sm">
               <summary className="cursor-pointer font-medium">
