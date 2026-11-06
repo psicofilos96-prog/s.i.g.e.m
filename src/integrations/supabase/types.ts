@@ -32162,6 +32162,56 @@ export type Database = {
           },
         ]
       }
+      school_institutional_followup_attachments: {
+        Row: {
+          author_person_id: string | null
+          author_user_id: string
+          caption: string | null
+          content_type: string
+          created_at: string
+          id: string
+          request_key: string
+          school_id: string
+          size_bytes: number
+          storage_path: string
+          visit_id: string
+        }
+        Insert: {
+          author_person_id?: string | null
+          author_user_id: string
+          caption?: string | null
+          content_type: string
+          created_at?: string
+          id?: string
+          request_key: string
+          school_id: string
+          size_bytes: number
+          storage_path: string
+          visit_id: string
+        }
+        Update: {
+          author_person_id?: string | null
+          author_user_id?: string
+          caption?: string | null
+          content_type?: string
+          created_at?: string
+          id?: string
+          request_key?: string
+          school_id?: string
+          size_bytes?: number
+          storage_path?: string
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_institutional_followup_attachments_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "school_institutional_followup_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_institutional_followup_bundles: {
         Row: {
           author_user_id: string
@@ -51709,6 +51759,17 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_institutional_followup_attachment: {
+        Args: {
+          _caption: string
+          _content_type: string
+          _request: string
+          _size_bytes: number
+          _storage_path: string
+          _visit: string
+        }
+        Returns: string
+      }
       record_school_institutional_followup_bundle: {
         Args: {
           _actions: Json
@@ -53425,6 +53486,10 @@ export type Database = {
           _value: Json
         }
         Returns: string
+      }
+      school_institutional_followup_attachments: {
+        Args: { _school: string }
+        Returns: Json
       }
       school_institutional_followup_can_read: {
         Args: { _school: string }
