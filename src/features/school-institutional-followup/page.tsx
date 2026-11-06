@@ -18,6 +18,8 @@ import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
 import { useFollowupRouteGuard } from "./use-route-guard";
 import { SeatAdminPanel } from "./seat-admin-panel";
 import { FollowupTextArea, FormattedText } from "./text-format";
+import { VisitAttachments } from "./visit-attachments";
+import { schoolFollowupAttachments } from "./source";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, followupActionDraftIssue, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
@@ -122,6 +124,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const detail = useQuery({
     queryKey: ["institutional-followup-school", sessionKey, school],
     queryFn: () => schoolFollowup(school), enabled: Boolean(school), retry: false,
+  });
+  const attachments = useQuery({
+    queryKey: ["institutional-followup-attachments", sessionKey, school],
+    queryFn: () => schoolFollowupAttachments(school), enabled: Boolean(school), retry: false,
   });
   // React Query may retain its last successful result when a refetch fails.
   // Never render or export that cached institutional snapshot while scope is unverified.
