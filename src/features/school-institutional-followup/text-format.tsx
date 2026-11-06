@@ -73,7 +73,7 @@ export function FormattedText({ text, className }: { text: string; className?: s
 
 /** Campo de texto com barra de formatação (negrito, itálico, lista). */
 export function FollowupTextArea({
-  label, value, onChange, className, maxLength, required, placeholder, rows,
+  label, value, onChange, className, maxLength, required, placeholder, rows, invalid, describedBy,
 }: {
   label: string;
   value: string;
@@ -83,6 +83,8 @@ export function FollowupTextArea({
   required?: boolean;
   placeholder?: string;
   rows?: number;
+  invalid?: boolean;
+  describedBy?: string;
 }) {
   const ref = useRef<HTMLTextAreaElement | null>(null);
   const apply = (kind: TextFormatKind) => {
@@ -96,7 +98,7 @@ export function FollowupTextArea({
     });
   };
   return (
-    <div className="block text-sm">
+    <label className="block text-sm">
       <span className="flex flex-wrap items-center justify-between gap-2">
         <span>{label}</span>
         <span className="flex gap-1" aria-label={`Formatação do campo ${label}`}>
@@ -116,7 +118,8 @@ export function FollowupTextArea({
       </span>
       <textarea ref={ref} className={className} maxLength={maxLength} required={required}
         placeholder={placeholder} rows={rows} value={value}
+        aria-invalid={invalid || undefined} aria-describedby={describedBy}
         onChange={(e) => onChange(e.target.value)} />
-    </div>
+    </label>
   );
 }
