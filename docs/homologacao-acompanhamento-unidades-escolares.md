@@ -238,3 +238,39 @@ Registro de consultas **somente leitura** efetuadas nos projetos Lovable conecta
 **Fronteira dos resultados:** esta auditoria verificou RLS, concessões diretas, contagem de funções, resíduos e estado do CI; o relato de execução dos roteiros SQL no ambiente isolado consta de sessão anterior. Não foi repetido aqui o fluxo completo de autenticação com usuários finais, nem o ensaio de 0613 sobre um **clone integral**. Não confundir a compatibilidade da fixture sintética com a do esquema de produção.
 
 **Pendências bloqueadoras para sair de rascunho:** identificar inequivocamente o Cloud de destino realmente associado à aplicação institucional; produzir clone **integral e separado** do esquema desse destino (sem importar dados pessoais) ou reconstruí-lo por migrações canônicas verificadas; executar pré/pós-checks e testes SQL no clone completo; homologar a política nominal dos dois servidores e leitores do Gabinete; validar o login e os fluxos reais com usuários sintéticos e sessões distintas; confirmar plano de publicação/reversão. **Não conceder capabilities, aplicar 0613, fazer merge nem publicar sobre o ambiente institucional antes dessas etapas.**
+
+
+## Homologação SQL contra clone integral do esquema SIGEM — 05/11/2026
+
+Foi identificado **o projeto Lovable publicado S.I.G.E.M**, ID `a5d0ed94-feb8-485b-8fe0-2d52377f3418`, no workspace `ed2c2a3a5d924615ae51`, com `latest_commit_sha=21145ca9902b31433b892887adaeb66520520732` (main do PR #7) e `supabase/config.toml` = `crfqhyqkujhhlbiyhdbc`. Diferentemente do Remix antigo com o mesmo identificador de arquivo, **o banco deste projeto publicado respondeu às consultas SQL somente leitura**. Não foi executado SQL de escrita sobre o projeto publicado.
+
+Foi identificado **o clone Lovable de homologação PR7**, ID `f17b6abd-c100-4603-bb6b-2fec9aa47dda`, Cloud próprio `nyupdcodzfmwkpxpourt`. PostgreSQL 17.11 nos dois projetos. O clone não tinha registros de `auth.users`, `institutional_schools`, `institutional_persons` ou `user_person_links` antes dos testes, nem após eles. Comparação por consulta e impressão digital MD5 de *definições de catálogo*, excluindo somente os objetos da família do novo módulo:
+
+| Objeto existente antes da 0613 | Publicado | Clone | Resultado |
+| --- | ---: | ---: | --- |
+| Tabelas públicas | 820 | 820 | mesmos nomes |
+| Colunas das tabelas | 7.895 | 7.895 | mesma assinatura de nome, tipo, nulidade e default |
+| Índices | 1.887 | 1.887 | assinaturas completas iguais |
+| Políticas RLS | 671 | 671 | assinaturas completas iguais |
+| Funções do schema `public` | 1.694 | 1.694 | definições completas iguais |
+| Gatilhos não internos | 915 | 915 | definições completas iguais |
+| Restrições | 5.223 | 5.223 | **uma única diferença textual** na forma de parênteses de `dev_waitlist_criteria_versions_keys_check` (agrupamento equivalente de expressões `AND`); outras definições conferem |
+
+Essas comparações de catálogo aumentam a confiança na **correspondência estrutural do clone**. Não são prova de cópia dos dados (intencionalmente não copiados), de equivalência de parâmetros globais de servidor ou de sessão Auth pelo navegador.
+
+**Testes executados diretamente no banco do clone integral, sem escrita persistente:**
+
+1. `supabase/tests/0613_followup_clone_postflight_readonly.sql` — **PASSOU**, com `BEGIN TRANSACTION READ ONLY` e `ROLLBACK`.
+2. `supabase/tests/0613_school_institutional_followup.sql` — **PASSOU** sem adaptação, incluindo negações e isolamento básico, com `BEGIN/ROLLBACK`.
+3. `supabase/tests/0613_followup_isolated_positive.sql` — **PASSOU**, com fixture de duas escolas e cinco identidades sintéticas montada dentro da transação; a fixture utiliza as **tabelas institucionais reais**, `capability_policies`, `capability_policy_rules`, `institutional_engagements` e a função original `effective_scope_capabilities(date)`. O início/fim transacional do script foram incorporados ao invólucro único `BEGIN/ROLLBACK`.
+4. `supabase/tests/0613_followup_two_visitors.sql` — **PASSOU**, também com fixture da autoridade **canônica** do SIGEM. A única adaptação operacional foi substituir a remoção de grant da tabela *exclusiva da fixture CI* (`test_followup_capabilities`, ausente do esquema real) pelo **encerramento temporal do vínculo sintético de B** em `institutional_engagements`, com `valid_until` anterior ao dia de São Paulo. A revogação passou na mesma sessão simulada; a escrita/consulta cruzadas foram negadas; o Gabinete continuou leitor das duas unidades.
+
+**Importante:** a fixture homologou duas políticas `draft → homologated` **dentro da própria transação de ensaio**, mantendo todos os gatilhos e validadores institucionais; não substituiu a função de autoridade original. Tentativa inicial de inserir regras após homologação foi corretamente rejeitada pelo gatilho imutável `guard_homologated_rules()`. O teste final respeitou a ordem correta. No teste de revogação, a data foi expressa em `America/Sao_Paulo` para coincidir com a data operacional usada pela RPC, evitando falso resultado quando o dia UTC difere do local.
+
+**Contagens após os testes:** 0 registros em `auth.users`, `institutional_schools`, `institutional_persons`, `institutional_engagements` e nas quatro tabelas `school_institutional_followup_*` do clone. As quatro tabelas do módulo mantêm RLS habilitada.
+
+**CI GitHub:** execução [42140224026](https://github.com/psicofilos96-prog/s.i.g.e.m/actions/runs/42140224026) — **concluída com sucesso** no commit `2ff6762f`.
+
+**O que permanece não homologado:** login real via Auth e navegação/fluxos UI da branch do PR no clone integral; políticas nominais aprovadas para os servidores reais e Gabinete; implementação/reversão na aplicação publicada. Um projeto Lovable de homologação contém o esquema integral com 0613, mas a árvore de código daquele projeto ainda era uma cópia da aplicação anterior ao PR no começo desta etapa. Foi aberta uma tarefa de atualização **somente nele**, com proteção explícita para não importar a referência ao backend original. Não confundir sessão de SQL com claims sintéticos com login real em navegador.
+
+**Decisão:** manter PR #7 em rascunho até concluir Auth/UX e aceite institucional; não executar migration 0613 nem modificar políticas ou dados no banco publicado por esta auditoria.
