@@ -61,8 +61,10 @@ export function assessFunctionalSeats(users, personLinks = [], sectorPrincipals 
     const convite = Boolean(u.invited_at);
     const metadataCorreta = u.app_metadata?.sigem_account === "followup-functional-pending"
       && u.app_metadata?.followup_seat === seat;
-    const limpo = !vinculo && !principal && !confirmado && !login && !convite && metadataCorreta;
-    return { email, estado: limpo ? "PRE_CADASTRADO_PENDENTE" : "REVISAR_ANTES_DE_ATIVAR",
+    const pronto = !vinculo && !principal && !login && !convite && metadataCorreta;
+    const estado = !pronto ? "REVISAR_ANTES_DE_ATIVAR"
+      : confirmado ? "CONFIRMADO_SEM_VINCULO" : "PRE_CADASTRADO_PENDENTE";
+    return { email, estado,
       confirmado, login_anterior: login, vinculo_pessoal: vinculo,
       principal_setorial: principal, convite_anterior: convite };
   });
@@ -104,6 +106,8 @@ export async function runPreflight({ url, serviceRoleKey, expectedBackend, creat
     modo: "SOMENTE_LEITURA",
     identidades: accounts,
     tres_pre_cadastros_pendentes: accounts.every((u) => u.estado === "PRE_CADASTRADO_PENDENTE"),
+    tres_identidades_sem_vinculo: accounts.every((u) =>
+      u.estado === "PRE_CADASTRADO_PENDENTE" || u.estado === "CONFIRMADO_SEM_VINCULO"),
     acesso_operacional_liberado: false,
     aviso: "Conta Auth não concede permissão. Verificar migração 0613, caixa de email, pessoa natural e autorização administrativa antes da ativação.",
   };
@@ -119,7 +123,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       createClient,
     });
     console.log(JSON.stringify(report, null, 2));
-    if (!report.tres_pre_cadastros_pendentes) process.exitCode = 2;
+    if (!report.tres_identidades_sem_vinculo) process.exitCode = 2;
   } catch (e) {
     // Não registrar URL, chave, identificadores internos ou stack que os contenha.
     console.error("Pré-checagem não pôde confirmar as contas; nenhuma alteração realizada.");
