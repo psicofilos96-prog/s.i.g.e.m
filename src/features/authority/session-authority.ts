@@ -8,6 +8,7 @@
  */
 import { registerSessionReadContext } from "@/lib/session-read-context";
 import { readAllEffectiveCapabilities } from "./read-all-capabilities";
+import { operationalToday } from "@/lib/academic-date";
 import { useSyncExternalStore } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
@@ -19,6 +20,26 @@ type CapRow = {
   capability_id: string; engagement_id: string; policy_id: string | null; policy_version: number | null;
   class_id: string | null; period_id: string | null; school_id: string | null; component_id: string | null;
 };
+type FollowupSeatRow = CapRow & { person_id: string; person_name: string };
+const FOLLOWUP_SEAT_EMAILS = new Set([
+  "acomp1@sigem.itap.gov.br", "acomp2@sigem.itap.gov.br", "gab@sigem.itap.gov.br",
+]);
+function isFollowupSeat(user: User): boolean {
+  return FOLLOWUP_SEAT_EMAILS.has(user.email?.toLowerCase() ?? "")
+    || user.app_metadata?.sigem_account === "followup-functional-pending";
+}
+async function readFollowupSeatAuthority(user: User): Promise<{
+  data: FollowupSeatRow[] | null; error: { message: string } | null;
+}> {
+  if (!isFollowupSeat(user)) return { data: [], error: null };
+  // New RPC from 0615. The app's generated DB types are updated on deploy,
+  // so this tightly-scoped cast keeps the PR compatible with older type files.
+  type RpcReader = (fn: string, args: Record<string, unknown>) =>
+    PromiseLike<{ data: FollowupSeatRow[] | null; error: { message: string } | null }>;
+  const call = supabase.rpc as unknown as RpcReader;
+  return await call("followup_seat_authority", { _on: operationalToday() });
+}
+
 function mapCaps(caps: readonly CapRow[] | null): EffectiveCapability[] {
   return (caps ?? []).map((c) => ({
     capabilityId: c.capability_id,
@@ -162,16 +183,18 @@ export function useSessionAuthority(): SessionAuthority {
       if (!user) throw new Error("Não foi possível confirmar sua sessão.");
       // PERF: vínculo, ator e capacidades são leituras independentes — em paralelo, não em cascata.
       // Vínculo PRÓPRIO, explícito por user.id: administradores podem ler outras linhas.
-      const [linkRes, actorRes, capsRes] = await Promise.all([
+      const [linkRes, actorRes, capsRes, seatRes] = await Promise.all([
         supabase.from("user_person_links").select("person_id").eq("user_id", user.id).limit(2),
         supabase.rpc("current_actor"),
         readAllEffectiveCapabilities(supabase),
+        readFollowupSeatAuthority(user),
       ]);
       const { data: links, error: linkError } = linkRes;
       if (linkError) throw linkError;
       if ((links ?? []).length > 1) throw new Error("vínculo institucional ambíguo");
       if (actorRes?.error) throw actorRes.error;
       if (capsRes.error) throw capsRes.error;
+      if (seatRes.error) throw seatRes.error;
       const link = (links ?? [])[0];
       const ar = Array.isArray(actorRes?.data) ? actorRes.data[0] : undefined;
       const principal: SectorPrincipal | null =
@@ -183,6 +206,21 @@ export function useSessionAuthority(): SessionAuthority {
               schoolId: ar.school_id ?? null,
             }
           : null;
+      if (isFollowupSeat(user)) {
+        // Postos não usam user_person_links e NUNCA podem herdar outras
+        // capacidades da pessoa designada. A nova RPC revalida a sessão
+        // e a política exclusivamente para o acompanhamento.
+        if (link || principal) throw new Error("Conta funcional com vínculo institucional incompatível.");
+        const rows = seatRes.data ?? [];
+        if (rows.some((r) => r.person_id !== rows[0]?.person_id)) {
+          throw new Error("Designações funcionais ambíguas.");
+        }
+        return {
+          person: rows.length ? { id: rows[0]!.person_id, displayName: rows[0]!.person_name } : null,
+          principal: null,
+          capabilities: mapCaps(rows),
+        };
+      }
       if (!link) {
         // BQ.1 Lote 2 — conta de setor: principal institucional (nunca pessoa). Sem principal ⇒ zero.
         if (!principal) return { person: null, principal: null, capabilities: [] as EffectiveCapability[] };
