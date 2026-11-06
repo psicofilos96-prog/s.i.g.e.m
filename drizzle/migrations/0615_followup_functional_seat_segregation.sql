@@ -33,10 +33,16 @@ END $preflight$;
 CREATE OR REPLACE FUNCTION public.followup_functional_seat_link_guard()
 RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$
 BEGIN
-  IF TG_OP IN ('INSERT','UPDATE') AND (
-    public.followup_seat_is_account(NEW.user_id)
-    OR (TG_OP = 'UPDATE' AND public.followup_seat_is_account(OLD.user_id))
-  ) THEN RAISE EXCEPTION 'followup-seat:global-person-link-forbidden'; END IF;
+  -- INSERT não possui OLD; separar ramos evita avaliar OLD em triggers de
+  -- contas humanas comuns durante o provisionamento institucional.
+  IF TG_OP = 'INSERT' THEN
+    IF public.followup_seat_is_account(NEW.user_id)
+      THEN RAISE EXCEPTION 'followup-seat:global-person-link-forbidden'; END IF;
+  ELSIF TG_OP = 'UPDATE' THEN
+    IF public.followup_seat_is_account(NEW.user_id)
+      OR public.followup_seat_is_account(OLD.user_id)
+      THEN RAISE EXCEPTION 'followup-seat:global-person-link-forbidden'; END IF;
+  END IF;
   RETURN NEW;
 END $$;
 REVOKE ALL ON FUNCTION public.followup_functional_seat_link_guard()
