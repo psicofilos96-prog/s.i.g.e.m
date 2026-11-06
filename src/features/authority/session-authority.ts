@@ -36,7 +36,8 @@ async function readFollowupSeatAuthority(user: User): Promise<{
   // so this tightly-scoped cast keeps the PR compatible with older type files.
   type RpcReader = (fn: string, args: Record<string, unknown>) =>
     PromiseLike<{ data: FollowupSeatRow[] | null; error: { message: string } | null }>;
-  const call = supabase.rpc as unknown as RpcReader;
+  // O SDK usa this.rest internamente; não desacoplar rpc de supabase.
+  const call = supabase.rpc.bind(supabase) as unknown as RpcReader;
   return await call("followup_seat_authority", { _on: operationalToday() });
 }
 
