@@ -307,3 +307,94 @@ BEGIN
 END $$;
 REVOKE ALL ON FUNCTION public.school_institutional_followup_person(text)
   FROM PUBLIC, anon, authenticated, service_role;
+
+-- Troca do ocupante NÃO transfere poder de retificar visitas antigas.
+-- O writer 0613 confere author_user_id; se o mesmo Auth for reutilizado,
+-- esta barreira de INSERT confere também a pessoa natural ORIGINAL.
+CREATE FUNCTION public.followup_seat_visit_correction_guard()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$
+DECLARE _original_person uuid;
+BEGIN
+  IF NEW.supersedes_id IS NOT NULL AND public.followup_seat_is_account(NEW.author_user_id) THEN
+    SELECT v.author_person_id INTO _original_person
+      FROM public.school_institutional_followup_visits v
+      WHERE v.id = NEW.supersedes_id;
+    IF _original_person IS DISTINCT FROM NEW.author_person_id
+      THEN RAISE EXCEPTION 'followup:only-author-corrects'; END IF;
+  END IF;
+  RETURN NEW;
+END $$;
+REVOKE ALL ON FUNCTION public.followup_seat_visit_correction_guard()
+  FROM PUBLIC, anon, authenticated, service_role;
+CREATE TRIGGER followup_seat_visit_correction_guard
+  BEFORE INSERT ON public.school_institutional_followup_visits
+  FOR EACH ROW EXECUTE FUNCTION public.followup_seat_visit_correction_guard();
+
+-- A projeção can_correct deve acompanhar a regra de escrita. Copia o
+-- leitor canônico 0613 sem alterar os seus filtros, limites ou demais campos.
+-- Somente o valor de can_correct ganha a verificação do autor natural.
+CREATE OR REPLACE FUNCTION public.school_institutional_followup_school(_school text)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path TO '' AS $$
+DECLARE _res jsonb;
+BEGIN
+  IF NOT public.school_institutional_followup_can_read(_school) THEN RAISE EXCEPTION 'followup:read-denied'; END IF;
+  -- Um histórico cortado silenciosamente produziria contagens e estados falsos.
+  -- Enquanto a paginação canônica não existir, falha fechada com erro identificável.
+  IF (SELECT count(*) FROM public.school_institutional_followup_visits
+       WHERE school_id = _school) > 1000
+    OR (SELECT count(*) FROM public.school_institutional_followup_actions
+       WHERE school_id = _school) > 2000
+    OR (SELECT count(*) FROM public.school_institutional_followup_updates u
+       JOIN public.school_institutional_followup_actions a ON a.id = u.action_id
+       WHERE a.school_id = _school) > 5000
+  THEN RAISE EXCEPTION 'followup:history-volume-exceeded'; END IF;
+  SELECT jsonb_build_object(
+    'visits', coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.visit_date DESC, t.created_at DESC)
+      FROM (SELECT v.id, v.logical_id, v.version, v.school_id, v.visit_date, v.diagnosis,
+        v.strengths, v.weaknesses, v.summary, v.participants_note, v.purpose_note,
+        v.correction_reason, v.supersedes_id,
+        v.recorded_at AS created_at, p.display_name AS author_name,
+        (v.author_user_id = auth.uid() AND (
+          NOT public.followup_seat_is_account()
+          OR v.author_person_id = (
+            SELECT holder.person_id FROM public.followup_seat_active_assignment() holder
+          )
+        )) AS can_correct
+        FROM public.school_institutional_followup_visits v
+        LEFT JOIN public.institutional_persons p ON p.id = v.author_person_id
+        WHERE v.school_id = _school AND NOT EXISTS
+         (SELECT 1 FROM public.school_institutional_followup_visits next WHERE next.supersedes_id = v.id)
+        ORDER BY v.visit_date DESC, v.recorded_at DESC LIMIT 1000) t),'[]'::jsonb),
+    'visit_history', coalesce((SELECT jsonb_agg(to_jsonb(h) ORDER BY h.created_at DESC)
+      FROM (SELECT v.id, v.logical_id, v.version, v.school_id, v.visit_date, v.diagnosis,
+        v.strengths, v.weaknesses, v.summary, v.participants_note, v.purpose_note,
+        v.correction_reason, v.supersedes_id,
+        v.recorded_at AS created_at, p.display_name AS author_name
+        FROM public.school_institutional_followup_visits v
+        LEFT JOIN public.institutional_persons p ON p.id = v.author_person_id
+        WHERE v.school_id = _school AND EXISTS
+          (SELECT 1 FROM public.school_institutional_followup_visits later WHERE later.supersedes_id = v.id)
+        ORDER BY v.recorded_at DESC LIMIT 1000) h),'[]'::jsonb),
+    'actions', coalesce((SELECT jsonb_agg(to_jsonb(a) ORDER BY a.created_at DESC)
+      FROM (SELECT a.id, a.school_id, a.visit_logical_id, a.description, a.responsible_label,
+        a.due_on, a.recorded_at AS created_at, p.display_name AS author_name
+        FROM public.school_institutional_followup_actions a
+        LEFT JOIN public.institutional_persons p ON p.id = a.author_person_id
+        WHERE a.school_id = _school
+        ORDER BY a.recorded_at DESC LIMIT 2000) a),'[]'::jsonb),
+    'updates', coalesce((SELECT jsonb_agg(to_jsonb(u) ORDER BY u.occurred_on DESC, u.created_at DESC)
+      FROM (SELECT u.id, u.action_id, u.visit_logical_id, u.occurred_on, u.situation,
+        u.done_text, u.not_done_text, u.results, u.referrals, u.recorded_at AS created_at,
+        p.display_name AS author_name
+        FROM public.school_institutional_followup_updates u
+        JOIN public.school_institutional_followup_actions a ON a.id = u.action_id
+        LEFT JOIN public.institutional_persons p ON p.id = u.author_person_id
+        WHERE a.school_id = _school ORDER BY u.occurred_on DESC, u.recorded_at DESC LIMIT 5000) u),'[]'::jsonb)
+  ) INTO _res;
+  RETURN _res;
+END $$;
+
+REVOKE ALL ON FUNCTION public.school_institutional_followup_school(text)
+  FROM PUBLIC, anon, service_role;
+GRANT EXECUTE ON FUNCTION public.school_institutional_followup_school(text)
+  TO authenticated;
