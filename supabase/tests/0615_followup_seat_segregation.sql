@@ -74,6 +74,7 @@ BEGIN
     '11111111-1111-4111-8111-111111111111'::uuid,'Ato de teste n. 1',
     '11111111-aaaa-4aaa-8aaa-111111111111'::uuid) INTO a;
   IF a IS NULL THEN RAISE EXCEPTION 'followup-0615:assignment-not-created'; END IF;
+  PERFORM set_config('sigem.test_followup_seat_assignment',a::text,true);
   -- Retry idempotente devolve a mesma designação.
   IF public.designate_followup_seat(
     'acomp1','66666666-6666-4666-8666-666666666666'::uuid,
@@ -181,7 +182,9 @@ BEGIN
   PERFORM set_config('request.jwt.claims',
     jsonb_build_object('sub','99999999-9999-4999-8999-999999999999',
       'role','authenticated')::text,true);
-  SELECT id INTO a FROM public.followup_seat_assignments WHERE seat_code='acomp1';
+  -- A leitura direta está proibida por RLS; usar apenas o ID recebido
+  -- do writer governado na primeira etapa da mesma transação sintética.
+  a:=current_setting('sigem.test_followup_seat_assignment')::uuid;
   SELECT public.revoke_followup_seat(a,'Substituição formal de teste',
     '33333333-aaaa-4aaa-8aaa-333333333333'::uuid) INTO rid;
   IF rid IS NULL THEN RAISE EXCEPTION 'followup-0615:revocation-missing'; END IF;
