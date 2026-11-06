@@ -15,9 +15,10 @@ const m = vi.hoisted(() => ({
   links: vi.fn(),
   person: vi.fn(),
   caps: vi.fn(),
+  seat: vi.fn(),
 }));
-vi.mock("@/integrations/supabase/client", () => ({
-  supabase: {
+vi.mock("@/integrations/supabase/client", () => {
+  const client = {
     auth: {
       onAuthStateChange: (cb: Listener) => {
         m.listeners.add(cb);
@@ -36,9 +37,16 @@ vi.mock("@/integrations/supabase/client", () => ({
         },
       }),
     }),
-    rpc: (name: string) => (name === "current_actor" ? Promise.resolve({ data: [], error: null }) : m.caps()),
-  },
-}));
+    // Como no SDK real, rpc depende de `this` (this.rest): chamada desacoplada do cliente falha.
+    rpc(this: unknown, name: string, args?: Record<string, unknown>) {
+      if (this !== client) throw new TypeError("Cannot read properties of undefined (reading 'rest')");
+      if (name === "current_actor") return Promise.resolve({ data: [], error: null });
+      if (name === "followup_seat_authority") return m.seat(args);
+      return m.caps();
+    },
+  };
+  return { supabase: client };
+});
 import { useSessionAuthority, useSessionUser, type SessionAuthority } from "./session-authority";
 import { currentSessionReadKey } from "@/lib/session-read-context";
 import { LIST_TIMEOUT_MS } from "@/lib/server-page";
@@ -65,6 +73,7 @@ beforeEach(() => {
   m.links.mockReset().mockImplementation(async (uid: string) => ({ data: [{ person_id: `per-${uid}` }], error: null }));
   m.person.mockReset().mockImplementation(async (pid: string) => ({ data: { id: pid, display_name: `Pessoa ${pid}` }, error: null }));
   m.caps.mockReset().mockResolvedValue({ data: [cap("c1")], error: null });
+  m.seat.mockReset().mockResolvedValue({ data: [], error: null });
 });
 afterEach(() => vi.useRealTimers());
 
@@ -293,6 +302,33 @@ describe("B4.10.0b — useSessionAuthority", () => {
   });
 });
 
+
+describe("PR7 0615 — posto funcional de acompanhamento", () => {
+  const seatSession = { data: { session: { user: { id: "u-seat", email: "acomp1@sigem.itap.gov.br", app_metadata: {} } } }, error: null };
+  const seatRow = { ...cap("registrar-acompanhamento-institucional"), school_id: "escola-a", person_id: "per-b", person_name: "Pessoa B" };
+
+  it("posto lê só followup_seat_authority (com o cliente como this e data de São Paulo) e não herda outras capacidades", async () => {
+    m.getSession.mockResolvedValue(seatSession);
+    m.links.mockResolvedValue({ data: [], error: null });
+    m.caps.mockResolvedValue({ data: [cap("manter-contas-institucionais")], error: null });
+    m.seat.mockResolvedValue({ data: [seatRow], error: null });
+    const { result, unmount } = renderHook(() => useSessionAuthority(), { wrapper: wrapperWith(newClient()) });
+    await waitFor(() => expect(result.current.status).toBe("signed-in"));
+    const a = result.current as Extract<SessionAuthority, { status: "signed-in" }>;
+    expect(m.seat).toHaveBeenCalledWith({ _on: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/) });
+    expect(a.person).toEqual({ id: "per-b", displayName: "Pessoa B" });
+    expect(a.capabilities.map((c) => c.capabilityId)).toEqual(["registrar-acompanhamento-institucional"]);
+    unmount();
+  });
+
+  it("posto com vínculo de pessoa falha fechado", async () => {
+    m.getSession.mockResolvedValue(seatSession);
+    m.seat.mockResolvedValue({ data: [seatRow], error: null });
+    const { result, unmount } = renderHook(() => useSessionAuthority(), { wrapper: wrapperWith(newClient()) });
+    await waitFor(() => expect(result.current).toMatchObject({ status: "loading", error: expect.stringContaining("incompatível") }));
+    unmount();
+  });
+});
 
 describe("chave de leitura da origem real da sessão", () => {
   it("isola outra conta, novo login e SSR sem fazer outra leitura de autenticação", async () => {
