@@ -205,12 +205,21 @@ BEGIN
 END $stale$;
 RESET ROLE;
 
+-- Mesmo que o novo operador também receba permissão para a escola A,
+-- ele NÃO se torna autor da visita antiga registrada ali.
+INSERT INTO public.institutional_engagements
+  (person_id,engagement_kind_id,scope_level,school_id,valid_from)
+VALUES ('55555555-5555-4555-8555-555555555555',
+  'test-followup-writer','escola','school-a',CURRENT_DATE-30);
+
 INSERT INTO auth.sessions(id,user_id,created_at) VALUES
  ('dddddddd-6666-4666-8666-dddddddddddd',
   '66666666-6666-4666-8666-666666666666',clock_timestamp());
 SET ROLE authenticated;
 DO $new$
-DECLARE today_ date:=(now() AT TIME ZONE 'America/Sao_Paulo')::date; n integer;
+DECLARE
+  today_ date:=(now() AT TIME ZONE 'America/Sao_Paulo')::date;
+  n integer; original_visit uuid; doc jsonb; denied boolean:=false;
 BEGIN
   PERFORM set_config('request.jwt.claims',
     jsonb_build_object('sub','66666666-6666-4666-8666-666666666666',
@@ -222,6 +231,24 @@ BEGIN
   PERFORM public.record_school_institutional_followup_bundle(
     'school-b',today_,'Visita do posto A após troca','','','',
     gen_random_uuid(),'[]'::jsonb);
+
+  SELECT id INTO original_visit FROM public.school_institutional_followup_visits
+    WHERE diagnosis='Visita do posto A antes da troca';
+  doc:=public.school_institutional_followup_school('school-a');
+  IF EXISTS (
+    SELECT 1 FROM jsonb_array_elements(doc->'visits') visit
+    WHERE visit->>'id'=original_visit::text
+      AND (visit->>'can_correct')::boolean IS DISTINCT FROM false
+  ) THEN RAISE EXCEPTION 'followup-0615:old-visit-correct-button'; END IF;
+  BEGIN
+    PERFORM public.record_school_institutional_followup_visit(
+      'school-a',today_,'Retificação por outra pessoa','','','',
+      original_visit,'Tentativa de alteração de autoria',gen_random_uuid());
+  EXCEPTION WHEN others THEN
+    IF SQLERRM='followup:only-author-corrects'
+      THEN denied:=true; ELSE RAISE; END IF;
+  END;
+  IF NOT denied THEN RAISE EXCEPTION 'followup-0615:reassigned-user-corrected-old-visit'; END IF;
 END $new$;
 RESET ROLE;
 
