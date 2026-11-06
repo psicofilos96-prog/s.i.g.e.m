@@ -1,6 +1,6 @@
 # Contas funcionais do acompanhamento escolar — desenho e ativação
 
-**Estado deste documento:** especificação de acesso. Não comprova que as contas foram cadastradas no Auth, que a migração 0613 foi aplicada na produção, nem que houve concessões de capacidade. Acompanhar separadamente a verificação administrativa de contas.
+**Estado verificado em 06/11/2026:** as três identidades foram pré-cadastradas **no Auth do SIGEM publicado**, via API oficial Auth Admin, no Cloud `crfqhyqkujhhlbiyhdbc`. Cada endereço existe exatamente uma vez, com e-mail não confirmado, sem convite, sem login anterior, sem `user_person_links`, sem principal setorial e com `app_metadata.sigem_account='followup-functional-pending'`. Nenhuma senha foi fornecida na criação; o serviço preencheu o campo interno de senha criptografada, portanto não se deve afirmar inatividade absoluta. **Não** foram concedidas capacidades; a migração 0613 ainda não foi instalada na produção.
 
 ## Três endereços estáveis solicitados
 
@@ -20,7 +20,7 @@ Portanto, **os postos de escrita não podem ser ativados apontando para pessoa i
 
 ## Ciclo seguro de implantação
 
-1. **Pré-cadastro no Auth:** criar somente as três identidades por API Auth Admin oficial, inicialmente sem senha compartilhada, sem convites automáticos e sem capacidades; conferir unicidade e estado pendente.
+1. **Pré-cadastro no Auth — CONCLUÍDO:** as três identidades foram criadas pela API Auth Admin oficial, sem fornecer senha, sem convite e sem capacidades; unicidade, não confirmação e ausência de vínculo confirmadas. Nenhum login operacional foi ativado.
 2. **Antes da ativação:** instalar e validar a migração 0613 no banco institucional, com backup/plano de reversão; fazer o aceite expresso da política de capacidades e das duas designações vigentes; não conceder poderes por `app_metadata`.
 3. **Vinculação do posto:** associar cada conta de escrita a uma única **pessoa natural designada**, com ato, início de validade e política homologada; evitar pessoa fictícia. A conta do Gabinete é de leitura e requer um sujeito institucional autorizado, conforme políticas canônicas.
 4. **Credencial:** usar mecanismo seguro de ativação individual, sem senha em planilhas, GitHub ou conversa; verificar acesso ao endereço institucional antes de solicitar recuperação. Recomenda-se autenticação individual e MFA sempre que suportados.
