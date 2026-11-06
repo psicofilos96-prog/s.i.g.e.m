@@ -4306,6 +4306,13 @@
       "when": 1794010000000,
       "tag": "0614_followup_functional_seat_session_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 615,
+      "version": "7",
+      "when": 1794015000000,
+      "tag": "0615_followup_functional_seat_segregation",
+      "breakpoints": true
     }
   ]
 }
