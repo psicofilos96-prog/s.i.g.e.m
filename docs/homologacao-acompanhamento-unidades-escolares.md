@@ -282,3 +282,23 @@ Na mesma rodada de 05/11/2026, o roteiro versionado `supabase/tests/0613_followu
 
 A configuração `vite.config.ts` do projeto publicado contém a referência canônica `crfqhyqkujhhlbiyhdbc`. No clone integral, a configuração `supabase/config.toml` aponta para o Cloud isolado `nyupdcodzfmwkpxpourt`, **mas o `vite.config.ts` ainda continha fallback com `crfqhyqkujhhlbiyhdbc` quando inspecionado**. Por isso, o aceite de navegação com login foi conscientemente **bloqueado até corrigir o fallback no clone** e comprovar que a compilação aponta exclusivamente para o banco de homologação. Não imprimir ou versionar chaves do `.env`.
 
+
+## Contas funcionais — migrações 0614/0615 e aceitação técnica (06/11/2026)
+
+**Objetivo:** manter `acomp1@sigem.itap.gov.br`, `acomp2@sigem.itap.gov.br` e `gab@sigem.itap.gov.br` como endereços estáveis de postos, sem confundir o login com a pessoa responsável e sem emprestar outras permissões do ocupante.
+
+**Achado reproduzido no clone:** reutilizar `auth.uid()` e atualizar `user_person_links.person_id` fazia o JWT anterior herdar a identidade e os poderes da pessoa nova. Como `author_user_id` continua igual, o novo ocupante poderia tentar retificar visita antiga. O risco exige segregação no servidor.
+
+**Correção na branch:**
+- `0614` criou barreira de `auth.sessions.created_at`, bloqueando JWT antigo.
+- `0615` impede **qualquer** vínculo global em `user_person_links` e principal setorial para os três postos; cria designações/revogações append-only com pessoa natural, ato e identidade do administrador. Os leitores e writers de acompanhamento usam a designação corrente e política homologada, jamais o conjunto de capacidades gerais da pessoa.
+- `followup_seat_authority` fornece ao frontend apenas o escopo concedido ao posto: `acomp1`/`acomp2` podem receber escrita se autorizada; `gab` recebe somente leitura se autorizada.
+- O trigger de correção confere `author_person_id` e o JSON da ficha não oferece `can_correct` ao novo ocupante para visitas do anterior.
+
+**Evidências de CI:** execução `42230231463`, commit `ddeb4765`, quatro jobs `required`, `followup-contract`, `followup-sql`, `deep` com conclusão **success**. O teste 0615 roda em PostgreSQL 17 efêmero, autenticação simulada em claims, transações com `ROLLBACK`, permissões positivas e negativas, revogação, troca e autoria persistida.
+
+**Evidências do clone integral:** projeto Lovable `f17b6abd-c100-4603-bb6b-2fec9aa47dda` / Cloud `nyupdcodzfmwkpxpourt`. A 0615 foi aplicada **apenas nesse clone** após pré-check de dependências e backend correto. O pós-check encontrou duas tabelas novas sem policies e com RLS, sem concessões de cliente, RPCs e helpers com grants corretos, SQL elevado com `search_path` vazio, gatilhos ativos e nenhum registro criado em designações/revogações. A diferença de hash do arquivo armazenado no clone limita-se à ausência da quebra de linha final; os comandos SQL foram equivalentes. `sandbox_exec` tem privilégios próprios de sandbox, não são grants públicos.
+
+**Não homologado ainda:** login real de `acomp1/acomp2/gab` com responsável identificado, entrega/rotação de credencial, gestão de atribuição no painel, revogação E2E após 0615, captura visual integral em zoom de 200%, aceite de Gabinete e ato institucional autorizando a política. A função `followup_seat_authority` tem default `CURRENT_DATE` (UTC) se o parâmetro for omitido; o frontend informa explicitamente `operationalToday()` (São Paulo), mas a diferença do default requer avaliação antes do deploy.
+
+**Controle de produção:** os três logins estão criados e confirmados no Auth publicado, sem senha operacional entregue, vínculo, capabilities ou sessões usadas. As migrations 0613–0615 não foram implantadas. PR #7 permanece em rascunho, sem merge, publicação ou concessões.
