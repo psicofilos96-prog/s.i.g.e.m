@@ -757,30 +757,25 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </p>}
         <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="block text-sm">Objetivo da visita (opcional)
-            <textarea className={textArea} maxLength={1000} value={purpose}
-              onChange={(e) => setPurpose(e.target.value)} placeholder="Por exemplo: acompanhar a organização pedagógica" />
-          </label>
-          <label className="block text-sm">Demais participantes informados (opcional)
-            <textarea className={textArea} maxLength={500} value={participants}
-              onChange={(e) => setParticipants(e.target.value)}
-              placeholder="Servidor ou equipe que também participou" />
-          </label>
+          <FollowupTextArea label="Objetivo da visita (opcional)" className={textArea} maxLength={1000}
+            value={purpose} onChange={setPurpose} placeholder="Por exemplo: acompanhar a organização pedagógica" />
+          <FollowupTextArea label="Demais participantes informados (opcional)" className={textArea} maxLength={500}
+            value={participants} onChange={setParticipants} placeholder="Servidor ou equipe que também participou" />
         </div>
         <p className="text-xs text-muted-foreground">
           A autoria é atribuída automaticamente à conta que salva o registro. Participantes informados não
           constituem assinatura, confirmação de presença ou autorização para escrever no sistema.
         </p>
-        <label className="block text-sm">Diagnóstico da realidade<textarea className={textArea} required maxLength={10000} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} /></label>
+        <FollowupTextArea label="Diagnóstico da realidade" className={textArea} required maxLength={10000}
+          value={diagnosis} onChange={setDiagnosis} />
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="block text-sm">Pontos fortes<textarea className={textArea} maxLength={10000} value={strengths} onChange={(e) => setStrengths(e.target.value)} /></label>
-          <label className="block text-sm">Fragilidades e necessidades<textarea className={textArea} maxLength={10000} value={weaknesses} onChange={(e) => setWeaknesses(e.target.value)} /></label>
+          <FollowupTextArea label="Pontos fortes" className={textArea} maxLength={10000} value={strengths} onChange={setStrengths} />
+          <FollowupTextArea label="Fragilidades e necessidades" className={textArea} maxLength={10000} value={weaknesses} onChange={setWeaknesses} />
         </div>
-        <label className="block text-sm">Observações e encaminhamentos da visita<textarea className={textArea} maxLength={10000} value={summary} onChange={(e) => setSummary(e.target.value)} /></label>
-        {correctionBase && <label className="block text-sm">Justificativa obrigatória da retificação
-          <textarea className={textArea} required maxLength={4000} value={correctionReason}
-            onChange={(e) => setCorrectionReason(e.target.value)} />
-        </label>}
+        <FollowupTextArea label="Observações e encaminhamentos da visita" className={textArea} maxLength={10000}
+          value={summary} onChange={setSummary} />
+        {correctionBase && <FollowupTextArea label="Justificativa obrigatória da retificação" className={textArea}
+          required maxLength={4000} value={correctionReason} onChange={setCorrectionReason} />}
         {!correctionBase && <><h4 className="font-medium">Plano de ação — medidas propostas</h4>
         <p role="status" className="text-sm text-muted-foreground">
           {describedActionCount} {describedActionCount === 1 ? "medida descrita" : "medidas descritas"}.
@@ -815,10 +810,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                 onClick={() => void removeProposedAction(a)}>Remover esta medida</Button>}
             </div>
           </div>
-          <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
-            aria-invalid={actionDraftIssues[i] === "description"}
-            aria-describedby={actionDraftIssues[i] === "description" ? `followup-draft-error-${a.draftKey}` : undefined}
-            onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, description: e.target.value } : x))} /></label>
+          <FollowupTextArea label="O que precisa ser feito" className={textArea} maxLength={4000} value={a.description}
+            invalid={actionDraftIssues[i] === "description"}
+            describedBy={actionDraftIssues[i] === "description" ? `followup-draft-error-${a.draftKey}` : undefined}
+            onChange={(next) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, description: next } : x))} />
           <div className="grid gap-2 md:grid-cols-2">
             <label className="block text-sm">Responsável declarado<input className={input} maxLength={250} value={a.responsible}
               onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, responsible: e.target.value } : x))} /></label>
