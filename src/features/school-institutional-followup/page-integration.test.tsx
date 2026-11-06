@@ -135,6 +135,19 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.confirmAction.mockResolvedValue(true);
   });
 
+  it("permite focar por teclado a região rolável da tabela em zoom ampliado", async () => {
+    setSession(false);
+    renderPage();
+    const scrollArea = await screen.findByRole("region", {
+      name: "Tabela de escolas — área rolável por teclado",
+    });
+    expect(scrollArea.getAttribute("tabindex")).toBe("0");
+    expect(scrollArea.className).toContain("overflow-auto");
+    expect(within(scrollArea).getByRole("table", {
+      name: "Unidades da rede e situação de acompanhamento",
+    })).toBeTruthy();
+  });
+
   it("nega acesso à página sem sessão e não consulta os dados institucionais", () => {
     renderPage();
     expect(screen.getByText("Acesso não disponível")).toBeTruthy();
