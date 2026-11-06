@@ -1,0 +1,1333 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { InstitutionalSchoolFollowupPage } from "./page";
+import { exportFollowupNetwork, exportFollowupSchool, exportNetworkPending } from "./report";
+
+const mocks = vi.hoisted(() => ({
+  session: { status: "signed-out" } as Record<string, unknown>,
+  networkFollowup: vi.fn(),
+  monthlyFollowup: vi.fn(),
+  networkPendingFollowup: vi.fn(),
+  followupStatuses: vi.fn(),
+  schoolFollowup: vi.fn(),
+  recordVisitBundle: vi.fn(),
+  recordVisit: vi.fn(),
+  recordAction: vi.fn(),
+  recordUpdate: vi.fn(),
+  confirmAction: vi.fn(),
+}));
+
+vi.mock("@/features/authority/session-authority", () => ({
+  useSessionAuthority: () => mocks.session,
+  sessionContextKey: (a: { status: string; user?: { id: string }; sessionRevision?: number }) =>
+    a.status === "signed-in" ? `${a.user?.id}#${a.sessionRevision}` : null,
+}));
+vi.mock("@/features/authority/nav-capabilities", () => ({
+  pathAllowed: (authority: { status: string; capabilities?: { capabilityId: string }[] }, path: string) =>
+    path === "/acompanhamento-unidades" && authority.status === "signed-in"
+    && Boolean(authority.capabilities?.some((cap) =>
+      cap.capabilityId === "consultar-acompanhamento-institucional"
+      || cap.capabilityId === "registrar-acompanhamento-institucional")),
+}));
+vi.mock("@/lib/academic-date", async (original) => ({
+  ...(await original<typeof import("@/lib/academic-date")>()),
+  operationalToday: () => "2026-11-04",
+}));
+vi.mock("./source", () => ({
+  networkFollowup: mocks.networkFollowup,
+  monthlyFollowup: mocks.monthlyFollowup,
+  networkPendingFollowup: mocks.networkPendingFollowup,
+  followupStatuses: mocks.followupStatuses,
+  schoolFollowup: mocks.schoolFollowup,
+  recordVisitBundle: mocks.recordVisitBundle,
+  recordVisit: mocks.recordVisit,
+  recordAction: mocks.recordAction,
+  recordUpdate: mocks.recordUpdate,
+}));
+vi.mock("@/components/sigem/confirm-action", () => ({
+  confirmAction: mocks.confirmAction,
+}));
+vi.mock("./analytics", () => ({
+  InstitutionalFollowupAnalytics: () => <div data-testid="network-analytics">Resumo da rede</div>,
+}));
+vi.mock("./use-unsaved-warning", () => ({ useUnsavedFollowupWarning: () => undefined }));
+vi.mock("./use-route-guard", () => ({ useFollowupRouteGuard: () => undefined }));
+vi.mock("./report", () => ({
+  exportFollowupNetwork: vi.fn(), exportFollowupSchool: vi.fn(), exportFollowupVisit: vi.fn(),
+  exportNetworkPending: vi.fn(),
+}));
+vi.mock("./preparation-report", () => ({ exportFollowupPreparation: vi.fn() }));
+
+const schools = [
+  { school_id: "school-a", school_name: "Escola Centro", inep: "33000001",
+    visits: 0, actions: 0, completed: 0, overdue: 0, last_visit: null },
+  { school_id: "school-b", school_name: "Escola Serra", inep: "33000002",
+    visits: 0, actions: 0, completed: 0, overdue: 0, last_visit: null },
+];
+const blankSchool = { visits: [], visit_history: [], actions: [], updates: [] };
+
+function pendingDecision() {
+  let resolve!: (accepted: boolean) => void;
+  const promise = new Promise<boolean>((r) => { resolve = r; });
+  return { promise, resolve };
+}
+
+function pendingWrite() {
+  let resolve!: (value: string) => void;
+  let reject!: (error: unknown) => void;
+  const promise = new Promise<string>((res, rej) => { resolve = res; reject = rej; });
+  return { promise, resolve, reject };
+}
+const sampleVisit = {
+  id: "visit-a", logical_id: "logical-visit-a", version: 1, school_id: "school-a",
+  visit_date: "2026-10-15", diagnosis: "Visita anterior", strengths: "",
+  weaknesses: "", summary: null, participants_note: null, purpose_note: null,
+  correction_reason: null, supersedes_id: null, can_correct: false,
+  created_at: "2026-10-15T12:00:00Z", author_name: "Servidor",
+};
+const sampleAction = {
+  id: "action-a", school_id: "school-a", visit_logical_id: "logical-visit-a",
+  description: "Organizar salas", responsible_label: "Direção", due_on: "2026-11-06",
+  created_at: "2026-10-15T13:00:00Z", author_name: "Servidor",
+};
+
+function setSession(writable: boolean, writableSchoolId: string | null = null) {
+  mocks.session = {
+    status: "signed-in", sessionRevision: 1, user: { id: "test-user" },
+    person: writable ? { id: "staff-person", displayName: "Servidor" } : null,
+    capabilities: [
+      { capabilityId: "consultar-acompanhamento-institucional", schoolId: null },
+      ...(writable ? [{ capabilityId: "registrar-acompanhamento-institucional", schoolId: writableSchoolId }] : []),
+    ],
+  };
+}
+function renderPage() {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  const rendered = render(<QueryClientProvider client={client}>
+    <InstitutionalSchoolFollowupPage />
+  </QueryClientProvider>);
+  return { ...rendered, client };
+}
+async function openSchool(name: string) {
+  const button = await screen.findByRole("button", { name });
+  fireEvent.click(button);
+  const heading = await screen.findByRole("heading", { name });
+  // A escrita agora só aparece depois de uma leitura escolar autorizada.
+  // Esperar o término da consulta evita afirmar que o formulário é imediato.
+  await waitFor(() => expect(screen.queryByText("Carregando histórico…")).toBeNull());
+  return heading;
+}
+
+describe("acompanhamento institucional — integração da página e capacidades", () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+    mocks.session = { status: "signed-out" };
+    mocks.networkFollowup.mockResolvedValue(schools);
+    mocks.monthlyFollowup.mockResolvedValue([]);
+    mocks.networkPendingFollowup.mockResolvedValue([]);
+    mocks.followupStatuses.mockResolvedValue([]);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    mocks.recordVisitBundle.mockResolvedValue("visit-created");
+    mocks.recordVisit.mockResolvedValue("visit-corrected");
+    mocks.recordAction.mockResolvedValue("action-created");
+    mocks.recordUpdate.mockResolvedValue("update-created");
+    mocks.confirmAction.mockResolvedValue(true);
+  });
+
+  it("permite focar por teclado a região rolável da tabela em zoom ampliado", async () => {
+    setSession(false);
+    renderPage();
+    const scrollArea = await screen.findByRole("region", {
+      name: "Tabela de escolas — área rolável por teclado",
+    });
+    expect(scrollArea.getAttribute("tabindex")).toBe("0");
+    expect(scrollArea.className).toContain("overflow-auto");
+    expect(within(scrollArea).getByRole("table", {
+      name: "Unidades da rede e situação de acompanhamento",
+    })).toBeTruthy();
+  });
+
+  it("nega acesso à página sem sessão e não consulta os dados institucionais", () => {
+    renderPage();
+    expect(screen.getByText("Acesso não disponível")).toBeTruthy();
+    expect(mocks.networkFollowup).not.toHaveBeenCalled();
+    expect(mocks.schoolFollowup).not.toHaveBeenCalled();
+  });
+
+  it("Gabinete compara duas visitas vigentes da própria unidade sem acessar formulários de escrita", async () => {
+    setSession(false);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool,
+      visits: [
+        { id: "v1", logical_id: "logical-v1", school_id: "school-a", visit_date: "2026-09-10",
+          diagnosis: "Diagnóstico anterior", strengths: "", weaknesses: "", summary: null,
+          participants_note: null, purpose_note: null, correction_reason: null, supersedes_id: null,
+          version: 1, created_at: "2026-09-10T12:00:00Z", author_name: "Equipe", can_correct: false },
+        { id: "v2", logical_id: "logical-v2", school_id: "school-a", visit_date: "2026-10-10",
+          diagnosis: "Diagnóstico posterior", strengths: "", weaknesses: "", summary: null,
+          participants_note: null, purpose_note: null, correction_reason: null, supersedes_id: null,
+          version: 1, created_at: "2026-10-10T12:00:00Z", author_name: "Equipe", can_correct: false },
+      ],
+    });
+    renderPage();
+    await openSchool("Escola Centro");
+    const compare = await screen.findByRole("region", { name: "Comparar visitas registradas" });
+    expect(within(compare).getByText("Diagnóstico anterior")).toBeTruthy();
+    expect(within(compare).getByText("Diagnóstico posterior")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+    expect(mocks.recordUpdate).not.toHaveBeenCalled();
+  });
+
+  it("exibe indicadores somente quando as séries mensais e situações conciliam com o panorama", async () => {
+    setSession(false);
+    const withTotals = [
+      { ...schools[0]!, visits: 3, actions: 5, completed: 2, overdue: 1, last_visit: "2026-11-01" },
+      schools[1]!,
+    ];
+    mocks.networkFollowup.mockResolvedValue(withTotals);
+    mocks.monthlyFollowup.mockResolvedValue([{ month: "2026-11", visits: 3 }]);
+    mocks.followupStatuses.mockResolvedValue([
+      { situation: "sem atualização", actions: 1 },
+      { situation: "em andamento", actions: 2 },
+      { situation: "concluída", actions: 2 },
+    ]);
+    renderPage();
+    expect(await screen.findByTestId("network-analytics")).toBeTruthy();
+    expect(screen.queryByText(/Os totais da rede, a série mensal/)).toBeNull();
+  });
+
+  it("oculta gráficos e total por situação até reconciliar respostas de momentos distintos", async () => {
+    setSession(false);
+    const withTotals = [
+      { ...schools[0]!, visits: 3, actions: 5, completed: 2, overdue: 1, last_visit: "2026-11-01" },
+      schools[1]!,
+    ];
+    mocks.networkFollowup.mockResolvedValue(withTotals);
+    mocks.monthlyFollowup.mockResolvedValue([{ month: "2026-11", visits: 2 }]);
+    mocks.followupStatuses.mockResolvedValue([
+      { situation: "sem atualização", actions: 2 },
+      { situation: "concluída", actions: 1 },
+    ]);
+    renderPage();
+    const mismatch = await screen.findByText(/Os totais da rede, a série mensal e a distribuição/);
+    expect(mismatch).toBeTruthy();
+    expect(screen.queryByTestId("network-analytics")).toBeNull();
+    expect(screen.getByText("Não apurado")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Escola Centro" })).toBeTruthy();
+
+    // Refresh both readers, not only the chart, until they match the network.
+    mocks.monthlyFollowup.mockResolvedValue([{ month: "2026-11", visits: 3 }]);
+    mocks.followupStatuses.mockResolvedValue([
+      { situation: "sem atualização", actions: 1 },
+      { situation: "em andamento", actions: 2 },
+      { situation: "concluída", actions: 2 },
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await screen.findByTestId("network-analytics")).toBeTruthy();
+    expect(screen.queryByText(/Os totais da rede, a série mensal e a distribuição/)).toBeNull();
+    expect(screen.queryByText("Não apurado")).toBeNull();
+  });
+
+  it("não apresenta uma distribuição divergente mesmo quando a soma das ações coincide", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([
+      { ...schools[0]!, visits: 0, actions: 5, completed: 2, overdue: 1 },
+      schools[1]!,
+    ]);
+    mocks.followupStatuses.mockResolvedValue([
+      { situation: "em andamento", actions: 4 },
+      { situation: "concluída", actions: 1 },
+    ]);
+    renderPage();
+    expect(await screen.findByText(/Os totais da rede, a série mensal e a distribuição/)).toBeTruthy();
+    expect(screen.queryByTestId("network-analytics")).toBeNull();
+    expect(screen.getByText("Não apurado")).toBeTruthy();
+  });
+
+  it("Gabinete consulta unidades, mas não pode registrar visita ou medida", async () => {
+    setSession(false);
+    renderPage();
+    await openSchool("Escola Centro");
+    expect(await screen.findByText("Nenhuma medida cadastrada para esta unidade.")).toBeTruthy();
+    expect(screen.getAllByText("INEP: 33000001").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Salvar visita e plano" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Registrar evolução" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+    expect(mocks.recordAction).not.toHaveBeenCalled();
+    expect(mocks.recordUpdate).not.toHaveBeenCalled();
+  });
+
+  it("limita formulário de escrita à escola explicitamente autorizada, mantendo leitura nas demais", async () => {
+    setSession(true, "school-a");
+    renderPage();
+    await openSchool("Escola Serra");
+    expect(await screen.findByText("Nenhuma medida cadastrada para esta unidade.")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Salvar visita e plano" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Escola Centro" }));
+    await screen.findByRole("heading", { name: "Escola Centro" });
+    expect(await screen.findByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Salvar visita e plano" })).toBeDisabled();
+  });
+
+  it("servidor registra visita e plano com autoria vinculada à sessão e sem gravar campos incompletos", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = await screen.findByRole("heading", { name: "Registrar nova visita" });
+    const visitForm = form.closest("form");
+    expect(visitForm).not.toBeNull();
+    const visit = within(visitForm!);
+    fireEvent.change(visit.getByRole("textbox", { name: "Objetivo da visita (opcional)" }),
+      { target: { value: "Acompanhar o planejamento" } });
+    fireEvent.change(visit.getByRole("textbox", { name: "Demais participantes informados (opcional)" }),
+      { target: { value: "Outro servidor" } });
+    fireEvent.change(visit.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Organização pedagógica em revisão" } });
+    fireEvent.change(visit.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Revisar o acervo" } });
+    fireEvent.change(visit.getByRole("textbox", { name: "Responsável declarado" }),
+      { target: { value: "Direção" } });
+    fireEvent.click(visit.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    expect(mocks.recordVisitBundle).toHaveBeenCalledWith(expect.objectContaining({
+      school: "school-a",
+      day: "2026-11-04",
+      purpose: "Acompanhar o planejamento",
+      participants: "Outro servidor",
+      diagnosis: "Organização pedagógica em revisão",
+      actions: [expect.objectContaining({
+        description: "Revisar o acervo",
+        responsible: "Direção",
+        due: null,
+        request: expect.any(String),
+      })],
+      request: expect.any(String),
+    }));
+    expect(mocks.recordVisit).not.toHaveBeenCalled();
+    expect(mocks.recordAction).not.toHaveBeenCalled();
+  });
+
+  it("repete a mesma chave de idempotência após falha de visita e usa outra quando o relato muda", async () => {
+    setSession(true);
+    const pending = pendingWrite();
+    mocks.recordVisitBundle.mockReturnValueOnce(pending.promise);
+    mocks.recordVisitBundle.mockRejectedValueOnce(new Error("Falha de conexão simulada"));
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Diagnóstico em andamento" } });
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Realizar inventário" } });
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    const first = mocks.recordVisitBundle.mock.calls[0]?.[0] as {
+      request: string; actions: { request: string }[];
+    };
+    await act(async () => { pending.reject(new Error("Falha de conexão simulada")); });
+    await waitFor(() => expect(fields.getByRole("button", { name: "Salvar visita e plano" })).not.toBeDisabled());
+    expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }))
+      .toHaveValue("Diagnóstico em andamento");
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(2));
+    const retry = mocks.recordVisitBundle.mock.calls[1]?.[0] as typeof first;
+    expect(retry.request).toBe(first.request);
+    expect(retry.actions[0]?.request).toBe(first.actions[0]?.request);
+    await waitFor(() => expect(fields.getByRole("button", { name: "Salvar visita e plano" })).not.toBeDisabled());
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Diagnóstico corrigido antes da nova tentativa" } });
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(3));
+    const changed = mocks.recordVisitBundle.mock.calls[2]?.[0] as typeof first;
+    expect(changed.request).not.toBe(first.request);
+    expect(changed.actions[0]?.request).not.toBe(first.actions[0]?.request);
+  });
+
+  it("congela todos os campos da visita durante a escrita e os libera após confirmação", async () => {
+    setSession(true);
+    const delayed = pendingWrite();
+    mocks.recordVisitBundle.mockReturnValueOnce(delayed.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Relato em gravação" } });
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Inventariar material" } });
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "O que precisa ser feito" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Responsável declarado" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Data da visita" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Adicionar medida" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Registrando…" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Fechar escola" }));
+    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
+    expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
+
+    await act(async () => { delayed.resolve("visit-created"); });
+    // O refresh esconde o formulário enquanto o snapshot autorizado é reconferido.
+    // Aguardar a consulta concluída e obter o formulário novamente no DOM.
+    await waitFor(() => {
+      const restored = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+      const diagnosis = within(restored).getByRole("textbox", { name: "Diagnóstico da realidade" });
+      expect(diagnosis).not.toBeDisabled();
+      expect(diagnosis).toHaveValue("");
+    });
+  });
+
+  it("congela a medida adicional durante o envio e restabelece o formulário após falha", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({ ...blankSchool, visits: [sampleVisit] });
+    const delayed = pendingWrite();
+    mocks.recordAction.mockReturnValueOnce(delayed.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Acrescentar medida ao plano" }));
+    const form = screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Melhorar a iluminação" } });
+    fireEvent.click(fields.getByRole("button", { name: "Acrescentar medida" }));
+    await waitFor(() => expect(mocks.recordAction).toHaveBeenCalledTimes(1));
+    expect(fields.getByRole("textbox", { name: "O que precisa ser feito" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Responsável declarado" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Prazo, se houver" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Cancelar" })).toBeDisabled();
+    await act(async () => { delayed.reject(new Error("Erro simulado da gravação")); });
+    await waitFor(() => expect(fields.getByRole("textbox", { name: "O que precisa ser feito" })).not.toBeDisabled());
+    expect(fields.getByRole("textbox", { name: "O que precisa ser feito" }))
+      .toHaveValue("Melhorar a iluminação");
+    expect(fields.getByRole("button", { name: "Acrescentar medida" })).not.toBeDisabled();
+    const firstCall = mocks.recordAction.mock.calls[0]?.[0] as { request: string };
+    expect(mocks.recordAction).toHaveBeenCalledTimes(1);
+    fireEvent.click(fields.getByRole("button", { name: "Acrescentar medida" }));
+    await waitFor(() => expect(mocks.recordAction).toHaveBeenCalledTimes(2));
+    const retry = mocks.recordAction.mock.calls[1]?.[0] as { request: string };
+    expect(retry.request).toBe(firstCall.request);
+    expect(retry).toEqual(firstCall);
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Acrescentar medida a uma visita existente" })).toBeNull());
+  });
+
+  it("congela a evolução durante a gravação, preservando o texto antes da confirmação", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [sampleVisit], actions: [sampleAction],
+    });
+    const delayed = pendingWrite();
+    mocks.recordUpdate.mockReturnValueOnce(delayed.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução" }));
+    const form = screen.getByRole("heading", { name: "Nova atualização da ação" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.change(fields.getByRole("textbox", { name: "O que foi feito" }),
+      { target: { value: "Inventário realizado" } });
+    fireEvent.click(fields.getByRole("button", { name: "Registrar atualização" }));
+    await waitFor(() => expect(mocks.recordUpdate).toHaveBeenCalledTimes(1));
+    expect(fields.getByRole("textbox", { name: "O que foi feito" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "O que não foi feito" })).toBeDisabled();
+    expect(fields.getByRole("combobox", { name: "Situação declarada" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Data da evolução" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Cancelar" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "O que foi feito" })).toHaveValue("Inventário realizado");
+    await act(async () => { delayed.resolve("update-created"); });
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Nova atualização da ação" })).toBeNull());
+    expect(mocks.recordUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it("identifica medida parcialmente preenchida em tempo real e só libera envio após correção", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Relato da escola" } });
+    const submit = fields.getByRole("button", { name: "Salvar visita e plano" });
+    expect(submit).not.toBeDisabled();
+    expect(fields.getByText(/Nenhuma inconsistência no plano/)).toBeTruthy();
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Responsável declarado" }),
+      { target: { value: "Direção" } });
+    expect(fields.getByRole("alert")).toHaveTextContent(
+      "Medida 1: informe a descrição ou remova os dados de responsável e prazo."
+    );
+    expect(fields.getByText(/1 medida precisa de correção antes de salvar/)).toBeTruthy();
+    expect(submit).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "O que precisa ser feito" }))
+      .toHaveAttribute("aria-invalid", "true");
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Reorganizar a biblioteca" } });
+    expect(fields.queryByRole("alert")).toBeNull();
+    expect(fields.getByText(/Nenhuma inconsistência no plano/)).toBeTruthy();
+    expect(submit).not.toBeDisabled();
+    fireEvent.click(submit);
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+  });
+
+  it("revalida prazos quando a data da visita muda e recupera o envio ao corrigir", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Análise pedagógica" } });
+    fireEvent.change(fields.getByRole("textbox", { name: "O que precisa ser feito" }),
+      { target: { value: "Instalar equipamentos" } });
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Data da visita" }),
+      { target: { value: "02/11/2026" } });
+    fireEvent.change(fields.getByRole("textbox", { name: "Prazo, se houver" }),
+      { target: { value: "03/11/2026" } });
+    expect(fields.queryByRole("alert")).toBeNull();
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Data da visita" }),
+      { target: { value: "04/11/2026" } });
+    expect(fields.getByRole("alert")).toHaveTextContent(
+      "Medida 1: o prazo não pode ser anterior à data da visita."
+    );
+    expect(fields.getByRole("button", { name: "Salvar visita e plano" })).toBeDisabled();
+    expect(fields.getByRole("textbox", { name: "Prazo, se houver" }))
+      .toHaveAttribute("aria-invalid", "true");
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Prazo, se houver" }),
+      { target: { value: "04/11/2026" } });
+    expect(fields.queryByRole("alert")).toBeNull();
+    expect(fields.getByRole("button", { name: "Salvar visita e plano" })).not.toBeDisabled();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("remove a medida intermediária sem apagar descrição ou responsável das demais", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Acompanhamento da infraestrutura" } });
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+
+    const descriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    const responsibles = fields.getAllByRole("textbox", { name: "Responsável declarado" });
+    expect(descriptions).toHaveLength(3);
+    fireEvent.change(descriptions[0]!, { target: { value: "Providência A" } });
+    fireEvent.change(descriptions[1]!, { target: { value: "Providência B" } });
+    fireEvent.change(descriptions[2]!, { target: { value: "Providência C" } });
+    fireEvent.change(responsibles[0]!, { target: { value: "Direção" } });
+    fireEvent.change(responsibles[1]!, { target: { value: "Equipe intermediária" } });
+    fireEvent.change(responsibles[2]!, { target: { value: "Coordenação" } });
+
+    await act(async () => {
+      fireEvent.click(fields.getByRole("button", { name: "Remover medida 2" }));
+    });
+    expect(mocks.confirmAction).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      title: "Remover medida em preenchimento?", destructive: true,
+    }));
+    const remainingDescriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    const remainingResponsibles = fields.getAllByRole("textbox", { name: "Responsável declarado" });
+    expect(remainingDescriptions).toHaveLength(2);
+    expect(remainingDescriptions[0]).toHaveValue("Providência A");
+    expect(remainingDescriptions[1]).toHaveValue("Providência C");
+    expect(remainingResponsibles[0]).toHaveValue("Direção");
+    expect(remainingResponsibles[1]).toHaveValue("Coordenação");
+
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    const sent = mocks.recordVisitBundle.mock.calls[0]?.[0] as { actions: { description: string; responsible: string }[] };
+    expect(sent.actions.map((item) => [item.description, item.responsible])).toEqual([
+      ["Providência A", "Direção"], ["Providência C", "Coordenação"],
+    ]);
+  });
+
+  it("permite ordenar três medidas propostas sem misturar responsáveis no envio", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    expect(fields.getByText(/Subir e descer organiza apenas a sequência de envio/)).toBeTruthy();
+
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Acompanhamento em andamento" } });
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+
+    const descriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    const responsibles = fields.getAllByRole("textbox", { name: "Responsável declarado" });
+    for (const [i, name, responsible] of [
+      [0, "Ajustar biblioteca", "Direção"],
+      [1, "Organizar transporte", "Equipe"],
+      [2, "Revisar equipamentos", "Coordenação"],
+    ] as const) {
+      fireEvent.change(descriptions[i]!, { target: { value: name } });
+      fireEvent.change(responsibles[i]!, { target: { value: responsible } });
+    }
+    expect(fields.getByRole("button", { name: "Subir medida 1" })).toBeDisabled();
+    expect(fields.getByRole("button", { name: "Descer medida 3" })).toBeDisabled();
+
+    fireEvent.click(fields.getByRole("button", { name: "Subir medida 3" }));
+    const moved = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    expect(moved.map((input) => (input as HTMLTextAreaElement).value))
+      .toEqual(["Ajustar biblioteca", "Revisar equipamentos", "Organizar transporte"]);
+    expect(fields.getAllByRole("textbox", { name: "Responsável declarado" })
+      .map((input) => (input as HTMLInputElement).value))
+      .toEqual(["Direção", "Coordenação", "Equipe"]);
+
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1));
+    const sent = mocks.recordVisitBundle.mock.calls[0]?.[0] as {
+      actions: { description: string; responsible: string }[];
+    };
+    expect(sent.actions.map((a) => [a.description, a.responsible])).toEqual([
+      ["Ajustar biblioteca", "Direção"],
+      ["Revisar equipamentos", "Coordenação"],
+      ["Organizar transporte", "Equipe"],
+    ]);
+  });
+
+  it("preserva medida preenchida e todo o plano quando a remoção não é confirmada", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    const descriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    fireEvent.change(descriptions[0]!, { target: { value: "Reformar o pátio" } });
+    mocks.confirmAction.mockResolvedValueOnce(false);
+    await act(async () => {
+      fireEvent.click(fields.getByRole("button", { name: "Remover medida 1" }));
+    });
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })).toHaveLength(2);
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })[0])
+      .toHaveValue("Reformar o pátio");
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("remove uma medida vazia sem diálogo e mantém a outra linha", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    fireEvent.click(fields.getByRole("button", { name: "Remover medida 2" }));
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })).toHaveLength(1);
+    expect(mocks.confirmAction).not.toHaveBeenCalled();
+  });
+
+  it("preserva diagnóstico alterado depois de abrir uma confirmação de descarte", async () => {
+    setSession(true);
+    const pending = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(pending.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    const diagnosis = fields.getByRole("textbox", { name: "Diagnóstico da realidade" });
+    fireEvent.change(diagnosis, { target: { value: "Diagnóstico original" } });
+    fireEvent.click(fields.getByRole("button", { name: "Descartar preenchimento" }));
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+    fireEvent.change(diagnosis, { target: { value: "Nova informação registrada durante a confirmação" } });
+    await act(async () => { pending.resolve(true); });
+    expect(diagnosis).toHaveValue("Nova informação registrada durante a confirmação");
+    expect(fields.getByRole("alert")).toHaveTextContent(/visita mudou durante a confirmação/);
+    expect(fields.getByRole("button", { name: "Descartar preenchimento" })).not.toBeDisabled();
+    await act(async () => { fireEvent.click(fields.getByRole("button", { name: "Descartar preenchimento" })); });
+    expect(diagnosis).toHaveValue("");
+    expect(mocks.confirmAction).toHaveBeenCalledTimes(2);
+  });
+
+  it("não remove medida se qualquer parte do plano mudou durante a confirmação", async () => {
+    setSession(true);
+    const pending = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(pending.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const fields = within(form);
+    fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
+    const [first, second] = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
+    fireEvent.change(first!, { target: { value: "Primeira providência" } });
+    fireEvent.change(second!, { target: { value: "Segunda providência" } });
+    fireEvent.click(fields.getByRole("button", { name: "Remover medida 1" }));
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+    fireEvent.change(second!, { target: { value: "Segunda providência revisada" } });
+    await act(async () => { pending.resolve(true); });
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })).toHaveLength(2);
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })[0]).toHaveValue("Primeira providência");
+    expect(fields.getAllByRole("textbox", { name: "O que precisa ser feito" })[1]).toHaveValue("Segunda providência revisada");
+    expect(fields.getByRole("alert")).toHaveTextContent(/plano mudou durante a confirmação/);
+  });
+
+  it("preserva uma medida adicional alterada enquanto o cancelamento está pendente", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({ ...blankSchool, visits: [sampleVisit] });
+    const pending = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(pending.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Acrescentar medida ao plano" }));
+    const form = screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" }).closest("form")!;
+    const fields = within(form);
+    const description = fields.getByRole("textbox", { name: "O que precisa ser feito" });
+    fireEvent.change(description, { target: { value: "Providência original" } });
+    fireEvent.click(fields.getByRole("button", { name: "Cancelar" }));
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+    fireEvent.change(description, { target: { value: "Providência ampliada" } });
+    await act(async () => { pending.resolve(true); });
+    expect(screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" })).toBeTruthy();
+    expect(description).toHaveValue("Providência ampliada");
+    expect(fields.getByRole("alert")).toHaveTextContent(/medida mudou durante a confirmação/);
+    expect(mocks.recordAction).not.toHaveBeenCalled();
+  });
+
+  it("preserva evolução alterada enquanto o cancelamento está pendente", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [sampleVisit], actions: [sampleAction],
+    });
+    const pending = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(pending.promise);
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução" }));
+    const form = screen.getByRole("heading", { name: "Nova atualização da ação" }).closest("form")!;
+    const fields = within(form);
+    const done = fields.getByRole("textbox", { name: "O que foi feito" });
+    fireEvent.change(done, { target: { value: "Atividade inicial" } });
+    fireEvent.click(fields.getByRole("button", { name: "Cancelar" }));
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+    fireEvent.change(done, { target: { value: "Atividade revisada" } });
+    await act(async () => { pending.resolve(true); });
+    expect(screen.getByRole("heading", { name: "Nova atualização da ação" })).toBeTruthy();
+    expect(done).toHaveValue("Atividade revisada");
+    expect(fields.getByRole("alert")).toHaveTextContent(/evolução mudou durante a confirmação/);
+    expect(mocks.recordUpdate).not.toHaveBeenCalled();
+  });
+
+  it("cancela exportação da ficha antiga na troca de escola sem interromper a nova", async () => {
+    setSession(false);
+    const first = pendingDecision();
+    const second = pendingDecision();
+    vi.mocked(exportFollowupSchool)
+      .mockReturnValueOnce(first.promise.then(() => undefined))
+      .mockReturnValueOnce(second.promise.then(() => undefined));
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha Excel" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const firstSignal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(firstSignal.aborted).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    await screen.findByRole("heading", { name: "Escola Serra" });
+    await waitFor(() => expect(firstSignal.aborted).toBe(true));
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha PDF" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(2));
+    const secondSignal = vi.mocked(exportFollowupSchool).mock.calls[1]?.[4] as AbortSignal;
+    expect(secondSignal.aborted).toBe(false);
+    await act(async () => { first.resolve(true); await first.promise; });
+    expect(screen.getByRole("button", { name: "Ficha PDF" })).toBeDisabled();
+    await act(async () => { second.resolve(true); await second.promise; });
+    await waitFor(() => expect(screen.getByRole("button", { name: "Ficha PDF" })).not.toBeDisabled());
+    expect(secondSignal.aborted).toBe(false);
+  });
+
+  it("cancela exportação do panorama quando o filtro de escolas muda", async () => {
+    setSession(false);
+    const pending = pendingDecision();
+    vi.mocked(exportFollowupNetwork).mockReturnValueOnce(pending.promise.then(() => undefined));
+    renderPage();
+    await screen.findByRole("button", { name: "Escola Centro" });
+    fireEvent.click(within(screen.getByLabelText("Exportar panorama autorizado"))
+      .getByRole("button", { name: "Excel" }));
+    await waitFor(() => expect(exportFollowupNetwork).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupNetwork).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+    fireEvent.change(screen.getByRole("searchbox", { name: "Buscar unidade" }),
+      { target: { value: "Serra" } });
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    await act(async () => { pending.resolve(true); await pending.promise; });
+    expect(within(screen.getByLabelText("Exportar panorama autorizado"))
+      .getByRole("button", { name: "Excel" })).not.toBeDisabled();
+    expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy();
+  });
+
+  it("interrompe o download do quadro antes de iniciar qualquer invalidação de consultas", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([{ ...schools[0]!, actions: 1 }, schools[1]!]);
+    mocks.networkPendingFollowup.mockResolvedValue([{
+      action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+      inep: "33000001", description: "Providência sob acompanhamento",
+      responsible_label: "Direção", due_on: null, situation: "sem atualização",
+      last_update_on: null, created_at: "2026-10-15T13:00:00Z",
+    }]);
+    const unfinished = pendingDecision();
+    vi.mocked(exportNetworkPending).mockReturnValueOnce(unfinished.promise.then(() => undefined));
+    const { client } = renderPage();
+    expect(await screen.findByText("Providência sob acompanhamento")).toBeTruthy();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    fireEvent.click(within(within(panel).getByLabelText("Exportar quadro filtrado"))
+      .getByRole("button", { name: "Excel" }));
+    expect(exportNetworkPending).toHaveBeenCalledTimes(1);
+    const signal = vi.mocked(exportNetworkPending).mock.calls[0]?.[2] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    // An effect after the new render is too late: the first query invalidation
+    // must observe an already aborted download.
+    const originalInvalidate = client.invalidateQueries.bind(client);
+    const invalidate = vi.spyOn(client, "invalidateQueries").mockImplementation((...args) => {
+      expect(signal.aborted).toBe(true);
+      return originalInvalidate(...args);
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(signal.aborted).toBe(true);
+    expect(invalidate).toHaveBeenCalled();
+    await act(async () => { unfinished.resolve(true); await unfinished.promise; });
+    await waitFor(() => expect(within(panel).getByLabelText("Exportar quadro filtrado")).toBeTruthy());
+    expect(within(panel).getByText(/download anterior foi cancelado/)).toBeTruthy();
+  });
+
+  it("interrompe download de pendências ao trocar de escola e ignora o resultado antigo", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([{ ...schools[0]!, actions: 1 }, schools[1]!]);
+    mocks.networkPendingFollowup.mockResolvedValue([{
+      action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+      inep: "33000001", description: "Providência da primeira escola",
+      responsible_label: null, due_on: null, situation: "sem atualização",
+      last_update_on: null, created_at: "2026-10-15T13:00:00Z",
+    }]);
+    const first = pendingDecision();
+    const next = pendingDecision();
+    vi.mocked(exportNetworkPending)
+      .mockReturnValueOnce(first.promise.then(() => undefined))
+      .mockReturnValueOnce(next.promise.then(() => undefined));
+    renderPage();
+    expect(await screen.findByText("Providência da primeira escola")).toBeTruthy();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    const toolbar = within(panel).getByLabelText("Exportar quadro filtrado");
+    fireEvent.click(within(toolbar).getByRole("button", { name: "PDF" }));
+    const firstSignal = vi.mocked(exportNetworkPending).mock.calls[0]?.[2] as AbortSignal;
+    expect(firstSignal.aborted).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    expect(firstSignal.aborted).toBe(true);
+    fireEvent.click(within(toolbar).getByRole("button", { name: "CSV" }));
+    expect(exportNetworkPending).toHaveBeenCalledTimes(2);
+    const nextSignal = vi.mocked(exportNetworkPending).mock.calls[1]?.[2] as AbortSignal;
+    expect(nextSignal.aborted).toBe(false);
+    await act(async () => { first.resolve(true); await first.promise; });
+    expect(within(toolbar).getByRole("button", { name: "CSV" })).toBeDisabled();
+    await act(async () => { next.resolve(true); await next.promise; });
+    expect(within(toolbar).getByRole("button", { name: "CSV" })).not.toBeDisabled();
+  });
+
+  it("mantém diagnóstico e escola quando o descarte do formulário é recusado", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Relato da escola" } });
+    mocks.confirmAction.mockResolvedValueOnce(false);
+    await act(async () => {
+      fireEvent.click(within(form).getByRole("button", { name: "Descartar preenchimento" }));
+    });
+    expect(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue("Relato da escola");
+    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("impede troca de escola com diagnóstico pendente até descarte explícito", async () => {
+    setSession(true);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Diagnóstico ainda não registrado" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Escola Serra" })).toBeNull();
+    expect(screen.getByText(/Há dados de visita ainda não registrados/)).toBeTruthy();
+    expect(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }))
+      .toHaveValue("Diagnóstico ainda não registrado");
+
+    await act(async () => {
+      fireEvent.click(within(form).getByRole("button", { name: "Descartar preenchimento" }));
+    });
+    expect(mocks.confirmAction).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      title: "Descartar visita em preenchimento?", destructive: true,
+    }));
+    expect(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue("");
+    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    await waitFor(() => expect(screen.getByRole("heading", { name: "Escola Serra" })).toBeTruthy());
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+  it("oculta histórico em cache e cancela exportação quando a consulta escolar falha após atualizar", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [sampleVisit], actions: [sampleAction],
+    });
+    const pending = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(pending.promise.then(() => undefined));
+    renderPage();
+    await openSchool("Escola Centro");
+    await waitFor(() => expect(screen.getAllByText("Organizar salas").length).toBeGreaterThan(0));
+    expect(screen.getByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha Excel" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    mocks.schoolFollowup.mockRejectedValueOnce(new Error("permissão escolar revogada"));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(signal.aborted).toBe(true);
+    expect(await screen.findByText("Histórico indisponível")).toBeTruthy();
+    expect(screen.queryAllByText("Organizar salas")).toHaveLength(0);
+    expect(screen.queryByRole("button", { name: "Ficha Excel" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+
+    await act(async () => { pending.resolve(true); await pending.promise; });
+  });
+
+  it("não exibe a ficha em cache quando a atualização do escopo da rede falha", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [sampleVisit], actions: [sampleAction],
+    });
+    renderPage();
+    await openSchool("Escola Centro");
+    await waitFor(() => expect(screen.getAllByText("Organizar salas").length).toBeGreaterThan(0));
+
+    mocks.networkFollowup.mockRejectedValueOnce(new Error("escopo de rede não autorizado"));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await screen.findByText("Não foi possível consultar a rede")).toBeTruthy();
+    expect(screen.queryAllByText("Organizar salas")).toHaveLength(0);
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Escola Serra" })).toBeNull();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("oculta ficha em cache quando o panorama atualizado exclui a escola antes autorizada", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockImplementation(async (schoolId: string) =>
+      schoolId === "school-a" ? {
+        ...blankSchool,
+        visits: [{ ...sampleVisit, diagnosis: "Diagnóstico privativo da escola A" }],
+        actions: [sampleAction],
+      } : blankSchool);
+    const delayed = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(delayed.promise.then(() => undefined));
+    renderPage();
+    await openSchool("Escola Centro");
+    expect(await screen.findByText("Diagnóstico privativo da escola A")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Ficha PDF" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    // A consulta por escola ainda retorna o cache antigo, mas a rede excluiu A.
+    mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy());
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    expect(screen.queryByText("Diagnóstico privativo da escola A")).toBeNull();
+    expect(screen.queryByText("Organizar salas")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha PDF" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.getByRole("heading", {
+      name: "A unidade não consta mais no escopo autorizado",
+    })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Fechar ficha indisponível" }));
+    await openSchool("Escola Serra");
+    await act(async () => { delayed.resolve(true); await delayed.promise; });
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("preserva rascunho após perda de escopo até confirmação explícita de descarte", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Anotação ainda não enviada" } });
+
+    mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    const discard = await screen.findByRole("button", { name: "Descartar rascunhos e fechar" });
+    expect(screen.queryByDisplayValue("Anotação ainda não enviada")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    mocks.confirmAction.mockResolvedValueOnce(false);
+    await act(async () => { fireEvent.click(discard); });
+    expect(mocks.confirmAction).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole("button", { name: "Descartar rascunhos e fechar" })).toBeTruthy();
+
+    mocks.confirmAction.mockResolvedValueOnce(true);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Descartar rascunhos e fechar" }));
+    });
+    await waitFor(() => expect(screen.queryByText("A unidade não consta mais no escopo autorizado")).toBeNull());
+    await openSchool("Escola Serra");
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+    expect(mocks.recordUpdate).not.toHaveBeenCalled();
+  });
+
+  it("não descarta o rascunho se o escopo foi restaurado durante a confirmação antiga", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Rascunho preservado após voltar o acesso" } });
+
+    mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    const discard = await screen.findByRole("button", { name: "Descartar rascunhos e fechar" });
+    const confirmation = pendingDecision();
+    mocks.confirmAction.mockReturnValueOnce(confirmation.promise);
+    fireEvent.click(discard);
+    await waitFor(() => expect(mocks.confirmAction).toHaveBeenCalledTimes(1));
+
+    // A consulta agora volta a autorizar A antes de a pessoa responder ao diálogo.
+    // O formulário antigo deve reaparecer sem perda de seus valores.
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    await waitFor(() => expect(screen.getByDisplayValue(
+      "Rascunho preservado após voltar o acesso",
+    )).toBeTruthy());
+    await act(async () => { confirmation.resolve(true); await confirmation.promise; });
+    expect(screen.getByDisplayValue("Rascunho preservado após voltar o acesso")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
+    expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
+  });
+
+  it("bloqueia quadro e exportação quando a rede deixa de autorizar uma escola ainda presente na RPC de pendências", async () => {
+    setSession(false);
+    const pendingA = {
+      action_id: "pending-from-school-a", school_id: "school-a",
+      school_name: "Escola Centro", inep: "33000001",
+      description: "Providência exclusiva da escola A", responsible_label: "Direção",
+      due_on: "2026-11-10", situation: "sem atualização", last_update_on: null,
+      created_at: "2026-10-15T13:00:00Z",
+    };
+    mocks.networkFollowup.mockResolvedValue([{ ...schools[0]!, actions: 1 }, schools[1]!]);
+    mocks.networkPendingFollowup.mockResolvedValue([pendingA]);
+    renderPage();
+    expect(await screen.findByText("Providência exclusiva da escola A")).toBeTruthy();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(within(panel).getByLabelText("Exportar quadro filtrado")).toBeTruthy();
+
+    // The network RPC now contains only B, but the pending RPC still returns A.
+    mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy());
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/escopo atual da rede/);
+    expect(screen.queryByText("Providência exclusiva da escola A")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+    expect(exportNetworkPending).not.toHaveBeenCalled();
+
+    // A later consistent response restores the quadro without preserving old data.
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await screen.findByText("Providência exclusiva da escola A")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  it("oculta pendências em cache se a reconferência do panorama autorizado falhar", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([{ ...schools[0]!, actions: 1 }, schools[1]!]);
+    mocks.networkPendingFollowup.mockResolvedValue([{
+      action_id: "action-a", school_id: "school-a",
+      school_name: "Escola Centro", inep: "33000001",
+      description: "Medida inicialmente autorizada", responsible_label: null,
+      due_on: null, situation: "sem atualização", last_update_on: null,
+      created_at: "2026-10-15T13:00:00Z",
+    }]);
+    renderPage();
+    expect(await screen.findByText("Medida inicialmente autorizada")).toBeTruthy();
+    mocks.networkFollowup.mockRejectedValueOnce(new Error("escopo indisponível"));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await screen.findByText("Não foi possível consultar a rede")).toBeTruthy();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(within(panel).queryByText("Medida inicialmente autorizada")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+    expect(exportNetworkPending).not.toHaveBeenCalled();
+  });
+
+  it("não oferece relatório de providências quando faltam medidas do mesmo escopo", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([
+      { ...schools[0]!, actions: 2, completed: 0, overdue: 0 }, schools[1]!,
+    ]);
+    const measure = {
+      action_id: "pending-1", school_id: "school-a",
+      school_name: "Escola Centro", inep: "33000001",
+      description: "Medida retornada", responsible_label: null,
+      due_on: null, situation: "sem atualização", last_update_on: null,
+      created_at: "2026-11-01T12:00:00Z",
+    };
+    mocks.networkPendingFollowup.mockResolvedValue([measure]);
+    renderPage();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/quantidade de providências/);
+    expect(within(panel).queryByText("Medida retornada")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+
+    // A second authorized RPC delivers the missing action; nothing is fabricated locally.
+    mocks.networkPendingFollowup.mockResolvedValue([
+      measure, { ...measure, action_id: "pending-2", description: "Outra medida retornada" },
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await within(panel).findByText("Medida retornada")).toBeTruthy();
+    expect(await within(panel).findByText("Outra medida retornada")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  it("recusa quadro com prazo vencido divergente mesmo quando a quantidade de medidas coincide", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([
+      { ...schools[0]!, actions: 1, completed: 0, overdue: 1 }, schools[1]!,
+    ]);
+    const measure = {
+      action_id: "pending-1", school_id: "school-a",
+      school_name: "Escola Centro", inep: "33000001",
+      description: "Prazo diferente entre consultas", responsible_label: null,
+      due_on: "2026-11-06", situation: "em andamento",
+      last_update_on: "2026-11-03", created_at: "2026-11-01T12:00:00Z",
+    };
+    mocks.networkPendingFollowup.mockResolvedValue([measure]);
+    renderPage();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/vencidas não coincide/);
+    expect(within(panel).queryByText("Prazo diferente entre consultas")).toBeNull();
+
+    mocks.networkPendingFollowup.mockResolvedValue([{ ...measure, due_on: "2026-11-02" }]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await within(panel).findByText("Prazo diferente entre consultas")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  it("bloqueia o quadro quando pendências das escolas A e B se compensam no total da rede", async () => {
+    setSession(false);
+    const schoolA = { ...schools[0]!, actions: 2, completed: 0, overdue: 1 };
+    const schoolB = { ...schools[1]!, actions: 1, completed: 0, overdue: 0 };
+    mocks.networkFollowup.mockResolvedValue([schoolA, schoolB]);
+    const measures = [
+      { action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+        inep: "33000001", description: "Pendência A", responsible_label: null,
+        due_on: "2026-11-01", situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+      { action_id: "measure-b", school_id: "school-b", school_name: "Escola Serra",
+        inep: "33000002", description: "Pendência deslocada", responsible_label: null,
+        due_on: null, situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+      { action_id: "measure-c", school_id: "school-b", school_name: "Escola Serra",
+        inep: "33000002", description: "Pendência B", responsible_label: null,
+        due_on: null, situation: "sem atualização", last_update_on: null,
+        created_at: "2026-10-01T12:00:00Z" },
+    ];
+    mocks.networkPendingFollowup.mockResolvedValue(measures);
+    renderPage();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/quantidade de providências/);
+    expect(within(panel).queryByText("Pendência deslocada")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+    expect(exportNetworkPending).not.toHaveBeenCalled();
+
+    // Restoring the correct school for B restores the report; no records
+    // have been created in the browser.
+    mocks.networkPendingFollowup.mockResolvedValue(
+      measures.map((item) => item.action_id === "measure-b"
+        ? { ...item, school_id: "school-a", school_name: "Escola Centro", inep: "33000001" }
+        : item));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await within(panel).findByText("Pendência deslocada")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  it("recusa vencimentos atribuídos à escola incorreta mesmo se o total global for igual", async () => {
+    setSession(false);
+    mocks.networkFollowup.mockResolvedValue([
+      { ...schools[0]!, actions: 1, completed: 0, overdue: 0 },
+      { ...schools[1]!, actions: 1, completed: 0, overdue: 1 },
+    ]);
+    const measureA = {
+      action_id: "measure-a", school_id: "school-a", school_name: "Escola Centro",
+      inep: "33000001", description: "Prazo da escola A", responsible_label: null,
+      due_on: "2026-11-01", situation: "sem atualização", last_update_on: null,
+      created_at: "2026-10-01T12:00:00Z",
+    };
+    const measureB = {
+      ...measureA, action_id: "measure-b", school_id: "school-b",
+      school_name: "Escola Serra", inep: "33000002", description: "Prazo da escola B",
+      due_on: null,
+    };
+    mocks.networkPendingFollowup.mockResolvedValue([measureA, measureB]);
+    renderPage();
+    const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
+    expect(await within(panel).findByRole("alert")).toHaveTextContent(/vencidas não coincide/);
+    expect(within(panel).queryByText("Prazo da escola A")).toBeNull();
+    expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
+
+    mocks.networkPendingFollowup.mockResolvedValue([
+      { ...measureA, due_on: null }, { ...measureB, due_on: "2026-11-01" },
+    ]);
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    expect(await within(panel).findByText("Prazo da escola B")).toBeTruthy();
+    expect(within(panel).queryByRole("alert")).toBeNull();
+  });
+
+  it("isola ficha, rascunho e exportação quando uma conta diferente assume a sessão", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [{ ...sampleVisit, diagnosis: "Relato privativo da conta anterior" }],
+    });
+    const unfinished = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(unfinished.promise.then(() => undefined));
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    expect(await screen.findByText("Relato privativo da conta anterior")).toBeTruthy();
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Anotação ainda não salva da primeira conta" } });
+
+    // O arquivo antigo não pode ser baixado após a troca de identidade.
+    fireEvent.click(screen.getByRole("button", { name: "Ficha PDF" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    mocks.networkFollowup.mockResolvedValue([schools[1]!]);
+    mocks.session = {
+      status: "signed-in", sessionRevision: 2, user: { id: "second-user" }, person: null,
+      capabilities: [{ capabilityId: "consultar-acompanhamento-institucional", schoolId: null }],
+    };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    expect(await screen.findByRole("button", { name: "Escola Serra" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Escola Centro" })).toBeNull();
+    expect(screen.queryByText("Relato privativo da conta anterior")).toBeNull();
+    expect(screen.queryByDisplayValue("Anotação ainda não salva da primeira conta")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha PDF" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    await act(async () => { unfinished.resolve(true); await unfinished.promise; });
+    expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
+  });
+
+  it("novo login da mesma conta não restaura rascunhos nem ficha da sessão anterior", async () => {
+    setSession(true);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    const first = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(first).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Rascunho da sessão encerrada" } });
+
+    // No SIGEM, o contador da sessão diferencia logout e novo login, ainda que o user.id seja igual.
+    setSession(true);
+    mocks.session = { ...mocks.session, sessionRevision: 2 };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    expect(screen.queryByDisplayValue("Rascunho da sessão encerrada")).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Escola Centro" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha CSV" })).toBeNull();
+    await screen.findByRole("button", { name: "Escola Centro" });
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+  });
+
+  it("refaz consultas e cancela relatórios quando a capability muda na mesma sessão", async () => {
+    setSession(true, "school-a");
+    mocks.schoolFollowup.mockResolvedValue({
+      ...blankSchool, visits: [{ ...sampleVisit, diagnosis: "Dados do escopo A" }],
+    });
+    const unfinished = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(unfinished.promise.then(() => undefined));
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    expect(await screen.findByText("Dados do escopo A")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Ficha CSV" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    // Mesma conta e mesma sessionRevision: mudou apenas a autorização efetiva.
+    mocks.networkFollowup.mockResolvedValue([schools[1]!]);
+    mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    mocks.session = {
+      ...mocks.session,
+      capabilities: [
+        { capabilityId: "consultar-acompanhamento-institucional", schoolId: "school-b" },
+        { capabilityId: "registrar-acompanhamento-institucional", schoolId: "school-b" },
+      ],
+    };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    expect(await screen.findByRole("button", { name: "Escola Serra" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Escola Centro" })).toBeNull();
+    expect(screen.queryByText("Dados do escopo A")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha CSV" })).toBeNull();
+    await openSchool("Escola Serra");
+    expect(await screen.findByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+    await act(async () => { unfinished.resolve(true); await unfinished.promise; });
+    expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
+    expect(mocks.networkFollowup).toHaveBeenCalledTimes(2);
+  });
+
+  it("fecha o módulo e interrompe PDF pendente quando todas as capacidades são revogadas", async () => {
+    setSession(false);
+    const unfinished = pendingDecision();
+    vi.mocked(exportFollowupSchool).mockReturnValueOnce(unfinished.promise.then(() => undefined));
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha PDF" }));
+    await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
+    const signal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
+    expect(signal.aborted).toBe(false);
+
+    mocks.session = { ...mocks.session, capabilities: [] };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    await waitFor(() => expect(signal.aborted).toBe(true));
+    expect(screen.getByText("Acesso não disponível")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Escola Centro" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Ficha PDF" })).toBeNull();
+    expect(screen.queryByText("Visita anterior")).toBeNull();
+    await act(async () => { unfinished.resolve(true); await unfinished.promise; });
+    expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
+  });
+
+  it("ordem diferente das mesmas capacidades não desmonta rascunho nem refaz consultas", async () => {
+    setSession(true, "school-a");
+    const { rerender, client } = renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
+      { target: { value: "Preenchimento ainda em andamento" } });
+    const count = mocks.networkFollowup.mock.calls.length;
+    const auth = mocks.session as { capabilities: unknown[] };
+    mocks.session = { ...mocks.session, capabilities: [...auth.capabilities].reverse() };
+    rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
+    expect(screen.getByDisplayValue("Preenchimento ainda em andamento")).toBeTruthy();
+    expect(mocks.networkFollowup).toHaveBeenCalledTimes(count);
+  });
+
+});

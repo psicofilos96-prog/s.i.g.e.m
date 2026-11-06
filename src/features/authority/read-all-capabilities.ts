@@ -9,6 +9,8 @@
  * leitores são paginados até esgotar; acima do teto de segurança a leitura FALHA (nunca devolve parcial).
  * Sem curinga: só o que o banco devolveu. RLS/writers continuam sendo a garantia.
  */
+import { operationalToday } from "@/lib/academic-date";
+
 export const CAPABILITY_PAGE = 1000;
 export const CAPABILITY_HARD_MAX = 200_000;
 
@@ -72,16 +74,21 @@ export function expandGrants(grants: readonly GrantRow[], scopeClasses: readonly
 }
 
 export async function readAllEffectiveCapabilities(db: Rpcish, args: Record<string, unknown> = {}, mode: ExpandMode = "school"): Promise<PageRes> {
+  // Todas as RPCs de capacidade devem avaliar o mesmo dia operacional da rede.
+  // O CURRENT_DATE padrão do PostgreSQL pode antecipar a virada para UTC quando
+  // ainda é noite em São Paulo, fazendo menu e writer discordarem no mesmo login.
+  // Um _on explícito continua prevalecendo (consultas históricas).
+  const scopedArgs = args["_on"] === undefined ? { ...args, _on: operationalToday() } : args;
   // O construtor do cliente real é preguiçoso (só executa ao ser aguardado): esta sonda não gera requisição.
-  const probe = db.rpc("effective_capabilities", args);
+  const probe = db.rpc("effective_capabilities", scopedArgs);
   // Duplo de teste legado (sem construtor): mantém o contrato antigo de uma chamada.
   if (typeof probe?.order !== "function") {
     const r = (await probe) as PageRes;
     return r.error ? { data: null, error: r.error } : { data: r.data ?? [], error: null };
   }
   const [g, c] = await Promise.all([
-    readRpcPages(db, "effective_capability_grants", ["capability_id", "engagement_id", "school_id", "class_id", "component_id", "period_id"], args),
-    readRpcPages(db, "effective_capability_scope_classes", ["school_id", "class_id"], args),
+    readRpcPages(db, "effective_capability_grants", ["capability_id", "engagement_id", "school_id", "class_id", "component_id", "period_id"], scopedArgs),
+    readRpcPages(db, "effective_capability_scope_classes", ["school_id", "class_id"], scopedArgs),
   ]);
   const error = g.error ?? c.error;
   if (error) return { data: null, error };

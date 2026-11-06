@@ -4292,6 +4292,34 @@
       "when": 1793650050000,
       "tag": "0612_secretariat_movement_search_observation_fix",
       "breakpoints": true
+    },
+    {
+      "idx": 613,
+      "version": "7",
+      "when": 1793725200000,
+      "tag": "0613_school_institutional_followup",
+      "breakpoints": true
+    },
+    {
+      "idx": 614,
+      "version": "7",
+      "when": 1794010000000,
+      "tag": "0614_followup_functional_seat_session_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 615,
+      "version": "7",
+      "when": 1794015000000,
+      "tag": "0615_followup_functional_seat_segregation",
+      "breakpoints": true
+    },
+    {
+      "idx": 616,
+      "version": "7",
+      "when": 1794018000000,
+      "tag": "0616_followup_seat_authority_sao_paulo_date",
+      "breakpoints": true
     }
   ]
 }

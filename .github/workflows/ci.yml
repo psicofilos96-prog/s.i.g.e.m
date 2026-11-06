@@ -5,6 +5,12 @@ on:
   pull_request:
   push:
     branches: [main]
+# Novos commits no mesmo PR substituem execuções anteriores, sem reduzir testes.
+# PRs distintos e main têm grupos separados.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:
@@ -20,6 +26,11 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run check:migrations
+      # Offline safety tests: never contacts or modifies a database.
+      - run: node --test scripts/followup-clone-readonly.test.mjs
+      - run: node --test scripts/followup-functional-seats-preflight.test.mjs
+      # Falhar cedo se um novo guia não foi incorporado ao índice técnico.
+      - run: node scripts/docs-index.mjs --check
       - run: bun run typecheck
       # Large jsdom route scenarios must not compete across test files.
       - run: bun run test -- --no-file-parallelism
@@ -32,3 +43,139 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run test:deep
+
+  followup-contract:
+    # Fast, focused feedback before the >7k-test suite finishes.
+    # Reuses the same mocked client configuration as the required job.
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_URL: https://ci-placeholder.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+    steps:
+      - uses: actions/checkout@v5
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Run institutional follow-up unit and UI regressions
+        run: bun run test -- src/features/school-institutional-followup --no-file-parallelism
+
+  followup-sql:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: followup_ci
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: followup_ci_only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d followup_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGPASSWORD: followup_ci_only
+    steps:
+      - uses: actions/checkout@v5
+      - name: Ensure PostgreSQL client
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y postgresql-client
+          fi
+      - name: Execute migration and scoped-access tests in disposable PostgreSQL
+        run: |
+          set -euo pipefail
+          db=(psql -h localhost -U postgres -d followup_ci -v ON_ERROR_STOP=1)
+          "${db[@]}" -f supabase/tests/fixtures/0613_followup_isolated_bootstrap.sql
+          # Synthetic collisions live only in this disposable PostgreSQL database.
+          collision_log=$(mktemp)
+          trap 'rm -f "$collision_log"' EXIT
+          expect_preflight_failure() {
+            local expected="$1"
+            if "${db[@]}" -f supabase/tests/0613_followup_clone_preflight_readonly.sql >"$collision_log" 2>&1; then
+              echo "Preflight unexpectedly accepted a collision: $expected" >&2
+              exit 1
+            fi
+            if ! grep -Fq "$expected" "$collision_log"; then
+              cat "$collision_log"
+              echo "Preflight failed for an unexpected reason: $expected" >&2
+              exit 1
+            fi
+          }
+          "${db[@]}" -c "CREATE FUNCTION public.school_institutional_followup_sentinel() RETURNS integer LANGUAGE sql AS 'SELECT 1';"
+          expect_preflight_failure "followup-preflight:preexisting-function-family"
+          "${db[@]}" -c "DROP FUNCTION public.school_institutional_followup_sentinel();"
+          "${db[@]}" -c "CREATE INDEX school_institutional_followup_actions_school ON public.institutional_schools (id);"
+          expect_preflight_failure "followup-preflight:preexisting-index-name:school_institutional_followup_actions_school"
+          "${db[@]}" -c "DROP INDEX public.school_institutional_followup_actions_school;"
+          # The preflight must reject a missing canonical unique key, even if
+          # the fixture currently has no duplicated school identifiers.
+          "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers DROP CONSTRAINT institutional_school_identifiers_pkey;"
+          expect_preflight_failure "followup-preflight:missing-unique-key:institutional_school_identifiers.school_id,identifier_kind"
+          "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers ADD CONSTRAINT institutional_school_identifiers_pkey PRIMARY KEY (school_id, identifier_kind);"
+          # Global identifier uniqueness prevents the same INEP from
+          # being canonically assigned to two different schools.
+          "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers DROP CONSTRAINT institutional_school_identifiers_kind_value_key;"
+          expect_preflight_failure "followup-preflight:missing-unique-key:institutional_school_identifiers.identifier_kind,value"
+          "${db[@]}" -c "ALTER TABLE public.institutional_school_identifiers ADD CONSTRAINT institutional_school_identifiers_kind_value_key UNIQUE (identifier_kind, value);"
+          # Clean schema must pass the preflight, migration, postflight and access matrix.
+          "${db[@]}" \
+            -f supabase/tests/0613_followup_clone_preflight_readonly.sql \
+            -f drizzle/migrations/0613_school_institutional_followup.sql \
+            -f supabase/tests/0613_followup_clone_postflight_readonly.sql \
+            -f supabase/tests/0613_school_institutional_followup.sql \
+            -f supabase/tests/0613_followup_isolated_positive.sql \
+            -f supabase/tests/0613_followup_two_visitors.sql \
+            -f drizzle/migrations/0614_followup_functional_seat_session_guard.sql \
+            -f supabase/tests/0614_followup_functional_seat_sessions.sql \
+            -f drizzle/migrations/0615_followup_functional_seat_segregation.sql \
+            -f supabase/tests/0615_followup_seat_segregation.sql \
+            -f drizzle/migrations/0616_followup_seat_authority_sao_paulo_date.sql \
+            -f supabase/tests/0616_followup_seat_date.sql
+          # Negative postflight checks operate ONLY on the disposable CI database:
+          # a disabled or removed append-only trigger must invalidate the clone.
+          expect_postflight_failure() {
+            local expected="$1"
+            if "${db[@]}" -f supabase/tests/0613_followup_clone_postflight_readonly.sql >"$collision_log" 2>&1; then
+              echo "Postflight unexpectedly accepted an unsafe audit trigger: $expected" >&2
+              exit 1
+            fi
+            if ! grep -Fq "$expected" "$collision_log"; then
+              cat "$collision_log"
+              echo "Postflight failed for an unexpected reason: $expected" >&2
+              exit 1
+            fi
+          }
+          "${db[@]}" -c "ALTER TABLE public.school_institutional_followup_actions DISABLE TRIGGER followup_action_immutable;"
+          expect_postflight_failure "followup-postflight:immutable-trigger-missing-or-disabled:school_institutional_followup_actions"
+          "${db[@]}" -c "ALTER TABLE public.school_institutional_followup_actions ENABLE TRIGGER followup_action_immutable;"
+          "${db[@]}" -c "DROP TRIGGER followup_bundle_immutable ON public.school_institutional_followup_bundles;"
+          expect_postflight_failure "followup-postflight:immutable-trigger-missing-or-disabled:school_institutional_followup_bundles"
+          "${db[@]}" -c "CREATE TRIGGER followup_bundle_immutable BEFORE UPDATE OR DELETE ON public.school_institutional_followup_bundles FOR EACH ROW EXECUTE FUNCTION public.school_institutional_followup_immutable();"
+          # SECURITY DEFINER functions cannot inherit a writable search path.
+          # Both a maliciously broad path and a missing setting must fail.
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) SET search_path TO public;"
+          expect_postflight_failure "followup-postflight:search-path-not-empty:school_institutional_followup_network"
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) RESET search_path;"
+          expect_postflight_failure "followup-postflight:search-path-not-empty:school_institutional_followup_network"
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) SET search_path TO '';"
+          # The immutable trigger routine is intentionally SECURITY INVOKER.
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_immutable() SECURITY DEFINER;"
+          expect_postflight_failure "followup-postflight:immutable-must-be-invoker"
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_immutable() SECURITY INVOKER;"
+          # An extra RPC overload can be callable via PostgREST despite all
+          # required original signatures retaining their safe grants.
+          "${db[@]}" -c "CREATE FUNCTION public.school_institutional_followup_network(_from integer, _to integer) RETURNS jsonb LANGUAGE sql AS 'SELECT NULL::jsonb';"
+          expect_postflight_failure "followup-postflight:unexpected-function-family-member"
+          "${db[@]}" -c "DROP FUNCTION public.school_institutional_followup_network(integer,integer);"
+          # The ordinary authenticated client role must not own a SECURITY DEFINER
+          # RPC: owners can change its body independently of EXECUTE grants.
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) OWNER TO authenticated;"
+          expect_postflight_failure "followup-postflight:untrusted-function-owner"
+          "${db[@]}" -c "ALTER FUNCTION public.school_institutional_followup_network(date,date) OWNER TO postgres;"
+          # Ownership transfers can reset grants associated with the old owner;
+          # restore only the original migration's authenticated EXECUTE grant.
+          "${db[@]}" -c "GRANT EXECUTE ON FUNCTION public.school_institutional_followup_network(date,date) TO authenticated;"
+          "${db[@]}" -f supabase/tests/0613_followup_clone_postflight_readonly.sql

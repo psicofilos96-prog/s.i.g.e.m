@@ -1,0 +1,1043 @@
+import { useEffect, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { operationalToday } from "@/lib/academic-date";
+import { Button } from "@/components/ui/button";
+import { DateInput } from "@/components/sigem/date-input";
+import { confirmAction } from "@/components/sigem/confirm-action";
+import { presentError, UserFacingError } from "@/lib/observability/governed-errors";
+import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
+import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
+import { InstitutionalFollowupAnalytics } from "./analytics";
+import { reconcileFollowupNetworkIndicators, reconcileFollowupPendingIndicators } from "./network-read-contract";
+import { InstitutionalPendingPanel } from "./pending-panel";
+import { SchoolOpenActionsPanel } from "./school-open-actions";
+import { FollowupVisitComparison } from "./visit-comparison";
+import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
+import { useFollowupRouteGuard } from "./use-route-guard";
+import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
+import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, followupActionDraftIssue, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
+
+const input = "mt-1 w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
+const textArea = input + " min-h-20";
+const dateLabel = (d: string | null) => d ? d.split("-").reverse().join("/") : "Não informado";
+// Identificador local estável: remover a medida do meio nunca reatribui campos às demais.
+let draftRowSequence = 0;
+const newAction = () => ({ draftKey: ++draftRowSequence, description: "", responsible: "", due: "" });
+type ActionDraft = ReturnType<typeof newAction>;
+
+// A refreshed authority payload can change effective scope without changing user.id
+// or the authentication session. Key the workspace AND its queries by that scope.
+// Stable sorting avoids remounts solely because a query returned rows in a new order.
+function followupAuthorityKey(authority: ReturnType<typeof useSessionAuthority>): string | null {
+  const sessionKey = sessionContextKey(authority);
+  if (!sessionKey || authority.status !== "signed-in") return null;
+  const scope = authority.capabilities.map((c) => JSON.stringify([
+    c.capabilityId, c.engagementId, c.policyId, c.policyVersion,
+    c.classId, c.periodId, c.schoolId, c.componentId,
+  ])).sort();
+  return JSON.stringify([sessionKey, authority.person?.id ?? null, authority.principal?.id ?? null, scope]);
+}
+
+export function InstitutionalSchoolFollowupPage() {
+  const authority = useSessionAuthority();
+  const key = followupAuthorityKey(authority);
+  if (authority.status !== "signed-in" || !key || !pathAllowed(authority, "/acompanhamento-unidades")) {
+    return <StatePanel tone="info" title={authority.status === "loading" ? "Verificando acesso…" : "Acesso não disponível"}
+      description="Entre com uma conta institucional autorizada para consultar ou registrar o acompanhamento." />;
+  }
+  return <FollowupWorkspace key={key} sessionKey={key} authority={authority} />;
+}
+type SignedIn = Extract<ReturnType<typeof useSessionAuthority>, { status: "signed-in" }>;
+
+function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; authority: SignedIn }) {
+  const queryClient = useQueryClient();
+  const today = operationalToday();
+  const [from, setFrom] = useState(today.slice(0, 4) + "-01-01");
+  const [to, setTo] = useState(today);
+  const [search, setSearch] = useState("");
+  const [networkView, setNetworkView] = useState<NetworkView>("todas");
+  const [school, setSchool] = useState("");
+  const [day, setDay] = useState(today);
+  const [diagnosis, setDiagnosis] = useState("");
+  const [strengths, setStrengths] = useState("");
+  const [weaknesses, setWeaknesses] = useState("");
+  const [summary, setSummary] = useState("");
+  const [participants, setParticipants] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [correctionBase, setCorrectionBase] = useState<string | null>(null);
+  const [correctionReason, setCorrectionReason] = useState("");
+  const [draftActions, setDraftActions] = useState<ActionDraft[]>(() => [newAction()]);
+  const [saving, setSaving] = useState(false);
+  const [savingUpdate, setSavingUpdate] = useState(false);
+  const [savingMeasure, setSavingMeasure] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  // One active conversion per workspace. A canceled async conversion may finish
+  // computing, but must never download a document from an obsolete school/view.
+  const activeReportExport = useRef<AbortController | null>(null);
+  // Child exports must be canceled in the same event as a refresh/school change.
+  const pendingExportCancel = useRef<(() => void) | null>(null);
+  const liveSchoolScope = useRef("");
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const visitRequests = useRef<{ signature: string; visit: string; actions: string[] } | null>(null);
+  const updateRequest = useRef<{ signature: string; request: string } | null>(null);
+  const measureRequest = useRef<{ signature: string; request: string } | null>(null);
+  const [measureVisitId, setMeasureVisitId] = useState("");
+  const [measureDraft, setMeasureDraft] = useState<ActionDraft>(newAction);
+  const [actionView, setActionView] = useState<ActionView>("todas");
+  const [actionQuery, setActionQuery] = useState("");
+  const [actionId, setActionId] = useState("");
+  const [updateVisitId, setUpdateVisitId] = useState("");
+  const [targetActionId, setTargetActionId] = useState("");
+  const [situation, setSituation] = useState(SITUATIONS[0].value as string);
+  const [updateDay, setUpdateDay] = useState(today);
+  const [done, setDone] = useState("");
+  const [notDone, setNotDone] = useState("");
+  const [results, setResults] = useState("");
+  const [referrals, setReferrals] = useState("");
+  const [evolutionNotice, setEvolutionNotice] = useState("");
+  const [visitDraftNotice, setVisitDraftNotice] = useState("");
+  const [measureDraftNotice, setMeasureDraftNotice] = useState("");
+
+  const network = useQuery({
+    queryKey: ["institutional-followup-network", sessionKey, from, to],
+    queryFn: () => networkFollowup(from, to), enabled: Boolean(from && to && from <= to), retry: false,
+  });
+  const monthly = useQuery({
+    queryKey: ["institutional-followup-monthly", sessionKey, from, to],
+    queryFn: () => monthlyFollowup(from, to), enabled: Boolean(from && to && from <= to), retry: false,
+  });
+  const pending = useQuery({
+    queryKey: ["institutional-followup-pending", sessionKey],
+    queryFn: networkPendingFollowup, retry: false,
+  });
+  const statuses = useQuery({
+    queryKey: ["institutional-followup-statuses", sessionKey],
+    queryFn: followupStatuses, retry: false,
+  });
+  const detail = useQuery({
+    queryKey: ["institutional-followup-school", sessionKey, school],
+    queryFn: () => schoolFollowup(school), enabled: Boolean(school), retry: false,
+  });
+  // React Query may retain its last successful result when a refetch fails.
+  // Never render or export that cached institutional snapshot while scope is unverified.
+  const networkData = network.isSuccess && !network.isFetching ? network.data : [];
+  // The current network scope must still include this school. A previously
+  // successful per-school query is not proof of ongoing network authorization.
+  const selected = networkData.find((r) => r.school_id === school);
+  // Read the *current* scope after an asynchronous destructive confirmation,
+  // never a stale render captured when the dialog first opened.
+  liveSchoolScope.current = JSON.stringify({
+    sessionKey, school, networkReady: network.isSuccess && !network.isFetching,
+    authorizedSchool: selected?.school_id ?? null,
+  });
+  const detailData = detail.isSuccess && !detail.isFetching && selected
+    && network.isSuccess && !network.isFetching ? detail.data : undefined;
+  const rows = filterNetworkRows(networkData, search, networkView);
+  const totals = networkIndicators(networkData);
+  const analyticsReady = network.isSuccess && !network.isFetching &&
+    monthly.isSuccess && !monthly.isFetching &&
+    statuses.isSuccess && !statuses.isFetching;
+  const reconciledIndicators = analyticsReady
+    ? reconcileFollowupNetworkIndicators(networkData, monthly.data, statuses.data) : null;
+  const chartsConsistent = reconciledIndicators?.monthlyConsistent === true &&
+    reconciledIndicators.statusesConsistent === true;
+  // Independent RPCs can complete with different effective scopes after a
+  // live revocation. Never disclose pending measures from a school that the
+  // fresh network reader no longer recognizes as authorized.
+  const networkReady = network.isSuccess && !network.isFetching;
+  const pendingReady = pending.isSuccess && !pending.isFetching;
+  const allowedSchools = new Set(networkData.map((row) => row.school_id));
+  const pendingScopeMismatch = networkReady && pendingReady &&
+    pending.data.some((row) => !allowedSchools.has(row.school_id));
+  // Matching school IDs alone cannot detect an incomplete or older list.
+  // Compare the number of open actions and overdue actions in both RPCs.
+  const pendingTotals = networkReady && pendingReady && !pendingScopeMismatch
+    ? reconcileFollowupPendingIndicators(networkData, pending.data, today) : null;
+  const pendingTotalsMismatch = pendingTotals !== null &&
+    (!pendingTotals.pendingCountConsistent || !pendingTotals.overdueConsistent);
+  const scopedPending = networkReady && pendingReady &&
+    !pendingScopeMismatch && !pendingTotalsMismatch ? pending.data : [];
+  const pendingScopeError = pendingScopeMismatch
+    ? new UserFacingError("O quadro de providências não corresponde ao escopo atual da rede. Atualize as consultas antes de visualizar ou exportar.")
+    : pendingTotalsMismatch
+      ? new UserFacingError("A quantidade de providências não concluídas ou vencidas não coincide com o panorama da rede. Atualize as consultas antes de visualizar ou exportar.")
+      : network.isError ? network.error : pending.isError ? pending.error : null;
+  const canRecord = Boolean(detailData) && Boolean(authority.person) && authority.capabilities.some((c) =>
+    c.capabilityId === "registrar-acompanhamento-institucional"
+    && (c.schoolId === null || c.schoolId === school));
+  const stats = detailData ? schoolIndicators(detailData, today) : null;
+  const selectedAction = detailData?.actions.find((a) => a.id === actionId);
+  const updateMinDay = detailData
+    ? followupVisitByLogicalId(detailData.visits, selectedAction?.visit_logical_id ?? null)?.visit_date ?? null
+    : null;
+  const updateVisitChoices = detailData
+    ? availableFollowupVisits(detailData, selectedAction, updateDay)
+    : [];
+  const updateVisitIsValid = !updateVisitId || updateVisitChoices.some((v) => v.id === updateVisitId);
+  const visibleActions = detailData
+    ? filterSchoolActions(detailData.actions, detailData.updates, actionView, actionQuery, today)
+    : [];
+  const maxVisits = Math.max(1, ...rows.map((r) => r.visits));
+  const evolutionDraftIsDirty = isEvolutionDraftDirty({
+    day: updateDay, initialDay: today, situation, linkedVisitId: updateVisitId,
+    done, notDone, results, referrals,
+  });
+  const visitDraftIsDirty = isFollowupVisitDraftDirty({
+    day, initialDay: today, correctionBase, diagnosis, strengths, weaknesses,
+    summary, participants, purpose, correctionReason, actions: draftActions,
+  });
+  const measureDraftIsDirty = isFollowupActionDraftDirty(measureDraft);
+  // Diagnóstico local por linha, sem requisições ou gravação. Reage inclusive
+  // à alteração da data da visita após os prazos terem sido preenchidos.
+  const actionDraftIssues = correctionBase === null
+    ? draftActions.map((a) => followupActionDraftIssue(a, day)) : [];
+  const invalidActionCount = actionDraftIssues.filter((issue) => issue !== null).length;
+  const describedActionCount = draftActions.filter((a) => a.description.trim()).length;
+  // Mantém a versão atual de cada formulário acessível após um await de confirmação.
+  // A confirmação aprova somente os dados exibidos quando foi solicitada, não
+  // alterações feitas posteriormente nem um formulário de outra escola/medida.
+  const liveDraftSignatures = useRef({ visit: "", measure: "", evolution: "" });
+  liveDraftSignatures.current = {
+    visit: JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary,
+      participants, purpose, correctionBase, correctionReason, draftActions,
+      request: visitRequests.current?.signature }),
+    measure: JSON.stringify({ school, measureVisitId, measureDraft,
+      request: measureRequest.current?.signature }),
+    evolution: JSON.stringify({ school, actionId, updateDay, updateVisitId,
+      situation, done, notDone, results, referrals, request: updateRequest.current?.signature }),
+  };
+  const localDiscardPending = useRef(false);
+  // O alerta cobre a recarga/fechamento da aba; ações internas preservam o
+  // formulário pelos bloqueios já existentes em changeSchool/startCorrection.
+  const hasUnsavedFollowup = Boolean(school) && (
+    saving || savingMeasure || savingUpdate || visitDraftIsDirty
+    || visitRequests.current !== null
+    || (Boolean(measureVisitId) && (measureDraftIsDirty || measureRequest.current !== null))
+    || (Boolean(actionId) && (evolutionDraftIsDirty || updateRequest.current !== null))
+  );
+  useUnsavedFollowupWarning(hasUnsavedFollowup);
+  useFollowupRouteGuard(hasUnsavedFollowup, saving || savingUpdate || savingMeasure);
+  useEffect(() => () => {
+    activeReportExport.current?.abort();
+    activeReportExport.current = null;
+  }, []);
+  useEffect(() => {
+    // A different school, a changed filter/period, or fresh scoped data
+    // invalidates the report being rendered. Keep only current snapshots.
+    if (activeReportExport.current) {
+      activeReportExport.current.abort();
+      activeReportExport.current = null;
+      setExporting(false);
+    }
+  }, [school, detailData, detail.isFetching, detail.isSuccess, network.data, network.isFetching, network.isSuccess, from, to, search, networkView]);
+  useEffect(() => {
+    if (correctionBase) document.getElementById("followup-visit-form")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [correctionBase]);
+  useEffect(() => {
+    if (measureVisitId) document.getElementById("followup-measure-form")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [measureVisitId]);
+  useEffect(() => {
+    if (actionId) {
+      const form = document.getElementById("followup-update-form");
+      form?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      form?.focus?.({ preventScroll: true });
+    }
+  }, [actionId]);
+  // O quadro transversal aponta para a medida específica, não apenas para a escola.
+  useEffect(() => {
+    if (!targetActionId || !school || !detailData) return;
+    if (!detailData.actions.some((a) => a.id === targetActionId)) {
+      setNotice("A medida selecionada não consta mais no histórico consultado. Atualize o quadro de providências.");
+      setTargetActionId("");
+      return;
+    }
+    const element = document.getElementById(`followup-action-${targetActionId}`);
+    if (element) {
+      element.scrollIntoView?.({ behavior: "smooth", block: "center" });
+      element.focus({ preventScroll: true });
+      setTargetActionId("");
+    }
+  }, [targetActionId, school, detailData]);
+  async function withReportExport(run: (signal: AbortSignal) => Promise<void>) {
+    // The ref prevents two downloads when clicks happen before React rerenders.
+    if (activeReportExport.current) return;
+    const controller = new AbortController();
+    activeReportExport.current = controller;
+    setExporting(true);
+    setError("");
+    try {
+      await run(controller.signal);
+    } catch (e) {
+      if (!controller.signal.aborted) setError(presentError(e));
+    } finally {
+      // A canceled conversion may settle after a newer report has started.
+      if (activeReportExport.current === controller) {
+        activeReportExport.current = null;
+        setExporting(false);
+      }
+    }
+  }
+  async function exportReport(format: "csv" | "xlsx" | "pdf") {
+    if (!network.isSuccess || network.isFetching) return;
+    await withReportExport((signal) => exportFollowupNetwork(rows, from, to, format, signal));
+  }
+  async function exportSchoolReport(format: "csv" | "xlsx" | "pdf") {
+    if (!school || !detailData) return;
+    await withReportExport((signal) =>
+      exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal));
+  }
+  async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf") {
+    if (!school || !detailData) return;
+    await withReportExport((signal) =>
+      exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal));
+  }
+  async function refresh() {
+    // Both report areas stop before any asynchronous revalidation begins.
+    pendingExportCancel.current?.();
+    activeReportExport.current?.abort();
+    activeReportExport.current = null;
+    setExporting(false);
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-network", sessionKey] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-monthly", sessionKey] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-statuses", sessionKey] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-pending", sessionKey] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-school", sessionKey, school] }),
+    ]);
+  }
+  async function saveVisit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!school || !canRecord || !diagnosis.trim() || !day || day > today || saving
+      || (correctionBase !== null && !correctionReason.trim())) return;
+    if (correctionBase === null) {
+      const planError = validateFollowupActionDrafts(draftActions, day);
+      if (planError) { setError(planError); return; }
+    }
+    setSaving(true); setError(""); setNotice("");
+    // Só repetir a mesma chave de operação quando o conteúdo for idêntico.
+    const signature = JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary,
+      participants, purpose, draftActions: correctionBase === null ? draftActions : [],
+      correctionBase, correctionReason });
+    const requests = visitRequests.current?.signature === signature ? visitRequests.current
+      : { signature, visit: crypto.randomUUID(), actions: draftActions.map(() => crypto.randomUUID()) };
+    visitRequests.current = requests;
+    try {
+      if (correctionBase !== null) {
+        await recordVisit({ school, day, diagnosis, strengths, weaknesses, summary,
+          participants, purpose, base: correctionBase, reason: correctionReason, request: requests.visit });
+      } else {
+        await recordVisitBundle({
+          school, day, diagnosis, strengths, weaknesses, summary,
+          participants, purpose, request: requests.visit,
+          actions: draftActions.map((a, index) => ({
+            description: a.description, responsible: a.responsible,
+            due: a.due || null, request: requests.actions[index] ?? crypto.randomUUID(),
+          })),
+        });
+      }
+      resetVisitDraft();
+      setNotice(correctionBase === null
+        ? "Visita e ações registradas. O histórico da escola foi preservado."
+        : "Retificação registrada com justificativa. A versão anterior continua preservada.");
+      await refresh();
+    } catch (e) {
+      setError(presentError(e));
+    } finally { setSaving(false); }
+  }
+  async function saveUpdate(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!actionId || !school || !canRecord || savingUpdate || !updateDay || updateDay > today
+      || !updateVisitIsValid || (updateMinDay !== null && updateDay < updateMinDay)) return;
+    setSavingUpdate(true); setError(""); setNotice("");
+    const signature = JSON.stringify({ actionId, school, updateDay, updateVisitId,
+      situation, done, notDone, results, referrals });
+    if (updateRequest.current?.signature !== signature) {
+      updateRequest.current = { signature, request: crypto.randomUUID() };
+    }
+    try {
+      await recordUpdate({
+        action: actionId, visit: updateVisitId || null, day: updateDay, situation,
+        done, notDone, results, referrals, request: updateRequest.current.request,
+      });
+      updateRequest.current = null;
+      setActionId(""); setUpdateVisitId(""); setEvolutionNotice("");
+      setDone(""); setNotDone(""); setResults(""); setReferrals("");
+      setNotice("Evolução da ação registrada, sem apagar as atualizações anteriores.");
+      await refresh();
+    } catch (e) { setError(presentError(e)); }
+    finally { setSavingUpdate(false); }
+  }
+  async function saveMeasure(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const visit = detailData?.visits.find((v) => v.id === measureVisitId);
+    if (!school || !canRecord || !visit || !measureDraft.description.trim() || savingMeasure
+      || (measureDraft.due && measureDraft.due < visit.visit_date)) return;
+    setSavingMeasure(true); setError(""); setNotice("");
+    const signature = JSON.stringify({ school, visitId: visit.id, measureDraft });
+    if (measureRequest.current?.signature !== signature) {
+      measureRequest.current = { signature, request: crypto.randomUUID() };
+    }
+    try {
+      await recordAction({
+        visit: visit.id, description: measureDraft.description,
+        responsible: measureDraft.responsible, due: measureDraft.due || null,
+        request: measureRequest.current.request,
+      });
+      resetMeasureDraft();
+      setNotice("Nova medida adicionada ao plano da visita, com autoria e histórico preservados.");
+      await refresh();
+    } catch (e) { setError(presentError(e)); }
+    finally { setSavingMeasure(false); }
+  }
+  async function confirmLocalDiscard(title: string, consequence: string, actionLabel: string): Promise<boolean> {
+    if (localDiscardPending.current) return false;
+    localDiscardPending.current = true;
+    try {
+      return await confirmAction({ title, consequence, actionLabel, destructive: true });
+    } catch {
+      // Falha fechada: nunca apagar um relato sem confirmação disponível.
+      return false;
+    } finally {
+      localDiscardPending.current = false;
+    }
+  }
+  async function removeProposedAction(target: ActionDraft) {
+    if (saving || !draftActions.some((a) => a.draftKey === target.draftKey)) return;
+    const snapshot = liveDraftSignatures.current.visit;
+    if (isFollowupActionDraftDirty(target) && !await confirmLocalDiscard(
+      "Remover medida em preenchimento?",
+      "A descrição, o responsável e o prazo digitados nesta medida serão descartados. As outras medidas continuarão no formulário.",
+      "Remover esta medida",
+    )) return;
+    if (saving || liveDraftSignatures.current.visit !== snapshot) {
+      setVisitDraftNotice("O plano mudou durante a confirmação. Confira os dados e solicite a remoção novamente.");
+      return;
+    }
+    setDraftActions((prev) => prev.length > 1
+      ? prev.filter((a) => a.draftKey !== target.draftKey) : prev);
+    visitRequests.current = null;
+  }
+  async function discardVisitDraft() {
+    if (saving) return;
+    const snapshot = liveDraftSignatures.current.visit;
+    if ((visitDraftIsDirty || visitRequests.current !== null) && !await confirmLocalDiscard(
+      correctionBase ? "Cancelar retificação da visita?" : "Descartar visita em preenchimento?",
+      "Os campos e as medidas preenchidos nesta visita serão descartados sem registro no histórico da escola.",
+      correctionBase ? "Cancelar e descartar" : "Descartar preenchimento",
+    )) return;
+    if (saving || liveDraftSignatures.current.visit !== snapshot) {
+      setVisitDraftNotice("A visita mudou durante a confirmação. Os dados foram preservados; confira e solicite o descarte novamente.");
+      return;
+    }
+    resetVisitDraft();
+  }
+  async function discardMeasureDraft() {
+    if (savingMeasure) return;
+    const snapshot = liveDraftSignatures.current.measure;
+    if ((measureDraftIsDirty || measureRequest.current !== null) && !await confirmLocalDiscard(
+      "Cancelar medida em preenchimento?",
+      "A medida ainda não registrada será descartada. O histórico da visita não será alterado.",
+      "Cancelar e descartar",
+    )) return;
+    if (savingMeasure || liveDraftSignatures.current.measure !== snapshot) {
+      setMeasureDraftNotice("A medida mudou durante a confirmação. Os dados foram preservados; confira e solicite o cancelamento novamente.");
+      return;
+    }
+    resetMeasureDraft();
+  }
+  async function discardEvolutionDraft() {
+    if (savingUpdate) return;
+    const snapshot = liveDraftSignatures.current.evolution;
+    if ((evolutionDraftIsDirty || updateRequest.current !== null) && !await confirmLocalDiscard(
+      "Cancelar evolução em preenchimento?",
+      "As informações de evolução ainda não registradas serão descartadas. O histórico anterior permanecerá preservado.",
+      "Cancelar e descartar",
+    )) return;
+    if (savingUpdate || liveDraftSignatures.current.evolution !== snapshot) {
+      setEvolutionNotice("A evolução mudou durante a confirmação. Os dados foram preservados; confira e solicite o cancelamento novamente.");
+      return;
+    }
+    cancelEvolution();
+  }
+  function resetMeasureDraft() {
+    setMeasureVisitId(""); setMeasureDraft(newAction());
+    setMeasureDraftNotice(""); measureRequest.current = null;
+  }
+  function resetVisitDraft() {
+    setDay(today); setDiagnosis(""); setStrengths(""); setWeaknesses("");
+    setSummary(""); setParticipants(""); setPurpose(""); setCorrectionBase(null);
+    setCorrectionReason(""); setDraftActions([newAction()]);
+    setVisitDraftNotice(""); visitRequests.current = null;
+  }
+  function startMeasure(visit: NonNullable<typeof detailData>["visits"][number]) {
+    if (!canRecord || savingMeasure) return;
+    if (measureVisitId === visit.id) {
+      document.getElementById("followup-measure-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (measureVisitId && (measureDraftIsDirty || measureRequest.current !== null)) {
+      setMeasureDraftNotice("Há uma medida em preenchimento. Salve ou cancele antes de selecionar outra visita.");
+      document.getElementById("followup-measure-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    setMeasureVisitId(visit.id); setMeasureDraft(newAction());
+    measureRequest.current = null; setMeasureDraftNotice(""); setError(""); setNotice("");
+  }
+  function startCorrection(visit: NonNullable<typeof detailData>["visits"][number]) {
+    if (!canRecord || !visit.can_correct || saving) return;
+    if (correctionBase === visit.id) {
+      document.getElementById("followup-visit-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (visitDraftIsDirty || visitRequests.current !== null) {
+      setVisitDraftNotice("Existe uma visita em preenchimento. Salve ou descarte os dados atuais antes de retificar outra visita.");
+      document.getElementById("followup-visit-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    setCorrectionBase(visit.id);
+    setCorrectionReason("");
+    setDay(visit.visit_date);
+    setDiagnosis(visit.diagnosis);
+    setParticipants(visit.participants_note ?? "");
+    setPurpose(visit.purpose_note ?? "");
+    setStrengths(visit.strengths);
+    setWeaknesses(visit.weaknesses);
+    setSummary(visit.summary ?? "");
+    setDraftActions([newAction()]);
+    visitRequests.current = null; setVisitDraftNotice("");
+    setError(""); setNotice("Preencha a justificativa e confira os dados da visita original.");
+  }
+  function startEvolution(nextActionId: string) {
+    // UI boundary complements the writer's school capability check; never trust the ID alone.
+    if (!canRecord || !detailData?.actions.some((a) =>
+      a.id === nextActionId && a.school_id === school)) return;
+    if (actionId === nextActionId) {
+      document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (actionId && (savingUpdate || evolutionDraftIsDirty || updateRequest.current !== null)) {
+      setEvolutionNotice("Existe uma evolução em preenchimento. Salve ou cancele o formulário atual antes de selecionar outra medida.");
+      document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+    setActionId(nextActionId);
+    setUpdateDay(today); setUpdateVisitId(""); setSituation(SITUATIONS[0].value);
+    setDone(""); setNotDone(""); setResults(""); setReferrals("");
+    updateRequest.current = null;
+    setEvolutionNotice(""); setNotice(""); setError("");
+  }
+  function cancelEvolution() {
+    setActionId(""); setUpdateDay(today); setUpdateVisitId(""); setSituation(SITUATIONS[0].value);
+    setDone(""); setNotDone(""); setResults(""); setReferrals("");
+    updateRequest.current = null; setEvolutionNotice("");
+  }
+  function changeSchool(id: string): boolean {
+    if (id === school) return true;
+    if (saving || visitDraftIsDirty || visitRequests.current !== null) {
+      setVisitDraftNotice("Há dados de visita ainda não registrados. Salve ou descarte o preenchimento antes de trocar de escola.");
+      document.getElementById("followup-visit-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return false;
+    }
+    if (savingMeasure || (measureVisitId && (measureDraftIsDirty || measureRequest.current !== null))) {
+      setMeasureDraftNotice("Há uma medida ainda não registrada. Salve ou cancele antes de trocar de escola.");
+      document.getElementById("followup-measure-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return false;
+    }
+    if (actionId && (savingUpdate || evolutionDraftIsDirty || updateRequest.current !== null)) {
+      setEvolutionNotice("Há uma evolução em preenchimento. Salve ou cancele antes de mudar de escola.");
+      document.getElementById("followup-update-form")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return false;
+    }
+    // Abort synchronously before the school context changes; do not rely
+    // solely on the subsequent React effect while a file conversion settles.
+    pendingExportCancel.current?.();
+    if (activeReportExport.current) {
+      activeReportExport.current.abort();
+      activeReportExport.current = null;
+      setExporting(false);
+    }
+    setSchool(id); cancelEvolution(); setTargetActionId("");
+    resetMeasureDraft(); resetVisitDraft();
+    setActionView("todas"); setActionQuery("");
+    setNotice(""); setError("");
+    return true;
+  }
+  async function discardInaccessibleSchoolDrafts() {
+    // Never silently erase unsaved work after an authorization change.
+    if (!school || selected || !network.isSuccess || network.isFetching
+      || saving || savingMeasure || savingUpdate) return;
+    const signatures = JSON.stringify(liveDraftSignatures.current);
+    const scopeSignature = liveSchoolScope.current;
+    if (!await confirmLocalDiscard(
+      "Descartar rascunhos da escola sem acesso confirmado?",
+      "As informações ainda não salvas desta escola serão descartadas. Nenhuma visita, medida ou evolução será gravada.",
+      "Descartar rascunhos e fechar",
+    )) return;
+    if (saving || savingMeasure || savingUpdate ||
+        signatures !== JSON.stringify(liveDraftSignatures.current) ||
+        scopeSignature !== liveSchoolScope.current) {
+      setNotice("O contexto mudou durante a confirmação. Os rascunhos foram preservados; confira o acesso antes de tentar novamente.");
+      return;
+    }
+    activeReportExport.current?.abort();
+    activeReportExport.current = null;
+    setExporting(false);
+    resetVisitDraft();
+    resetMeasureDraft();
+    cancelEvolution();
+    setSchool("");
+    setTargetActionId("");
+    setActionView("todas");
+    setActionQuery("");
+    setError("");
+    setNotice("");
+  }
+  function openMeasure(schoolId: string, measureId: string) {
+    if (!changeSchool(schoolId)) return;
+    setActionView("todas"); setActionQuery("");
+    setTargetActionId(measureId);
+  }
+  function inspectSchoolMeasure(measureId: string) {
+    // Leitura contextual sem trocar a escola nem descartar dados de formulários em edição.
+    setActionView("todas"); setActionQuery("");
+    setTargetActionId(measureId);
+  }
+  return <div className="space-y-6">
+    <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
+      description="A equipe registra o diagnóstico e a evolução das ações. O Gabinete consulta o panorama da rede e seus históricos." />
+    <section className="space-y-3 rounded-xl border border-border p-4" aria-label="Panorama da rede">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
+        <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
+        <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome ou código INEP" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
+        <label className="text-sm">Situação das escolas
+          <select className={input} value={networkView}
+            onChange={(e) => setNetworkView(e.target.value as NetworkView)}>
+            <option value="todas">Todas as unidades</option>
+            <option value="visitadas">Com visitas no período</option>
+            <option value="sem visita">Sem visitas no período</option>
+            <option value="com prazo vencido">Com medidas vencidas</option>
+          </select>
+        </label>
+        <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
+        {network.isSuccess && !network.isFetching && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("xlsx")}>Excel</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("csv")}>CSV</Button>
+        </div>}
+      </div>
+      {(network.isPending || network.isFetching) && <p role="status" className="text-sm text-muted-foreground">Lendo registros autorizados…</p>}
+      {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
+        description={presentError(network.error)} />}
+      {network.isSuccess && !network.isFetching && <>
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {[
+            ["Escolas acessíveis", totals.schools], ["Visitadas no período", totals.visitedSchools],
+            ["Ainda sem visita no período", totals.schools - totals.visitedSchools],
+            ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
+            ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
+            ["Ações sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
+          ].map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3">
+            <p className="text-xs text-muted-foreground">{label}</p>
+            <p className="text-2xl font-semibold tabular-nums">{value}</p>
+          </div>)}
+        </div>
+        <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
+        {chartsConsistent && <InstitutionalFollowupAnalytics
+          months={monthly.data!} statuses={statuses.data!}
+          period={`${dateLabel(from)} a ${dateLabel(to)}`} />}
+        {analyticsReady && !chartsConsistent && <p role="alert" className="text-sm text-muted-foreground">
+          Os totais da rede, a série mensal e a distribuição por situação não coincidem.
+          Os gráficos foram ocultados para evitar uma leitura incompleta ou desatualizada.
+          Atualize as consultas; a lista de escolas permanece disponível.
+        </p>}
+        {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
+          Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
+        </p>}
+        <h2 className="font-semibold">Escolas e visitas realizadas</h2>
+        <p className="text-xs text-muted-foreground">
+          {rows.length} de {network.data.length} escolas acessíveis na lista e na exportação.
+          Os indicadores e gráficos acima consideram todas as escolas autorizadas.
+          A lista é descritiva, sem ranking de qualidade.
+        </p>
+        {rows.length === 0 ? <EmptyState title="Nenhuma escola disponível" description="Nenhuma unidade foi encontrada neste escopo ou filtro." /> : <>
+          <div className="space-y-2">
+            {rows.slice(0, 8).map((r) => <div key={r.school_id} className="grid grid-cols-[minmax(0,1fr)_2fr_auto] items-center gap-2 text-xs">
+              <span className="truncate" title={r.school_name}>{r.school_name}</span>
+              <div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${(r.visits / maxVisits) * 100}%` }} /></div>
+              <span className="tabular-nums">{r.visits}</span>
+            </div>)}
+          </div>
+          <div className="max-h-72 overflow-auto rounded-lg border" tabIndex={0}
+            role="region" aria-label="Tabela de escolas — área rolável por teclado">
+            <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-background"><tr>
+              <th scope="col" className="p-2">Unidade escolar</th><th scope="col" className="p-2">Visitas</th><th scope="col" className="p-2">Ações</th><th scope="col" className="p-2">Prazo vencido</th>
+            </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className="border-t">
+              <td className="p-2"><button type="button" className="text-left font-medium text-primary underline-offset-2 hover:underline" onClick={() => changeSchool(r.school_id)}>{r.school_name}</button>
+                {r.inep && <p className="text-xs text-muted-foreground">INEP: {r.inep}</p>}</td>
+              <td className="p-2 tabular-nums">{r.visits}</td><td className="p-2 tabular-nums">{r.actions}</td><td className="p-2 tabular-nums">{r.overdue}</td>
+            </tr>)}</tbody></table>
+          </div>
+        </>}
+      </>}
+    </section>
+    <InstitutionalPendingPanel rows={scopedPending}
+      loading={network.isPending || network.isFetching || pending.isPending || pending.isFetching}
+      error={pendingScopeError} today={today} selectedSchoolId={school}
+      cancelExportRef={pendingExportCancel} onOpenAction={openMeasure} />
+    {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
+    {school && network.isSuccess && !network.isFetching && !selected && <section
+      className="space-y-2 rounded-xl border border-border p-4"
+      aria-label="Escola fora do escopo autorizado">
+      <h2 className="font-semibold">A unidade não consta mais no escopo autorizado</h2>
+      <p className="text-sm text-muted-foreground">
+        O histórico e as exportações desta escola foram ocultados após a atualização do acesso.
+        Se necessário, solicite a conferência das permissões institucionais.
+      </p>
+      {hasUnsavedFollowup && <Button type="button" variant="outline"
+        disabled={saving || savingMeasure || savingUpdate}
+        onClick={() => void discardInaccessibleSchoolDrafts()}>
+        Descartar rascunhos e fechar
+      </Button>}
+      {!hasUnsavedFollowup && <Button type="button" variant="outline" onClick={() => changeSchool("")}>
+        Fechar ficha indisponível
+      </Button>}
+      {notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}
+    </section>}
+    {school && (!network.isSuccess || network.isFetching || Boolean(selected)) &&
+      <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div><h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
+          <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
+        <div className="flex flex-wrap items-center gap-2">
+          {detailData && <>
+            <Button size="sm" variant="outline" disabled={exporting}
+              onClick={() => void exportSchoolReport("pdf")}>Ficha PDF</Button>
+            <Button size="sm" variant="outline" disabled={exporting}
+              onClick={() => void exportSchoolReport("xlsx")}>Ficha Excel</Button>
+            <Button size="sm" variant="outline" disabled={exporting}
+              onClick={() => void exportSchoolReport("csv")}>Ficha CSV</Button>
+          </>}
+          <Button variant="outline" onClick={() => changeSchool("")}>Fechar escola</Button>
+        </div>
+      </div>
+      {(detail.isPending || detail.isFetching) && <p role="status">Carregando histórico…</p>}
+      {detail.isError && <StatePanel tone="danger" title="Histórico indisponível"
+        description={presentError(detail.error)} />}
+      {stats && <div className="flex flex-wrap gap-2 text-xs">
+        <span className="rounded-lg bg-muted p-2">{stats.visits} visitas</span>
+        <span className="rounded-lg bg-muted p-2">{stats.actions} ações</span>
+        <span className="rounded-lg bg-muted p-2">{stats.completed} concluídas</span>
+        <span className="rounded-lg bg-muted p-2">{stats.withoutUpdate} sem atualização</span>
+        <span className="rounded-lg bg-muted p-2">{stats.noDueDate} sem prazo</span>
+      </div>}
+      {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
+      {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
+      {hasUnsavedFollowup && <p role="status" className="text-xs text-muted-foreground">
+        Há um formulário em preenchimento ou envio. Salve ou cancele antes de sair desta página;
+        uma recarga ou fechamento de aba pode exibir confirmação do navegador.
+      </p>}
+      {detailData && <SchoolOpenActionsPanel key={school} snapshot={detailData} today={today}
+        schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
+        onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
+      {canRecord && <form id="followup-visit-form" className="rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
+        <fieldset disabled={saving} className="min-w-0 space-y-4">
+        <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
+        {visitDraftNotice && <p role="alert" className="text-sm text-destructive">{visitDraftNotice}</p>}
+        {correctionBase && <p className="text-sm text-muted-foreground">
+          Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
+        </p>}
+        <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="block text-sm">Objetivo da visita (opcional)
+            <textarea className={textArea} maxLength={1000} value={purpose}
+              onChange={(e) => setPurpose(e.target.value)} placeholder="Por exemplo: acompanhar a organização pedagógica" />
+          </label>
+          <label className="block text-sm">Demais participantes informados (opcional)
+            <textarea className={textArea} maxLength={500} value={participants}
+              onChange={(e) => setParticipants(e.target.value)}
+              placeholder="Servidor ou equipe que também participou" />
+          </label>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          A autoria é atribuída automaticamente à conta que salva o registro. Participantes informados não
+          constituem assinatura, confirmação de presença ou autorização para escrever no sistema.
+        </p>
+        <label className="block text-sm">Diagnóstico da realidade<textarea className={textArea} required maxLength={10000} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} /></label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="block text-sm">Pontos fortes<textarea className={textArea} maxLength={10000} value={strengths} onChange={(e) => setStrengths(e.target.value)} /></label>
+          <label className="block text-sm">Fragilidades e necessidades<textarea className={textArea} maxLength={10000} value={weaknesses} onChange={(e) => setWeaknesses(e.target.value)} /></label>
+        </div>
+        <label className="block text-sm">Observações e encaminhamentos da visita<textarea className={textArea} maxLength={10000} value={summary} onChange={(e) => setSummary(e.target.value)} /></label>
+        {correctionBase && <label className="block text-sm">Justificativa obrigatória da retificação
+          <textarea className={textArea} required maxLength={4000} value={correctionReason}
+            onChange={(e) => setCorrectionReason(e.target.value)} />
+        </label>}
+        {!correctionBase && <><h4 className="font-medium">Plano de ação — medidas propostas</h4>
+        <p role="status" className="text-sm text-muted-foreground">
+          {describedActionCount} {describedActionCount === 1 ? "medida descrita" : "medidas descritas"}.
+          {invalidActionCount > 0
+            ? ` ${invalidActionCount} ${invalidActionCount === 1 ? "medida precisa" : "medidas precisam"} de correção antes de salvar.`
+            : " Nenhuma inconsistência no plano."}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Subir e descer organiza apenas a sequência de envio das medidas nesta visita.
+          O histórico poderá apresentá-las em outra ordem, por exemplo por prazo.
+        </p>
+        {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg bg-muted/30 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h5 className="text-sm font-medium">Medida {i + 1}</h5>
+            <div className="flex flex-wrap gap-1">
+              <Button type="button" size="sm" variant="outline" disabled={saving || i === 0}
+                aria-label={`Subir medida ${i + 1}`}
+                onClick={() => {
+                  setDraftActions((prev) => moveFollowupActionDraft(prev,
+                    prev.findIndex((x) => x.draftKey === a.draftKey), "up"));
+                  visitRequests.current = null;
+                }}>Subir</Button>
+              <Button type="button" size="sm" variant="outline" disabled={saving || i === draftActions.length - 1}
+                aria-label={`Descer medida ${i + 1}`}
+                onClick={() => {
+                  setDraftActions((prev) => moveFollowupActionDraft(prev,
+                    prev.findIndex((x) => x.draftKey === a.draftKey), "down"));
+                  visitRequests.current = null;
+                }}>Descer</Button>
+              {draftActions.length > 1 && <Button type="button" size="sm" variant="ghost" disabled={saving}
+                aria-label={`Remover medida ${i + 1}`}
+                onClick={() => void removeProposedAction(a)}>Remover esta medida</Button>}
+            </div>
+          </div>
+          <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
+            aria-invalid={actionDraftIssues[i] === "description"}
+            aria-describedby={actionDraftIssues[i] === "description" ? `followup-draft-error-${a.draftKey}` : undefined}
+            onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, description: e.target.value } : x))} /></label>
+          <div className="grid gap-2 md:grid-cols-2">
+            <label className="block text-sm">Responsável declarado<input className={input} maxLength={250} value={a.responsible}
+              onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, responsible: e.target.value } : x))} /></label>
+            <label className="block text-sm">Prazo, se houver<DateInput className={input} min={day} value={a.due}
+              aria-invalid={actionDraftIssues[i] === "due"}
+              aria-describedby={actionDraftIssues[i] === "due" ? `followup-draft-error-${a.draftKey}` : undefined}
+              onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, due: e.target.value } : x))} /></label>
+          </div>
+          {actionDraftIssues[i] && <p id={`followup-draft-error-${a.draftKey}`}
+            role="alert" className="text-sm text-destructive">
+            Medida {i + 1}: {actionDraftIssues[i] === "description"
+              ? "informe a descrição ou remova os dados de responsável e prazo."
+              : "o prazo não pode ser anterior à data da visita."}
+          </p>}
+        </div>)}</>}
+        <div className="flex flex-wrap gap-2">
+          {!correctionBase && <Button type="button" variant="outline" disabled={saving || draftActions.length >= 50}
+            onClick={() => { setDraftActions((a) => a.length < 50 ? [...a, newAction()] : a); visitRequests.current = null; }}>Adicionar medida</Button>}
+          <Button type="submit" disabled={saving || !diagnosis.trim() || invalidActionCount > 0
+            || Boolean(correctionBase && !correctionReason.trim())}>
+            {saving ? "Registrando…" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
+          </Button>
+          {(correctionBase || visitDraftIsDirty || visitRequests.current !== null) && <Button
+            type="button" variant="outline" disabled={saving}
+            onClick={() => void discardVisitDraft()}>
+            {correctionBase ? "Cancelar retificação" : "Descartar preenchimento"}
+          </Button>}
+        </div>
+        <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
+        </fieldset>
+      </form>}
+      {detailData && canRecord && measureVisitId && <form id="followup-measure-form"
+        className="rounded-xl border p-4" onSubmit={(e) => void saveMeasure(e)}>
+        <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
+        <h3 className="font-semibold">Acrescentar medida a uma visita existente</h3>
+        {measureDraftNotice && <p role="alert" className="text-sm text-destructive">{measureDraftNotice}</p>}
+        <p className="text-sm text-muted-foreground">
+          Visita de {dateLabel(detailData.visits.find((v) => v.id === measureVisitId)?.visit_date ?? null)}.
+          A nova medida é adicionada ao plano sem alterar o diagnóstico ou medidas anteriores.
+        </p>
+        <label className="block text-sm">O que precisa ser feito
+          <textarea className={textArea} required maxLength={4000}
+            value={measureDraft.description}
+            onChange={(e) => setMeasureDraft((d) => ({ ...d, description: e.target.value }))} />
+        </label>
+        <div className="grid gap-3 md:grid-cols-2">
+          <label className="block text-sm">Responsável declarado
+            <input className={input} maxLength={250} value={measureDraft.responsible}
+              onChange={(e) => setMeasureDraft((d) => ({ ...d, responsible: e.target.value }))} />
+          </label>
+          <label className="block text-sm">Prazo, se houver
+            <DateInput className={input}
+              min={detailData.visits.find((v) => v.id === measureVisitId)?.visit_date}
+              value={measureDraft.due}
+              onChange={(e) => setMeasureDraft((d) => ({ ...d, due: e.target.value }))} />
+          </label>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" disabled={savingMeasure || !measureDraft.description.trim()}>
+            {savingMeasure ? "Salvando…" : "Acrescentar medida"}
+          </Button>
+          <Button type="button" variant="outline" disabled={savingMeasure}
+            onClick={() => void discardMeasureDraft()}>Cancelar</Button>
+        </div>
+        </fieldset>
+      </form>}
+      {detailData && <>
+        <div className="space-y-3 rounded-xl border p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-semibold">Ações e evolução</h3>
+            <span className="text-xs text-muted-foreground">{visibleActions.length} de {detailData.actions.length} medidas</span>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="text-sm">Filtrar por situação e prazo
+              <select className={input} value={actionView}
+                onChange={(e) => setActionView(e.target.value as ActionView)}>
+                <option value="todas">Todas as medidas</option>
+                <option value="prazo vencido">Com prazo vencido</option>
+                <option value="sem prazo">Sem prazo declarado</option>
+                <option value={NO_UPDATE}>Sem atualização registrada</option>
+                {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+              </select>
+            </label>
+            <label className="text-sm">Buscar medida ou responsável
+              <input className={input} type="search" placeholder="Descrição, responsável ou data"
+                value={actionQuery} onChange={(e) => setActionQuery(e.target.value)} />
+            </label>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Medidas ordenadas pelo prazo declarado mais próximo; medidas sem prazo aparecem por último.
+            Sem atualização não significa não realizada.
+          </p>
+          {!detailData.actions.length && <p className="text-sm text-muted-foreground">Nenhuma medida cadastrada.</p>}
+          {detailData.actions.length > 0 && visibleActions.length === 0 &&
+            <p className="text-sm text-muted-foreground">Nenhuma medida corresponde aos filtros. Os registros permanecem no histórico.</p>}
+          {visibleActions.map((a) => {
+            const latest = currentUpdate(a, detailData!.updates);
+            return <div key={a.id} id={`followup-action-${a.id}`} tabIndex={-1}
+              className="scroll-mt-24 space-y-2 border-b pb-3 last:border-0 focus:outline-2 focus:outline-offset-2 focus:outline-primary">
+              <p className="font-medium">{a.description}</p>
+              <p className="text-xs text-muted-foreground">
+                Responsável: {a.responsible_label || "Não informado"} • Registro: {a.author_name || "Autoria registrada"}
+                {" • "}Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detailData!.updates)}
+                {isOverdue(a, detailData!.updates, today) && <strong className="text-destructive"> • Prazo vencido</strong>}
+              </p>
+              {latest && <p className="text-sm">Última atualização ({dateLabel(latest.occurred_on)}): {latest.situation}</p>}
+              {detailData!.updates.some((u) => u.action_id === a.id) && <details className="rounded-lg bg-muted/30 p-3 text-sm">
+                <summary className="cursor-pointer font-medium">Consultar histórico completo desta ação</summary>
+                <ol className="mt-3 space-y-3">
+                  {detailData!.updates.filter((u) => u.action_id === a.id)
+                    .sort((x, y) => y.occurred_on.localeCompare(x.occurred_on) || y.created_at.localeCompare(x.created_at))
+                    .map((u) => <li key={u.id} className="space-y-1 border-b pb-2 last:border-0">
+                      <p className="font-medium">{dateLabel(u.occurred_on)} — {u.situation} • {u.author_name || "Autoria registrada"}</p>
+                      <p><strong>O que foi feito:</strong> {u.done_text || "Não informado"}</p>
+                      <p><strong>O que não foi feito:</strong> {u.not_done_text || "Não informado"}</p>
+                      <p><strong>Resultados:</strong> {u.results || "Não informado"}</p>
+                      <p><strong>Encaminhamentos:</strong> {u.referrals || "Não informado"}</p>
+                      <p><strong>Visita associada:</strong> {u.visit_logical_id
+                        ? (dateLabel(followupVisitByLogicalId(detailData!.visits, u.visit_logical_id)?.visit_date ?? null))
+                        : "Nenhuma visita informada"}</p>
+                    </li>)}
+                </ol>
+              </details>}
+              {canRecord && <Button size="sm" variant="outline"
+                onClick={() => startEvolution(a.id)}>Registrar evolução</Button>}
+            </div>;
+          })}
+        </div>
+        {canRecord && actionId && <form id="followup-update-form" tabIndex={-1}
+          className="scroll-mt-24 rounded-xl border p-4 focus:outline-2 focus:outline-primary"
+          onSubmit={(e) => void saveUpdate(e)}>
+          <fieldset disabled={savingUpdate} className="min-w-0 space-y-3">
+          <h3 className="font-semibold">Nova atualização da ação</h3>
+          <p className="text-sm text-muted-foreground">
+            Medida selecionada: <strong>{selectedAction?.description ?? "Não disponível"}</strong>.
+            Os campos começam vazios e só serão registrados ao confirmar o formulário.
+          </p>
+          {evolutionNotice && <p role="alert" className="text-sm text-destructive">{evolutionNotice}</p>}
+          <label className="block text-sm">Data da evolução
+            <DateInput className={input} required min={updateMinDay ?? undefined} max={today}
+              value={updateDay} onChange={(e) => setUpdateDay(e.target.value)} />
+          </label>
+          <label className="block text-sm">Visita em que a evolução foi constatada (opcional)
+            <select className={input} value={updateVisitId}
+              onChange={(e) => { setUpdateVisitId(e.target.value); updateRequest.current = null; }}>
+              <option value="">Sem visita vinculada</option>
+              {updateVisitId && !updateVisitIsValid &&
+                <option value={updateVisitId} disabled>Visita selecionada incompatível com a data</option>}
+              {updateVisitChoices.map((v) =>
+                <option key={v.id} value={v.id}>Visita de {dateLabel(v.visit_date)} — {v.diagnosis.slice(0, 90)}</option>)}
+            </select>
+          </label>
+          {!updateVisitIsValid && <p role="alert" className="text-sm text-destructive">
+            A visita selecionada é posterior à data da evolução ou deixou de estar disponível. Escolha outra visita ou desvincule-a.
+          </p>}
+          <p className="text-xs text-muted-foreground">
+            O vínculo é opcional. Somente visitas vigentes desta escola, anteriores ou iguais à data da evolução, podem ser selecionadas.
+          </p>
+          <label className="block text-sm">Situação declarada<select className={input} value={situation} onChange={(e) => setSituation(e.target.value)}>
+            {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select></label>
+          <label className="block text-sm">O que foi feito<textarea className={textArea} maxLength={4000} value={done} onChange={(e) => setDone(e.target.value)} /></label>
+          <label className="block text-sm">O que não foi feito<textarea className={textArea} maxLength={4000} value={notDone} onChange={(e) => setNotDone(e.target.value)} /></label>
+          <label className="block text-sm">Resultados<textarea className={textArea} maxLength={4000} value={results} onChange={(e) => setResults(e.target.value)} /></label>
+          <label className="block text-sm">Encaminhamentos<textarea className={textArea} maxLength={4000} value={referrals} onChange={(e) => setReferrals(e.target.value)} /></label>
+          <div className="flex gap-2"><Button type="submit" disabled={savingUpdate || !updateVisitIsValid ||
+              Boolean(updateMinDay && updateDay < updateMinDay)}>
+              {savingUpdate ? "Salvando…" : "Registrar atualização"}
+            </Button>
+            <Button type="button" variant="outline" disabled={savingUpdate}
+              onClick={() => void discardEvolutionDraft()}>Cancelar</Button></div>
+          </fieldset>
+        </form>}
+        <FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} />
+        <div className="space-y-3 rounded-xl border p-4">
+          <h3 className="font-semibold">Histórico de visitas</h3>
+          {!detailData.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
+          {detailData.visits.map((v) => <article key={v.id} className="space-y-2 border-b pb-3 last:border-0">
+            <p className="text-sm font-medium">{dateLabel(v.visit_date)} • {v.author_name || "Autoria institucional registrada"} {v.version > 1 ? `(retificação v${v.version})` : ""}</p>
+            {v.purpose_note && <p className="text-sm"><strong>Objetivo:</strong> {v.purpose_note}</p>}
+            {v.participants_note && <p className="text-sm"><strong>Demais participantes informados:</strong> {v.participants_note}</p>}
+            <p className="text-sm"><strong>Diagnóstico:</strong> {v.diagnosis}</p>
+            <p className="text-sm"><strong>Pontos fortes:</strong> {v.strengths || "Não informado"}</p>
+            <p className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses || "Não informado"}</p>
+            {v.summary && <p className="text-sm"><strong>Encaminhamentos:</strong> {v.summary}</p>}
+            {v.correction_reason && <p className="text-sm"><strong>Justificativa da última retificação:</strong> {v.correction_reason}</p>}
+            {v.version > 1 && <details className="rounded-md bg-muted/30 p-3 text-sm">
+              <summary className="cursor-pointer font-medium">
+                Ver {detailData!.visit_history.filter((h) => h.logical_id === v.logical_id).length} versão(ões) anteriores
+              </summary>
+              <ol className="mt-2 space-y-3">
+                {detailData!.visit_history.filter((h) => h.logical_id === v.logical_id)
+                  .sort((a, b) => b.version - a.version).map((h) => <li key={h.id} className="space-y-1 border-b pb-2 last:border-0">
+                    <p className="font-semibold">Versão {h.version} • {dateLabel(h.visit_date)} • {h.author_name || "Autoria registrada"}</p>
+                    {h.purpose_note && <p><strong>Objetivo:</strong> {h.purpose_note}</p>}
+                    {h.participants_note && <p><strong>Demais participantes informados:</strong> {h.participants_note}</p>}
+                    <p><strong>Diagnóstico:</strong> {h.diagnosis}</p>
+                    <p><strong>Pontos fortes:</strong> {h.strengths || "Não informado"}</p>
+                    <p><strong>Fragilidades:</strong> {h.weaknesses || "Não informado"}</p>
+                    <p><strong>Encaminhamentos:</strong> {h.summary || "Não informado"}</p>
+                    {h.correction_reason && <p><strong>Motivo da correção desta versão:</strong> {h.correction_reason}</p>}
+                  </li>)}
+              </ol>
+            </details>}
+            <div className="flex flex-wrap gap-2" aria-label="Exportar relatório individual da visita">
+              <Button type="button" size="sm" variant="outline" disabled={exporting}
+                onClick={() => void exportVisitReport(v.id, "pdf")}>Relatório da visita PDF</Button>
+              <Button type="button" size="sm" variant="outline" disabled={exporting}
+                onClick={() => void exportVisitReport(v.id, "xlsx")}>Excel</Button>
+              <Button type="button" size="sm" variant="outline" disabled={exporting}
+                onClick={() => void exportVisitReport(v.id, "csv")}>CSV</Button>
+            </div>
+            {canRecord && <div className="flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="outline" onClick={() => startMeasure(v)}>
+                Acrescentar medida ao plano
+              </Button>
+              {v.can_correct && <Button type="button" size="sm" variant="outline"
+                onClick={() => startCorrection(v)}>Retificar esta visita</Button>}
+            </div>}
+          </article>)}
+        </div>
+      </>}
+    </section>}
+  </div>;
+}

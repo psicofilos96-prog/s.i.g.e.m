@@ -13,6 +13,7 @@ export const NAV_REQUIRED_CAPABILITY: Readonly<Record<string, readonly string[]>
   "/direcao": ["consultar-acompanhamento-pedagogico", "registrar-acompanhamento-pedagogico"],
   "/orientacao": ["consultar-acompanhamento-pedagogico", "registrar-acompanhamento-pedagogico"],
   "/supervisao-escolar": ["consultar-acompanhamento-da-supervisao", "registrar-acompanhamento-da-supervisao", "construir-calendario-da-rede"],
+  "/acompanhamento-unidades": ["consultar-acompanhamento-institucional", "registrar-acompanhamento-institucional"],
   "/secretaria": ["consultar-matricula-e-movimentacao", "cadastrar-estudante-na-rede"],
   // O assistente de matrícula só oferece escolas com esta competência; consulta não autoriza criar.
   "/matriculas/nova": ["manter-matricula-e-enturmacao"],

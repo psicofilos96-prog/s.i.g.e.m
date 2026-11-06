@@ -660,5 +660,9 @@
  "drizzle/migrations/0609_archive_legacy_simple_tables.sql": "846166ab7f913b8553afe30de9b50c15fb5b641043081ae4f430f093db690cbf",
  "drizzle/migrations/0610_secretariat_student_labels.sql": "496f18a708e51ad0398c77d2663fc58de8ea3a439e8c37b382a6040b55ba27d9",
  "drizzle/migrations/0611_secretariat_movement_search.sql": "6366134dd578dc2b0c8990b0c1eff8cb5bc66b6962c36792a7d0653981b8544d",
- "drizzle/migrations/0612_secretariat_movement_search_observation_fix.sql": "8896f8a57d67a2849cb6fc847a4b37cd13142a2335cd7d15534a264e44f81ddc"
+ "drizzle/migrations/0612_secretariat_movement_search_observation_fix.sql": "8896f8a57d67a2849cb6fc847a4b37cd13142a2335cd7d15534a264e44f81ddc",
+ "drizzle/migrations/0613_school_institutional_followup.sql": "5f0c2a3816aac5a0a074b92dd0a932695fd86d7f923708181e7ed0d7486a18e9",
+ "drizzle/migrations/0614_followup_functional_seat_session_guard.sql": "57365ec705ce731a98c466b35b557fd1a3870c0f538f6fdafdaa206ae103abb3",
+ "drizzle/migrations/0615_followup_functional_seat_segregation.sql": "2bf3d28dceac5eb8545636cf6db4dafcce68a3f3a8c2554c27d82032fa8d201a",
+ "drizzle/migrations/0616_followup_seat_authority_sao_paulo_date.sql": "a4beb27898cd25efdcd0b989bba97cd468c04e3f1201fc0a76597447a1a47a1a"
 }

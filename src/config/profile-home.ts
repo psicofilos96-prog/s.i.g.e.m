@@ -33,6 +33,7 @@ export const HOME_ACTIONS: readonly HomeAction[] = [
   { to: "/orientacao", label: "Orientação", icon: Eye },
   { to: "/acompanhamento-planejamento", label: "Planejamentos", icon: ListChecks },
   { to: "/supervisao-escolar", label: "Escolas", icon: Eye },
+  { to: "/acompanhamento-unidades", label: "Acompanhar unidades", icon: ClipboardList },
   { to: "/calendario-escolar", label: "Calendário", icon: CalendarDays },
   // Mediador
   { to: "/mediador", label: "Mediação", icon: HandHeart },

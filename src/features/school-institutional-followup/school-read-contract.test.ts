@@ -1,0 +1,186 @@
+import { describe, expect, it } from "vitest";
+import { parseSchoolFollowupSnapshot } from "./school-read-contract";
+
+const v1 = {
+  id: "visit-1", logical_id: "logical-1", version: 1, school_id: "school-a",
+  visit_date: "2026-10-01", diagnosis: "Biblioteca exige atenção",
+  strengths: "", weaknesses: "Inventário pendente", summary: null,
+  participants_note: null, purpose_note: null, correction_reason: null,
+  supersedes_id: null, can_correct: false, created_at: "2026-10-01T12:00:00Z",
+  author_name: "Servidor",
+};
+const a1 = {
+  id: "action-1", school_id: "school-a", visit_logical_id: "logical-1",
+  description: "Organizar acervo", responsible_label: null, due_on: null,
+  created_at: "2026-10-02T12:00:00Z", author_name: null,
+};
+const u1 = {
+  id: "update-1", action_id: "action-1", visit_logical_id: "logical-1",
+  occurred_on: "2026-10-07", situation: "em andamento",
+  done_text: "Inventário iniciado", not_done_text: null,
+  results: null, referrals: null, created_at: "2026-10-07T12:00:00Z",
+  author_name: "Servidor",
+};
+const school = { visits: [v1], visit_history: [], actions: [a1], updates: [u1] };
+
+describe("limite de confiança do histórico institucional por escola", () => {
+  it("aceita o retrato completo coerente sem modificar nem filtrar os fatos", () => {
+    const parsed = parseSchoolFollowupSnapshot(school, "school-a");
+    expect(parsed).toBe(school);
+    expect(parsed.actions).toHaveLength(1);
+    expect(parsed.updates).toHaveLength(1);
+    expect(parsed.visits[0]?.diagnosis).toBe("Biblioteca exige atenção");
+  });
+
+  it("aceita retificação preservada no histórico com uma única visita vigente", () => {
+    const current = { ...v1, id: "visit-2", version: 2, supersedes_id: v1.id, can_correct: true };
+    const result = parseSchoolFollowupSnapshot({
+      visits: [current], visit_history: [v1], actions: [a1], updates: [u1],
+    }, "school-a");
+    expect(result.visits).toHaveLength(1);
+    expect(result.visit_history).toHaveLength(1);
+  });
+
+  it("aceita cadeias completas de retificação, sem contar versões antigas como novas visitas", () => {
+    const v2 = { ...v1, id: "visit-2", version: 2, supersedes_id: v1.id,
+      correction_reason: "Ajuste do relatório" };
+    const v3 = { ...v2, id: "visit-3", version: 3, supersedes_id: v2.id,
+      correction_reason: "Correção da data" };
+    const second = { ...v1, id: "second-visit", logical_id: "logical-2" };
+    const result = parseSchoolFollowupSnapshot({
+      visits: [v3, second], visit_history: [v1, v2], actions: [a1], updates: [u1],
+    }, "school-a");
+    expect(result.visits).toHaveLength(2);
+    expect(result.visit_history).toHaveLength(2);
+  });
+
+  it("recusa versões perdidas, órfãs ou vinculadas a outra visita lógica", () => {
+    const v2 = { ...v1, id: "visit-2", version: 2, supersedes_id: v1.id,
+      correction_reason: "Correção" };
+    const v3 = { ...v2, id: "visit-3", version: 3, supersedes_id: v2.id };
+    const cases = [
+      { visits: [v2], visit_history: [] },
+      { visits: [v3], visit_history: [v1] },
+      { visits: [v2], visit_history: [{ ...v1, logical_id: "other-logical" }] },
+      { visits: [v2], visit_history: [{ ...v1, id: "orphan-visit" }] },
+      { visits: [v1], visit_history: [{ ...v2, id: "orphan-visit" }] },
+      { visits: [{ ...v1, supersedes_id: "missing" }], visit_history: [] },
+      { visits: [{ ...v2, version: 4 }], visit_history: [v1] },
+    ];
+    for (const invalid of cases) {
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, ...invalid,
+      }, "school-a")).toThrow(/retificações inválida|versão sem visita vigente/);
+    }
+  });
+
+  it("recusa o retrato malformado ou incompleto, sem produzir contadores artificiais", () => {
+    for (const invalid of [null, [], {}, { visits: [], visit_history: [], actions: [] },
+      { visits: null, visit_history: [], actions: [], updates: [] }]) {
+      expect(() => parseSchoolFollowupSnapshot(invalid, "school-a")).toThrow();
+    }
+    expect(() => parseSchoolFollowupSnapshot(school, "")).toThrow();
+    expect(parseSchoolFollowupSnapshot({
+      visits: [], visit_history: [], actions: [], updates: [],
+    }, "school-a").actions).toEqual([]);
+  });
+
+  it("recusa visita de outra unidade, inclusive em uma versão histórica", () => {
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, visits: [{ ...v1, school_id: "school-b" }],
+    }, "school-a")).toThrow(/fora do escopo/);
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, visit_history: [{ ...v1, id: "other", school_id: "school-b" }],
+    }, "school-a")).toThrow(/fora do escopo/);
+  });
+
+  it("recusa medida de outra unidade ou sem visita de origem", () => {
+    for (const invalid of [{ ...a1, school_id: "school-b" },
+      { ...a1, visit_logical_id: "missing" }, { ...a1, description: null }]) {
+      expect(() => parseSchoolFollowupSnapshot({ ...school, actions: [invalid] }, "school-a"))
+        .toThrow(/medida inválida/);
+    }
+  });
+
+  it("recusa atualização sem medida conhecida, com visita estrangeira ou situação inválida", () => {
+    for (const invalid of [{ ...u1, action_id: "foreign-action" },
+      { ...u1, visit_logical_id: "other-school-visit" },
+      { ...u1, situation: "homologada" }, { ...u1, occurred_on: null }]) {
+      expect(() => parseSchoolFollowupSnapshot({ ...school, updates: [invalid] }, "school-a"))
+        .toThrow(/evolução inválida/);
+    }
+  });
+
+  it("recusa datas civis impossíveis ou timestamps inválidos em qualquer coleção", () => {
+    for (const visit_date of ["2026-02-30", "2026-13-01", "2026-00-10", "2026-02-29"]) {
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, visits: [{ ...v1, visit_date }],
+      }, "school-a")).toThrow(/visita inválida/);
+    }
+    // A data de 29 de fevereiro em ano bissexto continua válida.
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, visits: [{ ...v1, visit_date: "2024-02-29" }],
+    }, "school-a")).not.toThrow();
+
+    for (const created_at of ["texto qualquer", "2026-02-30T12:00:00Z", "2026-10-01T25:00:00Z"]) {
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, visits: [{ ...v1, created_at }],
+      }, "school-a")).toThrow(/visita inválida/);
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, actions: [{ ...a1, created_at }],
+      }, "school-a")).toThrow(/medida inválida/);
+      expect(() => parseSchoolFollowupSnapshot({
+        ...school, updates: [{ ...u1, created_at }],
+      }, "school-a")).toThrow(/evolução inválida/);
+    }
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, actions: [{ ...a1, due_on: "2026-04-31" }],
+    }, "school-a")).toThrow(/medida inválida/);
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, updates: [{ ...u1, occurred_on: "2026-11-31" }],
+    }, "school-a")).toThrow(/evolução inválida/);
+  });
+
+  it("recusa cronologia inconsistente entre visita, prazo e evolução, sem ocultar linhas", () => {
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, actions: [{ ...a1, due_on: "2026-09-30" }],
+    }, "school-a")).toThrow(/medida inválida/);
+
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, updates: [{ ...u1, occurred_on: "2026-09-30" }],
+    }, "school-a")).toThrow(/evolução inválida/);
+
+    const returnVisit = { ...v1, id: "return-visit", logical_id: "return-logical",
+      visit_date: "2026-10-10" };
+    const withReturn = { ...school, visits: [v1, returnVisit] };
+    expect(() => parseSchoolFollowupSnapshot({
+      ...withReturn, updates: [{ ...u1, visit_logical_id: "return-logical" }],
+    }, "school-a")).toThrow(/evolução inválida/);
+
+    // Um retorno anterior à origem é incoerente mesmo quando a evolução é posterior.
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, visits: [v1, { ...returnVisit, visit_date: "2026-09-30" }],
+      updates: [{ ...u1, visit_logical_id: "return-logical" }],
+    }, "school-a")).toThrow(/evolução inválida/);
+
+    expect(() => parseSchoolFollowupSnapshot({
+      ...withReturn, updates: [{ ...u1, visit_logical_id: "return-logical",
+        occurred_on: "2026-10-10" }],
+    }, "school-a")).not.toThrow();
+  });
+
+  it("recusa identificadores duplicados e limites silenciosamente ultrapassados", () => {
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, actions: [a1, a1],
+    }, "school-a")).toThrow(/medida inválida/);
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, visits: [v1, v1],
+    }, "school-a")).toThrow(/visita inválida/);
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, updates: [u1, u1],
+    }, "school-a")).toThrow(/evolução inválida/);
+    expect(() => parseSchoolFollowupSnapshot({
+      ...school, actions: Array.from({ length: 2001 }, () => a1),
+    }, "school-a")).toThrow(/limite seguro/);
+  });
+});
