@@ -55,7 +55,7 @@ describe("NDATE — autorização usa o dia operacional da rede", () => {
       const calls: Array<{ fn: string; on: unknown }> = [];
       const db = {
         rpc: (fn: string, args: Record<string, unknown>) => {
-          calls.push({ fn, on: args._on });
+          calls.push({ fn, on: args["_on"] });
           return chain(fn === "effective_capability_grants" ? [g("registrar-acompanhamento-institucional", "escola", "school-a")] : []);
         },
       };
@@ -77,7 +77,7 @@ describe("NDATE — autorização usa o dia operacional da rede", () => {
     const calls: Array<{ fn: string; on: unknown }> = [];
     const db = {
       rpc: (fn: string, args: Record<string, unknown>) => {
-        calls.push({ fn, on: args._on });
+        calls.push({ fn, on: args["_on"] });
         return chain([]);
       },
     };
@@ -85,7 +85,7 @@ describe("NDATE — autorização usa o dia operacional da rede", () => {
     expect(calls.map((call) => call.on)).toEqual(["2026-10-01", "2026-10-01", "2026-10-01"]);
 
     const legacy = { rpc: (fn: string, args: Record<string, unknown>) => {
-      calls.push({ fn, on: args._on });
+      calls.push({ fn, on: args["_on"] });
       return Promise.resolve({ data: [], error: null });
     } };
     await readAllEffectiveCapabilities(legacy, { _on: "2026-09-30" });
