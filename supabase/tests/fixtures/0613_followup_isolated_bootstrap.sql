@@ -5,9 +5,27 @@ CREATE ROLE authenticated NOLOGIN;
 CREATE ROLE service_role NOLOGIN;
 
 CREATE SCHEMA auth;
-CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE SET search_path TO '' AS $$
+CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE SET search_path TO '' AS $
   SELECT nullif((coalesce(nullif(current_setting('request.jwt.claims', true),''), '{}')::jsonb ->> 'sub'), '')::uuid
-$$;
+$;
+
+-- Mimic the minimum official Auth relations and JWT helper for the
+-- isolated session-rotation regression (0614). Never use as prod schema.
+CREATE FUNCTION auth.jwt() RETURNS jsonb LANGUAGE sql STABLE SET search_path TO '' AS $
+  SELECT coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
+$;
+CREATE TABLE auth.users (
+  id uuid PRIMARY KEY,
+  email text NOT NULL UNIQUE,
+  raw_app_meta_data jsonb NOT NULL DEFAULT '{}'::jsonb
+);
+CREATE TABLE auth.sessions (
+  id uuid PRIMARY KEY,
+  user_id uuid NOT NULL REFERENCES auth.users(id),
+  created_at timestamptz NOT NULL,
+  not_after timestamptz
+);
+
 
 CREATE TABLE public.sigem_capability_catalog (
   capability_id text PRIMARY KEY,
@@ -37,7 +55,8 @@ CREATE TABLE public.institutional_persons (
 );
 CREATE TABLE public.user_person_links (
   user_id uuid NOT NULL UNIQUE,
-  person_id uuid NOT NULL REFERENCES public.institutional_persons(id)
+  person_id uuid NOT NULL REFERENCES public.institutional_persons(id),
+  created_at timestamptz NOT NULL DEFAULT clock_timestamp()
 );
 CREATE TABLE public.test_followup_capabilities (
   user_id uuid NOT NULL,
@@ -69,6 +88,9 @@ VALUES
   ('33333333-3333-4333-8333-333333333333','Usuário sem Acesso','pessoa-natural'),
   ('44444444-4444-4444-8444-444444444444','Identidade institucional simulada','orgao-institucional'),
   ('55555555-5555-4555-8555-555555555555','Segundo Servidor de Prova','pessoa-natural');
+INSERT INTO auth.users(id,email)
+SELECT id, 'fixture-' || id::text || '@example.invalid'
+FROM public.institutional_persons;
 INSERT INTO public.user_person_links(user_id,person_id)
 SELECT id,id FROM public.institutional_persons;
 INSERT INTO public.test_followup_capabilities(user_id,capability_id,scope_level,school_id)
