@@ -36,9 +36,10 @@ async function readFollowupSeatAuthority(user: User): Promise<{
   // so this tightly-scoped cast keeps the PR compatible with older type files.
   type RpcReader = (fn: string, args: Record<string, unknown>) =>
     PromiseLike<{ data: FollowupSeatRow[] | null; error: { message: string } | null }>;
-  // O SDK usa this.rest internamente; não desacoplar rpc de supabase.
-  const call = supabase.rpc.bind(supabase) as unknown as RpcReader;
-  return await call("followup_seat_authority", { _on: operationalToday() });
+  // O SDK usa this.rest internamente; a chamada precisa manter o receptor.
+  // Cast estrutural antes do acesso evita instanciar a assinatura genérica profunda.
+  const client = supabase as unknown as { rpc: RpcReader };
+  return await client.rpc("followup_seat_authority", { _on: operationalToday() });
 }
 
 function mapCaps(caps: readonly CapRow[] | null): EffectiveCapability[] {
