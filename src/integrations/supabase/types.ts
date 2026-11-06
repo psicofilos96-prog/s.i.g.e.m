@@ -17047,6 +17047,82 @@ export type Database = {
         }
         Relationships: []
       }
+      followup_seat_assignments: {
+        Row: {
+          act_ref: string
+          auth_user_id: string
+          designated_at: string
+          designated_by: string
+          id: string
+          person_id: string
+          request_key: string
+          seat_code: string
+        }
+        Insert: {
+          act_ref: string
+          auth_user_id: string
+          designated_at?: string
+          designated_by: string
+          id?: string
+          person_id: string
+          request_key: string
+          seat_code: string
+        }
+        Update: {
+          act_ref?: string
+          auth_user_id?: string
+          designated_at?: string
+          designated_by?: string
+          id?: string
+          person_id?: string
+          request_key?: string
+          seat_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followup_seat_assignments_person_id_fkey"
+            columns: ["person_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_persons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      followup_seat_revocations: {
+        Row: {
+          assignment_id: string
+          id: string
+          reason: string
+          request_key: string
+          revoked_at: string
+          revoked_by: string
+        }
+        Insert: {
+          assignment_id: string
+          id?: string
+          reason: string
+          request_key: string
+          revoked_at?: string
+          revoked_by: string
+        }
+        Update: {
+          assignment_id?: string
+          id?: string
+          reason?: string
+          request_key?: string
+          revoked_at?: string
+          revoked_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "followup_seat_revocations_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: true
+            referencedRelation: "followup_seat_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guardian_authorizations: {
         Row: {
           event_kind: string
@@ -32009,6 +32085,226 @@ export type Database = {
           },
         ]
       }
+      school_institutional_followup_actions: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          description: string
+          due_on: string | null
+          id: string
+          recorded_at: string
+          request_key: string
+          responsible_label: string | null
+          school_id: string
+          visit_logical_id: string
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          description: string
+          due_on?: string | null
+          id?: string
+          recorded_at?: string
+          request_key: string
+          responsible_label?: string | null
+          school_id: string
+          visit_logical_id: string
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          description?: string
+          due_on?: string | null
+          id?: string
+          recorded_at?: string
+          request_key?: string
+          responsible_label?: string | null
+          school_id?: string
+          visit_logical_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_institutional_followup_actions_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_institutional_followup_bundles: {
+        Row: {
+          author_user_id: string
+          payload_hash: string
+          recorded_at: string
+          request_key: string
+          school_id: string
+          visit_id: string
+        }
+        Insert: {
+          author_user_id: string
+          payload_hash: string
+          recorded_at?: string
+          request_key: string
+          school_id: string
+          visit_id: string
+        }
+        Update: {
+          author_user_id?: string
+          payload_hash?: string
+          recorded_at?: string
+          request_key?: string
+          school_id?: string
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_institutional_followup_bundles_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_institutional_followup_bundles_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "school_institutional_followup_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_institutional_followup_updates: {
+        Row: {
+          action_id: string
+          author_person_id: string
+          author_user_id: string
+          done_text: string | null
+          id: string
+          not_done_text: string | null
+          occurred_on: string
+          recorded_at: string
+          referrals: string | null
+          request_key: string
+          results: string | null
+          situation: string
+          visit_logical_id: string | null
+        }
+        Insert: {
+          action_id: string
+          author_person_id: string
+          author_user_id: string
+          done_text?: string | null
+          id?: string
+          not_done_text?: string | null
+          occurred_on: string
+          recorded_at?: string
+          referrals?: string | null
+          request_key: string
+          results?: string | null
+          situation: string
+          visit_logical_id?: string | null
+        }
+        Update: {
+          action_id?: string
+          author_person_id?: string
+          author_user_id?: string
+          done_text?: string | null
+          id?: string
+          not_done_text?: string | null
+          occurred_on?: string
+          recorded_at?: string
+          referrals?: string | null
+          request_key?: string
+          results?: string | null
+          situation?: string
+          visit_logical_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_institutional_followup_updates_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "school_institutional_followup_actions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      school_institutional_followup_visits: {
+        Row: {
+          author_person_id: string
+          author_user_id: string
+          correction_reason: string | null
+          diagnosis: string
+          id: string
+          logical_id: string
+          participants_note: string | null
+          purpose_note: string | null
+          recorded_at: string
+          request_key: string
+          school_id: string
+          strengths: string
+          summary: string | null
+          supersedes_id: string | null
+          version: number
+          visit_date: string
+          weaknesses: string
+        }
+        Insert: {
+          author_person_id: string
+          author_user_id: string
+          correction_reason?: string | null
+          diagnosis: string
+          id?: string
+          logical_id: string
+          participants_note?: string | null
+          purpose_note?: string | null
+          recorded_at?: string
+          request_key: string
+          school_id: string
+          strengths?: string
+          summary?: string | null
+          supersedes_id?: string | null
+          version: number
+          visit_date: string
+          weaknesses?: string
+        }
+        Update: {
+          author_person_id?: string
+          author_user_id?: string
+          correction_reason?: string | null
+          diagnosis?: string
+          id?: string
+          logical_id?: string
+          participants_note?: string | null
+          purpose_note?: string | null
+          recorded_at?: string
+          request_key?: string
+          school_id?: string
+          strengths?: string
+          summary?: string | null
+          supersedes_id?: string | null
+          version?: number
+          visit_date?: string
+          weaknesses?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "school_institutional_followup_visits_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "institutional_schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "school_institutional_followup_visits_supersedes_id_fkey"
+            columns: ["supersedes_id"]
+            isOneToOne: true
+            referencedRelation: "school_institutional_followup_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       school_logo_versions: {
         Row: {
           created_at: string
@@ -43331,6 +43627,16 @@ export type Database = {
         }
         Returns: string
       }
+      designate_followup_seat: {
+        Args: {
+          _act_ref: string
+          _auth_user: string
+          _person: string
+          _request: string
+          _seat: string
+        }
+        Returns: string
+      }
       designate_ops_crew: {
         Args: {
           _act_doc: string
@@ -44816,6 +45122,47 @@ export type Database = {
           user_id: string
         }[]
       }
+      followup_functional_seat_current_session: {
+        Args: never
+        Returns: boolean
+      }
+      followup_seat_active_assignment: {
+        Args: never
+        Returns: {
+          assignment_id: string
+          person_id: string
+          seat_code: string
+        }[]
+      }
+      followup_seat_authority: {
+        Args: { _on?: string }
+        Returns: {
+          capability_id: string
+          class_id: string
+          component_id: string
+          engagement_id: string
+          period_id: string
+          person_id: string
+          person_name: string
+          policy_id: string
+          policy_version: number
+          school_id: string
+        }[]
+      }
+      followup_seat_effective_grants: {
+        Args: { _on: string }
+        Returns: {
+          capability_id: string
+          engagement_id: string
+          person_id: string
+          person_name: string
+          policy_id: string
+          policy_version: number
+          school_id: string
+          scope_level: string
+        }[]
+      }
+      followup_seat_is_account: { Args: { _user?: string }; Returns: boolean }
       freeze_statistical_map: {
         Args: { _month: number; _note?: string; _school: string; _year: number }
         Returns: {
@@ -51299,6 +51646,61 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_institutional_followup_action: {
+        Args: {
+          _description: string
+          _due: string
+          _request: string
+          _responsible: string
+          _visit: string
+        }
+        Returns: string
+      }
+      record_school_institutional_followup_bundle: {
+        Args: {
+          _actions: Json
+          _day: string
+          _diagnosis: string
+          _participants?: string
+          _purpose?: string
+          _request: string
+          _school: string
+          _strengths: string
+          _summary: string
+          _weaknesses: string
+        }
+        Returns: string
+      }
+      record_school_institutional_followup_update: {
+        Args: {
+          _action: string
+          _day: string
+          _done: string
+          _not_done: string
+          _referrals: string
+          _request: string
+          _results: string
+          _situation: string
+          _visit: string
+        }
+        Returns: string
+      }
+      record_school_institutional_followup_visit: {
+        Args: {
+          _base: string
+          _day: string
+          _diagnosis: string
+          _participants?: string
+          _purpose?: string
+          _reason: string
+          _request: string
+          _school: string
+          _strengths: string
+          _summary: string
+          _weaknesses: string
+        }
+        Returns: string
+      }
       record_school_link: {
         Args: {
           _act_ref: string
@@ -52748,6 +53150,10 @@ export type Database = {
         }
         Returns: string
       }
+      revoke_followup_seat: {
+        Args: { _assignment: string; _reason: string; _request: string }
+        Returns: string
+      }
       revoke_nei_role_grant: {
         Args: { _grant: string; _reason: string }
         Returns: undefined
@@ -52966,6 +53372,50 @@ export type Database = {
           _value: Json
         }
         Returns: string
+      }
+      school_institutional_followup_can_read: {
+        Args: { _school: string }
+        Returns: boolean
+      }
+      school_institutional_followup_grant: {
+        Args: { _capability: string; _school: string }
+        Returns: boolean
+      }
+      school_institutional_followup_monthly: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          month: string
+          visits: number
+        }[]
+      }
+      school_institutional_followup_network: {
+        Args: { _from: string; _to: string }
+        Returns: {
+          actions: number
+          completed: number
+          inep: string
+          last_visit: string
+          overdue: number
+          school_id: string
+          school_name: string
+          visits: number
+        }[]
+      }
+      school_institutional_followup_pending: { Args: never; Returns: Json }
+      school_institutional_followup_person: {
+        Args: { _school: string }
+        Returns: string
+      }
+      school_institutional_followup_school: {
+        Args: { _school: string }
+        Returns: Json
+      }
+      school_institutional_followup_statuses: {
+        Args: never
+        Returns: {
+          actions: number
+          situation: string
+        }[]
       }
       school_logo_at: {
         Args: { _school: string }
