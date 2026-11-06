@@ -143,6 +143,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   });
   const detailData = detail.isSuccess && !detail.isFetching && selected
     && network.isSuccess && !network.isFetching ? detail.data : undefined;
+  // Anexos seguem a mesma regra fail-closed do snapshot: só com leitura vigente.
+  const attachmentsData = attachments.isSuccess && !attachments.isFetching && detailData
+    ? attachments.data : [];
   const rows = filterNetworkRows(networkData, search, networkView);
   const totals = networkIndicators(networkData);
   const analyticsReady = network.isSuccess && !network.isFetching &&
@@ -316,6 +319,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-statuses", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-pending", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-school", sessionKey, school] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-attachments", sessionKey, school] }),
     ]);
   }
   async function saveVisit(event: React.FormEvent<HTMLFormElement>) {
@@ -1004,6 +1008,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             <div className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses ? <FormattedText text={v.weaknesses} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
             {v.summary && <div className="text-sm"><strong>Encaminhamentos:</strong> <FormattedText text={v.summary} className="mt-0.5 space-y-1" /></div>}
             {v.correction_reason && <p className="text-sm"><strong>Justificativa da última retificação:</strong> {v.correction_reason}</p>}
+            <VisitAttachments schoolId={school} visitId={v.id} canRecord={canRecord}
+              attachments={attachmentsData}
+              onChanged={async () => {
+                await queryClient.invalidateQueries({ queryKey: ["institutional-followup-attachments", sessionKey, school] });
+              }} />
             {v.version > 1 && <details className="rounded-md bg-muted/30 p-3 text-sm">
               <summary className="cursor-pointer font-medium">
                 Ver {detailData!.visit_history.filter((h) => h.logical_id === v.logical_id).length} versão(ões) anteriores
