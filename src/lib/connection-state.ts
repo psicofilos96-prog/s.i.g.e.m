@@ -26,5 +26,8 @@ export const CONNECTION_MESSAGES: Record<Exclude<ConnectionPhase, "online">, str
  */
 export const QUERY_CLIENT_DEFAULTS = {
   mutations: { networkMode: "always", retry: 0 },
-  queries: { retry: 1, staleTime: 60_000, refetchOnWindowFocus: false },
+  // Sem releitura automática ao voltar à aba ou à conexão: a releitura esvaziava
+  // a tela (fail-closed esconde o cache durante o refetch) e derrubava a rolagem.
+  // Dados só são relidos por ação explícita (Atualizar, salvar, mudar de filtro).
+  queries: { retry: 1, staleTime: 60_000, refetchOnWindowFocus: false, refetchOnReconnect: false },
 } as const;
