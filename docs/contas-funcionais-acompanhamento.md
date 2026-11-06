@@ -36,3 +36,19 @@ No SIGEM publicado o módulo do PR #7 ainda não está instalado: suas quatro ta
 ## Segurança operacional
 
 Evitar compartilhar uma única senha entre servidores: isso impede atribuir com confiança a autoria à pessoa física realmente operante. Se os endereços genéricos forem usados, tratá-los como postos com apenas um responsável autorizado por vez, troca de titular acompanhada de revogação de sessões e procedimento auditável de reatribuição.
+## Convenção institucional de login e DNS (verificação de 06/11/2026)
+
+Os endereços `@sigem.itap.gov.br` são identificadores de login no Auth, **não caixas postais**, conforme decisão canônica já registrada em `docs/sigem-contas-padrao.md` (04/10/2026). A verificação DNS pública pelo runtime do Lovable retornou `ENOTFOUND` para `sigem.itap.gov.br` e para `itap.gov.br`: não há MX público acessível. Não se deve enviar senha, convite, link de confirmação nem recuperação de credencial para esses identificadores. O domínio `itaperuna.rj.gov.br` apresentou MX, mas isso não prova que exista qualquer uma das caixas pretendidas; **não migrar os três logins para esse domínio sem decisão administrativa**.
+
+A confirmação de identidade do Auth, quando autorizada, é uma operação **administrativa de login** por `auth.admin.updateUserById(id, { email_confirm: true })`, conforme o fluxo já adotado pelo SIGEM para contas que não são caixas postais. Ela não deve criar vínculo, política nem capacidade, e não equivale à identificação de quem opera a conta. A credencial será entregue uma única vez por administração autorizada, pelo fluxo de redefinição e sem exposição em GitHub, chat ou arquivo compartilhado.
+
+## Critérios para ativação operacional — bloquear por padrão
+
+- O PR #7 e a migration 0613 ainda precisam de implantação e aceite próprios. Sem funções e catálogo do módulo no banco publicado, **nenhuma conta pode executar acompanhamento**.
+- O Gabinete deve receber somente `consultar-acompanhamento-institucional`, por política homologada. O perfil de Gabinete não pode criar, alterar ou retificar visitas.
+- Cada conta `acomp1`/`acomp2` requer pessoa física responsável **no momento de cada registro**, capacidade homologada e escopo autorizados. Não vincular a uma identidade fictícia ou genérica. O nome da pessoa não precisa constar do identificador de login.
+- `link_institutional_account` recusa pessoas já ligadas a uma conta; não reutilizar um comando SQL administrativo que contorne esse controle. Um responsável que já tenha login individual exige fluxo governado específico.
+- Na troca de ocupante, a possibilidade de usar JWT antigo persiste até expiração mesmo após revogar refresh tokens; é necessário invalidar a autorização antiga **no servidor** antes de alterar o vínculo corrente. O log imutável `author_person_id` de cada visita deve permanecer inalterado.
+- O pré-cadastro e a verificação de estado são auditáveis com `node scripts/followup-functional-seats-preflight.mjs` no runtime seguro, com `SIGEM_FOLLOWUP_EXPECTED_BACKEND` definido e chaves administrativas somente no servidor. Esse comando **não grava dados**, não libera acesso e rejeita backend incorreto. A confirmação administrativa do e-mail, se houver, aparecerá como `CONFIRMADO_SEM_VINCULO`, nunca como permissão de uso.
+
+**Decisão arquitetural de segurança:** contas genéricas não devem ser senhas coletivas nem representar vários operadores simultâneos. Para manter endereços fixos com a rotatividade pretendida, o mecanismo de troca de responsável deve registrar início, término, ato e autoridade da designação; invalidar as sessões anteriores; e preservar as autorias antigas sem as atribuir retroativamente ao novo responsável.
