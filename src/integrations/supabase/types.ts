@@ -53416,6 +53416,20 @@ export type Database = {
           letter_id: string
         }[]
       }
+      secretariat_movement_search: {
+        Args: {
+          _birth?: string
+          _cpf?: string
+          _inep?: string
+          _name?: string
+          _school: string
+        }
+        Returns: {
+          census_inep: string
+          display_name: string
+          student_id: string
+        }[]
+      }
       secretariat_overview_at: {
         Args: { _on: string; _school: string; _year: string }
         Returns: Json
