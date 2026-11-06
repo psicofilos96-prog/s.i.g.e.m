@@ -174,16 +174,16 @@ function parseAttachments(value: unknown): FollowupAttachment[] {
   return value.flatMap((row) => {
     if (!row || typeof row !== "object") return [];
     const r = row as Record<string, unknown>;
-    if (typeof r.id !== "string" || typeof r.visit_id !== "string"
-      || typeof r.storage_path !== "string" || typeof r.content_type !== "string") return [];
+    if (typeof r["id"] !== "string" || typeof r["visit_id"] !== "string"
+      || typeof r["storage_path"] !== "string" || typeof r["content_type"] !== "string") return [];
     return [{
-      id: r.id, visit_id: r.visit_id,
-      visit_logical_id: typeof r.visit_logical_id === "string" ? r.visit_logical_id : "",
-      caption: typeof r.caption === "string" ? r.caption : null,
-      storage_path: r.storage_path, content_type: r.content_type,
-      size_bytes: typeof r.size_bytes === "number" ? r.size_bytes : 0,
-      author_name: typeof r.author_name === "string" ? r.author_name : "",
-      created_at: typeof r.created_at === "string" ? r.created_at : "",
+      id: r["id"], visit_id: r["visit_id"],
+      visit_logical_id: typeof r["visit_logical_id"] === "string" ? r["visit_logical_id"] : "",
+      caption: typeof r["caption"] === "string" ? r["caption"] : null,
+      storage_path: r["storage_path"], content_type: r["content_type"],
+      size_bytes: typeof r["size_bytes"] === "number" ? r["size_bytes"] : 0,
+      author_name: typeof r["author_name"] === "string" ? r["author_name"] : "",
+      created_at: typeof r["created_at"] === "string" ? r["created_at"] : "",
     }];
   });
 }
