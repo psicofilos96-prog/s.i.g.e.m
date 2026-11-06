@@ -5,6 +5,7 @@ import {
 import { civilDateOf, formatDateTime } from "@/lib/academic-date";
 import { UserFacingError } from "@/lib/observability/governed-errors";
 import { currentSituation, type FollowupVisit, type NetworkPendingAction, type NetworkRow, type SchoolSnapshot } from "./model";
+import { stripTextFormat } from "./text-format";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
 export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
@@ -90,7 +91,7 @@ export const FOLLOWUP_SCHOOL_REPORT: ReportDefinition = {
 
 function joinDescriptions(...parts: [string, string | null | undefined][]): string | null {
   const text = parts.filter(([, value]) => Boolean(value?.trim()))
-    .map(([label, value]) => `${label}: ${value}`).join(" | ");
+    .map(([label, value]) => `${label}: ${stripTextFormat(value!)}`).join(" | ");
   return text || null;
 }
 
@@ -118,7 +119,7 @@ function followupRows(
       event_date: civilDateOf(a.created_at),
       recorded_at: formatDateTime(a.created_at),
       event_type: "Medida proposta",
-      description: a.description, responsible: a.responsible_label,
+      description: stripTextFormat(a.description), responsible: a.responsible_label,
       deadline: a.due_on, situation: currentSituation(a, snapshot.updates),
       author: a.author_name,
       detail: visit ? `Vinculada à visita de ${visit.visit_date}` : null,

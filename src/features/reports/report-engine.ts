@@ -6,6 +6,9 @@
  * Ausência (null) nunca vira zero em nenhum formato.
  */
 
+import brasaoAsset from "@/assets/brasao-itaperuna.png.asset.json";
+import educacaoAsset from "@/assets/logo-educacao.png.asset.json";
+
 export type ParamType = "date" | "datetime" | "integer" | "text" | "enum";
 export type ParamDef = Readonly<{ id: string; label: string; type: ParamType; required: boolean; min?: number; max?: number; options?: readonly string[]; maxLength?: number }>;
 export type CellValue = string | number | null;
@@ -127,15 +130,56 @@ export async function toXlsx(result: ReportResult, branding: Branding, meta: rea
 const html = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 /** Logo do cabeçalho: endereço https ou imagem embutida (data:) lida do armazenamento da escola; qualquer outro esquema é recusado. */
 export const allowedLogoUrl = (u: string) => /^https:\/\//.test(u) || /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(u);
+
+/**
+ * Identidade oficial dos documentos emitidos pelo SIGEM: brasão do município no canto
+ * superior esquerdo e logo da Secretaria Municipal de Educação no canto superior direito.
+ * As imagens são ativos institucionais fixos da mesma origem — nunca vêm de entrada do usuário.
+ */
+export const DOCUMENT_CREST_URL: string = brasaoAsset.url;
+export const DOCUMENT_SECRETARIAT_LOGO_URL: string = educacaoAsset.url;
+
+type HeaderImage = { dataUrl: string; width: number; height: number };
+/** Lê um ativo institucional da mesma origem como data URL, com dimensões naturais. Falha = sem imagem, nunca quebra a exportação. */
+async function loadHeaderImage(url: string): Promise<HeaderImage | null> {
+  try {
+    const res = await fetch(new URL(url, window.location.origin).href);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    if (!/^image\/(png|jpeg|webp)$/.test(blob.type)) return null;
+    const dataUrl = await new Promise<string | null>((resolve) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(typeof reader.result === "string" ? reader.result : null);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+    if (!dataUrl) return null;
+    const dims = await new Promise<{ width: number; height: number } | null>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      img.onerror = () => resolve(null);
+      img.src = dataUrl;
+    });
+    if (!dims || !dims.width || !dims.height) return null;
+    return { dataUrl, ...dims };
+  } catch {
+    return null;
+  }
+}
 /** PDF = documento HTML imprimível, com escape total (sem HTML do usuário). */
 /** Bordas vetoriais em pt (≥0,75pt, preto, separate+spacing 0): linhas de 1px cinza com collapse somem ao reduzir o zoom do PDF. */
 export const PRINT_BORDER = "0.75pt solid #222";
 export const PRINT_TABLE_CSS = `@page{size:A4;margin:14mm 12mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}body{font-family:serif;margin:0;overflow-wrap:anywhere;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:16px}table{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed;border-top:${PRINT_BORDER};border-left:${PRINT_BORDER}}thead{display:table-header-group}tr{page-break-inside:avoid;break-inside:avoid}td,th{border-right:${PRINT_BORDER};border-bottom:${PRINT_BORDER};padding:4px;font-size:11px;text-align:left;vertical-align:top;overflow-wrap:anywhere}`;
 export function toPrintableHtml(result: ReportResult, branding: Branding, meta: readonly string[] = [], fingerprint?: string): string {
   const logo = branding.logoUrl && allowedLogoUrl(branding.logoUrl) ? `<img src="${html(branding.logoUrl)}" alt="" style="height:48px">` : "";
+  const header = `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">`
+    + `<img src="${html(DOCUMENT_CREST_URL)}" alt="Brasão do município" style="height:64px;max-width:72px;object-fit:contain">`
+    + `<div style="flex:1;text-align:center">${branding.headerLines.map((l) => `<div>${html(l)}</div>`).join("")}</div>`
+    + `<img src="${html(DOCUMENT_SECRETARIAT_LOGO_URL)}" alt="Secretaria Municipal de Educação" style="height:64px;max-width:140px;object-fit:contain">`
+    + `</div>`;
   return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>${html(branding.title)}</title>
 <style>${PRINT_TABLE_CSS}</style></head><body>
-${logo}${branding.headerLines.map((l) => `<div>${html(l)}</div>`).join("")}<h1>${html(branding.title)}</h1>
+${header}${logo}<h1 style="text-align:center">${html(branding.title)}</h1>
 ${meta.map((m) => `<p>${html(m)}</p>`).join("")}
 <table><thead><tr>${result.columns.map((c) => `<th>${html(c.label)}</th>`).join("")}</tr></thead><tbody>
 ${result.rows.map((r) => `<tr>${r.map((v) => `<td>${html(cellText(v))}</td>`).join("")}</tr>`).join("\n")}
@@ -192,7 +236,19 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: opts.landscape ? "landscape" : "portrait", unit: "mm", format: "a4" });
   const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 12;
-  let y = M + 2;
+  // Brasão do município à esquerda e logo da Secretaria à direita, em todo documento emitido.
+  const [crest, secretariat] = await Promise.all([
+    loadHeaderImage(DOCUMENT_CREST_URL), loadHeaderImage(DOCUMENT_SECRETARIAT_LOGO_URL),
+  ]);
+  const logoH = 16;
+  const drawLogo = (img: HeaderImage, x: number) => {
+    const w = Math.min(34, (logoH * img.width) / img.height);
+    const format = img.dataUrl.includes("image/jpeg") ? "JPEG" : "PNG";
+    doc.addImage(img.dataUrl, format, x, M - 2, w, logoH);
+  };
+  if (crest) drawLogo(crest, M);
+  if (secretariat) { const w = Math.min(34, (logoH * secretariat.width) / secretariat.height); drawLogo(secretariat, W - M - w); }
+  let y = M + (crest || secretariat ? logoH + 2 : 2);
   doc.setFont("times", "normal"); doc.setFontSize(10);
   for (const l of branding.headerLines) { doc.text(l, W / 2, y, { align: "center" }); y += 5; }
   doc.setFont("times", "bold"); doc.setFontSize(13);

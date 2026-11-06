@@ -17,6 +17,9 @@ import { FollowupVisitComparison } from "./visit-comparison";
 import { useUnsavedFollowupWarning } from "./use-unsaved-warning";
 import { useFollowupRouteGuard } from "./use-route-guard";
 import { SeatAdminPanel } from "./seat-admin-panel";
+import { FollowupTextArea, FormattedText } from "./text-format";
+import { VisitAttachments } from "./visit-attachments";
+import { schoolFollowupAttachments } from "./source";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, followupActionDraftIssue, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
 
@@ -122,6 +125,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     queryKey: ["institutional-followup-school", sessionKey, school],
     queryFn: () => schoolFollowup(school), enabled: Boolean(school), retry: false,
   });
+  const attachments = useQuery({
+    queryKey: ["institutional-followup-attachments", sessionKey, school],
+    queryFn: () => schoolFollowupAttachments(school), enabled: Boolean(school), retry: false,
+  });
   // React Query may retain its last successful result when a refetch fails.
   // Never render or export that cached institutional snapshot while scope is unverified.
   const networkData = network.isSuccess && !network.isFetching ? network.data : [];
@@ -136,6 +143,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   });
   const detailData = detail.isSuccess && !detail.isFetching && selected
     && network.isSuccess && !network.isFetching ? detail.data : undefined;
+  // Anexos seguem a mesma regra fail-closed do snapshot: só com leitura vigente.
+  const attachmentsData = attachments.isSuccess && !attachments.isFetching && detailData
+    ? attachments.data : [];
   const rows = filterNetworkRows(networkData, search, networkView);
   const totals = networkIndicators(networkData);
   const analyticsReady = network.isSuccess && !network.isFetching &&
@@ -309,6 +319,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-statuses", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-pending", sessionKey] }),
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-school", sessionKey, school] }),
+      queryClient.invalidateQueries({ queryKey: ["institutional-followup-attachments", sessionKey, school] }),
     ]);
   }
   async function saveVisit(event: React.FormEvent<HTMLFormElement>) {
@@ -612,7 +623,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
       description="A equipe registra o diagnóstico e a evolução das ações. O Gabinete consulta o panorama da rede e seus históricos." />
     {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <SeatAdminPanel sessionKey={sessionKey} />}
-    <section className="space-y-3 rounded-xl border border-border p-4" aria-label="Panorama da rede">
+    <section className="space-y-4 rounded-2xl border border-border/70 bg-card p-5 shadow-panel" aria-label="Panorama da rede">
       <div className="flex flex-wrap items-end gap-3">
         <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
         <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
@@ -644,9 +655,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
             ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
             ["Ações sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
-          ].map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3">
+          ].map(([label, value]) => <div key={label} className="rounded-xl border border-border/60 bg-background p-3 shadow-sm">
             <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-2xl font-semibold tabular-nums">{value}</p>
+            <p className="font-display text-2xl font-semibold tabular-nums">{value}</p>
           </div>)}
         </div>
         <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
@@ -661,7 +672,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
           Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
         </p>}
-        <h2 className="font-semibold">Escolas e visitas realizadas</h2>
+        <h2 className="font-display text-lg font-semibold">Escolas e visitas realizadas</h2>
         <p className="text-xs text-muted-foreground">
           {rows.length} de {network.data.length} escolas acessíveis na lista e na exportação.
           Os indicadores e gráficos acima consideram todas as escolas autorizadas.
@@ -713,8 +724,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     </section>}
     {school && (!network.isSuccess || network.isFetching || Boolean(selected)) &&
       <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div><h2 className="text-lg font-semibold">{selected?.school_name ?? school}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
+        <div><h2 className="font-display text-xl font-semibold">{selected?.school_name ?? school}</h2>
           <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
         <div className="flex flex-wrap items-center gap-2">
           {detailData && <>
@@ -747,39 +758,34 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {detailData && <SchoolOpenActionsPanel key={school} snapshot={detailData} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
-      {canRecord && <form id="followup-visit-form" className="rounded-xl border p-4" onSubmit={(e) => void saveVisit(e)}>
+      {canRecord && <form id="followup-visit-form" className="rounded-2xl border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveVisit(e)}>
         <fieldset disabled={saving} className="min-w-0 space-y-4">
-        <h3 className="font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
+        <h3 className="font-display text-lg font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
         {visitDraftNotice && <p role="alert" className="text-sm text-destructive">{visitDraftNotice}</p>}
         {correctionBase && <p className="text-sm text-muted-foreground">
           Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
         </p>}
         <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="block text-sm">Objetivo da visita (opcional)
-            <textarea className={textArea} maxLength={1000} value={purpose}
-              onChange={(e) => setPurpose(e.target.value)} placeholder="Por exemplo: acompanhar a organização pedagógica" />
-          </label>
-          <label className="block text-sm">Demais participantes informados (opcional)
-            <textarea className={textArea} maxLength={500} value={participants}
-              onChange={(e) => setParticipants(e.target.value)}
-              placeholder="Servidor ou equipe que também participou" />
-          </label>
+          <FollowupTextArea label="Objetivo da visita (opcional)" className={textArea} maxLength={1000}
+            value={purpose} onChange={setPurpose} placeholder="Por exemplo: acompanhar a organização pedagógica" />
+          <FollowupTextArea label="Demais participantes informados (opcional)" className={textArea} maxLength={500}
+            value={participants} onChange={setParticipants} placeholder="Servidor ou equipe que também participou" />
         </div>
         <p className="text-xs text-muted-foreground">
           A autoria é atribuída automaticamente à conta que salva o registro. Participantes informados não
           constituem assinatura, confirmação de presença ou autorização para escrever no sistema.
         </p>
-        <label className="block text-sm">Diagnóstico da realidade<textarea className={textArea} required maxLength={10000} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} /></label>
+        <FollowupTextArea label="Diagnóstico da realidade" className={textArea} required maxLength={10000}
+          value={diagnosis} onChange={setDiagnosis} />
         <div className="grid gap-3 md:grid-cols-2">
-          <label className="block text-sm">Pontos fortes<textarea className={textArea} maxLength={10000} value={strengths} onChange={(e) => setStrengths(e.target.value)} /></label>
-          <label className="block text-sm">Fragilidades e necessidades<textarea className={textArea} maxLength={10000} value={weaknesses} onChange={(e) => setWeaknesses(e.target.value)} /></label>
+          <FollowupTextArea label="Pontos fortes" className={textArea} maxLength={10000} value={strengths} onChange={setStrengths} />
+          <FollowupTextArea label="Fragilidades e necessidades" className={textArea} maxLength={10000} value={weaknesses} onChange={setWeaknesses} />
         </div>
-        <label className="block text-sm">Observações e encaminhamentos da visita<textarea className={textArea} maxLength={10000} value={summary} onChange={(e) => setSummary(e.target.value)} /></label>
-        {correctionBase && <label className="block text-sm">Justificativa obrigatória da retificação
-          <textarea className={textArea} required maxLength={4000} value={correctionReason}
-            onChange={(e) => setCorrectionReason(e.target.value)} />
-        </label>}
+        <FollowupTextArea label="Observações e encaminhamentos da visita" className={textArea} maxLength={10000}
+          value={summary} onChange={setSummary} />
+        {correctionBase && <FollowupTextArea label="Justificativa obrigatória da retificação" className={textArea}
+          required maxLength={4000} value={correctionReason} onChange={setCorrectionReason} />}
         {!correctionBase && <><h4 className="font-medium">Plano de ação — medidas propostas</h4>
         <p role="status" className="text-sm text-muted-foreground">
           {describedActionCount} {describedActionCount === 1 ? "medida descrita" : "medidas descritas"}.
@@ -814,10 +820,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                 onClick={() => void removeProposedAction(a)}>Remover esta medida</Button>}
             </div>
           </div>
-          <label className="block text-sm">O que precisa ser feito<textarea className={textArea} maxLength={4000} value={a.description}
-            aria-invalid={actionDraftIssues[i] === "description"}
-            aria-describedby={actionDraftIssues[i] === "description" ? `followup-draft-error-${a.draftKey}` : undefined}
-            onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, description: e.target.value } : x))} /></label>
+          <FollowupTextArea label="O que precisa ser feito" className={textArea} maxLength={4000} value={a.description}
+            invalid={actionDraftIssues[i] === "description"}
+            describedBy={actionDraftIssues[i] === "description" ? `followup-draft-error-${a.draftKey}` : undefined}
+            onChange={(next) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, description: next } : x))} />
           <div className="grid gap-2 md:grid-cols-2">
             <label className="block text-sm">Responsável declarado<input className={input} maxLength={250} value={a.responsible}
               onChange={(e) => setDraftActions((prev) => prev.map((x) => x.draftKey === a.draftKey ? { ...x, responsible: e.target.value } : x))} /></label>
@@ -850,19 +856,17 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>}
       {detailData && canRecord && measureVisitId && <form id="followup-measure-form"
-        className="rounded-xl border p-4" onSubmit={(e) => void saveMeasure(e)}>
+        className="rounded-2xl border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveMeasure(e)}>
         <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
-        <h3 className="font-semibold">Acrescentar medida a uma visita existente</h3>
+        <h3 className="font-display text-lg font-semibold">Acrescentar medida a uma visita existente</h3>
         {measureDraftNotice && <p role="alert" className="text-sm text-destructive">{measureDraftNotice}</p>}
         <p className="text-sm text-muted-foreground">
           Visita de {dateLabel(detailData.visits.find((v) => v.id === measureVisitId)?.visit_date ?? null)}.
           A nova medida é adicionada ao plano sem alterar o diagnóstico ou medidas anteriores.
         </p>
-        <label className="block text-sm">O que precisa ser feito
-          <textarea className={textArea} required maxLength={4000}
-            value={measureDraft.description}
-            onChange={(e) => setMeasureDraft((d) => ({ ...d, description: e.target.value }))} />
-        </label>
+        <FollowupTextArea label="O que precisa ser feito" className={textArea} required maxLength={4000}
+          value={measureDraft.description}
+          onChange={(next) => setMeasureDraft((d) => ({ ...d, description: next }))} />
         <div className="grid gap-3 md:grid-cols-2">
           <label className="block text-sm">Responsável declarado
             <input className={input} maxLength={250} value={measureDraft.responsible}
@@ -885,9 +889,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>}
       {detailData && <>
-        <div className="space-y-3 rounded-xl border p-4">
+        <div className="space-y-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="font-semibold">Ações e evolução</h3>
+            <h3 className="font-display text-lg font-semibold">Ações e evolução</h3>
             <span className="text-xs text-muted-foreground">{visibleActions.length} de {detailData.actions.length} medidas</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -917,7 +921,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             const latest = currentUpdate(a, detailData!.updates);
             return <div key={a.id} id={`followup-action-${a.id}`} tabIndex={-1}
               className="scroll-mt-24 space-y-2 border-b pb-3 last:border-0 focus:outline-2 focus:outline-offset-2 focus:outline-primary">
-              <p className="font-medium">{a.description}</p>
+              <FormattedText text={a.description} className="space-y-1 font-medium" />
               <p className="text-xs text-muted-foreground">
                 Responsável: {a.responsible_label || "Não informado"} • Registro: {a.author_name || "Autoria registrada"}
                 {" • "}Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detailData!.updates)}
@@ -931,10 +935,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                     .sort((x, y) => y.occurred_on.localeCompare(x.occurred_on) || y.created_at.localeCompare(x.created_at))
                     .map((u) => <li key={u.id} className="space-y-1 border-b pb-2 last:border-0">
                       <p className="font-medium">{dateLabel(u.occurred_on)} — {u.situation} • {u.author_name || "Autoria registrada"}</p>
-                      <p><strong>O que foi feito:</strong> {u.done_text || "Não informado"}</p>
-                      <p><strong>O que não foi feito:</strong> {u.not_done_text || "Não informado"}</p>
-                      <p><strong>Resultados:</strong> {u.results || "Não informado"}</p>
-                      <p><strong>Encaminhamentos:</strong> {u.referrals || "Não informado"}</p>
+                      <div><strong>O que foi feito:</strong> {u.done_text ? <FormattedText text={u.done_text} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+                      <div><strong>O que não foi feito:</strong> {u.not_done_text ? <FormattedText text={u.not_done_text} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+                      <div><strong>Resultados:</strong> {u.results ? <FormattedText text={u.results} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+                      <div><strong>Encaminhamentos:</strong> {u.referrals ? <FormattedText text={u.referrals} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
                       <p><strong>Visita associada:</strong> {u.visit_logical_id
                         ? (dateLabel(followupVisitByLogicalId(detailData!.visits, u.visit_logical_id)?.visit_date ?? null))
                         : "Nenhuma visita informada"}</p>
@@ -947,10 +951,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           })}
         </div>
         {canRecord && actionId && <form id="followup-update-form" tabIndex={-1}
-          className="scroll-mt-24 rounded-xl border p-4 focus:outline-2 focus:outline-primary"
+           className="scroll-mt-24 rounded-2xl border border-border/70 bg-card p-5 shadow-panel focus:outline-2 focus:outline-primary"
           onSubmit={(e) => void saveUpdate(e)}>
           <fieldset disabled={savingUpdate} className="min-w-0 space-y-3">
-          <h3 className="font-semibold">Nova atualização da ação</h3>
+          <h3 className="font-display text-lg font-semibold">Nova atualização da ação</h3>
           <p className="text-sm text-muted-foreground">
             Medida selecionada: <strong>{selectedAction?.description ?? "Não disponível"}</strong>.
             Os campos começam vazios e só serão registrados ao confirmar o formulário.
@@ -979,10 +983,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <label className="block text-sm">Situação declarada<select className={input} value={situation} onChange={(e) => setSituation(e.target.value)}>
             {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select></label>
-          <label className="block text-sm">O que foi feito<textarea className={textArea} maxLength={4000} value={done} onChange={(e) => setDone(e.target.value)} /></label>
-          <label className="block text-sm">O que não foi feito<textarea className={textArea} maxLength={4000} value={notDone} onChange={(e) => setNotDone(e.target.value)} /></label>
-          <label className="block text-sm">Resultados<textarea className={textArea} maxLength={4000} value={results} onChange={(e) => setResults(e.target.value)} /></label>
-          <label className="block text-sm">Encaminhamentos<textarea className={textArea} maxLength={4000} value={referrals} onChange={(e) => setReferrals(e.target.value)} /></label>
+          <FollowupTextArea label="O que foi feito" className={textArea} maxLength={4000} value={done} onChange={setDone} />
+          <FollowupTextArea label="O que não foi feito" className={textArea} maxLength={4000} value={notDone} onChange={setNotDone} />
+          <FollowupTextArea label="Resultados" className={textArea} maxLength={4000} value={results} onChange={setResults} />
+          <FollowupTextArea label="Encaminhamentos" className={textArea} maxLength={4000} value={referrals} onChange={setReferrals} />
           <div className="flex gap-2"><Button type="submit" disabled={savingUpdate || !updateVisitIsValid ||
               Boolean(updateMinDay && updateDay < updateMinDay)}>
               {savingUpdate ? "Salvando…" : "Registrar atualização"}
@@ -992,18 +996,23 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </fieldset>
         </form>}
         <FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} />
-        <div className="space-y-3 rounded-xl border p-4">
-          <h3 className="font-semibold">Histórico de visitas</h3>
+        <div className="space-y-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
+          <h3 className="font-display text-lg font-semibold">Histórico de visitas</h3>
           {!detailData.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
           {detailData.visits.map((v) => <article key={v.id} className="space-y-2 border-b pb-3 last:border-0">
             <p className="text-sm font-medium">{dateLabel(v.visit_date)} • {v.author_name || "Autoria institucional registrada"} {v.version > 1 ? `(retificação v${v.version})` : ""}</p>
-            {v.purpose_note && <p className="text-sm"><strong>Objetivo:</strong> {v.purpose_note}</p>}
-            {v.participants_note && <p className="text-sm"><strong>Demais participantes informados:</strong> {v.participants_note}</p>}
-            <p className="text-sm"><strong>Diagnóstico:</strong> {v.diagnosis}</p>
-            <p className="text-sm"><strong>Pontos fortes:</strong> {v.strengths || "Não informado"}</p>
-            <p className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses || "Não informado"}</p>
-            {v.summary && <p className="text-sm"><strong>Encaminhamentos:</strong> {v.summary}</p>}
+            {v.purpose_note && <div className="text-sm"><strong>Objetivo:</strong> <FormattedText text={v.purpose_note} className="mt-0.5 space-y-1" /></div>}
+            {v.participants_note && <div className="text-sm"><strong>Demais participantes informados:</strong> <FormattedText text={v.participants_note} className="mt-0.5 space-y-1" /></div>}
+            <div className="text-sm"><strong>Diagnóstico:</strong> <FormattedText text={v.diagnosis} className="mt-0.5 space-y-1" /></div>
+            <div className="text-sm"><strong>Pontos fortes:</strong> {v.strengths ? <FormattedText text={v.strengths} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+            <div className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses ? <FormattedText text={v.weaknesses} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
+            {v.summary && <div className="text-sm"><strong>Encaminhamentos:</strong> <FormattedText text={v.summary} className="mt-0.5 space-y-1" /></div>}
             {v.correction_reason && <p className="text-sm"><strong>Justificativa da última retificação:</strong> {v.correction_reason}</p>}
+            <VisitAttachments schoolId={school} visitId={v.id} canRecord={canRecord}
+              attachments={attachmentsData}
+              onChanged={async () => {
+                await queryClient.invalidateQueries({ queryKey: ["institutional-followup-attachments", sessionKey, school] });
+              }} />
             {v.version > 1 && <details className="rounded-md bg-muted/30 p-3 text-sm">
               <summary className="cursor-pointer font-medium">
                 Ver {detailData!.visit_history.filter((h) => h.logical_id === v.logical_id).length} versão(ões) anteriores

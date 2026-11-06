@@ -68,6 +68,19 @@ async function call(fn: string, args: Record<string, unknown>): Promise<unknown>
     if (error.message.includes("followup:due-before-visit")) {
       throw new UserFacingError("O prazo de uma medida não pode anteceder a data da visita.");
     }
+    if (error.message.includes("followup:attachment-type")) {
+      throw new UserFacingError("A imagem precisa ser PNG, JPEG ou WebP.");
+    }
+    if (error.message.includes("followup:attachment-size")) {
+      throw new UserFacingError("A imagem precisa ter no máximo 5 MB.");
+    }
+    if (error.message.includes("followup:attachment-missing")
+      || error.message.includes("followup:attachment-path")) {
+      throw new UserFacingError("O envio da imagem não foi confirmado. Tente anexar novamente.");
+    }
+    if (error.message.includes("followup:attachment-required")) {
+      throw new UserFacingError("Não foi possível identificar o pedido de anexo. Tente novamente.");
+    }
     if (error.message.includes("followup:request-conflict")) {
       throw new UserFacingError("O registro enviado não corresponde à tentativa anterior. Atualize os dados antes de repetir.");
     }
@@ -149,4 +162,44 @@ export async function followupStatuses(): Promise<FollowupStatus[]> {
 export async function networkPendingFollowup(): Promise<NetworkPendingAction[]> {
   const value = await call("school_institutional_followup_pending", {});
   return parseNetworkPendingFollowup(value);
+}
+
+export type FollowupAttachment = {
+  id: string; visit_id: string; visit_logical_id: string; caption: string | null;
+  storage_path: string; content_type: string; size_bytes: number;
+  author_name: string; created_at: string;
+};
+function parseAttachments(value: unknown): FollowupAttachment[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((row) => {
+    if (!row || typeof row !== "object") return [];
+    const r = row as Record<string, unknown>;
+    if (typeof r["id"] !== "string" || typeof r["visit_id"] !== "string"
+      || typeof r["storage_path"] !== "string" || typeof r["content_type"] !== "string") return [];
+    return [{
+      id: r["id"], visit_id: r["visit_id"],
+      visit_logical_id: typeof r["visit_logical_id"] === "string" ? r["visit_logical_id"] : "",
+      caption: typeof r["caption"] === "string" ? r["caption"] : null,
+      storage_path: r["storage_path"], content_type: r["content_type"],
+      size_bytes: typeof r["size_bytes"] === "number" ? r["size_bytes"] : 0,
+      author_name: typeof r["author_name"] === "string" ? r["author_name"] : "",
+      created_at: typeof r["created_at"] === "string" ? r["created_at"] : "",
+    }];
+  });
+}
+/** Anexos de imagem da unidade, lidos pela RPC autorizada (mesmo escopo do snapshot). */
+export async function schoolFollowupAttachments(school: string): Promise<FollowupAttachment[]> {
+  const value = await call("school_institutional_followup_attachments", { _school: school });
+  return parseAttachments(value);
+}
+/** Registro idempotente do anexo após o envio do arquivo ao armazenamento privado. */
+export async function recordFollowupAttachment(input: {
+  visit: string; path: string; contentType: string; size: number; request: string;
+}): Promise<string> {
+  const id = await call("record_school_institutional_followup_attachment", {
+    _visit: input.visit, _storage_path: input.path, _caption: null,
+    _content_type: input.contentType, _size_bytes: input.size, _request: input.request,
+  });
+  if (typeof id !== "string") throw new Error("Não foi possível confirmar o anexo.");
+  return id;
 }

@@ -4327,6 +4327,13 @@
       "when": 1794018000001,
       "tag": "0617_followup_seat_owner_decision_and_cabinet_management",
       "breakpoints": true
+    },
+    {
+      "idx": 618,
+      "version": "7",
+      "when": 1794018000002,
+      "tag": "0618_followup_visit_attachments",
+      "breakpoints": true
     }
   ]
 }
