@@ -170,7 +170,7 @@ async function loadHeaderImage(url: string): Promise<HeaderImage | null> {
 /** PDF = documento HTML imprimível, com escape total (sem HTML do usuário). */
 /** Bordas vetoriais em pt (≥0,75pt, preto, separate+spacing 0): linhas de 1px cinza com collapse somem ao reduzir o zoom do PDF. */
 export const PRINT_BORDER = "0.75pt solid #222";
-export const PRINT_TABLE_CSS = `@page{size:A4;margin:14mm 12mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}body{font-family:serif;margin:0;overflow-wrap:anywhere;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:16px}table{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed;border-top:${PRINT_BORDER};border-left:${PRINT_BORDER}}thead{display:table-header-group}tr{page-break-inside:avoid;break-inside:avoid}td,th{border-right:${PRINT_BORDER};border-bottom:${PRINT_BORDER};padding:4px;font-size:11px;text-align:left;vertical-align:top;overflow-wrap:anywhere}`;
+export const PRINT_TABLE_CSS = `@page{size:A4;margin:18mm 16mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px serif}}body{font-family:serif;font-size:11pt;line-height:1.5;margin:0;overflow-wrap:anywhere;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:16pt;line-height:1.25;margin:18px 0}h2,h3{line-height:1.3;margin:20px 0 8px;break-after:avoid}p{margin:0 0 10px;orphans:3;widows:3}table{border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed;border-top:${PRINT_BORDER};border-left:${PRINT_BORDER}}thead{display:table-header-group}tr{page-break-inside:avoid;break-inside:avoid}td,th{border-right:${PRINT_BORDER};border-bottom:${PRINT_BORDER};padding:6px;font-size:10pt;text-align:left;vertical-align:top;overflow-wrap:anywhere}`;
 export function toPrintableHtml(result: ReportResult, branding: Branding, meta: readonly string[] = [], fingerprint?: string): string {
   const logo = branding.logoUrl && allowedLogoUrl(branding.logoUrl) ? `<img src="${html(branding.logoUrl)}" alt="" style="height:48px">` : "";
   const header = `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">`
@@ -236,7 +236,7 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: opts.landscape ? "landscape" : "portrait", unit: "mm", format: "a4", compress: true });
-  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 12;
+  const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = opts.sections ? 18 : 12;
   // Brasão do município à esquerda e logo da Secretaria à direita, em todo documento emitido.
   const [crest, secretariat] = await Promise.all([
     loadHeaderImage(DOCUMENT_CREST_URL), loadHeaderImage(DOCUMENT_SECRETARIAT_LOGO_URL),
@@ -254,8 +254,16 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   for (const l of branding.headerLines) { doc.text(l, W / 2, y, { align: "center" }); y += 5; }
   doc.setFont("times", "bold"); doc.setFontSize(13);
   for (const l of doc.splitTextToSize(branding.title, W - 2 * M) as string[]) { doc.text(l, W / 2, y + 1, { align: "center" }); y += 6; }
+  y += 4;
   doc.setFont("times", "normal"); doc.setFontSize(9);
-  for (const m of meta) for (const l of doc.splitTextToSize(m, W - 2 * M) as string[]) { doc.text(l, M, y + 1); y += 4.5; }
+  for (const m of meta) {
+    for (const l of doc.splitTextToSize(m, W - 2 * M) as string[]) {
+      if (y + 5 > H - 18) { doc.addPage(); y = M + 5; }
+      doc.text(l, M, y + 1); y += 4.5;
+    }
+    y += 1.5;
+  }
+  y += opts.sections ? 7 : 2;
   if (!opts.sections) autoTable(doc, {
     startY: y + 2, margin: { left: M, right: M, bottom: 16 }, theme: "grid",
     head: [result.columns.map((c) => c.label)], body: result.rows.map((r) => r.map(cellText)),
@@ -269,20 +277,25 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
     y = M + logoH + 7;
   };
   if (opts.sections) {
-    const font = (run: PdfRun) => doc.setFont("times", run.bold ? "bold" : run.italic ? "italic" : "normal");
+    const font = (run: PdfRun) => doc.setFont("times", run.bold && run.italic ? "bolditalic" : run.bold ? "bold" : run.italic ? "italic" : "normal");
     for (const section of opts.sections) {
-      if (y + 22 > H - 18) pageTop();
-      doc.setFont("times", "bold"); doc.setFontSize(11);
+      if (y + 30 > H - 18) pageTop();
+      doc.setFont("times", "bold"); doc.setFontSize(12);
       for (const line of doc.splitTextToSize(section.title, W - 2 * M) as string[]) {
         if (y + 6 > H - 18) pageTop();
         doc.text(line, M, y); y += 5;
       }
-      y += 2; doc.setFontSize(10);
+      y += 4;
       for (const paragraph of section.paragraphs) {
+        if (paragraph.label) {
+          if (y + 22 > H - 18) pageTop();
+          y += 2;
+        }
+        doc.setFontSize(paragraph.label ? 10 : 11);
         const measure = (run: PdfRun) => { font(run); return doc.getTextWidth(run.text); };
         const lines = wrapPdfRuns(paragraph.runs, W - 2 * M, measure);
         lines.forEach((line, index) => {
-          if (y + 5 > H - 18) { pageTop(); doc.setFontSize(10); }
+          if (y + 6 > H - 18) { pageTop(); doc.setFontSize(paragraph.label ? 10 : 11); }
           // Trim trailing spaces before measuring alignment/justification.
           while (line.length && /^\s+$/.test(line[line.length - 1]?.text ?? "")) line.pop();
           const width = line.reduce((sum, run) => sum + measure(run), 0);
@@ -296,11 +309,11 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
             else doc.text(run.text, x, y);
             x += measure(run) + (/^\s+$/.test(run.text) ? extra : 0);
           }
-          y += 4.8;
+          y += paragraph.label ? 5 : 5.8;
         });
-        y += 2;
+        y += paragraph.label ? 1 : 3;
       }
-      y += 5;
+      y += 7;
     }
   }
   for (const [index, attachment] of (opts.attachments ?? []).entries()) {
@@ -327,11 +340,92 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   }
   const n = doc.getNumberOfPages();
   for (let p = 1; p <= n; p++) {
-    doc.setPage(p); doc.setFontSize(8);
+    doc.setPage(p); doc.setFont("times", "normal"); doc.setFontSize(8);
     doc.text(`Gerado em ${new Date(result.generatedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`, M, H - 7);
     doc.text(`Página ${p} de ${n}`, W - M, H - 7, { align: "right" });
   }
   return doc.output("blob");
+}
+
+/** Word editável, produzido somente sobre o mesmo resultado e conteúdo autorizado do PDF. */
+export async function toWordFile(result: ReportResult, branding: Branding, meta: readonly string[] = [],
+  opts: { landscape?: boolean; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[] } = {}): Promise<Blob> {
+  const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, ImageRun,
+    Header, Footer, AlignmentType, HeadingLevel, WidthType, PageOrientation,
+    BorderStyle, PageNumber, LevelFormat, ShadingType } = await import("docx");
+  const [crest, secretariat] = await Promise.all([
+    loadHeaderImage(DOCUMENT_CREST_URL), loadHeaderImage(DOCUMENT_SECRETARIAT_LOGO_URL),
+  ]);
+  const contentWidth = opts.landscape ? 14782 : 9866;
+  const imageRun = (image: HeaderImage, maxWidth: number, maxHeight: number) => {
+    if (!/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(image.dataUrl)) {
+      throw new ReportError("report:image", "Não foi possível incorporar um dos anexos. O documento não foi gerado.");
+    }
+    const fit = fitPdfImage(image.width, image.height, maxWidth, maxHeight);
+    const bytes = Uint8Array.from(atob(image.dataUrl.split(",")[1] ?? ""), (c) => c.charCodeAt(0));
+    return new ImageRun({ type: image.dataUrl.startsWith("data:image/jpeg") ? "jpg" : "png", data: bytes,
+      transformation: { width: fit.width, height: fit.height },
+      altText: { title: "Imagem do documento", description: "Imagem incorporada ao documento", name: "Imagem" } });
+  };
+  const headerChildren = [];
+  if (crest) headerChildren.push(imageRun(crest, 55, 60));
+  headerChildren.push(new TextRun("\t"));
+  if (secretariat) headerChildren.push(imageRun(secretariat, 125, 60));
+  const children: (InstanceType<typeof Paragraph> | InstanceType<typeof Table>)[] = [];
+  for (const line of branding.headerLines) children.push(new Paragraph({ alignment: AlignmentType.CENTER,
+    spacing: { after: 80 }, children: [new TextRun({ text: line, size: 22 })] }));
+  children.push(new Paragraph({ heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER,
+    spacing: { before: 180, after: 260 }, children: [new TextRun({ text: branding.title, bold: true, size: 30 })] }));
+  for (const line of meta) children.push(new Paragraph({ spacing: { after: 100 },
+    children: [new TextRun({ text: line, size: 18 })] }));
+  if (opts.sections) {
+    const alignments = { left: AlignmentType.LEFT, center: AlignmentType.CENTER, right: AlignmentType.RIGHT, justify: AlignmentType.JUSTIFIED };
+    for (const section of opts.sections) {
+      children.push(new Paragraph({ heading: HeadingLevel.HEADING_1, keepNext: true,
+        spacing: { before: 280, after: 180 }, children: [new TextRun({ text: section.title, bold: true, size: 24 })] }));
+      for (const p of section.paragraphs) {
+        const bullet = p.runs[0]?.text.startsWith("• ") ?? false;
+        children.push(new Paragraph({ alignment: alignments[p.alignment], keepNext: p.label,
+          numbering: bullet ? { reference: "report-bullets", level: 0 } : undefined,
+          spacing: { before: p.label ? 160 : 0, after: p.label ? 60 : 140, line: 300 },
+          children: p.runs.map((r, i) => new TextRun({ text: bullet && i === 0 ? r.text.slice(2) : r.text,
+            bold: r.bold, italics: r.italic, size: p.label ? 20 : 22 })) }));
+      }
+    }
+  } else if (result.columns.length) {
+    const widths = result.columns.map((_, i) => Math.floor(contentWidth / result.columns.length) + (i === 0 ? contentWidth % result.columns.length : 0));
+    const row = (values: readonly string[], heading = false) => new TableRow({ tableHeader: heading,
+      children: values.map((value, i) => new TableCell({ width: { size: widths[i], type: WidthType.DXA },
+        margins: { top: 100, bottom: 100, left: 100, right: 100 },
+        shading: heading ? { fill: "EEEEEE", type: ShadingType.CLEAR } : undefined,
+        children: [new Paragraph({ children: [new TextRun({ text: value, bold: heading, size: 18 })] })] })) });
+    children.push(new Table({ width: { size: contentWidth, type: WidthType.DXA }, columnWidths: widths,
+      rows: [row(result.columns.map((c) => c.label), true), ...result.rows.map((r) => row(r.map(cellText)))] }));
+  }
+  for (const [i, attachment] of (opts.attachments ?? []).entries()) {
+    children.push(new Paragraph({ heading: HeadingLevel.HEADING_1, pageBreakBefore: true, keepNext: true,
+      spacing: { after: 180 }, children: [new TextRun({ text: `Anexos — Anexo ${i + 1}`, bold: true, size: 26 })] }));
+    for (const line of attachment.caption.split("\n")) children.push(new Paragraph({ keepNext: true,
+      spacing: { after: 100 }, children: [new TextRun({ text: line, size: 18 })] }));
+    children.push(new Paragraph({ alignment: AlignmentType.CENTER,
+      children: [imageRun(attachment, contentWidth / 15, opts.landscape ? 360 : 640)] }));
+  }
+  const document = new Document({
+    styles: { default: { document: { run: { font: "Times New Roman", size: 22 }, paragraph: { spacing: { line: 300 } } } } },
+    numbering: { config: [{ reference: "report-bullets", levels: [{ level: 0, format: LevelFormat.BULLET,
+      text: "•", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 360, hanging: 180 } } } }] }] },
+    sections: [{ properties: { page: { size: { width: 11906, height: 16838,
+      orientation: opts.landscape ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT },
+      margin: { top: 1580, bottom: 1100, left: 1020, right: 1020, header: 450, footer: 450 } } },
+      headers: { default: new Header({ children: [new Paragraph({ tabStops: [{ type: "right", position: contentWidth }], children: headerChildren })] }) },
+      footers: { default: new Footer({ children: [new Paragraph({ border: { top: { style: BorderStyle.SINGLE, size: 4, color: "CCCCCC" } },
+        tabStops: [{ type: "right", position: contentWidth }], children: [
+          new TextRun({ text: `Gerado em ${new Date(result.generatedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`, size: 16 }),
+          new TextRun({ text: "\tPágina ", size: 16 }), new TextRun({ children: [PageNumber.CURRENT], size: 16 }),
+          new TextRun({ text: " de ", size: 16 }), new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 16 }),
+        ] })] }) }, children }],
+  });
+  return Packer.toBlob(document);
 }
 
 /** Baixa um Blob como arquivo. */

@@ -13,7 +13,7 @@ export function followupPdfSections(snapshot: SchoolSnapshot, schoolId: string, 
   const visits = [...snapshot.visits, ...snapshot.visit_history].filter((v) => v.school_id === schoolId && (!chosen || v.logical_id === chosen.logical_id));
   const actions = snapshot.actions.filter((a) => a.school_id === schoolId && (!chosen || a.visit_logical_id === chosen.logical_id));
   const field = (label: string, text: string | null | undefined): PdfParagraph[] => text?.trim()
-    ? [{ alignment: "left", runs: [{ text: label, bold: true }] }, ...parseTextParagraphs(text)] : [];
+    ? [{ alignment: "left", label: true, runs: [{ text: label, bold: true }] }, ...parseTextParagraphs(text)] : [];
   const sections: PdfSection[] = visits.map((v) => ({
     title: `Visita de ${v.visit_date.split("-").reverse().join("/")} · versão ${v.version}${snapshot.visit_history.some((h) => h.id === v.id) ? " (substituída)" : " (vigente)"}`,
     paragraphs: [
@@ -68,13 +68,13 @@ export async function loadFollowupPdfAttachments(snapshot: SchoolSnapshot, schoo
       const { data, error } = await supabase.storage.from("followup-attachments").download(a.storage_path);
       if (readSignal.aborted) throw new DOMException("cancelada", "AbortError");
       if (error || !data || !["image/png", "image/jpeg", "image/webp"].includes(data.type) || data.size > 5 * 1024 * 1024) {
-        throw new UserFacingError("Não foi possível ler uma das imagens. O PDF não foi gerado para evitar anexos ausentes. Atualize e tente novamente.");
+        throw new UserFacingError("Não foi possível ler uma das imagens. O documento não foi gerado para evitar anexos ausentes. Atualize e tente novamente.");
       }
       const url = URL.createObjectURL(data);
       try {
         const img = new Image(); img.src = url;
         try { await img.decode(); } catch {
-          throw new UserFacingError("Uma das imagens não pôde ser aberta. O PDF não foi gerado para evitar um anexo ausente. Confira a imagem e tente novamente.");
+          throw new UserFacingError("Uma das imagens não pôde ser aberta. O documento não foi gerado para evitar um anexo ausente. Confira a imagem e tente novamente.");
         }
         if (readSignal.aborted) throw new DOMException("cancelada", "AbortError");
         const scale = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));

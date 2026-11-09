@@ -1,6 +1,6 @@
 export type PdfAlignment = "left" | "center" | "right" | "justify";
 export type PdfRun = { text: string; bold?: boolean; italic?: boolean };
-export type PdfParagraph = { alignment: PdfAlignment; runs: readonly PdfRun[] };
+export type PdfParagraph = { alignment: PdfAlignment; runs: readonly PdfRun[]; label?: boolean };
 export type PdfSection = { title: string; paragraphs: readonly PdfParagraph[] };
 export type PdfAttachment = { dataUrl: string; width: number; height: number; caption: string };
 
