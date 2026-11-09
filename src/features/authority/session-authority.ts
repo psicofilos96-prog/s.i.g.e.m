@@ -130,6 +130,11 @@ function startOrigin() {
     .then(
       ({ data: s, error }) => {
         if (!alive || eventSeen) return;
+        // Sessão antiga vencida (ex.: após nova publicação): volta ao login em vez de travar em erro.
+        if (error && /refresh.?token|session.*(expired|not found|missing)/i.test(error.message)) {
+          void supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
+          return applyUser(null);
+        }
         if (error) return setOrigin({ phase: "error", user: null, revision: origin.revision, error: error.message });
         applyUser(s.session?.user ?? null);
       },
@@ -179,7 +184,9 @@ export function useSessionAuthority(): SessionAuthority {
   const q = useQuery({
     queryKey: ["session-authority", user?.id ?? null, revision],
     enabled: Boolean(user),
-    retry: false,
+    // Primeira abertura (servidor frio) pode falhar de forma passageira: tenta de novo antes de mostrar erro.
+    retry: 2,
+    retryDelay: (n) => 800 * (n + 1),
     // NPERF.2: cache por sessão. A chave é conta + revisão da sessão (muda em login/logout/troca de
     // usuário), então nunca cruza usuários; a garantia continua no banco (RLS/writers).
     staleTime: 5 * 60_000,
