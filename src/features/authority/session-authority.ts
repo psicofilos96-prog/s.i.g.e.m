@@ -185,7 +185,8 @@ export function useSessionAuthority(): SessionAuthority {
     queryKey: ["session-authority", user?.id ?? null, revision],
     enabled: Boolean(user),
     // Primeira abertura (servidor frio) pode falhar de forma passageira: tenta de novo antes de mostrar erro.
-    retry: 2,
+    // Só falhas de rede passageiras; erro de dado/ambiguidade/tempo esgotado aparece na hora.
+    retry: (n, e) => n < 2 && e instanceof Error && /failed to fetch|network|load failed|fetch failed|503|502|504/i.test(e.message),
     retryDelay: (n) => 800 * (n + 1),
     // NPERF.2: cache por sessão. A chave é conta + revisão da sessão (muda em login/logout/troca de
     // usuário), então nunca cruza usuários; a garantia continua no banco (RLS/writers).
