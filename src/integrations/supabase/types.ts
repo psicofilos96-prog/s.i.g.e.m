@@ -19898,6 +19898,7 @@ export type Database = {
           origin_organization: string | null
           originating_act_ref: string | null
           recorded_at: string
+          recorded_by_principal_id: string | null
           school_id: string
           supersedes_id: string | null
           version: number
@@ -19920,6 +19921,7 @@ export type Database = {
           origin_organization?: string | null
           originating_act_ref?: string | null
           recorded_at?: string
+          recorded_by_principal_id?: string | null
           school_id: string
           supersedes_id?: string | null
           version: number
@@ -19942,6 +19944,7 @@ export type Database = {
           origin_organization?: string | null
           originating_act_ref?: string | null
           recorded_at?: string
+          recorded_by_principal_id?: string | null
           school_id?: string
           supersedes_id?: string | null
           version?: number
@@ -51931,6 +51934,20 @@ export type Database = {
         }
         Returns: string
       }
+      record_school_visit: {
+        Args: {
+          _annul: boolean
+          _base: string
+          _correction_reason: string
+          _identification: string
+          _kind: string
+          _logical: string
+          _origin: string
+          _school: string
+          _visited_on: string
+        }
+        Returns: string
+      }
       record_sector_parameter: {
         Args: {
           _expected_version: number
@@ -53768,6 +53785,30 @@ export type Database = {
           signatures: string[]
           title: string
           version: number
+        }[]
+      }
+      school_visit_book_principal: {
+        Args: { _school: string }
+        Returns: string
+      }
+      school_visit_default_kinds: { Args: never; Returns: string[] }
+      school_visits_book: {
+        Args: { _school: string }
+        Returns: {
+          annulled: boolean
+          correction_reason: string
+          declared_identification: string
+          id: string
+          logical_id: string
+          origin_organization: string
+          originating_act_ref: string
+          recorded_at: string
+          school_id: string
+          supersedes_id: string
+          version: number
+          visited_on: string
+          visitor_kind_id: string
+          visitor_kind_version: number
         }[]
       }
       scope_key_matches: {
