@@ -1,5 +1,10 @@
 # Roadmap — SIGEM simples no design original
 
+## Exercício operacional da escola de teste — 2026 (09/11/2026)
+- [ ] Executar movimentos fictícios datados de fevereiro a novembro somente na escola INEP 99999901 e em identidades explicitamente de teste, por contas autorizadas e escritores canônicos.
+- [ ] Conferir matrículas, transferências, remanejamentos, atribuições docentes e reflexos mensais no Mapa; registrar quantidades efetivamente persistidas, sem homologação humana fictícia.
+- [ ] Corrigir impedimentos técnicos reproduzidos sem ampliar permissões nem alterar fatos reais; registrar bloqueadores e verificação por perfil.
+
 ## Relatórios de acompanhamento (09/11/2026)
 - [x] Refinar espaçamento/hierarquia do PDF e oferecer Word (.docx) no panorama, ficha, visita, providências e roteiro; mesmos alinhamentos, ênfase e anexos autorizados. 111 testes PASS, build automático OK; PDF (2 páginas), Word narrativo (2 páginas) e Word tabela (1 página) inspecionados; título Word azul padrão corrigido para preto. Sem alteração de dados/permissões ou publicação; leitura privada real segue pendente abaixo.
 - [x] Incorporar imagens autorizadas como Anexos numerados nos PDFs da visita e da unidade; falha de leitura impede documento incompleto, sem alteração de banco/permissões.
