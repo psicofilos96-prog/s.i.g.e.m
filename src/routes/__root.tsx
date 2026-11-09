@@ -136,6 +136,9 @@ function RootComponent() {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       const nextUserId = session?.user?.id ?? null;
       if (event === "INITIAL_SESSION") { lastUserId = nextUserId; return; }
+      // O SDK reemite SIGNED_IN ao voltar à aba com a MESMA conta: não é nova sessão.
+      // Reler tudo aqui esvaziava a tela (fail-closed) e levava a rolagem ao topo.
+      if (event === "SIGNED_IN" && nextUserId !== null && nextUserId === lastUserId) return;
       if (event === "SIGNED_IN" && isAccountSwitch(lastUserId, nextUserId)) {
         // NAUTH.3: outra conta entrou (troca de contexto/outra aba): nada da anterior sobrevive no cache.
         void queryClient.cancelQueries().then(() => queryClient.clear());
