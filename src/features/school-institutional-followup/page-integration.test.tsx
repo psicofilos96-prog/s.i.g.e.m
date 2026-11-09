@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   networkPendingFollowup: vi.fn(),
   followupStatuses: vi.fn(),
   schoolFollowup: vi.fn(),
+  schoolFollowupAttachments: vi.fn(),
   recordVisitBundle: vi.fn(),
   recordVisit: vi.fn(),
   recordAction: vi.fn(),
@@ -40,6 +41,7 @@ vi.mock("./source", () => ({
   networkPendingFollowup: mocks.networkPendingFollowup,
   followupStatuses: mocks.followupStatuses,
   schoolFollowup: mocks.schoolFollowup,
+  schoolFollowupAttachments: mocks.schoolFollowupAttachments,
   recordVisitBundle: mocks.recordVisitBundle,
   recordVisit: mocks.recordVisit,
   recordAction: mocks.recordAction,
@@ -128,6 +130,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.networkPendingFollowup.mockResolvedValue([]);
     mocks.followupStatuses.mockResolvedValue([]);
     mocks.schoolFollowup.mockResolvedValue(blankSchool);
+    mocks.schoolFollowupAttachments.mockResolvedValue([]);
     mocks.recordVisitBundle.mockResolvedValue("visit-created");
     mocks.recordVisit.mockResolvedValue("visit-corrected");
     mocks.recordAction.mockResolvedValue("action-created");
@@ -153,6 +156,16 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(screen.getByText("Acesso não disponível")).toBeTruthy();
     expect(mocks.networkFollowup).not.toHaveBeenCalled();
     expect(mocks.schoolFollowup).not.toHaveBeenCalled();
+  });
+
+  it("recusa PDF quando a leitura de anexos falha, sem apresentar ficha incompleta", async () => {
+    setSession(false);
+    mocks.schoolFollowupAttachments.mockRejectedValue(new Error("Leitura recusada"));
+    renderPage();
+    await openSchool("Escola Centro");
+    fireEvent.click(await screen.findByRole("button", { name: "Ficha PDF" }));
+    expect(exportFollowupSchool).not.toHaveBeenCalled();
+    expect(mocks.schoolFollowupAttachments).toHaveBeenCalledWith("school-a");
   });
 
   it("Gabinete compara duas visitas vigentes da própria unidade sem acessar formulários de escrita", async () => {
