@@ -1,0 +1,2 @@
+CREATE POLICY "school assigners read school engagements" ON public.institutional_engagements FOR SELECT TO authenticated
+  USING (school_id IS NOT NULL AND public.has_school_capability('manter-atribuicao-docente', school_id));
