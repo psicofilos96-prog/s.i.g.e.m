@@ -4369,6 +4369,13 @@
       "when": 1794248009741,
       "tag": "0623_curricular_chain_read_sector_a",
       "breakpoints": true
+    },
+    {
+      "idx": 624,
+      "version": "7",
+      "when": 1794248212910,
+      "tag": "0624_curricular_chain_read_sector_b",
+      "breakpoints": true
     }
   ]
 }
