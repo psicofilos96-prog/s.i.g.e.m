@@ -4376,6 +4376,13 @@
       "when": 1794248212910,
       "tag": "0624_curricular_chain_read_sector_b",
       "breakpoints": true
+    },
+    {
+      "idx": 625,
+      "version": "7",
+      "when": 1794248617796,
+      "tag": "0625_ccp_gates_read_sector",
+      "breakpoints": true
     }
   ]
 }
