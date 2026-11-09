@@ -9,7 +9,7 @@ import {
 
 const INITIAL_SHOWN = 5;
 type PreparationFilter = "todas" | "prazo vencido" | "sem prazo" | typeof NO_UPDATE | "selecionadas";
-type ExportFormat = "csv" | "xlsx" | "pdf";
+type ExportFormat = "csv" | "xlsx" | "pdf" | "docx";
 type FailedExport = { format: ExportFormat; selectionKey: string; message: string };
 
 /** Preparação da visita: somente dados da ficha escolar já autorizada no PostgreSQL. */
@@ -184,6 +184,9 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
           onClick={() => void exportPreparation("pdf")}>Roteiro PDF</Button>
         <Button size="sm" variant="outline"
           disabled={exporting || (exportScope === "selected" && !selectedExportReady)}
+          onClick={() => void exportPreparation("docx")}>Word</Button>
+        <Button size="sm" variant="outline"
+          disabled={exporting || (exportScope === "selected" && !selectedExportReady)}
           onClick={() => void exportPreparation("xlsx")}>Excel</Button>
         <Button size="sm" variant="outline"
           disabled={exporting || (exportScope === "selected" && !selectedExportReady)}
@@ -202,7 +205,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
         <p role="alert" className="text-sm text-destructive">{failedExport.message}</p>
         <Button type="button" size="sm" variant="outline" disabled={exporting || !canRetryFailed}
           onClick={() => void exportPreparation(failedExport.format)}>
-          Tentar novamente o {failedExport.format === "pdf" ? "PDF" : failedExport.format === "xlsx" ? "Excel" : "CSV"}
+          Tentar novamente o {failedExport.format === "pdf" ? "PDF" : failedExport.format === "xlsx" ? "Excel" : failedExport.format === "docx" ? "Word" : "CSV"}
         </Button>
         <p className="text-xs text-muted-foreground">
           A nova tentativa usa os dados atuais da unidade; nenhuma medida ou visita é criada.

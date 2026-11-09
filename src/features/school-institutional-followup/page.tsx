@@ -293,22 +293,22 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       }
     }
   }
-  async function exportReport(format: "csv" | "xlsx" | "pdf") {
+  async function exportReport(format: "csv" | "xlsx" | "pdf" | "docx") {
     if (!network.isSuccess || network.isFetching) return;
     await withReportExport((signal) => exportFollowupNetwork(rows, from, to, format, signal));
   }
-  async function exportSchoolReport(format: "csv" | "xlsx" | "pdf") {
+  async function exportSchoolReport(format: "csv" | "xlsx" | "pdf" | "docx") {
     if (!school || !detailData) return;
-    if (format === "pdf" && (!attachments.isSuccess || attachments.isFetching)) {
+    if ((format === "pdf" || format === "docx") && (!attachments.isSuccess || attachments.isFetching)) {
       setError("Aguarde a leitura das imagens antes de imprimir. Se houver falha, atualize as consultas e tente novamente.");
       return;
     }
     await withReportExport((signal) =>
       exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal, attachmentsData));
   }
-  async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf") {
+  async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf" | "docx") {
     if (!school || !detailData) return;
-    if (format === "pdf" && (!attachments.isSuccess || attachments.isFetching)) {
+    if ((format === "pdf" || format === "docx") && (!attachments.isSuccess || attachments.isFetching)) {
       setError("Aguarde a leitura das imagens antes de imprimir. Se houver falha, atualize as consultas e tente novamente.");
       return;
     }
@@ -648,6 +648,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
         {network.isSuccess && !network.isFetching && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("docx")}>Word</Button>
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("xlsx")}>Excel</Button>
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("csv")}>CSV</Button>
         </div>}
@@ -739,6 +740,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           {detailData && <>
             <Button size="sm" variant="outline" disabled={exporting}
               onClick={() => void exportSchoolReport("pdf")}>Ficha PDF</Button>
+            <Button size="sm" variant="outline" disabled={exporting}
+              onClick={() => void exportSchoolReport("docx")}>Ficha Word</Button>
             <Button size="sm" variant="outline" disabled={exporting}
               onClick={() => void exportSchoolReport("xlsx")}>Ficha Excel</Button>
             <Button size="sm" variant="outline" disabled={exporting}
@@ -1042,6 +1045,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             <div className="flex flex-wrap gap-2" aria-label="Exportar relatório individual da visita">
               <Button type="button" size="sm" variant="outline" disabled={exporting}
                 onClick={() => void exportVisitReport(v.id, "pdf")}>Relatório da visita PDF</Button>
+              <Button type="button" size="sm" variant="outline" disabled={exporting}
+                onClick={() => void exportVisitReport(v.id, "docx")}>Word</Button>
               <Button type="button" size="sm" variant="outline" disabled={exporting}
                 onClick={() => void exportVisitReport(v.id, "xlsx")}>Excel</Button>
               <Button type="button" size="sm" variant="outline" disabled={exporting}

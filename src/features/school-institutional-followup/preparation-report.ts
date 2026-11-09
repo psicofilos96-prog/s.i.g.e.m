@@ -1,5 +1,5 @@
 import {
-  runReport, toCsv, toPdfFile, toXlsx, downloadBlob,
+  runReport, toCsv, toPdfFile, toWordFile, toXlsx, downloadBlob,
   type ReportDefinition, type ReportResult,
 } from "@/features/reports/report-engine";
 import { UserFacingError } from "@/lib/observability/governed-errors";
@@ -28,7 +28,7 @@ export const FOLLOWUP_PREPARATION_REPORT: ReportDefinition = {
     { id: "last_update", label: "Última evolução efetiva", kind: "date" },
     { id: "last_notes", label: "Relato da última evolução", kind: "text" },
   ],
-  formats: ["csv", "xlsx", "pdf"],
+  formats: ["csv", "xlsx", "pdf", "docx"],
   reproducible: false,
   syncRowLimit: 2000,
 };
@@ -84,7 +84,7 @@ export function preparationFollowupReport(
 
 export async function exportFollowupPreparation(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string,
-  inep: string | null, today: string, format: "csv" | "xlsx" | "pdf",
+  inep: string | null, today: string, format: "csv" | "xlsx" | "pdf" | "docx",
   selectedIds?: readonly string[],
   signal?: AbortSignal,
 ): Promise<void> {
@@ -118,8 +118,8 @@ export async function exportFollowupPreparation(
     if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
-    const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, { landscape: true });
     if (signal?.aborted) return;
-    downloadBlob(base + ".pdf", pdf);
+    downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
   }
 }

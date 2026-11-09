@@ -1,5 +1,5 @@
 import {
-  runReport, toCsv, toPdfFile, toXlsx, downloadBlob,
+  runReport, toCsv, toPdfFile, toWordFile, toXlsx, downloadBlob,
   type ReportDefinition, type ReportResult,
 } from "@/features/reports/report-engine";
 import { civilDateOf, formatDateTime } from "@/lib/academic-date";
@@ -28,7 +28,7 @@ export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
     { id: "overdue", label: "Prazo vencido", kind: "number" },
     { id: "last_visit", label: "Última visita", kind: "date" },
   ],
-  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 10000,
+  formats: ["csv", "xlsx", "pdf", "docx"], reproducible: false, syncRowLimit: 10000,
 };
 export function followupReport(rows: readonly NetworkRow[], from: string, to: string): ReportResult {
   return runReport(FOLLOWUP_NETWORK_REPORT, { params: { from, to } },
@@ -38,7 +38,7 @@ export function followupReport(rows: readonly NetworkRow[], from: string, to: st
     })));
 }
 export async function exportFollowupNetwork(
-  rows: readonly NetworkRow[], from: string, to: string, format: "csv" | "xlsx" | "pdf",
+  rows: readonly NetworkRow[], from: string, to: string, format: "csv" | "xlsx" | "pdf" | "docx",
   signal?: AbortSignal,
 ): Promise<void> {
   if (signal?.aborted) return;
@@ -61,9 +61,9 @@ export async function exportFollowupNetwork(
     if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
-    const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, { landscape: true });
     if (signal?.aborted) return;
-    downloadBlob(base + ".pdf", pdf);
+    downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
   }
 }
 
@@ -88,7 +88,7 @@ export const FOLLOWUP_SCHOOL_REPORT: ReportDefinition = {
     { id: "author", label: "Autoria", kind: "text" },
     { id: "detail", label: "Resultados e encaminhamentos", kind: "text" },
   ],
-  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 10000,
+  formats: ["csv", "xlsx", "pdf", "docx"], reproducible: false, syncRowLimit: 10000,
 };
 
 function joinDescriptions(...parts: [string, string | null | undefined][]): string | null {
@@ -165,7 +165,7 @@ export const FOLLOWUP_VISIT_REPORT: ReportDefinition = {
     { id: "visit", label: "Visita", type: "text", required: true, maxLength: 200 },
   ],
   columns: FOLLOWUP_SCHOOL_REPORT.columns,
-  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 10000,
+  formats: ["csv", "xlsx", "pdf", "docx"], reproducible: false, syncRowLimit: 10000,
 };
 
 export function visitFollowupReport(snapshot: SchoolSnapshot, schoolId: string, visitId: string): ReportResult {
@@ -187,7 +187,7 @@ export function visitFollowupReport(snapshot: SchoolSnapshot, schoolId: string, 
 
 
 export async function exportFollowupSchool(
-  snapshot: SchoolSnapshot, schoolId: string, schoolName: string, format: "csv" | "xlsx" | "pdf",
+  snapshot: SchoolSnapshot, schoolId: string, schoolName: string, format: "csv" | "xlsx" | "pdf" | "docx",
   signal?: AbortSignal,
   attachments: readonly FollowupAttachment[] = [],
 ): Promise<void> {
@@ -216,17 +216,17 @@ export async function exportFollowupSchool(
   } else {
     const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, undefined, signal) : [];
     if (signal?.aborted) return;
-    const pdf = await toPdfFile(result, branding, meta, {
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, {
       sections: followupPdfSections(snapshot, schoolId), attachments: images,
     });
     if (signal?.aborted) return;
-    downloadBlob(base + ".pdf", pdf);
+    downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
   }
 }
 
 export async function exportFollowupVisit(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string,
-  visitId: string, format: "csv" | "xlsx" | "pdf",
+  visitId: string, format: "csv" | "xlsx" | "pdf" | "docx",
   signal?: AbortSignal,
   attachments: readonly FollowupAttachment[] = [],
 ): Promise<void> {
@@ -258,11 +258,11 @@ export async function exportFollowupVisit(
   } else {
     const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, visitId, signal) : [];
     if (signal?.aborted) return;
-    const pdf = await toPdfFile(result, branding, meta, {
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, {
       sections: followupPdfSections(snapshot, schoolId, visitId), attachments: images,
     });
     if (signal?.aborted) return;
-    downloadBlob(base + ".pdf", pdf);
+    downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
   }
 }
 /** Quadro do Gabinete: linhas previamente autorizadas, sem dados de outras unidades. */
@@ -281,7 +281,7 @@ export const FOLLOWUP_PENDING_REPORT: ReportDefinition = {
     { id: "situation", label: "Situação declarada", kind: "text" },
     { id: "last_update_on", label: "Última evolução efetiva", kind: "date" },
   ],
-  formats: ["csv", "xlsx", "pdf"], reproducible: false, syncRowLimit: 5000,
+  formats: ["csv", "xlsx", "pdf", "docx"], reproducible: false, syncRowLimit: 5000,
 };
 export function networkPendingReport(rows: readonly NetworkPendingAction[]): ReportResult {
   return runReport(FOLLOWUP_PENDING_REPORT, { params: {} }, rows.map((r) => ({
@@ -291,7 +291,7 @@ export function networkPendingReport(rows: readonly NetworkPendingAction[]): Rep
   })));
 }
 export async function exportNetworkPending(
-  rows: readonly NetworkPendingAction[], format: "csv" | "xlsx" | "pdf",
+  rows: readonly NetworkPendingAction[], format: "csv" | "xlsx" | "pdf" | "docx",
   signal?: AbortSignal,
 ): Promise<void> {
   if (signal?.aborted) return;
@@ -314,8 +314,8 @@ export async function exportNetworkPending(
     if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
-    const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, { landscape: true });
     if (signal?.aborted) return;
-    downloadBlob(base + ".pdf", pdf);
+    downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
   }
 }

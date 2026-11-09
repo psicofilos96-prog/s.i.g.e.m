@@ -15,7 +15,7 @@ export type ParamDef = Readonly<{ id: string; label: string; type: ParamType; re
 export type CellValue = string | number | null;
 export type ColumnDef = Readonly<{ id: string; label: string; kind: "text" | "number" | "date"; sensitive?: boolean }>;
 export type Branding = Readonly<{ headerLines: readonly string[]; title: string; logoUrl?: string | null }>;
-export type ReportFormat = "csv" | "xlsx" | "pdf";
+export type ReportFormat = "csv" | "xlsx" | "pdf" | "docx";
 
 export type ReportDefinition = Readonly<{
   id: string; version: number; title: string; description: string;
