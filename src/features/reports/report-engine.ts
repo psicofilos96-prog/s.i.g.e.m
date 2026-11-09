@@ -411,7 +411,10 @@ export async function toWordFile(result: ReportResult, branding: Branding, meta:
       children: [imageRun(attachment, contentWidth / 15, opts.landscape ? 360 : 640)] }));
   }
   const document = new Document({
-    styles: { default: { document: { run: { font: "Times New Roman", size: 22 }, paragraph: { spacing: { line: 300 } } } } },
+    styles: { default: { document: { run: { font: "Times New Roman", size: 22 }, paragraph: { spacing: { line: 300 } } } },
+      paragraphStyles: [{ id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
+        run: { font: "Times New Roman", bold: true, color: "000000", size: 24 },
+        paragraph: { outlineLevel: 0, keepNext: true } }] },
     numbering: { config: [{ reference: "report-bullets", levels: [{ level: 0, format: LevelFormat.BULLET,
       text: "•", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 360, hanging: 180 } } } }] }] },
     sections: [{ properties: { page: { size: { width: 11906, height: 16838,
