@@ -5,7 +5,9 @@ import {
 import { civilDateOf, formatDateTime } from "@/lib/academic-date";
 import { UserFacingError } from "@/lib/observability/governed-errors";
 import { currentSituation, type FollowupVisit, type NetworkPendingAction, type NetworkRow, type SchoolSnapshot } from "./model";
-import { stripTextFormat } from "./text-format";
+import { stripTextFormat } from "./text-format-model";
+import type { FollowupAttachment } from "./source";
+import { followupPdfSections, loadFollowupPdfAttachments } from "./report-content";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
 export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
@@ -91,7 +93,7 @@ export const FOLLOWUP_SCHOOL_REPORT: ReportDefinition = {
 
 function joinDescriptions(...parts: [string, string | null | undefined][]): string | null {
   const text = parts.filter(([, value]) => Boolean(value?.trim()))
-    .map(([label, value]) => `${label}: ${stripTextFormat(value!)}`).join(" | ");
+    .map(([label, value]) => `${label}: ${stripTextFormat(value ?? "")}`).join(" | ");
   return text || null;
 }
 
@@ -187,6 +189,7 @@ export function visitFollowupReport(snapshot: SchoolSnapshot, schoolId: string, 
 export async function exportFollowupSchool(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string, format: "csv" | "xlsx" | "pdf",
   signal?: AbortSignal,
+  attachments: readonly FollowupAttachment[] = [],
 ): Promise<void> {
   if (signal?.aborted) return;
   const result = schoolFollowupReport(snapshot, schoolId);
@@ -211,7 +214,11 @@ export async function exportFollowupSchool(
     if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
-    const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, undefined, signal) : [];
+    if (signal?.aborted) return;
+    const pdf = await toPdfFile(result, branding, meta, {
+      sections: followupPdfSections(snapshot, schoolId), attachments: images,
+    });
     if (signal?.aborted) return;
     downloadBlob(base + ".pdf", pdf);
   }
@@ -221,11 +228,13 @@ export async function exportFollowupVisit(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string,
   visitId: string, format: "csv" | "xlsx" | "pdf",
   signal?: AbortSignal,
+  attachments: readonly FollowupAttachment[] = [],
 ): Promise<void> {
   if (signal?.aborted) return;
   const result = visitFollowupReport(snapshot, schoolId, visitId);
   if (result.mode !== "sync") throw new UserFacingError("O relatório excedeu o limite de exportação.");
-  const visit = snapshot.visits.find((v) => v.id === visitId)!;
+  const visit = snapshot.visits.find((v) => v.id === visitId && v.school_id === schoolId);
+  if (!visit) throw new UserFacingError("A visita selecionada não está disponível. Atualize o histórico da escola.");
   const branding = {
     headerLines: ["Secretaria Municipal de Educação", schoolName],
     title: FOLLOWUP_VISIT_REPORT.title,
@@ -247,7 +256,11 @@ export async function exportFollowupVisit(
     if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
-    const pdf = await toPdfFile(result, branding, meta, { landscape: true });
+    const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, visitId, signal) : [];
+    if (signal?.aborted) return;
+    const pdf = await toPdfFile(result, branding, meta, {
+      sections: followupPdfSections(snapshot, schoolId, visitId), attachments: images,
+    });
     if (signal?.aborted) return;
     downloadBlob(base + ".pdf", pdf);
   }

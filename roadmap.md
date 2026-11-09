@@ -1,5 +1,11 @@
 # Roadmap — SIGEM simples no design original
 
+## Relatórios de acompanhamento (09/11/2026)
+- [x] Incorporar imagens autorizadas como Anexos numerados nos PDFs da visita e da unidade; falha de leitura impede documento incompleto, sem alteração de banco/permissões.
+- [x] Adicionar alinhamento à esquerda, centro, direita e justificado, persistido nos campos e reproduzido na tela/PDF com negrito, itálico e listas.
+- [x] 197 testes focais PASS; build automático OK; PDF sintético de duas páginas gerado no navegador e inspecionado (texto/alinhamento/anexo/identidade/paginação). Sem publicação.
+- [ ] Conferir download privado de imagens e impressão com sessão institucional real: sessão própria indisponível (nenhuma conta corresponde ao solicitante); aguarda entrada autorizada no preview, sem modificar conta ou permissões.
+
 ## Restauração das disciplinas (23/10/2026)
 - [x] Restaurar os nove componentes autorizados como Padrão do sistema, preservando os 10 IDs existentes (inclusive Educação Financeira); leitor retorna nove padrões em 2027, sem homologação/autoria humana fictícia, sem escrita autenticada/consulta anônima. Reexecução sem duplicatas; 18 testes PASS. Conferência autenticada da tela pendente: emissão de sessão própria não encontrou conta do solicitante.
 

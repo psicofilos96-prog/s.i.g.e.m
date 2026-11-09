@@ -1,7 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { formattedTextValue, stripTextFormat } from "./text-format";
+import { parseTextParagraphs } from "./text-format-model";
 
 describe("formatação dos campos livres do acompanhamento", () => {
+  for (const alignment of ["center", "right", "justify"] as const) {
+    it(`persiste alinhamento ${alignment} e conserva ênfase`, () => {
+      const result = formattedTextValue("**Escola**\nOutra", 2, 2, alignment);
+      expect(result.value).toBe(`[align=${alignment}] **Escola**\nOutra`);
+      expect(parseTextParagraphs(result.value)[0]).toEqual({ alignment, runs: [{ text: "Escola", bold: true }] });
+      expect(stripTextFormat(result.value)).toBe("Escola\nOutra");
+    });
+  }
+  it("retorna à esquerda sem duplicar marcadores nem mudar outro parágrafo", () => {
+    const text = "[align=center] Um\n[align=right] Dois";
+    expect(formattedTextValue(text, 0, 0, "left").value).toBe("Um\n[align=right] Dois");
+    expect(formattedTextValue(text, 0, text.length, "justify").value).toBe("[align=justify] Um\n[align=justify] Dois");
+  });
+  it("preserva lista dentro do parágrafo alinhado", () => {
+    const result = formattedTextValue("[align=center] Item", 19, 19, "bullet");
+    expect(result.value).toBe("[align=center] • Item");
+    expect(stripTextFormat(result.value)).toBe("• Item");
+  });
   it("envolve a seleção com marcador de negrito", () => {
     const r = formattedTextValue("escola boa", 0, 6, "bold");
     expect(r.value).toBe("**escola** boa");

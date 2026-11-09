@@ -10,6 +10,8 @@ export const Route = createFileRoute("/acompanhamento-unidades")({
       { name: "description", content: "Visitas, diagnósticos, planos de ação e evolução das escolas municipais, com consulta do Gabinete." },
       { property: "og:title", content: "Acompanhamento das unidades escolares — SIGEM" },
       { property: "og:type", content: "website" },
+      { property: "og:description", content: "Visitas, diagnósticos, planos de ação e evolução das escolas municipais, com consulta do Gabinete." },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Page,
