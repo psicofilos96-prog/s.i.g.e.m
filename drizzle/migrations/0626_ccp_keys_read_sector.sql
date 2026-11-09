@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "ccp keys readable by linked accounts" ON public.curricular_correspondence_profile_position_keys; CREATE POLICY "ccp keys readable by linked accounts" ON public.curricular_correspondence_profile_position_keys FOR SELECT TO authenticated USING ((SELECT public.current_person_id()) IS NOT NULL OR (SELECT public.current_principal_id()) IS NOT NULL);

@@ -52,7 +52,21 @@ export async function readTeachingAssignments(classId: string, validOn: string, 
   if (!classId || !/^\d{4}-\d{2}-\d{2}$/.test(validOn) || Number.isNaN(Date.parse(knownAt))) throw new Error("assignment:time-required");
   const { data, error } = await supabase.rpc("teaching_assignments_at" as never, { _class_id: classId, _on: validOn, _known_at: knownAt } as never);
   if (error) throw error;
-  return mapAssignmentRows((data ?? []) as RawAssignmentRow[]);
+  const rows = mapAssignmentRows((data ?? []) as RawAssignmentRow[]);
+  const raw = (data ?? []) as RawAssignmentRow[];
+  const labels = await matrixElementCatalogLabels(raw.filter((r) => !r.component_label_snapshot).map((r) => r.element_value_id).filter((x): x is string => !!x));
+  return rows.map((a, i) => ({ ...a, elementLabel: a.elementLabel ?? (raw[i]?.element_value_id ? labels.get(raw[i]!.element_value_id!) ?? null : null) }));
+}
+
+/** Rótulo declarado no catálogo homologado do elemento (fonte canônica), quando o item da matriz não traz rótulo próprio. */
+export async function matrixElementCatalogLabels(valueIds: string[]): Promise<Map<string, string>> {
+  const ids = [...new Set(valueIds)];
+  const out = new Map<string, string>();
+  if (!ids.length) return out;
+  const { data } = await supabase.from("attribute_value_definitions").select("value_id, label, version, status")
+    .eq("scheme_id", "elemento-de-matriz-curricular").eq("status", "homologada").in("value_id", ids).order("version", { ascending: true });
+  for (const r of (data ?? []) as { value_id: string; label: string | null }[]) if (r.label) out.set(r.value_id, r.label);
+  return out;
 }
 
 export const ASSIGNMENT_STATE_TEXT: Record<AssignmentState, string> = {
