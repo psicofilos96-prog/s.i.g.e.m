@@ -113,6 +113,7 @@ import { Route as TransporteEscolarRouteImport } from './routes/transporte-escol
 import { Route as TurmasRouteImport } from './routes/turmas'
 import { Route as UnidadesRouteImport } from './routes/unidades'
 import { Route as VinculosLetivosRouteImport } from './routes/vinculos-letivos'
+import { Route as VisitasEscolaresRouteImport } from './routes/visitas-escolares'
 import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as AlimentacaoEscolarCozinhaRouteImport } from './routes/alimentacao-escolar_.cozinha'
 import { Route as AlimentacaoEscolarSaudeDeclaradaRouteImport } from './routes/alimentacao-escolar_.saude-declarada'
@@ -825,6 +826,11 @@ const UnidadesRoute = UnidadesRouteImport.update({
 const VinculosLetivosRoute = VinculosLetivosRouteImport.update({
   id: '/vinculos-letivos',
   path: '/vinculos-letivos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VisitasEscolaresRoute = VisitasEscolaresRouteImport.update({
+  id: '/visitas-escolares',
+  path: '/visitas-escolares',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Char91DotwellKnownChar93OauthProtectedResourceRoute =
@@ -1998,6 +2004,7 @@ export interface FileRoutesByFullPath {
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/visitas-escolares': typeof VisitasEscolaresRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alimentacao-escolar/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
@@ -2284,6 +2291,7 @@ export interface FileRoutesByTo {
   '/transferencias': typeof TransferenciasRouteWithChildren
   '/transporte-escolar': typeof TransporteEscolarRoute
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/visitas-escolares': typeof VisitasEscolaresRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/alimentacao-escolar/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alimentacao-escolar/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
@@ -2562,6 +2570,7 @@ export interface FileRoutesById {
   '/turmas': typeof TurmasRouteWithChildren
   '/unidades': typeof UnidadesRouteWithChildren
   '/vinculos-letivos': typeof VinculosLetivosRouteWithChildren
+  '/visitas-escolares': typeof VisitasEscolaresRoute
   '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/alimentacao-escolar_/cozinha': typeof AlimentacaoEscolarCozinhaRoute
   '/alimentacao-escolar_/saude-declarada': typeof AlimentacaoEscolarSaudeDeclaradaRoute
@@ -2862,6 +2871,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
+    | '/visitas-escolares'
     | '/.well-known/oauth-protected-resource'
     | '/alimentacao-escolar/cozinha'
     | '/alimentacao-escolar/saude-declarada'
@@ -3148,6 +3158,7 @@ export interface FileRouteTypes {
     | '/transferencias'
     | '/transporte-escolar'
     | '/vinculos-letivos'
+    | '/visitas-escolares'
     | '/.well-known/oauth-protected-resource'
     | '/alimentacao-escolar/cozinha'
     | '/alimentacao-escolar/saude-declarada'
@@ -3425,6 +3436,7 @@ export interface FileRouteTypes {
     | '/turmas'
     | '/unidades'
     | '/vinculos-letivos'
+    | '/visitas-escolares'
     | '/.well-known/oauth-protected-resource'
     | '/alimentacao-escolar_/cozinha'
     | '/alimentacao-escolar_/saude-declarada'
@@ -3724,6 +3736,7 @@ export interface RootRouteChildren {
   TurmasRoute: typeof TurmasRouteWithChildren
   UnidadesRoute: typeof UnidadesRouteWithChildren
   VinculosLetivosRoute: typeof VinculosLetivosRouteWithChildren
+  VisitasEscolaresRoute: typeof VisitasEscolaresRoute
   Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   AlimentacaoEscolarCozinhaRoute: typeof AlimentacaoEscolarCozinhaRoute
   AlimentacaoEscolarSaudeDeclaradaRoute: typeof AlimentacaoEscolarSaudeDeclaradaRoute
@@ -4520,6 +4533,13 @@ declare module '@tanstack/react-router' {
       path: '/vinculos-letivos'
       fullPath: '/vinculos-letivos'
       preLoaderRoute: typeof VinculosLetivosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/visitas-escolares': {
+      id: '/visitas-escolares'
+      path: '/visitas-escolares'
+      fullPath: '/visitas-escolares'
+      preLoaderRoute: typeof VisitasEscolaresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/.well-known/oauth-protected-resource': {
@@ -6650,6 +6670,7 @@ const rootRouteChildren: RootRouteChildren = {
   TurmasRoute: TurmasRouteWithChildren,
   UnidadesRoute: UnidadesRouteWithChildren,
   VinculosLetivosRoute: VinculosLetivosRouteWithChildren,
+  VisitasEscolaresRoute: VisitasEscolaresRoute,
   Char91DotwellKnownChar93OauthProtectedResourceRoute:
     Char91DotwellKnownChar93OauthProtectedResourceRoute,
   AlimentacaoEscolarCozinhaRoute: AlimentacaoEscolarCozinhaRoute,

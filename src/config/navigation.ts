@@ -43,7 +43,11 @@ export type NavigationRoute =
   | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/supervisao-escolar" | "/acompanhamento-unidades" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/mapa-censo-2026" | "/mapa-mensal-2026" | "/consolidado-2026" | "/auditoria" | "/parametros"
-  | "/central-de-acessos" | "/senhas-de-setores" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos" | "/acervo-documental";
+  | "/central-de-acessos" | "/senhas-de-setores" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos" | "/acervo-documental"
+  | "/matriculas" | "/transferencias" | "/enturmacoes" | "/secretaria/vagas" | "/secretaria/fila-de-vagas" | "/secretaria/livro-matricula"
+  | "/visitas-escolares" | "/secretaria/infrequencia" | "/secretaria/listagens" | "/secretaria/servicos" | "/secretaria/oficios"
+  | "/secretaria/modelos-de-texto" | "/secretaria/tabelas-semed" | "/secretaria/alimentacao-especial" | "/carteirinhas"
+  | "/autorizacoes-familia" | "/transporte-escolar" | "/educacenso" | "/docserv";
 
 export type NavigationItem = {
   label: string;
@@ -83,6 +87,30 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Comunicação com famílias", icon: Inbox, to: "/comunicacao-escolar", hint: "Comunicados publicados no SIGEM" },
       { label: "Família", icon: HeartHandshake, to: "/familia", hint: "Acompanhamento pelo responsável" },
       { label: "Avisos", icon: Inbox, to: "/avisos", hint: "Avisos recebidos" },
+    ],
+  },
+  {
+    label: "Secretaria escolar",
+    items: [
+      { label: "Matrículas", icon: GraduationCap, to: "/matriculas", hint: "Matricular e consultar matrículas" },
+      { label: "Transferências e movimentações", icon: GraduationCap, to: "/transferencias", hint: "Entradas, saídas e transferências" },
+      { label: "Enturmações", icon: UsersRound, to: "/enturmacoes", hint: "Alunos nas turmas" },
+      { label: "Vagas", icon: UsersRound, to: "/secretaria/vagas", hint: "Vagas por turma" },
+      { label: "Fila de vagas", icon: UsersRound, to: "/secretaria/fila-de-vagas", hint: "Pedidos aguardando vaga" },
+      { label: "Livro de matrícula", icon: BookOpen, to: "/secretaria/livro-matricula", hint: "Livro de registro de matrículas" },
+      { label: "Livro de visitas", icon: BookOpen, to: "/visitas-escolares", hint: "Visitas recebidas pela escola (Mapa, Seção VI)" },
+      { label: "Infrequência", icon: Inbox, to: "/secretaria/infrequencia", hint: "Alunos com faltas" },
+      { label: "Listagens", icon: Table2, to: "/secretaria/listagens", hint: "Listas da escola" },
+      { label: "Atendimento e serviços", icon: Inbox, to: "/secretaria/servicos", hint: "Protocolos de atendimento" },
+      { label: "Ofícios", icon: BookOpen, to: "/secretaria/oficios", hint: "Ofícios da escola" },
+      { label: "Modelos de texto", icon: BookOpen, to: "/secretaria/modelos-de-texto", hint: "Textos padrão da Secretaria" },
+      { label: "Tabelas SEMED", icon: Table2, to: "/secretaria/tabelas-semed", hint: "Tabelas anuais para a SEMED" },
+      { label: "Alimentação especial", icon: Inbox, to: "/secretaria/alimentacao-especial", hint: "Declarações de saúde e alimentação" },
+      { label: "Carteirinhas", icon: ContactRound, to: "/carteirinhas", hint: "Carteirinha do estudante" },
+      { label: "Autorizações da família", icon: HeartHandshake, to: "/autorizacoes-familia", hint: "Responsáveis com acesso ao portal" },
+      { label: "Transporte escolar", icon: Inbox, to: "/transporte-escolar", hint: "Rotas, pontos e alunos" },
+      { label: "Educacenso", icon: Table2, to: "/educacenso", hint: "Censo escolar da unidade" },
+      { label: "DocServ", icon: BookOpen, to: "/docserv", hint: "Documentos funcionais" },
     ],
   },
   {

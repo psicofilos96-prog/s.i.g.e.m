@@ -4348,6 +4348,13 @@
       "when": 1794227069572,
       "tag": "0620_storage_avisos_escola_definer_check",
       "breakpoints": true
+    },
+    {
+      "idx": 621,
+      "version": "7",
+      "when": 1794239045576,
+      "tag": "0621_school_visit_book_sector",
+      "breakpoints": true
     }
   ]
 }
