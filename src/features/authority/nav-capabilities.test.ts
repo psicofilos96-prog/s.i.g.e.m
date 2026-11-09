@@ -5,7 +5,7 @@ import { STATION_HOME, stationAllowsPath } from "./station-navigation";
 import { provisionalNavigation } from "@/config/navigation";
 
 const cap = (capabilityId: string) => ({ capabilityId, engagementId: "e", policyId: "p", policyVersion: 1, classId: null, periodId: null, schoolId: "a", componentId: null });
-const routeFile = (to: string) => { const b = to === "/" ? "index" : to.slice(1); return [`src/routes/${b}.tsx`, `src/routes/${b}.index.tsx`, `src/routes/${b}`].find(existsSync); };
+const routeFile = (to: string) => { const b = to === "/" ? "index" : to.slice(1); const u = b.replace("/", "_."); return [`src/routes/${b}.tsx`, `src/routes/${b}.index.tsx`, `src/routes/${b}`, `src/routes/${u}.tsx`].find(existsSync); };
 
 describe("NPERM.3 — menu × rota × capacidade", () => {
   it("permissões de professor não abrem Gestão Escolar nem as estações de outros setores", () => {
