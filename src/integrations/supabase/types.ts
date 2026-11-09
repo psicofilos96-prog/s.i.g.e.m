@@ -45202,6 +45202,14 @@ export type Database = {
           user_id: string
         }[]
       }
+      followup_attachment_can_read: {
+        Args: { _name: string }
+        Returns: boolean
+      }
+      followup_attachment_can_write: {
+        Args: { _name: string }
+        Returns: boolean
+      }
       followup_functional_seat_current_session: {
         Args: never
         Returns: boolean
