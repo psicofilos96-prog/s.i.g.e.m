@@ -4355,6 +4355,13 @@
       "when": 1794239045576,
       "tag": "0621_school_visit_book_sector",
       "breakpoints": true
+    },
+    {
+      "idx": 622,
+      "version": "7",
+      "when": 1794247736275,
+      "tag": "0622_matrix_readable_by_sector_principals",
+      "breakpoints": true
     }
   ]
 }
