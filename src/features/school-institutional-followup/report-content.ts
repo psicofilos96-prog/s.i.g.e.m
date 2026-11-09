@@ -73,7 +73,9 @@ export async function loadFollowupPdfAttachments(snapshot: SchoolSnapshot, schoo
       const url = URL.createObjectURL(data);
       try {
         const img = new Image(); img.src = url;
-        await img.decode();
+        try { await img.decode(); } catch {
+          throw new UserFacingError("Uma das imagens não pôde ser aberta. O PDF não foi gerado para evitar um anexo ausente. Confira a imagem e tente novamente.");
+        }
         if (readSignal.aborted) throw new DOMException("cancelada", "AbortError");
         const scale = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight));
         const canvas = document.createElement("canvas");
