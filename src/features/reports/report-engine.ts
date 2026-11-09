@@ -8,6 +8,7 @@
 
 import brasaoAsset from "@/assets/brasao-itaperuna.png.asset.json";
 import educacaoAsset from "@/assets/logo-educacao.png.asset.json";
+import { fitPdfImage, wrapPdfRuns, type PdfAttachment, type PdfSection, type PdfRun } from "./pdf-content";
 
 export type ParamType = "date" | "datetime" | "integer" | "text" | "enum";
 export type ParamDef = Readonly<{ id: string; label: string; type: ParamType; required: boolean; min?: number; max?: number; options?: readonly string[]; maxLength?: number }>;
@@ -231,7 +232,7 @@ export function exportIncomplete(collected: number, screenTotal: number, exhaust
  * nunca nome nem assinatura presumidos.
  */
 export async function toPdfFile(result: ReportResult, branding: Branding, meta: readonly string[] = [],
-  opts: { landscape?: boolean; signatures?: readonly string[] } = {}): Promise<Blob> {
+  opts: { landscape?: boolean; signatures?: readonly string[]; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[] } = {}): Promise<Blob> {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: opts.landscape ? "landscape" : "portrait", unit: "mm", format: "a4" });
@@ -255,15 +256,68 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   for (const l of doc.splitTextToSize(branding.title, W - 2 * M) as string[]) { doc.text(l, W / 2, y + 1, { align: "center" }); y += 6; }
   doc.setFont("times", "normal"); doc.setFontSize(9);
   for (const m of meta) for (const l of doc.splitTextToSize(m, W - 2 * M) as string[]) { doc.text(l, M, y + 1); y += 4.5; }
-  autoTable(doc, {
+  if (!opts.sections) autoTable(doc, {
     startY: y + 2, margin: { left: M, right: M, bottom: 16 }, theme: "grid",
     head: [result.columns.map((c) => c.label)], body: result.rows.map((r) => r.map(cellText)),
     styles: { font: "times", fontSize: 8, cellPadding: 1.2, overflow: "linebreak", lineColor: [34, 34, 34], lineWidth: 0.25, textColor: [0, 0, 0] },
     headStyles: { fillColor: [235, 235, 235], textColor: [0, 0, 0], fontStyle: "bold" }, showHead: "everyPage", rowPageBreak: "avoid",
   });
+  const pageTop = () => {
+    doc.addPage();
+    if (crest) drawLogo(crest, M);
+    if (secretariat) { const w = Math.min(34, logoH * secretariat.width / secretariat.height); drawLogo(secretariat, W - M - w); }
+    y = M + logoH + 7;
+  };
+  if (opts.sections) {
+    const font = (run: PdfRun) => doc.setFont("times", run.bold ? "bold" : run.italic ? "italic" : "normal");
+    for (const section of opts.sections) {
+      if (y + 22 > H - 18) pageTop();
+      doc.setFont("times", "bold"); doc.setFontSize(11);
+      for (const line of doc.splitTextToSize(section.title, W - 2 * M) as string[]) {
+        if (y + 6 > H - 18) pageTop();
+        doc.text(line, M, y); y += 5;
+      }
+      y += 2; doc.setFontSize(10);
+      for (const paragraph of section.paragraphs) {
+        const measure = (run: PdfRun) => { font(run); return doc.getTextWidth(run.text); };
+        const lines = wrapPdfRuns(paragraph.runs, W - 2 * M, measure);
+        lines.forEach((line, index) => {
+          if (y + 5 > H - 18) { pageTop(); doc.setFontSize(10); }
+          // Trim trailing spaces before measuring alignment/justification.
+          while (line.length && /^\s+$/.test(line[line.length - 1]?.text ?? "")) line.pop();
+          const width = line.reduce((sum, run) => sum + measure(run), 0);
+          const gaps = line.filter((r) => /^\s+$/.test(r.text)).length;
+          const extra = paragraph.alignment === "justify" && index < lines.length - 1 && gaps > 0 ? (W - 2 * M - width) / gaps : 0;
+          let x = paragraph.alignment === "center" ? (W - width) / 2 : paragraph.alignment === "right" ? W - M - width : M;
+          for (const run of line) {
+            font(run);
+            // Built-in Times lacks the bullet glyph; use a small vector disk.
+            if (run.text === "•") doc.circle(x + 0.8, y - 1, 0.45, "F");
+            else doc.text(run.text, x, y);
+            x += measure(run) + (/^\s+$/.test(run.text) ? extra : 0);
+          }
+          y += 4.8;
+        });
+        y += 2;
+      }
+      y += 5;
+    }
+  }
+  for (const [index, attachment] of (opts.attachments ?? []).entries()) {
+    if (!/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(attachment.dataUrl)) throw new ReportError("report:image", "Não foi possível incorporar um dos anexos. O PDF não foi gerado.");
+    pageTop(); doc.setFont("times", "bold"); doc.setFontSize(13);
+    doc.text(`Anexos — Anexo ${index + 1}`, M, y); y += 7;
+    doc.setFont("times", "normal"); doc.setFontSize(9);
+    const caption = doc.splitTextToSize(attachment.caption, W - 2 * M) as string[];
+    for (const line of caption) { if (y + 5 > H - 50) pageTop(); doc.text(line, M, y); y += 4.5; }
+    y += 3;
+    const fitted = fitPdfImage(attachment.width, attachment.height, W - 2 * M, H - 18 - y);
+    doc.addImage(attachment.dataUrl, attachment.dataUrl.startsWith("data:image/jpeg") ? "JPEG" : "PNG", (W - fitted.width) / 2, y, fitted.width, fitted.height);
+    y += fitted.height;
+  }
   const sig = opts.signatures ?? [];
   if (sig.length) {
-    let sy = ((doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 22;
+    let sy = (opts.sections || opts.attachments?.length ? y : (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 22;
     if (sy + 14 > H - 16) { doc.addPage(); sy = M + 24; }
     const colW = (W - 2 * M) / Math.min(sig.length, 3);
     sig.forEach((s, i) => {
