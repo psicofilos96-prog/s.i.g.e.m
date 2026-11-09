@@ -25,7 +25,7 @@ function VisitBook({ school }: { school: string }) {
   const qc = useQueryClient();
   const key = ["school-visits-book", school];
   const q = useQuery({ queryKey: key, queryFn: () => callRpc<VisitRow[]>("school_visits_book", { _school: school }) });
-  const [form, setForm] = useState({ date: today(), kind: VISITOR_KIND_DEFAULTS[0]!.id, name: "", origin: "" });
+  const [form, setForm] = useState<{ date: string; kind: string; name: string; origin: string }>({ date: today(), kind: VISITOR_KIND_DEFAULTS[0].id, name: "", origin: "" });
   const [annul, setAnnul] = useState<{ row: VisitRow; reason: string } | null>(null);
   const [err, setErr] = useState<string | null>(null);
 

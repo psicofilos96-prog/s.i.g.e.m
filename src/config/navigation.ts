@@ -43,7 +43,11 @@ export type NavigationRoute =
   | "/planejamento" | "/avaliacoes-do-professor" | "/inclusao" | "/alimentacao-escolar" | "/comunicacao-escolar" | "/gestao-escolar" | "/supervisao-escolar" | "/acompanhamento-unidades" | "/familia"
   | "/documentos-escolares" | "/importacoes" | "/departamento-pessoal" | "/referencias-curriculares"
   | "/avaliacao-desempenho" | "/paineis" | "/relatorios" | "/mapa-estatistico-rede" | "/mapa-censo-2026" | "/mapa-mensal-2026" | "/consolidado-2026" | "/auditoria" | "/parametros"
-  | "/central-de-acessos" | "/senhas-de-setores" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos" | "/acervo-documental";
+  | "/central-de-acessos" | "/senhas-de-setores" | "/publicacoes" | "/configuracao-inicial" | "/prontidao-piloto" | "/qualidade-dos-dados" | "/revisao-de-anomalias" | "/base-de-conhecimento" | "/tarefas" | "/quadro-docente" | "/simulador" | "/sugestoes-de-horario" | "/pendencias" | "/integracoes" | "/central-de-integracoes" | "/assistente" | "/ajuda" | "/avisos" | "/acervo-documental"
+  | "/matriculas" | "/transferencias" | "/enturmacoes" | "/secretaria/vagas" | "/secretaria/fila-de-vagas" | "/secretaria/livro-matricula"
+  | "/visitas-escolares" | "/secretaria/infrequencia" | "/secretaria/listagens" | "/secretaria/servicos" | "/secretaria/oficios"
+  | "/secretaria/modelos-de-texto" | "/secretaria/tabelas-semed" | "/secretaria/alimentacao-especial" | "/carteirinhas"
+  | "/autorizacoes-familia" | "/transporte-escolar" | "/educacenso" | "/docserv";
 
 export type NavigationItem = {
   label: string;
