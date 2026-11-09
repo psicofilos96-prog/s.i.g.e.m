@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "ccp axis readable by linked accounts" ON public.curricular_correspondence_profile_nature_axis; CREATE POLICY "ccp axis readable by linked accounts" ON public.curricular_correspondence_profile_nature_axis FOR SELECT TO authenticated USING ((SELECT public.current_person_id()) IS NOT NULL OR (SELECT public.current_principal_id()) IS NOT NULL);
