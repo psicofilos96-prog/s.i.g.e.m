@@ -183,3 +183,5 @@
 - Ordem decidida: Etapas 1–4 (fundação compartilhada) concluídas e validadas antes dos módulos; números/agendas da imagem são ilustrativos, sempre dados reais
 
 - [ ] Ligar SIGEM ao ChatGPT e Codex (aguarda publicar e o usuário adicionar o conector)
+- [x] Deliberação CME 3/2026 gravada e aprovada; turmas 10/20/30 (2026 e 2027) ligadas ao Anexo II; 70 atribuições docentes de teste com troca de regência em 01/07 e transferência de professor em 31/08/2026
+- [ ] Liberar leitura das correspondências posição→matriz e do desenho das matrizes para contas de setor (alteração interrompida por tempo esgotado no banco; refazer)
