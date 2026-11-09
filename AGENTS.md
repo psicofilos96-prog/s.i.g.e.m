@@ -83,4 +83,4 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Followup document presentation
 - Followup paragraph formatting uses a browser-safe text marker parser shared by screen and PDF, because presentation must survive existing versioned text storage without accepting user HTML.
-- Followup PDFs use the common report engine with narrative sections and private image appendices loaded as the current user from authorized metadata; failed image reads stop the download, because an incomplete attachment set must not appear complete.
+- Followup PDF and Word exports use the common report engine with shared narrative sections and private image appendices loaded as the current user from authorized metadata; failed image reads stop either download, because an incomplete attachment set must not appear complete.

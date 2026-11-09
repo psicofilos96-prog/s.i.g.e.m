@@ -54,7 +54,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
   const overdue = rows.filter((r) => r.due_on && r.due_on < today).length;
   const noUpdate = rows.filter((r) => r.situation === "sem atualização").length;
   const noDeadline = rows.filter((r) => !r.due_on).length;
-  async function exportRows(format: "csv" | "xlsx" | "pdf") {
+  async function exportRows(format: "csv" | "xlsx" | "pdf" | "docx") {
     // A ref (rather than only React state) rejects two clicks in one tick.
     if (activeExport.current || loading || error) return;
     const controller = new AbortController();
@@ -115,8 +115,9 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
             <option value="suspensa">Suspensa</option>
           </select>
         </label>
-        <div className="flex gap-2" aria-label="Exportar quadro filtrado">
+        <div className="flex flex-wrap gap-2" aria-label="Exportar quadro filtrado">
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportRows("pdf")}>PDF</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportRows("docx")}>Word</Button>
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportRows("xlsx")}>Excel</Button>
           <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportRows("csv")}>CSV</Button>
         </div>
