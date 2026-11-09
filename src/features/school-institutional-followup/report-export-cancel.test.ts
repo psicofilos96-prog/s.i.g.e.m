@@ -3,7 +3,7 @@ import {
   exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit, exportNetworkPending,
 } from "./report";
 import type { NetworkRow, SchoolSnapshot, NetworkPendingAction } from "./model";
-import { downloadBlob, toPdfFile, toXlsx } from "@/features/reports/report-engine";
+import { downloadBlob, toPdfFile, toWordFile, toXlsx } from "@/features/reports/report-engine";
 import { loadFollowupPdfAttachments } from "./report-content";
 
 vi.mock("./report-content", async (original) => ({
@@ -12,7 +12,7 @@ vi.mock("./report-content", async (original) => ({
 
 vi.mock("@/features/reports/report-engine", async (original) => ({
   ...(await original<typeof import("@/features/reports/report-engine")>()),
-  toXlsx: vi.fn(), toPdfFile: vi.fn(), downloadBlob: vi.fn(),
+  toXlsx: vi.fn(), toPdfFile: vi.fn(), toWordFile: vi.fn(), downloadBlob: vi.fn(),
 }));
 
 const school: SchoolSnapshot = {
@@ -41,6 +41,7 @@ describe("cancelamento de exportação do acompanhamento institucional", () => {
     vi.mocked(downloadBlob).mockReset();
     vi.mocked(toPdfFile).mockReset();
     vi.mocked(toXlsx).mockReset();
+    vi.mocked(toWordFile).mockReset();
     vi.mocked(loadFollowupPdfAttachments).mockReset();
   });
 
@@ -49,6 +50,38 @@ describe("cancelamento de exportação do acompanhamento institucional", () => {
     controller.abort();
     await exportFollowupNetwork(network, "2026-01-01", "2026-11-05", "pdf", controller.signal);
     expect(toPdfFile).not.toHaveBeenCalled();
+    expect(downloadBlob).not.toHaveBeenCalled();
+  });
+
+  it("Word individual incorpora as mesmas seções e imagens autorizadas", async () => {
+    const images = [{ dataUrl: "data:image/png;base64,aGVsbG8=", width: 200, height: 100, caption: "Anexo" }];
+    vi.mocked(loadFollowupPdfAttachments).mockResolvedValue(images);
+    vi.mocked(toWordFile).mockResolvedValue(new Blob(["word"]));
+    const attachment = { id: "a", visit_id: "visit-a", visit_logical_id: "logical-a", caption: null,
+      storage_path: "school-a/a", content_type: "image/png", size_bytes: 20, author_name: "Equipe", created_at: "2026-11-02T13:00:00Z" };
+    await exportFollowupVisit(school, "school-a", "Escola A", "visit-a", "docx", undefined, [attachment]);
+    expect(vi.mocked(toWordFile).mock.calls[0]?.[3]?.attachments).toEqual(images);
+    expect(vi.mocked(toWordFile).mock.calls[0]?.[3]?.sections?.[0]?.title).toContain("02/11/2026");
+    expect(downloadBlob).toHaveBeenCalledWith(expect.stringMatching(/\.docx$/), expect.any(Blob));
+    expect(toPdfFile).not.toHaveBeenCalled();
+  });
+
+  it("Word não baixa quando a leitura de anexo falha", async () => {
+    vi.mocked(loadFollowupPdfAttachments).mockRejectedValue(new Error("Imagem indisponível"));
+    const attachment = { id: "a", visit_id: "visit-a", visit_logical_id: "logical-a", caption: null,
+      storage_path: "school-a/a", content_type: "image/png", size_bytes: 20, author_name: "Equipe", created_at: "2026-11-02T13:00:00Z" };
+    await expect(exportFollowupSchool(school, "school-a", "Escola A", "docx", undefined, [attachment])).rejects.toThrow("Imagem indisponível");
+    expect(toWordFile).not.toHaveBeenCalled();
+    expect(downloadBlob).not.toHaveBeenCalled();
+  });
+
+  it("Word não baixa após cancelamento da conversão", async () => {
+    let finish: ((value: Blob) => void) | undefined;
+    vi.mocked(toWordFile).mockReturnValue(new Promise<Blob>((resolve) => { finish = resolve; }));
+    const controller = new AbortController();
+    const job = exportFollowupNetwork(network, "2026-01-01", "2026-11-05", "docx", controller.signal);
+    expect(toWordFile).toHaveBeenCalledTimes(1);
+    controller.abort(); finish?.(new Blob(["word"])); await job;
     expect(downloadBlob).not.toHaveBeenCalled();
   });
 
