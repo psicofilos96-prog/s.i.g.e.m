@@ -107,7 +107,6 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
       { label: "Transporte escolar", icon: Inbox, to: "/transporte-escolar", hint: "Rotas, pontos e alunos" },
       { label: "Educacenso", icon: Table2, to: "/educacenso", hint: "Censo escolar da unidade" },
       { label: "DocServ", icon: BookOpen, to: "/docserv", hint: "Documentos funcionais" },
-      { label: "Acervo Documental", icon: BookOpen, to: "/acervo-documental", hint: "Pastas e arquivos do setor" },
     ],
   },
   {
