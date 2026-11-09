@@ -1,6 +1,7 @@
 # Roadmap — SIGEM simples no design original
 
 ## Relatórios de acompanhamento (09/11/2026)
+- [ ] Refinar espaçamento/hierarquia do PDF e oferecer Word (.docx) com alinhamentos, ênfase e anexos; verificar documentos gerados sem alterar dados/permissões.
 - [x] Incorporar imagens autorizadas como Anexos numerados nos PDFs da visita e da unidade; falha de leitura impede documento incompleto, sem alteração de banco/permissões.
 - [x] Adicionar alinhamento à esquerda, centro, direita e justificado, persistido nos campos e reproduzido na tela/PDF com negrito, itálico e listas.
 - [x] 197 testes focais PASS; build automático OK; PDF sintético de duas páginas gerado no navegador e inspecionado (texto/alinhamento/anexo/identidade/paginação). Sem publicação.
