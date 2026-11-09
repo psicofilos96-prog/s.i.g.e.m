@@ -243,7 +243,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       activeReportExport.current = null;
       setExporting(false);
     }
-  }, [school, detailData, detail.isFetching, detail.isSuccess, network.data, network.isFetching, network.isSuccess, from, to, search, networkView]);
+  }, [school, detailData, detail.isFetching, detail.isSuccess, network.data, network.isFetching, network.isSuccess, attachments.data, attachments.isFetching, attachments.isSuccess, from, to, search, networkView]);
   useEffect(() => {
     if (correctionBase) document.getElementById("followup-visit-form")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
