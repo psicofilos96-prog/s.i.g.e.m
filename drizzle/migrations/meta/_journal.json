@@ -4362,6 +4362,13 @@
       "when": 1794247736275,
       "tag": "0622_matrix_readable_by_sector_principals",
       "breakpoints": true
+    },
+    {
+      "idx": 623,
+      "version": "7",
+      "when": 1794248009741,
+      "tag": "0623_curricular_chain_read_sector_a",
+      "breakpoints": true
     }
   ]
 }
