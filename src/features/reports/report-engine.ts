@@ -385,19 +385,19 @@ export async function toWordFile(result: ReportResult, branding: Branding, meta:
         spacing: { before: 280, after: 180 }, children: [new TextRun({ text: section.title, bold: true, size: 24 })] }));
       for (const p of section.paragraphs) {
         const bullet = p.runs[0]?.text.startsWith("• ") ?? false;
-        children.push(new Paragraph({ alignment: alignments[p.alignment], keepNext: p.label,
-          numbering: bullet ? { reference: "report-bullets", level: 0 } : undefined,
+        children.push(new Paragraph({ alignment: alignments[p.alignment], keepNext: Boolean(p.label),
+          ...(bullet ? { numbering: { reference: "report-bullets", level: 0 } } : {}),
           spacing: { before: p.label ? 160 : 0, after: p.label ? 60 : 140, line: 300 },
           children: p.runs.map((r, i) => new TextRun({ text: bullet && i === 0 ? r.text.slice(2) : r.text,
-            bold: r.bold, italics: r.italic, size: p.label ? 20 : 22 })) }));
+            bold: Boolean(r.bold), italics: Boolean(r.italic), size: p.label ? 20 : 22 })) }));
       }
     }
   } else if (result.columns.length) {
     const widths = result.columns.map((_, i) => Math.floor(contentWidth / result.columns.length) + (i === 0 ? contentWidth % result.columns.length : 0));
     const row = (values: readonly string[], heading = false) => new TableRow({ tableHeader: heading,
-      children: values.map((value, i) => new TableCell({ width: { size: widths[i], type: WidthType.DXA },
+      children: values.map((value, i) => new TableCell({ width: { size: widths[i] ?? Math.floor(contentWidth / result.columns.length), type: WidthType.DXA },
         margins: { top: 100, bottom: 100, left: 100, right: 100 },
-        shading: heading ? { fill: "EEEEEE", type: ShadingType.CLEAR } : undefined,
+        ...(heading ? { shading: { fill: "EEEEEE", type: ShadingType.CLEAR } } : {}),
         children: [new Paragraph({ children: [new TextRun({ text: value, bold: heading, size: 18 })] })] })) });
     children.push(new Table({ width: { size: contentWidth, type: WidthType.DXA }, columnWidths: widths,
       rows: [row(result.columns.map((c) => c.label), true), ...result.rows.map((r) => row(r.map(cellText)))] }));
