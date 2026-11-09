@@ -299,13 +299,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   }
   async function exportSchoolReport(format: "csv" | "xlsx" | "pdf") {
     if (!school || !detailData) return;
+    if (format === "pdf" && (!attachments.isSuccess || attachments.isFetching)) {
+      setError("Aguarde a leitura das imagens antes de imprimir. Se houver falha, atualize as consultas e tente novamente.");
+      return;
+    }
     await withReportExport((signal) =>
-      exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal));
+      exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal, attachmentsData));
   }
   async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf") {
     if (!school || !detailData) return;
+    if (format === "pdf" && (!attachments.isSuccess || attachments.isFetching)) {
+      setError("Aguarde a leitura das imagens antes de imprimir. Se houver falha, atualize as consultas e tente novamente.");
+      return;
+    }
     await withReportExport((signal) =>
-      exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal));
+      exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal, attachmentsData));
   }
   async function refresh() {
     // Both report areas stop before any asynchronous revalidation begins.
