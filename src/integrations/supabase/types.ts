@@ -41952,6 +41952,7 @@ export type Database = {
         Returns: string
       }
       authorize_meal_evidence_access: { Args: { _id: string }; Returns: string }
+      avisos_escola_can_upload: { Args: { _name: string }; Returns: boolean }
       b2_4_authorizing_engagement: { Args: never; Returns: string }
       b3_allocation_ended_on: { Args: { _logical: string }; Returns: string }
       b3_enrollment_ending_head: {

@@ -4341,6 +4341,13 @@
       "when": 1794226270947,
       "tag": "0619_followup_attachment_storage_checks",
       "breakpoints": true
+    },
+    {
+      "idx": 620,
+      "version": "7",
+      "when": 1794227069572,
+      "tag": "0620_storage_avisos_escola_definer_check",
+      "breakpoints": true
     }
   ]
 }
