@@ -1,5 +1,12 @@
 # Roadmap — SIGEM simples no design original
 
+## Exercício operacional da escola de teste — 2026 (09/11/2026)
+- [x] Conta real da Secretaria: 20 matrículas/enturmações fictícias (duas por mês, fevereiro–novembro; dez novos e dez recebidos de escola externa fictícia), nove remanejamentos de turma e nove saídas (três transferências externas sem destino cadastrado, três cancelamentos, três evasões). Só identidades novas TESTE OPERACAO 2026; 38 operações confirmadas pelos writers canônicos e leitura no banco. Nenhuma conta/permissão/norma oficial alterada.
+- [x] Leituras mensais do Mapa conferidas; tela de novembro distingue Novo × Transferência recebida e separa Remanejados; PDF de março baixado. Reader legado map_live_movements não distingue ingresso, mas tela usa map_live_movements_known que distingue; não reportar como bug da tela. Remanejamento mostra fim da turma anterior (dia 04) em vez do início da nova (dia 05): divergência reproduzida, ainda sem alteração normativa.
+- [x] Impedimento de entrada do preview corrigido: diagnóstico importava SQL como JavaScript; glob raw preserva inventário. Navegador fresco abriu /auth sem erros; 16 testes de diagnóstico/integridade PASS, build automático OK. Sem publicação.
+- [ ] Atribuições/movimentos docentes, aulas/chamada/notas: candidatos de teste disponíveis, mas secretariat_assignment_elements devolve vazio em 2026 e não existe homologação de matriz; três contas docentes abrem Diário sem componente/grade, não foram inventadas regências nem aprovação. Depende de configuração curricular apta e autoridade institucional, não de bypass.
+- [ ] Revisar a data do remanejamento no Mapa (tela/PDF) e leitores legados: correção de banco depende de reconciliação/backup recuperável exigidos pelo proprietário antes de DDL; nenhuma migration executada nesta rodada.
+
 ## Relatórios de acompanhamento (09/11/2026)
 - [x] Refinar espaçamento/hierarquia do PDF e oferecer Word (.docx) no panorama, ficha, visita, providências e roteiro; mesmos alinhamentos, ênfase e anexos autorizados. 111 testes PASS, build automático OK; PDF (2 páginas), Word narrativo (2 páginas) e Word tabela (1 página) inspecionados; título Word azul padrão corrigido para preto. Sem alteração de dados/permissões ou publicação; leitura privada real segue pendente abaixo.
 - [x] Incorporar imagens autorizadas como Anexos numerados nos PDFs da visita e da unidade; falha de leitura impede documento incompleto, sem alteração de banco/permissões.

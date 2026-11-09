@@ -10,7 +10,7 @@ import { CpfAuditPanel } from "./cpf-audit-panel";
 import { checkVersionChains, type Finding } from "./integrity-checks";
 import { BLOCKED_DEPENDENCIES, environmentCheck, migrationsCheck, probeCheck, recentTechFailures, recordTechFailure, type Check } from "./diagnostics-model";
 
-const MIGRATIONS = Object.keys(import.meta.glob("/drizzle/migrations/*.sql"));
+const MIGRATIONS = Object.keys(import.meta.glob("/drizzle/migrations/*.sql", { query: "?raw", import: "default" }));
 const STATE_LABEL = { ok: "OK", falha: "Falha", "nao-verificavel": "Não verificável aqui" } as const;
 
 async function probe(fn: () => PromiseLike<{ error: unknown }>): Promise<{ ok: boolean; ms: number }> {
