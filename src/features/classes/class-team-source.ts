@@ -4,6 +4,7 @@
  * validada no banco (pessoa natural + vínculo funcional + lotação). Nada é criado no navegador.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { matrixElementCatalogLabels } from "./teaching-assignment-source";
 import type { JourneyInterval } from "./class-wizard-model";
 import type { StudentPositionRow } from "./class-composition-projection";
 
@@ -25,7 +26,17 @@ export async function teachingCandidates(schoolId: string, on: string): Promise<
 export type AssignmentElement = { matrixVersionId: string; itemKey: string; label: string | null };
 export async function assignmentElements(classId: string, on: string): Promise<AssignmentElement[]> {
   const rows = await call<{ matrix_version_id: string; item_key: string; label: string | null }[]>("secretariat_assignment_elements", { _class: classId, _on: on });
-  return (rows ?? []).map((r) => ({ matrixVersionId: r.matrix_version_id, itemKey: r.item_key, label: r.label }));
+  const list = rows ?? [];
+  const missing = list.filter((r) => !r.label);
+  let labels = new Map<string, string>();
+  if (missing.length) {
+    const { data } = await supabase.from("curricular_matrix_items").select("matrix_version_id, item_key, element_value_id")
+      .in("matrix_version_id", [...new Set(missing.map((r) => r.matrix_version_id))]);
+    const byItem = new Map(((data ?? []) as { matrix_version_id: string; item_key: string; element_value_id: string | null }[]).map((x) => [`${x.matrix_version_id}|${x.item_key}`, x.element_value_id]));
+    const cat = await matrixElementCatalogLabels([...byItem.values()].filter((x): x is string => !!x));
+    labels = new Map([...byItem].flatMap(([k, v]) => (v && cat.get(v) ? [[k, cat.get(v)!] as [string, string]] : [])));
+  }
+  return list.map((r) => ({ matrixVersionId: r.matrix_version_id, itemKey: r.item_key, label: r.label ?? labels.get(`${r.matrix_version_id}|${r.item_key}`) ?? null }));
 }
 
 export async function assignTeacher(a: { classId: string; candidate: TeachingCandidate; element: AssignmentElement; from: string; until: string | null }) {
