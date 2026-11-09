@@ -13,6 +13,8 @@ export function PasswordChangeGate({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false);
   const check = useQuery({
     queryKey: ["password-change-gate", uid], enabled: uid !== null, retry: false,
+    // Resposta vale para a sessão: troca de senha refaz a leitura explicitamente (refetch).
+    staleTime: Infinity, gcTime: Infinity, refetchOnWindowFocus: false, refetchOnReconnect: false,
     queryFn: async ({ signal }) => {
       const controller = new AbortController();
       const abort = () => controller.abort();
@@ -32,6 +34,8 @@ export function PasswordChangeGate({ children }: { children: ReactNode }) {
       } finally { clearTimeout(timer); signal.removeEventListener("abort", abort); }
     },
   });
+  // Já confirmado nesta aba que a senha definitiva existe: não esconder a tela durante releituras.
+  if (uid && check.data === false) return <>{children}</>;
   if (a.status === "loading" || (uid && check.isPending)) {
     if (a.status === "loading" && a.error) return <section role="alert" className="mx-auto max-w-md space-y-4 p-6"><p>Não foi possível confirmar seu acesso.</p><Button onClick={() => window.location.reload()}>Tentar novamente</Button></section>;
     return <p role="status" className="mx-auto max-w-md p-6 text-muted-foreground">Confirmando seu acesso…</p>;
