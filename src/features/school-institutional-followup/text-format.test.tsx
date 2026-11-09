@@ -13,6 +13,7 @@ describe("alinhamento no editor", () => {
     field.setSelectionRange(0, 5);
     fireEvent.click(screen.getByRole("button", { name: "Centralizar em Diagnóstico" }));
     expect(field.value).toBe("[align=center] Primeiro parágrafo\nSegundo parágrafo");
+    field.setSelectionRange(0, 5);
     fireEvent.click(screen.getByRole("button", { name: "Alinhar à esquerda em Diagnóstico" }));
     expect(field.value).toBe("Primeiro parágrafo\nSegundo parágrafo");
   });
