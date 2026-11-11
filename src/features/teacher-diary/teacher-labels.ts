@@ -16,7 +16,7 @@ export function useTeacherLabels(classIds: string[], on: string) {
       const knownAt = new Date().toISOString();
       const [classes, labels] = await Promise.all([
         Promise.all(ids.map(async (id) => {
-          const response = await supabase.rpc("class_at", { _class_id: id, _on: on, _known_at: knownAt });
+          const response = await supabase.rpc("class_at", { _class_id: id, _valid_on: on, _known_at: knownAt });
           if (response.error) throw response.error;
           const rows = parseBoundary(z.array(z.object({ name: z.string() })), response.data, "teacher-class-label");
           return [id, rows.length === 1 ? rows[0]?.name ?? "Turma sem nome disponível" : "Turma sem nome disponível"] as const;
