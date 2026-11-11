@@ -22,9 +22,10 @@ export function resolveHarness(env) {
   if (env.SIGEM_HARNESS_ACK !== ACK) reasons.push("SIGEM_HARNESS_ACK ausente");
   if (reasons.length) throw new Error(`harness recusado: ${reasons.join("; ")}`);
 
-  const hasDb = !!(env.SUPABASE_URL && env.SUPABASE_PUBLISHABLE_KEY && env.SUPABASE_SERVICE_ROLE_KEY);
+  // An approved browser session exercises RLS as the user; it needs no admin key.
+  const browser = env.LOVABLE_BROWSER_AUTH_STATUS === "injected";
+  const hasDb = !!(env.SUPABASE_URL && env.SUPABASE_PUBLISHABLE_KEY && (browser || env.SUPABASE_SERVICE_ROLE_KEY));
   if (!hasDb) return { layer: "static", note: "sem credencial técnica de ambiente: só camada estática" };
   assertCanonicalTarget(env.SUPABASE_URL, { mutation: true });
-  const browser = env.LOVABLE_BROWSER_AUTH_STATUS === "injected";
   return { layer: browser ? "browser" : "authenticated-layer", note: browser ? "" : "login interativo indisponível: camada autenticada equivalente" };
 }
