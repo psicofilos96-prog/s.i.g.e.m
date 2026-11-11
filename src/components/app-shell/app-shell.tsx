@@ -1,4 +1,6 @@
 import { PublicEntryShell } from "./public-entry-shell";
+import { usesTeacherHome } from "@/features/teacher-diary/teacher-navigation";
+import { TeacherMenuBar } from "@/features/teacher-diary/teacher-menu-bar";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { PasswordChangeGate } from "@/features/authority/password-change-gate";
@@ -160,6 +162,7 @@ function SidebarNavigation({
         <ul className="space-y-2">{[0, 1, 2, 3, 4].map((i) => <li key={i} aria-hidden className="h-9 animate-pulse rounded-lg bg-sidebar-accent/40" />)}</ul>
       </nav>
     );
+  if (usesTeacherHome(authority)) return <TeacherMenuBar sidebar />;
   return (
     <nav aria-label="Navegação principal" className="flex-1 overflow-y-auto px-3 py-4">
       {!compact && (
