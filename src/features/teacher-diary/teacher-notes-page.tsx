@@ -23,6 +23,7 @@ export function TeacherNotesPage({ search }: { search: DiarySearch }) {
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const selected = context.assignments.find((a) => a.classId === search.turma && (!search.componente || a.field === search.componente)) ?? context.assignments[0];
   const navigate = useNavigate();
+  if (authority.status !== "signed-in" || !authority.person) return <StatePanel title="Notas indisponíveis" description="Entre com uma conta docente vinculada à sua pessoa." tone="warning" />;
   if (diaries.isError) return <StatePanel title="Não foi possível ler suas turmas" description="Tente abrir Notas novamente." tone="warning" />;
   if (diaries.isPending) return <SkeletonState label="Carregando suas turmas" />;
   if (!selected && diaries.data?.length) return <div className="space-y-4"><h1 className="font-display text-3xl font-semibold">Notas</h1><ul className="grid gap-2 sm:grid-cols-2">{diaries.data.map((d) => <li key={d.assignment_id} className="rounded-lg border border-border p-3"><p className="font-medium">{labels.data?.elements.get(d.component_label ?? d.item_key ?? "") ?? d.component_label}</p><p className="text-sm text-muted-foreground">{labels.data?.classes.get(d.class_id) ?? "Consultando turma…"}</p></li>)}</ul><StatePanel tone="warning" title="Lançamento de notas indisponível" description="Suas atribuições estão cadastradas, mas o acesso às avaliações ainda não reconhece esse vínculo. Nenhuma nota pode ser registrada por este caminho." /></div>;
