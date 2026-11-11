@@ -105,7 +105,7 @@ function DiaryPanel({ diary, on, catalog, scope, mode }: { diary: MyDiary; on: s
       {readOnly && <StatePanel tone="info" title="Somente leitura" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
       {!operational && !readOnly && <StatePanel tone="warning" title="Registro de aulas indisponível" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
       {operational && !editing && mode !== "attendance" && <LessonForm key={`new-lesson-${savedRevision}`} diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
-      {mode === "attendance" && lessons && !lessons.some((l) => l.lesson_date === on) && <StatePanel tone="info" title="Registre a aula para abrir a chamada" action={<Button asChild><Link to="/diario/registrar" search={{ data: on, turma: diary.class_id, componente: diary.component_label ?? undefined }}>Registrar aula</Link></Button>} />}
+      {mode === "attendance" && lessons && !lessons.some((l) => l.lesson_date === on) && <StatePanel tone="info" title="Registre a aula para abrir a chamada" description="" action={<Button asChild><Link to="/diario/registrar" search={{ data: on, turma: diary.class_id, componente: diary.component_label ?? undefined }}>Registrar aula</Link></Button>} />}
       {operational && editing && <LessonForm key={editing.lesson_version_id} diary={diary} on={editing.lesson_date} slots={slots ?? []} catalog={catalog} base={editing} onSaved={saved} onCancel={() => setEditing(null)} />}
       <div>
         <div className="flex flex-wrap items-start justify-between gap-3">

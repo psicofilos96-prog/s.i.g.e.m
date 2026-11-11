@@ -4,6 +4,7 @@ import { ClassDiaryWorkspace } from "@/features/diary/class-diary/class-diary-wo
 import { isDiaryCloud } from "@/features/diary/diary-persistence-mode";
 import { TeacherDayHome } from "@/features/teacher-diary/teacher-day-home";
 import { TeacherNotesPage } from "@/features/teacher-diary/teacher-notes-page";
+import type { DiarySearch } from "@/features/diary/diary-data";
 const schema = z.object({
   professor: z.string().optional(),
   unidade: z.string().optional(),
@@ -37,6 +38,7 @@ export const Route = createFileRoute("/diario/")({
 });
 function Page() {
   const search = Route.useSearch();
-  if (isDiaryCloud()) return search.aba === "avaliacoes" ? <TeacherNotesPage search={search} /> : <TeacherDayHome search={search} />;
-  return <ClassDiaryWorkspace search={search} />;
+  const context: DiarySearch = Object.fromEntries(Object.entries(search).filter(([, value]) => value !== undefined));
+  if (isDiaryCloud()) return search.aba === "avaliacoes" ? <TeacherNotesPage search={context} /> : <TeacherDayHome search={context} />;
+  return <ClassDiaryWorkspace search={{ ...context, ...(search.aba ? { aba: search.aba } : {}) }} />;
 }

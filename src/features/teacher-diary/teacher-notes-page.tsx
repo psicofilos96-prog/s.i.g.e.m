@@ -48,6 +48,6 @@ function NotesWorkspace({ classId, search, assignmentId }: { classId: string; se
     {creating ? <section className="space-y-3" aria-label="Nova avaliação"><Button variant="ghost" onClick={() => setCreating(false)}>Cancelar</Button><NewInstrumentPage classId={classId} search={search} onCreated={(id) => { setCreating(false); setSelected(id); void facts.refresh(); }} /></section>
       : <><div className="flex flex-wrap gap-2">{own.map((i) => <Button key={i.id} variant={i.id === instrument?.id ? "default" : "outline"} onClick={() => setSelected(i.id)}>{i.title}</Button>)}</div>
         {instrument ? <AssessmentEntryFieldPage key={instrument.id} classId={classId} instrumentId={instrument.id} search={search} />
-          : <EmptyState title={own.length ? "Escolha uma avaliação" : "Nenhuma avaliação neste período"} />}</>}
+          : <EmptyState title={own.length ? "Escolha uma avaliação" : "Nenhuma avaliação neste período"} description="" />}</>}
   </div>;
 }

@@ -20,7 +20,7 @@ export function TeacherDayHome({ search }: { search: DiarySearch }) {
         <div className="flex flex-wrap gap-2"><Button asChild><Link to="/diario/chamadas" search={{ ...search, data: a.date, turma: a.classId, componente: a.field }}><ClipboardCheck />Fazer chamada</Link></Button>
           <Button asChild variant="outline"><Link to="/diario/registrar" search={{ ...search, data: a.date, turma: a.classId, componente: a.field, atuacao: a.assignmentId }}><NotebookPen />Registrar aula</Link></Button>
           <Button asChild variant="ghost"><Link to="/diario/turmas/$turmaId/alunos" params={{ turmaId: a.classId }} search={search}><UsersRound />Ver alunos</Link></Button></div>
-      </li>)}</ul> : <EmptyState title="Nenhuma aula confirmada na grade nesta data" />}
+      </li>)}</ul> : <EmptyState title="Nenhuma aula confirmada na grade nesta data" description="" />}
     </section>
     <MyDiariesPage search={search} compact />
   </div>;
