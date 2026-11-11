@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { RegisterLessonPage } from "@/features/diary/lesson-pages";
+import { isDiaryCloud } from "@/features/diary/diary-persistence-mode";
+import { MyDiariesPage } from "@/features/teacher-diary/my-diaries-page";
 const schema = z.object({
   professor: z.string().optional(),
   unidade: z.string().optional(),
@@ -20,7 +22,7 @@ export const Route = createFileRoute("/diario/registrar")({
       { title: "Registrar aula — SIGEM" },
       {
         name: "description",
-        content: "Registro demonstrativo rápido de aulas e conteúdos efetivamente realizados.",
+        content: "Registro de aulas e conteúdos realizados nas turmas do professor.",
       },
       { property: "og:title", content: "Registrar aula — SIGEM" },
       {
@@ -34,6 +36,7 @@ export const Route = createFileRoute("/diario/registrar")({
   component: Page,
 });
 function Page() {
+  if (isDiaryCloud()) return <MyDiariesPage search={Route.useSearch()} mode="lesson" />;
   return (
     <RegisterLessonPage key={Route.useSearch().registro ?? "novo"} search={Route.useSearch()} />
   );

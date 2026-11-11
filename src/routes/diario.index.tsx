@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { ClassDiaryWorkspace } from "@/features/diary/class-diary/class-diary-workspace";
+import { isDiaryCloud } from "@/features/diary/diary-persistence-mode";
+import { TeacherDayHome } from "@/features/teacher-diary/teacher-day-home";
+import { TeacherNotesPage } from "@/features/teacher-diary/teacher-notes-page";
 const schema = z.object({
   professor: z.string().optional(),
   unidade: z.string().optional(),
@@ -33,5 +36,7 @@ export const Route = createFileRoute("/diario/")({
   component: Page,
 });
 function Page() {
-  return <ClassDiaryWorkspace search={Route.useSearch()} />;
+  const search = Route.useSearch();
+  if (isDiaryCloud()) return search.aba === "avaliacoes" ? <TeacherNotesPage search={search} /> : <TeacherDayHome search={search} />;
+  return <ClassDiaryWorkspace search={search} />;
 }
