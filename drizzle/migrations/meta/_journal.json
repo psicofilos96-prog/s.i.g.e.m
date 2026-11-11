@@ -4404,6 +4404,13 @@
       "when": 1794249382685,
       "tag": "0628_engagements_readable_by_school_assigners",
       "breakpoints": true
+    },
+    {
+      "idx": 629,
+      "version": "7",
+      "when": 1794408743169,
+      "tag": "0629_diary_actor_turma_scope_capabilities",
+      "breakpoints": true
     }
   ]
 }
