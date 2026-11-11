@@ -13,7 +13,7 @@ export function TeacherMenuBar({ sidebar = false }: { sidebar?: boolean }) {
   const active = activeTeacherItem(pathname, typeof search['aba'] === "string" ? search['aba'] : undefined);
   const context = Object.fromEntries(["data", "unidade", "turma", "componente", "ano", "periodo"].flatMap((k) => typeof search[k] === "string" ? [[k, search[k]]] : []));
   return (
-    <nav aria-label="Diário do professor" className={cn(sidebar ? "flex flex-col gap-2 px-3 py-4" : "mb-5 grid grid-cols-3 gap-1 rounded-xl border bg-card p-1.5 sm:flex sm:flex-wrap")}>
+    <nav aria-label="Diário do professor" className={cn(sidebar ? "flex flex-col gap-2 px-3 py-4" : "mb-5 grid grid-cols-3 gap-1 rounded-lg border bg-card p-1.5 sm:flex sm:flex-wrap lg:hidden")}>
       {TEACHER_MENU.map((item) => {
         const Icon = ICONS[item.id as keyof typeof ICONS];
         const on = item.id === active;
