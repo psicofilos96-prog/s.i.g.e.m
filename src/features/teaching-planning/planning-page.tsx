@@ -17,6 +17,7 @@ import { DEFAULT_DAY_FIELDS } from "./sipe-defaults";
 import { PlanAttachments } from "./plan-attachments";
 import { readAttachmentWithDeadline } from "./attachment-read";
 import { teachingClass } from "@/features/diary/institutional-teaching";
+import { useTeacherLabels } from "@/features/teacher-diary/teacher-labels";
 
 const today = () => operationalToday();
 type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null; sharedSource?: string };
@@ -38,6 +39,7 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
   const qc = useQueryClient();
   const scope = [uid, revision];
   const assignments = useQuery({ queryKey: ["plan-assignments", ...scope], queryFn: () => readAttachmentWithDeadline(() => myAssignments(today())), retry: false });
+  const labels = useTeacherLabels((assignments.data ?? []).map((a) => a.class_id), today());
   const plans = useQuery({ queryKey: ["plans", ...scope], queryFn: () => readAttachmentWithDeadline(visiblePlans), retry: false });
   const catalog = useQuery({ queryKey: ["ref-catalog", ...scope], queryFn: () => readAttachmentWithDeadline(readCatalog), retry: false });
   const shared = useQuery({ queryKey: ["sipe-shared", ...scope], queryFn: () => readAttachmentWithDeadline(sharedWithMe), retry: false });
@@ -138,8 +140,8 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
             {assignments.data.length === 0 ? <EmptyState title="Nenhuma regência vigente" description="Sem atribuição docente vigente não há onde planejar. Planejamentos antigos continuam abaixo." />
               : <ul className="space-y-2">{assignments.data.map((a) => (
                 <li key={a.assignment_id} className="rounded border border-border p-2 text-sm">
-                  <div className="font-medium">{a.component_label_snapshot}</div>
-                  <div className="text-xs text-muted-foreground">{teachingClass(a.class_id)?.name ?? "Turma cadastrada"}</div>
+                  <div className="font-medium">{labels.data?.elements.get(a.component_label_snapshot ?? a.item_key) ?? a.component_label_snapshot ?? "Disciplina sem nome disponível"}</div>
+                  <div className="text-xs text-muted-foreground">{labels.data?.classes.get(a.class_id) ?? teachingClass(a.class_id)?.name ?? "Consultando turma…"}</div>
                   <Button size="sm" variant="outline" className="mt-2" onClick={() => newPlan(a)}>Novo planejamento</Button>
                 </li>))}</ul>}
           </section>

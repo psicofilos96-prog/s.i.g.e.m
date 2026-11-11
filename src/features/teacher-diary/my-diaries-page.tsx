@@ -2,6 +2,7 @@ import { operationalToday } from "@/lib/academic-date";
 import { Link } from "@tanstack/react-router";
 import type { DiarySearch } from "@/features/diary/diary-data";
 import { teachingClass } from "@/features/diary/institutional-teaching";
+import { useTeacherLabels } from "./teacher-labels";
 /**
  * Frente W — "Meus diários": só regências/substituições da própria pessoa. Aulas previstas (grade) e ministradas
  * (fato registrado) aparecem separadas; chamada só depois da aula registrada; ausência de marcação nunca é falta.
@@ -51,6 +52,7 @@ function DiariesWorkspace({ scope, search, compact, mode }: { scope: readonly (s
   const diariesQuery = useQuery({ queryKey: ["teacher-diaries", ...scope, on], queryFn: () => readDiariesSafely(on, new Date().toISOString()), retry: false });
   const catalogQuery = useQuery({ queryKey: ["teacher-diary-catalog", ...scope], queryFn: () => readDiaryWithDeadline(readCatalog), retry: false });
   const rows = diariesQuery.isError ? null : diariesQuery.data ?? null;
+  const labels = useTeacherLabels((rows ?? []).map((d) => d.class_id), on);
   const catalog = catalogQuery.isError ? null : catalogQuery.data ?? null;
   const matches = rows?.filter((d) => (!search.turma || d.class_id === search.turma) && (!search.componente || d.component_label === search.componente)) ?? [];
   const sel = rows?.find((d) => key(d) === open) ?? (search.turma ? matches[0] : null) ?? null;
@@ -65,8 +67,8 @@ function DiariesWorkspace({ scope, search, compact, mode }: { scope: readonly (s
           <ul className="grid gap-2 sm:grid-cols-2">{matches.map((d) => (
             <li key={key(d)}>
               <Button variant="outline" className={`h-auto w-full flex-col items-start whitespace-normal p-3 text-left ${open === key(d) ? "border-primary" : ""}`} onClick={() => setOpen(key(d))}>
-                <span className="font-medium">{d.component_label ?? d.item_key ?? "Elemento curricular"}</span>
-                <span className="block text-sm">{teachingClass(d.class_id)?.name ?? "Turma cadastrada"}</span>
+                <span className="font-medium">{labels.data?.elements.get(d.component_label ?? d.item_key ?? "") ?? d.component_label ?? "Disciplina sem nome disponível"}</span>
+                <span className="block text-sm">{labels.data?.classes.get(d.class_id) ?? teachingClass(d.class_id)?.name ?? "Consultando nome da turma…"}</span>
                 <span className="block text-xs text-muted-foreground">De {d.effective_from}{d.effective_until ? ` até ${d.effective_until}` : " sem término registrado"}</span>
                 <span className="mt-1 flex flex-wrap gap-1">
                   <Badge variant="outline">{d.role === "titular" ? "Titular" : "Substituição"}</Badge>

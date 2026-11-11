@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { operationalToday } from "@/lib/academic-date";
+import { readDiariesSafely } from "./diary-read";
+import { useTeacherLabels } from "./teacher-labels";
 import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,9 +16,16 @@ import { useSessionAuthority } from "@/features/authority/session-authority";
 import { SkeletonState } from "@/components/sigem/guidance";
 
 export function TeacherNotesPage({ search }: { search: DiarySearch }) {
+  const authority = useSessionAuthority();
+  const on = search.data ?? operationalToday();
+  const diaries = useQuery({ queryKey: ["teacher-diaries", authority.status === "signed-in" ? authority.user.id : null, authority.status === "signed-in" ? authority.sessionRevision : null, on], enabled: authority.status === "signed-in" && !!authority.person, retry: false, queryFn: () => readDiariesSafely(on, new Date().toISOString()) });
+  const labels = useTeacherLabels((diaries.data ?? []).map((d) => d.class_id), on);
   const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
   const selected = context.assignments.find((a) => a.classId === search.turma && (!search.componente || a.field === search.componente)) ?? context.assignments[0];
   const navigate = useNavigate();
+  if (diaries.isError) return <StatePanel title="Não foi possível ler suas turmas" description="Tente abrir Notas novamente." tone="warning" />;
+  if (diaries.isPending) return <SkeletonState label="Carregando suas turmas" />;
+  if (!selected && diaries.data?.length) return <div className="space-y-4"><h1 className="font-display text-3xl font-semibold">Notas</h1><ul className="grid gap-2 sm:grid-cols-2">{diaries.data.map((d) => <li key={d.assignment_id} className="rounded-lg border border-border p-3"><p className="font-medium">{labels.data?.elements.get(d.component_label ?? d.item_key ?? "") ?? d.component_label}</p><p className="text-sm text-muted-foreground">{labels.data?.classes.get(d.class_id) ?? "Consultando turma…"}</p></li>)}</ul><StatePanel tone="warning" title="Lançamento de notas indisponível" description="Suas atribuições estão cadastradas, mas o acesso às avaliações ainda não reconhece esse vínculo. Nenhuma nota pode ser registrada por este caminho." /></div>;
   return <div className="space-y-5">
     <header><h1 className="font-display text-3xl font-semibold">Notas</h1></header>
     <label className="grid max-w-xl gap-2 text-sm font-medium">Turma e disciplina
