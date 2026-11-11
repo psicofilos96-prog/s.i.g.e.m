@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { MyClassesPage } from "@/features/diary/diary-pages";
+import { isDiaryCloud } from "@/features/diary/diary-persistence-mode";
+import { MyDiariesPage } from "@/features/teacher-diary/my-diaries-page";
+import type { DiarySearch } from "@/features/diary/diary-data";
 const schema = z.object({
   professor: z.string().optional(),
   unidade: z.string().optional(),
@@ -15,7 +18,7 @@ export const Route = createFileRoute("/diario/turmas/")({
   head: () => ({
     meta: [
       { title: "Minhas turmas — SIGEM" },
-      { name: "description", content: "Turmas e componentes no contexto docente demonstrativo." },
+      { name: "description", content: "Turmas, disciplinas e registros do professor no SIGEM." },
       { property: "og:title", content: "Minhas turmas — SIGEM" },
       { property: "og:description", content: "Consulta rápida das turmas do professor." },
       { property: "og:type", content: "website" },
@@ -25,5 +28,6 @@ export const Route = createFileRoute("/diario/turmas/")({
   component: Page,
 });
 function Page() {
-  return <MyClassesPage search={Route.useSearch()} />;
+  const search: DiarySearch = Object.fromEntries(Object.entries(Route.useSearch()).filter(([, value]) => value !== undefined));
+  return isDiaryCloud() ? <MyDiariesPage search={search} /> : <MyClassesPage search={search} />;
 }

@@ -1,9 +1,10 @@
 # Roadmap — SIGEM simples no design original
 
 ## Simplificação completa do Diário do Professor (11/11/2026)
-- [ ] Concluir Minhas aulas com ações diretas, pendências e menu único de seis entradas, preservando fontes e permissões.
-- [ ] Integrar criação de avaliação e lançamento de notas na mesma experiência; simplificar planejamento e textos.
-- [ ] Verificar navegação e fluxos com conta docente apta, rodar regressões e registrar bloqueadores sem pedir continuidade.
+- [x] Minhas aulas com entrada direta após login, menu de seis entradas sem duplicação no desktop, chamadas/registro/turmas no workspace canônico; nomes lidos do cadastro e catálogo, sem IDs na apresentação.
+- [x] Criação de avaliação e Pauta existentes integradas na tela Notas para contextos aptos; planejamento com foco no texto e opções recolhidas. Nenhuma regra, permissão ou dado oficial alterado.
+- [x] Conta prof.teste1: entrada → Diário confirmada, sete disciplinas com nome/turma, formulário de aula e planejamento abertos; celular sem overflow. Envio fictício de aula recusado, texto preservado; não houve registro nem chamada. Regressões focais PASS.
+- [ ] Aceitação de gravação de aula/chamada/notas: bloqueada pela autorização efetiva do writer na conta docente de teste e por avaliações que ainda dependem de atuações antigas, não das atribuições canônicas. Horários/histórico também falham na conta. Exige corrigir a cadeia institucional de autorização/leitura, não simular sucesso nem liberar permissões pela tela.
 
 ## Exercício operacional da escola de teste — 2026 (09/11/2026)
 - [x] Conta real da Secretaria: 20 matrículas/enturmações fictícias (duas por mês, fevereiro–novembro; dez novos e dez recebidos de escola externa fictícia), nove remanejamentos de turma e nove saídas (três transferências externas sem destino cadastrado, três cancelamentos, três evasões). Só identidades novas TESTE OPERACAO 2026; 38 operações confirmadas pelos writers canônicos e leitura no banco. Nenhuma conta/permissão/norma oficial alterada.
