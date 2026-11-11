@@ -1,5 +1,5 @@
 /** Menu único do professor: só o uso diário; fechamentos ficam dentro de "Minhas turmas". */
-export type TeacherMenuItem = { id: string; label: string; to: string; search?: Record<string, string> };
+export type TeacherMenuItem = { id: string; label: string; to: "/diario" | "/diario/chamadas" | "/diario/registrar" | "/planejamento" | "/diario/turmas"; search?: { aba?: string } };
 
 export const TEACHER_MENU: readonly TeacherMenuItem[] = [
   { id: "inicio", label: "Minhas aulas", to: "/diario" },

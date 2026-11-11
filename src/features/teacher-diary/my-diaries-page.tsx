@@ -1,4 +1,7 @@
 import { operationalToday } from "@/lib/academic-date";
+import { Link } from "@tanstack/react-router";
+import type { DiarySearch } from "@/features/diary/diary-data";
+import { teachingClass } from "@/features/diary/institutional-teaching";
 /**
  * Frente W — "Meus diários": só regências/substituições da própria pessoa. Aulas previstas (grade) e ministradas
  * (fato registrado) aparecem separadas; chamada só depois da aula registrada; ausência de marcação nunca é falta.
@@ -28,41 +31,42 @@ const today = () => operationalToday();
 const YEAR: Record<string, string> = { operacional: "Ano em operação", "em-preparacao": "Ano em preparação", encerrado: "Ano encerrado", "historico-importado": "Ano histórico" };
 const key = (d: MyDiary) => `${d.assignment_id}|${d.substitution_id ?? ""}|${d.engagement_id}`;
 
-export function MyDiariesPage() {
+export function MyDiariesPage({ search = {}, compact = false, mode = "all" }: { search?: DiarySearch; compact?: boolean; mode?: "all" | "attendance" | "lesson" } = {}) {
   const authority = useSessionAuthority();
   if (authority.status === "loading") return authority.error
     ? <StatePanel tone="danger" title="Não foi possível conferir seu acesso" description="Tente abrir o Diário novamente." />
     : <SkeletonState label="Conferindo seu acesso" />;
   if (authority.status !== "signed-in") return <EmptyState title="Entre para usar o Diário" description="Use sua conta institucional." />;
   if (!authority.person) return <StatePanel tone="warning" title="Diário indisponível" description="Sua conta precisa estar vinculada a uma pessoa cadastrada." />;
-  return <DiariesWorkspace key={`${authority.user.id}#${authority.sessionRevision}`} scope={[authority.user.id, authority.sessionRevision]} />;
+  return <DiariesWorkspace key={`${authority.user.id}#${authority.sessionRevision}`} scope={[authority.user.id, authority.sessionRevision]} search={search} compact={compact} mode={mode} />;
 }
 
 function ReadFailure({ title, retry }: { title: string; retry: () => void }) {
   return <div role="alert" className="space-y-2"><StatePanel tone="danger" title={title} description="A consulta não foi concluída. Tente novamente." /><Button variant="outline" onClick={retry}>Tentar novamente</Button></div>;
 }
 
-function DiariesWorkspace({ scope }: { scope: readonly (string | number)[] }) {
-  const [on, setOn] = useState(today());
+function DiariesWorkspace({ scope, search, compact, mode }: { scope: readonly (string | number)[]; search: DiarySearch; compact: boolean; mode: "all" | "attendance" | "lesson" }) {
+  const [on, setOn] = useState(search.data ?? today());
   const [open, setOpen] = useState<string | null>(null);
   const diariesQuery = useQuery({ queryKey: ["teacher-diaries", ...scope, on], queryFn: () => readDiariesSafely(on, new Date().toISOString()), retry: false });
   const catalogQuery = useQuery({ queryKey: ["teacher-diary-catalog", ...scope], queryFn: () => readDiaryWithDeadline(readCatalog), retry: false });
   const rows = diariesQuery.isError ? null : diariesQuery.data ?? null;
   const catalog = catalogQuery.isError ? null : catalogQuery.data ?? null;
-  const sel = rows?.find((d) => key(d) === open) ?? null;
+  const matches = rows?.filter((d) => (!search.turma || d.class_id === search.turma) && (!search.componente || d.component_label === search.componente)) ?? [];
+  const sel = rows?.find((d) => key(d) === open) ?? (search.turma ? matches[0] : null) ?? null;
   return (
     <div className="space-y-6">
-      <PageHeader title="Meus diários" description="Suas regências e substituições vigentes na data. O Diário nunca é aberto por lotação ou cargo." />
-      <div className="max-w-xs"><label className="text-sm" htmlFor="data-diario">Data</label><DateInput id="data-diario" value={on} onChange={(e) => setOn(e.target.value)} /></div>
+      {compact ? <h2 className="font-display text-xl font-semibold">Minhas turmas e pendências</h2> : <PageHeader title={mode === "attendance" ? "Chamada" : mode === "lesson" ? "Registro de aula" : "Minhas turmas"} />}
+      {!compact && <div className="max-w-xs"><label className="text-sm" htmlFor="data-diario">Data</label><DateInput id="data-diario" value={on} onChange={(e) => setOn(e.target.value)} /></div>}
       {diariesQuery.isError ? <ReadFailure title="Não foi possível ler seus diários" retry={() => void diariesQuery.refetch()} />
         : !rows ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <EmptyState title="Nenhuma regência vigente nesta data" description="Só aparecem regências ou substituições suas registradas pela escola." />
         : (
-          <ul className="grid gap-2 sm:grid-cols-2">{rows.map((d) => (
+          <ul className="grid gap-2 sm:grid-cols-2">{matches.map((d) => (
             <li key={key(d)}>
               <Button variant="outline" className={`h-auto w-full flex-col items-start whitespace-normal p-3 text-left ${open === key(d) ? "border-primary" : ""}`} onClick={() => setOpen(key(d))}>
                 <span className="font-medium">{d.component_label ?? d.item_key ?? "Elemento curricular"}</span>
-                <span className="block text-sm">Turma {d.class_id}</span>
+                <span className="block text-sm">{teachingClass(d.class_id)?.name ?? "Turma cadastrada"}</span>
                 <span className="block text-xs text-muted-foreground">De {d.effective_from}{d.effective_until ? ` até ${d.effective_until}` : " sem término registrado"}</span>
                 <span className="mt-1 flex flex-wrap gap-1">
                   <Badge variant="outline">{d.role === "titular" ? "Titular" : "Substituição"}</Badge>
@@ -72,12 +76,12 @@ function DiariesWorkspace({ scope }: { scope: readonly (string | number)[] }) {
               </Button>
             </li>))}</ul>)}
       {catalogQuery.isError && <ReadFailure title="Não foi possível ler as referências curriculares" retry={() => void catalogQuery.refetch()} />}
-      {sel && <DiaryPanel key={`${key(sel)}|${on}`} diary={sel} on={on} catalog={catalog} scope={scope} />}
+      {sel && <DiaryPanel key={`${key(sel)}|${on}`} diary={sel} on={on} catalog={catalog} scope={scope} mode={mode} />}
     </div>
   );
 }
 
-function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string; catalog: Catalog | null; scope: readonly (string | number)[] }) {
+function DiaryPanel({ diary, on, catalog, scope, mode }: { diary: MyDiary; on: string; catalog: Catalog | null; scope: readonly (string | number)[]; mode: "all" | "attendance" | "lesson" }) {
   const lessonsQuery = useQuery({ queryKey: ["teacher-diary-lessons", ...scope, key(diary)], queryFn: () => readLessonsSafely(diary), retry: false });
   const slotsQuery = useQuery({ queryKey: ["teacher-diary-slots", ...scope, key(diary), on], queryFn: () => readSlotsSafely(diary, on), retry: false });
   const lessons = lessonsQuery.isError ? null : lessonsQuery.data ?? null;
@@ -90,22 +94,22 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
   const ordered = useMemo(() => [...(lessons ?? [])].sort((a, b) => b.lesson_date.localeCompare(a.lesson_date)), [lessons]);
   const saved = (m: string) => { setMsg(m); setEditing(null); setSavedRevision((revision) => revision + 1); void lessonsQuery.refetch(); };
   return (
-    <section className="space-y-4 rounded-lg border bg-card p-4" aria-label="Diário selecionado">
+    <section className="space-y-4 border-t border-border pt-4" aria-label="Diário selecionado">
       <LessonDaySummaryPanel on={on} lessons={lessonsQuery.isFetching ? null : lessons} slots={slotsQuery.isFetching ? null : slots} />
       <div>
-        <h2 className="font-semibold">Aulas previstas em {on} (grade)</h2>
-        <p className="text-xs text-muted-foreground">Previsão não é aula dada: nada vira ministrado sem o seu registro.</p>
+        <h2 className="font-semibold">Horários de {on}</h2>
         {slotsQuery.isError ? <ReadFailure title="Não foi possível ler os horários" retry={() => void slotsQuery.refetch()} /> : !slots ? <SkeletonState label="Carregando" />
           : slots.length === 0 ? <p className="text-sm">Nenhum horário da grade para este elemento nesta data.</p>
           : <ul className="text-sm">{slots.map((s) => <li key={s.block_id}>{s.starts_at.slice(0, 5)}–{s.ends_at.slice(0, 5)} {s.block_state !== "utilizavel" && <Badge variant="outline">indisponível: {s.block_state}</Badge>}</li>)}</ul>}
       </div>
       {readOnly && <StatePanel tone="info" title="Somente leitura" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
       {!operational && !readOnly && <StatePanel tone="warning" title="Registro de aulas indisponível" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
-      {operational && !editing && <LessonForm key={`new-lesson-${savedRevision}`} diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
+      {operational && !editing && mode !== "attendance" && <LessonForm key={`new-lesson-${savedRevision}`} diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
+      {mode === "attendance" && lessons && !lessons.some((l) => l.lesson_date === on) && <StatePanel tone="info" title="Registre a aula para abrir a chamada" description="" action={<Button asChild><Link to="/diario/registrar" search={{ data: on, turma: diary.class_id, componente: diary.component_label ?? undefined }}>Registrar aula</Link></Button>} />}
       {operational && editing && <LessonForm key={editing.lesson_version_id} diary={diary} on={editing.lesson_date} slots={slots ?? []} catalog={catalog} base={editing} onSaved={saved} onCancel={() => setEditing(null)} />}
       <div>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <h2 className="font-semibold">Aulas ministradas (registradas)</h2>
+          <h2 className="font-semibold">Aulas registradas e chamadas pendentes</h2>
           <LessonReportButton key={`${key(diary)}|${lessonsQuery.dataUpdatedAt}`} diary={diary} lessons={lessonsQuery.isFetching ? null : lessons} />
         </div>
         {lessonsQuery.isError ? <ReadFailure title="Não foi possível ler as aulas registradas" retry={() => void lessonsQuery.refetch()} /> : !lessons ? <SkeletonState label="Carregando" /> : ordered.length === 0 ? <p className="text-sm">Nenhuma aula registrada.</p> : (
@@ -118,7 +122,7 @@ function DiaryPanel({ diary, on, catalog, scope }: { diary: MyDiary; on: string;
               <span className="block text-xs text-muted-foreground">Referências curriculares: {l.reference_item_ids.length || "nenhuma"}
                 {l.attendance_version_number ? ` · chamada versão ${l.attendance_version_number}` : " · sem chamada"}</span>
               {operational && <span className="flex gap-2"><Button size="sm" variant="link" onClick={() => setEditing(l)}>Corrigir aula</Button></span>}
-              {operational && <Attendance key={`${l.lesson_version_id}|${l.attendance_version_id ?? "none"}`} diary={diary} lesson={l} onSaved={saved} scope={scope} />}
+              {operational && mode !== "lesson" && <Attendance key={`${l.lesson_version_id}|${l.attendance_version_id ?? "none"}`} diary={diary} lesson={l} onSaved={saved} scope={scope} />}
             </li>))}</ul>)}
       </div>
       {msg && <p role="status" className="text-sm">{msg}</p>}
@@ -194,7 +198,7 @@ function Attendance({ diary, lesson, onSaved, scope }: { diary: MyDiary; lesson:
           <span className="flex gap-1">{ATTENDANCE_MARKS.map((m) => (
             <Button key={m} size="sm" variant={marks[r.student_id] === m ? "default" : "outline"} onClick={() => setMarks({ ...marks, [r.student_id]: m })}>{m}</Button>))}</span>
         </li>))}</ul>
-      <p className="text-xs">{missing > 0 ? `${missing} sem marcação — continuam sem marcação, não viram falta.` : "Todos marcados."}</p>
+      <p className="text-xs">{missing > 0 ? `Faltam ${missing} alunos.` : "Todos marcados."}</p>
       {isCorrection && <textarea aria-label="Justificativa da correção da chamada" placeholder="Justificativa (exigida se a regra vigente pedir)" className="w-full rounded border bg-background p-2 text-sm" value={just} onChange={(e) => setJust(e.target.value)} />}
       <div className="flex flex-wrap gap-2">
         {missing > 0 && <Button size="sm" variant="outline" onClick={() => setMarks(markAll(list, "Presente", marks))}>Marcar pendentes como presentes</Button>}

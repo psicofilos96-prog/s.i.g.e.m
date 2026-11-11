@@ -16,6 +16,7 @@ import { resolveTemplate, templateHeads } from "./planning-model";
 import { DEFAULT_DAY_FIELDS } from "./sipe-defaults";
 import { PlanAttachments } from "./plan-attachments";
 import { readAttachmentWithDeadline } from "./attachment-read";
+import { teachingClass } from "@/features/diary/institutional-teaching";
 
 const today = () => operationalToday();
 type Draft = { planId: string | null; head: string | null; assignmentId: string; title: string; levelValueId: string | null; coversFrom: string; coversUntil: string; blocks: PlanBlock[]; itemKeys: string[]; refIds: string[]; refPos: Record<string, string>; periodId: string | null; status: PlanStatus; copiedFrom: string | null; sharedSource?: string };
@@ -124,7 +125,7 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Planejamento" description="Planeje para suas regências vigentes. Rascunho só você vê; compartilhar cria nova versão visível a quem tem permissão de consulta. Planejar não registra aula nem marca conteúdo como dado." />
+      <PageHeader title="Planejamento" />
       {shared.isError && <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive"><span>Não foi possível ler os planejamentos compartilhados.</span><Button size="sm" variant="outline" onClick={() => { void shared.refetch(); }}>Tentar novamente</Button></div>}
       {templates.isError && <div role="alert" className="flex flex-wrap items-center gap-2 text-sm text-destructive"><span>Não foi possível ler os modelos de planejamento.</span><Button size="sm" variant="outline" onClick={() => { void templates.refetch(); }}>Tentar novamente</Button></div>}
       {canTemplates && <div className="flex gap-2"><Button size="sm" variant="ghost" aria-expanded={showTpl} onClick={() => setShowTpl(!showTpl)}>Modelos de planejamento (Orientação Pedagógica)</Button></div>}
@@ -133,12 +134,12 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
         <aside className="space-y-5">
           <section aria-labelledby="reg" className="space-y-2">
-            <h2 id="reg" className="font-semibold">Minhas regências vigentes</h2>
+            <h2 id="reg" className="font-semibold">Turma e disciplina</h2>
             {assignments.data.length === 0 ? <EmptyState title="Nenhuma regência vigente" description="Sem atribuição docente vigente não há onde planejar. Planejamentos antigos continuam abaixo." />
               : <ul className="space-y-2">{assignments.data.map((a) => (
                 <li key={a.assignment_id} className="rounded border border-border p-2 text-sm">
                   <div className="font-medium">{a.component_label_snapshot}</div>
-                  <div className="text-xs text-muted-foreground">Turma {a.class_id} · desde {a.effective_from}</div>
+                  <div className="text-xs text-muted-foreground">{teachingClass(a.class_id)?.name ?? "Turma cadastrada"}</div>
                   <Button size="sm" variant="outline" className="mt-2" onClick={() => newPlan(a)}>Novo planejamento</Button>
                 </li>))}</ul>}
           </section>
@@ -147,10 +148,10 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
             <div className="grid gap-1 text-xs">
               <label>Turma <select className="w-full rounded border bg-background p-1" value={filter.classId} onChange={(e) => setFilter({ ...filter, classId: e.target.value })}>
                 <option value="">Todas</option>{[...new Set(heads.filter((p) => p.author_user_id === uid).map((p) => p.class_id))].map((c) => <option key={c} value={c}>{c}</option>)}</select></label>
-              <label>Elemento <select className="w-full rounded border bg-background p-1" value={filter.itemKey} onChange={(e) => setFilter({ ...filter, itemKey: e.target.value })}>
+              <label>Disciplina <select className="w-full rounded border bg-background p-1" value={filter.itemKey} onChange={(e) => setFilter({ ...filter, itemKey: e.target.value })}>
                 <option value="">Todos</option>{[...new Set(assignments.data.map((a) => a.item_key))].map((k) => <option key={k} value={k}>{assignments.data.find((a) => a.item_key === k)?.component_label_snapshot ?? k}</option>)}</select></label>
               <label>Período <select className="w-full rounded border bg-background p-1" value={filter.periodId} onChange={(e) => setFilter({ ...filter, periodId: e.target.value })}>
-                <option value="">Todos</option>{[...new Set(heads.filter((p) => p.author_user_id === uid && p.period_id).map((p) => p.period_id!))].map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
+                <option value="">Todos</option>{[...new Set(heads.filter((p) => p.author_user_id === uid).flatMap((p) => p.period_id ? [p.period_id] : []))].map((x) => <option key={x} value={x}>{x}</option>)}</select></label>
             </div>
             {mine.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum ainda.</p> : <ul className="space-y-1">{mine.map((p) => (
               <li key={p.id}><button type="button" className="w-full rounded p-2 text-left text-sm hover:bg-muted" onClick={() => { setDraft(fromVersion(p)); setDirty(false); setMsg(null); }}>
@@ -178,12 +179,12 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
 
         <section aria-label="Editor" className="space-y-4">
           {!draft ? <EmptyState title="Escolha ou crie um planejamento" description="Selecione uma regência para começar ou abra um planejamento existente." /> : (
-            <div className="space-y-4 rounded-lg border border-border p-4">
+            <div className="space-y-4">
               {readOnly && <StatePanel tone="neutral" title="Somente leitura" description={assignment ? "Este planejamento é de outra pessoa." : "A regência deste planejamento não está vigente para você. O histórico é preservado; você pode copiá-lo para uma regência atual."} />}
               <label className="block text-sm font-medium">Título
                 <input className="mt-1 w-full rounded border border-input bg-background p-2" value={draft.title} disabled={readOnly} onChange={(e) => edit({ title: e.target.value })} maxLength={200} /></label>
               <div className="flex flex-wrap gap-3">
-                <label className="text-sm">Cobre de <DateInput value={draft.coversFrom} disabled={readOnly} onChange={(e) => edit({ coversFrom: e.target.value })} /></label>
+                <label className="text-sm">De <DateInput value={draft.coversFrom} disabled={readOnly} onChange={(e) => edit({ coversFrom: e.target.value })} /></label>
                 <label className="text-sm">até <DateInput value={draft.coversUntil} disabled={readOnly} onChange={(e) => edit({ coversUntil: e.target.value })} /></label>
               </div>
               <label className="block text-sm">Período oficial (opcional)
@@ -196,17 +197,17 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
                       {periods.data!.map((p) => <option key={p.period_id} value={p.period_id}>{p.label} ({p.starts_on} a {p.ends_on})</option>)}</select>}
               </label>
               <fieldset className="space-y-3">
-                <legend className="text-sm font-medium">Blocos (você define os títulos: objetivos, estratégias, recursos… o que fizer sentido)</legend>
+                <legend className="text-sm font-medium">Plano de aula</legend>
                 {draft.blocks.map((b, i) => (
                   <div key={i} className="space-y-1 rounded border border-border p-2">
-                    <input aria-label={`Título do bloco ${i + 1}`} placeholder="Título do bloco" className="w-full rounded border border-input bg-background p-2 text-sm" value={b.heading} disabled={readOnly} onChange={(e) => edit({ blocks: draft.blocks.map((x, j) => (j === i ? { ...x, heading: e.target.value } : x)) })} />
+                    <input aria-label={`Título do bloco ${i + 1}`} placeholder="Objetivos, atividades, recursos…" className="w-full rounded border border-input bg-background p-2 text-sm" value={b.heading} disabled={readOnly} onChange={(e) => edit({ blocks: draft.blocks.map((x, j) => (j === i ? { ...x, heading: e.target.value } : x)) })} />
                     <textarea aria-label={`Texto do bloco ${i + 1}`} rows={4} className="w-full rounded border border-input bg-background p-2 text-sm" value={b.body} disabled={readOnly} onChange={(e) => edit({ blocks: draft.blocks.map((x, j) => (j === i ? { ...x, body: e.target.value } : x)) })} />
                     {!readOnly && <Button size="sm" variant="ghost" onClick={() => edit({ blocks: draft.blocks.filter((_, j) => j !== i) })}>Remover bloco</Button>}
                   </div>))}
                 {!readOnly && <Button size="sm" variant="outline" onClick={() => edit({ blocks: [...draft.blocks, { kindValueId: null, heading: "", body: "" }] })}>Adicionar bloco</Button>}
                 {!readOnly && <Button size="sm" variant="outline" disabled={!draft.coversFrom || !draft.coversUntil} onClick={() => edit({ blocks: dailyBlocks(draft.coversFrom, draft.coversUntil, draft.blocks, false, tpl?.day_fields ?? DEFAULT_DAY_FIELDS) })}>Criar um bloco por dia (datas de “Cobre de/até”)</Button>}
               </fieldset>
-              <fieldset className="space-y-1">
+              <details className="space-y-3 border-t border-border pt-3"><summary className="cursor-pointer text-sm font-medium">Referências curriculares e opções</summary><fieldset className="space-y-1">
                 <legend className="text-sm font-medium">Elementos da matriz desta regência</legend>
                 {!assignment ? <p className="text-sm text-muted-foreground">{draft.itemKeys.join(", ") || "Nenhum"} (registrado na versão)</p>
                   : matrixVersion.isError || items.isError ? <div role="alert" className="text-sm text-destructive">Não foi possível ler a matriz. <Button size="sm" variant="outline" onClick={() => { if (matrixVersion.isError) void matrixVersion.refetch(); if (items.isError) void items.refetch(); }}>Tentar novamente</Button></div>
@@ -225,8 +226,9 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
                       </fieldset>)}</div>)
                 : <p className="text-sm text-muted-foreground">Base BNCC/SAEB não disponível; o planejamento funciona sem ela.</p>}
               {!readOnly && <label className="block text-xs text-muted-foreground">Modelo dos dias <select aria-label="Modelo dos dias" className="ml-1 rounded border border-input bg-background p-1" value={segment} onChange={(e) => setSegment(e.target.value)}><option value="">Padrão SIPE</option>{segments.map((s) => <option key={s} value={s}>{s}</option>)}</select> {tpl ? `· ${tpl.plan_mode === "unidocente" ? "um planejamento da turma" : "um por componente"} · modelo v${tpl.version}` : `· campos: ${DEFAULT_DAY_FIELDS.join(", ")}`}</label>}
+              </details>
               {draft.planId && <PlanAttachments key={draft.planId} planId={draft.planId} isAuthor={all.find((v) => v.id === draft.head)?.author_user_id === uid} readOnly={readOnly} />}
-              {draft.head && <Button size="sm" variant="outline" onClick={() => setPrinting(all.find((v) => v.id === draft.head)!)}>Imprimir / PDF (A4)</Button>}
+              {draft.head && <Button size="sm" variant="outline" onClick={() => { const v = all.find((v) => v.id === draft.head); if (v) setPrinting(v); }}>Imprimir / PDF (A4)</Button>}
               {draft.planId && draft.head && !readOnly && draftSchool && <SharePanel planId={draft.planId} schoolId={draftSchool} />}
               {draft.planId && draft.head && <ReviewPanel kind="plano" subjectId={draft.planId} versionId={draft.head} isAuthor={all.find((v) => v.id === draft.head)?.author_user_id === uid} print={{ title: all.find((v) => v.id === draft.head)?.title ?? draft.title, sections: parseBlocks(all.find((v) => v.id === draft.head)?.blocks).map((b) => ({ heading: b.heading, body: b.body })) }} />}
               {!readOnly && (
@@ -238,7 +240,7 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
                 </div>)}
               {draft.head && assignments.data.length > 0 && (
                 <div className="flex flex-wrap items-center gap-2 text-sm">Copiar para:
-                  {assignments.data.map((a) => <Button key={a.assignment_id} size="sm" variant="outline" onClick={() => copy(all.find((v) => v.id === draft.head)!, a)}>{a.component_label_snapshot} · {a.class_id}</Button>)}</div>)}
+                  {assignments.data.map((a) => <Button key={a.assignment_id} size="sm" variant="outline" onClick={() => { const v = all.find((v) => v.id === draft.head); if (v) void copy(v, a); }}>{a.component_label_snapshot} · {teachingClass(a.class_id)?.name ?? "Turma cadastrada"}</Button>)}</div>)}
               {draft.planId && <Button size="sm" variant="ghost" aria-expanded={historyOf === draft.planId} onClick={() => setHistoryOf(historyOf ? null : draft.planId)}>Histórico de versões</Button>}
               {historyOf && <ol className="space-y-1 text-xs">{planHistory(all, historyOf).map((v) => <li key={v.id}>v{v.version} · {STATUS_LABEL[v.status]} · {formatDateTime(v.recorded_at)}{v.copied_from_version_id ? " · copiado de outro planejamento" : ""}</li>)}</ol>}
             </div>)}

@@ -11,6 +11,7 @@ import { HomeTodayPanel } from "@/features/workspace/home-today";
 import { SimpleHome } from "@/features/workspace/simple-home";
 import { BUILDER_SOURCES } from "@/features/reports/builder-sources";
 import { panoramaTotals, type PanoramaRow } from "@/features/reports/cross-reports";
+import { usesTeacherHome } from "@/features/teacher-diary/teacher-navigation";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -59,6 +60,7 @@ function HomePage() {
   const authority = useSessionAuthority();
   // Postos do acompanhamento só usam esse módulo: o início é a própria área.
   if (user && authority.status === "signed-in" && authority.followupSeat) return <Navigate to="/acompanhamento-unidades" replace />;
+  if (usesTeacherHome(authority)) return <Navigate to="/diario" replace />;
   if (user && authority.status === "signed-in") return <SimpleHome userId={user.id} authority={authority} />;
   if (loading || authority.status === "loading") return <p role={authority.status === "loading" && authority.error ? "alert" : "status"} className="p-6 text-muted-foreground">{authority.status === "loading" && authority.error ? "Não foi possível confirmar seu acesso. Recarregue a página para tentar novamente." : "Conferindo seu acesso…"}</p>;
   return <PublicHomePage />;

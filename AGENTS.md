@@ -56,6 +56,8 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Testes com contas sintéticas só via `scripts/harness-gate.mjs` (fail-closed, declara a camada provada), porque login interativo nem sempre existe.
 
 ## Verificação
+
+- Teacher entry uses the canonical diary workspace for lesson and attendance writes; notes embed the existing assessment creator and sole entry surface, and mixed-capability accounts retain their other workspaces, because a simplified menu must not introduce parallel records or widen authority.
 - `npm run verify` (`scripts/verify.mjs`) é a checagem local única; etapas novas entram nela e em `docs/rotina-de-verificacao.md` — checagens espalhadas deixam de ser rodadas.
 
 ## Documentação

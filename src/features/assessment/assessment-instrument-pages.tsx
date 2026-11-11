@@ -301,7 +301,7 @@ function SectionShell({
 
 // ------------------------------------------------------ Novo instrumento
 
-export function NewInstrumentPage({ classId, search }: { classId: string; search: DiarySearch }) {
+export function NewInstrumentPage({ classId, search, onCreated }: { classId: string; search: DiarySearch; onCreated?: (id: string) => void }) {
   const store = useInstrumentStore();
   const navigate = useNavigate();
   const { context, item, classSearch, klass } = useDiaryClass(classId, search);
@@ -316,6 +316,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   const [errors, setErrors] = useState<string[]>([]);
   const dirty = Boolean(title || type || date || description);
   const [saved, setSaved] = useState(false);
+  const [sending, setSending] = useState(false);
   useBlocker({
     shouldBlockFn: async () =>
       dirty && !saved && !(await confirmAction({ title: "Sair sem concluir?", consequence: "O instrumento não foi salvo. Deseja sair e perdê-lo?", actionLabel: "Sair e descartar", destructive: true })),
@@ -360,7 +361,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
   return (
     <div className="space-y-5">
       <DiaryHeader
-        title="Novo instrumento"
+        title="Nova avaliação"
         description={`${klass.name} · ${item.field}`}
         context={context}
       >
@@ -370,6 +371,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
         className="grid max-w-3xl min-w-0 gap-4"
         onSubmit={(e) => {
           e.preventDefault();
+          if (sending) return;
           if (!configuration || !structure)
             return setErrors(["Configuração avaliativa indisponível para a data de aplicação."]);
           if (cloud) {
@@ -390,15 +392,17 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
               return setErrors(["Com login, instrumentos nascem só de uma atribuição docente vigente. Abra a turma por \"Meus diários\"."]);
             if (!date) return setErrors(["Informe a data prevista de aplicação."]);
             const withColumn = isModelColumn(modelColumn) ? { ...built.value, modelColumn } : built.value;
+            setSending(true);
             void createInstrumentInCloud(withColumn, { assignmentId: item.record.id, plannedOn: date }).then((res) => {
               if (!res.ok) return setErrors([res.message]);
               setSaved(true);
+              if (onCreated) { onCreated(built.value.id); return; }
               void navigate({
                 to: "/diario/turmas/$turmaId/avaliacao/pauta/$instrumentoId",
                 params: { turmaId: classId, instrumentoId: built.value.id },
                 search: classSearch,
               });
-            });
+            }).catch(() => setErrors(["Não foi possível confirmar a avaliação. Confira a lista antes de tentar novamente."])).finally(() => setSending(false));
             return;
           }
           const r = store.create({
@@ -411,6 +415,7 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
           });
           if (!r.ok) return setErrors(r.reasons);
           setSaved(true);
+          if (onCreated) { onCreated(r.value.id); return; }
           void navigate({
             to: "/diario/turmas/$turmaId/avaliacao/instrumentos/$instrumentoId",
             params: { turmaId: classId, instrumentoId: r.value.id },
@@ -483,8 +488,8 @@ export function NewInstrumentPage({ classId, search }: { classId: string; search
           </ul>
         ) : null}
         <div>
-          <Button type="submit" disabled={!configuration || !structure}>
-            Salvar instrumento
+          <Button type="submit" disabled={sending || !configuration || !structure}>
+            {sending ? "Salvando…" : "Salvar avaliação"}
           </Button>
         </div>
       </form>
