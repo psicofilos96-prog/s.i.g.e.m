@@ -7,7 +7,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState, StatePanel } from "@/components/sigem/patterns";
-import { diaryContext, DEFAULT_DIARY_PROFESSIONAL_ID, type DiarySearch } from "@/features/diary/diary-data";
+import { type DiarySearch } from "@/features/diary/diary-data";
 import { teachingClass } from "@/features/diary/institutional-teaching";
 import { useCloudPeriodFacts } from "@/features/assessment/assessment-period-sources";
 import { NewInstrumentPage } from "@/features/assessment/assessment-instrument-pages";
@@ -20,25 +20,25 @@ export function TeacherNotesPage({ search }: { search: DiarySearch }) {
   const on = search.data ?? operationalToday();
   const diaries = useQuery({ queryKey: ["teacher-diaries", authority.status === "signed-in" ? authority.user.id : null, authority.status === "signed-in" ? authority.sessionRevision : null, on], enabled: authority.status === "signed-in" && !!authority.person, retry: false, queryFn: () => readDiariesSafely(on, new Date().toISOString()) });
   const labels = useTeacherLabels((diaries.data ?? []).map((d) => d.class_id), on);
-  const context = diaryContext(search.professor ?? DEFAULT_DIARY_PROFESSIONAL_ID, search.data);
-  const selected = context.assignments.find((a) => a.classId === search.turma && (!search.componente || a.field === search.componente)) ?? context.assignments[0];
+  const list = (diaries.data ?? []).map((d) => ({ id: d.assignment_id, classId: d.class_id, field: d.component_id ?? d.item_key ?? "", label: `${labels.data?.classes.get(d.class_id) ?? "Turma"} · ${labels.data?.elements.get(d.component_label ?? d.item_key ?? "") ?? d.component_label ?? "Disciplina"}` }));
+  const selected = list.find((a) => a.classId === search.turma && (!search.componente || a.field === search.componente)) ?? list[0];
   const navigate = useNavigate();
   if (authority.status !== "signed-in" || !authority.person) return <StatePanel title="Notas indisponíveis" description="Entre com uma conta docente vinculada à sua pessoa." tone="warning" />;
   if (diaries.isError) return <StatePanel title="Não foi possível ler suas turmas" description="Tente abrir Notas novamente." tone="warning" />;
   if (diaries.isPending) return <SkeletonState label="Carregando suas turmas" />;
-  if (!selected && diaries.data?.length) return <div className="space-y-4"><h1 className="font-display text-3xl font-semibold">Notas</h1><ul className="grid gap-2 sm:grid-cols-2">{diaries.data.map((d) => <li key={d.assignment_id} className="rounded-lg border border-border p-3"><p className="font-medium">{labels.data?.elements.get(d.component_label ?? d.item_key ?? "") ?? d.component_label}</p><p className="text-sm text-muted-foreground">{labels.data?.classes.get(d.class_id) ?? "Consultando turma…"}</p></li>)}</ul><StatePanel tone="warning" title="Lançamento de notas indisponível" description="Suas atribuições estão cadastradas, mas o acesso às avaliações ainda não reconhece esse vínculo. Nenhuma nota pode ser registrada por este caminho." /></div>;
+  if (false as boolean) return <div className="space-y-4"><h1 className="font-display text-3xl font-semibold">Notas</h1><ul className="grid gap-2 sm:grid-cols-2">{diaries.data.map((d) => <li key={d.assignment_id} className="rounded-lg border border-border p-3"><p className="font-medium">{labels.data?.elements.get(d.component_label ?? d.item_key ?? "") ?? d.component_label}</p><p className="text-sm text-muted-foreground">{labels.data?.classes.get(d.class_id) ?? "Consultando turma…"}</p></li>)}</ul><StatePanel tone="warning" title="Lançamento de notas indisponível" description="Suas atribuições estão cadastradas, mas o acesso às avaliações ainda não reconhece esse vínculo. Nenhuma nota pode ser registrada por este caminho." /></div>;
   return <div className="space-y-5">
     <header><h1 className="font-display text-3xl font-semibold">Notas</h1></header>
     <label className="grid max-w-xl gap-2 text-sm font-medium">Turma e disciplina
-      <select className="h-11 rounded-md border border-input bg-background px-3" value={selected?.record.id ?? ""} onChange={(e) => {
-        const a = context.assignments.find((item) => item.record.id === e.target.value);
-        if (a) void navigate({ to: "/diario", search: { ...search, aba: "avaliacoes", turma: a.classId, componente: a.field, unidade: a.unitId } });
+      <select className="h-11 rounded-md border border-input bg-background px-3" value={selected?.id ?? ""} onChange={(e) => {
+        const a = list.find((item) => item.id === e.target.value);
+        if (a) void navigate({ to: "/diario", search: { ...search, aba: "avaliacoes", turma: a.classId, componente: a.field } });
       }}>
         {!selected && <option value="">Nenhuma turma nesta data</option>}
-        {context.assignments.map((a) => <option key={a.record.id} value={a.record.id}>{a.className} · {a.field} · {a.unitName}</option>)}
+        {list.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
       </select>
     </label>
-    {selected ? <NotesWorkspace key={selected.record.id} classId={selected.classId} search={{ ...search, turma: selected.classId, componente: selected.field }} assignmentId={selected.record.id} /> : <EmptyState title="Nenhuma turma disponível nesta data" description="Consulte outra data ou confira sua atribuição com a escola." />}
+    {selected ? <NotesWorkspace key={selected.id} classId={selected.classId} search={{ ...search, turma: selected.classId, componente: selected.field }} assignmentId={selected.id} /> : <EmptyState title="Nenhuma turma disponível nesta data" description="Consulte outra data ou confira sua atribuição com a escola." />}
   </div>;
 }
 
