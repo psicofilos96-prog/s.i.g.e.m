@@ -8,7 +8,6 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { type DiarySearch } from "@/features/diary/diary-data";
-import { teachingClass } from "@/features/diary/institutional-teaching";
 import { useCloudPeriodFacts } from "@/features/assessment/assessment-period-sources";
 import { NewInstrumentPage } from "@/features/assessment/assessment-instrument-pages";
 import { AssessmentEntryFieldPage } from "@/features/assessment/assessment-entry-field-page";
@@ -20,7 +19,7 @@ export function TeacherNotesPage({ search }: { search: DiarySearch }) {
   const on = search.data ?? operationalToday();
   const diaries = useQuery({ queryKey: ["teacher-diaries", authority.status === "signed-in" ? authority.user.id : null, authority.status === "signed-in" ? authority.sessionRevision : null, on], enabled: authority.status === "signed-in" && !!authority.person, retry: false, queryFn: () => readDiariesSafely(on, new Date().toISOString()) });
   const labels = useTeacherLabels((diaries.data ?? []).map((d) => d.class_id), on);
-  const list = (diaries.data ?? []).map((d) => ({ id: d.assignment_id, classId: d.class_id, field: d.component_id ?? d.item_key ?? "", label: `${labels.data?.classes.get(d.class_id) ?? "Turma"} · ${labels.data?.elements.get(d.component_label ?? d.item_key ?? "") ?? d.component_label ?? "Disciplina"}` }));
+  const list = (diaries.data ?? []).map((d) => ({ id: d.assignment_id, classId: d.class_id, field: d.component_id ?? d.item_key ?? "", yearId: d.academic_year_id, label: `${labels.data?.classes.get(d.class_id) ?? "Turma"} · ${labels.data?.elements.get(d.component_label ?? d.item_key ?? "") ?? d.component_label ?? "Disciplina"}` }));
   const selected = list.find((a) => a.classId === search.turma && (!search.componente || a.field === search.componente)) ?? list[0];
   const navigate = useNavigate();
   if (authority.status !== "signed-in" || !authority.person) return <StatePanel title="Notas indisponíveis" description="Entre com uma conta docente vinculada à sua pessoa." tone="warning" />;
@@ -37,13 +36,13 @@ export function TeacherNotesPage({ search }: { search: DiarySearch }) {
         {list.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
       </select>
     </label>
-    {selected ? <NotesWorkspace key={selected.id} classId={selected.classId} search={{ ...search, turma: selected.classId, componente: selected.field }} assignmentId={selected.id} /> : <EmptyState title="Nenhuma turma disponível nesta data" description="Consulte outra data ou confira sua atribuição com a escola." />}
+    {selected ? <NotesWorkspace key={selected.id} classId={selected.classId} search={{ ...search, turma: selected.classId, componente: selected.field }} assignmentId={selected.id} yearId={selected.yearId} /> : <EmptyState title="Nenhuma turma disponível nesta data" description="Consulte outra data ou confira sua atribuição com a escola." />}
   </div>;
 }
 
-function NotesWorkspace({ classId, search, assignmentId }: { classId: string; search: DiarySearch; assignmentId: string }) {
+function NotesWorkspace({ classId, search, assignmentId, yearId }: { classId: string; search: DiarySearch; assignmentId: string; yearId: string }) {
   const authority = useSessionAuthority();
-  const facts = useCloudPeriodFacts(classId, teachingClass(classId)?.academicYearId, authority.status === "signed-in", search.data);
+  const facts = useCloudPeriodFacts(classId, yearId, authority.status === "signed-in", search.data);
   const [creating, setCreating] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [period, setPeriod] = useState("");
