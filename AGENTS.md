@@ -54,6 +54,7 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - `vite.config.ts` guarda os valores públicos do backend como reserva quando `.env` falta no build, porque o `.env` saiu do repositório e a publicação abria em branco.
 
 - Testes com contas sintéticas só via `scripts/harness-gate.mjs` (fail-closed, declara a camada provada), porque login interativo nem sempre existe.
+- Approved managed browser sessions pass the harness with only public connection configuration, never an administrative key, because browser acceptance must exercise the user's actual RLS.
 
 ## Verificação
 

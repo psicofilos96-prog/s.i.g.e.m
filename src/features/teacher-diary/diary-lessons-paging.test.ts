@@ -5,6 +5,15 @@ vi.mock("@/integrations/supabase/client", () => ({ supabase: { rpc: mocks.rpc } 
 afterEach(() => vi.resetAllMocks());
 function setup() { const query = { order: mocks.order, range: mocks.range }; mocks.rpc.mockReturnValue(query); mocks.order.mockReturnValue(query); }
 describe("fully paged teacher lessons", () => {
+  it("keeps the client receiver required by the real RPC implementation", async () => {
+    setup();
+    mocks.rpc.mockImplementation(function (this: unknown) {
+      if (!this) throw new Error("RPC client receiver missing");
+      return { order: mocks.order, range: mocks.range };
+    });
+    mocks.range.mockResolvedValue({ data: [], error: null });
+    await expect(readLessons({ assignment_id: "own", substitution_id: null })).resolves.toEqual([]);
+  });
   it("reads beyond the server's 1000-row boundary with stable order and same assignment", async () => {
     setup(); mocks.range.mockResolvedValueOnce({ data: Array.from({ length: 1000 }, (_, i) => ({ id: i })), error: null })
       .mockResolvedValueOnce({ data: [{ id: 1000 }], error: null });

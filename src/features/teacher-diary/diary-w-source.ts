@@ -38,9 +38,10 @@ export const readLessons = async (d: Pick<MyDiary, "assignment_id" | "substituti
     order: (column: string, options: { ascending: boolean }) => LessonQuery;
     range: (from: number, to: number) => LessonQuery;
   };
-  const lessonRpc = supabase.rpc as unknown as (name: "my_diary_lessons", args: Record<string, unknown>) => LessonQuery;
+  const lessonRpc = (args: Record<string, unknown>) =>
+    (supabase.rpc as unknown as (name: "my_diary_lessons", args: Record<string, unknown>) => LessonQuery)("my_diary_lessons", args);
   const paged = await readPages<unknown>((from, to) =>
-    lessonRpc("my_diary_lessons", { _assignment: d.assignment_id, _substitution: d.substitution_id })
+    lessonRpc({ _assignment: d.assignment_id, _substitution: d.substitution_id })
       .order("lesson_date", { ascending: false }).order("logical_record_id", { ascending: true }).range(from, to), 20_000);
   if (paged.error) throw new Error(paged.error.message);
   if (paged.truncated) throw new Error("diary-lessons-incomplete");

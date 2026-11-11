@@ -15,6 +15,12 @@ describe("NTEST.1 — porta fail-closed", () => {
   it("recusa banco não canônico", () =>
     expect(() => resolveHarness({ ...ok, SUPABASE_URL: "https://vwhvqtdvzbnfffkgoaen.supabase.co", SUPABASE_PUBLISHABLE_KEY: "x", SUPABASE_SERVICE_ROLE_KEY: "y" })).toThrow(/canônico/));
   it("sem credencial técnica cai para a camada estática, declarada", () => expect(resolveHarness(ok).layer).toBe("static"));
+  it("sessão de navegador aprovada prova RLS sem chave administrativa", () => {
+    expect(resolveHarness({ ...ok, SUPABASE_URL: "https://crfqhyqkujhhlbiyhdbc.supabase.co", SUPABASE_PUBLISHABLE_KEY: "publishable", LOVABLE_BROWSER_AUTH_STATUS: "injected" }).layer).toBe("browser");
+  });
+  it("sessão aprovada ainda recusa destino não canônico", () => {
+    expect(() => resolveHarness({ ...ok, SUPABASE_URL: "https://vwhvqtdvzbnfffkgoaen.supabase.co", SUPABASE_PUBLISHABLE_KEY: "publishable", LOVABLE_BROWSER_AUTH_STATUS: "injected" })).toThrow(/canônico/);
+  });
   it("sem navegador aprovado usa camada autenticada equivalente, declarada", () => {
     const r = resolveHarness({ ...ok, SUPABASE_URL: "https://crfqhyqkujhhlbiyhdbc.supabase.co", SUPABASE_PUBLISHABLE_KEY: "x", SUPABASE_SERVICE_ROLE_KEY: "y" });
     expect(r.layer).toBe("authenticated-layer"); expect(r.note).toMatch(/indisponível/);
