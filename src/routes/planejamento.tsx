@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ClassRouteGate } from "@/features/classes/class-route-gate";
 import { EmptyState } from "@/components/sigem/patterns";
+import { TeacherMenuBar } from "@/features/teacher-diary/teacher-menu-bar";
 import { PlanningPage } from "@/features/teaching-planning/planning-page";
 
 export const Route = createFileRoute("/planejamento")({
@@ -18,5 +19,5 @@ export const Route = createFileRoute("/planejamento")({
 });
 
 function Page() {
-  return <ClassRouteGate institutional={() => <PlanningPage />} laboratory={() => <EmptyState title="Entre para planejar" description="O planejamento só existe com login e para regências suas." />} />;
+  return <><TeacherMenuBar /><ClassRouteGate institutional={() => <PlanningPage />} laboratory={() => <EmptyState title="Entre para planejar" description="O planejamento só existe com login e para regências suas." />} /></>;
 }

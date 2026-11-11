@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute, useRouterState } from "@tanstack/react-router";
 import { DiarySessionBoundary } from "@/features/diary/diary-session";
+import { TeacherMenuBar } from "@/features/teacher-diary/teacher-menu-bar";
 
 /**
  * B4.10.0c — a fronteira de sessão do Diário precede todos os consumidores (inclusive a Pauta).
@@ -18,6 +19,7 @@ function DiaryLayout() {
   });
   return (
     <DiarySessionBoundary referenceDate={data}>
+      <TeacherMenuBar />
       <Outlet />
     </DiarySessionBoundary>
   );

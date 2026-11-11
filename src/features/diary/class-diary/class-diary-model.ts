@@ -6,10 +6,10 @@ import { addDays, isIsoDate, weekdayOf } from "@/lib/academic-date";
 import type { AttendanceMark, AttendanceMarks } from "../attendance";
 
 export const CLASS_DIARY_TABS = [
-  { id: "aulas", label: "Lançamento de Aulas" },
+  { id: "aulas", label: "Aulas da semana" },
   { id: "frequencia", label: "Frequência" },
-  { id: "conteudos", label: "Conteúdos" },
-  { id: "avaliacoes", label: "Avaliações" },
+  { id: "conteudos", label: "Registro de aula" },
+  { id: "avaliacoes", label: "Notas" },
   { id: "observacoes", label: "Observações" },
   { id: "relatorios", label: "Relatórios" },
 ] as const;

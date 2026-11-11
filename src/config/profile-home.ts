@@ -17,9 +17,9 @@ export const HOME_ACTIONS: readonly HomeAction[] = [
   // Professor
   { to: "/diario/turmas", label: "Minhas turmas", icon: BookOpenText },
   { to: "/diario/chamadas", label: "Chamada", icon: ClipboardCheck },
-  { to: "/diario/registrar", label: "Conteúdo", icon: NotebookPen },
+  { to: "/diario/registrar", label: "Registro de aula", icon: NotebookPen },
   { to: "/planejamento", label: "Planejamento", icon: ClipboardList },
-  { to: "/avaliacoes-do-professor", label: "Prova", icon: FileText },
+  { to: "/avaliacoes-do-professor", label: "Avaliações", icon: FileText },
   { to: "/meus-diarios", label: "Meu diário", icon: BookOpenText },
   // Secretaria
   { to: "/mapa-estatistico", label: "Mapa estatístico", icon: Map },
