@@ -678,5 +678,6 @@
  "drizzle/migrations/0627_ccp_axis_read_sector.sql": "c62f69836a0ffd23b7812239c02dd733bad4695921b118288002a23198b689b9",
  "drizzle/migrations/0628_engagements_readable_by_school_assigners.sql": "71ccab6c31a4646dcbd372957de104e87ed4240ce5ba431d95b8b6515e3922fa",
  "drizzle/migrations/0629_diary_actor_turma_scope_capabilities.sql": "b8122426d222643f2364695d0b4870092830ac486b3c6fb4e008634e63ac8cda",
- "drizzle/migrations/0630_selected_security_linked_catalog_and_artifact_reads.sql": "40e47a17852b94ab39bc803710b32dd03158fc7a203cd86e06b6951a8a2be2d8"
+ "drizzle/migrations/0630_selected_security_linked_catalog_and_artifact_reads.sql": "40e47a17852b94ab39bc803710b32dd03158fc7a203cd86e06b6951a8a2be2d8",
+ "drizzle/migrations/0631_selected_notice_artifact_read_guard.sql": "cf18900d8496f78b1d347edf2efd9310bfaf199f03958e6fd8b2473b7e9630db"
 }
