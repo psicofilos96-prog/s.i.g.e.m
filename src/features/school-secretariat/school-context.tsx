@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { supabase } from "@/integrations/supabase/client";
 import { readYears, type YearOption } from "@/features/year-transition/year-transition-source";
+import { useActiveYear } from "@/features/academic-year/active-year";
 import { yearStateLabel } from "./secretariat";
 
 export const SECRETARIAT_READ_CAPABILITY = "consultar-matricula-e-movimentacao";
@@ -16,7 +17,8 @@ export function schoolsForContext(allowed: ReadonlySet<string>, rows: readonly {
 export function useSchoolContext() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [years, setYears] = useState<YearOption[]>([]);
-  const [school, setSchool] = useState(""); const [year, setYear] = useState("");
+  const [school, setSchool] = useState("");
+  const active = useActiveYear(); const year = active.id; const setYear = active.setYear;
   const own = useOwnSchoolId();
   useEffect(() => { if (own) setSchool(own); }, [own]);
   useEffect(() => {
@@ -28,7 +30,7 @@ export function useSchoolContext() {
         const list = schoolsForContext(ok, (data ?? []) as { school_id: string; official_name: string }[]);
         setSchools(list); if (list.length === 1) setSchool(list[0]!.id);
       });
-    readYears().then((ys) => { setYears(ys); if (ys.length) setYear((ys.find((y) => y.state === "aberto") ?? ys[0]!).id); }).catch(() => setYears([]));
+    readYears().then(setYears).catch(() => setYears([]));
   }, []);
   const schoolName = schools?.find((s) => s.id === school)?.name ?? "";
   const yearLabel = years.find((y) => y.id === year)?.label ?? "";

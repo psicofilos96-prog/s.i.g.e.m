@@ -43,7 +43,7 @@ export function SecretariatPage() {
         setSchools(list);
         if (list.length === 1) setSchool(list[0]!.id);
       });
-    readYears().then((ys) => { setYears(ys); const open = ys.filter((y) => y.state === "aberto"); if (open.length === 1) setYear(open[0]!.id); }).catch(() => setYears([]));
+    readYears().then(setYears).catch(() => setYears([]));
   }, []);
   useEffect(() => { if (own) setSchool(own); }, [own]);
   const ready = school && year && on;
@@ -59,7 +59,7 @@ export function SecretariatPage() {
             {(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select></label>}
         <label className="text-sm">Ano letivo
-          <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={year} onChange={(e) => setYear(e.target.value)}>
+          <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={year} onChange={(e) => { setYear(e.target.value); active.setYear(e.target.value); }}>
             <option value="">Escolha o ano</option>
             {years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}
           </select></label>
