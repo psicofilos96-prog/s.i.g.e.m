@@ -3,7 +3,7 @@ import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { MoreFilters } from "@/components/sigem/more-filters";
 import { operationalToday } from "@/lib/academic-date";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
@@ -23,6 +23,7 @@ import { ACTIONS, NATURE_LABEL, NATURE_ORDER, classifyPending, recordStateLine, 
 import { readCatalog, readSupervisionRecords, recordSupervision } from "./supervision-source";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { journeyState, filterRecords } from "./supervision-journey";
+import { useActiveYear } from "@/features/academic-year/active-year";
 import { SupervisionNetworkPanel } from "./supervision-network-panel";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
@@ -41,6 +42,8 @@ function SupervisionWorkspace({ sessionKey }: { sessionKey: string }) {
   const schools = context.data?.schools ?? [];
   const years = context.data?.years ?? [];
   const [f, setF] = useState({ school: "", year: "", on: today(), knownAt: "" });
+  const active = useActiveYear();
+  useEffect(() => { if (active.id) setF((p) => (p.year === active.id ? p : { ...p, year: active.id })); }, [active.id]);
   const [view, setView] = useState("escola");
   const ready = f.school && f.year && f.on;
   return (
@@ -58,7 +61,7 @@ function SupervisionWorkspace({ sessionKey }: { sessionKey: string }) {
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
         <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
           <option value="">{context.isPending ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-        <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => setF({ ...f, year: e.target.value })}>
+        <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => { setF({ ...f, year: e.target.value }); active.setYear(e.target.value); }}>
           <option value="">Escolha o ano</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}</select></label>
         <label className="text-sm">Data de referência<DateInput value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
         <MoreFilters active={!!f.knownAt}>

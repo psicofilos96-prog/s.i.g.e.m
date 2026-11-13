@@ -4,6 +4,7 @@ import { TeacherMenuBar } from "@/features/teacher-diary/teacher-menu-bar";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { readCurrentSchoolNames } from "@/features/units/current-school-names";
 import { PasswordChangeGate } from "@/features/authority/password-change-gate";
+import { ActiveYearPicker } from "@/features/academic-year/active-year-picker";
 import { useQuery } from "@tanstack/react-query";
 import { ConnectionBanner } from "./connection-banner";
 /**
@@ -475,6 +476,7 @@ function Topbar({
 
         </>}
 
+        {session.status === "signed-in" && <div className="ml-auto lg:ml-0"><ActiveYearPicker /></div>}
         <ContextHelp />
         {session.status === "signed-in" && <NotificationBell />}
         {session.status === "signed-in" && <InstitutionalContextBadge />}

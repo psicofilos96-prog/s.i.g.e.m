@@ -3,7 +3,8 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useSessionAuthority } from "./session-authority";
+import { useSessionAuthority, retrySessionOrigin } from "./session-authority";
+import { useQueryClient } from "@tanstack/react-query";
 import { passwordProblem } from "./password-policy";
 
 export function PasswordChangeGate({ children }: { children: ReactNode }) {
@@ -11,6 +12,9 @@ export function PasswordChangeGate({ children }: { children: ReactNode }) {
   const uid = a.status === "signed-in" ? a.user.id : null;
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const qc = useQueryClient();
+  const retryAccess = () => { void qc.invalidateQueries({ queryKey: ["session-authority"] }); retrySessionOrigin(); };
+  const signInAgain = () => { void supabase.auth.signOut({ scope: "local" }).finally(() => window.location.assign("/")); };
   const check = useQuery({
     queryKey: ["password-change-gate", uid], enabled: uid !== null, retry: false,
     // Resposta vale para a sessão: troca de senha refaz a leitura explicitamente (refetch).
@@ -37,7 +41,7 @@ export function PasswordChangeGate({ children }: { children: ReactNode }) {
   // Já confirmado nesta aba que a senha definitiva existe: não esconder a tela durante releituras.
   if (uid && check.data === false) return <>{children}</>;
   if (a.status === "loading" || (uid && check.isPending)) {
-    if (a.status === "loading" && a.error) return <section role="alert" className="mx-auto max-w-md space-y-4 p-6"><p>Não foi possível confirmar seu acesso.</p><Button onClick={() => window.location.reload()}>Tentar novamente</Button></section>;
+    if (a.status === "loading" && a.error) return <section role="alert" className="mx-auto max-w-md space-y-4 p-6"><p>Não foi possível confirmar seu acesso agora. Isso costuma ser passageiro (conexão lenta ou sessão antiga).</p><div className="flex flex-wrap gap-2"><Button onClick={retryAccess}>Tentar novamente</Button><Button variant="outline" onClick={signInAgain}>Entrar de novo</Button></div></section>;
     return <p role="status" className="mx-auto max-w-md p-6 text-muted-foreground">Confirmando seu acesso…</p>;
   }
   if (uid && check.isError) return <section role="alert" className="mx-auto max-w-md space-y-4 p-6"><p>Não foi possível confirmar se sua senha precisa ser trocada.</p><Button onClick={() => void check.refetch()}>Tentar novamente</Button></section>;

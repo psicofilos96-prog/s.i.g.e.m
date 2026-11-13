@@ -14,7 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { STATION_LABEL, type SectorPrincipal } from "./station-navigation";
-import { withListTimeout } from "@/lib/server-page";
+import { ListTimeoutError, withListTimeout } from "@/lib/server-page";
 
 type CapRow = {
   capability_id: string; engagement_id: string; policy_id: string | null; policy_version: number | null;
@@ -125,22 +125,30 @@ function startOrigin() {
     applyUser(session?.user ?? null);
     controller.abort();
   });
+  let attempt = 0;
+  // Falha passageira na leitura da sessão: tenta de novo (2x, curto) antes de mostrar erro.
+  // O erro é publicado na hora (fail closed); falha que não foi tempo esgotado é relida em segundo plano.
+  const fail = (message: string, timedOut = false): void => {
+    if (!alive || eventSeen) return;
+    setOrigin({ phase: "error", user: null, revision: origin.revision, error: message });
+    if (!timedOut && attempt < 2) { attempt += 1; setTimeout(() => { if (alive && !eventSeen) boot(); }, 700 * attempt); }
+  };
   const boot = (): void => { void Promise.resolve()
     .then(() => withListTimeout(controller.signal, () => supabase.auth.getSession()))
     .then(
       ({ data: s, error }) => {
         if (!alive || eventSeen) return;
         // Sessão antiga vencida (ex.: após nova publicação): volta ao login em vez de travar em erro.
-        if (error && /refresh.?token|session.*(expired|not found|missing)/i.test(error.message)) {
+        if (error && /refresh.?token|jwt|invalid.?(grant|token)|session.*(expired|not found|missing)/i.test(error.message)) {
           void supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
           return applyUser(null);
         }
-        if (error) return setOrigin({ phase: "error", user: null, revision: origin.revision, error: error.message });
+        if (error) return fail(error.message);
         applyUser(s.session?.user ?? null);
       },
       (e: unknown) => {
         if (!alive || eventSeen) return;
-        setOrigin({ phase: "error", user: null, revision: origin.revision, error: e instanceof Error ? e.message : "falha ao ler a sessão" });
+        fail(e instanceof Error ? e.message : "falha ao ler a sessão", e instanceof ListTimeoutError);
       },
     ); };
   boot();
@@ -163,6 +171,13 @@ function subscribeOrigin(listener: () => void) {
       origin = { phase: "loading", user: null, revision: origin.revision };
     }
   };
+}
+
+/** Refaz só a leitura da sessão (e, por nova revisão, das permissões), sem recarregar a página. */
+export function retrySessionOrigin(): void {
+  if (stopOrigin) stopOrigin();
+  setOrigin({ phase: "loading", user: null, revision: origin.revision });
+  stopOrigin = originListeners.size ? startOrigin() : null;
 }
 
 const LOADING_ORIGIN: SessionOrigin = { phase: "loading", user: null, revision: 0 };

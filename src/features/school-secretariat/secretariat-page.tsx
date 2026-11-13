@@ -10,6 +10,7 @@ import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
+import { useActiveYear } from "@/features/academic-year/active-year";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
@@ -36,6 +37,8 @@ export function SecretariatPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [years, setYears] = useState<YearOption[]>([]);
   const [school, setSchool] = useState(""); const [year, setYear] = useState(""); const [on, setOn] = useState(today());
+  const active = useActiveYear();
+  useEffect(() => { if (active.id) setYear(active.id); }, [active.id]);
   useEffect(() => {
     void Promise.all([readCurrentSchoolNames(), (supabase.rpc as unknown as (f: string, a: object) => PromiseLike<{ data: unknown }>)("school_capability_schools", { _capability: SECRETARIAT_READ_CAPABILITY })]).then(([m, a]) => {
         const ok = new Set(((a.data ?? []) as unknown[]).map((x) => (typeof x === "string" ? x : (Object.values(x as object)[0] as string))));
@@ -43,7 +46,7 @@ export function SecretariatPage() {
         setSchools(list);
         if (list.length === 1) setSchool(list[0]!.id);
       });
-    readYears().then((ys) => { setYears(ys); const open = ys.filter((y) => y.state === "aberto"); if (open.length === 1) setYear(open[0]!.id); }).catch(() => setYears([]));
+    readYears().then(setYears).catch(() => setYears([]));
   }, []);
   useEffect(() => { if (own) setSchool(own); }, [own]);
   const ready = school && year && on;
@@ -59,7 +62,7 @@ export function SecretariatPage() {
             {(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select></label>}
         <label className="text-sm">Ano letivo
-          <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={year} onChange={(e) => setYear(e.target.value)}>
+          <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={year} onChange={(e) => { setYear(e.target.value); active.setYear(e.target.value); }}>
             <option value="">Escolha o ano</option>
             {years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}
           </select></label>
