@@ -125,22 +125,29 @@ function startOrigin() {
     applyUser(session?.user ?? null);
     controller.abort();
   });
+  let attempt = 0;
+  // Falha passageira na leitura da sessão: tenta de novo (2x, curto) antes de mostrar erro.
+  const fail = (message: string): void => {
+    if (!alive || eventSeen) return;
+    if (attempt < 2) { attempt += 1; setTimeout(() => { if (alive && !eventSeen) boot(); }, 700 * attempt); return; }
+    setOrigin({ phase: "error", user: null, revision: origin.revision, error: message });
+  };
   const boot = (): void => { void Promise.resolve()
     .then(() => withListTimeout(controller.signal, () => supabase.auth.getSession()))
     .then(
       ({ data: s, error }) => {
         if (!alive || eventSeen) return;
         // Sessão antiga vencida (ex.: após nova publicação): volta ao login em vez de travar em erro.
-        if (error && /refresh.?token|session.*(expired|not found|missing)/i.test(error.message)) {
+        if (error && /refresh.?token|jwt|invalid.?(grant|token)|session.*(expired|not found|missing)/i.test(error.message)) {
           void supabase.auth.signOut({ scope: "local" }).catch(() => undefined);
           return applyUser(null);
         }
-        if (error) return setOrigin({ phase: "error", user: null, revision: origin.revision, error: error.message });
+        if (error) return fail(error.message);
         applyUser(s.session?.user ?? null);
       },
       (e: unknown) => {
         if (!alive || eventSeen) return;
-        setOrigin({ phase: "error", user: null, revision: origin.revision, error: e instanceof Error ? e.message : "falha ao ler a sessão" });
+        fail(e instanceof Error ? e.message : "falha ao ler a sessão");
       },
     ); };
   boot();
@@ -163,6 +170,13 @@ function subscribeOrigin(listener: () => void) {
       origin = { phase: "loading", user: null, revision: origin.revision };
     }
   };
+}
+
+/** Refaz só a leitura da sessão (e, por nova revisão, das permissões), sem recarregar a página. */
+export function retrySessionOrigin(): void {
+  if (stopOrigin) stopOrigin();
+  setOrigin({ phase: "loading", user: null, revision: origin.revision });
+  stopOrigin = originListeners.size ? startOrigin() : null;
 }
 
 const LOADING_ORIGIN: SessionOrigin = { phase: "loading", user: null, revision: 0 };
