@@ -90,3 +90,6 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Diagnostic assets
 - Migration filename discovery uses raw-text glob imports, because bundling SQL as JavaScript prevents the entire browser app from starting.
+
+## Shared catalog security
+- Shared institutional catalog reads require canonical person/sector linkage or the designated activation account via `security_catalog_reader`; lesson resources inherit lesson RLS and shared images require registered metadata or ownership, because a signed-in but unlinked account must not inherit institutional access.
