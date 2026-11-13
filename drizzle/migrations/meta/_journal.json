@@ -4418,6 +4418,13 @@
       "when": 1794571199288,
       "tag": "0630_selected_security_linked_catalog_and_artifact_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 631,
+      "version": "7",
+      "when": 1794571296145,
+      "tag": "0631_selected_notice_artifact_read_guard",
+      "breakpoints": true
     }
   ]
 }

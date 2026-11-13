@@ -54346,6 +54346,10 @@ export type Database = {
         }[]
       }
       security_catalog_reader: { Args: never; Returns: boolean }
+      security_network_notice_image_readable: {
+        Args: { _name: string }
+        Returns: boolean
+      }
       security_school_logo_readable: {
         Args: { _name: string }
         Returns: boolean
