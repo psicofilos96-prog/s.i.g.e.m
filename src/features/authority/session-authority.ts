@@ -14,7 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { STATION_LABEL, type SectorPrincipal } from "./station-navigation";
-import { withListTimeout } from "@/lib/server-page";
+import { ListTimeoutError, withListTimeout } from "@/lib/server-page";
 
 type CapRow = {
   capability_id: string; engagement_id: string; policy_id: string | null; policy_version: number | null;
