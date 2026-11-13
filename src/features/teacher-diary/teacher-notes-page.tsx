@@ -36,7 +36,7 @@ export function TeacherNotesPage({ search }: { search: DiarySearch }) {
         {list.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
       </select>
     </label>
-    {selected ? <NotesWorkspace key={selected.id} classId={selected.classId} search={{ ...search, turma: selected.classId, componente: selected.field }} assignmentId={selected.id} yearId={selected.yearId} /> : <EmptyState title="Nenhuma turma disponível nesta data" description="Consulte outra data ou confira sua atribuição com a escola." />}
+    {selected ? <NotesWorkspace key={selected.id} classId={selected.classId} search={{ ...search, data: on, turma: selected.classId, componente: selected.field }} assignmentId={selected.id} yearId={selected.yearId} /> : <EmptyState title="Nenhuma turma disponível nesta data" description="Consulte outra data ou confira sua atribuição com a escola." />}
   </div>;
 }
 
