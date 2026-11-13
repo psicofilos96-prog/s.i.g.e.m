@@ -667,5 +667,17 @@
  "drizzle/migrations/0616_followup_seat_authority_sao_paulo_date.sql": "a4beb27898cd25efdcd0b989bba97cd468c04e3f1201fc0a76597447a1a47a1a",
  "drizzle/migrations/0617_followup_seat_owner_decision_and_cabinet_management.sql": "61c2aba14fd6403d938af74329770d6104a6d6da48d4b8d525da1a57eb2c7769",
  "drizzle/migrations/0618_followup_visit_attachments.sql": "79c1d6acc18cfed7a7d27c7c52fc01bdf638f3ef1b7dbf356a5d6bba87d0f55d",
- "drizzle/migrations/0619_followup_attachment_storage_checks.sql": "8a35fe0829fd66f579c43b15c2c776e1c1415eacd8e1ff8cbe9bf8ff97e0d63a"
+ "drizzle/migrations/0619_followup_attachment_storage_checks.sql": "8a35fe0829fd66f579c43b15c2c776e1c1415eacd8e1ff8cbe9bf8ff97e0d63a",
+ "drizzle/migrations/0620_storage_avisos_escola_definer_check.sql": "9ed28e8cf41af419ee249bfe97a05730c185986516093547e897a5e252db6b3e",
+ "drizzle/migrations/0621_school_visit_book_sector.sql": "300ec08ed6c2e121cea0ae6aea3e98d3936aef739ab3302bf379b23b0ee2cdfd",
+ "drizzle/migrations/0622_matrix_readable_by_sector_principals.sql": "d06acbd89cd541fe80cd34b9552976cb7310cd05f8dd94047790a670d8b2ae6b",
+ "drizzle/migrations/0623_curricular_chain_read_sector_a.sql": "df4caa85b129c39efee100f644bc835e811f4e6509550eef1145df8885a4b20b",
+ "drizzle/migrations/0624_curricular_chain_read_sector_b.sql": "c32f00881bd9ef30e32082d2e2b305c3ead65cf7f48bcac74dc86d930b2cb485",
+ "drizzle/migrations/0625_ccp_gates_read_sector.sql": "71499627cb1f3a90644e26d3e9ef6aa7247e485b48ec5e6ae92a2b9bdb0e7a59",
+ "drizzle/migrations/0626_ccp_keys_read_sector.sql": "adacd608780037858ebc502e8ba070b8b70cf5836d29b35be12af595036f833e",
+ "drizzle/migrations/0627_ccp_axis_read_sector.sql": "c62f69836a0ffd23b7812239c02dd733bad4695921b118288002a23198b689b9",
+ "drizzle/migrations/0628_engagements_readable_by_school_assigners.sql": "71ccab6c31a4646dcbd372957de104e87ed4240ce5ba431d95b8b6515e3922fa",
+ "drizzle/migrations/0629_diary_actor_turma_scope_capabilities.sql": "b8122426d222643f2364695d0b4870092830ac486b3c6fb4e008634e63ac8cda",
+ "drizzle/migrations/0630_selected_security_linked_catalog_and_artifact_reads.sql": "40e47a17852b94ab39bc803710b32dd03158fc7a203cd86e06b6951a8a2be2d8",
+ "drizzle/migrations/0631_selected_notice_artifact_read_guard.sql": "cf18900d8496f78b1d347edf2efd9310bfaf199f03958e6fd8b2473b7e9630db"
 }
