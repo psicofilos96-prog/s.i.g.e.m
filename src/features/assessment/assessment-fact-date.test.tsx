@@ -264,7 +264,7 @@ describe("B2.5.3 — data efetiva do fato avaliativo", () => {
     expect(screen.getByText("Período B")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("Título"), { target: { value: "Prova" } });
     fireEvent.change(screen.getByLabelText(/Tipo/), { target: { value: "it-prova" } });
-    fireEvent.click(screen.getByRole("button", { name: "Salvar instrumento" }));
+    fireEvent.click(screen.getByRole("button", { name: "Salvar avaliação" }));
     expect(mocks.build).toHaveBeenCalledWith(
       expect.objectContaining({
         input: expect.objectContaining({ appliedOn: B }),
@@ -283,7 +283,7 @@ describe("B2.5.3 — data efetiva do fato avaliativo", () => {
     fireEvent.change(date, { target: { value: "01/07/2026" } });
     expect(mocks.configuration).toHaveBeenLastCalledWith("class-1", B);
     expect(screen.queryByText("Período A")).toBeNull();
-    expect(screen.getByRole("button", { name: "Salvar instrumento" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Salvar avaliação" })).toBeDisabled();
     mocks.states.set(A, stateFor(A)); // resposta A chega depois da mudança
     page.rerender(<NewInstrumentPage classId="class-1" search={search} />);
     expect(screen.queryByText("Período A")).toBeNull();
@@ -300,7 +300,7 @@ describe("B2.5.3 — data efetiva do fato avaliativo", () => {
     });
     expect(screen.getByText("Organização indisponível nesta data.")).toBeInTheDocument();
     expect(screen.queryByText("Período A")).toBeNull();
-    expect(screen.getByRole("button", { name: "Salvar instrumento" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Salvar avaliação" })).toBeDisabled();
   });
 
   it("Pauta aguarda o instrumento e usa sua appliedOn B, não search.data A", () => {
