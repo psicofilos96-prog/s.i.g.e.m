@@ -93,3 +93,6 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Shared catalog security
 - Shared institutional catalog reads require canonical person/sector linkage or the designated activation account via `security_catalog_reader`; lesson resources inherit lesson RLS and shared images require registered metadata or ownership, because a signed-in but unlinked account must not inherit institutional access.
+
+## Ano letivo de visualização
+- O ano mostrado em todo o sistema vem só de `src/features/academic-year/active-year.ts` (ano cadastrado que contém a data operacional; troca pelo seletor do menu superior, por conta e sessão); telas não escolhem ano por conta própria, porque padrões diferentes por tela mostravam anos misturados. Filtro de ano nunca autoriza.

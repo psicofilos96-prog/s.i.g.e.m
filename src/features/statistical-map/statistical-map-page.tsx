@@ -10,7 +10,7 @@ import { userErrorText } from "@/lib/observability/governed-errors";
  * Só apresenta `MapView` do servidor: não calcula, não aceita digitação de totais nem de
  * lacunas; as únicas declarações são observações e o ato de oficialização/correção.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { PageHeader, StatePanel } from "@/components/sigem/patterns";
