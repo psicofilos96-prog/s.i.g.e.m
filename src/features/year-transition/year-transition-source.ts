@@ -10,17 +10,17 @@ async function call<T>(name: string, args: Record<string, unknown>): Promise<T> 
   if (error) throw new Error(error.message);
   return data as T;
 }
-export interface YearOption { id: string; label: string; state: string | null }
+export interface YearOption { id: string; label: string; state: string | null; startsOn?: string; endsOn?: string }
 
 export async function readYears(): Promise<YearOption[]> {
-  const { data: yrs, error } = await supabase.from("institutional_academic_year_versions").select("academic_year_id,official_name,version").order("version", { ascending: false });
+  const { data: yrs, error } = await supabase.from("institutional_academic_year_versions").select("academic_year_id,official_name,version,starts_on,ends_on").order("version", { ascending: false });
   if (error) throw new Error(error.message);
   const { data: st } = await supabase.from("academic_year_operational_states").select("academic_year_id,state,sequence").order("sequence", { ascending: false });
   const seen = new Map<string, YearOption>();
-  for (const y of (yrs ?? []) as { academic_year_id: string; official_name: string }[]) {
+  for (const y of (yrs ?? []) as { academic_year_id: string; official_name: string; starts_on: string; ends_on: string }[]) {
     if (!seen.has(y.academic_year_id)) {
       const s = ((st ?? []) as { academic_year_id: string; state: string }[]).find((x) => x.academic_year_id === y.academic_year_id);
-      seen.set(y.academic_year_id, { id: y.academic_year_id, label: y.official_name, state: s?.state ?? null });
+      seen.set(y.academic_year_id, { id: y.academic_year_id, label: y.official_name, state: s?.state ?? null, startsOn: y.starts_on, endsOn: y.ends_on });
     }
   }
   return [...seen.values()].sort((a, b) => a.label.localeCompare(b.label));
