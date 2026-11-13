@@ -127,10 +127,11 @@ function startOrigin() {
   });
   let attempt = 0;
   // Falha passageira na leitura da sessão: tenta de novo (2x, curto) antes de mostrar erro.
-  const fail = (message: string): void => {
+  // O erro é publicado na hora (fail closed); falha que não foi tempo esgotado é relida em segundo plano.
+  const fail = (message: string, timedOut = false): void => {
     if (!alive || eventSeen) return;
-    if (attempt < 2) { attempt += 1; setTimeout(() => { if (alive && !eventSeen) boot(); }, 700 * attempt); return; }
     setOrigin({ phase: "error", user: null, revision: origin.revision, error: message });
+    if (!timedOut && attempt < 2) { attempt += 1; setTimeout(() => { if (alive && !eventSeen) boot(); }, 700 * attempt); }
   };
   const boot = (): void => { void Promise.resolve()
     .then(() => withListTimeout(controller.signal, () => supabase.auth.getSession()))
@@ -147,7 +148,7 @@ function startOrigin() {
       },
       (e: unknown) => {
         if (!alive || eventSeen) return;
-        fail(e instanceof Error ? e.message : "falha ao ler a sessão");
+        fail(e instanceof Error ? e.message : "falha ao ler a sessão", e instanceof ListTimeoutError);
       },
     ); };
   boot();
