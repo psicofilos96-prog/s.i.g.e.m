@@ -10,6 +10,7 @@ import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
+import { useActiveYear } from "@/features/academic-year/active-year";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
@@ -36,6 +37,8 @@ export function SecretariatPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
   const [years, setYears] = useState<YearOption[]>([]);
   const [school, setSchool] = useState(""); const [year, setYear] = useState(""); const [on, setOn] = useState(today());
+  const active = useActiveYear();
+  useEffect(() => { if (active.id) setYear(active.id); }, [active.id]);
   useEffect(() => {
     void Promise.all([readCurrentSchoolNames(), (supabase.rpc as unknown as (f: string, a: object) => PromiseLike<{ data: unknown }>)("school_capability_schools", { _capability: SECRETARIAT_READ_CAPABILITY })]).then(([m, a]) => {
         const ok = new Set(((a.data ?? []) as unknown[]).map((x) => (typeof x === "string" ? x : (Object.values(x as object)[0] as string))));

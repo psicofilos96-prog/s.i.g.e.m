@@ -3,7 +3,7 @@ import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
 import { MoreFilters } from "@/components/sigem/more-filters";
 import { operationalToday } from "@/lib/academic-date";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSessionAuthority } from "@/features/authority/session-authority";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
