@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const sql = readFileSync("drizzle/migrations/0630_selected_security_linked_catalog_and_artifact_reads.sql", "utf8");
+const noticeSql = readFileSync("drizzle/migrations/0631_selected_notice_artifact_read_guard.sql", "utf8");
 
 describe("selected security read restrictions", () => {
   it("bounds changes to the selected 126 read policies", () => {
@@ -35,5 +36,14 @@ describe("selected security read restrictions", () => {
     expect(sql.match(/SECURITY DEFINER SET search_path TO ''/g)).toHaveLength(2);
     expect(sql).toContain("REVOKE ALL ON FUNCTION public.security_catalog_reader() FROM PUBLIC, anon");
     expect(sql).toContain("REVOKE ALL ON FUNCTION public.security_school_logo_readable(text) FROM PUBLIC, anon");
+  });
+  it("requires canonical linkage and a registered network-notice image", () => {
+    expect(noticeSql).toContain("public.security_catalog_reader() AND EXISTS");
+    expect(noticeSql).toContain("n.image_path = _name");
+    expect(noticeSql).toContain("owner_id = (SELECT auth.uid()::text)");
+    expect(noticeSql).toContain("OR public.security_network_notice_image_readable(name)");
+    expect(noticeSql).toContain("SECURITY DEFINER SET search_path TO ''");
+    expect(noticeSql).toContain("FROM PUBLIC, anon");
+    expect(noticeSql.match(/ALTER POLICY/g)).toHaveLength(1);
   });
 });
