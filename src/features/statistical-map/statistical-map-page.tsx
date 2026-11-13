@@ -1,4 +1,5 @@
 import { confirmAction } from "@/components/sigem/confirm-action";
+import { useActiveYear } from "@/features/academic-year/active-year";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { humanizeForScreen } from "@/config/technical-codes";
 import { knownLabel } from "@/config/ui-vocabulary";
@@ -414,6 +415,9 @@ export function StatisticalMapWorkspace() {
   const own = useOwnSchoolId();
   const today = operationalToday();
   const [year, setYear] = useState<number>(Number(today.slice(0, 4)));
+  const active = useActiveYear();
+  const activeNumber = Number(/\d{4}/.exec(active.label)?.[0] ?? 0);
+  useEffect(() => { if (activeNumber) setYear(activeNumber); }, [activeNumber]);
   const [month, setMonth] = useState<number>(Number(today.slice(5, 7)));
   const schools = useQuery({ queryKey: ["map-schools"], queryFn: () => list() });
   const sid = own ?? (picked || (schools.data?.length === 1 ? schools.data[0]!.schoolId : ""));
@@ -454,7 +458,7 @@ export function StatisticalMapWorkspace() {
                 </select>
               </label>
               <label className="text-sm">Ano
-                <select className={sel} value={year} onChange={(e) => setYear(Number(e.target.value))}>
+                <select className={sel} value={year} onChange={(e) => { const n = Number(e.target.value); setYear(n); const m = active.years.find((y) => y.label.includes(String(n))); if (m) active.setYear(m.id); }}>
                   {years.map((y) => <option key={y} value={y}>{y}</option>)}
                 </select>
               </label>
