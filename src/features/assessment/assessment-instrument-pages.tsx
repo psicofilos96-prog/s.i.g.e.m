@@ -367,7 +367,7 @@ export function NewInstrumentPage({ classId, search, onCreated }: { classId: str
       >
         {back}
       </DiaryHeader>
-      {!configuration && <StatePanel tone="warning" title="Configuração avaliativa indisponível" description={"reason" in state ? state.reason : "Não foi possível confirmar a configuração avaliativa para esta data."} />}
+      {!configuration && !date && <StatePanel tone="warning" title="Configuração avaliativa indisponível" description={"reason" in state ? state.reason : "Não foi possível confirmar a configuração avaliativa para esta data."} />}
       <form
         className="grid max-w-3xl min-w-0 gap-4"
         onSubmit={(e) => {
