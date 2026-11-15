@@ -628,11 +628,31 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setTargetActionId(measureId);
   }
   return <div className="space-y-6">
-    <PageHeader eyebrow="SIGEM • Acompanhamento institucional" title="Acompanhamento das unidades escolares"
-      description="A equipe registra o diagnóstico e a evolução das ações. O Gabinete consulta o panorama da rede e seus históricos." />
+    <PageHeader eyebrow="Acompanhamento institucional" title="Acompanhamento das escolas"
+      description="Escolha uma escola para ver o histórico, registrar visitas e acompanhar as medidas combinadas." />
+    <ol className="grid gap-2 sm:grid-cols-3" aria-label="Como usar">
+      {[
+        ["1", "Escolha a escola", "Na lista abaixo, clique no nome da escola."],
+        ["2", authority.person ? "Registre a visita" : "Consulte o histórico", authority.person ? "Diagnóstico, pontos fortes, fragilidades e plano de ação." : "Visitas, medidas e evolução de cada escola."],
+        ["3", "Acompanhe as medidas", "Veja prazos e registre a evolução de cada medida."],
+      ].map(([n, t, d]) => <li key={n} className="flex gap-3 rounded-xl border border-border/60 bg-card/80 p-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-semibold text-primary-foreground">{n}</span>
+        <span><span className="block text-sm font-semibold">{t}</span><span className="block text-xs text-muted-foreground">{d}</span></span>
+      </li>)}
+    </ol>
     {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <SeatAdminPanel sessionKey={sessionKey} />}
     <section className="space-y-4 rounded-2xl border border-border/70 bg-card p-5 shadow-panel" aria-label="Panorama da rede">
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-display text-xl font-semibold">Panorama da rede</h2>
+        {network.isSuccess && !network.isFetching && <div className="flex flex-wrap items-center gap-1" aria-label="Exportar panorama autorizado">
+          <span className="mr-1 text-xs text-muted-foreground">Baixar lista:</span>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("docx")}>Word</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("xlsx")}>Excel</Button>
+          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("csv")}>CSV</Button>
+        </div>}
+      </div>
+      <div className="grid gap-3 rounded-xl bg-muted/40 p-3 sm:grid-cols-2 lg:grid-cols-[auto_auto_1fr_auto_auto] lg:items-end">
         <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
         <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
         <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome ou código INEP" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
@@ -646,12 +666,6 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </select>
         </label>
         <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
-        {network.isSuccess && !network.isFetching && <div className="flex flex-wrap gap-2" aria-label="Exportar panorama autorizado">
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("docx")}>Word</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("xlsx")}>Excel</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("csv")}>CSV</Button>
-        </div>}
       </div>
       {(network.isPending || network.isFetching) && <p role="status" className="text-sm text-muted-foreground">Lendo registros autorizados…</p>}
       {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
@@ -664,9 +678,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
             ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
             ["Ações sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
-          ].map(([label, value]) => <div key={label} className="rounded-xl border border-border/60 bg-background p-3 shadow-sm">
+          ].map(([label, value], i) => <div key={label} className={"rounded-xl border p-3 " + (i < 4 ? "border-primary/25 bg-primary/5" : "border-border/60 bg-background")}>
             <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="font-display text-2xl font-semibold tabular-nums">{value}</p>
+            <p className={"font-display font-semibold tabular-nums " + (i < 4 ? "text-3xl" : "text-xl")}>{value}</p>
           </div>)}
         </div>
         <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
@@ -681,28 +695,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
           Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
         </p>}
-        <h2 className="font-display text-lg font-semibold">Escolas e visitas realizadas</h2>
-        <p className="text-xs text-muted-foreground">
-          {rows.length} de {network.data.length} escolas acessíveis na lista e na exportação.
-          Os indicadores e gráficos acima consideram todas as escolas autorizadas.
-          A lista é descritiva, sem ranking de qualidade.
-        </p>
+        <div className="flex flex-wrap items-baseline justify-between gap-2 pt-2">
+          <h2 className="font-display text-lg font-semibold">Escolas — clique no nome para abrir</h2>
+          <p className="text-xs text-muted-foreground">
+            Mostrando {rows.length} de {network.data.length}. Indicadores e gráficos consideram todas; a lista não é ranking.
+          </p>
+        </div>
         {rows.length === 0 ? <EmptyState title="Nenhuma escola disponível" description="Nenhuma unidade foi encontrada neste escopo ou filtro." /> : <>
-          <div className="space-y-2">
-            {rows.slice(0, 8).map((r) => <div key={r.school_id} className="grid grid-cols-[minmax(0,1fr)_2fr_auto] items-center gap-2 text-xs">
-              <span className="truncate" title={r.school_name}>{r.school_name}</span>
-              <div className="h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${(r.visits / maxVisits) * 100}%` }} /></div>
-              <span className="tabular-nums">{r.visits}</span>
-            </div>)}
-          </div>
-          <div className="max-h-72 overflow-auto rounded-lg border" tabIndex={0}
+          <div className="max-h-96 overflow-auto rounded-xl border" tabIndex={0}
             role="region" aria-label="Tabela de escolas — área rolável por teclado">
-            <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-background"><tr>
+            <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-muted text-xs uppercase tracking-wide text-muted-foreground"><tr>
               <th scope="col" className="p-2">Unidade escolar</th><th scope="col" className="p-2">Visitas</th><th scope="col" className="p-2">Ações</th><th scope="col" className="p-2">Prazo vencido</th>
-            </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className="border-t">
-              <td className="p-2"><button type="button" className="text-left font-medium text-primary underline-offset-2 hover:underline" onClick={() => changeSchool(r.school_id)}>{r.school_name}</button>
+            </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className={"border-t transition-colors hover:bg-muted/50 " + (r.school_id === school ? "bg-primary/10" : "")}>
+              <td className="p-2"><button type="button" className="text-left font-medium text-primary underline-offset-2 hover:underline" onClick={() => { if (changeSchool(r.school_id)) setTimeout(() => document.getElementById("followup-school-detail")?.scrollIntoView?.({ behavior: "smooth", block: "start" }), 50); }}>{r.school_name}</button>
                 {r.inep && <p className="text-xs text-muted-foreground">INEP: {r.inep}</p>}</td>
-              <td className="p-2 tabular-nums">{r.visits}</td><td className="p-2 tabular-nums">{r.actions}</td><td className="p-2 tabular-nums">{r.overdue}</td>
+              <td className="p-2 tabular-nums">{r.visits}</td><td className="p-2 tabular-nums">{r.actions}</td><td className={"p-2 tabular-nums " + (r.overdue > 0 ? "font-semibold text-destructive" : "")}>{r.overdue}</td>
             </tr>)}</tbody></table>
           </div>
         </>}
@@ -732,9 +739,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {notice && <p role="status" className="text-sm text-muted-foreground">{notice}</p>}
     </section>}
     {school && (!network.isSuccess || network.isFetching || Boolean(selected)) &&
-      <section id="followup-school-detail" className="space-y-5" aria-label="Detalhamento da escola">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
-        <div><h2 className="font-display text-xl font-semibold">{selected?.school_name ?? school}</h2>
+      <section id="followup-school-detail" className="scroll-mt-20 space-y-5" aria-label="Detalhamento da escola">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-primary/30 bg-card p-5 shadow-panel">
+        <div><p className="text-xs font-medium uppercase tracking-wide text-primary">Escola aberta</p><h2 className="font-display text-xl font-semibold">{selected?.school_name ?? school}</h2>
           <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
         <div className="flex flex-wrap items-center gap-2">
           {detailData && <>
@@ -753,12 +760,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {(detail.isPending || detail.isFetching) && <p role="status">Carregando histórico…</p>}
       {detail.isError && <StatePanel tone="danger" title="Histórico indisponível"
         description={presentError(detail.error)} />}
-      {stats && <div className="flex flex-wrap gap-2 text-xs">
-        <span className="rounded-lg bg-muted p-2">{stats.visits} visitas</span>
-        <span className="rounded-lg bg-muted p-2">{stats.actions} ações</span>
-        <span className="rounded-lg bg-muted p-2">{stats.completed} concluídas</span>
-        <span className="rounded-lg bg-muted p-2">{stats.withoutUpdate} sem atualização</span>
-        <span className="rounded-lg bg-muted p-2">{stats.noDueDate} sem prazo</span>
+      {stats && <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        {([["Visitas", stats.visits], ["Medidas", stats.actions], ["Concluídas", stats.completed], ["Sem atualização", stats.withoutUpdate], ["Sem prazo", stats.noDueDate]] as const).map(([l, v]) =>
+          <div key={l} className="rounded-xl border border-border/60 bg-card p-3"><p className="text-xs text-muted-foreground">{l}</p><p className="font-display text-2xl font-semibold tabular-nums">{v}</p></div>)}
       </div>}
       {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
@@ -776,6 +780,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         {correctionBase && <p className="text-sm text-muted-foreground">
           Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
         </p>}
+        <h4 className="border-b pb-1 text-sm font-semibold uppercase tracking-wide text-primary">1. Sobre a visita</h4>
         <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
         <div className="grid gap-3 md:grid-cols-2">
           <FollowupTextArea label="Objetivo da visita (opcional)" className={textArea} maxLength={1000}
@@ -787,6 +792,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           A autoria é atribuída automaticamente à conta que salva o registro. Participantes informados não
           constituem assinatura, confirmação de presença ou autorização para escrever no sistema.
         </p>
+        <h4 className="border-b pb-1 text-sm font-semibold uppercase tracking-wide text-primary">2. O que foi observado</h4>
         <FollowupTextArea label="Diagnóstico da realidade" className={textArea} required maxLength={10000}
           value={diagnosis} onChange={setDiagnosis} />
         <div className="grid gap-3 md:grid-cols-2">
@@ -797,18 +803,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           value={summary} onChange={setSummary} />
         {correctionBase && <FollowupTextArea label="Justificativa obrigatória da retificação" className={textArea}
           required maxLength={4000} value={correctionReason} onChange={setCorrectionReason} />}
-        {!correctionBase && <><h4 className="font-medium">Plano de ação — medidas propostas</h4>
+        {!correctionBase && <><h4 className="border-b pb-1 text-sm font-semibold uppercase tracking-wide text-primary">3. Plano de ação — o que a escola vai fazer</h4>
         <p role="status" className="text-sm text-muted-foreground">
           {describedActionCount} {describedActionCount === 1 ? "medida descrita" : "medidas descritas"}.
           {invalidActionCount > 0
             ? ` ${invalidActionCount} ${invalidActionCount === 1 ? "medida precisa" : "medidas precisam"} de correção antes de salvar.`
             : " Nenhuma inconsistência no plano."}
         </p>
-        <p className="text-xs text-muted-foreground">
-          Subir e descer organiza apenas a sequência de envio das medidas nesta visita.
-          O histórico poderá apresentá-las em outra ordem, por exemplo por prazo.
-        </p>
-        {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg bg-muted/30 p-3">
+        {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h5 className="text-sm font-medium">Medida {i + 1}</h5>
             <div className="flex flex-wrap gap-1">
@@ -850,7 +852,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               : "o prazo não pode ser anterior à data da visita."}
           </p>}
         </div>)}</>}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 border-t pt-4">
           {!correctionBase && <Button type="button" variant="outline" disabled={saving || draftActions.length >= 50}
             onClick={() => { setDraftActions((a) => a.length < 50 ? [...a, newAction()] : a); visitRequests.current = null; }}>Adicionar medida</Button>}
           <Button type="submit" disabled={saving || !diagnosis.trim() || invalidActionCount > 0
