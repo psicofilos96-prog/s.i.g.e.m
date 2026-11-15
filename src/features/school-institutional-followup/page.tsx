@@ -810,6 +810,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             ? ` ${invalidActionCount} ${invalidActionCount === 1 ? "medida precisa" : "medidas precisam"} de correção antes de salvar.`
             : " Nenhuma inconsistência no plano."}
         </p>
+        <p className="text-xs text-muted-foreground">Subir e descer organiza apenas a sequência de envio das medidas nesta visita; o histórico pode ordená-las por prazo.</p>
         {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h5 className="text-sm font-medium">Medida {i + 1}</h5>
