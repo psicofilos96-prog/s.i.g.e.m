@@ -96,3 +96,6 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Ano letivo de visualização
 - O ano mostrado em todo o sistema vem só de `src/features/academic-year/active-year.ts` (ano cadastrado que contém a data operacional; troca pelo seletor do menu superior, por conta e sessão); telas não escolhem ano por conta própria, porque padrões diferentes por tela mostravam anos misturados. Filtro de ano nunca autoriza.
+
+## Site entry
+- The root route sends signed-out visitors to the existing institutional sign-in route and preserves authenticated workspace dispatch, because entry must not introduce a separate public dashboard or duplicate authentication.

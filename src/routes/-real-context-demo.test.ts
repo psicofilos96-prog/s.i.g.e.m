@@ -8,7 +8,7 @@ describe("contexto real nunca mostra demonstração", () => {
     const s = src("src/routes/index.tsx");
     expect(s).toContain("useSessionUser");
     expect(s).not.toMatch(/demonstrativ|ilustrativ/i);
-    expect(s).toMatch(/usePanorama\(false\)/);
+    expect(s).toContain('return <Navigate to="/auth" replace />');
   });
   it("regras avaliativas: fixtures só no ramo sem sessão", () => {
     const s = src("src/routes/regras-avaliativas.tsx");
