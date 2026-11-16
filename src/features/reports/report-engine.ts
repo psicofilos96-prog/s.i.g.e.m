@@ -273,13 +273,24 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
     doc.setDrawColor(...theme.primary); doc.setLineWidth(1); doc.line(M, y - 3, M, y + metadataLines.length * 4.5 + 4); doc.setLineWidth(0.2);
   }
   for (const l of metadataLines) { if (y + 5 > H - 18) { doc.addPage(); y = M + 5; } doc.text(l, M + (opts.executive ? 5 : 0), y + 1); y += 4.5; }
-  y += 8;
+  y += 11;
   const drawTable = (columns: readonly string[], rows: readonly (readonly (string | number | null)[])[], numeric: readonly number[] = []) => {
-    autoTable(doc, { startY: y, margin: { left: M, right: M, bottom: opts.footerNote ? 25 : 16 }, theme: opts.executive ? "striped" : "grid",
+    if (opts.executive && y + 24 > H - 25) { doc.addPage(); y = M + logoH + 14; }
+    const firstTablePage = doc.internal.getCurrentPageInfo().pageNumber;
+    autoTable(doc, { startY: y, margin: { top: opts.executive ? M + logoH + 14 : M, left: M, right: M, bottom: opts.footerNote ? 25 : 16 }, theme: opts.executive ? "striped" : "grid",
       head: [[...columns]], body: rows.map((r) => r.map((v) => opts.executive && v === null ? "—" : cellText(v))),
       styles: { font: family, fontSize: 8.5, cellPadding: opts.executive ? 3 : 1.2, overflow: "linebreak", lineColor: [...theme.border], lineWidth: opts.executive ? 0 : 0.25, textColor: [...theme.ink] },
       headStyles: { fillColor: opts.executive ? [...theme.primary] : [235,235,235], textColor: opts.executive ? [255,255,255] : [0,0,0], fontStyle: "bold" },
-      alternateRowStyles: { fillColor: [...theme.muted] }, columnStyles: Object.fromEntries(numeric.map((i) => [i, { halign: "right" }])), showHead: "everyPage", rowPageBreak: "avoid" });
+      alternateRowStyles: { fillColor: [...theme.muted] }, columnStyles: Object.fromEntries(numeric.map((i) => [i, { halign: "right" }])), showHead: "everyPage", rowPageBreak: "avoid",
+      willDrawPage: () => {
+        if (!opts.executive || doc.internal.getCurrentPageInfo().pageNumber === firstTablePage) return;
+        if (crest) drawLogo(crest, M);
+        if (secretariat) { const w = Math.min(34, logoH * secretariat.width / secretariat.height); drawLogo(secretariat, W - M - w); }
+        doc.setFont(family, "bold"); doc.setFontSize(9); doc.setTextColor(...theme.primary);
+        doc.text("Secretaria Municipal de Educação de Itaperuna", W / 2, M + 3, { align: "center" });
+        doc.setDrawColor(...theme.border); doc.line(M, M + logoH + 4, W - M, M + logoH + 4);
+      },
+    });
     y = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
   };
   if (!opts.sections) drawTable(result.columns.map((c) => c.label), result.rows, result.columns.flatMap((c, i) => c.kind === "number" ? [i] : []));
@@ -287,6 +298,11 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
     doc.addPage();
     if (crest) drawLogo(crest, M);
     if (secretariat) { const w = Math.min(34, logoH * secretariat.width / secretariat.height); drawLogo(secretariat, W - M - w); }
+    if (opts.executive) {
+      doc.setFont(family, "bold"); doc.setFontSize(9); doc.setTextColor(...theme.primary);
+      doc.text("Secretaria Municipal de Educação de Itaperuna", W / 2, M + 3, { align: "center" });
+      doc.setDrawColor(...theme.border); doc.line(M, M + logoH + 4, W - M, M + logoH + 4);
+    }
     y = M + logoH + 7;
   };
   if (opts.sections) {
@@ -367,6 +383,7 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
     }
   }
   if (opts.footerNote) {
+    doc.setFont(family, "normal"); doc.setFontSize(8);
     const lines = doc.splitTextToSize(opts.footerNote, W - 2 * M) as string[];
     if (y + 14 > H - 24) pageTop();
     doc.setFont(family, "normal"); doc.setFontSize(8); doc.setTextColor(100);
@@ -410,7 +427,7 @@ export async function toWordFile(result: ReportResult, branding: Branding, meta:
     spacing: { after: 80 }, children: [new TextRun({ text: line, size: 22 })] }));
   children.push(new Paragraph({ heading: HeadingLevel.TITLE, alignment: AlignmentType.CENTER,
     spacing: { before: 180, after: 260 }, children: [new TextRun({ text: branding.title, bold: true, size: 30 })] }));
-  for (const line of meta) children.push(new Paragraph({ spacing: { after: 100 },
+  for (const line of (opts.executive ? opts.metadata ?? meta : meta)) children.push(new Paragraph({ spacing: { after: 100 },
     children: [new TextRun({ text: line, size: 18 })] }));
   if (opts.sections) {
     const alignments = { left: AlignmentType.LEFT, center: AlignmentType.CENTER, right: AlignmentType.RIGHT, justify: AlignmentType.JUSTIFIED };
