@@ -5,7 +5,7 @@ import { HomeHospitalCarePanel } from "./home-hospital-care-panel";
 import { ProtectionPanel } from "./protection-panel";
 import { DeathRecordPanel, ReceiveTransferPanel, RenewalBatchPanel, TransferDeclarationButton, VaccinationPanel } from "./movement-panels";
 import { useOwnSchoolId } from "@/features/authority/own-school";
-import { Search, UserPlus, Users, ArrowRightLeft, FileText, BarChart3, BookOpen, ClipboardList, HeartPulse, RotateCcw } from "lucide-react";
+import { Search, UserPlus, Users, ArrowRightLeft, FileText, BarChart3, BookOpen, ClipboardList, RotateCcw } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ContextHint } from "@/components/sigem/context-help";
@@ -17,14 +17,14 @@ import { useEffect, useState } from "react";
 import { useActiveYear } from "@/features/academic-year/active-year";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
+import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DateInput } from "@/components/sigem/date-input";
 import { readYears, locateStudent, locateStudentByName, type StudentNameMatch, type YearOption } from "@/features/year-transition/year-transition-source";
 import { lookupMessage, normalizeStudentLookup, type StudentLookupKind } from "@/features/year-transition/year-transition";
 import {
-  decisionLabel, issueLabel, lifeKindLabel, movementTypeLabel, orderLife, secretariatMessage, yearStateLabel,
+  decisionLabel, issueLabel, lifeKindLabel, movementTypeLabel, orderLife, secretariatMessage,
   type LifeEvent, type PendingRow, type SecretariatOverview,
 } from "./secretariat";
 import { listInstitutionalClasses } from "@/features/classes/institutional-class-source";

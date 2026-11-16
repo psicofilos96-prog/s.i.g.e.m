@@ -98,11 +98,11 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       <DirectorSummaryPanel school={school} year={year} on={on} />
       <section aria-label="Blocos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {res.blocks.filter((b) => b.state !== "UNAVAILABLE").map((b) => (
-          <Link key={b.id} to={b.link as "/secretaria"} className={`rounded-lg border bg-card p-4 space-y-1 hover:bg-accent ${TONE[b.state]}`}>
-            <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold">{b.title}</h2><ContextHint text={b.state === "BLOCKED" ? "Abra a área de documentos para consultar por aluno." : b.state === "UNKNOWN" ? "Esta informação ainda não pôde ser confirmada para a data escolhida." : "Dados registrados na data da consulta."} label={`Sobre ${b.title}`} /></div>
+          <article key={b.id} className={`rounded-lg border bg-card p-5 space-y-1 transition-shadow hover:shadow-panel ${TONE[b.state]}`}>
+            <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold"><Link to={b.link as "/secretaria"}>{b.title.replace(/utilizável/g, "cadastrada").replace(/alocações/g, "turmas")}</Link></h2><ContextHint text={b.state === "BLOCKED" ? "Abra a área de documentos para consultar por aluno." : b.state === "UNKNOWN" ? "Esta informação ainda não pôde ser confirmada para a data escolhida." : "Dados registrados na data da consulta."} label={`Sobre ${b.title}`} /></div>
             <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? (b.state === "BLOCKED" ? "Consultar" : b.state === "UNKNOWN" ? "Não informado" : "—")}</p>
             <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Informação a confirmar." : b.state === "BLOCKED" ? "Disponível por aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
-          </Link>))}
+          </article>))}
       </section>
       <section aria-label="Pendências" className="space-y-2">
         <h2 className="font-semibold">Pendências ({res.pending.length})</h2>
