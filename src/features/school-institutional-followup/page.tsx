@@ -5,7 +5,7 @@ import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { operationalToday } from "@/lib/academic-date";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info } from "lucide-react";
 import { FollowupExportMenu } from "./export-menu";
 import { FollowupSituationBadge } from "./situation-badge";
@@ -634,7 +634,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setActionView("todas"); setActionQuery("");
     setTargetActionId(measureId);
   }
-  return <div className="space-y-6">
+  return <TooltipProvider><div className="space-y-6">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <PageHeader title="Acompanhamento das escolas" />
       {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <Dialog><DialogTrigger asChild><Button variant="outline" size="sm"><Users className="size-4" />Gerenciar responsáveis</Button></DialogTrigger><DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>Responsáveis pelo acompanhamento</DialogTitle></DialogHeader><SeatAdminPanel sessionKey={sessionKey} /></DialogContent></Dialog>}
@@ -1049,5 +1049,5 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </>}
     </section>}
     </div>
-  </div>;
+  </div></TooltipProvider>;
 }

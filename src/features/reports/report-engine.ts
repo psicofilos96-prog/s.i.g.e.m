@@ -392,7 +392,6 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   if (opts.footerNote) {
     doc.setFont(family, "normal"); doc.setFontSize(8);
     const lines = doc.splitTextToSize(opts.footerNote, W - 2 * M) as string[];
-    if (y + 14 > H - 24) pageTop();
     doc.setFont(family, "normal"); doc.setFontSize(8); doc.setTextColor(100);
     doc.text(lines, M, H - 17 - (lines.length - 1) * 3.5);
   }
