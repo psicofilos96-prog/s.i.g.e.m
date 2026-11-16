@@ -1,4 +1,4 @@
-import { humanizeForScreen } from "@/config/technical-codes";
+import { ContextHint } from "@/components/sigem/context-help";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { operationalToday } from "@/lib/academic-date";
 import { userErrorText } from "@/lib/observability/governed-errors";
@@ -13,7 +13,7 @@ import { yearStateLabel } from "@/features/school-secretariat/secretariat";
 import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
 import { openSchedulePrint } from "@/features/schedules/schedule-print";
 import { GESTAO_ESCOLAR } from "@/features/reports/report-registry";
-import { STATE_LABEL, buildPanel, dossierPrintHtml, managementRows, type Block, type BlockState, type Pending } from "./management-panel";
+import { buildPanel, dossierPrintHtml, managementRows, type Block, type BlockState, type Pending } from "./management-panel";
 import { readManagementInputs } from "./management-source";
 import { CensusDeclaredStaff } from "@/features/professionals/census-declared-staff";
 import { useOwnSchoolId } from "@/features/authority/own-school";
@@ -32,7 +32,7 @@ import { loadSchoolLogo } from "./school-logo-data";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();
-const TONE: Record<BlockState, string> = { AVAILABLE: "border-border", ZERO: "border-border", UNKNOWN: "border-dashed", UNAVAILABLE: "border-dashed opacity-80", BLOCKED: "border-destructive/50" };
+const TONE: Record<BlockState, string> = { AVAILABLE: "border-border", ZERO: "border-border", UNKNOWN: "border-dashed", UNAVAILABLE: "border-dashed opacity-80", BLOCKED: "border-border" };
 
 export function ManagementPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
@@ -53,18 +53,17 @@ export function ManagementPage() {
   const ready = f.school && f.year && f.on;
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Direção" title="Estação da gestão escolar"
-        description="Situação operacional da escola montada na hora a partir dos registros oficiais que sua atuação alcança. Não é documento oficial nem nota da escola." />
+      <PageHeader eyebrow="Direção" title="Gestão Escolar" />
       <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
         {own ? <OwnSchoolName schoolId={own} /> : <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
           <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
         <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => { setF({ ...f, year: e.target.value }); active.setYear(e.target.value); }}>
           <option value="">Escolha o ano</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}</select></label>
         <label className="text-sm">Data de referência<DateInput value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
-        <label className="text-sm">Conhecido até (opcional)<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label>
+        <label className="text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label>
       </section>
       {ready ? <Station key={JSON.stringify(f)} {...f} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
-        : <EmptyState title="Escolha escola, ano e data" description="A estação mostra uma escola por vez; o que sua atuação não alcança aparece como não disponível." />}
+        : <EmptyState title="Escolha escola, ano e data" description="Selecione os dados para consultar a escola." />}
     </div>
   );
 }
@@ -79,8 +78,8 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     readManagementInputs(school, year, on, k).then((i) => { if (current) setRes(buildPanel(i)); }, (e: Error) => { if (current) setErr(userErrorText(e)); });
     return () => { current = false; };
   }, [school, year, on, k]);
-  if (err) return <StatePanel tone="danger" title="Não foi possível montar a estação" description="Tente novamente em instantes." />;
-  if (!res) return <SkeletonState label="Lendo as fontes…" />;
+  if (err) return <StatePanel tone="neutral" title="Não foi possível carregar o painel" description="Tente novamente em instantes." />;
+  if (!res) return <SkeletonState label="Carregando painel" />;
   const exportCsv = () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
     const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`, "Projeção dinâmica — não é documento oficial."];
@@ -95,22 +94,20 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
   };
   return (
     <div className="space-y-6">
-      {k && <StatePanel tone="info" title="Visão histórica" description="Blocos marcados com “conhecido até” reproduzem o que estava registrado naquele momento; os demais mostram o estado atual da fonte." />}
+      {k && <StatePanel tone="info" title="Visão histórica" description="Você está consultando registros de uma data anterior." />}
       <DirectorSummaryPanel school={school} year={year} on={on} />
       <section aria-label="Blocos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {res.blocks.filter((b) => b.state !== "UNAVAILABLE").map((b) => (
           <Link key={b.id} to={b.link as "/secretaria"} className={`rounded-lg border bg-card p-4 space-y-1 hover:bg-accent ${TONE[b.state]}`}>
-            <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold">{b.title}</h2><span className="text-xs text-muted-foreground">{STATE_LABEL[b.state]}</span></div>
-            <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? "—"}</p>
-            <p className="text-xs">{b.detail}</p>
-            {b.reason && <p className="text-xs text-muted-foreground">{humanizeForScreen(b.reason)}</p>}
-            {k && !b.supportsKnownAt && <p className="text-xs text-muted-foreground">Esta fonte não reproduz “conhecido até”.</p>}
+            <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold">{b.title}</h2><ContextHint text={b.state === "BLOCKED" ? "Abra a área de documentos para consultar por aluno." : b.state === "UNKNOWN" ? "Esta informação ainda não pôde ser confirmada para a data escolhida." : "Dados registrados na data da consulta."} label={`Sobre ${b.title}`} /></div>
+            <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? (b.state === "BLOCKED" ? "Consultar" : b.state === "UNKNOWN" ? "Não informado" : "—")}</p>
+            <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Informação a confirmar." : b.state === "BLOCKED" ? "Disponível por aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
           </Link>))}
       </section>
       <section aria-label="Pendências" className="space-y-2">
         <h2 className="font-semibold">Pendências ({res.pending.length})</h2>
-        {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência derivável das fontes que você alcança. Isso não afirma que a escola está em ordem.</p>
-          : <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text}</Link> <span className="text-xs text-muted-foreground">({p.source})</span></li>)}</ul>}
+        {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência encontrada nesta consulta.</p>
+          : <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text.replace(/fonte não lida/g, "consulta indisponível").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</Link></li>)}</ul>}
       </section>
       <OccurrencesPanel school={school} schoolName={schoolName} />
       <SchoolNoticesPanel school={school} year={year} on={on} />

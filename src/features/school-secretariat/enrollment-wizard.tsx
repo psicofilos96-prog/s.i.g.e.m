@@ -1,3 +1,7 @@
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Plus, ArrowRight, ClipboardCheck } from "lucide-react";
+import { ContextHint } from "@/components/sigem/context-help";
 import { cpfDigits, cpfMessage, formatCpf } from "@/lib/cpf";
 import { EnrollmentFormDialog } from "./enrollment-form/enrollment-form-dialog";
 import { PhotoCapture } from "@/features/family-portal/photo-capture";
@@ -15,7 +19,7 @@ import { readSchoolLife } from "./secretariat-source";
 import { lifeKindLabel } from "./secretariat";
 import { WIZARD_STEPS, canComplete, fieldProblems, missingByStep, photoPath, photoProblem, seatLabel, sniffImage, validCpf, wizardMessage, type ClassOption, type WizardPayload } from "./enrollment-wizard-model";
 import { abandonDraft, bindPhoto, classOptions, completeDraft, currentStudentPhoto, openDrafts, photoUrl, readCpfRequiredFrom, readStudentDocumentStatus, removePhoto, saveDraft, uploadPhoto, type OpenDraft } from "./enrollment-wizard-source";
-import { formatAcademicDate, formatDateTime } from "@/lib/academic-date";
+import { formatAcademicDate } from "@/lib/academic-date";
 
 /** N5.2.1 — Cadastrar aluno → Matricular → Enturmar → Revisar → Concluir, numa só tela retomável. */
 export function EnrollmentWizard() {
@@ -29,7 +33,7 @@ export function EnrollmentWizard() {
   if (!schools.length) return <p className="p-6" role="alert">Sua conta não tem autorização para matricular alunos.</p>;
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-4 sm:p-6">
-      <PageHeader eyebrow="Secretaria Escolar" title="Nova matrícula" description="Tudo é salvo automaticamente como rascunho. Só vira matrícula ao concluir." />
+      <PageHeader eyebrow="Secretaria Escolar" title="Nova matrícula" description="Cadastre um aluno ou retome um atendimento." />
       {schools.length > 1 ? (
         <label className="block text-sm">Escola
           <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
@@ -55,20 +59,31 @@ function DraftPicker({ school }: { school: string }) {
     existingStudentId: null, existingStudentName: null, updatedAt: "", mine: true });
   return (
     <section className="space-y-3">
-      <Button onClick={() => setCurrent(fresh())}>Começar nova matrícula</Button>
+      <div className="flex flex-wrap items-start gap-4">
+        <Button onClick={() => setCurrent(fresh())}><Plus className="size-4" />Começar nova matrícula</Button>
+        <details className="min-w-0 flex-1 rounded-lg border bg-card p-4">
+          <summary className="flex cursor-pointer items-center gap-2 text-sm font-medium"><ClipboardCheck className="size-4 text-primary" />Documentos necessários para matrícula</summary>
+          <ul className="mt-3 space-y-2 text-sm">
+            <li><label className="flex items-start gap-2"><input type="checkbox" className="mt-1" /><span>CPF do aluno<ContextHint text={cutoff ? `Obrigatório para nascidos desde ${formatAcademicDate(cutoff)}. Para os anteriores, CPF ou certidão de nascimento.` : "Confira a identificação do aluno."} /></span></label></li>
+            <li><label className="flex items-start gap-2"><input type="checkbox" className="mt-1" /><span>Certidão de nascimento (quando usada na identificação)</span></label></li>
+            <li><label className="flex items-start gap-2"><input type="checkbox" className="mt-1" /><span>Dados e contato do responsável</span></label></li>
+            <li><label className="flex items-start gap-2"><input type="checkbox" className="mt-1" /><span>Endereço do aluno</span></label></li>
+            <li><label className="flex items-start gap-2"><input type="checkbox" className="mt-1" /><span>Informações da escola anterior, se houver</span></label></li>
+          </ul>
+        </details>
+      </div>
       {drafts.length ? (
         <div>
           <h2 className="mb-2 font-medium">Continuar de onde parou</h2>
-          <ul className="divide-y rounded-md border">
-            {drafts.map((d) => (
-              <li key={d.draftId} className="flex flex-wrap items-center justify-between gap-2 p-3">
-                <span>
-                  <strong>{d.existingStudentName ?? d.payload.aluno?.nome ?? "Aluno sem nome"}</strong>
-                  <span className="block text-sm text-muted-foreground">Passo {d.step} de 8 · {WIZARD_STEPS[d.step - 1]?.title} · salvo {formatDateTime(d.updatedAt)}</span>
-                </span>
-                <Button variant="outline" onClick={() => setCurrent(d)}>Continuar</Button>
-              </li>
-            ))}
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {drafts.map((d) => {
+              const progress = Math.min(100, Math.max(0, Math.floor(d.step / 8 * 100)));
+              const edited = new Date(d.updatedAt);
+              return <li key={d.draftId} className="space-y-4 rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-panel">
+                <div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="font-semibold break-words">{d.existingStudentName ?? d.payload.aluno?.nome ?? (d.inep ? `Aluno INEP ${d.inep}` : "Novo aluno")}</h3><p className="mt-1 text-xs text-muted-foreground">{Number.isNaN(edited.getTime()) ? "Edição não informada" : `Editado ${formatDistanceToNow(edited, { addSuffix: true, locale: ptBR })}`}</p></div><Button size="sm" onClick={() => setCurrent(d)}>Retomar<ArrowRight className="size-3.5" /></Button></div>
+                <div><div className="mb-2 flex justify-between gap-2 text-xs text-muted-foreground"><span>Passo {d.step} de 8 · {WIZARD_STEPS[d.step - 1]?.title}</span><span>{progress}% concluído</span></div><progress className="h-1.5 w-full overflow-hidden rounded-full [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary" max={100} value={progress} aria-label={`Progresso da matrícula de ${d.existingStudentName ?? d.payload.aluno?.nome ?? "novo aluno"}`} /></div>
+              </li>;
+            })}
           </ul>
         </div>
       ) : <p className="text-sm text-muted-foreground">Nenhum rascunho em aberto.</p>}
@@ -144,7 +159,7 @@ function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: 
       {WIZARD_STEPS.filter((s) => s.n < 8).map((s) => (
         <div key={s.n} id={`wz-sec-${s.n}`} className="scroll-mt-40 space-y-3 rounded-lg border bg-card p-4">
           <h2 className="text-lg font-semibold">{s.title}</h2>
-          {s.n === 1 ? <><p className="text-sm text-muted-foreground">Nascidos desde {formatAcademicDate(cutoff)}, inclusive: CPF obrigatório. Antes dessa data: CPF ou certidão de nascimento.</p>
+          {s.n === 1 ? <><ContextHint label="Documentos de identificação" text={`Nascidos desde ${formatAcademicDate(cutoff)}: CPF obrigatório. Antes dessa data: CPF ou certidão de nascimento.`} />
             {officialError ? <p role="alert" className="text-sm text-destructive">{officialError}</p> : null}
             <StepStudent fp={fp} school={school} draft={initial.draftId} p={p} edit={edit} ident={ident} setIdent={setIdent} seq={seq} stepRef={stepRef} auto={auto} officialBirth={official?.birth_date ?? null} />
           </> : null}
