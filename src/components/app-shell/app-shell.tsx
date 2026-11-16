@@ -123,11 +123,17 @@ function SidebarNavigation({
   const principal = authority.status === "signed-in" ? (authority.principal ?? null) : null;
   // BQ.1 Lote 2 — conta de setor vê só a própria estação; humanos inalterados.
   // Lote 2.1: enquanto a autoridade carrega, o menu fica vazio (antes mostrava tudo por um instante a contas de setor).
+  const seenPaths = new Set<string>();
   const groups = authority.status !== "signed-in" ? [] : provisionalNavigation
     .filter((group) => principal !== null || compact || showAdvanced || q !== "" || !ADVANCED_GROUPS.includes(group.label))
     // NACL.UI.1: mesma regra de estação × capacidade usada por paleta, busca, cards e deep link.
     .map((group) => authority.status === "signed-in" ? { ...group, items: group.items.filter((item) => pathAllowed(authority, item.to)) } : group)
     .map((group) => (q ? { ...group, items: group.items.filter((item) => fold(item.label).includes(q)) } : group))
+    .map((group) => ({ ...group, label: group.label === "Meus ambientes de trabalho" ? "Áreas de trabalho" : group.label, items: group.items.filter((item) => {
+      if (item.to === "/" && principal) return false;
+      if (seenPaths.has(item.to)) return false;
+      seenPaths.add(item.to); return true;
+    }) }))
     .filter((group) => group.items.length > 0);
   const hasHiddenAdvanced = !compact && !showAdvanced && principal === null && q === "" &&
     provisionalNavigation.some((group) => ADVANCED_GROUPS.includes(group.label) &&
@@ -439,10 +445,10 @@ function Topbar({
           </SheetContent>
         </Sheet>
 
-        <nav aria-label="Você está em" className="min-w-0">
+        <nav aria-label="Você está em" className="min-w-0 flex-1 overflow-hidden">
           <ol className="flex min-w-0 items-center gap-1.5 text-sm">
-            {crumb.group && (
-              <li className="hidden shrink-0 items-center gap-1.5 text-muted-foreground md:flex">
+            {crumb.group && crumb.group !== "Meus ambientes de trabalho" && (
+              <li className="hidden min-w-0 items-center gap-1.5 text-muted-foreground 2xl:flex">
                 <span>{crumb.group}</span>
                 <ChevronRight className="size-3.5 opacity-60" aria-hidden="true" />
               </li>
@@ -454,20 +460,21 @@ function Topbar({
         </nav>
 
         {session.status === "signed-in" && <>
-        <button
+        <Button
+          variant="outline"
           type="button"
           onClick={onOpenSearch}
-          className="ml-auto hidden h-10 pointer-coarse:h-11 min-w-0 items-center gap-2 rounded-full border border-border/70 bg-card/70 px-4 text-sm text-muted-foreground shadow-[var(--shadow-soft)] transition-all hover:border-primary/30 hover:bg-card lg:flex lg:w-96"
+          className="hidden h-10 min-w-0 shrink-0 items-center gap-2 bg-card px-3 text-sm text-muted-foreground xl:flex xl:w-56 2xl:w-64"
         >
           <Search className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">Buscar no sistema</span>
           <Kbd className="ml-auto hidden lg:block">{SEARCH_SHORTCUT_LABEL}</Kbd>
-        </button>
+        </Button>
 
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden"
+          className="xl:hidden"
           aria-label="Buscar no sistema"
           onClick={onOpenSearch}
         >
@@ -477,9 +484,9 @@ function Topbar({
         </>}
 
         {session.status === "signed-in" && <div className="ml-auto lg:ml-0"><ActiveYearPicker /></div>}
-        <ContextHelp />
+        <div className="hidden shrink-0 sm:block"><ContextHelp /></div>
         {session.status === "signed-in" && <NotificationBell />}
-        {session.status === "signed-in" && <InstitutionalContextBadge />}
+        {session.status === "signed-in" && !pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && <div className="hidden 2xl:block min-w-0 max-w-48"><InstitutionalContextBadge /></div>}
 
         <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
           <Link to="/ajuda" aria-label="Central de ajuda">
@@ -544,9 +551,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <StationGate pathname={pathname}>
               {(() => {
                 const g = guideForPath(pathname);
-                return g ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary && pathAllowed(guideAuthority, g.primary.to) ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
+                return g && !pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && pathname !== "/matriculas/nova" ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary && pathAllowed(guideAuthority, g.primary.to) ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
               })()}
-              <div className="mb-4 empty:hidden print:hidden"><WhatThisMeans pathname={pathname} /></div>
+              {!pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && pathname !== "/matriculas/nova" && <div className="mb-4 empty:hidden print:hidden"><WhatThisMeans pathname={pathname} /></div>}
               {children}
             </StationGate>
           </div>
@@ -564,7 +571,6 @@ function StationLoadError({ error }: { error: unknown }) {
     <section role="alert" className="mx-auto mt-10 max-w-xl rounded-2xl border border-border bg-card p-8 text-center shadow-panel">
       <h1 className="font-display text-xl font-semibold text-foreground">Não conseguimos abrir sua área</h1>
       <p className="mt-2 text-sm text-muted-foreground">{trail.governed.userMessage}</p>
-      <p className="mt-1 text-xs text-muted-foreground">Código para o suporte: {trail.governed.correlationId}</p>
       <Button className="mt-5" onClick={trail.reload}>Tentar novamente</Button>
     </section>
   );
@@ -645,7 +651,7 @@ function StationGate({ pathname, children }: { pathname: string; children: React
       </div>
       <h1 className="mt-4 font-display text-xl font-semibold text-foreground">Esta página é de outro setor</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Você entrou como {STATION_LABEL[principal.station]}. Esta área não faz parte do seu trabalho — o sistema também protege estes dados no servidor.
+        Você entrou como {STATION_LABEL[principal.station]}. Volte à sua área para continuar.
       </p>
       <Button asChild size="lg" className="mt-6"><Link to={STATION_HOME[principal.station]}>Voltar para a minha área</Link></Button>
     </section>
@@ -670,8 +676,8 @@ function SessionMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="min-h-10 gap-2 px-2" aria-label="Abrir meu perfil">
-          <span className="grid size-8 place-items-center rounded-full bg-institutional text-xs font-bold text-institutional-foreground">
+        <Button variant="ghost" className="min-h-10 shrink-0 gap-2 px-2" aria-label="Abrir meu perfil">
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-institutional text-xs font-bold text-institutional-foreground">
             {initials}
           </span>
           <span className="hidden max-w-40 truncate text-left text-xs font-semibold xl:block">{name}</span>

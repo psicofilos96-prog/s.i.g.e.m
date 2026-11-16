@@ -21,7 +21,6 @@ export function RouteErrorState({ error, reset }: ErrorComponentProps) {
     <section role="alert" className="mx-auto max-w-xl space-y-3 p-6">
       <h1 className="text-xl font-semibold">Esta tela não abriu</h1>
       <p className="text-sm">{g.userMessage}</p>
-      <p className="text-xs text-muted-foreground">Código para o suporte: {g.correlationId}</p>
       <div className="flex flex-wrap gap-2">
         <Button onClick={trail.retry}>Tentar novamente</Button>
         <Button asChild variant="outline"><Link to="/" onClick={trail.giveUp}>Ir para o início</Link></Button>

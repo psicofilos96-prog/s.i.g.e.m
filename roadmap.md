@@ -1,5 +1,12 @@
 # Roadmap — SIGEM simples no design original
 
+## Clareza e atendimento escolar (16/11/2026)
+- [x] Limpar linguagem e estados de Secretaria/Gestão Escolar sem alterar permissões ou números; ajuda discreta e blocos negados ocultos.
+- [x] Compactar início da Secretaria: busca, pendências clicáveis, ações agrupadas e movimentos em modais.
+- [x] Atualizar tipografia/superfícies globais e corrigir colisão/duplicidade no menu e cabeçalho.
+- [x] Melhorar rascunhos da matrícula e checklist recolhível com requisitos existentes.
+- [x] 329 testes focais PASS; conta sec.99999901 abriu Secretaria/Gestão, buscou alunos reais de teste, alternou abas e abriu transferência em modal; rascunhos/checklist conferidos. Computador/celular sem overflow nem erros de execução. Sem gravação ou publicação.
+
 ## Simplificação completa do Diário do Professor (11/11/2026)
 - [x] Minhas aulas com entrada direta após login, menu de seis entradas sem duplicação no desktop, chamadas/registro/turmas no workspace canônico; nomes lidos do cadastro e catálogo, sem IDs na apresentação.
 - [x] Criação de avaliação e Pauta existentes integradas na tela Notas para contextos aptos; planejamento com foco no texto e opções recolhidas. Nenhuma regra, permissão ou dado oficial alterado.

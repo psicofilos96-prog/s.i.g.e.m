@@ -1,3 +1,5 @@
+import { ContextHint } from "@/components/sigem/context-help";
+import { categorize } from "@/lib/observability/governed-errors";
 import { DateInput } from "@/components/sigem/date-input";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -18,6 +20,7 @@ export function FrequencyRiskPanel({ school, schoolName, today }: { school: stri
   const q = useQuery({ queryKey: ["direcao-frequency-risk", s?.user.id, s?.sessionRevision, school, from, to], enabled: !!s && !!from && !!to, retry: false,
     queryFn: () => callRpc<Row[]>("direcao_students_below_frequency", { _school: school, _from: from, _to: to }) });
   if (!s) return null;
+  if (q.isError && categorize(q.error) === "autorizacao") return null;
   const letter = async (r: Row) => {
     const logo = await loadSchoolLogo(school);
     const blob = guardianshipLetterPdf({ schoolName, studentName: r.student_name, from, to, present: r.present, absent: r.absent, rate: r.rate, limitPct: r.limit_pct, today }, logo);
@@ -33,7 +36,7 @@ export function FrequencyRiskPanel({ school, schoolName, today }: { school: stri
       </div>
       {q.isLoading ? <p className="text-sm text-muted-foreground">…</p>
         : missing ? <p className="text-sm text-muted-foreground">Defina primeiro a frequência de corte em "Limites de risco da escola".</p>
-        : q.isError ? <p className="text-sm text-destructive">{userErrorText(q.error as Error)}</p>
+        : q.isError ? <p className="text-sm text-muted-foreground">{userErrorText(q.error as Error).replace(/Código: op-[a-f0-9]+\./g, "")}</p>
         : !q.data?.length ? <p className="text-sm text-muted-foreground">Nenhum estudante abaixo do limite no período, considerando as chamadas registradas.</p>
         : (<>
           <p className="text-xs text-muted-foreground">Limite: {q.data[0]!.limit_pct}% (versão {q.data[0]!.limit_version}) · {q.data.length} estudante(s)</p>
@@ -46,7 +49,7 @@ export function FrequencyRiskPanel({ school, schoolName, today }: { school: stri
               </li>))}
           </ul>
         </>)}
-      <p className="text-xs text-muted-foreground">Só contam aulas com chamada registrada no Diário. O risco por nota aguarda a regra de médias da rede.</p>
+      <ContextHint text="A frequência considera as chamadas registradas no Diário. Alertas por nota dependem da regra de médias da rede." />
     </section>
   );
 }

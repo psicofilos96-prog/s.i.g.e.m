@@ -9,8 +9,8 @@
   --text-2xs--line-height: 0.875rem;
   --text-micro: 0.6875rem;
   --text-micro--line-height: 1rem;
-  --font-sans: "Instrument Sans", "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces", "Georgia", ui-serif, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --radius-sm: calc(var(--radius) - 3px);
   --radius-md: calc(var(--radius) - 1px);
@@ -64,8 +64,8 @@
 }
 
 :root {
-  --radius: 0.875rem;
-  --background: oklch(0.983 0.0055 75); /* #FBF9F6 creme aquecido */
+  --radius: 0.5rem;
+  --background: #F8F9FA;
   --foreground: oklch(0.23 0.03 238);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.23 0.03 238);
@@ -79,12 +79,12 @@
   --chart-6: oklch(0.62 0.08 200);
   --primary: oklch(0.43 0.095 232);
   --primary-foreground: oklch(0.99 0.002 250);
-  --secondary: oklch(0.945 0.016 80);
+  --secondary: oklch(0.96 0.003 240);
   --secondary-foreground: oklch(0.3 0.05 236);
-  --muted: oklch(0.955 0.01 82);
+  --muted: oklch(0.965 0.003 240);
   --muted-foreground: oklch(0.46 0.022 240);
-  --accent: oklch(0.94 0.035 78);
-  --accent-foreground: oklch(0.36 0.07 60);
+  --accent: oklch(0.96 0.012 165);
+  --accent-foreground: oklch(0.32 0.055 165);
   --destructive: oklch(0.56 0.2 26);
   --destructive-foreground: oklch(0.99 0.002 250);
   --success: oklch(0.52 0.13 157);
@@ -93,8 +93,8 @@
   --warning-foreground: oklch(0.4 0.1 63);
   --info: oklch(0.59 0.14 244);
   --info-foreground: oklch(0.34 0.1 247);
-  --border: oklch(0.91 0.012 78);
-  --input: oklch(0.85 0.02 75);
+  --border: #E5E7EB;
+  --input: oklch(0.88 0.005 240);
   --ring: oklch(0.58 0.11 232);
   --institutional: oklch(0.27 0.055 236);
   --institutional-foreground: oklch(0.97 0.008 231);
@@ -109,11 +109,11 @@
   --login-ink: oklch(0.98 0.005 240);
   --territory-foreground: oklch(0.985 0.008 230);
   --territory-accent: oklch(0.76 0.13 75);
-  --sidebar: oklch(0.255 0.04 210); /* azul-petróleo */
+  --sidebar: oklch(0.255 0.04 165);
   --sidebar-foreground: oklch(0.94 0.012 239);
-  --sidebar-muted: oklch(0.76 0.03 205);
-  --sidebar-accent: oklch(0.33 0.05 205);
-  --sidebar-border: oklch(0.75 0.04 200 / 0.16);
+  --sidebar-muted: oklch(0.78 0.018 165);
+  --sidebar-accent: oklch(0.33 0.045 165);
+  --sidebar-border: oklch(0.75 0.04 165 / 0.16);
   --shadow-panel:
     0 1px 1px color-mix(in oklab, var(--foreground) 3%, transparent),
     0 4px 16px -10px color-mix(in oklab, var(--institutional) 14%, transparent);
@@ -164,7 +164,7 @@
     font-family: var(--font-display);
     font-optical-sizing: auto;
     font-weight: 500;
-    letter-spacing: -0.015em;
+    letter-spacing: 0;
     text-wrap: balance;
   }
   h1 { font-variation-settings: "SOFT" 30, "WONK" 0; }
@@ -234,6 +234,7 @@
 }
 
 .sidebar-terrain::before {
+  display: none;
   position: absolute;
   inset: auto -4rem 5.75rem 1rem;
   height: 12rem;
@@ -1677,7 +1678,7 @@
 
 /* PREMIUM.2026 — identidade: barra petróleo com degradê, vidro suave, bordas em degradê e tons das ações. */
 :root {
-  --sidebar-gradient: linear-gradient(180deg, oklch(0.29 0.045 200) 0%, oklch(0.24 0.04 215) 55%, oklch(0.2 0.035 230) 100%);
+  --sidebar-gradient: var(--sidebar);
   --glass: color-mix(in oklab, var(--card) 72%, transparent);
   --shadow-soft: 0 1px 2px color-mix(in oklab, var(--foreground) 4%, transparent), 0 8px 24px -14px color-mix(in oklab, var(--sidebar) 28%, transparent);
   --shadow-lift: 0 2px 4px color-mix(in oklab, var(--foreground) 5%, transparent), 0 18px 36px -18px color-mix(in oklab, var(--sidebar) 40%, transparent);

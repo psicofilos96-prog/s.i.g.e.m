@@ -1,3 +1,5 @@
+import { ContextHint } from "@/components/sigem/context-help";
+import { categorize } from "@/lib/observability/governed-errors";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { callRpc } from "@/lib/rpc-call";
@@ -20,6 +22,7 @@ export function RiskLimitsPanel({ school }: { school: string }) {
   const [err, setErr] = useState<string | null>(null); const [ok, setOk] = useState<string | null>(null);
 
   if (!s) return null;
+  if (q.isError && categorize(q.error) === "autorizacao") return null;
   const current = q.isError ? null : currentRiskLimit(q.data ?? null);
 
   const save = async () => {
@@ -63,11 +66,9 @@ export function RiskLimitsPanel({ school }: { school: string }) {
       </div>
       <div className="flex items-center gap-2">
         <Button size="sm" disabled={busy} onClick={() => void save()}>{busy ? "Gravando…" : "Gravar nova versão"}</Button>
-        <p className="text-xs text-muted-foreground">Cada alteração vira uma nova versão; as anteriores ficam guardadas.</p>
+        <ContextHint text="Cada atualização preserva os limites anteriores no histórico." />
       </div>
-      <p className="text-xs text-muted-foreground">
-        O corte de nota só passa a gerar alertas quando a regra de médias da rede estiver definida.
-      </p>
+      <ContextHint text="Alertas de notas dependem da regra de médias da rede." />
       {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
       {ok && <p className="text-xs text-primary">{ok}</p>}
     </section>

@@ -1,4 +1,6 @@
 import { DateInput } from "@/components/sigem/date-input";
+import { ContextHint } from "@/components/sigem/context-help";
+import { categorize } from "@/lib/observability/governed-errors";
 import { useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,6 +40,8 @@ export function SchoolNoticesPanel({ school, year, on }: { school: string; year:
   const [err, setErr] = useState<string | null>(null); const [ok, setOk] = useState<string | null>(null);
 
   if (!s) return null;
+  if (notices.isError && categorize(notices.error) === "autorizacao") return null;
+  const canWrite = s.principal?.station === "direcao_escolar" && s.principal.schoolId === school;
 
   const publish = async () => {
     const problems = noticeProblems({ title, body, audience, classId: classId || null, expiresOn: expiresOn || null }, today);
@@ -80,7 +84,7 @@ export function SchoolNoticesPanel({ school, year, on }: { school: string; year:
   return (
     <section aria-label="Avisos da Direção" className="rounded-lg border bg-card p-4 space-y-3">
       <h2 className="font-semibold">Avisos da Direção</h2>
-      <div className="grid gap-2 sm:grid-cols-2">
+      {canWrite && <><div className="grid gap-2 sm:grid-cols-2">
         <label className="text-sm space-y-1">Título
           <input className="w-full rounded border bg-background px-2 py-1" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} /></label>
         <label className="text-sm space-y-1">Público
@@ -102,8 +106,9 @@ export function SchoolNoticesPanel({ school, year, on }: { school: string; year:
       <input ref={img} type="file" accept={NOTICE_IMAGE_MIME.join(",")} aria-label="Imagem do aviso (opcional)" className="text-sm" />
       <div className="flex items-center gap-2">
         <Button size="sm" disabled={busy} onClick={() => void publish()}>{busy ? "Publicando…" : "Publicar aviso"}</Button>
-        <p className="text-xs text-muted-foreground">Aviso publicado não pode ser editado; só retirado com motivo.</p>
+        <ContextHint text="Depois de publicado, o aviso só pode ser retirado com um motivo." />
       </div>
+      </>}
       {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
       {ok && <p className="text-xs text-primary">{ok}</p>}
 
@@ -116,7 +121,7 @@ export function SchoolNoticesPanel({ school, year, on }: { school: string; year:
             <article key={n.id} className="rounded border p-2 text-sm space-y-1">
               <div className="flex items-center justify-between gap-2">
                 <strong>{n.title}</strong>
-                <Button size="sm" variant="ghost" disabled={busy} onClick={() => void withdraw(n.id)}>Retirar</Button>
+                {canWrite && <Button size="sm" variant="ghost" disabled={busy} onClick={() => void withdraw(n.id)}>Retirar</Button>}
               </div>
               <p className="whitespace-pre-wrap">{n.body}</p>
               <p className="text-xs text-muted-foreground">

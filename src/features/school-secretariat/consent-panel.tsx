@@ -1,3 +1,4 @@
+import { ContextHint } from "@/components/sigem/context-help";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { callRpc } from "@/lib/rpc-call";
@@ -37,7 +38,7 @@ export function ConsentPanel({ school, student, studentName }: { school: string;
       <ul className="mt-2 space-y-3">
         {CONSENT_TERMS.map((t) => <TermRow key={t.key} t={t} state={cur.get(t.key)!} school={school} student={student} studentName={studentName} schoolName={schoolName} onDone={load} />)}
       </ul>
-      <p className="mt-2 text-xs text-muted-foreground">Sem resposta registrada, o termo fica "não respondido" — nunca vale como autorizado.</p>
+      <ContextHint text="Registre a resposta do responsável após a assinatura do termo." />
     </details>
   );
 }

@@ -190,9 +190,9 @@ export function DangerAction({
 export type AbsenceKind = "sem-dado" | "nao-configurado" | "sem-permissao" | "nenhum-resultado" | "nenhum-registro";
 
 export const ABSENCE_TEXT: Readonly<Record<AbsenceKind, { title: string; description: string }>> = {
-  "sem-dado": { title: "Sem dado", description: "Esta informação não foi registrada ou não pôde ser lida. Não significa zero." },
+  "sem-dado": { title: "Não informado", description: "Esta informação ainda não foi confirmada." },
   "nao-configurado": { title: "Ainda não configurado", description: "Falta a regra ou o cadastro que permite mostrar esta informação." },
-  "sem-permissao": { title: "Sem permissão", description: "Sua conta não tem permissão vigente para ver esta informação. Isso não indica que ela não exista." },
+  "sem-permissao": { title: "Acesso restrito", description: "Esta informação não está disponível para sua conta." },
   "nenhum-resultado": { title: "Nenhum resultado", description: "Nada corresponde à busca ou aos filtros. Ajuste os critérios." },
   "nenhum-registro": { title: "Nenhum registro", description: "Ainda não há registros aqui." },
 };

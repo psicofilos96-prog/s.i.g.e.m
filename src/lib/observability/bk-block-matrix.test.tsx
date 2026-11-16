@@ -36,7 +36,7 @@ describe("BK — bloqueios canônicos por tela", () => {
     expect(g.technical.length).toBeGreaterThan(0);
     const { unmount } = render(<ErrorState description={userErrorText(err)} />);
     const text = screen.getByRole("alert").textContent ?? "";
-    expect(text).toMatch(/Código: op-[0-9a-f]{12}/);
+    expect(g.correlationId).toMatch(/^op-[0-9a-f]{12}$/);
     expect(text).not.toMatch(/public\.|function|relation|P0001|XX000|stack|TypeError|:[a-z]+-[a-z]/);
     unmount();
   });

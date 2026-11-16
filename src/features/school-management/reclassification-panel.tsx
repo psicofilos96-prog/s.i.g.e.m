@@ -1,3 +1,4 @@
+import { categorize } from "@/lib/observability/governed-errors";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { callRpc } from "@/lib/rpc-call";
@@ -19,6 +20,7 @@ export function ReclassificationPanel({ school }: { school: string }) {
   const [content, setContent] = useState(""); const [outcome, setOutcome] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null); const [busy, setBusy] = useState(false);
   if (!s) return null;
+  if (q.isError && categorize(q.error) === "autorizacao") return null;
   const find = async () => { try { setHits(await callRpc("direcao_occurrence_students", { _school: school, _q: search }) ?? []); } catch (e) { setErr(userErrorText(e as Error)); } };
   const save = async () => {
     if (!open) return;

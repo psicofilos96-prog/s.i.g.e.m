@@ -99,3 +99,7 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 
 ## Site entry
 - The root route sends signed-out visitors to the existing institutional sign-in route and preserves authenticated workspace dispatch, because entry must not introduce a separate public dashboard or duplicate authentication.
+
+## School workspace presentation
+- Secretariat actions use grouped tabs and mount movement forms only in dialogs; management cards project the existing values without technical provenance text, because progressive disclosure must not create parallel facts or broaden authority.
+- Shared state panels omit correlation codes from visible copy while recovery telemetry retains them, because operational users need actionable messages rather than diagnostic identifiers.

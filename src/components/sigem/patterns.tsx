@@ -33,7 +33,7 @@ export function PageHeader({
     >
       <div className="min-w-0">
         {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
-        <h1 className="text-balance font-display text-[1.625rem] font-semibold leading-[1.15] tracking-[-0.015em] text-foreground sm:text-[2rem]">
+        <h1 className="text-balance font-display text-[1.625rem] font-semibold leading-[1.15] tracking-normal text-foreground sm:text-[2rem]">
           {title}
         </h1>
         {description && (
@@ -183,14 +183,16 @@ export function StatePanel({
   description: string;
   action?: ReactNode;
 }) {
+  const cleanDescription = humanizeForScreen(description).replace(/\s*(?:\(?código(?: para o suporte)?\s*:?\s*)op-[a-f0-9]+\)?\.?/gi, "").trim();
+  const permission = /permissão|autorização|não autorizado|não faz parte do seu acesso/i.test(cleanDescription);
   return (
-    <div className={cn("flex min-h-28 gap-3 rounded-md border p-4", `state-${tone}`)}>
+    <div className={cn("flex min-h-28 gap-3 rounded-md border p-4", `state-${permission ? "neutral" : tone}`)}>
       <span className="grid size-8 shrink-0 place-items-center rounded-md bg-card/65">
         <AlertCircle className="size-4" />
       </span>
       <div className="min-w-0">
         <h3 className="text-sm font-semibold">{humanizeForScreen(title)}</h3>
-        <p className="mt-1 text-xs leading-relaxed opacity-80">{humanizeForScreen(description)}</p>
+        <p className="mt-1 text-xs leading-relaxed opacity-80">{cleanDescription}</p>
         {action && <div className="mt-3">{action}</div>}
       </div>
     </div>
