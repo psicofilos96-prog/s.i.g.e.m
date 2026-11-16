@@ -745,7 +745,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         <div><p className="text-xs font-medium uppercase tracking-wide text-primary">Escola aberta</p><h2 className="font-display text-xl font-semibold">{selected?.school_name ?? school}</h2>
           <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
         <div className="flex flex-wrap items-center gap-2">
-          {detailData && <FollowupExportMenu disabled={exporting} onExport={(f) => void exportSchoolReport(f)} />}
+          {detailData && <FollowupExportMenu scope="ficha da escola" disabled={exporting} onExport={(f) => void exportSchoolReport(f)} />}
           <Button variant="outline" onClick={() => { if (changeSchool("")) setTab("network"); }}>Fechar escola</Button>
         </div>
       </div>

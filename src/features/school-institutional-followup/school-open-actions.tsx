@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { FollowupExportMenu } from "./export-menu";
+import { FollowupSituationBadge } from "./situation-badge";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { presentError } from "@/lib/observability/governed-errors";
@@ -110,11 +112,11 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
   return <section className="space-y-3 rounded-xl border border-border p-4"
     aria-label="Providências da unidade para preparação da visita">
     <div>
-      <h3 className="font-semibold">Antes da próxima visita — providências sem conclusão declarada</h3>
-      <p className="text-sm text-muted-foreground">
+      <h3 className="font-semibold">Preparar próxima visita</h3>
+      <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Sobre estas informações</summary><p className="text-sm text-muted-foreground">
         Consulte as medidas que merecem acompanhamento antes de registrar uma nova visita.
         A situação é declarada pela equipe e não representa cobrança ou homologação.
-      </p>
+      </p></details>
     </div>
     <div className="flex flex-wrap gap-2 text-sm">
       <span className="rounded-md bg-muted/40 p-2">{pending.length} sem conclusão declarada</span>
@@ -179,24 +181,13 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
             <option value="selected">Somente as medidas selecionadas ({selectedPendingIds.length})</option>
           </select>
         </label>
-        <Button size="sm" variant="outline"
-          disabled={exporting || (exportScope === "selected" && !selectedExportReady)}
-          onClick={() => void exportPreparation("pdf")}>Roteiro PDF</Button>
-        <Button size="sm" variant="outline"
-          disabled={exporting || (exportScope === "selected" && !selectedExportReady)}
-          onClick={() => void exportPreparation("docx")}>Word</Button>
-        <Button size="sm" variant="outline"
-          disabled={exporting || (exportScope === "selected" && !selectedExportReady)}
-          onClick={() => void exportPreparation("xlsx")}>Excel</Button>
-        <Button size="sm" variant="outline"
-          disabled={exporting || (exportScope === "selected" && !selectedExportReady)}
-          onClick={() => void exportPreparation("csv")}>CSV</Button>
+        <FollowupExportMenu disabled={exporting || (exportScope === "selected" && !selectedExportReady)} onExport={(f) => void exportPreparation(f)} />
       </div>
-      <p className="text-xs text-muted-foreground">
+      <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Sobre estas informações</summary><p className="text-xs text-muted-foreground">
         O roteiro integral inclui todas as medidas sem conclusão declarada, mesmo fora dos filtros ou da prévia.
         O roteiro selecionado inclui apenas as medidas marcadas, inclusive em outro filtro, e a última evolução informada.
         A seleção é temporária e não cria visita, nova medida ou ordem de cobrança.
-      </p>
+      </p></details>
       {exporting && <p role="status" className="text-sm text-muted-foreground">
         Preparando o roteiro {exportScope === "selected" ? "selecionado" : "integral"} para download.
         Os filtros e as medidas ficam bloqueados até concluir.
@@ -240,7 +231,7 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
               Responsável: {a.responsible_label || "Não informado"} · Prazo: {formatAcademicDate(a.due_on, "Não informado")}
             </p>
             <p className="text-xs text-muted-foreground">
-              Situação: {situation}{expired ? " · Prazo vencido" : ""}
+              <FollowupSituationBadge situation={situation} overdue={expired} />
             </p>
             {last ? <details className="rounded-md border border-border/70 p-2 text-sm">
               <summary className="cursor-pointer font-medium">
@@ -274,13 +265,13 @@ export function SchoolOpenActionsPanel({ snapshot, schoolId, schoolName, inep, t
       aria-expanded={expanded}>
       {expanded ? "Mostrar menos medidas" : `Mostrar todas as ${filtered.length} medidas`}
     </Button>}
-    <p className="text-xs text-muted-foreground">
+    <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Sobre estas informações</summary><p className="text-xs text-muted-foreground">
       A lista visível segue os filtros e é ordenada pelo prazo declarado; medidas sem prazo vêm por último.
       Sem atualização não significa não realizada. O resumo mostra somente a última evolução declarada;
       as anteriores permanecem no histórico. Ver acompanhamento abre o histórico sem alterar registros.
       Registrar evolução apenas abre o formulário para servidores autorizados; nada é gravado automaticamente.
       A seleção para o roteiro de foco permanece apenas nesta tela e não altera as medidas.
       Use "Somente selecionadas" para rever medidas marcadas mesmo que outros filtros estejam ativos.
-    </p>
+    </p></details>
   </section>;
 }

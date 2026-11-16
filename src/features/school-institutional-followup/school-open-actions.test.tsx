@@ -4,6 +4,7 @@ import { SchoolOpenActionsPanel } from "./school-open-actions";
 import type { FollowupAction, FollowupUpdate, SchoolSnapshot } from "./model";
 import { exportFollowupPreparation } from "./preparation-report";
 
+vi.mock("./export-menu", () => ({ FollowupExportMenu: ({ disabled, onExport }: { disabled: boolean; onExport: (f: string) => void }) => <>{([["pdf", "Roteiro PDF"], ["docx", "Word"], ["xlsx", "Excel"], ["csv", "CSV"]] as const).map(([f, label]) => <button key={f} disabled={disabled} onClick={() => onExport(f)}>{label}</button>)}</> }));
 vi.mock("./preparation-report", () => ({ exportFollowupPreparation: vi.fn() }));
 
 const action = (id: string, description: string, due_on: string | null): FollowupAction => ({
