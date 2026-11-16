@@ -15,7 +15,7 @@ import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/cu
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useState } from "react";
 import { useActiveYear } from "@/features/academic-year/active-year";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
@@ -91,6 +91,7 @@ function WorkCard({ value, title, hint, onClick }: { value: number | null | unde
 }
 
 function Station({ school, year, on }: { school: string; year: string; on: string }) {
+  const navigate = useNavigate();
   const [ov, setOv] = useState<SecretariatOverview | null>(null);
   const [pending, setPending] = useState<PendingRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -117,7 +118,7 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
         <div className="flex flex-wrap gap-2">
           <WorkCard value={ov.allocations.enrollments_without_class} title="Alunos sem turma" hint="Localize o aluno para escolher uma turma." onClick={() => document.getElementById("busca-valor")?.focus()} />
           <WorkCard value={pending?.length} title="Pendências de cadastro" hint="Abra a lista para conferir o que falta." onClick={() => setShowPending((v) => !v)} />
-          <WorkCard value={ov.enrollments.start_unknown} title="Matrículas sem data" hint="Informe a data de início no Livro de Matrícula." onClick={() => { window.location.assign("/secretaria/livro-matricula"); }} />
+          <WorkCard value={ov.enrollments.start_unknown} title="Matrículas sem data" hint="Informe a data de início no Livro de Matrícula." onClick={() => { void navigate({ to: "/secretaria/livro-matricula" }); }} />
         </div>
       </section>
       {showPending && <section aria-label="Pendências de cadastro" className="space-y-2">
