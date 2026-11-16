@@ -76,7 +76,7 @@ export function ReceiveTransferPanel({ school, year, on }: { school: string; yea
     } catch (e) { setMsg(errText(e)); } finally { setBusy(false); }
   }
   return (
-    <section aria-labelledby="receber" className="space-y-3 rounded-2xl border border-border bg-card p-4">
+    <section aria-labelledby="receber" className="space-y-3">
       <h2 id="receber" className="font-semibold">Receber transferência</h2>
       <p className="text-sm text-muted-foreground">Busque pelo CPF, ou pelo nome completo junto com a data de nascimento.</p>
       <div className="flex flex-wrap gap-2">
@@ -179,7 +179,7 @@ export function RenewalBatchPanel({ school }: { school: string }) {
     <label>{label}<select className="mt-1 block rounded-md border border-input bg-background p-2" value={v} onChange={(e) => set(e.target.value)}>
       <option value="">Escolha</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label}</option>)}</select></label>);
   return (
-    <section aria-labelledby="rematricula" className="space-y-3 rounded-2xl border border-border bg-card p-4 text-sm">
+    <section aria-labelledby="rematricula" className="space-y-3 text-sm">
       <h2 id="rematricula" className="font-semibold">Rematrícula em lote</h2>
       <div className="flex flex-wrap items-end gap-2">
         {yearSel(from, setFrom, "Do ano")}{yearSel(to, setTo, "Para o ano")}

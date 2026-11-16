@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { categorize } from "@/lib/observability/governed-errors";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { callRpc } from "@/lib/rpc-call";
@@ -49,10 +50,10 @@ export function DirectorSummaryPanel({ school, year, on }: { school: string; yea
     </Link>);
   return (
     <section aria-label="Resumo da Direção" className="grid gap-3 sm:grid-cols-3">
-      {card("Mapa Estatístico do mês", map.isError ? NA : map.data ?? NA, `Competência ${String(m).padStart(2, "0")}/${y}`, "/mapa-estatistico", map.isLoading)}
-      {card("Vagas nas turmas", v ? `${v.open} com vaga · ${v.full} lotadas · ${v.over} acima` : NA,
+      {!(map.isError && categorize(map.error) === "autorizacao") && card("Mapa Estatístico do mês", map.isError ? NA : map.data ?? NA, `Competência ${String(m).padStart(2, "0")}/${y}`, "/mapa-estatistico", map.isLoading)}
+      {!(vac.isError && categorize(vac.error) === "autorizacao") && card("Vagas nas turmas", v ? `${v.open} com vaga · ${v.full} lotadas · ${v.over} acima` : NA,
         v ? (v.unknown ? `${v.unknown} turma(s) sem capacidade informada` : `${v.total} turmas ativas`) : "Informação a confirmar", "/turmas", vac.isLoading)}
-      {card("Ocorrências graves no mês", grave == null ? NA : String(grave), "Graves e gravíssimas registradas no Histórico de ocorrências", "/gestao-escolar", occ.isLoading)}
+      {!(occ.isError && categorize(occ.error) === "autorizacao") && card("Ocorrências graves no mês", grave == null ? NA : String(grave), "Ocorrências graves e gravíssimas registradas", "/gestao-escolar", occ.isLoading)}
     </section>
   );
 }

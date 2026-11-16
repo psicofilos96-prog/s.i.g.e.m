@@ -464,7 +464,7 @@ function Topbar({
           variant="outline"
           type="button"
           onClick={onOpenSearch}
-          className="hidden h-10 min-w-0 shrink-0 items-center gap-2 bg-card px-3 text-sm text-muted-foreground xl:flex xl:w-48 2xl:w-64"
+          className="hidden h-10 min-w-0 shrink-0 items-center gap-2 bg-card px-3 text-sm text-muted-foreground xl:flex xl:w-56 2xl:w-64"
         >
           <Search className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">Buscar no sistema</span>
@@ -474,7 +474,7 @@ function Topbar({
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden"
+          className="xl:hidden"
           aria-label="Buscar no sistema"
           onClick={onOpenSearch}
         >
@@ -484,7 +484,7 @@ function Topbar({
         </>}
 
         {session.status === "signed-in" && <div className="ml-auto lg:ml-0"><ActiveYearPicker /></div>}
-        <ContextHelp />
+        <div className="hidden shrink-0 sm:block"><ContextHelp /></div>
         {session.status === "signed-in" && <NotificationBell />}
         {session.status === "signed-in" && !pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && <div className="hidden 2xl:block min-w-0 max-w-48"><InstitutionalContextBadge /></div>}
 
@@ -676,8 +676,8 @@ function SessionMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="min-h-10 gap-2 px-2" aria-label="Abrir meu perfil">
-          <span className="grid size-8 place-items-center rounded-full bg-institutional text-xs font-bold text-institutional-foreground">
+        <Button variant="ghost" className="min-h-10 shrink-0 gap-2 px-2" aria-label="Abrir meu perfil">
+          <span className="grid size-8 shrink-0 place-items-center rounded-full bg-institutional text-xs font-bold text-institutional-foreground">
             {initials}
           </span>
           <span className="hidden max-w-40 truncate text-left text-xs font-semibold xl:block">{name}</span>

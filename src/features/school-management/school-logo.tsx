@@ -54,7 +54,7 @@ export function SchoolLogoPanel({ school }: { school: string }) {
         : <p className="text-sm text-muted-foreground">Nenhuma logo enviada.</p>}
       <input ref={input} type="file" accept={LOGO_MIME.join(",")} className="hidden" aria-label="Enviar logo da escola"
         onChange={(e) => { const f = e.target.files?.[0]; if (f) void upload(f); }} />
-      <Button size="sm" variant="outline" disabled={busy} onClick={() => input.current?.click()}>{busy ? "Enviando…" : "Enviar nova logo"}</Button>
+      {s.principal?.station === "direcao_escolar" && s.principal.schoolId === school && <Button size="sm" variant="outline" disabled={busy} onClick={() => input.current?.click()}>{busy ? "Enviando…" : "Enviar nova logo"}</Button>}
       <ContextHint text="JPG, PNG ou WEBP até 2 MB. A Direção pode atualizar a logo; as anteriores são preservadas." />
       {err && <p role="alert" className="text-xs text-destructive">{err}</p>}
     </section>
