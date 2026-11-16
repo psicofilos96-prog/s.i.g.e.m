@@ -229,7 +229,7 @@ export function exportIncomplete(collected: number, screenTotal: number, exhaust
 /**
  * PDF de verdade (arquivo), não página web: A4, cabeçalho repetido, quebra de linhas sem corte lateral,
  * numeração "Página x de y" e bloco de assinaturas no fim. Assinaturas são linhas em branco com o papel,
- * nunca nome nem assinatura presumidos.
+ * nomes e funções, quando informados, vêm do resultado autorizado; nunca assinatura presumida.
  */
 export async function toPdfFile(result: ReportResult, branding: Branding, meta: readonly string[] = [],
   opts: { landscape?: boolean; signatures?: readonly string[]; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[] } = {}): Promise<Blob> {
@@ -330,13 +330,20 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   }
   const sig = opts.signatures ?? [];
   if (sig.length) {
-    let sy = (opts.sections || opts.attachments?.length ? y : (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 22;
-    if (sy + 14 > H - 16) { doc.addPage(); sy = M + 24; }
-    const colW = (W - 2 * M) / Math.min(sig.length, 3);
-    sig.forEach((s, i) => {
-      const row = Math.floor(i / 3), x = M + (i % 3) * colW, yy = sy + row * 22;
-      doc.line(x + 6, yy, x + colW - 6, yy); doc.setFontSize(9); doc.text(s, x + colW / 2, yy + 4.5, { align: "center" });
-    });
+    y = (opts.sections || opts.attachments?.length ? y : (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 8;
+    const columns = Math.min(sig.length, 2), colW = (W - 2 * M) / columns;
+    doc.setFont("times", "normal"); doc.setFontSize(9);
+    for (let i = 0; i < sig.length; i += columns) {
+      const labels = sig.slice(i, i + columns).map((s) => doc.splitTextToSize(s, colW - 12) as string[]);
+      const height = 24 + Math.max(...labels.map((l) => l.length)) * 4.5;
+      if (y + height > H - 18) pageTop();
+      labels.forEach((lines, column) => {
+        const x = M + column * colW, lineY = y + 18;
+        doc.line(x + 6, lineY, x + colW - 6, lineY);
+        doc.text(lines, x + colW / 2, lineY + 5, { align: "center" });
+      });
+      y += height;
+    }
   }
   const n = doc.getNumberOfPages();
   for (let p = 1; p <= n; p++) {
@@ -349,7 +356,7 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
 
 /** Word editável, produzido somente sobre o mesmo resultado e conteúdo autorizado do PDF. */
 export async function toWordFile(result: ReportResult, branding: Branding, meta: readonly string[] = [],
-  opts: { landscape?: boolean; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[] } = {}): Promise<Blob> {
+  opts: { landscape?: boolean; signatures?: readonly string[]; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[] } = {}): Promise<Blob> {
   const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, ImageRun,
     Header, Footer, AlignmentType, HeadingLevel, WidthType, PageOrientation,
     BorderStyle, PageNumber, LevelFormat, ShadingType } = await import("docx");
@@ -409,6 +416,22 @@ export async function toWordFile(result: ReportResult, branding: Branding, meta:
       spacing: { after: 100 }, children: [new TextRun({ text: line, size: 18 })] }));
     children.push(new Paragraph({ alignment: AlignmentType.CENTER,
       children: [imageRun(attachment, contentWidth / 15, opts.landscape ? 360 : 640)] }));
+  }
+  const signatures = opts.signatures ?? [];
+  for (let i = 0; i < signatures.length; i += 2) {
+    const labels = signatures.slice(i, i + 2);
+    const width = Math.floor(contentWidth / 2);
+    children.push(new Table({ width: { size: contentWidth, type: WidthType.DXA }, columnWidths: [width, contentWidth - width],
+      borders: { top: { style: BorderStyle.NONE }, bottom: { style: BorderStyle.NONE }, left: { style: BorderStyle.NONE }, right: { style: BorderStyle.NONE }, insideHorizontal: { style: BorderStyle.NONE }, insideVertical: { style: BorderStyle.NONE } },
+      rows: [new TableRow({ cantSplit: true, children: [0, 1].map((column) => new TableCell({
+        width: { size: width, type: WidthType.DXA }, margins: { top: 400, bottom: 220, left: 220, right: 220 },
+        children: labels[column] ? [
+          new Paragraph({ alignment: AlignmentType.CENTER, keepNext: true, spacing: { before: 300, after: 100 }, children: [new TextRun("________________________________")] }),
+          ...labels[column].split("\n").map((text, index, all) => new Paragraph({ alignment: AlignmentType.CENTER, keepNext: index < all.length - 1,
+            children: [new TextRun({ text, size: 18 })] })),
+        ] : [new Paragraph("")],
+      })) })],
+    }));
   }
   const document = new Document({
     styles: { default: { document: { run: { font: "Times New Roman", size: 22 }, paragraph: { spacing: { line: 300 } } } },

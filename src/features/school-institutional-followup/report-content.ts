@@ -43,6 +43,23 @@ export function followupPdfSections(snapshot: SchoolSnapshot, schoolId: string, 
   return sections;
 }
 
+/** Printed lines only: never an electronic signature or a new author designation. */
+export function followupSignatures(snapshot: SchoolSnapshot, schoolId: string, visitId?: string): string[] {
+  const chosen = visitId ? snapshot.visits.find((v) => v.id === visitId && v.school_id === schoolId) : null;
+  if (visitId && !chosen) throw new UserFacingError("A visita selecionada não está disponível. Atualize o histórico da escola.");
+  const visits = [...snapshot.visits, ...snapshot.visit_history].filter((v) => v.school_id === schoolId && (!chosen || v.logical_id === chosen.logical_id));
+  const actions = snapshot.actions.filter((a) => a.school_id === schoolId && (!chosen || a.visit_logical_id === chosen.logical_id));
+  const actionIds = new Set(actions.map((a) => a.id));
+  const responsible = [...new Set(actions.map((a) => stripSignatureText(a.responsible_label)).filter(Boolean))];
+  const authors = [...new Set([...visits, ...actions, ...snapshot.updates.filter((u) => actionIds.has(u.action_id))]
+    .map((r) => stripSignatureText(r.author_name)).filter(Boolean))];
+  return [...responsible.map((r) => `Responsável declarado\n${r}`), ...authors.map((a) => `Autoria registrada\n${a}`), "Assinatura adicional\nNome e função: ________________________"];
+}
+
+function stripSignatureText(value: string | null | undefined): string {
+  return value?.trim().replace(/\s+/g, " ") ?? "";
+}
+
 export function scopedPdfAttachments(snapshot: SchoolSnapshot, schoolId: string, attachments: readonly FollowupAttachment[], visitId?: string) {
   const chosen = visitId ? snapshot.visits.find((v) => v.id === visitId && v.school_id === schoolId) : null;
   if (visitId && !chosen) throw new UserFacingError("A visita selecionada não está disponível.");

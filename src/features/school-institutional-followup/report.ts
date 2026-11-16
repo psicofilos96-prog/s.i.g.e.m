@@ -7,7 +7,7 @@ import { UserFacingError } from "@/lib/observability/governed-errors";
 import { currentSituation, type FollowupVisit, type NetworkPendingAction, type NetworkRow, type SchoolSnapshot } from "./model";
 import { stripTextFormat } from "./text-format-model";
 import type { FollowupAttachment } from "./source";
-import { followupPdfSections, loadFollowupPdfAttachments } from "./report-content";
+import { followupPdfSections, followupSignatures, loadFollowupPdfAttachments } from "./report-content";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
 export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
@@ -217,7 +217,7 @@ export async function exportFollowupSchool(
     const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, undefined, signal) : [];
     if (signal?.aborted) return;
     const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, {
-      sections: followupPdfSections(snapshot, schoolId), attachments: images,
+      sections: followupPdfSections(snapshot, schoolId), attachments: images, signatures: followupSignatures(snapshot, schoolId),
     });
     if (signal?.aborted) return;
     downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
@@ -259,7 +259,7 @@ export async function exportFollowupVisit(
     const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, visitId, signal) : [];
     if (signal?.aborted) return;
     const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, {
-      sections: followupPdfSections(snapshot, schoolId, visitId), attachments: images,
+      sections: followupPdfSections(snapshot, schoolId, visitId), attachments: images, signatures: followupSignatures(snapshot, schoolId, visitId),
     });
     if (signal?.aborted) return;
     downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
