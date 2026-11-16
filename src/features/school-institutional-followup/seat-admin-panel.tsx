@@ -50,7 +50,7 @@ export function SeatAdminPanel({ sessionKey }: { sessionKey: string }) {
         <h2 id="seat-admin" className="font-display text-lg font-semibold">Responsáveis pelo acompanhamento</h2>
         <Button size="sm" variant="ghost" onClick={() => setShowHistory((v) => !v)}>{showHistory ? "Ocultar histórico" : "Ver histórico"}</Button>
       </div>
-      <p className="text-sm text-muted-foreground">Quem entra com cada login registra as visitas em seu próprio nome. Ao trocar, quem estava antes perde o acesso na hora; as visitas antigas continuam com o nome de quem as fez.</p>
+      <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Sobre a troca de responsáveis</summary><p className="mt-2">O novo responsável assume o posto. Os registros anteriores preservam a autoria original.</p></details>
       {roster.isPending && <p role="status" className="text-sm text-muted-foreground">Lendo responsáveis…</p>}
       {roster.isError && <StatePanel tone="danger" title="Não foi possível ler os responsáveis" description={seatError(roster.error)} />}
       {roster.isSuccess && (

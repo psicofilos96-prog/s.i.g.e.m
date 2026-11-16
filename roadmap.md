@@ -1,12 +1,14 @@
 # Roadmap — SIGEM simples no design original
 
 ## Acompanhamento — escopo e assinaturas (16/11/2026)
-- [ ] Retirar conveniadas dos postos de Acompanhamento, preservando cadastros; verificar leitura e negação.
-- [ ] Acrescentar áreas de assinatura de responsáveis declarados, autoria registrada e uma assinatura adicional no PDF/Word; verificar ambos os formatos.
-- [ ] Reorganizar Acompanhamento em Visão Geral, Quadro de Providências e Detalhes; retirar passos e recolher responsáveis.
-- [ ] Unificar exportações em menu, refinar badges/coluna de ação e visitas em grid com ícones.
-- [ ] Modernizar PDF de panorama/ficha/visita: sans-serif, cabeçalho/metadados, blocos e tabela de medidas, notas discretas e tabela zebradas.
-- [ ] Trocar texto confuso da barra superior por Rede Municipal de Ensino sem mascarar falhas de autorização.
+- [x] Retirar conveniadas dos postos de Acompanhamento, preservando cadastros: 0632 aplicada; função executada em PostgreSQL descartável permite municipal urbana/rural e recusa conveniada urbana/rural e escola desconhecida. Não equivale a aceite com sessão real.
+- [x] Acrescentar áreas de assinatura de responsáveis declarados, autoria registrada e uma assinatura adicional no PDF/Word; ambos inspecionados com entrada sintética sem gravar dados.
+- [x] Reorganizar Acompanhamento em Visão Geral, Quadro de Providências e Detalhes; retirar passos e recolher responsáveis em diálogo.
+- [x] Unificar exportações em menu, refinar badges/coluna de ação e visitas em grid com ícones; proteções de edição e cancelamento preservadas nas regressões.
+- [x] Modernizar PDF de panorama/ficha/visita: sans-serif, cabeçalho/metadados, blocos e tabela de medidas, notas discretas e tabela zebradas. Inspeção encontrou cabeçalho de tabela órfão, logos ausentes na continuação e página extra só de rodapé; corrigidos e páginas finais reinspecionadas.
+- [x] Trocar texto confuso da barra superior por Rede Municipal de Ensino sem alterar a autorização.
+- [x] 204 testes focais PASS, lint sem erros, build automático OK; verificações de migrations/acessibilidade/segurança/segredos/rotas PASS. Sem publicação.
+- [ ] Aceitação visual autenticada em computador/celular e leitura real positiva das 3 contas: bloqueada porque sessão mintada não contém session_id exigido pelo posto e as credenciais temporárias tentadas não conferem. Nenhuma conta, sessão oficial, capacidade ou regra de segurança alterada para contornar o bloqueio.
 
 ## Mapa Estatístico — clareza visual (16/11/2026)
 - [x] Compactar topo em barra única com ajuda discreta, mês/ano/capa/PDF, sem banners ou escola repetida.

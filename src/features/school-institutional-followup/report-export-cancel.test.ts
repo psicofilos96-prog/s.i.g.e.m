@@ -66,6 +66,16 @@ describe("cancelamento de exportação do acompanhamento institucional", () => {
     expect(toPdfFile).not.toHaveBeenCalled();
   });
 
+  it.each(["pdf", "docx"] as const)("%s leva a autoria registrada, assinatura adicional e INEP autorizado", async (format) => {
+    vi.mocked(toPdfFile).mockResolvedValue(new Blob(["pdf"]));
+    vi.mocked(toWordFile).mockResolvedValue(new Blob(["word"]));
+    await exportFollowupVisit(school, "school-a", "Escola A", "visit-a", format, undefined, [], "33000001");
+    const renderer = format === "pdf" ? toPdfFile : toWordFile;
+    const options = vi.mocked(renderer).mock.calls[0]?.[3];
+    expect(options?.signatures).toEqual(["Autoria registrada\nServidor", "Assinatura adicional\nNome e função: ________________________"]);
+    expect(options?.metadata).toContain("Código INEP: 33000001");
+  });
+
   it("Word não baixa quando a leitura de anexo falha", async () => {
     vi.mocked(loadFollowupPdfAttachments).mockRejectedValue(new Error("Imagem indisponível"));
     const attachment = { id: "a", visit_id: "visit-a", visit_logical_id: "logical-a", caption: null,

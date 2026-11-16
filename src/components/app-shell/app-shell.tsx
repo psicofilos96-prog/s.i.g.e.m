@@ -707,14 +707,10 @@ function SessionMenu() {
   );
 }
 
-/** Em sessão real, o topo mostra a rede e o estado verdadeiro da instalação — nunca uma unidade demonstrativa. */
+/** Context label only; installation state is checked by its owning workflows. */
 function InstitutionalContextBadge() {
   const authority = useSessionAuthority();
   const generalAdmin = useGeneralAdmin(authority);
-  const q = useQuery({
-    queryKey: ["b468-installation-state"], retry: false,
-    queryFn: async () => { const r = await supabase.from("sigem_installation_state").select("state").maybeSingle(); if (r.error) throw r.error; return r.data?.state ?? null; },
-  });
   const own = useOwnSchoolId();
   const ownName = useQuery({ queryKey: ["own-school-name", own], enabled: !!own, staleTime: 600_000, queryFn: () => readCurrentSchoolNames([own!]) });
   const text = own ? (ownName.data?.get(own) ?? "Minha escola") : "Rede Municipal de Ensino";

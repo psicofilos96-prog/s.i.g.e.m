@@ -5,6 +5,7 @@ import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { operationalToday } from "@/lib/academic-date";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info } from "lucide-react";
 import { FollowupExportMenu } from "./export-menu";
 import { FollowupSituationBadge } from "./situation-badge";
@@ -310,7 +311,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       return;
     }
     await withReportExport((signal) =>
-      exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal, attachmentsData));
+      exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal, attachmentsData, selected?.inep ?? null));
   }
   async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf" | "docx") {
     if (!school || !detailData) return;
@@ -319,7 +320,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       return;
     }
     await withReportExport((signal) =>
-      exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal, attachmentsData));
+      exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal, attachmentsData, selected?.inep ?? null));
   }
   async function refresh() {
     // Both report areas stop before any asynchronous revalidation begins.
@@ -633,7 +634,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setActionView("todas"); setActionQuery("");
     setTargetActionId(measureId);
   }
-  return <div className="space-y-6">
+  return <TooltipProvider><div className="space-y-6">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <PageHeader title="Acompanhamento das escolas" />
       {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <Dialog><DialogTrigger asChild><Button variant="outline" size="sm"><Users className="size-4" />Gerenciar responsáveis</Button></DialogTrigger><DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>Responsáveis pelo acompanhamento</DialogTitle></DialogHeader><SeatAdminPanel sessionKey={sessionKey} /></DialogContent></Dialog>}
@@ -677,19 +678,17 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
             ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
             ["Ações sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
-          ].map(([label, value], i) => <div key={label} className={"rounded-lg border p-3 " + (i < 4 ? "border-primary/25 bg-primary/5" : "border-border/60 bg-background")}>
+          ].map(([label, value], i) => <div key={label} className={"rounded-lg border p-3 " + (i < 4 ? "border-border bg-card" : "border-border bg-card")}>
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className={"font-display font-semibold tabular-nums " + (i < 4 ? "text-3xl" : "text-xl")}>{value}</p>
           </div>)}
         </div>
-        <p className="text-xs text-muted-foreground">Visitas no período · Medidas de todo o histórico <Info className="inline size-3" aria-label="Conclusões declaradas pela equipe" /></p>
+        <p className="text-xs text-muted-foreground">Visitas no período · Medidas de todo o histórico <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="ml-1 size-6" aria-label="Sobre os indicadores"><Info className="size-3.5" /></Button></TooltipTrigger><TooltipContent className="max-w-72">Conclusões declaradas pela equipe. Filtros de escola alteram somente a lista e sua exportação.</TooltipContent></Tooltip></p>
         {chartsConsistent && <InstitutionalFollowupAnalytics
           months={monthly.data ?? []} statuses={statuses.data ?? []}
           period={`${dateLabel(from)} a ${dateLabel(to)}`} />}
         {analyticsReady && !chartsConsistent && <p role="alert" className="text-sm text-muted-foreground">
-          Os totais da rede, a série mensal e a distribuição por situação não coincidem.
-          Os gráficos foram ocultados para evitar uma leitura incompleta ou desatualizada.
-          Atualize as consultas; a lista de escolas permanece disponível.
+          Os gráficos precisam ser atualizados. Clique em Atualizar; a lista permanece disponível.
         </p>}
         {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
           Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
@@ -780,10 +779,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <FollowupTextArea label="Demais participantes informados (opcional)" className={textArea} maxLength={500}
             value={participants} onChange={setParticipants} placeholder="Servidor ou equipe que também participou" />
         </div>
-        <p className="text-xs text-muted-foreground">
+        <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Mais informações</summary><p className="text-xs text-muted-foreground">
           A autoria é atribuída automaticamente à conta que salva o registro. Participantes informados não
           constituem assinatura, confirmação de presença ou autorização para escrever no sistema.
-        </p>
+        </p></details>
         <h4 className="border-b pb-1 text-sm font-semibold uppercase tracking-wide text-primary">2. O que foi observado</h4>
         <FollowupTextArea label="Diagnóstico da realidade" className={textArea} required maxLength={10000}
           value={diagnosis} onChange={setDiagnosis} />
@@ -802,7 +801,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             ? ` ${invalidActionCount} ${invalidActionCount === 1 ? "medida precisa" : "medidas precisam"} de correção antes de salvar.`
             : " Nenhuma inconsistência no plano."}
         </p>
-        <p className="text-xs text-muted-foreground">Subir e descer organiza apenas a sequência de envio das medidas nesta visita; o histórico pode ordená-las por prazo.</p>
+        <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Sobre a ordem das medidas</summary><p>Organiza o envio desta visita; o histórico segue a ordem dos prazos.</p></details>
         {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg border border-border/60 bg-muted/30 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h5 className="text-sm font-medium">Medida {i + 1}</h5>
@@ -916,10 +915,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                 value={actionQuery} onChange={(e) => setActionQuery(e.target.value)} />
             </label>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Mais informações</summary><p className="text-xs text-muted-foreground">
             Medidas ordenadas pelo prazo declarado mais próximo; medidas sem prazo aparecem por último.
             Sem atualização não significa não realizada.
-          </p>
+          </p></details>
           {!detailData.actions.length && <p className="text-sm text-muted-foreground">Nenhuma medida cadastrada.</p>}
           {detailData.actions.length > 0 && visibleActions.length === 0 &&
             <p className="text-sm text-muted-foreground">Nenhuma medida corresponde aos filtros. Os registros permanecem no histórico.</p>}
@@ -984,9 +983,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           {!updateVisitIsValid && <p role="alert" className="text-sm text-destructive">
             A visita selecionada é posterior à data da evolução ou deixou de estar disponível. Escolha outra visita ou desvincule-a.
           </p>}
-          <p className="text-xs text-muted-foreground">
+          <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Mais informações</summary><p className="text-xs text-muted-foreground">
             O vínculo é opcional. Somente visitas vigentes desta escola, anteriores ou iguais à data da evolução, podem ser selecionadas.
-          </p>
+          </p></details>
           <label className="block text-sm">Situação declarada<select className={input} value={situation} onChange={(e) => setSituation(e.target.value)}>
             {SITUATIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select></label>
@@ -1003,7 +1002,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </fieldset>
         </form>}
         <FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} />
-        <div className="space-y-3 rounded-lg border border-border/70 bg-card p-5 shadow-panel">
+        <div className="space-y-3">
           <h3 className="font-display text-lg font-semibold">Histórico de visitas</h3>
           {!detailData.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
           {detailData.visits.map((v) => <article key={v.id} className="space-y-4 rounded-lg border border-border bg-card p-5">
@@ -1050,5 +1049,5 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       </>}
     </section>}
     </div>
-  </div>;
+  </div></TooltipProvider>;
 }
