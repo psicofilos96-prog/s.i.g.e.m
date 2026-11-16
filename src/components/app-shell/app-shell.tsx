@@ -551,9 +551,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <StationGate pathname={pathname}>
               {(() => {
                 const g = guideForPath(pathname);
-                return g && !pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && pathname !== "/matriculas/nova" ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary && pathAllowed(guideAuthority, g.primary.to) ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
+                return g && !pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && pathname !== "/matriculas/nova" && pathname !== "/mapa-estatistico" ? <div className="mb-4 print:hidden" data-route-guide><TaskGuide where={g.where} todo={g.todo} {...(g.next ? { next: g.next } : {})} action={g.primary && pathAllowed(guideAuthority, g.primary.to) ? <Button asChild size="sm" className="min-h-11"><Link to={g.primary.to}>{g.primary.label}</Link></Button> : undefined} /></div> : null;
               })()}
-              {!pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && pathname !== "/matriculas/nova" && <div className="mb-4 empty:hidden print:hidden"><WhatThisMeans pathname={pathname} /></div>}
+              {!pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && pathname !== "/matriculas/nova" && pathname !== "/mapa-estatistico" && <div className="mb-4 empty:hidden print:hidden"><WhatThisMeans pathname={pathname} /></div>}
               {children}
             </StationGate>
           </div>
