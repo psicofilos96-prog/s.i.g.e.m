@@ -1,5 +1,9 @@
 # Roadmap — SIGEM simples no design original
 
+## Acompanhamento — escopo e assinaturas (16/11/2026)
+- [ ] Retirar conveniadas dos postos de Acompanhamento, preservando cadastros; verificar leitura e negação.
+- [ ] Acrescentar áreas de assinatura de responsáveis declarados, autoria registrada e uma assinatura adicional no PDF/Word; verificar ambos os formatos.
+
 ## Mapa Estatístico — clareza visual (16/11/2026)
 - [x] Compactar topo em barra única com ajuda discreta, mês/ano/capa/PDF, sem banners ou escola repetida.
 - [x] Resumos II/III derivados das células exibidas; tabela com extremos fixos e alerta de modalidade com acesso ao cadastro.

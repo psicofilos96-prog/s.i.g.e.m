@@ -85,6 +85,7 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Servidor MCP em `src/lib/mcp/` age só como a conta conectada (OAuth + cliente com o token dela) e grava apenas por funções do banco do catálogo `rpc-catalog.json` (gerado por `scripts/mcp-rpc-catalog.mjs`), nunca SQL/tabela direta/chave privilegiada, porque o assistente não pode ir além do que a conta faria na tela.
 
 ## Followup document presentation
+- Followup school eligibility is configured as append-only scope data matched against current canonical school classifications in the shared grant function, because lists, aggregates, writes and private attachments must enforce the same scope.
 - Followup paragraph formatting uses a browser-safe text marker parser shared by screen and PDF, because presentation must survive existing versioned text storage without accepting user HTML.
 - Followup PDF and Word exports use the common report engine with shared narrative sections and private image appendices loaded as the current user from authorized metadata; failed image reads stop either download, because an incomplete attachment set must not appear complete.
 
