@@ -275,15 +275,22 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   for (const l of metadataLines) { if (y + 5 > H - 18) { doc.addPage(); y = M + 5; } doc.text(l, M + (opts.executive ? 5 : 0), y + 1); y += 4.5; }
   y += 11;
   const drawTable = (columns: readonly string[], rows: readonly (readonly (string | number | null)[])[], numeric: readonly number[] = []) => {
-    if (opts.executive && y + 24 > H - 25) { doc.addPage(); y = M + logoH + 14; }
-    const firstTablePage = doc.internal.getCurrentPageInfo().pageNumber;
+    if (opts.executive && y + 36 > H - 25) {
+      doc.addPage(); y = M + logoH + 14;
+      if (crest) drawLogo(crest, M);
+      if (secretariat) { const w = Math.min(34, logoH * secretariat.width / secretariat.height); drawLogo(secretariat, W - M - w); }
+      doc.setFont(family, "bold"); doc.setFontSize(9); doc.setTextColor(...theme.primary);
+      doc.text("Secretaria Municipal de Educação de Itaperuna", W / 2, M + 3, { align: "center" });
+      doc.setDrawColor(...theme.border); doc.line(M, M + logoH + 4, W - M, M + logoH + 4);
+    }
+    const firstTablePage = doc.getCurrentPageInfo().pageNumber;
     autoTable(doc, { startY: y, margin: { top: opts.executive ? M + logoH + 14 : M, left: M, right: M, bottom: opts.footerNote ? 25 : 16 }, theme: opts.executive ? "striped" : "grid",
       head: [[...columns]], body: rows.map((r) => r.map((v) => opts.executive && v === null ? "—" : cellText(v))),
       styles: { font: family, fontSize: 8.5, cellPadding: opts.executive ? 3 : 1.2, overflow: "linebreak", lineColor: [...theme.border], lineWidth: opts.executive ? 0 : 0.25, textColor: [...theme.ink] },
       headStyles: { fillColor: opts.executive ? [...theme.primary] : [235,235,235], textColor: opts.executive ? [255,255,255] : [0,0,0], fontStyle: "bold" },
       alternateRowStyles: { fillColor: [...theme.muted] }, columnStyles: Object.fromEntries(numeric.map((i) => [i, { halign: "right" }])), showHead: "everyPage", rowPageBreak: "avoid",
       willDrawPage: () => {
-        if (!opts.executive || doc.internal.getCurrentPageInfo().pageNumber === firstTablePage) return;
+        if (!opts.executive || doc.getCurrentPageInfo().pageNumber === firstTablePage) return;
         if (crest) drawLogo(crest, M);
         if (secretariat) { const w = Math.min(34, logoH * secretariat.width / secretariat.height); drawLogo(secretariat, W - M - w); }
         doc.setFont(family, "bold"); doc.setFontSize(9); doc.setTextColor(...theme.primary);

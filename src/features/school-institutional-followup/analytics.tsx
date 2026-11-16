@@ -18,9 +18,9 @@ export function InstitutionalFollowupAnalytics({ months, statuses, period }: {
   }));
   const total = breakdown.reduce((sum, row) => sum + row.value, 0);
   return <section aria-label="Gráficos de acompanhamento" className="grid gap-4 lg:grid-cols-2">
-    <div className="rounded-xl border border-border p-4">
+    <div className="rounded-lg border border-border bg-card p-5">
       <h3 className="font-semibold">Visitas por mês</h3>
-      <p className="mb-3 text-xs text-muted-foreground">{period} · apenas escolas autorizadas</p>
+      <p className="mb-3 text-xs text-muted-foreground">{period}</p>
       {monthly.length === 0 ? <p className="py-8 text-sm text-muted-foreground">Nenhuma visita registrada no período.</p>
         : <div role="img" aria-label="Gráfico de visitas por mês, com os valores apresentados na lista abaixo">
           <ResponsiveContainer width="100%" height={218}>
@@ -37,9 +37,9 @@ export function InstitutionalFollowupAnalytics({ months, statuses, period }: {
         {monthly.map((m) => <li key={m.month}>{m.month}: <strong className="text-foreground">{m.visits}</strong></li>)}
       </ul>
     </div>
-    <div className="rounded-xl border border-border p-4">
+    <div className="rounded-lg border border-border bg-card p-5">
       <h3 className="font-semibold">Situação vigente das ações</h3>
-      <p className="mb-3 text-xs text-muted-foreground">Histórico da rede acessível, independente do período das visitas</p>
+      <p className="mb-3 text-xs text-muted-foreground">Medidas de todo o histórico</p>
       {total === 0 ? <p className="py-8 text-sm text-muted-foreground">Nenhuma ação cadastrada.</p>
         : <div role="img" aria-label="Distribuição das ações por situação, com os valores apresentados na lista abaixo">
           <ResponsiveContainer width="100%" height={218}>
