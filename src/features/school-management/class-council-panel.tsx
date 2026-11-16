@@ -1,3 +1,5 @@
+import { ContextHint } from "@/components/sigem/context-help";
+import { categorize } from "@/lib/observability/governed-errors";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { callRpc } from "@/lib/rpc-call";
@@ -14,6 +16,7 @@ export function ClassCouncilPanel({ school, year, on }: { school: string; year: 
       return (rows ?? []).map((r) => ({ id: r.class_id, name: r.name ?? r.class_id })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR"));
     } });
   if (!s) return null;
+  if (q.isError && categorize(q.error) === "autorizacao") return null;
   return (
     <section aria-label="Conselho de Classe" className="rounded-lg border bg-card p-4 space-y-3">
       <h2 className="font-semibold">Conselho de Classe</h2>
@@ -23,7 +26,7 @@ export function ClassCouncilPanel({ school, year, on }: { school: string; year: 
         : <div className="flex flex-wrap gap-2">{q.data.map((c) => (
             <Link key={c.id} to="/diario/turmas/$turmaId/avaliacao/conselho" params={{ turmaId: c.id }}
               className="rounded border px-2 py-1 text-sm hover:bg-accent">{c.name}</Link>))}</div>}
-      <p className="text-xs text-muted-foreground">Abra a turma para conduzir a sessão, registrar presença, deliberações e a ata.</p>
+      <ContextHint text="Escolha a turma para abrir o Conselho de Classe e sua ata." />
     </section>
   );
 }

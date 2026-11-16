@@ -1,3 +1,5 @@
+import { ContextHint } from "@/components/sigem/context-help";
+import { categorize } from "@/lib/observability/governed-errors";
 import { LoadingState } from "@/components/sigem/states";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -27,12 +29,13 @@ export function OccurrencesPanel({ school, schoolName }: { school: string; schoo
   const attKey = ["occurrence-attachments", signed?.user.id, signed?.sessionRevision, school];
   const [form, setForm] = useState<null | { addendumOf: string | null }>(null);
   if (!signed) return null;
+  if (q.isError && categorize(q.error) === "autorizacao") return null;
   if (q.isError && /not-authorized/.test(String(q.error))) return null;
   return (
     <section aria-label="Histórico de ocorrências" className="space-y-3 rounded-lg border bg-card p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div><h2 className="font-semibold">Histórico de ocorrências</h2>
-          <p className="text-xs text-muted-foreground">Registro permanente: nada é editado nem excluído. Correções e fatos novos entram como adendo.</p></div>
+          <ContextHint text="Ocorrências são permanentes. Para corrigir ou complementar, registre um adendo." /></div>
         {canWrite && !form && <Button onClick={() => setForm({ addendumOf: null })}>Nova ocorrência</Button>}
       </div>
       {form && <OccurrenceForm school={school} addendumOf={form.addendumOf} onDone={() => setForm(null)} queryKey={key} />}

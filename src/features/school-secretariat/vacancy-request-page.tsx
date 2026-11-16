@@ -1,3 +1,4 @@
+import { ContextHint } from "@/components/sigem/context-help";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PageHeader, EmptyState, StatePanel, StatusBadge } from "@/components/sigem/patterns";
@@ -76,9 +77,9 @@ export function VacancyRequestPage() {
           <Button onClick={() => setShowForm((v) => !v)}>{showForm ? "Fechar" : "Novo pedido"}</Button>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">Ordem: data e hora do protocolo, separada por etapa — <strong>Padrão do sistema</strong>.</p>
+      <ContextHint text="Padrão do sistema: pedidos ordenados por data e hora do protocolo, separados por etapa." />
       {showForm && <NewRequestForm year={year} onDone={() => { setShowForm(false); load(); }} />}
-      {err ? <StatePanel tone="danger" title="Não foi possível ler a fila" description={err} />
+      {err ? <StatePanel tone="neutral" title="Não foi possível ler a fila" description={err} />
         : rows === null ? <SkeletonState label="Carregando" />
         : shown.length === 0 ? <EmptyState title="Nenhum pedido" description="Use “Novo pedido” para registrar quem procura vaga." />
         : (

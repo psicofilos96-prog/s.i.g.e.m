@@ -51,7 +51,7 @@ export function DirectorSummaryPanel({ school, year, on }: { school: string; yea
     <section aria-label="Resumo da Direção" className="grid gap-3 sm:grid-cols-3">
       {card("Mapa Estatístico do mês", map.isError ? NA : map.data ?? NA, `Competência ${String(m).padStart(2, "0")}/${y}`, "/mapa-estatistico", map.isLoading)}
       {card("Vagas nas turmas", v ? `${v.open} com vaga · ${v.full} lotadas · ${v.over} acima` : NA,
-        v ? (v.unknown ? `${v.unknown} turma(s) sem capacidade informada` : `${v.total} turmas ativas`) : "Leitura não autorizada ou indisponível", "/turmas", vac.isLoading)}
+        v ? (v.unknown ? `${v.unknown} turma(s) sem capacidade informada` : `${v.total} turmas ativas`) : "Informação a confirmar", "/turmas", vac.isLoading)}
       {card("Ocorrências graves no mês", grave == null ? NA : String(grave), "Graves e gravíssimas registradas no Histórico de ocorrências", "/gestao-escolar", occ.isLoading)}
     </section>
   );

@@ -1,3 +1,4 @@
+import { ContextHint } from "@/components/sigem/context-help";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
@@ -33,13 +34,13 @@ export function VacanciesPage() {
   const sum = rows ? vacancySummary(rows) : null;
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Secretaria Escolar" title="Vagas" description="Capacidade e ocupação das turmas da sua escola. Sem capacidade informada, não há número de vagas." />
+      <PageHeader eyebrow="Secretaria Escolar" title="Vagas" description="Consulte as vagas e a ocupação das turmas." />
       <div className="grid gap-3 sm:grid-cols-3">
         <div className="sm:col-span-2"><SchoolContextPicker ctx={ctx} /></div>
         <label className="text-sm">Data de referência<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
       </div>
       {!ctx.school || !ctx.year ? <EmptyState title="Escolha a escola e o ano" description="As vagas são sempre de uma escola e de um ano." />
-        : err ? <StatePanel tone="danger" title="Não foi possível ler as vagas" description={err} />
+        : err ? <StatePanel tone="neutral" title="Não foi possível ler as vagas" description={err} />
         : rows === null ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <EmptyState title="Nenhuma turma ativa para este ano" description="Turmas são cadastradas em Turmas → Nova turma." />
         : (
@@ -106,10 +107,10 @@ export function EnrollmentBookPage() {
     [...meta, `INEP ${inepOf(ctx.school) ?? "não informado"} · Situação em ${formatDateTime(knownAt)}`], { signatures: BOOK_SIGNATURES }));
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Secretaria Escolar" title="Livro de Matrícula" description="Registro das matrículas da escola no ano letivo, lido diretamente das matrículas oficiais." />
+      <PageHeader eyebrow="Secretaria Escolar" title="Livro de Matrícula" description="Consulte e confira as matrículas do ano." />
       <SchoolContextPicker ctx={ctx} />
       {!ctx.school || !ctx.year ? <EmptyState title="Escolha a escola e o ano" description="O Livro é sempre de uma escola e de um ano letivo." />
-        : err ? <StatePanel tone="danger" title="Não foi possível ler o Livro" description={err} />
+        : err ? <StatePanel tone="neutral" title="Não foi possível ler o Livro" description={err} />
         : rows === null ? <SkeletonState label="Carregando" />
         : (
           <>
@@ -149,7 +150,7 @@ export function EnrollmentBookPage() {
             )}
             {editing && (() => { const row = shown.find((x) => x.enrollment_id === editing); return row
               ? <BookRowEditor key={editing} school={ctx.school} row={row} onDone={() => { setEditing(null); reload(); }} /> : null; })()}
-            <p className="text-xs text-muted-foreground">A ordem é cronológica de registro no SIGEM e não é a numeração oficial do Livro: a rede ainda não definiu essa regra.</p>
+            <ContextHint text="A lista segue a ordem dos registros; essa posição não é a numeração oficial do Livro." />
           </>
         )}
     </div>
@@ -183,7 +184,7 @@ function BookRowEditor({ school, row, onDone }: { school: string; row: BookRow; 
   return (
     <section aria-label="Editar matrícula do Livro" className="space-y-3 rounded-xl border border-border bg-card p-4">
       <h2 className="font-semibold">Editar — {row.student_name ?? "estudante"}</h2>
-      <p className="text-sm text-muted-foreground">A correção vira nova versão com motivo e autoria; a anterior fica no histórico. Troca de turma, transferência e encerramento são feitos na Estação da Secretaria.</p>
+      <ContextHint text="A correção preserva o histórico. Para transferir ou trocar a turma, abra a Secretaria." />
       <div className="grid gap-3 sm:grid-cols-3">
         <label className="text-sm">Data de início da matrícula<DateInput className="mt-1" value={start} onChange={(e) => setStart(e.target.value)} /></label>
         <label className="text-sm">Motivo<Input className="mt-1" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
