@@ -4,6 +4,7 @@
 - [ ] Compactar topo em barra única com ajuda discreta, mês/ano/capa/PDF, sem banners ou escola repetida.
 - [ ] Resumos II/III derivados das células exibidas; tabela com extremos fixos e alerta de modalidade com acesso ao cadastro.
 - [ ] Acabamento I/IV/V/VI: identificação estruturada, edição autorizada, badges de movimentos e estados vazios limpos.
+- [ ] VII Conferência e envio com checklist dos diagnósticos existentes, status destacado e ação canônica de envio, sem aprovação presumida.
 - [ ] Conferir abas, controles e PDF com sessão escolar, computador/celular e regressões, sem alterar fatos ou permissões.
 
 ## Clareza e atendimento escolar (16/11/2026)
