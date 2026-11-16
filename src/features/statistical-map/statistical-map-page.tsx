@@ -238,15 +238,16 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
               : <p className="text-sm text-muted-foreground">Você pode ver a prévia, mas não tem autorização para abrir esta competência.</p>}
           </div>
         )}
-        {v.failedSources.length > 0 && <p className="mt-2 text-sm text-destructive">Algumas fontes não puderam ser lidas agora. Conferir e oficializar ficam indisponíveis.</p>}
+        {v.failedSources.length > 0 && <p className="mt-3 text-sm text-warning-foreground">Alguns dados não puderam ser consultados. O envio aguarda a conferência completa.</p>}
       </section>
 
-      <div className="flex flex-wrap gap-2 print:hidden">
+      <details className="print:hidden"><summary className="cursor-pointer text-sm text-muted-foreground">Outras exportações e revisões</summary><div className="mt-3 flex flex-wrap gap-2">
         <Button variant="outline" onClick={() => exportMap(v, competence, "csv")}>CSV</Button>
         <Button variant="outline" onClick={() => exportMap(v, competence, "xlsx")}>XLSX</Button>
         <PrintChoice />
         <Button onClick={() => openMapDocument(v, competence)}>Baixar PDF do mapa</Button>
       </div>
+      </details>
       <header className="hidden text-center print:block">
         {NETWORK_BRANDING.headerLines.map((l) => <p key={l} className="text-sm font-semibold uppercase">{l}</p>)}
         <p className="font-bold">MAPA ESTATÍSTICO — {MONTHS[competence.month - 1]!.toUpperCase()}/{competence.year}</p>
@@ -284,7 +285,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
       </details>
       <section aria-labelledby="obs" className="rounded-lg border border-border bg-card p-4">
         <h2 id="obs" className="text-base font-semibold">Observações da escola</h2>
-        <p className="text-xs text-muted-foreground">Único texto declarado no Mapa. Não substitui nenhum dado sem fonte.</p>
+        <p className="text-xs text-muted-foreground">Acrescente informações importantes sobre este mês.</p>
         <textarea aria-label="Observações da escola" className="mt-2 min-h-24 w-full rounded-md border border-input bg-background p-2 text-sm"
           value={obs} maxLength={4000} disabled={!v.opened || !v.capabilities.prepare} onChange={(e) => setObs(e.target.value)} />
         {v.opened && v.capabilities.prepare && (
