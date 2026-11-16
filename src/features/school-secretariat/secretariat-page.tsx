@@ -5,6 +5,10 @@ import { HomeHospitalCarePanel } from "./home-hospital-care-panel";
 import { ProtectionPanel } from "./protection-panel";
 import { DeathRecordPanel, ReceiveTransferPanel, RenewalBatchPanel, TransferDeclarationButton, VaccinationPanel } from "./movement-panels";
 import { useOwnSchoolId } from "@/features/authority/own-school";
+import { Search, UserPlus, Users, ArrowRightLeft, FileText, BarChart3, BookOpen, ClipboardList, HeartPulse, RotateCcw } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ContextHint } from "@/components/sigem/context-help";
 import { SECRETARIAT_TASKS } from "./secretariat-tasks";
 import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
@@ -44,7 +48,7 @@ export function SecretariatPage() {
         const ok = new Set(((a.data ?? []) as unknown[]).map((x) => (typeof x === "string" ? x : (Object.values(x as object)[0] as string))));
         const list = sortedSchoolOptions(m).filter((x) => ok.has(x.id));
         setSchools(list);
-        if (list.length === 1) setSchool(list[0]!.id);
+        if (list.length === 1 && list[0]) setSchool(list[0].id);
       });
     readYears().then(setYears).catch(() => setYears([]));
   }, []);
@@ -52,21 +56,15 @@ export function SecretariatPage() {
   const ready = school && year && on;
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Secretaria Escolar" title="O que precisa de você hoje"
-        description="Só a sua escola. Comece pelos itens em destaque." />
-      <div className="flex flex-wrap items-center gap-3 text-sm"><Link to="/secretaria/modelos-de-texto" search={{ documento: undefined }} className="underline">Modelos de texto da escola (Atestado de Escolaridade)</Link><EnrollmentFormDialog kind="branco" schoolId={school || null} yearLabel={years.find((y) => y.id === year)?.label ?? null} trigger={<Button size="sm" variant="outline">Ficha de Matrícula em branco</Button>} /></div>
-      <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-3">
-        {own || schools?.length === 1 ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{schools?.find((s) => s.id === school)?.name ?? "Minha escola"}</strong></p> : <label className="text-sm">Escola
-          <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
+      <PageHeader title="Secretaria" />
+      <section aria-label="Contexto" className="flex flex-wrap items-center gap-4 text-sm">
+        {own || schools?.length === 1 ? <strong className="min-w-0">{schools?.find((s) => s.id === school)?.name ?? "Minha escola"}</strong> : <label>Escola
+          <select className="ml-2 rounded-md border border-input bg-card p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
             <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>
             {(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
           </select></label>}
-        <label className="text-sm">Ano letivo
-          <select className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={year} onChange={(e) => { setYear(e.target.value); active.setYear(e.target.value); }}>
-            <option value="">Escolha o ano</option>
-            {years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}
-          </select></label>
-        <label className="text-sm">Data de referência<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
+        <span className="text-muted-foreground">{active.label}</span>
+        <details className="ml-auto"><summary className="cursor-pointer text-muted-foreground">Data da consulta</summary><label className="mt-2 block">Data de referência<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label></details>
       </section>
       {ready ? <Station key={`${school}|${year}|${on}`} school={school} year={year} on={on} />
         : <EmptyState title="Escolha a escola e o ano" description="Depois disso aparecem as tarefas da sua escola." />}
@@ -84,25 +82,25 @@ function Count({ label, value, helper }: { label: string; value: number | null |
   );
 }
 
-function WorkCard({ tone, value, title, hint }: { tone: "attention" | "ok"; value: number | null | undefined; title: string; hint: string }) {
-  return (
-    <div className={tone === "attention" ? "rounded-2xl border-2 border-warning bg-card p-5 shadow-panel" : "rounded-2xl border border-border bg-card p-5"}>
-      <p className="font-display text-4xl font-semibold tabular-nums">{value ?? "—"}</p>
-      <p className="mt-1 font-semibold">{title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{value === 0 ? "Nada a fazer aqui." : hint}</p>
-    </div>
-  );
+function WorkCard({ value, title, hint, onClick }: { value: number | null | undefined; title: string; hint: string; onClick: () => void }) {
+  return <div className="flex items-center gap-1">
+    <Button variant="outline" className={`h-auto gap-2 rounded-md px-3 py-2 text-sm ${value ? "border-warning/40 bg-warning/10 text-warning-foreground" : "bg-card text-muted-foreground"}`} onClick={onClick}>
+      <span className="font-semibold tabular-nums">{value ?? "—"}</span><span>{title}</span>
+    </Button><ContextHint text={hint} label={`Sobre ${title}`} />
+  </div>;
 }
 
 function Station({ school, year, on }: { school: string; year: string; on: string }) {
   const [ov, setOv] = useState<SecretariatOverview | null>(null);
   const [pending, setPending] = useState<PendingRow[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [movement, setMovement] = useState<"transfer" | "renewal" | null>(null);
+  const [showPending, setShowPending] = useState(false);
   const [student, setStudent] = useState<{ id: string; name: string } | null>(null);
   const load = () => {
     setErr(null);
     readOverview(school, year, on).then(setOv, (e) => setErr(errText(e)));
-    readPending(school, year, on).then(setPending, () => setPending([]));
+    readPending(school, year, on).then(setPending, () => setPending(null));
   };
   useEffect(load, [school, year, on]);
   const [movTypes, setMovTypes] = useState<{ id: string; label: string }[]>([]);
@@ -113,36 +111,42 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
   const decisions = Object.entries(ov.transition_decisions);
   return (
     <div className="space-y-6">
-      <section aria-labelledby="ano" className="flex flex-wrap items-center gap-2 text-sm">
-        <h2 id="ano" className="font-semibold">{ov.year.label ?? year}</h2>
-        <StatusBadge tone={ov.year.state === "aberto" ? "success" : "neutral"}>{yearStateLabel(ov.year.state)}</StatusBadge>
-        {ov.year.state !== "aberto" ? <span className="text-muted-foreground">Este ano está fechado: dá para consultar, mas não para alterar.</span> : null}
-      </section>
-      <section aria-label="Trabalho de hoje" className="grid gap-4 sm:grid-cols-3">
-        <WorkCard tone={ov.allocations.enrollments_without_class ? "attention" : "ok"} value={ov.allocations.enrollments_without_class}
-          title="Alunos sem turma" hint="Ache o aluno e coloque-o numa turma." />
-        <WorkCard tone={pending?.length ? "attention" : "ok"} value={pending?.length ?? null}
-          title="Pendências de cadastro" hint="Cada item mostra o que falta para concluir." />
-        <WorkCard tone={ov.enrollments.start_unknown ? "attention" : "ok"} value={ov.enrollments.start_unknown}
-          title="Matrículas sem data de início" hint="Não entram na contagem de ativos até ter a data." />
-      </section>
-      <section aria-labelledby="tarefas" className="space-y-2">
-        <h2 id="tarefas" className="font-semibold">O que você quer fazer?</h2>
-        <ul className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          {SECRETARIAT_TASKS.map((t) => {
-            const body = <><span className="block font-semibold">{t.title}</span><span className="block text-sm text-muted-foreground">{t.hint}</span></>;
-            const cls = "block min-h-16 rounded-xl border border-border bg-card p-4 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-            return <li key={t.id}>{t.target.kind === "route"
-              ? (t.target.to === "/documentos-escolares" ? <Link to="/documentos-escolares" search={{ escola: school }} className={cls}>{body}</Link> : <Link to={t.target.to} className={cls}>{body}</Link>)
-              : <a href="#busca" className={cls} onClick={() => setTimeout(() => document.getElementById("busca-valor")?.focus(), 0)}>{body}</a>}</li>;
-          })}
-        </ul>
-        <p className="text-sm"><span className="text-muted-foreground">Outras áreas: </span>
-          <Link className="underline" to="/turmas">Turmas</Link> · <Link className="underline" to="/mapa-estatistico">Mapa do mês</Link> · <Link className="underline" to="/secretaria/servicos">Serviços da escola</Link></p>
-      </section>
       <Lookup school={school} year={year} onFound={setStudent} />
-      <ReceiveTransferPanel school={school} year={year} on={on} />
-      <RenewalBatchPanel school={school} />
+      <section aria-label="Atenção necessária" className="space-y-2">
+        <h2 className="text-sm font-semibold">Atenção necessária</h2>
+        <div className="flex flex-wrap gap-2">
+          <WorkCard value={ov.allocations.enrollments_without_class} title="Alunos sem turma" hint="Localize o aluno para escolher uma turma." onClick={() => document.getElementById("busca-valor")?.focus()} />
+          <WorkCard value={pending?.length} title="Pendências de cadastro" hint="Abra a lista para conferir o que falta." onClick={() => setShowPending((v) => !v)} />
+          <WorkCard value={ov.enrollments.start_unknown} title="Matrículas sem data" hint="Informe a data de início no Livro de Matrícula." onClick={() => { window.location.assign("/secretaria/livro-matricula"); }} />
+        </div>
+      </section>
+      {showPending && <section aria-label="Pendências de cadastro" className="space-y-2">
+        <h2 className="font-semibold">Pendências de cadastro</h2>
+        {pending === null ? <p className="text-sm text-muted-foreground">Não foi possível consultar as pendências agora.</p> : !pending.length ? <p className="text-sm text-muted-foreground">Nenhuma pendência nesta data.</p> : <ul className="max-h-64 divide-y overflow-auto rounded-lg border bg-card">{pending.map((p) => <li key={p.enrollment_id} className="flex items-center justify-between gap-3 p-3 text-sm"><span>{p.display_name} · {issueLabel(p.issue)}</span><Button size="sm" variant="outline" onClick={() => setStudent({ id: p.student_id, name: p.display_name })}>Abrir</Button></li>)}</ul>}
+      </section>}
+      <section aria-labelledby="tarefas" className="space-y-3">
+        <h2 id="tarefas" className="font-semibold">Ações rápidas</h2>
+        <Tabs defaultValue="enrollment">
+          <TabsList className="h-auto w-full flex-wrap justify-start gap-1 bg-transparent p-0">
+            <TabsTrigger value="enrollment"><Users className="mr-2 size-4" />Matrículas e Turmas</TabsTrigger>
+            <TabsTrigger value="documents"><FileText className="mr-2 size-4" />Documentos e Ofícios</TabsTrigger>
+            <TabsTrigger value="reports"><BarChart3 className="mr-2 size-4" />Relatórios e Censo</TabsTrigger>
+          </TabsList>
+          {(["enrollment", "documents", "reports"] as const).map((group) => <TabsContent key={group} value={group}>
+            <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {SECRETARIAT_TASKS.filter((t) => (new Set(["documento", "oficios", "docserv", "alimentacao-especial"]).has(t.id) ? "documents" : new Set(["listagens", "livro", "tabelas-semed", "educacenso", "infrequencia"]).has(t.id) ? "reports" : "enrollment") === group).map((t) => {
+                const Icon = t.id === "matricular" ? UserPlus : t.id === "achar" ? Search : t.id === "transferir" || t.id === "trocar-turma" ? ArrowRightLeft : group === "documents" ? FileText : group === "reports" ? ClipboardList : Users;
+                const body = <><span className={`grid size-9 shrink-0 place-items-center rounded-md ${group === "enrollment" ? "bg-info/10 text-info" : group === "documents" ? "bg-success/10 text-success" : "bg-warning/15 text-warning-foreground"}`}><Icon className="size-5" /></span><span className="min-w-0"><span className="block font-semibold">{t.title}</span><span className="block text-xs text-muted-foreground">{t.hint}</span></span></>;
+                const cls = "flex h-auto min-h-20 w-full justify-start gap-3 whitespace-normal rounded-lg border border-border bg-card p-4 text-left shadow-none transition-shadow hover:bg-card hover:shadow-panel";
+                return <li key={t.id}>{t.target.kind === "route" ? <Button asChild variant="outline" className={cls}>{t.target.to === "/documentos-escolares" ? <Link to="/documentos-escolares" search={{ escola: school }}>{body}</Link> : <Link to={t.target.to}>{body}</Link>}</Button> : <Button variant="outline" className={cls} onClick={() => document.getElementById("busca-valor")?.focus()}>{body}</Button>}</li>;
+              })}
+              {group === "enrollment" && <><li><Button variant="outline" className="h-auto min-h-20 w-full justify-start gap-3 bg-card p-4" onClick={() => setMovement("transfer")}><ArrowRightLeft className="size-5 text-info" />Receber transferência</Button></li><li><Button variant="outline" className="h-auto min-h-20 w-full justify-start gap-3 bg-card p-4" onClick={() => setMovement("renewal")}><RotateCcw className="size-5 text-success" />Rematrícula em lote</Button></li></>}
+              {group === "documents" && <><li><Button asChild variant="outline" className="min-h-20 w-full justify-start gap-3 bg-card p-4"><Link to="/secretaria/modelos-de-texto" search={{ documento: undefined }}><BookOpen className="size-5 text-success" />Modelos de texto</Link></Button></li><li><EnrollmentFormDialog kind="branco" schoolId={school} yearLabel={ov.year.label} trigger={<Button variant="outline" className="min-h-20 w-full justify-start gap-3 bg-card p-4"><FileText className="size-5 text-success" />Ficha de Matrícula em branco</Button>} /></li></>}
+            </ul>
+          </TabsContent>)}
+        </Tabs>
+      </section>
+      <Dialog open={movement !== null} onOpenChange={(open) => { if (!open) setMovement(null); }}><DialogContent className="max-h-[85dvh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>{movement === "transfer" ? "Receber transferência" : "Rematrícula em lote"}</DialogTitle></DialogHeader>{movement === "transfer" ? <ReceiveTransferPanel school={school} year={year} on={on} /> : movement === "renewal" ? <RenewalBatchPanel school={school} /> : null}</DialogContent></Dialog>
       <details className="rounded-2xl border border-border bg-card p-4">
         <summary className="cursor-pointer font-semibold">Ver números da escola</summary>
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
@@ -154,25 +158,7 @@ function Station({ school, year, on }: { school: string; year: string; on: strin
           <Count label="Turmas com alunos" value={ov.allocations.classes_with_students} />
         </div>
       </details>
-      <section aria-labelledby="mov" className="grid gap-4 sm:grid-cols-2 text-sm">
-        <div><h2 id="mov" className="font-semibold">Movimentações no ano</h2>
-          {movements.length ? <ul>{movements.map(([k, n]) => <li key={k}>{movementTypeLabel(k, movTypes)}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma movimentação registrada.</p>}</div>
-        <div><h2 className="font-semibold">Decisões de renovação para este ano</h2>
-          {decisions.length ? <ul>{decisions.map(([k, n]) => <li key={k}>{decisionLabel(k)}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma decisão registrada.</p>}</div>
-      </section>
-      <section aria-labelledby="pend" className="space-y-2">
-        <h2 id="pend" className="font-semibold">Pendências de cadastro</h2>
-        {pending === null ? <SkeletonState label="Carregando" />
-          : pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência nesta data.</p>
-          : <ul className="max-h-80 divide-y divide-border overflow-auto rounded-md border border-border text-sm">
-              {pending.slice(0, 200).map((p) => (
-                <li key={p.enrollment_id} className="flex items-center justify-between gap-2 p-2">
-                  <span>{p.display_name} — {issueLabel(p.issue)}</span>
-                  <Button size="sm" variant="outline" onClick={() => setStudent({ id: p.student_id, name: p.display_name })}>Abrir</Button>
-                </li>))}
-              {pending.length > 200 ? <li className="p-2 text-muted-foreground">Mais {pending.length - 200} pendências; use a busca exata.</li> : null}
-            </ul>}
-      </section>
+      <details className="border-t border-border pt-3 text-sm"><summary className="cursor-pointer font-medium">Movimentações e renovações</summary><div className="mt-3 grid gap-4 sm:grid-cols-2"><div><h2 className="font-semibold">Movimentações no ano</h2>{movements.length ? <ul>{movements.map(([k, n]) => <li key={k}>{movementTypeLabel(k, movTypes)}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma movimentação registrada.</p>}</div><div><h2 className="font-semibold">Renovações</h2>{decisions.length ? <ul>{decisions.map(([k, n]) => <li key={k}>{decisionLabel(k)}: {n}</li>)}</ul> : <p className="text-muted-foreground">Nenhuma decisão registrada.</p>}</div></div></details>
       {student ? <SchoolLife key={student.id} school={school} year={year} on={on} student={student} onChanged={load} /> : null}
     </div>
   );
@@ -198,23 +184,23 @@ function Lookup({ school, year, onFound }: { school: string; year: string; onFou
     } catch (e) { setMsg(errText(e)); }
   }
   return (
-    <section aria-labelledby="busca" className="space-y-2">
-      <h2 id="busca" className="scroll-mt-20 font-semibold">Achar aluno</h2>
+    <section aria-labelledby="busca" className="space-y-3 border-b border-border pb-5">
+      <h2 id="busca" className="scroll-mt-20 font-semibold">Busca rápida de aluno</h2>
       <div className="flex flex-wrap gap-2">
         <select aria-label="Buscar por" className="rounded-md border border-input bg-background p-2 text-sm" value={kind} onChange={(e) => { setKind(e.target.value as StudentLookupKind | "nome"); setMatches(null); setMsg(null); }}>
           <option value="nome">Nome</option><option value="cpf">CPF</option><option value="inep">INEP</option></select>
-        <Input id="busca-valor" className="max-w-xs" aria-label={kind === "nome" ? "Nome do aluno" : "Número do documento"} placeholder={kind === "nome" ? "Nome e sobrenome" : ""} inputMode={kind === "nome" ? "text" : "numeric"} value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void go(); }} />
-        <Button onClick={go}>Buscar</Button>
+        <Input id="busca-valor" className="min-w-0 flex-1 bg-card sm:min-w-64" aria-label={kind === "nome" ? "Nome do aluno" : "Número do documento"} placeholder={kind === "nome" ? "Nome e sobrenome" : ""} inputMode={kind === "nome" ? "text" : "numeric"} value={value} onChange={(e) => setValue(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") void go(); }} />
+        <Button onClick={go}><Search className="size-4" />Buscar</Button>
       </div>
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
       {matches && matches.length > 0 ? (
         <ul className="max-h-72 divide-y divide-border overflow-auto rounded-md border border-border text-sm">
           {matches.slice(0, 50).map((m) => (
             <li key={m.student_id}>
-              <button type="button" className="flex w-full flex-wrap items-baseline justify-between gap-2 p-2 text-left hover:bg-accent" onClick={() => onFound({ id: m.student_id, name: m.display_name })}>
+              <Button variant="ghost" type="button" className="flex h-auto w-full flex-wrap items-baseline justify-between gap-2 p-2 text-left hover:bg-accent" onClick={() => onFound({ id: m.student_id, name: m.display_name })}>
                 <span className="font-medium">{m.display_name}</span>
                 <span className="text-xs text-muted-foreground">{[m.birth_date ? formatAcademicDateNumeric(m.birth_date as never) : null, m.mother_name ? `mãe: ${m.mother_name}` : null, m.last_class].filter(Boolean).join(" · ")}</span>
-              </button>
+              </Button>
             </li>))}
         </ul>) : null}
     </section>
