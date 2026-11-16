@@ -306,7 +306,8 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
           y += 3;
           if (opts.executive) {
             const label = paragraph.runs.map((r) => r.text).join("");
-            doc.setDrawColor(...(label === "Fragilidades" ? theme.amber : theme.primary));
+            const color = label === "Fragilidades" ? theme.amber : theme.primary;
+            doc.setDrawColor(color[0], color[1], color[2]);
             doc.setLineWidth(0.8); doc.line(M - 3, y - 3, M - 3, y + 3); doc.setLineWidth(0.2);
           }
         }
