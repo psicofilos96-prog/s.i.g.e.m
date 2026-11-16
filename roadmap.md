@@ -1,5 +1,12 @@
 # Roadmap — SIGEM simples no design original
 
+## Mapa Estatístico — clareza visual (16/11/2026)
+- [x] Compactar topo em barra única com ajuda discreta, mês/ano/capa/PDF, sem banners ou escola repetida.
+- [x] Resumos II/III derivados das células exibidas; tabela com extremos fixos e alerta de modalidade com acesso ao cadastro.
+- [x] Acabamento I/IV/V/VI: identificação estruturada, edição autorizada, badges de movimentos e estados vazios limpos.
+- [x] VII Conferência e envio com checklist dos campos exibidos, status canônico destacado e ação de envio; competência não aberta mantém envio desabilitado e explica o próximo passo.
+- [x] 44 testes PASS e lint sem erros; Secretaria consultou todas as abas, PDF baixado e inspecionado, Total fixo medido dentro da tabela; computador/celular sem overflow ou erros. Novembro/2026 tem campos e consultas pendentes: não foi aberto/enviado/aprovado; nenhuma gravação ou publicação.
+
 ## Clareza e atendimento escolar (16/11/2026)
 - [x] Limpar linguagem e estados de Secretaria/Gestão Escolar sem alterar permissões ou números; ajuda discreta e blocos negados ocultos.
 - [x] Compactar início da Secretaria: busca, pendências clicáveis, ações agrupadas e movimentos em modais.
