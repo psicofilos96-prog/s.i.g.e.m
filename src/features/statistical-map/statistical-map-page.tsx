@@ -13,7 +13,7 @@ import { userErrorText } from "@/lib/observability/governed-errors";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { PageHeader, StatePanel } from "@/components/sigem/patterns";
+import { StatePanel } from "@/components/sigem/patterns";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { MAPA_ESTATISTICO_ESCOLA, NETWORK_BRANDING, mapaEscolaRows } from "@/features/reports/report-registry";
@@ -27,6 +27,12 @@ import {
 } from "./statistical-map.functions";
 import { institution } from "@/config/institution";
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
+import { ContextHint } from "@/components/sigem/context-help";
+import { Link } from "@tanstack/react-router";
+import { Download, Pencil, CheckCircle2, CircleAlert, Send } from "lucide-react";
+import { useSessionAuthority } from "@/features/authority/session-authority";
+import { pathAllowed } from "@/features/authority/nav-capabilities";
+import { modalityOf } from "./map-live";
 import { MONTH_NAMES_LOWER } from "@/lib/format-ptbr";
 
 const MONTHS = MONTH_NAMES_LOWER;
@@ -189,13 +195,15 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
   const s = v.snapshot;
   const correcting = v.status.id === "oficializado" || (v.status.id === "conferido" && v.versions.length > 0);
   const officialized = v.versions.length > 0;
+  const workflow = projectWorkflow(v.opened, v.workflowEvents, v.versions.length);
+  const statusText = { rascunho: "Rascunho em aberto", enviado: "Enviado para SEMED", reenviado: "Reenviado para SEMED", devolvido: "Devolvido para correção", aprovado: "Aprovado", "em-retificacao": "Retificação em aberto" }[workflow.stage];
 
   return (
     <div className="space-y-6">
-      <section aria-labelledby="sit" className="rounded-lg border border-border bg-card p-4">
+      <section aria-labelledby="sit" className="border-b border-border pb-5">
         <h2 id="sit" className="text-base font-semibold">Situação do Mapa</h2>
-        <p className="mt-1 text-sm">
-          <strong>{knownLabel(STATUS_LABEL, v.status.id)}</strong>
+        <p className="mt-3 text-sm">
+          <strong className={cn("inline-flex rounded-md border px-4 py-2 text-base", workflow.stage === "aprovado" ? "border-success/25 bg-success/10 text-success-foreground" : workflow.stage === "devolvido" ? "border-warning/25 bg-warning/10 text-warning-foreground" : "border-border bg-muted text-foreground")}>{statusText}</strong>
           {v.status.id === "oficializado" && ` — versão ${v.status.version}${v.status.corrected ? " (corrige a anterior)" : ""}`}
           {"correctionInProgress" in v.status && v.status.correctionInProgress ? " · correção em preparação" : ""}
         </p>
@@ -213,7 +221,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
             ))}
           </div>
         )}
-        <dl className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
+        <details className="mt-4 text-sm"><summary className="cursor-pointer text-muted-foreground">Detalhes da competência</summary><dl className="mt-2 grid gap-1 text-sm sm:grid-cols-2">
           <div><dt className="inline text-muted-foreground">Competência: </dt><dd className="inline">{MONTHS[competence.month - 1]} de {competence.year}</dd></div>
           <div><dt className="inline text-muted-foreground">Período: </dt><dd className="inline">{fmtDate(s.competence.window.from)} a {fmtDate(s.competence.window.to)}</dd></div>
           <div><dt className="inline text-muted-foreground">Data de referência: </dt><dd className="inline">{s.snapshotDate ? `${fmtDate(s.snapshotDate)} (último dia letivo do mês pelo calendário oficial)` : (snapshotReasonText(s.snapshotDateBasis?.reason ?? null) || "não definida")}</dd></div>
@@ -221,7 +229,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           <div><dt className="inline text-muted-foreground">Ano letivo: </dt><dd className="inline">{YEAR_STATE[v.yearState ?? ""] ?? "estado não pôde ser lido"}</dd></div>
           <div><dt className="inline text-muted-foreground">Natureza: </dt><dd className="inline">{officialized && v.status.id === "oficializado" ? "Fotografia oficial congelada" : "Dinâmico — não oficial"}</dd></div>
           {v.openedAt && <div><dt className="inline text-muted-foreground">Aberto em: </dt><dd className="inline">{formatDateTime(v.openedAt)}</dd></div>}
-        </dl>
+        </dl></details>
         {!v.opened && (
           <div className="mt-3">
             {v.capabilities.prepare
@@ -243,6 +251,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
         <p className="font-bold">MAPA ESTATÍSTICO — {MONTHS[competence.month - 1]!.toUpperCase()}/{competence.year}</p>
       </header>
 
+      <details><summary className="cursor-pointer text-sm font-medium">Detalhes da conferência por estrutura</summary>
       <nav aria-label="Estruturas do Mapa (I a VI)" className="sticky top-0 z-10 rounded-lg border border-border bg-background/95 p-2 print:hidden">
         <p className="px-1 pb-1 text-xs text-muted-foreground">Revise cada estrutura. As marcadas “a revisar” têm item sem registro.</p>
         <ol className="flex gap-1 overflow-x-auto sm:flex-wrap">
@@ -271,6 +280,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
         </section>
       ))}
 
+      </details>
       <section aria-labelledby="obs" className="rounded-lg border border-border bg-card p-4">
         <h2 id="obs" className="text-base font-semibold">Observações da escola</h2>
         <p className="text-xs text-muted-foreground">Único texto declarado no Mapa. Não substitui nenhum dado sem fonte.</p>
@@ -309,7 +319,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           {(!correcting || v.openCorrection) && (
             <div className="mt-3 flex flex-wrap gap-2">
               {v.capabilities.confer
-                ? <Button variant="outline" disabled={run.isPending || v.failedSources.length > 0} onClick={() => run.mutate(() => confer({ data: competence }))}>Enviar para a Estatística (conferir)</Button>
+                ? <Button disabled={run.isPending || v.failedSources.length > 0} onClick={() => run.mutate(() => confer({ data: competence }))}><Send className="size-4"/>Conferir e Enviar Mapa</Button>
                 : <span className="text-sm text-muted-foreground">Sem autorização para conferir.</span>}
               {v.capabilities.officialize ? (
                 <Button disabled={run.isPending || v.status.id !== "conferido" || v.conferredMatches !== true || v.blocks.length > 0}
@@ -354,7 +364,8 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
 
 const SECTION_TABS = [["I", "Identificação"], ["II", "Movimentação"], ["III", "Matrícula"], ["IV", "Entradas e saídas"], ["V", "Pessoal"], ["VI", "Visitas"]] as const;
 
-function LiveDocument({ competence, conference }: { competence: { schoolId: string; year: number; month: number }; conference: React.ReactNode }) {
+function LiveDocument({ competence, conference, controls, onConference }: { competence: { schoolId: string; year: number; month: number }; conference: React.ReactNode; controls: React.ReactNode; onConference: () => void }) {
+  const authority = useSessionAuthority();
   const getLive = useServerFn(getLiveMapData);
   const [tab, setTab] = useState<string>("I");
   const [cover, setCover] = useState(true);
@@ -373,34 +384,40 @@ function LiveDocument({ competence, conference }: { competence: { schoolId: stri
   const pdf = () => doc && void downloadOfficialMapPdf(doc, `mapa-estatistico-${competence.year}-${String(competence.month).padStart(2, "0")}.pdf`, { cover, emblemUrl: institution.emblemUrl });
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-lg font-semibold">{live.data?.schoolName ?? "…"}</p>
-          <p className="text-sm text-muted-foreground">{MONTHS[competence.month - 1]} de {competence.year}{live.data ? (live.data.frozenAt ? ` · movimentações congeladas em ${formatDateTime(live.data.frozenAt)}` : ` · atualizado com os registros da escola até ${fmtDate(live.data.referenceDate)}`) : ""}</p>
-          {freeze.isError && <p className="text-sm text-destructive">{(freeze.error as Error).message}</p>}
+      <header className="flex flex-col gap-4 border-b border-border pb-5 xl:flex-row xl:items-center xl:justify-between">
+        <div className="min-w-0"><div className="flex items-center gap-1"><h1 className="text-xl font-semibold">Mapa Estatístico</h1><ContextHint label="Ajuda do Mapa Estatístico" text="Confira os dados por mês. A escola envia o mapa para análise da Estatística; a aprovação preserva a versão histórica." /></div>
+          <p className="mt-1 text-xs text-muted-foreground">{live.data ? live.data.frozenAt ? `Fechado em ${formatDateTime(live.data.frozenAt)}` : `Registros atualizados até ${fmtDate(live.data.referenceDate)}` : "Consultando os registros…"}</p>
         </div>
-        <div className="flex items-center gap-3">
-          <label className="flex items-center gap-1.5 text-sm"><Checkbox checked={cover} onCheckedChange={(v) => setCover(v === true)} /> Com capa</label>
-          {live.data?.canFreeze && !live.data.frozenAt && <Button variant="outline" disabled={freeze.isPending} onClick={askFreeze}>{freeze.isPending ? "Congelando…" : "Congelar movimentação"}</Button>}
-          {live.data?.frozenAt && <span className="rounded-md border border-border px-2 py-1 text-xs text-muted-foreground">Congelado</span>}
-          <Button disabled={!doc} onClick={pdf}>Baixar PDF</Button>
-        </div>
-      </div>
+        <div className="flex flex-wrap items-center gap-3">{controls}<label className="flex items-center gap-1.5 whitespace-nowrap text-sm"><Checkbox checked={cover} onCheckedChange={(v) => setCover(v === true)} /> Com capa</label><Button disabled={!doc} onClick={pdf}><Download className="size-4"/>Baixar PDF</Button></div>
+      </header>
+      {freeze.isError && <p role="alert" className="text-sm text-destructive">Não foi possível fechar as movimentações. Tente novamente.</p>}
       <div role="tablist" aria-label="Seções do Mapa" className="flex gap-1 overflow-x-auto border-b border-border">
         {[...SECTION_TABS, ["conf", "Conferência e envio"] as const].map(([id, label]) => (
-          <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+          <Button variant="ghost" key={id} role="tab" aria-selected={tab === id} onClick={() => { setTab(id); if (id === "conf") onConference(); }}
             className={cn("shrink-0 border-b-2 px-3 py-2 text-sm whitespace-nowrap", tab === id ? "border-primary font-semibold text-foreground" : "border-transparent text-muted-foreground hover:text-foreground")}>
-            {id !== "conf" && <span className="mr-1 text-xs">{id}</span>}{label}
-          </button>
+            {<span className="mr-1 text-xs">{id === "conf" ? "VII" : id}</span>}{label}
+          </Button>
         ))}
       </div>
-      {tab === "conf" ? conference
+      {tab === "conf" ? <div className="space-y-5">
+        {doc && live.data && <section className="border-b border-border pb-5"><h2 className="mb-3 text-base font-semibold">Checklist de validação</h2><ul className="grid gap-3 sm:grid-cols-2">{[
+          { ok: Object.values(live.data.identification).length > 0 && Object.values(live.data.identification).every((v) => v !== null && v !== ""), label: "Dados da escola", detail: Object.values(live.data.identification).length > 0 && Object.values(live.data.identification).every((v) => v !== null && v !== "") ? "Cadastro preenchido" : "Confira os campos não informados" },
+          { ok: !!live.data.frozenAt, label: "Movimentação", detail: live.data.frozenAt ? "Movimentações fechadas" : "Movimentações ainda em atualização" },
+          { ok: !live.data.classes.some((c) => modalityOf(c.stage_label ?? c.class_name) === "Modalidade não informada"), label: "Modalidades das turmas", detail: live.data.classes.some((c) => modalityOf(c.stage_label ?? c.class_name) === "Modalidade não informada") ? `${live.data.classes.filter((c) => modalityOf(c.stage_label ?? c.class_name) === "Modalidade não informada").length} turmas sem modalidade informada` : "Nenhuma modalidade pendente nas turmas consultadas" },
+          { ok: live.data.failed.length === 0, label: "Consulta dos dados", detail: live.data.failed.length === 0 ? "Registros consultados" : "Alguns dados não puderam ser consultados" },
+        ].map((item) => <li key={item.label} className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">{item.ok ? <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-success"/> : <CircleAlert className="mt-0.5 size-5 shrink-0 text-warning-foreground"/>}<div><p className="text-sm font-medium">{item.label}</p><p className="mt-1 text-xs text-muted-foreground">{item.detail}</p></div></li>)}</ul><p className="mt-3 text-xs text-muted-foreground">A conferência abaixo verifica se o mapa pode ser enviado.</p></section>}
+        {live.data?.canFreeze && !live.data.frozenAt && <Button variant="outline" disabled={freeze.isPending} onClick={askFreeze}>{freeze.isPending ? "Fechando…" : "Fechar movimentações do mês"}</Button>}
+        {conference}
+      </div>
         : live.isPending ? <SkeletonState label="Montando o mapa" />
         : live.isError || !doc ? <StatePanel tone="danger" title="Mapa indisponível" description="Não foi possível ler os registros da escola agora. Tente novamente." />
         : (
           <>
-            {live.data!.failed.length > 0 && <p className="text-sm text-muted-foreground">Parte dos registros não pôde ser lida com o seu acesso; esses campos aparecem com —.</p>}
-            <MapSectionView doc={doc} sectionId={tab} />
+            {live.data?.failed.length > 0 && <p className="text-sm text-muted-foreground">Parte dos registros não pôde ser lida com o seu acesso; esses campos aparecem com —.</p>}
+            <MapSectionView doc={doc} sectionId={tab}
+              missingModalities={live.data?.classes.filter((c) => modalityOf(c.stage_label ?? c.class_name) === "Modalidade não informada").length ?? 0}
+              canOpenClasses={pathAllowed(authority, "/turmas")}
+              editSchool={pathAllowed(authority, "/unidades") ? <Button asChild variant="outline" size="sm"><Link to="/unidades/editar/$id" params={{ id: competence.schoolId }}><Pencil className="size-3.5"/>Editar dados da escola</Link></Button> : undefined} />
           </>
         )}
     </div>
@@ -426,8 +443,9 @@ export function StatisticalMapWorkspace() {
   const key = ["statistical-map", sid, year, month];
   const [showConf, setShowConf] = useState(false);
   const map = useQuery({ queryKey: key, enabled: ready && showConf, queryFn: () => get({ data: competence }) });
-  const years = Array.from({ length: 4 }, (_, i) => Number(today.slice(0, 4)) - 2 + i);
-  const sel = "mt-1 w-full rounded-md border border-input bg-background px-2 py-2 text-sm";
+  const years = [...new Set([...active.years.flatMap((y) => { const n = /\d{4}/.exec(y.label)?.[0]; return n ? [Number(n)] : []; }), year])].sort((a,b) => b-a);
+  const sel = "h-10 rounded-md border border-input bg-card px-2 text-sm";
+  const controls = <><label className="flex items-center gap-2 text-xs text-muted-foreground">Mês<select aria-label="Mês do mapa" className={sel} value={month} onChange={(e) => { setMonth(Number(e.target.value)); setShowConf(false); }}>{MONTHS.map((m,i) => <option key={m} value={i+1}>{m}</option>)}</select></label><label className="flex items-center gap-2 text-xs text-muted-foreground">Ano<select aria-label="Ano do mapa" className={sel} value={year} onChange={(e) => { const n = Number(e.target.value); setYear(n); setShowConf(false); const match = active.years.find((y) => y.label.includes(String(n))); if (match) active.setYear(match.id); }}>{years.map((y) => <option key={y} value={y}>{y}</option>)}</select></label></>;
   const conference = !showConf ? (
     <div className="rounded-lg border border-border p-4 text-sm">
       <p>Aqui a escola envia o mapa para a Estatística, que confere, devolve ou aprova.</p>
@@ -438,35 +456,12 @@ export function StatisticalMapWorkspace() {
     : <MapBody key={key.join("|") + map.data.fingerprint} v={map.data} competence={competence} onChange={(nv) => qc.setQueryData(key, nv)} />;
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-5 p-4">
-      <PageHeader title="Mapa Estatístico" description="Preenchido sozinho com o que a escola registra: alunos, turmas, entradas e saídas, pessoal e visitas." />
+    <div className="mx-auto w-full max-w-6xl space-y-4">
       {schools.isPending ? <SkeletonState label="Carregando" />
-        : !schools.data?.length ? (
-          <StatePanel tone="neutral" title="Nenhuma escola disponível" description="Seu acesso não inclui o Mapa Estatístico de nenhuma escola." />
-        ) : (
-          <>
-            <div className="grid gap-3 sm:grid-cols-[1fr_10rem_7rem]">
-              {own || schools.data.length === 1 ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{schools.data.find((s) => s.schoolId === sid)?.label ?? "Minha escola"}</strong></p> : <label className="text-sm">Escola
-                <select className={sel} value={sid} onChange={(e) => { setSchoolId(e.target.value); setShowConf(false); }}>
-                  <option value="">Escolha a escola</option>
-                  {[...schools.data].sort((a, b) => a.label.localeCompare(b.label, "pt-BR")).map((s) => <option key={s.schoolId} value={s.schoolId}>{s.label}</option>)}
-                </select>
-              </label>}
-              <label className="text-sm">Mês
-                <select className={sel} value={month} onChange={(e) => setMonth(Number(e.target.value))}>
-                  {MONTHS.map((m, i) => <option key={m} value={i + 1}>{m}</option>)}
-                </select>
-              </label>
-              <label className="text-sm">Ano
-                <select className={sel} value={year} onChange={(e) => { const n = Number(e.target.value); setYear(n); const m = active.years.find((y) => y.label.includes(String(n))); if (m) active.setYear(m.id); }}>
-                  {years.map((y) => <option key={y} value={y}>{y}</option>)}
-                </select>
-              </label>
-            </div>
-            {!ready ? <p className="text-sm text-muted-foreground">Escolha a escola para ver o mapa.</p>
-              : <LiveDocument key={`${sid}|${year}|${month}`} competence={competence} conference={conference} />}
-          </>
-        )}
+        : !schools.data?.length ? <StatePanel tone="neutral" title="Nenhuma escola disponível" description="Seu acesso não inclui o Mapa Estatístico de nenhuma escola." /> : <>
+          {!own && schools.data.length > 1 && <label className="flex flex-wrap items-center gap-2 text-sm">Escola<select aria-label="Escola do mapa" className={sel} value={sid} onChange={(e) => { setSchoolId(e.target.value); setShowConf(false); }}><option value="">Escolha a escola</option>{[...schools.data].sort((a,b) => a.label.localeCompare(b.label,"pt-BR")).map((school) => <option key={school.schoolId} value={school.schoolId}>{school.label}</option>)}</select></label>}
+          {!ready ? <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-xl font-semibold">Mapa Estatístico</h1>{controls}<p className="w-full text-sm text-muted-foreground">Escolha a escola para ver o mapa.</p></div> : <LiveDocument key={`${sid}|${year}|${month}`} competence={competence} controls={controls} conference={conference} onConference={() => setShowConf(true)} />}
+        </>}
     </div>
   );
 }
