@@ -717,9 +717,7 @@ function InstitutionalContextBadge() {
   });
   const own = useOwnSchoolId();
   const ownName = useQuery({ queryKey: ["own-school-name", own], enabled: !!own, staleTime: 600_000, queryFn: () => readCurrentSchoolNames([own!]) });
-  const text = own ? (ownName.data?.get(own) ?? "Minha escola") : q.error ? "Rede municipal · estado da instalação indisponível"
-    : q.isLoading ? "Rede municipal"
-    : q.data === "instalado" ? "Rede municipal" : q.data === "nao-instalado" ? "Rede municipal · SIGEM não instalado" : "Rede municipal · estado não reconhecido";
+  const text = own ? (ownName.data?.get(own) ?? "Minha escola") : "Rede Municipal de Ensino";
   return (
     <span className="ml-auto hidden max-w-[24rem] items-center gap-2 px-2 text-sm md:ml-0 md:flex" aria-label="Contexto institucional" data-sigem-build="b4.6.8-header">
       <Building2 className="size-4 text-muted-foreground" /><span className="truncate">{text}</span>

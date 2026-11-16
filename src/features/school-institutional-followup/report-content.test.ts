@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 vi.mock("@/integrations/supabase/client", () => ({ supabase: {} }));
-import { followupPdfSections, scopedPdfAttachments } from "./report-content";
+import { followupPdfSections, followupSignatures, scopedPdfAttachments } from "./report-content";
 import type { SchoolSnapshot } from "./model";
 import type { FollowupAttachment } from "./source";
 const snapshot: SchoolSnapshot = {
@@ -10,6 +10,17 @@ const snapshot: SchoolSnapshot = {
 };
 const attachment = (id: string, visit_id: string, visit_logical_id: string): FollowupAttachment => ({ id, visit_id, visit_logical_id, storage_path: `s1/${id}`, caption: null, content_type: "image/png", size_bytes: 100, author_name: "Equipe", created_at: "2026-11-09T12:00:00Z" });
 describe("anexos e parágrafos do PDF de acompanhamento", () => {
+  it("preserva responsáveis e autoria registrados e acrescenta uma única linha livre", () => {
+    const input: SchoolSnapshot = { ...snapshot, actions: [{ id: "a1", school_id: "s1", visit_logical_id: "l1", description: "Medida", responsible_label: "Direção Escolar e Secretaria Escolar", due_on: null, author_name: "ANA CRISTINA DE CAMPOS", created_at: "2026-11-09T12:00:00Z" }] };
+    expect(followupSignatures(input, "s1", "v2")).toEqual([
+      "Responsável declarado\nDireção Escolar e Secretaria Escolar", "Autoria registrada\nEquipe", "Autoria registrada\nANA CRISTINA DE CAMPOS", "Assinatura adicional\nNome e função: ________________________",
+    ]);
+  });
+  it("não leva assinaturas de outra visita ou escola nem fabrica responsáveis ausentes", () => {
+    const input = { ...snapshot, visits: snapshot.visits.map((v) => v.id === "other" ? { ...v, author_name: "Outro autor" } : v) };
+    expect(followupSignatures(input, "s1", "v2")).toEqual(["Autoria registrada\nEquipe", "Assinatura adicional\nNome e função: ________________________"]);
+    expect(() => followupSignatures(input, "s2", "v2")).toThrow();
+  });
   it("inclui fotos da visita e das versões anteriores, sem outras visitas", () => {
     const files = [attachment("a", "v2", "l1"), attachment("b", "v1", "l1"), attachment("c", "other", "l2")];
     expect(scopedPdfAttachments(snapshot, "s1", files, "v2").map((a) => a.id)).toEqual(["a", "b"]);

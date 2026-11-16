@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, configure, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { InstitutionalSchoolFollowupPage } from "./page";
 import { exportFollowupNetwork, exportFollowupSchool, exportNetworkPending } from "./report";
@@ -19,6 +19,9 @@ const mocks = vi.hoisted(() => ({
   confirmAction: vi.fn(),
 }));
 
+// These regression tests inspect retained state across tabs; browser acceptance checks visibility.
+configure({ defaultHidden: true });
+vi.mock("./export-menu", () => ({ FollowupExportMenu: ({ disabled, onExport, scope }: { disabled: boolean; scope?: string; onExport: (f: string) => void }) => <>{([["pdf", "PDF"], ["docx", "Word"], ["xlsx", "Excel"], ["csv", "CSV"]] as const).map(([f, label]) => <button key={f} disabled={disabled} onClick={() => onExport(f)}>{scope ? "Ficha " : ""}{label}</button>)}</> }));
 vi.mock("@/features/authority/session-authority", () => ({
   useSessionAuthority: () => mocks.session,
   sessionContextKey: (a: { status: string; user?: { id: string }; sessionRevision?: number }) =>

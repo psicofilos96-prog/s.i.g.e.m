@@ -7,7 +7,7 @@ import { UserFacingError } from "@/lib/observability/governed-errors";
 import { currentSituation, type FollowupVisit, type NetworkPendingAction, type NetworkRow, type SchoolSnapshot } from "./model";
 import { stripTextFormat } from "./text-format-model";
 import type { FollowupAttachment } from "./source";
-import { followupPdfSections, loadFollowupPdfAttachments } from "./report-content";
+import { followupPdfSections, followupSignatures, loadFollowupPdfAttachments } from "./report-content";
 
 // Usa somente as linhas do reader autorizado. Nunca consulta dados fora do escopo.
 export const FOLLOWUP_NETWORK_REPORT: ReportDefinition = {
@@ -61,7 +61,7 @@ export async function exportFollowupNetwork(
     if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
-    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, { landscape: true });
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, { landscape: true, executive: true, metadata: [meta[0] ?? "", `Unidades: ${rows.length}`], footerNote: "Situações declaradas pela equipe. Este relatório não constitui homologação ou cobrança administrativa." });
     if (signal?.aborted) return;
     downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
   }
@@ -216,8 +216,9 @@ export async function exportFollowupSchool(
   } else {
     const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, undefined, signal) : [];
     if (signal?.aborted) return;
-    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, {
-      sections: followupPdfSections(snapshot, schoolId), attachments: images,
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, format === "docx" ? [] : meta, {
+      executive: true, metadata: [`Unidade Escolar: ${schoolName}`, `Período: histórico completo`, `Técnico Responsável: ${[...new Set(snapshot.visits.map((v) => v.author_name).filter(Boolean))].join(", ") || "—"}`], footerNote: "Datas do fato e do registro são distintas. Situações declaradas pela equipe; não constituem homologação ou cobrança.",
+      sections: followupPdfSections(snapshot, schoolId), attachments: images, signatures: followupSignatures(snapshot, schoolId),
     });
     if (signal?.aborted) return;
     downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
@@ -258,8 +259,9 @@ export async function exportFollowupVisit(
   } else {
     const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, visitId, signal) : [];
     if (signal?.aborted) return;
-    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, {
-      sections: followupPdfSections(snapshot, schoolId, visitId), attachments: images,
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, format === "docx" ? [] : meta, {
+      executive: true, metadata: [`Unidade Escolar: ${schoolName}`, `Data da Visita: ${visit.visit_date.split("-").reverse().join("/")}`, `Técnico Responsável: ${visit.author_name || "—"}`, `Período: visita e evoluções registradas`], footerNote: "Datas do fato e do registro são distintas. Situações declaradas pela equipe; não constituem homologação ou cobrança.",
+      sections: followupPdfSections(snapshot, schoolId, visitId), attachments: images, signatures: followupSignatures(snapshot, schoolId, visitId),
     });
     if (signal?.aborted) return;
     downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
@@ -314,7 +316,7 @@ export async function exportNetworkPending(
     if (signal?.aborted) return;
     downloadBlob(base + ".xlsx", new Blob([bytes], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
   } else {
-    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, { landscape: true });
+    const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, meta, { landscape: true, executive: true, metadata: [meta[0] ?? "", `Unidades: ${rows.length}`], footerNote: "Situações declaradas pela equipe. Este relatório não constitui homologação ou cobrança administrativa." });
     if (signal?.aborted) return;
     downloadBlob(base + (format === "docx" ? ".docx" : ".pdf"), documentFile);
   }

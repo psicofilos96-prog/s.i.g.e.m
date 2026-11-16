@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { FollowupExportMenu } from "./export-menu";
+import { FollowupSituationBadge } from "./situation-badge";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
 import { presentError } from "@/lib/observability/governed-errors";
@@ -75,12 +77,8 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
   return <section className="space-y-4 rounded-xl border border-border p-4" aria-label="Quadro de providências da rede">
     <div>
       <h2 className="text-lg font-semibold">Quadro de providências da rede</h2>
-      <p className="text-sm text-muted-foreground">
-        Medidas ainda não declaradas concluídas, exclusivamente das unidades autorizadas.
-        Este quadro não envia cobranças nem homologa execuções.
-      </p>
     </div>
-    {loading && <p role="status" className="text-sm">Consultando providências autorizadas…</p>}
+    {loading && <p role="status" className="text-sm">Carregando providências…</p>}
     {Boolean(error) && <p role="alert" className="text-sm text-destructive">
       {presentError(error)}
     </p>}
@@ -98,7 +96,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
       </div>
       <div className="flex flex-wrap items-end gap-3">
         <label className="min-w-48 flex-1 text-sm">Pesquisar medida, escola, INEP ou responsável
-          <input className={field} type="search" value={search} placeholder="Pesquisar entre medidas autorizadas"
+          <input className={field} type="search" value={search} placeholder="Descrição, escola ou responsável"
             onChange={(e) => { cancelStaleExport(); setSearch(e.target.value); setPage(0); }} />
         </label>
         <label className="text-sm">Situação
@@ -116,17 +114,13 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
           </select>
         </label>
         <div className="flex flex-wrap gap-2" aria-label="Exportar quadro filtrado">
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportRows("pdf")}>PDF</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportRows("docx")}>Word</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportRows("xlsx")}>Excel</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportRows("csv")}>CSV</Button>
+          <FollowupExportMenu disabled={exporting} onExport={(f) => void exportRows(f)} />
         </div>
       </div>
       {exportError && <p role="alert" className="text-sm text-destructive">{exportError}</p>}
       {exportNotice && <p role="status" className="text-sm text-muted-foreground">{exportNotice}</p>}
       <p className="text-xs text-muted-foreground">
-        {filtered.length} medidas no filtro. Ordenação por prazo declarado; sem prazo por último.
-        Sem atualização não significa não realizada.
+        {filtered.length} medidas · Prazos mais próximos primeiro
       </p>
       {filtered.length === 0 ? <p className="text-sm text-muted-foreground">
         Nenhuma providência corresponde à seleção atual.
@@ -139,7 +133,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
               <th scope="col" className="p-2">Medida e responsável</th>
               <th scope="col" className="p-2">Prazo</th>
               <th scope="col" className="p-2">Situação</th>
-              <th scope="col" className="p-2">Consulta</th>
+              <th scope="col" className="min-w-32 p-2">Consulta</th>
             </tr></thead>
             <tbody>{visible.map((r) => <tr key={r.action_id} className="border-t align-top">
               <td className="p-2"><strong>{r.school_name}</strong>
@@ -151,12 +145,12 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
               <td className="p-2">{formatAcademicDate(r.due_on, "Não informado")}
                 {r.due_on && r.due_on < today && <p className="font-medium text-destructive">Prazo vencido</p>}
               </td>
-              <td className="p-2">{r.situation}
+              <td className="p-2"><FollowupSituationBadge situation={r.situation} overdue={Boolean(r.due_on && r.due_on < today)} />
                 <p className="text-xs text-muted-foreground">
                   Última evolução: {formatAcademicDate(r.last_update_on, "Sem registro")}
                 </p>
               </td>
-              <td className="p-2"><Button type="button" size="sm" variant="outline"
+              <td className="min-w-32 p-2"><Button className="whitespace-nowrap" type="button" size="sm" variant="outline"
                 onClick={() => { cancelStaleExport(); onOpenAction(r.school_id, r.action_id); }}>Ver medida</Button>
               </td>
             </tr>)}</tbody>

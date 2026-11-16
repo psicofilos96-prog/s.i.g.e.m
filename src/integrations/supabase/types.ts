@@ -17047,6 +17047,33 @@ export type Database = {
         }
         Relationships: []
       }
+      followup_school_scope_decisions: {
+        Row: {
+          administrative_dependency: string
+          decision_ref: string
+          id: string
+          location_kind: string
+          recorded_at: string
+          valid_from: string
+        }
+        Insert: {
+          administrative_dependency: string
+          decision_ref: string
+          id?: string
+          location_kind: string
+          recorded_at?: string
+          valid_from: string
+        }
+        Update: {
+          administrative_dependency?: string
+          decision_ref?: string
+          id?: string
+          location_kind?: string
+          recorded_at?: string
+          valid_from?: string
+        }
+        Relationships: []
+      }
       followup_seat_assignments: {
         Row: {
           act_ref: string

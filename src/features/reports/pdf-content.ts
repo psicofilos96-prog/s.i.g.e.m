@@ -1,7 +1,7 @@
 export type PdfAlignment = "left" | "center" | "right" | "justify";
 export type PdfRun = { text: string; bold?: boolean; italic?: boolean };
 export type PdfParagraph = { alignment: PdfAlignment; runs: readonly PdfRun[]; label?: boolean };
-export type PdfSection = { title: string; paragraphs: readonly PdfParagraph[] };
+export type PdfSection = { title: string; paragraphs: readonly PdfParagraph[]; table?: { columns: readonly string[]; rows: readonly (readonly (string | number | null)[])[] } };
 export type PdfAttachment = { dataUrl: string; width: number; height: number; caption: string };
 
 /** Splits by measured glyphs, preserving emphasis even for words wider than a page. */
