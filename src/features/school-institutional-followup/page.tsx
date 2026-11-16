@@ -310,7 +310,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       return;
     }
     await withReportExport((signal) =>
-      exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal, attachmentsData));
+      exportFollowupSchool(detailData, school, selected?.school_name ?? school, format, signal, attachmentsData, selected?.inep ?? null));
   }
   async function exportVisitReport(visitId: string, format: "csv" | "xlsx" | "pdf" | "docx") {
     if (!school || !detailData) return;
@@ -319,7 +319,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       return;
     }
     await withReportExport((signal) =>
-      exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal, attachmentsData));
+      exportFollowupVisit(detailData, school, selected?.school_name ?? school, visitId, format, signal, attachmentsData, selected?.inep ?? null));
   }
   async function refresh() {
     // Both report areas stop before any asynchronous revalidation begins.

@@ -190,6 +190,7 @@ export async function exportFollowupSchool(
   snapshot: SchoolSnapshot, schoolId: string, schoolName: string, format: "csv" | "xlsx" | "pdf" | "docx",
   signal?: AbortSignal,
   attachments: readonly FollowupAttachment[] = [],
+  inep: string | null = null,
 ): Promise<void> {
   if (signal?.aborted) return;
   const result = schoolFollowupReport(snapshot, schoolId);
@@ -217,7 +218,7 @@ export async function exportFollowupSchool(
     const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, undefined, signal) : [];
     if (signal?.aborted) return;
     const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, format === "docx" ? [] : meta, {
-      executive: true, metadata: [`Unidade Escolar: ${schoolName}`, `Período: histórico completo`, `Técnico Responsável: ${[...new Set(snapshot.visits.map((v) => v.author_name).filter(Boolean))].join(", ") || "—"}`], footerNote: "Datas do fato e do registro são distintas. Situações declaradas pela equipe; não constituem homologação ou cobrança.",
+      executive: true, metadata: [`Unidade Escolar: ${schoolName}`, `Código INEP: ${inep ?? "—"}`, `Data da Visita: histórico de visitas`, `Período: histórico completo`, `Técnico Responsável: ${[...new Set(snapshot.visits.map((v) => v.author_name).filter(Boolean))].join(", ") || "—"}`], footerNote: "Datas do fato e do registro são distintas. Situações declaradas pela equipe; não constituem homologação ou cobrança.",
       sections: followupPdfSections(snapshot, schoolId), attachments: images, signatures: followupSignatures(snapshot, schoolId),
     });
     if (signal?.aborted) return;
@@ -230,6 +231,7 @@ export async function exportFollowupVisit(
   visitId: string, format: "csv" | "xlsx" | "pdf" | "docx",
   signal?: AbortSignal,
   attachments: readonly FollowupAttachment[] = [],
+  inep: string | null = null,
 ): Promise<void> {
   if (signal?.aborted) return;
   const result = visitFollowupReport(snapshot, schoolId, visitId);
@@ -260,7 +262,7 @@ export async function exportFollowupVisit(
     const images = attachments.length ? await loadFollowupPdfAttachments(snapshot, schoolId, attachments, visitId, signal) : [];
     if (signal?.aborted) return;
     const documentFile = await (format === "docx" ? toWordFile : toPdfFile)(result, branding, format === "docx" ? [] : meta, {
-      executive: true, metadata: [`Unidade Escolar: ${schoolName}`, `Data da Visita: ${visit.visit_date.split("-").reverse().join("/")}`, `Técnico Responsável: ${visit.author_name || "—"}`, `Período: visita e evoluções registradas`], footerNote: "Datas do fato e do registro são distintas. Situações declaradas pela equipe; não constituem homologação ou cobrança.",
+      executive: true, metadata: [`Unidade Escolar: ${schoolName}`, `Código INEP: ${inep ?? "—"}`, `Data da Visita: ${visit.visit_date.split("-").reverse().join("/")}`, `Técnico Responsável: ${visit.author_name || "—"}`, `Período: visita e evoluções registradas`], footerNote: "Datas do fato e do registro são distintas. Situações declaradas pela equipe; não constituem homologação ou cobrança.",
       sections: followupPdfSections(snapshot, schoolId, visitId), attachments: images, signatures: followupSignatures(snapshot, schoolId, visitId),
     });
     if (signal?.aborted) return;
