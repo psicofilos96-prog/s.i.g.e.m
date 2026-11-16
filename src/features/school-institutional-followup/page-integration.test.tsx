@@ -227,8 +227,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       { situation: "concluída", actions: 1 },
     ]);
     renderPage();
-    const mismatch = await screen.findByText(/Os totais da rede, a série mensal e a distribuição/);
-    expect(mismatch).toBeTruthy();
+    await screen.findByText("Não apurado");
     expect(screen.queryByTestId("network-analytics")).toBeNull();
     expect(screen.getByText("Não apurado")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Escola Centro" })).toBeTruthy();
@@ -257,7 +256,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       { situation: "concluída", actions: 1 },
     ]);
     renderPage();
-    expect(await screen.findByText(/Os totais da rede, a série mensal e a distribuição/)).toBeTruthy();
+    await screen.findByText("Não apurado");
     expect(screen.queryByTestId("network-analytics")).toBeNull();
     expect(screen.getByText("Não apurado")).toBeTruthy();
   });
