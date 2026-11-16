@@ -20,9 +20,13 @@ export function followupPdfSections(snapshot: SchoolSnapshot, schoolId: string, 
       ...field("Registrado em", formatDateTime(v.created_at)), ...field("Autoria registrada", v.author_name),
       ...field("Objetivo", v.purpose_note), ...field("Diagnóstico", v.diagnosis),
       ...field("Pontos fortes", v.strengths), ...field("Fragilidades", v.weaknesses),
-      ...field("Demais participantes informados", v.participants_note), ...field("Observações", v.summary),
+      ...field("Demais participantes informados", v.participants_note), ...field("Encaminhamentos", v.summary),
       ...field("Justificativa de retificação", v.correction_reason),
     ],
+    ...(!snapshot.visit_history.some((h) => h.id === v.id) ? { table: {
+      columns: ["Medida", "Responsável", "Prazo", "Status"],
+      rows: actions.filter((a) => a.visit_logical_id === v.logical_id).map((a) => [a.description, a.responsible_label, a.due_on, currentSituation(a, snapshot.updates)]),
+    } } : {}),
   }));
   for (const action of actions) {
     const origin = snapshot.visits.find((v) => v.logical_id === action.visit_logical_id);

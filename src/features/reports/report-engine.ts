@@ -140,6 +140,9 @@ export const allowedLogoUrl = (u: string) => /^https:\/\//.test(u) || /^data:ima
 export const DOCUMENT_CREST_URL: string = brasaoAsset.url;
 export const DOCUMENT_SECRETARIAT_LOGO_URL: string = educacaoAsset.url;
 
+export const EXECUTIVE_PRINT_THEME = { primary: [15, 61, 62], muted: [248, 250, 252], ink: [38, 48, 52], border: [225, 231, 235], amber: [181, 123, 28] } as const;
+export type ReportDocumentOptions = { landscape?: boolean; signatures?: readonly string[]; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[]; executive?: boolean; metadata?: readonly string[]; footerNote?: string };
+
 type HeaderImage = { dataUrl: string; width: number; height: number };
 /** Lê um ativo institucional da mesma origem como data URL, com dimensões naturais. Falha = sem imagem, nunca quebra a exportação. */
 async function loadHeaderImage(url: string): Promise<HeaderImage | null> {
@@ -232,7 +235,7 @@ export function exportIncomplete(collected: number, screenTotal: number, exhaust
  * nomes e funções, quando informados, vêm do resultado autorizado; nunca assinatura presumida.
  */
 export async function toPdfFile(result: ReportResult, branding: Branding, meta: readonly string[] = [],
-  opts: { landscape?: boolean; signatures?: readonly string[]; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[] } = {}): Promise<Blob> {
+  opts: ReportDocumentOptions = {}): Promise<Blob> {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
   const doc = new jsPDF({ orientation: opts.landscape ? "landscape" : "portrait", unit: "mm", format: "a4", compress: true });
@@ -247,29 +250,39 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
     const format = img.dataUrl.includes("image/jpeg") ? "JPEG" : "PNG";
     doc.addImage(img.dataUrl, format, x, M - 2, w, logoH);
   };
+  const theme = EXECUTIVE_PRINT_THEME;
+  const family = opts.executive ? "helvetica" : "times";
   if (crest) drawLogo(crest, M);
   if (secretariat) { const w = Math.min(34, (logoH * secretariat.width) / secretariat.height); drawLogo(secretariat, W - M - w); }
   let y = M + (crest || secretariat ? logoH + 2 : 2);
-  doc.setFont("times", "normal"); doc.setFontSize(10);
-  for (const l of branding.headerLines) { doc.text(l, W / 2, y, { align: "center" }); y += 5; }
-  doc.setFont("times", "bold"); doc.setFontSize(13);
+  doc.setFont(family, "normal"); doc.setFontSize(10);
+  if (opts.executive) {
+    doc.setTextColor(...theme.primary); doc.setFont(family, "bold"); doc.setFontSize(10);
+    const header = doc.splitTextToSize("Secretaria Municipal de Educação de Itaperuna", W - 2 * M - 80) as string[];
+    doc.text(header, W / 2, M + 3, { align: "center" });
+    y = M + logoH + 4; doc.setDrawColor(...theme.border); doc.line(M, y, W - M, y); y += 9;
+  } else for (const l of branding.headerLines) { doc.text(l, W / 2, y, { align: "center" }); y += 5; }
+  doc.setFont(family, "bold"); doc.setFontSize(13);
   for (const l of doc.splitTextToSize(branding.title, W - 2 * M) as string[]) { doc.text(l, W / 2, y + 1, { align: "center" }); y += 6; }
-  y += 4;
-  doc.setFont("times", "normal"); doc.setFontSize(9);
-  for (const m of meta) {
-    for (const l of doc.splitTextToSize(m, W - 2 * M) as string[]) {
-      if (y + 5 > H - 18) { doc.addPage(); y = M + 5; }
-      doc.text(l, M, y + 1); y += 4.5;
-    }
-    y += 1.5;
+  y += 5;
+  doc.setFont(family, "normal"); doc.setFontSize(9); doc.setTextColor(...theme.ink);
+  const metadata = opts.executive ? opts.metadata ?? meta : meta;
+  const metadataLines = metadata.flatMap((m) => doc.splitTextToSize(m, W - 2 * M - 10) as string[]);
+  if (opts.executive && metadataLines.length) {
+    doc.setFillColor(...theme.muted); doc.rect(M, y - 3, W - 2 * M, metadataLines.length * 4.5 + 7, "F");
+    doc.setDrawColor(...theme.primary); doc.setLineWidth(1); doc.line(M, y - 3, M, y + metadataLines.length * 4.5 + 4); doc.setLineWidth(0.2);
   }
-  y += opts.sections ? 7 : 2;
-  if (!opts.sections) autoTable(doc, {
-    startY: y + 2, margin: { left: M, right: M, bottom: 16 }, theme: "grid",
-    head: [result.columns.map((c) => c.label)], body: result.rows.map((r) => r.map(cellText)),
-    styles: { font: "times", fontSize: 8, cellPadding: 1.2, overflow: "linebreak", lineColor: [34, 34, 34], lineWidth: 0.25, textColor: [0, 0, 0] },
-    headStyles: { fillColor: [235, 235, 235], textColor: [0, 0, 0], fontStyle: "bold" }, showHead: "everyPage", rowPageBreak: "avoid",
-  });
+  for (const l of metadataLines) { if (y + 5 > H - 18) { doc.addPage(); y = M + 5; } doc.text(l, M + (opts.executive ? 5 : 0), y + 1); y += 4.5; }
+  y += 8;
+  const drawTable = (columns: readonly string[], rows: readonly (readonly (string | number | null)[])[], numeric: readonly number[] = []) => {
+    autoTable(doc, { startY: y, margin: { left: M, right: M, bottom: opts.footerNote ? 25 : 16 }, theme: opts.executive ? "striped" : "grid",
+      head: [[...columns]], body: rows.map((r) => r.map((v) => opts.executive && v === null ? "—" : cellText(v))),
+      styles: { font: family, fontSize: 8.5, cellPadding: opts.executive ? 3 : 1.2, overflow: "linebreak", lineColor: [...theme.border], lineWidth: opts.executive ? 0 : 0.25, textColor: [...theme.ink] },
+      headStyles: { fillColor: opts.executive ? [...theme.primary] : [235,235,235], textColor: opts.executive ? [255,255,255] : [0,0,0], fontStyle: "bold" },
+      alternateRowStyles: { fillColor: [...theme.muted] }, columnStyles: Object.fromEntries(numeric.map((i) => [i, { halign: "right" }])), showHead: "everyPage", rowPageBreak: "avoid" });
+    y = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
+  };
+  if (!opts.sections) drawTable(result.columns.map((c) => c.label), result.rows, result.columns.flatMap((c, i) => c.kind === "number" ? [i] : []));
   const pageTop = () => {
     doc.addPage();
     if (crest) drawLogo(crest, M);
@@ -277,19 +290,25 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
     y = M + logoH + 7;
   };
   if (opts.sections) {
-    const font = (run: PdfRun) => doc.setFont("times", run.bold && run.italic ? "bolditalic" : run.bold ? "bold" : run.italic ? "italic" : "normal");
+    const font = (run: PdfRun) => doc.setFont(family, run.bold && run.italic ? "bolditalic" : run.bold ? "bold" : run.italic ? "italic" : "normal");
     for (const section of opts.sections) {
       if (y + 30 > H - 18) pageTop();
-      doc.setFont("times", "bold"); doc.setFontSize(12);
+      doc.setTextColor(...theme.primary); doc.setFont(family, "bold"); doc.setFontSize(12);
       for (const line of doc.splitTextToSize(section.title, W - 2 * M) as string[]) {
         if (y + 6 > H - 18) pageTop();
         doc.text(line, M, y); y += 5;
       }
       y += 4;
+      doc.setTextColor(...theme.ink);
       for (const paragraph of section.paragraphs) {
         if (paragraph.label) {
           if (y + 22 > H - 18) pageTop();
-          y += 2;
+          y += 3;
+          if (opts.executive) {
+            const label = paragraph.runs.map((r) => r.text).join("");
+            doc.setDrawColor(...(label === "Fragilidades" ? theme.amber : theme.primary));
+            doc.setLineWidth(0.8); doc.line(M - 3, y - 3, M - 3, y + 3); doc.setLineWidth(0.2);
+          }
         }
         doc.setFontSize(paragraph.label ? 10 : 11);
         const measure = (run: PdfRun) => { font(run); return doc.getTextWidth(run.text); };
@@ -313,14 +332,15 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
         });
         y += paragraph.label ? 1 : 3;
       }
+      if (section.table) { y += 3; drawTable(section.table.columns, section.table.rows); }
       y += 7;
     }
   }
   for (const [index, attachment] of (opts.attachments ?? []).entries()) {
     if (!/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(attachment.dataUrl)) throw new ReportError("report:image", "Não foi possível incorporar um dos anexos. O PDF não foi gerado.");
-    pageTop(); doc.setFont("times", "bold"); doc.setFontSize(13);
+    pageTop(); doc.setFont(family, "bold"); doc.setFontSize(13);
     doc.text(`Anexos — Anexo ${index + 1}`, M, y); y += 7;
-    doc.setFont("times", "normal"); doc.setFontSize(9);
+    doc.setFont(family, "normal"); doc.setFontSize(9);
     const caption = doc.splitTextToSize(attachment.caption, W - 2 * M) as string[];
     for (const line of caption) { if (y + 5 > H - 50) pageTop(); doc.text(line, M, y); y += 4.5; }
     y += 3;
@@ -330,9 +350,9 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   }
   const sig = opts.signatures ?? [];
   if (sig.length) {
-    y = (opts.sections || opts.attachments?.length ? y : (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 8;
+    y += 8;
     const columns = Math.min(sig.length, 2), colW = (W - 2 * M) / columns;
-    doc.setFont("times", "normal"); doc.setFontSize(9);
+    doc.setFont(family, "normal"); doc.setFontSize(9);
     for (let i = 0; i < sig.length; i += columns) {
       const labels = sig.slice(i, i + columns).map((s) => doc.splitTextToSize(s, colW - 12) as string[]);
       const height = 24 + Math.max(...labels.map((l) => l.length)) * 4.5;
@@ -345,9 +365,15 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
       y += height;
     }
   }
+  if (opts.footerNote) {
+    const lines = doc.splitTextToSize(opts.footerNote, W - 2 * M) as string[];
+    if (y + 14 > H - 24) pageTop();
+    doc.setFont(family, "normal"); doc.setFontSize(8); doc.setTextColor(100);
+    doc.text(lines, M, H - 17 - (lines.length - 1) * 3.5);
+  }
   const n = doc.getNumberOfPages();
   for (let p = 1; p <= n; p++) {
-    doc.setPage(p); doc.setFont("times", "normal"); doc.setFontSize(8);
+    doc.setPage(p); doc.setFont(family, "normal"); doc.setFontSize(8);
     doc.text(`Gerado em ${new Date(result.generatedAt).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })}`, M, H - 7);
     doc.text(`Página ${p} de ${n}`, W - M, H - 7, { align: "right" });
   }
@@ -356,7 +382,7 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
 
 /** Word editável, produzido somente sobre o mesmo resultado e conteúdo autorizado do PDF. */
 export async function toWordFile(result: ReportResult, branding: Branding, meta: readonly string[] = [],
-  opts: { landscape?: boolean; signatures?: readonly string[]; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[] } = {}): Promise<Blob> {
+  opts: ReportDocumentOptions = {}): Promise<Blob> {
   const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, ImageRun,
     Header, Footer, AlignmentType, HeadingLevel, WidthType, PageOrientation,
     BorderStyle, PageNumber, LevelFormat, ShadingType } = await import("docx");
@@ -398,6 +424,7 @@ export async function toWordFile(result: ReportResult, branding: Branding, meta:
           children: p.runs.map((r, i) => new TextRun({ text: bullet && i === 0 ? r.text.slice(2) : r.text,
             bold: Boolean(r.bold), italics: Boolean(r.italic), size: p.label ? 20 : 22 })) }));
       }
+      if (section.table) children.push(new Table({ width: { size: contentWidth, type: WidthType.DXA }, rows: [section.table.columns, ...section.table.rows.map((r) => r.map((v) => v === null ? "—" : String(v)))].map((values, index) => new TableRow({ tableHeader: index === 0, children: values.map((text) => new TableCell({ margins: { top: 120, bottom: 120, left: 120, right: 120 }, children: [new Paragraph({ children: [new TextRun({ text, bold: index === 0, size: 18 })] })] })) })) }));
     }
   } else if (result.columns.length) {
     const widths = result.columns.map((_, i) => Math.floor(contentWidth / result.columns.length) + (i === 0 ? contentWidth % result.columns.length : 0));
@@ -434,9 +461,9 @@ export async function toWordFile(result: ReportResult, branding: Branding, meta:
     }));
   }
   const document = new Document({
-    styles: { default: { document: { run: { font: "Times New Roman", size: 22 }, paragraph: { spacing: { line: 300 } } } },
+    styles: { default: { document: { run: { font: opts.executive ? "Arial" : "Times New Roman", size: 22 }, paragraph: { spacing: { line: 300 } } } },
       paragraphStyles: [{ id: "Heading1", name: "Heading 1", basedOn: "Normal", next: "Normal", quickFormat: true,
-        run: { font: "Times New Roman", bold: true, color: "000000", size: 24 },
+        run: { font: opts.executive ? "Arial" : "Times New Roman", bold: true, color: "000000", size: 24 },
         paragraph: { outlineLevel: 0, keepNext: true } }] },
     numbering: { config: [{ reference: "report-bullets", levels: [{ level: 0, format: LevelFormat.BULLET,
       text: "•", alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 360, hanging: 180 } } } }] }] },
