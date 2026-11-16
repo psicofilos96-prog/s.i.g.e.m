@@ -3,6 +3,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSessionAuthority, sessionContextKey } from "@/features/authority/session-authority";
 import { pathAllowed } from "@/features/authority/nav-capabilities";
 import { operationalToday } from "@/lib/academic-date";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info } from "lucide-react";
+import { FollowupExportMenu } from "./export-menu";
+import { FollowupSituationBadge } from "./situation-badge";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
 import { confirmAction } from "@/components/sigem/confirm-action";
@@ -63,6 +68,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [search, setSearch] = useState("");
   const [networkView, setNetworkView] = useState<NetworkView>("todas");
   const [school, setSchool] = useState("");
+  const [tab, setTab] = useState("network");
   const [day, setDay] = useState(today);
   const [diagnosis, setDiagnosis] = useState("");
   const [strengths, setStrengths] = useState("");
@@ -620,7 +626,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   function openMeasure(schoolId: string, measureId: string) {
     if (!changeSchool(schoolId)) return;
     setActionView("todas"); setActionQuery("");
-    setTargetActionId(measureId);
+    setTargetActionId(measureId); setTab("school");
   }
   function inspectSchoolMeasure(measureId: string) {
     // Leitura contextual sem trocar a escola nem descartar dados de formulários em edição.
@@ -628,31 +634,24 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setTargetActionId(measureId);
   }
   return <div className="space-y-6">
-    <PageHeader eyebrow="Acompanhamento institucional" title="Acompanhamento das escolas"
-      description="Escolha uma escola para ver o histórico, registrar visitas e acompanhar as medidas combinadas." />
-    <ol className="grid gap-2 sm:grid-cols-3" aria-label="Como usar">
-      {[
-        ["1", "Escolha a escola", "Na lista abaixo, clique no nome da escola."],
-        ["2", authority.person ? "Registre a visita" : "Consulte o histórico", authority.person ? "Diagnóstico, pontos fortes, fragilidades e plano de ação." : "Visitas, medidas e evolução de cada escola."],
-        ["3", "Acompanhe as medidas", "Veja prazos e registre a evolução de cada medida."],
-      ].map(([n, t, d]) => <li key={n} className="flex gap-3 rounded-xl border border-border/60 bg-card/80 p-3">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary font-display text-sm font-semibold text-primary-foreground">{n}</span>
-        <span><span className="block text-sm font-semibold">{t}</span><span className="block text-xs text-muted-foreground">{d}</span></span>
-      </li>)}
-    </ol>
-    {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <SeatAdminPanel sessionKey={sessionKey} />}
-    <section className="space-y-4 rounded-2xl border border-border/70 bg-card p-5 shadow-panel" aria-label="Panorama da rede">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <PageHeader title="Acompanhamento das escolas" />
+      {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <Dialog><DialogTrigger asChild><Button variant="outline" size="sm"><Users className="size-4" />Gerenciar responsáveis</Button></DialogTrigger><DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>Responsáveis pelo acompanhamento</DialogTitle></DialogHeader><SeatAdminPanel sessionKey={sessionKey} /></DialogContent></Dialog>}
+    </div>
+    <Tabs value={tab} onValueChange={setTab}><TabsList className="h-auto w-full justify-start overflow-x-auto bg-transparent p-0">
+      <TabsTrigger value="network" className="whitespace-nowrap">Visão Geral da Rede</TabsTrigger>
+      <TabsTrigger value="pending" className="whitespace-nowrap">Quadro de Providências</TabsTrigger>
+      <TabsTrigger value="school" className="whitespace-nowrap">Detalhes da Escola</TabsTrigger>
+    </TabsList></Tabs>
+    <div hidden={tab !== "network"} className="space-y-5">
+    <section className="space-y-4" aria-label="Panorama da rede">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display text-xl font-semibold">Panorama da rede</h2>
         {network.isSuccess && !network.isFetching && <div className="flex flex-wrap items-center gap-1" aria-label="Exportar panorama autorizado">
-          <span className="mr-1 text-xs text-muted-foreground">Baixar lista:</span>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("pdf")}>PDF</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("docx")}>Word</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("xlsx")}>Excel</Button>
-          <Button size="sm" variant="outline" disabled={exporting} onClick={() => void exportReport("csv")}>CSV</Button>
+          <FollowupExportMenu disabled={exporting} onExport={(f) => void exportReport(f)} />
         </div>}
       </div>
-      <div className="grid gap-3 rounded-xl bg-muted/40 p-3 sm:grid-cols-2 lg:grid-cols-[auto_auto_1fr_auto_auto] lg:items-end">
+      <div className="grid gap-3 rounded-lg bg-muted/40 p-3 sm:grid-cols-2 lg:grid-cols-[auto_auto_1fr_auto_auto] lg:items-end">
         <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
         <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
         <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome ou código INEP" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
@@ -667,7 +666,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </label>
         <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
       </div>
-      {(network.isPending || network.isFetching) && <p role="status" className="text-sm text-muted-foreground">Lendo registros autorizados…</p>}
+      {(network.isPending || network.isFetching) && <p role="status" className="text-sm text-muted-foreground">Carregando escolas…</p>}
       {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
         description={presentError(network.error)} />}
       {network.isSuccess && !network.isFetching && <>
@@ -678,14 +677,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
             ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
             ["Ações sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
-          ].map(([label, value], i) => <div key={label} className={"rounded-xl border p-3 " + (i < 4 ? "border-primary/25 bg-primary/5" : "border-border/60 bg-background")}>
+          ].map(([label, value], i) => <div key={label} className={"rounded-lg border p-3 " + (i < 4 ? "border-primary/25 bg-primary/5" : "border-border/60 bg-background")}>
             <p className="text-xs text-muted-foreground">{label}</p>
             <p className={"font-display font-semibold tabular-nums " + (i < 4 ? "text-3xl" : "text-xl")}>{value}</p>
           </div>)}
         </div>
-        <p className="text-xs text-muted-foreground">As visitas seguem o período selecionado; as ações e sua situação refletem o histórico vigente. Conclusão é sempre declarada pela equipe, não homologada pelo Gabinete.</p>
+        <p className="text-xs text-muted-foreground">Visitas no período · Medidas de todo o histórico <Info className="inline size-3" aria-label="Conclusões declaradas pela equipe" /></p>
         {chartsConsistent && <InstitutionalFollowupAnalytics
-          months={monthly.data!} statuses={statuses.data!}
+          months={monthly.data ?? []} statuses={statuses.data ?? []}
           period={`${dateLabel(from)} a ${dateLabel(to)}`} />}
         {analyticsReady && !chartsConsistent && <p role="alert" className="text-sm text-muted-foreground">
           Os totais da rede, a série mensal e a distribuição por situação não coincidem.
@@ -696,18 +695,18 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
         </p>}
         <div className="flex flex-wrap items-baseline justify-between gap-2 pt-2">
-          <h2 className="font-display text-lg font-semibold">Escolas — clique no nome para abrir</h2>
+          <h2 className="font-display text-lg font-semibold">Escolas</h2>
           <p className="text-xs text-muted-foreground">
-            Mostrando {rows.length} de {network.data.length}. Indicadores e gráficos consideram todas; a lista não é ranking.
+            {rows.length} de {networkData.length} escolas · Indicadores da rede completa
           </p>
         </div>
         {rows.length === 0 ? <EmptyState title="Nenhuma escola disponível" description="Nenhuma unidade foi encontrada neste escopo ou filtro." /> : <>
-          <div className="max-h-96 overflow-auto rounded-xl border" tabIndex={0}
+          <div className="max-h-96 overflow-auto rounded-lg border" tabIndex={0}
             role="region" aria-label="Tabela de escolas — área rolável por teclado">
             <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-muted text-xs uppercase tracking-wide text-muted-foreground"><tr>
               <th scope="col" className="p-2">Unidade escolar</th><th scope="col" className="p-2">Visitas</th><th scope="col" className="p-2">Ações</th><th scope="col" className="p-2">Prazo vencido</th>
             </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className={"border-t transition-colors hover:bg-muted/50 " + (r.school_id === school ? "bg-primary/10" : "")}>
-              <td className="p-2"><button type="button" className="text-left font-medium text-primary underline-offset-2 hover:underline" onClick={() => { if (changeSchool(r.school_id)) setTimeout(() => document.getElementById("followup-school-detail")?.scrollIntoView?.({ behavior: "smooth", block: "start" }), 50); }}>{r.school_name}</button>
+              <td className="p-2"><Button variant="link" className="h-auto whitespace-normal p-0 text-left" onClick={() => { if (changeSchool(r.school_id)) setTab("school"); }}>{r.school_name}</Button>
                 {r.inep && <p className="text-xs text-muted-foreground">INEP: {r.inep}</p>}</td>
               <td className="p-2 tabular-nums">{r.visits}</td><td className="p-2 tabular-nums">{r.actions}</td><td className={"p-2 tabular-nums " + (r.overdue > 0 ? "font-semibold text-destructive" : "")}>{r.overdue}</td>
             </tr>)}</tbody></table>
@@ -715,13 +714,15 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </>}
       </>}
     </section>
-    <InstitutionalPendingPanel rows={scopedPending}
+    </div>
+    <div hidden={tab !== "pending"}><InstitutionalPendingPanel rows={scopedPending}
       loading={network.isPending || network.isFetching || pending.isPending || pending.isFetching}
       error={pendingScopeError} today={today} selectedSchoolId={school}
-      cancelExportRef={pendingExportCancel} onOpenAction={openMeasure} />
+      cancelExportRef={pendingExportCancel} onOpenAction={openMeasure} /></div>
+    <div hidden={tab !== "school"} className="space-y-5">
     {!school && <EmptyState title="Selecione uma unidade escolar" description="Escolha uma escola acima para abrir o histórico e, se você tiver permissão, registrar uma visita." />}
     {school && network.isSuccess && !network.isFetching && !selected && <section
-      className="space-y-2 rounded-xl border border-border p-4"
+      className="space-y-2 rounded-lg border border-border p-4"
       aria-label="Escola fora do escopo autorizado">
       <h2 className="font-semibold">A unidade não consta mais no escopo autorizado</h2>
       <p className="text-sm text-muted-foreground">
@@ -740,21 +741,12 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     </section>}
     {school && (!network.isSuccess || network.isFetching || Boolean(selected)) &&
       <section id="followup-school-detail" className="scroll-mt-20 space-y-5" aria-label="Detalhamento da escola">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-primary/30 bg-card p-5 shadow-panel">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-primary/30 bg-card p-5 shadow-panel">
         <div><p className="text-xs font-medium uppercase tracking-wide text-primary">Escola aberta</p><h2 className="font-display text-xl font-semibold">{selected?.school_name ?? school}</h2>
           <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
         <div className="flex flex-wrap items-center gap-2">
-          {detailData && <>
-            <Button size="sm" variant="outline" disabled={exporting}
-              onClick={() => void exportSchoolReport("pdf")}>Ficha PDF</Button>
-            <Button size="sm" variant="outline" disabled={exporting}
-              onClick={() => void exportSchoolReport("docx")}>Ficha Word</Button>
-            <Button size="sm" variant="outline" disabled={exporting}
-              onClick={() => void exportSchoolReport("xlsx")}>Ficha Excel</Button>
-            <Button size="sm" variant="outline" disabled={exporting}
-              onClick={() => void exportSchoolReport("csv")}>Ficha CSV</Button>
-          </>}
-          <Button variant="outline" onClick={() => changeSchool("")}>Fechar escola</Button>
+          {detailData && <FollowupExportMenu disabled={exporting} onExport={(f) => void exportSchoolReport(f)} />}
+          <Button variant="outline" onClick={() => { if (changeSchool("")) setTab("network"); }}>Fechar escola</Button>
         </div>
       </div>
       {(detail.isPending || detail.isFetching) && <p role="status">Carregando histórico…</p>}
@@ -762,7 +754,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         description={presentError(detail.error)} />}
       {stats && <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
         {([["Visitas", stats.visits], ["Medidas", stats.actions], ["Concluídas", stats.completed], ["Sem atualização", stats.withoutUpdate], ["Sem prazo", stats.noDueDate]] as const).map(([l, v]) =>
-          <div key={l} className="rounded-xl border border-border/60 bg-card p-3"><p className="text-xs text-muted-foreground">{l}</p><p className="font-display text-2xl font-semibold tabular-nums">{v}</p></div>)}
+          <div key={l} className="rounded-lg border border-border/60 bg-card p-3"><p className="text-xs text-muted-foreground">{l}</p><p className="font-display text-2xl font-semibold tabular-nums">{v}</p></div>)}
       </div>}
       {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
       {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
@@ -773,7 +765,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {detailData && <SchoolOpenActionsPanel key={school} snapshot={detailData} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
-      {canRecord && <form id="followup-visit-form" className="rounded-2xl border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveVisit(e)}>
+      {canRecord && <form id="followup-visit-form" className="rounded-lg border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveVisit(e)}>
         <fieldset disabled={saving} className="min-w-0 space-y-4">
         <h3 className="font-display text-lg font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
         {visitDraftNotice && <p role="alert" className="text-sm text-destructive">{visitDraftNotice}</p>}
@@ -811,7 +803,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             : " Nenhuma inconsistência no plano."}
         </p>
         <p className="text-xs text-muted-foreground">Subir e descer organiza apenas a sequência de envio das medidas nesta visita; o histórico pode ordená-las por prazo.</p>
-        {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-xl border border-border/60 bg-muted/30 p-3">
+        {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg border border-border/60 bg-muted/30 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h5 className="text-sm font-medium">Medida {i + 1}</h5>
             <div className="flex flex-wrap gap-1">
@@ -870,7 +862,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>}
       {detailData && canRecord && measureVisitId && <form id="followup-measure-form"
-        className="rounded-2xl border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveMeasure(e)}>
+        className="rounded-lg border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveMeasure(e)}>
         <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
         <h3 className="font-display text-lg font-semibold">Acrescentar medida a uma visita existente</h3>
         {measureDraftNotice && <p role="alert" className="text-sm text-destructive">{measureDraftNotice}</p>}
@@ -903,7 +895,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>}
       {detailData && <>
-        <div className="space-y-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
+        <div className="space-y-3 rounded-lg border border-border/70 bg-card p-5 shadow-panel">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-display text-lg font-semibold">Ações e evolução</h3>
             <span className="text-xs text-muted-foreground">{visibleActions.length} de {detailData.actions.length} medidas</span>
@@ -932,20 +924,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           {detailData.actions.length > 0 && visibleActions.length === 0 &&
             <p className="text-sm text-muted-foreground">Nenhuma medida corresponde aos filtros. Os registros permanecem no histórico.</p>}
           {visibleActions.map((a) => {
-            const latest = currentUpdate(a, detailData!.updates);
+            const latest = currentUpdate(a, detailData.updates);
             return <div key={a.id} id={`followup-action-${a.id}`} tabIndex={-1}
               className="scroll-mt-24 space-y-2 border-b pb-3 last:border-0 focus:outline-2 focus:outline-offset-2 focus:outline-primary">
               <FormattedText text={a.description} className="space-y-1 font-medium" />
               <p className="text-xs text-muted-foreground">
                 Responsável: {a.responsible_label || "Não informado"} • Registro: {a.author_name || "Autoria registrada"}
-                {" • "}Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detailData!.updates)}
-                {isOverdue(a, detailData!.updates, today) && <strong className="text-destructive"> • Prazo vencido</strong>}
+                {" • "}Prazo: {dateLabel(a.due_on)} • Situação: {currentSituation(a, detailData.updates)}
+
               </p>
+              <FollowupSituationBadge situation={currentSituation(a, detailData.updates)} overdue={isOverdue(a, detailData.updates, today)} />
               {latest && <p className="text-sm">Última atualização ({dateLabel(latest.occurred_on)}): {latest.situation}</p>}
-              {detailData!.updates.some((u) => u.action_id === a.id) && <details className="rounded-lg bg-muted/30 p-3 text-sm">
+              {detailData.updates.some((u) => u.action_id === a.id) && <details className="rounded-lg bg-muted/30 p-3 text-sm">
                 <summary className="cursor-pointer font-medium">Consultar histórico completo desta ação</summary>
                 <ol className="mt-3 space-y-3">
-                  {detailData!.updates.filter((u) => u.action_id === a.id)
+                  {detailData.updates.filter((u) => u.action_id === a.id)
                     .sort((x, y) => y.occurred_on.localeCompare(x.occurred_on) || y.created_at.localeCompare(x.created_at))
                     .map((u) => <li key={u.id} className="space-y-1 border-b pb-2 last:border-0">
                       <p className="font-medium">{dateLabel(u.occurred_on)} — {u.situation} • {u.author_name || "Autoria registrada"}</p>
@@ -954,7 +947,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                       <div><strong>Resultados:</strong> {u.results ? <FormattedText text={u.results} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
                       <div><strong>Encaminhamentos:</strong> {u.referrals ? <FormattedText text={u.referrals} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
                       <p><strong>Visita associada:</strong> {u.visit_logical_id
-                        ? (dateLabel(followupVisitByLogicalId(detailData!.visits, u.visit_logical_id)?.visit_date ?? null))
+                        ? (dateLabel(followupVisitByLogicalId(detailData.visits, u.visit_logical_id)?.visit_date ?? null))
                         : "Nenhuma visita informada"}</p>
                     </li>)}
                 </ol>
@@ -965,7 +958,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           })}
         </div>
         {canRecord && actionId && <form id="followup-update-form" tabIndex={-1}
-           className="scroll-mt-24 rounded-2xl border border-border/70 bg-card p-5 shadow-panel focus:outline-2 focus:outline-primary"
+           className="scroll-mt-24 rounded-lg border border-border/70 bg-card p-5 shadow-panel focus:outline-2 focus:outline-primary"
           onSubmit={(e) => void saveUpdate(e)}>
           <fieldset disabled={savingUpdate} className="min-w-0 space-y-3">
           <h3 className="font-display text-lg font-semibold">Nova atualização da ação</h3>
@@ -1010,17 +1003,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </fieldset>
         </form>}
         <FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} />
-        <div className="space-y-3 rounded-2xl border border-border/70 bg-card p-5 shadow-panel">
+        <div className="space-y-3 rounded-lg border border-border/70 bg-card p-5 shadow-panel">
           <h3 className="font-display text-lg font-semibold">Histórico de visitas</h3>
           {!detailData.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
-          {detailData.visits.map((v) => <article key={v.id} className="space-y-2 border-b pb-3 last:border-0">
-            <p className="text-sm font-medium">{dateLabel(v.visit_date)} • {v.author_name || "Autoria institucional registrada"} {v.version > 1 ? `(retificação v${v.version})` : ""}</p>
-            {v.purpose_note && <div className="text-sm"><strong>Objetivo:</strong> <FormattedText text={v.purpose_note} className="mt-0.5 space-y-1" /></div>}
-            {v.participants_note && <div className="text-sm"><strong>Demais participantes informados:</strong> <FormattedText text={v.participants_note} className="mt-0.5 space-y-1" /></div>}
-            <div className="text-sm"><strong>Diagnóstico:</strong> <FormattedText text={v.diagnosis} className="mt-0.5 space-y-1" /></div>
-            <div className="text-sm"><strong>Pontos fortes:</strong> {v.strengths ? <FormattedText text={v.strengths} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
-            <div className="text-sm"><strong>Fragilidades:</strong> {v.weaknesses ? <FormattedText text={v.weaknesses} className="mt-0.5 space-y-1" /> : "Não informado"}</div>
-            {v.summary && <div className="text-sm"><strong>Encaminhamentos:</strong> <FormattedText text={v.summary} className="mt-0.5 space-y-1" /></div>}
+          {detailData.visits.map((v) => <article key={v.id} className="space-y-4 rounded-lg border border-border bg-card p-5">
+            <header className="flex flex-wrap items-center justify-between gap-2 border-b pb-3"><p className="font-semibold">{dateLabel(v.visit_date)}</p><p className="text-sm text-muted-foreground">{v.author_name || "Autoria registrada"}{v.version > 1 ? ` · Retificação ${v.version}` : ""}</p></header>
+            <div className="grid gap-5 md:grid-cols-2">
+              {([["Objetivo", v.purpose_note, Target], ["Diagnóstico", v.diagnosis, ClipboardList], ["Pontos fortes", v.strengths, Sparkles], ["Fragilidades", v.weaknesses, TriangleAlert], ["Encaminhamentos", v.summary, ArrowRight], ["Participantes", v.participants_note, Users]] as const).map(([label, text, Icon]) => text ? <div key={label} className="min-w-0 text-sm"><h4 className="mb-2 flex items-center gap-2 font-semibold"><Icon className="size-4 text-muted-foreground" />{label}</h4><FormattedText text={text} className="space-y-1 break-words text-muted-foreground" /></div> : null)}
+            </div>
             {v.correction_reason && <p className="text-sm"><strong>Justificativa da última retificação:</strong> {v.correction_reason}</p>}
             <VisitAttachments schoolId={school} visitId={v.id} canRecord={canRecord}
               attachments={attachmentsData}
@@ -1029,10 +1019,10 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               }} />
             {v.version > 1 && <details className="rounded-md bg-muted/30 p-3 text-sm">
               <summary className="cursor-pointer font-medium">
-                Ver {detailData!.visit_history.filter((h) => h.logical_id === v.logical_id).length} versão(ões) anteriores
+                Ver {detailData.visit_history.filter((h) => h.logical_id === v.logical_id).length} versão(ões) anteriores
               </summary>
               <ol className="mt-2 space-y-3">
-                {detailData!.visit_history.filter((h) => h.logical_id === v.logical_id)
+                {detailData.visit_history.filter((h) => h.logical_id === v.logical_id)
                   .sort((a, b) => b.version - a.version).map((h) => <li key={h.id} className="space-y-1 border-b pb-2 last:border-0">
                     <p className="font-semibold">Versão {h.version} • {dateLabel(h.visit_date)} • {h.author_name || "Autoria registrada"}</p>
                     {h.purpose_note && <p><strong>Objetivo:</strong> {h.purpose_note}</p>}
@@ -1046,14 +1036,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               </ol>
             </details>}
             <div className="flex flex-wrap gap-2" aria-label="Exportar relatório individual da visita">
-              <Button type="button" size="sm" variant="outline" disabled={exporting}
-                onClick={() => void exportVisitReport(v.id, "pdf")}>Relatório da visita PDF</Button>
-              <Button type="button" size="sm" variant="outline" disabled={exporting}
-                onClick={() => void exportVisitReport(v.id, "docx")}>Word</Button>
-              <Button type="button" size="sm" variant="outline" disabled={exporting}
-                onClick={() => void exportVisitReport(v.id, "xlsx")}>Excel</Button>
-              <Button type="button" size="sm" variant="outline" disabled={exporting}
-                onClick={() => void exportVisitReport(v.id, "csv")}>CSV</Button>
+              <FollowupExportMenu disabled={exporting} onExport={(f) => void exportVisitReport(v.id, f)} />
             </div>
             {canRecord && <div className="flex flex-wrap gap-2">
               <Button type="button" size="sm" variant="outline" onClick={() => startMeasure(v)}>
@@ -1066,5 +1049,6 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </div>
       </>}
     </section>}
+    </div>
   </div>;
 }
