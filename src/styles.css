@@ -1678,7 +1678,7 @@
 
 /* PREMIUM.2026 — identidade: barra petróleo com degradê, vidro suave, bordas em degradê e tons das ações. */
 :root {
-  --sidebar-gradient: linear-gradient(180deg, oklch(0.29 0.045 200) 0%, oklch(0.24 0.04 215) 55%, oklch(0.2 0.035 230) 100%);
+  --sidebar-gradient: var(--sidebar);
   --glass: color-mix(in oklab, var(--card) 72%, transparent);
   --shadow-soft: 0 1px 2px color-mix(in oklab, var(--foreground) 4%, transparent), 0 8px 24px -14px color-mix(in oklab, var(--sidebar) 28%, transparent);
   --shadow-lift: 0 2px 4px color-mix(in oklab, var(--foreground) 5%, transparent), 0 18px 36px -18px color-mix(in oklab, var(--sidebar) 40%, transparent);

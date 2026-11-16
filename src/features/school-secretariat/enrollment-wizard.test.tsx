@@ -63,7 +63,7 @@ describe("matrícula guiada — tela", () => {
     // retomada: nova montagem lê só o banco
     render(<EnrollmentWizard />);
     expect(await screen.findByText("E2E Aluno")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Retomar" }));
     const sel = await screen.findByLabelText("Ano letivo");
     await waitFor(() => expect(sel.querySelectorAll("option").length).toBe(2));
     fireEvent.change(sel, { target: { value: "ano-x" } });
