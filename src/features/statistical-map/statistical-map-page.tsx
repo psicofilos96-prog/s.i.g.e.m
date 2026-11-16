@@ -27,6 +27,7 @@ import {
 } from "./statistical-map.functions";
 import { institution } from "@/config/institution";
 import { formatDateTime, operationalToday } from "@/lib/academic-date";
+import { withListTimeout } from "@/lib/server-page";
 import { ContextHint } from "@/components/sigem/context-help";
 import { Link } from "@tanstack/react-router";
 import { Download, Pencil, CheckCircle2, CircleAlert, Send } from "lucide-react";
@@ -233,7 +234,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
         {!v.opened && (
           <div className="mt-3">
             {v.capabilities.prepare
-              ? <Button disabled={run.isPending} onClick={() => run.mutate(() => open({ data: competence }))}>Abrir competência</Button>
+              ? <div className="flex flex-wrap items-center gap-3"><Button variant="outline" disabled={run.isPending} onClick={() => run.mutate(() => open({ data: competence }))}>Abrir competência</Button><Button disabled><Send className="size-4"/>Conferir e Enviar Mapa</Button><p className="w-full text-xs text-muted-foreground">Abra a competência para iniciar a conferência.</p></div>
               : <p className="text-sm text-muted-foreground">Você pode ver a prévia, mas não tem autorização para abrir esta competência.</p>}
           </div>
         )}
@@ -369,7 +370,7 @@ function LiveDocument({ competence, conference, controls, onConference }: { comp
   const getLive = useServerFn(getLiveMapData);
   const [tab, setTab] = useState<string>("I");
   const [cover, setCover] = useState(true);
-  const live = useQuery({ queryKey: ["map-live", competence.schoolId, competence.year, competence.month], queryFn: () => getLive({ data: competence }) });
+  const live = useQuery({ queryKey: ["map-live", competence.schoolId, competence.year, competence.month], retry: false, queryFn: ({ signal }) => withListTimeout(signal, () => getLive({ data: competence })) });
   const doc = live.data ? buildLiveDoc(live.data, { headerLines: NETWORK_BRANDING.headerLines, signatures: ["Responsável pelo estabelecimento de ensino", "Responsável pelo preenchimento"], generatedAt: new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) }) : null;
   const qcl = useQueryClient();
   const doFreeze = useServerFn(freezeLiveMap);
@@ -401,7 +402,7 @@ function LiveDocument({ competence, conference, controls, onConference }: { comp
       </div>
       {tab === "conf" ? <div className="space-y-5">
         {doc && live.data && <section className="border-b border-border pb-5"><h2 className="mb-3 text-base font-semibold">Checklist de validação</h2><ul className="grid gap-3 sm:grid-cols-2">{[
-          { ok: Object.values(live.data.identification).length > 0 && Object.values(live.data.identification).every((v) => v !== null && v !== ""), label: "Dados da escola", detail: Object.values(live.data.identification).length > 0 && Object.values(live.data.identification).every((v) => v !== null && v !== "") ? "Cadastro preenchido" : "Confira os campos não informados" },
+          { ok: doc.sections.find((s) => s.id === "I")?.blocks.every((b) => b.kind !== "fields" || b.pairs.every(([,value]) => value !== "—")), label: "Dados da escola", detail: doc.sections.find((s) => s.id === "I")?.blocks.every((b) => b.kind !== "fields" || b.pairs.every(([,value]) => value !== "—")) ? "Campos exibidos preenchidos" : "Confira os campos não informados" },
           { ok: !!live.data.frozenAt, label: "Movimentação", detail: live.data.frozenAt ? "Movimentações fechadas" : "Movimentações ainda em atualização" },
           { ok: !live.data.classes.some((c) => modalityOf(c.stage_label ?? c.class_name) === "Modalidade não informada"), label: "Modalidades das turmas", detail: live.data.classes.some((c) => modalityOf(c.stage_label ?? c.class_name) === "Modalidade não informada") ? `${live.data.classes.filter((c) => modalityOf(c.stage_label ?? c.class_name) === "Modalidade não informada").length} turmas sem modalidade informada` : "Nenhuma modalidade pendente nas turmas consultadas" },
           { ok: live.data.failed.length === 0, label: "Consulta dos dados", detail: live.data.failed.length === 0 ? "Registros consultados" : "Alguns dados não puderam ser consultados" },
@@ -410,10 +411,10 @@ function LiveDocument({ competence, conference, controls, onConference }: { comp
         {conference}
       </div>
         : live.isPending ? <SkeletonState label="Montando o mapa" />
-        : live.isError || !doc ? <StatePanel tone="danger" title="Mapa indisponível" description="Não foi possível ler os registros da escola agora. Tente novamente." />
+        : live.isError || !doc ? <StatePanel tone="danger" title="Mapa indisponível" description="Não foi possível ler os registros da escola agora." action={<Button variant="outline" onClick={() => live.refetch()}>Tentar novamente</Button>} />
         : (
           <>
-            {live.data?.failed.length > 0 && <p className="text-sm text-muted-foreground">Parte dos registros não pôde ser lida com o seu acesso; esses campos aparecem com —.</p>}
+            {(live.data?.failed.length ?? 0) > 0 && <p className="text-sm text-muted-foreground">Parte dos registros não pôde ser lida com o seu acesso; esses campos aparecem com —.</p>}
             <MapSectionView doc={doc} sectionId={tab}
               missingModalities={live.data?.classes.filter((c) => modalityOf(c.stage_label ?? c.class_name) === "Modalidade não informada").length ?? 0}
               canOpenClasses={pathAllowed(authority, "/turmas")}
@@ -442,7 +443,7 @@ export function StatisticalMapWorkspace() {
   const competence = { schoolId: sid, year, month };
   const key = ["statistical-map", sid, year, month];
   const [showConf, setShowConf] = useState(false);
-  const map = useQuery({ queryKey: key, enabled: ready && showConf, queryFn: () => get({ data: competence }) });
+  const map = useQuery({ queryKey: key, enabled: ready && showConf, retry: false, queryFn: ({ signal }) => withListTimeout(signal, () => get({ data: competence })) });
   const years = [...new Set([...active.years.flatMap((y) => { const n = /\d{4}/.exec(y.label)?.[0]; return n ? [Number(n)] : []; }), year])].sort((a,b) => b-a);
   const sel = "h-10 rounded-md border border-input bg-card px-2 text-sm";
   const controls = <><label className="flex items-center gap-2 text-xs text-muted-foreground">Mês<select aria-label="Mês do mapa" className={sel} value={month} onChange={(e) => { setMonth(Number(e.target.value)); setShowConf(false); }}>{MONTHS.map((m,i) => <option key={m} value={i+1}>{m}</option>)}</select></label><label className="flex items-center gap-2 text-xs text-muted-foreground">Ano<select aria-label="Ano do mapa" className={sel} value={year} onChange={(e) => { const n = Number(e.target.value); setYear(n); setShowConf(false); const match = active.years.find((y) => y.label.includes(String(n))); if (match) active.setYear(match.id); }}>{years.map((y) => <option key={y} value={y}>{y}</option>)}</select></label></>;
@@ -452,7 +453,7 @@ export function StatisticalMapWorkspace() {
       <Button className="mt-3" variant="outline" onClick={() => setShowConf(true)}>Abrir conferência</Button>
     </div>
   ) : map.isPending ? <SkeletonState label="Carregando a conferência" />
-    : map.isError ? <StatePanel tone="danger" title="Conferência indisponível" description="Tente novamente." />
+    : map.isError ? <StatePanel tone="danger" title="Conferência indisponível" description="Não foi possível concluir a consulta. Tente novamente." action={<Button variant="outline" onClick={() => map.refetch()}>Tentar novamente</Button>} />
     : <MapBody key={key.join("|") + map.data.fingerprint} v={map.data} competence={competence} onChange={(nv) => qc.setQueryData(key, nv)} />;
 
   return (
