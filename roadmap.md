@@ -1,5 +1,9 @@
 # Roadmap — SIGEM simples no design original
 
+## Imagens ao registrar visita (21/11/2026)
+- [ ] Selecionar e pré-visualizar imagens no formulário das duas servidoras, reutilizando os anexos privados existentes.
+- [ ] Verificar envio, recuperação sem duplicação e permissões com testes; conferir acesso real quando a sessão permitir.
+
 ## Acompanhamento — escopo e assinaturas (16/11/2026)
 - [x] Retirar conveniadas dos postos de Acompanhamento, preservando cadastros: 0632 aplicada; função executada em PostgreSQL descartável permite municipal urbana/rural e recusa conveniada urbana/rural e escola desconhecida. Não equivale a aceite com sessão real.
 - [x] Acrescentar áreas de assinatura de responsáveis declarados, autoria registrada e uma assinatura adicional no PDF/Word; ambos inspecionados com entrada sintética sem gravar dados.

@@ -25,6 +25,8 @@ import { useFollowupRouteGuard } from "./use-route-guard";
 import { SeatAdminPanel } from "./seat-admin-panel";
 import { FollowupTextArea, FormattedText } from "./text-format";
 import { VisitAttachments } from "./visit-attachments";
+import { VisitImagePicker } from "./visit-image-picker";
+import { uploadVisitImage, type PendingVisitImage } from "./attachment-upload";
 import { schoolFollowupAttachments } from "./source";
 import { exportFollowupNetwork, exportFollowupSchool, exportFollowupVisit } from "./report";
 import { availableFollowupVisits, followupVisitByLogicalId, currentSituation, currentUpdate, filterSchoolActions, filterNetworkRows, isOverdue, networkIndicators, schoolIndicators, validateFollowupActionDrafts, followupActionDraftIssue, moveFollowupActionDraft, isEvolutionDraftDirty, isFollowupActionDraftDirty, isFollowupVisitDraftDirty, SITUATIONS, NO_UPDATE, type ActionView, type NetworkView } from "./model";
@@ -81,6 +83,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [correctionReason, setCorrectionReason] = useState("");
   const [draftActions, setDraftActions] = useState<ActionDraft[]>(() => [newAction()]);
   const [saving, setSaving] = useState(false);
+  const [visitImages, setVisitImages] = useState<PendingVisitImage[]>([]);
+  const [savedVisitId, setSavedVisitId] = useState<string | null>(null);
+  const savingVisitLock = useRef(false);
   const [savingUpdate, setSavingUpdate] = useState(false);
   const [savingMeasure, setSavingMeasure] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -203,7 +208,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     day: updateDay, initialDay: today, situation, linkedVisitId: updateVisitId,
     done, notDone, results, referrals,
   });
-  const visitDraftIsDirty = isFollowupVisitDraftDirty({
+  const visitDraftIsDirty = visitImages.length > 0 || savedVisitId !== null || isFollowupVisitDraftDirty({
     day, initialDay: today, correctionBase, diagnosis, strengths, weaknesses,
     summary, participants, purpose, correctionReason, actions: draftActions,
   });
@@ -221,6 +226,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   liveDraftSignatures.current = {
     visit: JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary,
       participants, purpose, correctionBase, correctionReason, draftActions,
+      images: visitImages.map((image) => image.request), savedVisitId,
       request: visitRequests.current?.signature }),
     measure: JSON.stringify({ school, measureVisitId, measureDraft,
       request: measureRequest.current?.signature }),
@@ -339,12 +345,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   }
   async function saveVisit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!school || !canRecord || !diagnosis.trim() || !day || day > today || saving
+    if (!school || !canRecord || !diagnosis.trim() || !day || day > today || savingVisitLock.current
       || (correctionBase !== null && !correctionReason.trim())) return;
     if (correctionBase === null) {
       const planError = validateFollowupActionDrafts(draftActions, day);
       if (planError) { setError(planError); return; }
     }
+    savingVisitLock.current = true;
     setSaving(true); setError(""); setNotice("");
     // Só repetir a mesma chave de operação quando o conteúdo for idêntico.
     const signature = JSON.stringify({ school, day, diagnosis, strengths, weaknesses, summary,
@@ -353,12 +360,13 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     const requests = visitRequests.current?.signature === signature ? visitRequests.current
       : { signature, visit: crypto.randomUUID(), actions: draftActions.map(() => crypto.randomUUID()) };
     visitRequests.current = requests;
+    let recordedVisit = savedVisitId;
     try {
-      if (correctionBase !== null) {
-        await recordVisit({ school, day, diagnosis, strengths, weaknesses, summary,
+      if (!recordedVisit && correctionBase !== null) {
+        recordedVisit = await recordVisit({ school, day, diagnosis, strengths, weaknesses, summary,
           participants, purpose, base: correctionBase, reason: correctionReason, request: requests.visit });
-      } else {
-        await recordVisitBundle({
+      } else if (!recordedVisit) {
+        recordedVisit = await recordVisitBundle({
           school, day, diagnosis, strengths, weaknesses, summary,
           participants, purpose, request: requests.visit,
           actions: draftActions.map((a, index) => ({
@@ -367,14 +375,19 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           })),
         });
       }
+      setSavedVisitId(recordedVisit);
+      for (const image of visitImages) await uploadVisitImage(school, recordedVisit, image);
       resetVisitDraft();
-      setNotice(correctionBase === null
+      setNotice(visitImages.length > 0 ? "Visita e imagens registradas."
+        : correctionBase === null
         ? "Visita e ações registradas. O histórico da escola foi preservado."
         : "Retificação registrada com justificativa. A versão anterior continua preservada.");
       await refresh();
     } catch (e) {
-      setError(presentError(e));
-    } finally { setSaving(false); }
+      setError(recordedVisit && visitImages.some((image) => !image.registered)
+        ? "A visita foi salva, mas faltam imagens. Clique em Tentar enviar imagens para concluir sem duplicar a visita."
+        : presentError(e));
+    } finally { savingVisitLock.current = false; setSaving(false); }
   }
   async function saveUpdate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -454,7 +467,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     const snapshot = liveDraftSignatures.current.visit;
     if ((visitDraftIsDirty || visitRequests.current !== null) && !await confirmLocalDiscard(
       correctionBase ? "Cancelar retificação da visita?" : "Descartar visita em preenchimento?",
-      "Os campos e as medidas preenchidos nesta visita serão descartados sem registro no histórico da escola.",
+      savedVisitId ? "A visita já salva será mantida. Imagens ainda não enviadas serão descartadas."
+        : "Os campos, as imagens e as medidas preenchidos nesta visita serão descartados sem registro no histórico da escola.",
       correctionBase ? "Cancelar e descartar" : "Descartar preenchimento",
     )) return;
     if (saving || liveDraftSignatures.current.visit !== snapshot) {
@@ -496,6 +510,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setMeasureDraftNotice(""); measureRequest.current = null;
   }
   function resetVisitDraft() {
+    setVisitImages([]); setSavedVisitId(null);
     setDay(today); setDiagnosis(""); setStrengths(""); setWeaknesses("");
     setSummary(""); setParticipants(""); setPurpose(""); setCorrectionBase(null);
     setCorrectionReason(""); setDraftActions([newAction()]);
@@ -766,6 +781,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
       {canRecord && <form id="followup-visit-form" className="rounded-lg border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveVisit(e)}>
         <fieldset disabled={saving} className="min-w-0 space-y-4">
+        <fieldset disabled={savedVisitId !== null} className="min-w-0 space-y-4">
         <h3 className="font-display text-lg font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
         {visitDraftNotice && <p role="alert" className="text-sm text-destructive">{visitDraftNotice}</p>}
         {correctionBase && <p className="text-sm text-muted-foreground">
@@ -844,12 +860,14 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               : "o prazo não pode ser anterior à data da visita."}
           </p>}
         </div>)}</>}
+        <VisitImagePicker images={visitImages} onChange={setVisitImages} disabled={saving || savedVisitId !== null} />
+        </fieldset>
         <div className="flex flex-wrap gap-2 border-t pt-4">
-          {!correctionBase && <Button type="button" variant="outline" disabled={saving || draftActions.length >= 50}
+          {!correctionBase && <Button type="button" variant="outline" disabled={saving || savedVisitId !== null || draftActions.length >= 50}
             onClick={() => { setDraftActions((a) => a.length < 50 ? [...a, newAction()] : a); visitRequests.current = null; }}>Adicionar medida</Button>}
           <Button type="submit" disabled={saving || !diagnosis.trim() || invalidActionCount > 0
             || Boolean(correctionBase && !correctionReason.trim())}>
-            {saving ? "Registrando…" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
+            {saving ? "Registrando…" : savedVisitId ? "Tentar enviar imagens" : correctionBase ? "Salvar retificação" : "Salvar visita e plano"}
           </Button>
           {(correctionBase || visitDraftIsDirty || visitRequests.current !== null) && <Button
             type="button" variant="outline" disabled={saving}

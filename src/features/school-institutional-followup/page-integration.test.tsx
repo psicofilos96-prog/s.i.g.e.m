@@ -17,6 +17,7 @@ const mocks = vi.hoisted(() => ({
   recordAction: vi.fn(),
   recordUpdate: vi.fn(),
   confirmAction: vi.fn(),
+  uploadVisitImage: vi.fn(),
 }));
 
 // These regression tests inspect retained state across tabs; browser acceptance checks visibility.
@@ -49,6 +50,9 @@ vi.mock("./source", () => ({
   recordVisit: mocks.recordVisit,
   recordAction: mocks.recordAction,
   recordUpdate: mocks.recordUpdate,
+}));
+vi.mock("./attachment-upload", async (original) => ({
+  ...await original<typeof import("./attachment-upload")>(), uploadVisitImage: mocks.uploadVisitImage,
 }));
 vi.mock("@/components/sigem/confirm-action", () => ({
   confirmAction: mocks.confirmAction,
@@ -139,6 +143,48 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.recordAction.mockResolvedValue("action-created");
     mocks.recordUpdate.mockResolvedValue("update-created");
     mocks.confirmAction.mockResolvedValue(true);
+    mocks.uploadVisitImage.mockResolvedValue(undefined);
+    vi.stubGlobal("URL", Object.assign(URL, { createObjectURL: vi.fn(() => "blob:test-image"), revokeObjectURL: vi.fn() }));
+  });
+
+  it.each(["acomp1", "acomp2"])("%s pode escolher imagens antes de registrar a visita", async (account) => {
+    setSession(true);
+    mocks.session["user"] = { id: account };
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form");
+    if (!form) throw new Error("Visit form not found");
+    const fields = within(form);
+    const file = new File(["photo"], "fachada.png", { type: "image/png" });
+    fireEvent.change(fields.getByLabelText("Selecionar imagens da visita"), { target: { files: [file] } });
+    expect(mocks.uploadVisitImage).not.toHaveBeenCalled();
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }), { target: { value: "Visita com foto da fachada" } });
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    await waitFor(() => expect(mocks.uploadVisitImage).toHaveBeenCalledWith("school-a", "visit-created",
+      expect.objectContaining({ file, request: expect.any(String) })));
+    expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue(""));
+  });
+
+  it("repete envio de imagens sem registrar a visita uma segunda vez", async () => {
+    setSession(true);
+    mocks.uploadVisitImage.mockRejectedValueOnce(new Error("Interrupted image upload"));
+    renderPage();
+    await openSchool("Escola Centro");
+    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form");
+    if (!form) throw new Error("Visit form not found");
+    const fields = within(form);
+    fireEvent.change(fields.getByLabelText("Selecionar imagens da visita"), {
+      target: { files: [new File(["photo"], "sala.png", { type: "image/png" })] },
+    });
+    fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }), { target: { value: "Relato preservado" } });
+    fireEvent.click(fields.getByRole("button", { name: "Salvar visita e plano" }));
+    const retry = await fields.findByRole("button", { name: "Tentar enviar imagens" });
+    expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" })).toBeDisabled();
+    fireEvent.click(retry);
+    await waitFor(() => expect(mocks.uploadVisitImage).toHaveBeenCalledTimes(2));
+    expect(mocks.uploadVisitImage.mock.calls[0]).toEqual(mocks.uploadVisitImage.mock.calls[1]);
+    expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
   });
 
   it("permite focar por teclado a região rolável da tabela em zoom ampliado", async () => {

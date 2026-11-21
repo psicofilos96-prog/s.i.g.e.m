@@ -85,6 +85,7 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Servidor MCP em `src/lib/mcp/` age só como a conta conectada (OAuth + cliente com o token dela) e grava apenas por funções do banco do catálogo `rpc-catalog.json` (gerado por `scripts/mcp-rpc-catalog.mjs`), nunca SQL/tabela direta/chave privilegiada, porque o assistente não pode ir além do que a conta faria na tela.
 
 ## Followup document presentation
+- Visit forms stage images in memory and attach them through the existing private storage/RPC flow after the canonical visit write; partial retries reuse the saved visit and stable attachment requests, because a failed image must not duplicate visits or overwrite files.
 - Followup tabs retain local drafts while hiding inactive panels; exports use a shared format menu and executive presentation options in the common engine, because navigation and visual changes must not duplicate facts or change authority.
 - Followup school eligibility is configured as append-only scope data matched against current canonical school classifications in the shared grant function, because lists, aggregates, writes and private attachments must enforce the same scope.
 - Followup paragraph formatting uses a browser-safe text marker parser shared by screen and PDF, because presentation must survive existing versioned text storage without accepting user HTML.
