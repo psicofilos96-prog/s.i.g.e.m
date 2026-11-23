@@ -50,6 +50,8 @@ const STEPS = [
     fn: () => { const r = run("node", ["scripts/docs-index.mjs", "--check"]); return { ok: r.ok, note: tail(r.out, 2) }; } },
   { id: "migrations", title: "Integridade de migrations", what: "Migration congelada não foi editada; journal = arquivos; novas listadas para congelar.",
     fn: () => { const r = run("node", ["scripts/check-migrations.mjs"]); return { ok: r.ok, note: tail(r.out, 2) }; } },
+  { id: "limpeza-isolada", title: "Limpeza restrita (PostgreSQL descartável)", what: "Recusas, proveniência e reversão; não executa limpeza no Cloud nem usa credenciais.",
+    fn: () => { const r = run("node", ["scripts/test-school-cleanup-isolated.mjs"]); return { ok: r.ok, note: r.ok ? pick(r.out, /^PASS /) : tail(r.out, 8) }; } },
   { id: "tipos", title: "Tipos (TypeScript)", what: "O projeto compila sem erro de tipo.",
     fn: () => { const r = run("node", ["node_modules/@typescript/native-preview/bin/tsgo", "--noEmit", "-p", "."]); const n = (r.out.match(/error TS/g) ?? []).length; return { ok: r.ok, note: r.ok ? "0 erros" : `${n} erro(s)\n${tail(r.out, 8)}` }; } },
   { id: "testes", title: "Testes (suíte completa)", what: "Regras, modelos, telas, vocabulário, a11y por componente, snapshots e invariantes rápidas.",

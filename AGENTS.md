@@ -110,3 +110,6 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Shared state panels omit correlation codes from visible copy while recovery telemetry retains them, because operational users need actionable messages rather than diagnostic identifiers.
 
 - School flow presentation keeps queue transition availability from `ALLOWED` and opens enrollment without a write; capacity links preselect only an existing class in the canonical allocation surface, because interface shortcuts must not create parallel mutations or authority.
+
+## Restricted technical cleanup
+- Test-school cleanup uses only the owner-gated command and fixed payload of migration 0633; retained audit FKs or existing immutable guards abort the whole transaction, because deletion must not silently redefine audit provenance or grant application authority.

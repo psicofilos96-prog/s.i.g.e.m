@@ -4432,6 +4432,13 @@
       "when": 1794854736735,
       "tag": "0632_followup_municipal_school_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 633,
+      "version": "7",
+      "when": 1795461485595,
+      "tag": "0633_test_school_99999901_fail_closed_cleanup",
+      "breakpoints": true
     }
   ]
 }

@@ -14,6 +14,7 @@ Opções: `--only=tipos,testes`, `--skip=build,rotas`, `SIGEM_BASE_URL` (padrão
 | Etapa (id) | O que valida |
 |---|---|
 | migrations | Migration congelada não foi editada (hash), journal = arquivos, novas migrations listadas para `invariants:freeze-migrations`. |
+| limpeza-isolada | Recusas e reversão da operação da escola 99999901 em PostgreSQL novo, sem rede, sob `/tmp`; exige initdb/pg_ctl/psql/setpriv e usuário local 1000. Não usa credenciais nem dados do Cloud; ausência das ferramentas é FAIL. |
 | tipos | `tsgo --noEmit` local (`@typescript/native-preview` com versão fixa no lockfile): 0 erros de tipo, sem download de compilador durante a verificação. |
 | testes | `vitest run`: suíte completa (regras, modelos, telas, vocabulário, a11y por componente, invariantes rápidas). |
 | profundas | `SIGEM_DEEP=1` em `src/test/invariants`: writers, grants, migrations. |

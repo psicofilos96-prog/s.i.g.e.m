@@ -1,11 +1,11 @@
 # Limpeza da escola de teste — inventário de 23/11/2026
 
 ## Situação atual
-Registro de lote. **BLOQUEADO; nenhuma exclusão, migration ou operação de limpeza executada.**
+Registro de lote. **LIMPEZA BLOQUEADA; migration 0633 aplicada e comando técnico tentado, com reversão integral e zero exclusões.**
 Consultas realizadas no Cloud canônico por `supabase--read_query`, como `supabase_read_only_user`.
 Não foram usados DML direto, roles da aplicação, alterações de RLS, desativação de triggers ou autoria humana simulada.
 
-## Identidade a preservar
+## Identidade a preservar no escopo anterior (histórico)
 - Escola: `inep-99999901`.
 - Identificador INEP: `99999901`; registro `fef22959-1d0f-46ca-9e7c-fcd668e7fc41`.
 - Duas versões cadastrais; última: `97430f22-2417-42ba-a86f-280f133f7f6a`, versão 2.
@@ -105,7 +105,7 @@ Hash calculado sobre `to_jsonb(row)::text`, ordenado por ID, separado por newlin
 Existem 55 outras escolas. Nesta consulta, matrículas e turmas fora da escola teste somaram zero;
 isso é o baseline observado, não uma declaração de completude das importações oficiais.
 
-## Bloqueios concretos
+## Bloqueios da inspeção anterior (histórico)
 1. O estudante `est-c27b3e44-328d-40e8-937d-ba82ba6f70bb` foi criado pelo formulário institucional
    em 02/11/2026, rascunho `417c6339-4d7a-4219-b045-e6abae47c2d3`.
    O evento confirma `student_created=true` e `person_reused=false`, mas não declara que seja fictício.
@@ -143,7 +143,7 @@ Consulta de baseline reutilizável: `scripts/test-school-cleanup-baseline.sql`.
   a escola, seu identificador e 2 versões cadastrais, além de 7 vínculos conta-pessoa e 3 principals/eventos de contas escolares.
 - Há fatos protegidos por gatilhos de imutabilidade, incluindo congelamento do Mapa e identificadores de pessoa; o executor não pode desativá-los.
 
-## Bloqueio de execução confirmado
+## Bloqueio da execução anterior (histórico; substituído pela prova abaixo)
 - A conexão técnica disponível no sandbox é `sandbox_exec`; ela não é proprietária nem prova o destino pelo gate de ambiente.
 - O canal de leitura é somente leitura; o canal de dados aceita apenas DML direto, proibido neste pedido.
 - O canal de migration aplica somente DDL e não pode executar a limpeza como alteração de dados.
@@ -153,3 +153,34 @@ Consulta de baseline reutilizável: `scripts/test-school-cleanup-baseline.sql`.
 - SELECT final: escola 1; versões 2; identificador 1; alunos 80; matrículas 192; turmas 6; registros fictícios de servidores 16; atuações 34; declarações profissionais 7. Nenhum desses totais chegou a zero.
 - As 55 demais escolas e as fontes reais de 1.797/219 linhas permanecem intactas; os dois SHA-256 acima foram reproduzidos. As duas operações de origem permanecem.
 - Nenhum executor/migration de limpeza foi criado ou aplicado, pois o inventário ainda não é completo e não existe canal de invocação owner-only confirmado. Nenhum teste de execução/rollback foi declarado como realizado.
+
+## Prova atual — operação restrita e tentativa no Cloud
+- Aplicada `drizzle/migrations/0633_test_school_99999901_fail_closed_cleanup.sql` pelo canal de migrations do projeto. DDL apenas: a instalação não executou exclusões.
+- `technical_cleanup_test_school_99999901(text,jsonb)` é SECURITY DEFINER, search_path vazio, EXECUTE somente postgres; não recebeu permissões de PUBLIC/anon/authenticated/service_role.
+- A invocação disponível é um único comando com payload fechado em `technical_test_school_cleanup_commands`; o trigger INVOKER exige o proprietário técnico antes de chamar a função. Nenhum DML de domínio foi enviado diretamente.
+- O comando foi efetivamente tentado no Cloud, pelo canal de mudança de dados da plataforma, sem conta humana ou chave de aplicação. Portanto, o impedimento anterior de canal **não é mais o bloqueador comprovado**.
+- A transação recusou antes de qualquer exclusão: `technical:cleanup-retained-audit-reference:institutional_sector_provisioning_events:institutional_sector_provisioning_events_principal_id_fkey`.
+- Existem 3 eventos imutáveis de provisionamento apontando, por FK obrigatória, para os 3 principals dessa escola; eles apontam por FK para a escola. Excluir os principals ou a escola mantendo essa trilha como está viola a integridade referencial. Não se apagou auditoria, não se alteraram FKs nem se desativaram triggers.
+- Além disso, os registros escolares e matrículas têm guards imutáveis; a operação recusa esses guards, em vez de contorná-los. Ela não declara prontidão de exclusão enquanto essas condições persistirem.
+- A expansão por linha interrompeu no primeiro impedimento; não equivale a inventário final de todas as dependências, arquivos ou referências sem FK.
+
+## Verificação após a tentativa
+| Entidade | Restante |
+|---|---:|
+| Escola | 1 |
+| Versões / identificadores da escola | 2 / 1 |
+| Alunos distintos | 80 |
+| Matrículas | 192 |
+| Turmas | 6 |
+| Fonte fictícia de servidores | 16 |
+| Atuações | 34 |
+| Declarações profissionais | 7 |
+| Comandos / operações de limpeza persistidos | 0 / 0 |
+
+- Operation id de limpeza: **nenhum**, pois a transação inteira foi revertida; as 2 operações de origem permanecem.
+- As 55 outras escolas permanecem. As fontes reais de 1.797 e 219 linhas reproduziram os mesmos hashes acima.
+- Não há comprovação de zero resíduos ou zero órfãos; os dados de teste continuam presentes.
+- 12 verificações transacionais de recusa/idempotência/reversão passaram em PostgreSQL descartável; 13 testes focais de invariantes passaram. Não houve teste positivo de exclusão integral.
+- Lint focal e diff passaram; build automático OK. `verify` passou em limpeza-isolada e segurança, mas a integridade das migrations ainda acusa o arquivo preexistente `0374_docserv_school_test_staff_visibility.sql` fora do journal. Não se reescreveu história para ocultar essa falha.
+- SHA-256 da migration 0633 congelado: `67664494e5bdf44f5285c6283c2795259d82b52a408b04645c913b192212178e`.
+- Sem publicação. A continuidade exige uma solução explícita que preserve a auditoria e suas referências, não relaxar controles para executar exclusões.
