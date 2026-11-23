@@ -38,7 +38,7 @@ export function StaffingPage() {
     const loadsX = sched == null ? null : engagementLoads(sched);
     return { knownAt, inputs, results, loadsX, demands, summary: needSummary(demands, results, loadsX ?? []) };
   } });
-  if (a.status === "signed-out") return <EmptyState title="Entre para ver o quadro docente" description="A projeção usa só o que sua conta pode ler." />;
+  if (a.status === "signed-out") return <EmptyState title="Entre para ver o quadro docente" description="Entre para consultar as turmas, as aulas e a cobertura docente da escola." />;
   if (a.status === "loading") return <SkeletonState label="Carregando" />;
   const d = data.data; const t = d ? totals(d.results) : null;
   const minutes = Number(perTeacher.replace(",", ".")) * 60;
@@ -46,14 +46,14 @@ export function StaffingPage() {
   const loads = d ? personLoads(d.inputs, null) : [];
   return (
     <div className="space-y-6">
-      <PageHeader title="Quadro docente" description="Aulas ofertadas, cobertura por regência e necessidade derivada da organização real. Nada aqui contrata, remove ou decide." />
+      <PageHeader title="Quadro docente" description="Consulte as aulas previstas, a cobertura por professor e as necessidades de cada escola." />
       {own ? <OwnSchoolName schoolId={own} /> : <label className="text-sm">Escola{" "}
         <select className="ml-1 min-h-11 rounded-md border bg-background px-2" value={schoolId ?? ""} onChange={(e) => setSchoolId(e.target.value || null)}>
           <option value="">Selecione</option>{(schools.data ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select></label>}
-      {!schoolId ? <EmptyState title="Escolha uma escola" description="A projeção é calculada na hora a partir da grade e das regências." />
+      {!schoolId ? <EmptyState title="Escolha uma escola" description="O quadro é calculado a partir dos horários das turmas e das atribuições dos professores." />
         : data.isLoading ? <p role="status">Calculando…</p>
-        : !d ? <EmptyState title="Turmas não puderam ser lidas" description="Sem leitura, nenhum número é mostrado." />
+        : !d ? <EmptyState title="Não foi possível consultar as turmas" description="Tente novamente para consultar as informações da escola." />
         : <>
           <dl className="grid gap-3 sm:grid-cols-4">
             <div className="rounded-md border p-3"><dt className="text-xs text-muted-foreground">Turmas</dt><dd className="text-lg">{t!.classes}</dd></div>
@@ -66,7 +66,7 @@ export function StaffingPage() {
             <dl className="mt-2 grid gap-2 sm:grid-cols-4">{([["Aulas necessárias (matriz)", d.summary.necessarias], ["Aulas ofertadas (grade)", d.summary.ofertadas], ["Aulas cobertas", d.summary.cobertas], ["Aulas descobertas", d.summary.descobertas],
               ["Carga atribuída", d.summary.cargaAtribuidaMin, 1], ["Carga contratual", d.summary.cargaContratualMin, 1], ["Saldo funcional", d.summary.saldoMin, 1]] as [string, Num, number?][]).map(([k, n, isMin]) => (
               <div key={k}><dt className="text-xs text-muted-foreground">{k}</dt><dd><FactValue value={isMin ? h(n.value) : n.value} />{n.reason && <span className="block text-xs text-muted-foreground">{humanizeForScreen(n.reason)}</span>}</dd></div>))}</dl>
-            <p className="mt-2 text-xs text-muted-foreground">Descoberto é déficit de cobertura; não é déficit contratual. Carga contratual só vem de fonte funcional (DP externo).</p>
+            <p className="mt-2 text-xs text-muted-foreground">Aulas descobertas indicam turmas sem professor atribuído. A carga horária contratual depende dos dados funcionais.</p>
           </section>
           {!t!.complete && <p className="text-sm">{t!.unreadable} turma(s) sem leitura da grade: totais não são fechados.</p>}
           {!reconciles(d.results) && <p role="alert" className="text-sm text-destructive">Reconciliação falhou: demanda ≠ cobertura + descoberto.</p>}
@@ -82,7 +82,7 @@ export function StaffingPage() {
             </li>))}</ul>
           <section aria-labelledby="st-p" className="rounded-md border p-4 text-sm">
             <h2 id="st-p" className="font-medium">Carga atribuída por pessoa</h2>
-            <p className="text-muted-foreground">Disponibilidade: não há fonte canônica de carga horária profissional; excedência e déficit por pessoa ficam "Não informado".</p>
+            <p className="text-muted-foreground">A carga horária contratual dos profissionais ainda não está disponível. Por isso, o saldo individual aparece como "Não informado".</p>
             <ul className="mt-2">{loads.map((p) => <li key={p.personId}>{p.personId}: {h(p.assignedMinutes)} atribuídas em {p.engagementIds.length} atuação(ões) · saldo <FactValue value={h(p.balanceMinutes)} /></li>)}</ul>
           </section>
           <section aria-labelledby="st-s" className="rounded-md border p-4 text-sm">
@@ -97,7 +97,7 @@ export function StaffingPage() {
                [NECESSIDADE_PROFESSOR, needRows({ scope: "escola", scopeLabel: schoolId }, d.summary, d.demands, d.results, d.loadsX ?? [])]] as [ReportDefinition, Record<string, CellValue>[]][]).map(([def, rows]) => (
               <button key={def.id} className="min-h-11 rounded-md border px-3" onClick={() => download(def, rows, today, d.knownAt)}>Exportar “{def.title}” (CSV)</button>))}
           </section>
-          <p className="text-xs text-muted-foreground">Fórmula {STAFFING_FORMULA.id} v{STAFFING_FORMULA.version}: {STAFFING_FORMULA.demand} {STAFFING_FORMULA.coverage} Data {today}; conhecido até {formatDateTime(d.knownAt)}.</p>
+          <p className="text-xs text-muted-foreground">Dados consultados em {today}; atualização considerada até {formatDateTime(d.knownAt)}.</p>
         </>}
     </div>
   );
@@ -105,6 +105,6 @@ export function StaffingPage() {
 
 function download(def: ReportDefinition, rows: Record<string, CellValue>[], asOf: string, knownAt: string) {
   const res = runReport(def, { params: { asOf, knownAt, scope: "escola" } }, rows);
-  const csv = toCsv(res, NETWORK_BRANDING, [`Data de referência: ${asOf}`, `Conhecido até: ${knownAt}`, "Natureza: projeção dinâmica (não oficial)"]);
+  const csv = toCsv(res, NETWORK_BRANDING, [`Data de referência: ${asOf}`, `Atualizado até: ${knownAt}`, "Resumo calculado a partir das turmas e atribuições registradas"]);
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `${def.id}-${asOf}.csv`; a.click();
 }
