@@ -45,7 +45,7 @@ export function AreaWorkspacePage({ areaId }: { areaId: string }) {
                   <StatusBadge tone={status === "Disponível" ? "success" : status === "Sem acesso" ? "neutral" : "warning"}>{status}</StatusBadge>
                 </div>
                 {ok ? <><a href={x.to} className="mt-2 inline-block text-sm text-primary hover:underline">Abrir</a>{status !== "Disponível" && <p className="mt-1 text-xs text-muted-foreground">A tela mostra só o que sua atuação atual permite; as operações desta área esperam a homologação do perfil.</p>}</>
-                  : <p className="mt-2 text-sm text-muted-foreground">Exige atuação vigente com a capacidade da tela.</p>}
+                  : <p className="mt-2 text-sm text-muted-foreground">Para abrir esta tela, sua conta precisa ter um vínculo de trabalho ativo e autorização para esta tarefa.</p>}
               </li>
             );
           })}
@@ -53,7 +53,7 @@ export function AreaWorkspacePage({ areaId }: { areaId: string }) {
       )}
       {rules.length > 0 && (
         <NoteBox>
-          Perfil proposto ({DRAFT_POLICY.version}, rascunho, sem homologação): {rules.map((r) => r.capability).join(", ")}. Nenhuma destas operações vale até homologação por quem tem competência.
+          Perfil proposto ({DRAFT_POLICY.version}, ainda não aprovado): {rules.map((r) => r.capability).join(", ")}. Estas ações só ficam disponíveis depois da aprovação institucional.
         </NoteBox>
       )}
       {area.blocker && !rules.length && <NoteBox>{area.blocker}</NoteBox>}
