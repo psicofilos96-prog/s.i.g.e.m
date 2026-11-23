@@ -455,7 +455,7 @@ function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: s
 /** Procura o aluno na base já cadastrada (planilhas da rede) e traz os dados para continuar. */
 function NameSearch({ school, busy, onPick, name, birth, nameError, birthError, onNameChange, onBirthChange }: {
   school: string; busy: boolean; onPick: (m: StudentNameMatch) => void | Promise<void>;
-  name: string; birth: string; nameError?: string; birthError?: string;
+  name: string; birth: string; nameError?: string | undefined; birthError?: string | undefined;
   onNameChange: (v: string) => void; onBirthChange: (v: string) => void;
 }) {
   const [rows, setRows] = useState<StudentNameMatch[] | null>(null); const [msg, setMsg] = useState(""); const [loading, setLoading] = useState(false);
