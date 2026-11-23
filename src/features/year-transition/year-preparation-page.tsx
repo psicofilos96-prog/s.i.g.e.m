@@ -17,7 +17,7 @@ import {
 const STATE_LABEL: Record<string, string> = {
   "historico-importado": "Base censitária/histórica",
   "em-preparacao": "Em preparação",
-  operacional: "Ano operacional",
+  operacional: "Em andamento",
   encerrado: "Encerrado",
 };
 
