@@ -29,13 +29,13 @@ export interface CycleView {
 export interface CompareRow { school_id: string; measure: string; sigem_value: number | null; sigem_reason: string | null; source_value: number | null; category: string }
 
 export const MEASURE_LABEL: Record<string, string> = {
-  vinculos_ativos: "Vínculos ativos", turmas: "Turmas", enturmacoes_vigentes: "Enturmações vigentes",
+  vinculos_ativos: "Matrículas ativas", turmas: "Turmas", enturmacoes_vigentes: "Alunos colocados em turma",
   posicoes_curriculares: "Posições curriculares", lotacoes_profissionais: "Lotações profissionais",
 };
 const REASON: Record<string, string> = {
   "inicio-efetivo-nao-declarado": "há vínculos sem início efetivo declarado",
-  "vinculos-sem-inicio-efetivo": "vínculos sem início efetivo; enturmação não pode ser provada",
-  "sem-enturmacao-vigente": "sem enturmação vigente",
+  "vinculos-sem-inicio-efetivo": "matrículas sem data de início informada; não é possível confirmar a turma do aluno",
+  "sem-enturmacao-vigente": "sem turma registrada nesta data",
 };
 export const reasonLabel = (r: string | null) => (r ? REASON[r] ?? r : "");
 export function measureText(m: Measure | undefined): string {
@@ -47,10 +47,10 @@ export function measureText(m: Measure | undefined): string {
 export const RULE_LABEL: Record<string, string> = {
   "vinculo-sem-inicio-efetivo": "Vínculo sem início efetivo declarado",
   "vinculo-ambiguo-no-ano": "Estudante com mais de um vínculo ativo na escola",
-  "enturmacao-antes-do-vinculo": "Enturmação anterior ao início do vínculo",
-  "enturmacao-com-vinculo-encerrado": "Enturmação vigente com vínculo encerrado",
-  "enturmacao-em-turma-de-outra-escola-ou-ano": "Enturmação em turma inexistente, de outra escola ou de outro ano",
-  "enturmacao-simultanea": "Mais de uma enturmação vigente no mesmo vínculo",
+  "enturmacao-antes-do-vinculo": "Aluno colocado em turma antes do início da matrícula",
+  "enturmacao-com-vinculo-encerrado": "Aluno em turma após o encerramento da matrícula",
+  "enturmacao-em-turma-de-outra-escola-ou-ano": "Aluno associado a uma turma inexistente, de outra escola ou de outro ano letivo",
+  "enturmacao-simultanea": "Mais de uma turma registrada para a mesma matrícula na mesma data",
   "vinculo-em-escola-sem-cadastro-vigente": "Vínculo em escola sem cadastro ativo vigente",
 };
 export const ruleLabel = (r: string) => RULE_LABEL[r] ?? r;
