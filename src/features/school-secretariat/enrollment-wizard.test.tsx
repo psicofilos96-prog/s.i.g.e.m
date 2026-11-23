@@ -45,7 +45,7 @@ describe("matrícula guiada — tela", () => {
     expect(screen.getByRole("navigation", { name: "Progresso da matrícula" })).toBeTruthy();
     expect(screen.getByText("Passo 1 de 8")).toBeTruthy();
     expect(screen.getByText(/Para concluir, faltam:/)).toBeTruthy();
-    expect(screen.getByText(/Foto 3×4.*opcional/)).toBeTruthy();
+    expect(document.body.textContent).toContain("Foto 3×4 (opcional — você pode concluir a matrícula sem foto)");
     expect(screen.getByRole("button", { name: "Pular foto" })).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Nome do aluno"), { target: { value: "E2E Aluno" } });
     fireEvent.change(screen.getByLabelText("Nascimento"), { target: { value: "2017-12-01" } });
