@@ -64,7 +64,7 @@ function NetworkIntelligence() {
       </div>
       <div className="flex flex-wrap items-end gap-3">
         {!own && <label className="text-sm">Recorte<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Rede</option>{schools.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>}
-        <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={year} onChange={(e) => setYear(e.target.value)}><option value="">Todos (sem recorte de ano)</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name} — {YEAR_LABEL[y.nature]}</option>)}</select></label>
+        <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={year} onChange={(e) => setYear(e.target.value)}><option value="">Todos (sem recorte de ano)</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}</select></label>
         <label className="text-sm">Situação em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
         <label className="text-sm">Até a data <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
       </div>
@@ -88,10 +88,10 @@ function NetworkIntelligence() {
           </div>
           <section aria-labelledby="comparar-ind" className="space-y-2 rounded-lg border border-border p-4">
             <h3 id="comparar-ind" className="font-medium">Comparar com outra leitura</h3>
-            <p className="text-xs text-muted-foreground">Só compara mesma versão da definição, mesmo recorte, mesma natureza do ano e mesma fonte; caso contrário, o motivo aparece.</p>
+            <p className="text-xs text-muted-foreground">A comparação é exibida quando os indicadores usam os mesmos critérios e períodos.</p>
             <div className="flex flex-wrap items-end gap-3">
               <label className="text-sm">Situação em <DateInput value={cmpOn} onChange={(e) => setCmpOn(e.target.value)} /></label>
-              <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={cmpYear} onChange={(e) => setCmpYear(e.target.value)}><option value="">Todos</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name} — {YEAR_LABEL[y.nature]}</option>)}</select></label>
+              <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={cmpYear} onChange={(e) => setCmpYear(e.target.value)}><option value="">Todos</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}</select></label>
             </div>
             {comparisons ? <ul className="space-y-1 text-sm">{comparisons.map((c) => <li key={c.key}>{c.name}: {c.result.kind === "comparavel" ? `diferença ${c.result.delta.toLocaleString("pt-BR")}` : `não comparável — ${humanizeForScreen(c.result.reason)}`}</li>)}</ul> : null}
           </section>
