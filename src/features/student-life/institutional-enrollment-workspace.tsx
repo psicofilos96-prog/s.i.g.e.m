@@ -141,7 +141,7 @@ export function InstitutionalEnrollmentWorkspace({ focus, initialClassId = "" }:
 
   return (
     <div className="space-y-6">
-      <PageHeader title={focus === "movimentacoes" ? "Movimentações" : "Matrícula, participação e enturmação"} description={focus === "movimentacoes" ? "Transferências, remanejamentos e saídas escolares, com pesquisa por aluno e registro histórico." : "Consulte matrículas, coloque alunos em turmas e acompanhe transferências e remanejamentos. As datas e o histórico dos registros são preservados."} />
+      <PageHeader title={focus === "movimentacoes" ? "Movimentações" : "Matrículas e turmas"} description={focus === "movimentacoes" ? "Transferências, remanejamentos e saídas escolares, com pesquisa por aluno e registro histórico." : "Enturmação: colocar cada aluno na turma certa. Consulte matrículas e acompanhe transferências e mudanças de turma; as datas e o histórico são preservados."} />
       <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1">
           <Label htmlFor="b3-school">Escola</Label>
@@ -350,7 +350,7 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run, initialC
     <Card>
       <CardHeader><CardTitle>Alunos colocados em turma nesta data</CardTitle></CardHeader>
       <CardContent className="space-y-3 text-sm">
-        {d.allocations.length === 0 ? <p className="text-muted-foreground">Nenhum aluno foi colocado em turma nesta data. Use “Colocar aluno em turma” para iniciar uma enturmação.</p> : (
+        {d.allocations.length === 0 ? <p className="text-muted-foreground">Nenhum aluno foi colocado em turma nesta data. Use “Colocar aluno em turma” para registrar a enturmação (vínculo do aluno com a turma).</p> : (
           <ul className="space-y-1">
             {d.allocations.map((a) => (
               <li key={a.id} className="flex flex-wrap items-center gap-2">
@@ -553,7 +553,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
     <Card>
       <CardHeader><CardTitle>Movimentações escolares (transferências, remanejamentos e saídas)</CardTitle></CardHeader>
       <CardContent className="space-y-3 text-sm">
-        {d.history.movements.length === 0 ? <p className="text-muted-foreground">Nenhuma transferência, mudança de turma ou saída foi registrada para esta escola. Confira o período ou registre uma movimentação, se necessário.</p> : (
+        {d.history.movements.length === 0 ? <p className="text-muted-foreground">Nenhuma transferência, mudança de turma ou saída foi registrada para esta escola. Confira o período ou registre a alteração necessária.</p> : (
           <div className="overflow-x-auto rounded-lg border border-border" role="region" aria-label="Movimentações registradas" tabIndex={0}>
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="bg-muted/50 text-muted-foreground"><tr>{["Data", "Aluno", "Tipo", "Status", "Ação"].map((label) => <th key={label} scope="col" className="px-4 py-3 font-medium">{label}</th>)}</tr></thead>
