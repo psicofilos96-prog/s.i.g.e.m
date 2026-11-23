@@ -12,6 +12,13 @@ describe("lote 17 — matriz evidência/pendência por setor", () => {
   it("cobre os 12 setores pedidos", () => {
     expect(buildMatrix().map((s: { sector: string }) => s.sector)).toHaveLength(12);
   });
+  it("classifica os módulos de apoio docente sem tela como pendências de interface", () => {
+    const docente = buildMatrix().find((s: { sector: string }) => s.sector === "Docente");
+    expect(docente.withoutScreen).toContain("src/features/teacher-diary/teacher-labels.ts");
+    expect(docente.withoutScreen).toContain("src/features/teacher-diary/teacher-navigation.ts");
+    expect(docente.withoutTest).not.toContain("src/features/teacher-diary/teacher-labels.ts");
+    expect(docente.withoutTest).not.toContain("src/features/teacher-diary/teacher-navigation.ts");
+  });
   it("toda ação dos consoles gerados aponta para writer existente", () => {
     const types = readFileSync("src/integrations/supabase/types.ts", "utf8");
     for (const a of [...PERMANENCE_STAGES, ...OPS_STAGES].flatMap((s) => s.actions)) expect(types, a.rpc).toContain(`      ${a.rpc}: {`);
