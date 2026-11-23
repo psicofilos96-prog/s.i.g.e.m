@@ -101,7 +101,7 @@ function ItemsTab({ items, uid, readKey, schoolIds, catalog, run }: { items: Ite
       <section aria-label="Editor de item">
         {!d ? <EmptyState title="Escolha ou crie um item" description="Itens publicados podem entrar em instrumentos; reutilizar cria cópia com origem registrada." /> : (
           <div className="space-y-3 rounded-lg border border-border p-4">
-            {readOnly && <StatePanel tone="neutral" title="Somente leitura" description="Item compartilhado por outra pessoa. Use Reutilizar para criar sua versão." />}
+            {readOnly && <StatePanel tone="neutral" title="Consulta" description="Item compartilhado por outra pessoa. Use Reutilizar para criar sua versão." />}
             {d.copiedFrom && <p className="text-xs text-muted-foreground">Cópia de outra versão; a origem fica registrada.</p>}
             <label className="block text-sm">Tipo
               <select className={input} value={d.typeId} disabled={readOnly || !!d.head} onChange={(e) => setD({ ...d, typeId: e.target.value, options: OPTION_COUNT[e.target.value] !== undefined ? blankOptions(e.target.value) : d.options })}>{itemTypes().map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}{!itemType(d.typeId) && <option value={d.typeId}>{d.typeId}</option>}</select></label>
@@ -180,7 +180,7 @@ function InstrumentsTab({ instruments, items, uid, readKey, assignments, schoolI
       <section aria-label="Editor de instrumento">
         {!d ? <EmptyState title="Escolha ou crie um instrumento" description="Aplicação e lançamento de resultado continuam na Pauta." /> : (
           <div className="space-y-3 rounded-lg border border-border p-4">
-            {frozen && <StatePanel tone="neutral" title="Somente leitura" description={head?.status === "publicado" ? "Publicado e congelado. Use Copiar para criar nova versão editável." : "Sem regência vigente ou autoria para alterar."} />}
+            {frozen && <StatePanel tone="neutral" title="Consulta" description={head?.status === "publicado" ? "Publicado e congelado. Use Copiar para criar nova versão editável." : "Sem regência vigente ou autoria para alterar."} />}
             <label className="block text-sm">Regência<select className={input} value={d.assignmentId} disabled={!!d.head || frozen} onChange={(e) => setD({ ...d, assignmentId: e.target.value })}>{assignments.map((a) => <option key={a.assignment_id} value={a.assignment_id}>{a.component_label_snapshot} · {a.class_id}</option>)}{!current.has(d.assignmentId) && <option value={d.assignmentId}>Regência não vigente</option>}</select></label>
             {d.instrumentId && d.head && <ReviewPanel kind="instrumento" subjectId={d.instrumentId} versionId={d.head} isAuthor={!!head && head.author_user_id === uid} print={{ title: head?.title ?? d.title, sections: [{ heading: "Instruções", body: head?.instructions ?? "" }, ...published.filter((p) => d.itemIds.includes(p.id)).map((p, i) => ({ heading: `Questão ${i + 1}`, body: p.stem }))] }} />}
             <label className="block text-sm">Título<input className={input} value={d.title} disabled={frozen} maxLength={200} onChange={(e) => setD({ ...d, title: e.target.value })} /></label>
