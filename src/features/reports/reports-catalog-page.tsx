@@ -65,14 +65,14 @@ export function ReportsCatalogPage() {
         {list.filter((r) => r.available).map((r) => (
           <li key={r.id} className="space-y-2 rounded-xl border border-border bg-card p-5 shadow-sm">
             <h3 className="font-display text-lg font-semibold">{r.title} <span className="text-xs text-muted-foreground">v{r.version}</span></h3>
-            <p className="text-xs text-muted-foreground">{r.domain} · escopo {SCOPE[r.scope]} · {NATURE_LABEL[r.nature]}</p>
+            <p className="text-xs text-muted-foreground">{r.domain} · abrangência: {SCOPE[r.scope]} · {NATURE_LABEL[r.nature]}</p>
             <p className="text-sm text-muted-foreground">{r.description}</p>
             {!r.available ? (
               <p className="text-sm"><strong>Indisponível:</strong> {r.dependency}</p>
             ) : (
               <>
                 <p hidden data-provenance className="text-xs">Fonte: {r.source}</p>
-                <p className="text-xs">Filtros: {r.params.length ? r.params.join(", ") : "nenhum"}{r.temporal.asOf ? " · data de referência" : ""}{r.temporal.knownAt ? " · conhecido até" : ""}</p>
+                <p className="text-xs">Informações usadas: {r.params.length ? r.params.join(", ") : "nenhuma"}{r.temporal.asOf ? " · data de referência" : ""}{r.temporal.knownAt ? " · atualização até" : ""}</p>
                 <p className="text-xs">Formatos: {r.formats.map((x) => (x === "pdf" ? "impressão" : x.toUpperCase())).join(", ")}</p>
                 <Link to={r.route as "/relatorios"} className="text-sm text-primary underline">Abrir na tela dona</Link>
               </>
