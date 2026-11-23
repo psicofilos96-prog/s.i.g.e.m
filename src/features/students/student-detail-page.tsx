@@ -597,8 +597,7 @@ export function StudentDetailPage({ id }: { id: string }) {
                   ))}
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Renovação, transferência operacional e enturmação não são executáveis nesta etapa;
-                  apenas representadas.
+                  Esta ficha apresenta o histórico escolar. Para renovar a matrícula, transferir o aluno ou mudar sua turma, procure a Secretaria Escolar.
                 </p>
               </DetailSection>
 
