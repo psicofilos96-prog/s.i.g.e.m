@@ -117,8 +117,8 @@ describe("B4.2.5 — fonte da resolução curricular", () => {
     const pos = new Map([["al-1", positionDisplay(axes, new Map())]]);
     const { container } = render(<SummaryView summary={resolvedSummary()} students={[student("stu-uuid-1", "al-1")]} positions={pos} names={new Map()} />);
     const table = container.querySelector("table")!;
-    expect(within(table).getByText("Estudante sem nome legível")).toBeTruthy();
-    expect(within(table).getByText("Valor sem rótulo legível")).toBeTruthy();
+    expect(within(table).getByText("Nome não informado")).toBeTruthy();
+    expect(within(table).getByText("Valor não informado")).toBeTruthy();
     expect(table.textContent).not.toMatch(/stu-uuid-1|esq-tec|val-tec/);
   });
 
