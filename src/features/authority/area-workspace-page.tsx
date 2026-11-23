@@ -44,7 +44,7 @@ export function AreaWorkspacePage({ areaId }: { areaId: string }) {
                   <span className="font-medium">{x.label}</span>
                   <StatusBadge tone={status === "Disponível" ? "success" : status === "Sem acesso" ? "neutral" : "warning"}>{status}</StatusBadge>
                 </div>
-                {ok ? <><a href={x.to} className="mt-2 inline-block text-sm text-primary hover:underline">Abrir</a>{status !== "Disponível" && <p className="mt-1 text-xs text-muted-foreground">A tela mostra só o que sua atuação atual permite; as operações desta área esperam a homologação do perfil.</p>}</>
+                {ok ? <><a href={x.to} className="mt-2 inline-block text-sm text-primary hover:underline">Abrir</a>{status !== "Disponível" && <p className="mt-1 text-xs text-muted-foreground">A tela mostra apenas as informações e ações liberadas para sua conta. Outras ações ficam disponíveis depois da aprovação institucional do perfil.</p>}</>
                   : <p className="mt-2 text-sm text-muted-foreground">Para abrir esta tela, sua conta precisa ter um vínculo de trabalho ativo e autorização para esta tarefa.</p>}
               </li>
             );
