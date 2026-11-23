@@ -26,7 +26,7 @@ export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/alimentacao-escolar": { where: "Alimentação Escolar", todo: "Registre e acompanhe a alimentação servida nas escolas.", next: "registre a refeição servida hoje.", primary: { label: "Registrar refeição de hoje", to: "/alimentacao-escolar/cozinha" } },
   "/avaliacao-desempenho": { where: "Avaliação e Desempenho", todo: "Consulte resultados das avaliações aplicadas.", next: "escolha a avaliação que deseja ver.", primary: { label: "Ver painéis", to: "/paineis" } },
   "/secretaria": { where: "Secretaria Escolar", todo: "Cuide de matrículas, documentos e vagas da escola.", next: "escolha o serviço que vai realizar." },
-  "/alunos": { where: "Estudantes", todo: "Encontre um estudante para ver ou atualizar o cadastro.", next: "pesquise pelo nome do estudante." },
+  "/alunos": { where: "Estudantes", todo: "Encontre um estudante para ver ou atualizar o cadastro." },
   "/turmas": { where: "Turmas", todo: "Veja as turmas da escola e seus estudantes.", next: "abra uma turma para ver os detalhes." },
   "/documentos-escolares": { where: "Documentos escolares", todo: "Emita ou consulte documentos dos estudantes." },
   "/horarios": { where: "Horários", todo: "Monte e publique o quadro de horários das turmas.", next: "escolha uma turma para montar o horário." },
