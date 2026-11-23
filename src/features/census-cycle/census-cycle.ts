@@ -51,7 +51,7 @@ export const RULE_LABEL: Record<string, string> = {
   "enturmacao-com-vinculo-encerrado": "Aluno em turma após o encerramento da matrícula",
   "enturmacao-em-turma-de-outra-escola-ou-ano": "Aluno associado a uma turma inexistente, de outra escola ou de outro ano letivo",
   "enturmacao-simultanea": "Mais de uma turma registrada para a mesma matrícula na mesma data",
-  "vinculo-em-escola-sem-cadastro-vigente": "Vínculo em escola sem cadastro ativo vigente",
+  "vinculo-em-escola-sem-cadastro-vigente": "Matrícula em escola cujo cadastro não está ativo nesta data",
 };
 export const ruleLabel = (r: string) => RULE_LABEL[r] ?? r;
 
@@ -80,7 +80,7 @@ const MSG: [RegExp, string][] = [
   [/snapshot-unchanged/, "Os fatos não mudaram; não há nova versão a gerar."],
   [/fingerprint-mismatch/, "A impressão digital não corresponde à fotografia."],
   [/segregation-required/, "Quem gerou ou conferiu a fotografia não pode praticar este ato."],
-  [/conference-required/, "A fotografia vigente ainda não foi conferida."],
+  [/conference-required/, "O levantamento atual ainda não foi conferido."],
   [/snapshot-required/, "Gere a fotografia antes desta etapa."],
   [/transition-invalid/, "Etapa fora de ordem."],
   [/homologation-rule-missing/, "Não há regra ou competência homologada para homologar o Censo."],
