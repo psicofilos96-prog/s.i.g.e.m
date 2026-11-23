@@ -13,6 +13,11 @@ describe("BQ.1 Lote 2 — isolamento de navegação por estação", () => {
     expect(stationAllowsPath("secretaria_escolar", "/ciece")).toBe(false);
     expect(stationAllowsPath("secretaria_escolar", "/alimentacao-escolar")).toBe(false);
   });
+  it("Secretaria abre a ficha longitudinal a partir do cadastro do estudante", () => {
+    expect(stationAllowsPath("secretaria_escolar", "/ficha-longitudinal/estudante-123")).toBe(true);
+    expect(stationAllowsPath("ciece", "/ficha-longitudinal/estudante-123")).toBe(false);
+    expect(stationAllowsPath("supervisao", "/ficha-longitudinal/estudante-123")).toBe(false);
+  });
   it("nenhuma estação setorial abre administração geral ou estação administrativa", () => {
     for (const s of ["ciece", "supervisao", "alimentacao", "avaliacao", "secretaria_escolar", "direcao_escolar", "orientacao_pedagogica"]) {
       expect(stationAllowsPath(s, "/administracao-geral")).toBe(false);
