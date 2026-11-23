@@ -48,8 +48,12 @@ describe("NUI — linguagem clara nas telas", () => {
   it("telas de tarefas e administração evitam jargão solto", () => {
     const tasks = read("src/routes/tarefas.tsx");
     const admin = read("src/routes/administracao.tsx");
+    const errors = read("src/lib/observability/governed-errors.ts");
     expect(tasks).not.toContain("agenda operacional");
     expect(tasks).not.toContain("A atuação escolhida");
     expect(admin).not.toContain("atuação vigente");
+    expect(errors).toContain("Confira os campos destacados");
+    expect(errors).toContain("Use “Recarregar”");
+    expect(errors).toContain("Peça à equipe responsável que aprove a regra");
   });
 });
