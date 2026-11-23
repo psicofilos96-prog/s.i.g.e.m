@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ClipboardCheck, NotebookPen, UsersRound, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/sigem/patterns";
+import { EmptyState, PageHeader } from "@/components/sigem/patterns";
 import { diaryContext, DEFAULT_DIARY_PROFESSIONAL_ID, type DiarySearch } from "@/features/diary/diary-data";
 import { dailyAgenda, useLocalLessonRecords } from "@/features/diary/lesson-records";
 import { DateStepper } from "@/features/diary/diary-journey-view";
@@ -13,7 +13,7 @@ export function TeacherDayHome({ search }: { search: DiarySearch }) {
   const local = useLocalLessonRecords();
   const agenda = dailyAgenda(context.professionalId, context.referenceDate, local).filter((i) => (!search.turma || i.classId === search.turma) && (!search.componente || i.field === search.componente));
   return <div className="space-y-6">
-    <header className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="font-display text-3xl font-semibold">Minhas aulas</h1><p className="mt-1 text-muted-foreground">{formatAcademicDate(context.referenceDate)}</p></div><DateStepper date={context.referenceDate} search={search} /></header>
+    <PageHeader title="Minhas aulas" description={formatAcademicDate(context.referenceDate)} actions={<DateStepper date={context.referenceDate} search={search} />} />
     <section aria-label="Aulas do dia">
       {agenda.length ? <ul className="grid gap-3 lg:grid-cols-2">{agenda.map((a) => <li key={a.key} className="space-y-3 rounded-lg border border-border bg-card p-4">
         <div className="flex items-start justify-between gap-2"><div><h2 className="font-semibold">{a.className} · {a.field}</h2><p className="text-sm text-muted-foreground">{a.unitName}</p></div><span className="flex shrink-0 items-center gap-1 text-sm"><CalendarDays className="size-4" />{a.block.start}–{a.block.end}</span></div>
