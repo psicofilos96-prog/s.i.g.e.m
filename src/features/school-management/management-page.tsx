@@ -114,8 +114,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
       <SchoolLogoPanel school={school} />
       <CensusDeclaredStaff school={school} />
-      <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação da escola (CSV)</Button>
-        <Button variant="outline" onClick={exportPdf}>Gerar Dossiê da Direção (PDF)</Button></div>
+      <ExportMenu onCsv={exportCsv} onPdf={exportPdf} />
     </div>
   );
 }
