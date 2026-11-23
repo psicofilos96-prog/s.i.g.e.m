@@ -130,7 +130,6 @@ function SidebarNavigation({
     .map((group) => authority.status === "signed-in" ? { ...group, items: group.items.filter((item) => pathAllowed(authority, item.to)) } : group)
     .map((group) => (q ? { ...group, items: group.items.filter((item) => fold(item.label).includes(q)) } : group))
     .map((group) => ({ ...group, label: group.label === "Meus ambientes de trabalho" ? "Áreas de trabalho" : group.label, items: group.items.filter((item) => {
-      if (item.to === "/" && principal) return false;
       if (seenPaths.has(item.to)) return false;
       seenPaths.add(item.to); return true;
     }) }))
