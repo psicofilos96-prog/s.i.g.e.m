@@ -116,7 +116,7 @@ export function PostingMovementPage({
               onClick={() => setConfirmOpen(true)}
             >
               <CheckCircle2 />
-              Concluir movimentação
+              Confirmar mudança de lotação
             </Button>
           </>
         }
@@ -128,7 +128,7 @@ export function PostingMovementPage({
         <span className="text-muted-foreground">Demonstração sem persistência</span>
       </div>
       <div className="grid gap-7 lg:grid-cols-[14rem_minmax(0,1fr)]">
-        <nav aria-label="Seções da movimentação" className="self-start lg:sticky lg:top-4">
+        <nav aria-label="Etapas para mudar a lotação do servidor" className="self-start lg:sticky lg:top-4">
           <ol className="border-l border-border">
             {MOVEMENT_SECTIONS.map(([id, label], index) => (
               <li key={id}>
@@ -231,7 +231,7 @@ export function PostingMovementPage({
               title="Compatibilidade e conflitos"
               description="Simultaneidade legítima em unidades distintas não é duplicidade."
             >
-              <ConflictPanel conflicts={conflicts} label="Conflitos da movimentação" />
+              <ConflictPanel conflicts={conflicts} label="Conflitos ao mudar a lotação" />
               <Button
                 size="sm"
                 variant="outline"
@@ -242,7 +242,7 @@ export function PostingMovementPage({
               </Button>
               {versionConflict ? (
                 <p role="alert" className="mt-2 border border-border p-3 text-sm">
-                  {POSTING_VERSION_CONFLICT} A futura operação de movimentação deverá revalidar a
+                  {POSTING_VERSION_CONFLICT} A futura mudança de lotação deverá conferir novamente a
                   versão antes da conclusão.
                 </p>
               ) : null}
@@ -302,7 +302,7 @@ export function PostingMovementPage({
                 tudo ou nada. Nenhum sucesso parcial é apresentado.
               </p>
               {errors.length ? (
-                <ul aria-label="Pendências da movimentação" className="mt-4 space-y-1 text-xs">
+                <ul aria-label="Pendências para mudar a lotação" className="mt-4 space-y-1 text-xs">
                   {errors.map((error) => (
                     <li key={error} className="flex gap-2">
                       <CircleAlert className="size-3.5 text-destructive" />
