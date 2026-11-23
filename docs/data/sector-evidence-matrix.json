@@ -390,6 +390,8 @@
       "src/features/teacher-diary/teacher-context.ts",
       "src/features/teacher-diary/teacher-grades.ts",
       "src/features/teacher-diary/teacher-history-closing.ts",
+      "src/features/teacher-diary/teacher-labels.ts",
+      "src/features/teacher-diary/teacher-navigation.ts",
       "src/features/teacher-diary/teacher-reports.ts",
       "src/features/teacher-diary/teacher-requests.ts",
       "src/features/teacher-diary/teacher-security.ts",
