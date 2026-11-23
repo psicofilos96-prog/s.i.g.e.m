@@ -26,8 +26,7 @@ BEGIN
     'school_institutional_followup_visits',
     'school_institutional_followup_actions',
     'school_institutional_followup_updates',
-    'school_institutional_followup_bundles',
-    'school_institutional_followup_attachments'
+    'school_institutional_followup_bundles'
   ] LOOP
     IF NOT EXISTS (
       SELECT 1 FROM pg_catalog.pg_class c
@@ -56,8 +55,7 @@ BEGIN
     ('school_institutional_followup_visits', 'followup_visit_immutable'),
     ('school_institutional_followup_actions', 'followup_action_immutable'),
     ('school_institutional_followup_updates', 'followup_update_immutable'),
-    ('school_institutional_followup_bundles', 'followup_bundle_immutable'),
-    ('school_institutional_followup_attachments', 'followup_attachment_immutable')
+    ('school_institutional_followup_bundles', 'followup_bundle_immutable')
   ) AS required(table_name, trigger_name)
   LOOP
     IF NOT EXISTS (
@@ -106,9 +104,7 @@ BEGIN
     'public.record_school_institutional_followup_visit(text,date,text,text,text,text,uuid,text,uuid,text,text)',
     'public.record_school_institutional_followup_action(uuid,text,text,date,uuid)',
     'public.record_school_institutional_followup_update(uuid,uuid,date,text,text,text,text,text,uuid)',
-    'public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb,text,text)',
-    'public.record_school_institutional_followup_attachment(uuid,text,text,text,integer,uuid)',
-    'public.school_institutional_followup_attachments(text)'
+    'public.record_school_institutional_followup_bundle(text,date,text,text,text,text,uuid,jsonb,text,text)'
   ] LOOP
     function_oid := pg_catalog.to_regprocedure(function_signature);
     IF function_oid IS NULL THEN
@@ -122,9 +118,9 @@ BEGIN
     END IF;
   END LOOP;
 
-  -- The migration chain through 0618 defines exactly 15 public-schema functions
-  -- in these families: four private helpers, six readers and five writers.
-  -- Individual signature checks above establish the required members; reject extras
+  -- Migration 0613 defines exactly 13 public-schema functions in these
+  -- families: four private helpers, five readers and four writers. Individual
+  -- signature checks above establish the required members; reject extras
   -- (including overloads that could make PostgREST resolution ambiguous).
   IF (
     SELECT pg_catalog.count(*)
@@ -133,7 +129,7 @@ BEGIN
     WHERE ns.nspname = 'public'
       AND (proc.proname LIKE 'school_institutional_followup_%'
         OR proc.proname LIKE 'record_school_institutional_followup_%')
-  ) <> 15 THEN
+  ) <> 13 THEN
     RAISE EXCEPTION 'followup-postflight:unexpected-function-family-member';
   END IF;
 
