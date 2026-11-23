@@ -41,7 +41,7 @@ export function DirectorSummaryPanel({ school, year, on, blocks }: { school: str
   const card = (title: string, value: string, detail: string, to: string, loading: boolean, action: string | null = "Consultar") => (
     <article className="flex min-h-36 flex-col rounded-lg border bg-card p-4">
       <h2 className="text-sm font-semibold">{title}</h2>
-      <p className="mt-2 text-lg font-semibold tabular-nums">{loading ? "Carregando…" : value}</p>
+      <p className={`mt-2 font-semibold tabular-nums ${["Aguardando preenchimento", "Não disponível", "Consulta indisponível"].includes(value) ? "text-xs text-muted-foreground" : "text-lg"}`}>{loading ? "Carregando…" : value}</p>
       <p className="mt-1 flex-1 text-xs text-muted-foreground">{detail}</p>
       {action && <Button asChild size="sm" variant="outline" className="mt-3 self-start"><Link to={to as "/secretaria"}>{action}</Link></Button>}
     </article>);
