@@ -39,7 +39,7 @@ function CiecePage() {
       <div className="mx-auto max-w-3xl p-4">
         <h1 className="sr-only">CIECE — Informação e Estatística</h1>
         <StatePanel tone="neutral" title="Entre para consultar o CIECE"
-          description="Os indicadores institucionais exigem login com atuação vigente."
+          description="Entre com sua conta institucional para consultar os indicadores. O acesso depende das autorizações concedidas à sua conta."
           action={<Link to="/laboratorio/ciece" className="text-sm font-medium text-primary underline">Abrir o laboratório demonstrativo</Link>} />
       </div>
     );
