@@ -128,12 +128,7 @@ export function EnrollmentBookPage() {
                   <option value="">Todas</option><option value="ativa">Ativa</option><option value="encerrada">Encerrada</option>
                 </select></label>
             </section>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button onClick={() => void print()} disabled={!shown.length}>Imprimir Livro (PDF)</Button>
-              <Button variant="outline" disabled={!shown.length} onClick={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}>Baixar planilha (CSV)</Button>
-              <Button variant="outline" disabled={!shown.length} onClick={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}>Baixar Excel</Button>
-              <span className="text-sm text-muted-foreground">{shown.length} de {rows.length} matrícula(s)</span>
-            </div>
+            <div className="flex flex-wrap items-center gap-2">\n              <ExportMenu disabled={!shown.length} onPdf={print}\n                onCsv={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}\n                onExcel={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")} />\n              <span className="text-sm text-muted-foreground">{shown.length} de {rows.length} matrícula(s)</span>\n            </div>
             {shown.length === 0 ? <EmptyState title="Nenhuma matrícula encontrada" description="Mude a pesquisa ou o ano letivo." /> : (
               <div className="overflow-x-auto rounded-xl border border-border">
                 <table className="w-full text-sm">
