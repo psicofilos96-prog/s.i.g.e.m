@@ -41,7 +41,7 @@ export function YearPreparationPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Preparação do ano operacional" description="Transição entre o ano de origem e o ano de destino, por escola. Nada é renovado automaticamente." />
+      <PageHeader title="Preparação do ano letivo" description="Organize a passagem de um ano letivo para o seguinte em cada escola." />
       <div className="grid gap-3 md:grid-cols-3">
         <label className="text-sm">Escola
           <select className="mt-1 block w-full rounded border bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}>
