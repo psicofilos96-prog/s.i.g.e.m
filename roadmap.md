@@ -1,5 +1,11 @@
 # Roadmap — SIGEM simples no design original
 
+## Limpeza restrita da escola de teste (23/11/2026)
+- [x] Inventário inicial no Cloud: 192 matrículas/80 alunos, 6 turmas, 16 servidores da fonte exata, 7 declarações e 34 atuações; FKs e referências sem FK consultadas; hashes das 1.797/219 linhas reais registrados em test-school-cleanup-audit.md. Nenhuma mutação.
+- [ ] Fechar proveniência e dependências por linha: estudante est-c27b3e44-328d-40e8-937d-ba82ba6f70bb não tem marca de teste (aguarda confirmação do proprietário); sete pessoas têm user_person_links, que precisam ser preservados; filhos, JSON/snapshots/anexos ainda não encerrados.
+- [ ] Criar/testar/executar operação estreita: bloqueado pela proveniência acima e ausência de canal de invocação owner-only disponível; leitura é supabase_read_only_user, DML direto e execução de dados em migration não são alternativas autorizadas. Nenhuma migration destrutiva criada, nenhuma operação de limpeza gravada.
+- [ ] Conferir zero resíduos/órfãos depois da execução: depende da operação; não há PASS de limpeza. Baseline reproduzível em scripts/test-school-cleanup-baseline.sql; escola/fontes reais mantidas, sem publicação.
+
 ## Apresentação dos fluxos escolares (23/11/2026)
 - [x] Padronizar Movimentações (tabela/tipo/status/menu/nomes), Enturmações (dois atalhos), Vagas (ausência explícita/atalho ao fluxo de capacidade) e Fila (cards/menu de cinco transições); convocação mantida recolhida, matrícula só abre o fluxo existente.
 - [x] 96 testes focais PASS (21 novos de interação), lint focal exit 0; typecheck/build automáticos OK em 23/11 às 13:31:18 UTC após corrigir erro no teste; verify acessibilidade (9 testes), migrations e diff PASS. Nenhuma regra/migration/dado alterado ou publicação.

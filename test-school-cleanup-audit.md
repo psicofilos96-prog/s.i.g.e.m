@@ -1,0 +1,138 @@
+# Limpeza da escola de teste — inventário de 23/11/2026
+
+## Situação atual
+Registro de lote. **BLOQUEADO; nenhuma exclusão, migration ou operação de limpeza executada.**
+Consultas realizadas no Cloud canônico por `supabase--read_query`, como `supabase_read_only_user`.
+Não foram usados DML direto, roles da aplicação, alterações de RLS, desativação de triggers ou autoria humana simulada.
+
+## Identidade a preservar
+- Escola: `inep-99999901`.
+- Identificador INEP: `99999901`; registro `fef22959-1d0f-46ca-9e7c-fcd668e7fc41`.
+- Duas versões cadastrais; última: `97430f22-2417-42ba-a86f-280f133f7f6a`, versão 2.
+- Nome oficial: ESCOLA MUNICIPAL DE TESTE VILA ESPERANÇA (TESTE).
+- Preservar ambas as versões, a escola, infraestrutura, anos letivos e catálogos.
+
+## Totais confirmados antes da operação
+| Escopo | Linhas |
+|---|---:|
+| school_enrollments | 192 |
+| Estudantes distintos nas matrículas | 80 |
+| institutional_classes | 6 |
+| staff_administrative_records, fonte fictícia exata | 16 |
+| professional_census_declarations, operação fictícia 2026 | 7 |
+| institutional_engagements | 34 |
+| Pessoas distintas dessas atuações | 7 |
+| institutional_student_persons | 74 |
+
+As 192 matrículas se dividem em 56 da operação `5e6fdb25-2c18-4bde-b20e-3dd6dd8c0c20`,
+56 da operação `7a2f0000-0000-4000-8000-000000002027` e 80 sem operação.
+Das 80 sem operação, 56 têm origem literal "Escola de teste movida para 2027" e 24 têm origem nula:
+20 registros do exercício TESTE OPERACAO 2026, três registros dos testes de CPF e um cadastro sem marca de teste.
+Não existem matrículas dos mesmos estudantes em outra escola, nem vínculos estudante-pessoa compartilhados com estudantes fora deste recorte.
+Isso não comprova sozinho que todas as pessoas sejam fictícias.
+
+## Proveniência profissional
+Os sete declarantes do Censo estão vinculados à operação fictícia 2026 e ao localizador "Escola de teste".
+Todos os 34 engagements pertencem a essas sete pessoas; não possuem engagements fora desta escola.
+Há sete vínculos funcionais com origem exata `teste-99999901` e matrícula funcional prefixada `TESTE-`.
+Quatro pessoas têm identificador institucional de teste; as outras três não possuem identificador institucional.
+Há **sete user_person_links** dessas pessoas: referência a conta não pode ser apagada por inferência.
+Pessoas vinculadas a contas e eventuais referências externas exigem tratamento explícito; não serão removidas automaticamente.
+
+## Dependências identificadas por consultas de colunas e catálogo de FKs
+O catálogo completo de FKs de public foi consultado. A expansão estrutural dos quatro roots
+(students/classes/enrollments/engagements) alcança 199 tabelas, incluindo referências de autoria a fatos
+institucionais protegidos. Essa expansão **não é uma autorização de exclusão** nem uma lista de linhas a apagar.
+Também foram pesquisadas referências sem FK por colunas de aluno, turma, pessoa, atuação,
+matrícula, episódio e vínculo funcional. Contagens abaixo não devem ser somadas: um mesmo fato
+pode aparecer em mais de um recorte.
+
+| Tabela dependente | Linhas no recorte consultado |
+|---|---:|
+| class_enrollment_episodes | 207 |
+| class_enrollment_episode_endings | 93 |
+| cycle_participations | 59 |
+| school_enrollment_endings | 65 |
+| school_enrollment_entry_origins | 24 |
+| student_class_bond_observations | 50 |
+| student_registration_observations | 56 |
+| student_identity_versions | 24 |
+| student_movement_events | 10 |
+| student_consent_events | 2 |
+| student_home_hospital_care_events | 3 |
+| student_protection_events | 2 |
+| student_protection_access_log | 1 |
+| student_vaccination_status_events | 2 |
+| enrollment_wizard_draft_events, escola inteira | 62 |
+| enrollment_wizard_draft_events, existing_student_id do recorte | 24 |
+| institutional_class_record_versions | 6 |
+| institutional_class_period_organization_versions | 3 |
+| class_journeys | 6 |
+| class_offering_versions | 6 |
+| class_schedules | 3 |
+| class_specific_matrix_associations | 6 |
+| institutional_engagement_scope_classes | 22 |
+| class_schedule_block_engagements | 75 |
+| teaching_assignments, turma | 99 |
+| teaching_assignment_versions, atuação/vínculo lógico | 101 |
+| professional_functional_links | 7 |
+| professional_postings, vínculo lógico | 7 |
+| institutional_person_identifiers, pessoas candidatas | 76 |
+| user_person_links, pessoas candidatas | 7 |
+| sg_students | 50 |
+| sg_classes | 6 |
+| sg_staff | 16 |
+| statistical_map_freezes | 1 |
+| school_vacancy_requests | 1 |
+| school_official_letters | 1 |
+| school_official_letter_cancellations | 1 |
+| exact_lookup_events | 9 |
+
+`sg_students`, `sg_classes` e `sg_staff` foram confirmadas como tabelas, não views;
+também precisam de proveniência e dependências próprias antes de eventual remoção.
+Há um espaço ACV e três principals escolares, que não são automaticamente alvo da limpeza de alunos/servidores.
+A auditoria recursiva por **linha** dos filhos desses fatos, conteúdo JSON/snapshots, anexos privados
+e critérios de exclusão de pessoas ainda não foi fechada. **Não há prova de zero órfãos**.
+
+## Fontes reais preservadas: baseline SHA-256
+Hash calculado sobre `to_jsonb(row)::text`, ordenado por ID, separado por newline e codificado em UTF-8.
+
+| Fonte | Linhas | SHA-256 |
+|---|---:|---|
+| Relacao_Servidores_por_Escola_Ago-Set_2026.xlsx | 1797 | 16061cbd43255ef4e7526b6473ed28c1b84fa7b7cb2f1bfdcbee9a8d89ab5471 |
+| Relacao_Funcionarios_SEMED_por_Setor.xlsx | 219 | 70cfe4f2af3823decb98aae04e65d0b89867c4ab038afe97ba6a665a253183ba |
+
+Existem 55 outras escolas. Nesta consulta, matrículas e turmas fora da escola teste somaram zero;
+isso é o baseline observado, não uma declaração de completude das importações oficiais.
+
+## Bloqueios concretos
+1. O estudante `est-c27b3e44-328d-40e8-937d-ba82ba6f70bb` foi criado pelo formulário institucional
+   em 02/11/2026, rascunho `417c6339-4d7a-4219-b045-e6abae47c2d3`.
+   O evento confirma `student_created=true` e `person_reused=false`, mas não declara que seja fictício.
+   A identidade aponta para o rascunho; não há operação técnica nem observação de importação.
+   Excluir só pelo nome ou pela escola violaria a validação de proveniência solicitada.
+2. O canal de leitura usa `supabase_read_only_user`. As funções técnicas existentes são de `postgres`
+   com ACL somente `{postgres=X/postgres}`. O CLI Cloud oferece consultas somente leitura;
+   o canal de mudança de dados disponível aceita DML direto, proibido neste pedido.
+   O canal de migration aceita DDL, não a execução de limpeza como mudança de dados.
+   Não foi encontrada ferramenta disponível para invocar uma operação owner-only nessas condições.
+
+## Resultado e próximos passos
+- Registros removidos: **0**. Operation id de limpeza: **nenhum**.
+- Migration de exclusão: **não criada/aplicada**, para não introduzir executor destrutivo com escopo ainda não comprovado.
+- Confirmar explicitamente se o estudante indicado é fictício; finalizar dependências por linha e referências externas.
+- Com canal técnico owner-only disponível, construir/testar a operação estreita com switch, hash,
+  advisory lock, estado esperado, ledger append-only e idempotência, sem mudar o papel da aplicação.
+- Executar somente essa função fora de migrations e repetir consultas, hashes e verificação de órfãos.
+- Não houve publicação.
+
+Consulta de baseline reutilizável: `scripts/test-school-cleanup-baseline.sql`.
+
+## Verificação desta rodada
+- A consulta de baseline foi repetida: mesmas duas versões da escola, INEP, totais e SHA-256 das duas fontes reais.
+- `npm run verify -- --only=migrations,diff`: FAIL em migrations devido ao arquivo preexistente
+  `0374_docserv_school_test_staff_visibility.sql` fora do journal; diff PASS. Não se alterou história de migrations para contornar a falha.
+- `git diff --check`: exit 0.
+- Último build automático observado às 18:58:19 UTC: build OK.
+- Não foram modificadas regras nem código executável da aplicação; testes de limpeza não foram executados,
+  pois não existe executor de limpeza criado nesta rodada. Não se declarou PASS de exclusão ou de ausência de órfãos.
