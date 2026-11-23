@@ -74,7 +74,7 @@ export function SeatAdminPanel({ sessionKey }: { sessionKey: string }) {
       {showHistory && roster.isSuccess && (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead><tr className="text-left text-muted-foreground"><th className="py-1 pr-3">Posto</th><th className="pr-3">Responsável</th><th className="pr-3">Início</th><th className="pr-3">Fim</th><th>Motivo</th></tr></thead>
+            <thead><tr className="text-left text-muted-foreground"><th scope="col" className="py-1 pr-3">Posto</th><th scope="col" className="pr-3">Responsável</th><th scope="col" className="pr-3">Início</th><th scope="col" className="pr-3">Fim</th><th scope="col">Motivo</th></tr></thead>
             <tbody>
               {rows.map((r) => (
                 <tr key={r.assignment_id} className="border-t border-border">
