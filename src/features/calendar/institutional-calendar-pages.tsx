@@ -28,7 +28,7 @@ export const readerErrorText = (e: unknown) =>
   e instanceof CalendarReaderShapeError ? "A resposta do calendário veio em formato inesperado. Nada foi exibido." : calendarErrorMessage(e);
 
 const STATE_TEXT: Record<CalendarAtState, string> = {
-  "access-denied": "Nenhum calendário homologado disponível nesta data para a sua conta.",
+  "access-denied": "Sua conta não tem autorização para consultar calendários nesta data. Peça à gestão responsável para conferir seu acesso.",
   homologada: "Homologado na data consultada.",
   "nao-homologada": "Em construção — ainda não homologado (visível apenas para quem constrói).",
   revogada: "Homologação revogada na data consultada.",
@@ -85,12 +85,12 @@ export function InstitutionalCalendarListView({ contextKey }: { contextKey: stri
       {q.isFetching && !fresh && !q.error && <p role="status" className="text-sm text-muted-foreground">Consultando os calendários…</p>}
       {q.error && <p role="alert" className="text-sm text-destructive">{readerErrorText(q.error)}</p>}
       {fresh && !q.error && fresh.list.kind !== "lido" && (
-        <p role="note" className="rounded border border-border bg-muted p-3 text-sm">Consulta indisponível para a sua conta.</p>
+        <p role="note" className="rounded border border-border bg-muted p-3 text-sm">Sua conta não tem autorização para consultar estes calendários. Peça à gestão responsável para conferir seu acesso.</p>
       )}
       {fresh && !q.error && fresh.list.kind === "lido" && (
         fresh.list.versions.length === 0 ? (
           <p role="note" className="rounded border border-border bg-muted p-3 text-sm">
-            {fresh.list.audience === "construcao" ? "Nenhum calendário registrado até agora." : "Nenhum calendário homologado até agora."}
+            {fresh.list.audience === "construcao" ? "Nenhum calendário foi cadastrado até agora. Se a escola precisa de um calendário, use as opções de criação disponíveis nesta tela." : "Nenhum calendário foi homologado até agora. Confira com a equipe responsável se o calendário já foi criado e enviado para homologação."}
           </p>
         ) : (
           <ul className="space-y-2">
@@ -148,7 +148,7 @@ export function InstitutionalCalendarDetailView({ contextKey, calendarId }: { co
         <>
           <p role="note" className="rounded border border-border bg-muted p-3 text-sm">{STATE_TEXT[fresh.at.kind]}</p>
           {fresh.month?.kind === "lido" && <MonthGrid days={fresh.month.days} />}
-          {fresh.month && fresh.month.kind !== "lido" && <p className="text-sm text-muted-foreground">Dias do mês indisponíveis para a sua conta.</p>}
+          {fresh.month && fresh.month.kind !== "lido" && <p className="text-sm text-muted-foreground">Não foi possível mostrar os dias deste mês porque sua conta não tem autorização para consultá-los. Peça à gestão responsável para conferir seu acesso.</p>}
           {version && fresh.labels && (
             <PeriodTotals contextKey={contextKey} calendarId={calendarId} knownAt={knownAt}
               periods={fresh.labels.periods.filter((p) => p.organizationId === version.periodOrganizationId)} />
@@ -184,7 +184,7 @@ function PeriodTotals({ contextKey, calendarId, knownAt, periods }: { contextKey
     queryKey: ["b467-calendar-periods", contextKey, calendarId, knownAt, periods.map((p) => `${p.id}:${p.startsOn}:${p.endsOn}`).join("|")], retry: false,
     queryFn: () => Promise.all(periods.map(async (p) => ({ p, r: await readCalendarDays({ calendarId, from: p.startsOn, to: p.endsOn, knownAt }) }))),
   });
-  if (periods.length === 0) return <p className="text-sm text-muted-foreground">A organização de períodos deste calendário não tem períodos ativos registrados; totais por período não são calculáveis.</p>;
+  if (periods.length === 0) return <p className="text-sm text-muted-foreground">Este calendário ainda não tem períodos letivos ativos cadastrados. Cadastre os períodos na organização do ano letivo para calcular os totais.</p>;
   if (q.error) return <p role="alert" className="text-sm text-destructive">{readerErrorText(q.error)}</p>;
   if (!q.data) return <p role="status" className="text-sm text-muted-foreground">Calculando totais por período…</p>;
   return (
@@ -192,7 +192,7 @@ function PeriodTotals({ contextKey, calendarId, knownAt, periods }: { contextKey
       <h2 className="font-medium">Totais por período</h2>
       <ul className="text-sm">
         {q.data.map(({ p, r }) => {
-          if (r.kind !== "lido") return <li key={p.id}>{p.name}: não calculável — leitura indisponível.</li>;
+          if (r.kind !== "lido") return <li key={p.id}>{p.name}: não foi possível calcular porque os dias do período não puderam ser consultados. Confira seu acesso e tente novamente.</li>;
           const c = countSchoolDaysStrict(r.days);
           return <li key={p.id}>{p.name} ({p.startsOn} a {p.endsOn}): {c.count === null ? `não calculável — ${humanizeForScreen(c.reason)}` : `${c.count} dias letivos, ${c.nonSchool} não letivos`}</li>;
         })}
