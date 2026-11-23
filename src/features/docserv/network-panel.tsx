@@ -68,8 +68,7 @@ export function NetworkPanel() {
     <div className="space-y-3 text-xs">
       <div className="flex flex-wrap items-end gap-2">
         <label>Temporada <input className={`${field} w-20`} value={season} onChange={(e) => setSeason(e.target.value.replace(/\D/g, "").slice(0, 4))} /></label>
-        <Button size="sm" variant="outline" onClick={() => void exportAs("xlsx")}>Planilha</Button>
-        <Button size="sm" variant="outline" onClick={() => void exportAs("pdf")}>PDF</Button>
+        <ExportMenu onPdf={() => exportAs("pdf")} onExcel={() => exportAs("xlsx")} />
       </div>
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4" aria-label="Indicadores">
         {[["Servidores", t.servidores], ["Sem certidão criminal", t["sem-envio"]], ["Aguardando validação", t.pendente], ["Com problema", t.problema], ["Válidos", t.valido], ["Em mais de uma escola", t.multiescola], ["Escolas sem servidor vinculado", t.escolas_sem_servidor]].map(([l, v]) => (
