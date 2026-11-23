@@ -7,8 +7,8 @@ import type { ReactNode } from "react";
 export function MoreFilters({ active = false, children }: { active?: boolean; children: ReactNode }) {
   return (
     <details open={active} className="min-w-0 text-sm sm:col-span-full" data-testid="more-filters">
-      <summary className="inline-flex min-h-11 cursor-pointer items-center font-medium text-primary underline-offset-4 hover:underline">
-        Mais filtros{active ? " (em uso)" : ""}
+      <summary className="inline-flex min-h-9 cursor-pointer items-center font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
+        Filtros avançados{active ? " (em uso)" : ""}
       </summary>
       <div className="mt-2 grid gap-3 sm:grid-cols-3">{children}</div>
     </details>
