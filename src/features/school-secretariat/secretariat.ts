@@ -48,7 +48,7 @@ export function orderLife(rows: LifeEvent[]): LifeEvent[] {
 export const YEAR_STATE_LABEL: Record<string, string> = {
   historico: "Histórico (somente leitura)", preparacao: "Em preparação", aberto: "Aberto", encerramento: "Em encerramento", encerrado: "Encerrado",
 };
-export const yearStateLabel = (s: string | null) => (s ? YEAR_STATE_LABEL[s] ?? s : "Sem estado operacional registrado");
+export const yearStateLabel = (s: string | null) => (s ? YEAR_STATE_LABEL[s] ?? s : "Situação não informada");
 
 const MSG: [RegExp, string][] = [
   [/session-required/, "Entre com sua conta institucional."],
@@ -59,9 +59,9 @@ const MSG: [RegExp, string][] = [
   [/natural-person-required/, "A operação exige conta ligada a uma pessoa natural."],
   [/year-not-open/, "O ano letivo não está aberto para operação; 2026 é histórico e 2027 depende do ato de abertura."],
   [/base-superseded/, "O registro mudou desde que foi aberto. Recarregue e tente de novo."],
-  [/type-not-current/, "Tipo de movimentação não homologado; nada foi registrado."],
-  [/active-class-exists/, "O estudante já tem enturmação vigente nessa data."],
-  [/enrollment-start-unknown/, "O vínculo não tem início efetivo declarado; declare-o antes de enturmar."],
+  [/type-not-current/, "A rede ainda não aprovou este tipo de movimentação. Peça à equipe responsável que aprove o tipo antes de registrar."],
+  [/active-class-exists/, "Este aluno já está em uma turma nesta data. Confira a turma atual antes de continuar."],
+  [/enrollment-start-unknown/, "A matrícula não tem data de início informada. Corrija a data da matrícula antes de colocar o aluno em uma turma."],
   [/enrollment-ended/, "O vínculo já foi encerrado."],
   [/before-enrollment|outside-year|date-invalid|date-required/, "Data fora do vínculo ou do ano letivo."],
   [/class-invalid/, "Turma inexistente, de outra escola ou de outro ano."],
@@ -79,7 +79,7 @@ const MSG: [RegExp, string][] = [
   [/active-elsewhere/, "O aluno está ativo em outra escola: use Receber transferência."],
 ];
 export function secretariatMessage(raw: string): string {
-  return MSG.find(([r]) => r.test(raw))?.[1] ?? "Não foi possível concluir. Nada foi gravado.";
+  return MSG.find(([r]) => r.test(raw))?.[1] ?? "Não foi possível concluir a ação. Confira os campos destacados e tente novamente; nenhuma alteração foi salva.";
 }
 
 /** N5.2: turmas escolhíveis para enturmar — escola e ano do contexto, cadastro único e ativo na data; nunca por identificador digitado. */
