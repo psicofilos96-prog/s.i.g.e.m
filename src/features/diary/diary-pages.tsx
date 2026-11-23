@@ -390,7 +390,7 @@ export function ClassDiaryPage({ classId, search }: { classId: string; search: D
         <StatePanel
           tone="warning"
           title="Contexto indisponível"
-          description="A atuação pode estar fora da vigência, pertencer a outro professor ou não existir."
+          description="O vínculo do professor pode não estar ativo nesta data, pertencer a outra pessoa ou não ter sido encontrado. Confira a data e a pessoa selecionadas."
         />
       </div>
     );
