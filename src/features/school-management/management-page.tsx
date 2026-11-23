@@ -1,3 +1,5 @@
+import { MoreFilters } from "@/components/sigem/more-filters";
+import { ExportMenu } from "@/components/sigem/export-menu";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { operationalToday } from "@/lib/academic-date";
 import { userErrorText } from "@/lib/observability/governed-errors";
@@ -19,6 +21,7 @@ import { useOwnSchoolId } from "@/features/authority/own-school";
 import { OwnSchoolName } from "@/features/authority/own-school-field";
 import { OccurrencesPanel } from "./occurrences-panel";
 import { DirectorSummaryPanel } from "./director-summary-panel";
+import { SchoolLogoPanel } from "./school-logo";
 import { SchoolNoticesPanel } from "./school-notices-panel";
 import { ClassCouncilPanel } from "./class-council-panel";
 import { RiskLimitsPanel } from "./risk-limits-panel";
@@ -57,7 +60,7 @@ export function ManagementPage() {
         <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => { setF({ ...f, year: e.target.value }); active.setYear(e.target.value); }}>
           <option value="">Escolha o ano</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}</select></label>
         <label className="text-sm">Data de referência<DateInput value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
-        <details className="rounded-lg border border-border bg-card p-3 text-sm sm:col-span-3"><summary className="cursor-pointer font-medium">Filtros avançados</summary><label className="mt-3 block max-w-sm text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label></details>
+        <MoreFilters active={!!f.knownAt}><label className="text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label></MoreFilters>
       </section>
       {ready ? <Station key={JSON.stringify(f)} {...f} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
         : <EmptyState title="Escolha escola, ano e data" description="Selecione os dados para consultar a escola." />}
@@ -92,7 +95,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
   return (
     <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Você está consultando registros de uma data anterior." />}
-      <DirectorSummaryPanel school={school} year={year} on={on} blocks={res.blocks} />
+      <DirectorSummaryPanel school={school} year={year} on={on} />
       <section aria-label="Visão geral da escola" className="space-y-3">
         <h2 className="text-base font-semibold">Visão geral da escola</h2>
         <div className="divide-y rounded-lg border bg-card px-4">
@@ -126,10 +129,10 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
         <RiskLimitsPanel school={school} />
         <FrequencyRiskPanel school={school} schoolName={schoolName} today={today()} />
         <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
+        <SchoolLogoPanel school={school} />
         <CensusDeclaredStaff school={school} />
       </div></details>
-      <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação operacional (CSV)</Button>
-        <Button variant="outline" onClick={exportPdf}>Gerar Dossiê da Direção (PDF)</Button></div>
+      <ExportMenu onCsv={exportCsv} onPdf={exportPdf} label="Exportar situação" />
     </div>
   );
 }
