@@ -166,7 +166,7 @@ export function InstitutionalEnrollmentWorkspace({ focus, initialClassId = "" }:
       {data.error && <Unavailable>Não foi possível buscar os dados da escola: {b3Message(data.error)} Confira sua conexão e tente novamente.</Unavailable>}
       {d && (
         <>
-          {focus === "matriculas" && <SearchSection d={d} validOn={validOn} />}
+          {focus === "matriculas" && <SearchSection d={d} school={activeSchool} validOn={validOn} />}
           {focus === "matriculas" && <EnrollmentSection d={d} school={activeSchool} validOn={validOn} canMaintain={canMaintain} run={run} />}
           {focus !== "movimentacoes" && <ParticipationSection d={d} validOn={validOn} canMaintain={canMaintain} run={run} />}
           {focus === "enturmacoes" && <AllocationSection initialClassId={initialClassId} d={d} validOn={validOn} canMaintain={canMaintain} canCapacity={capacity.has(activeSchool)} run={run} />}
@@ -415,7 +415,11 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run, initialC
 }
 
 
-function SearchSection({ d, validOn }: { d: Data; validOn: string }) {
+function SearchSection({ d, school, validOn }: { d: Data; school: string; validOn: string }) {
+  const studentIds = [...new Set(d.history.enrollments.map((e) => e.student_id))];
+  const studentLabels = useQuery({ queryKey: ["b3", "enrollment-student-labels", school, studentIds], queryFn: () => readMovementStudentLabels(school, studentIds), enabled: Boolean(school && studentIds.length) });
+  const labels = studentLabels.data;
+  const yearOf = (id: string | null) => d.years.find((y) => y.id === id)?.name ?? "Ano letivo não identificado";
   const [text, setText] = useState("");
   const [cls, setCls] = useState("");
   const [year, setYear] = useState("");

@@ -140,7 +140,7 @@ describe("movimentações — retificação permanece na linha autorizada", () =
     fireEvent.change(screen.getByLabelText("Nova data de efeito"), { target: { value: "2026-02-11" } });
     fireEvent.change(screen.getByLabelText("Motivo da retificação"), { target: { value: "Data conferida" } });
     expect(mocks.movement).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "Gravar retificação" }));
+    await user.click(screen.getByRole("button", { name: "Salvar correção" }));
     expect(mocks.movement).toHaveBeenCalledWith(expect.objectContaining({ logicalId: "movement", baseVersionId: "movement-version", studentId: "student", enrollmentId: "enrollment", effectiveOn: "2026-02-11", correctionReason: "Data conferida", type: d.movementTypes[0] }));
   });
   it("consulta sem autorização não expõe retificação", async () => {

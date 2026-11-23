@@ -238,7 +238,7 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
       <details open={!!fp.identificacao} className="rounded-md border p-3">
         <summary className="cursor-pointer text-sm">Buscar por CPF ou INEP</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={formatCpf(cpf)} onChange={(v) => setCpf(cpfDigits(v))} error={cpfMessage(cpf)} />
+          <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={formatCpf(cpf)} onChange={(v) => setCpf(cpfDigits(v))} error={cpfMessage(cpf) ?? undefined} />
           <Field label="Código INEP do aluno" value={inep} onChange={setInep}  />
         </div>
         {fp.identificacao ? <p className="mt-2 text-xs text-destructive" role="alert">{fp.identificacao}</p> : null}

@@ -79,7 +79,7 @@ export function SchoolDocsPanel({ school }: { school: string }) {
           <td>{r.link ?? "—"}</td><td>{r.group ?? "—"}</td><td>{r.status ?? "—"}</td><td>{r.observation ?? "—"}</td>
           <td>{r.reference_period ?? "—"}</td><td>{r.source_file}{r.sheet ? ` · ${r.sheet}` : ""}{r.row_no ? ` · linha ${r.row_no}` : ""}</td>
         </tr>)}</tbody></table></div>
-      </section>
+      </section>}
       <input className={`${field} w-full`} placeholder="Motivo / observação (obrigatório para rejeitar, alertar e solicitar)" value={note} onChange={(e) => setNote(e.target.value)} />
       {msg && <p role="status">{msg}</p>}
 
