@@ -46,6 +46,27 @@ BEGIN
       END IF;
     END LOOP;
   END LOOP;
+  -- 0618 adds an append-only fact table after the first 0613 postflight.
+  -- This file runs both before and after 0618 in CI.
+  IF pg_catalog.to_regclass('public.school_institutional_followup_attachments') IS NOT NULL THEN
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_catalog.pg_class c
+      JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relname = 'school_institutional_followup_attachments'
+        AND c.relkind IN ('r', 'p') AND c.relrowsecurity
+    ) THEN
+      RAISE EXCEPTION 'followup-postflight:missing-table-or-rls:school_institutional_followup_attachments';
+    END IF;
+    FOREACH role_name IN ARRAY ARRAY['anon', 'authenticated', 'service_role'] LOOP
+      IF pg_catalog.has_table_privilege(role_name, 'public.school_institutional_followup_attachments', 'SELECT')
+        OR pg_catalog.has_table_privilege(role_name, 'public.school_institutional_followup_attachments', 'INSERT')
+        OR pg_catalog.has_table_privilege(role_name, 'public.school_institutional_followup_attachments', 'UPDATE')
+        OR pg_catalog.has_table_privilege(role_name, 'public.school_institutional_followup_attachments', 'DELETE')
+      THEN
+        RAISE EXCEPTION 'followup-postflight:direct-table-privilege:school_institutional_followup_attachments:%', role_name;
+      END IF;
+    END LOOP;
+  END IF;
 
   -- Os quatro conjuntos de fatos são append-only. RLS e REVOKE não bastam
   -- para preservar o histórico se um operador privilegiado desabilitar ou
@@ -74,6 +95,18 @@ BEGIN
       RAISE EXCEPTION 'followup-postflight:immutable-trigger-missing-or-disabled:%', p.table_name;
     END IF;
   END LOOP;
+  IF pg_catalog.to_regclass('public.school_institutional_followup_attachments') IS NOT NULL
+    AND NOT EXISTS (
+      SELECT 1 FROM pg_catalog.pg_trigger t
+      JOIN pg_catalog.pg_class c ON c.oid = t.tgrelid
+      JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relname = 'school_institutional_followup_attachments'
+        AND t.tgname = 'followup_attachment_immutable' AND NOT t.tgisinternal
+        AND t.tgenabled IN ('O', 'A') AND (t.tgtype::integer & 27) = 27
+        AND t.tgfoid = pg_catalog.to_regprocedure('public.school_institutional_followup_immutable()')
+    ) THEN
+    RAISE EXCEPTION 'followup-postflight:immutable-trigger-missing-or-disabled:school_institutional_followup_attachments';
+  END IF;
 
   -- As funções privadas não são APIs públicas e não devem ser invocáveis pelo cliente.
   FOREACH function_signature IN ARRAY ARRAY[
@@ -117,10 +150,26 @@ BEGIN
       RAISE EXCEPTION 'followup-postflight:invalid-rpc-permissions:%', function_signature;
     END IF;
   END LOOP;
+  IF pg_catalog.to_regclass('public.school_institutional_followup_attachments') IS NOT NULL THEN
+    FOREACH function_signature IN ARRAY ARRAY[
+      'public.record_school_institutional_followup_attachment(uuid,text,text,text,integer,uuid)',
+      'public.school_institutional_followup_attachments(text)'
+    ] LOOP
+      function_oid := pg_catalog.to_regprocedure(function_signature);
+      IF function_oid IS NULL THEN
+        RAISE EXCEPTION 'followup-postflight:missing-rpc:%', function_signature;
+      END IF;
+      IF NOT pg_catalog.has_function_privilege('authenticated', function_oid, 'EXECUTE')
+        OR pg_catalog.has_function_privilege('anon', function_oid, 'EXECUTE')
+        OR pg_catalog.has_function_privilege('service_role', function_oid, 'EXECUTE')
+      THEN
+        RAISE EXCEPTION 'followup-postflight:invalid-rpc-permissions:%', function_signature;
+      END IF;
+    END LOOP;
+  END IF;
 
-  -- Migration 0613 defines exactly 13 public-schema functions in these
-  -- families: four private helpers, five readers and four writers. Individual
-  -- signature checks above establish the required members; reject extras
+  -- 0613 defines 13 functions; 0618 adds two attachment RPCs (15 total).
+  -- Signature checks above establish all expected members; reject extras
   -- (including overloads that could make PostgREST resolution ambiguous).
   IF (
     SELECT pg_catalog.count(*)
@@ -129,7 +178,7 @@ BEGIN
     WHERE ns.nspname = 'public'
       AND (proc.proname LIKE 'school_institutional_followup_%'
         OR proc.proname LIKE 'record_school_institutional_followup_%')
-  ) <> 13 THEN
+  ) <> CASE WHEN pg_catalog.to_regclass('public.school_institutional_followup_attachments') IS NULL THEN 13 ELSE 15 END THEN
     RAISE EXCEPTION 'followup-postflight:unexpected-function-family-member';
   END IF;
 
