@@ -29,7 +29,7 @@ export function PageHeader({
   return (
     <header
       data-sigem-page-header
-      className="mb-6 flex flex-col gap-4 border-b border-border/70 pb-5 pt-1 sm:flex-row sm:items-end sm:justify-between"
+      className="mb-6 grid grid-cols-1 items-end gap-4 border-b border-border/70 pb-5 pt-1 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-6"
     >
       <div className="min-w-0">
         {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
@@ -37,11 +37,11 @@ export function PageHeader({
           {title}
         </h1>
         {description && (
-          <p className="mt-2 max-w-[var(--content-reading)] text-pretty text-[0.9375rem] leading-[1.55] text-muted-foreground">{description}</p>
+          <p className="mt-2 max-w-[var(--content-reading)] truncate text-[0.9375rem] leading-[1.55] text-muted-foreground" title={description}>{description}</p>
         )}
       </div>
       {actions && (
-        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:shrink-0 sm:justify-end">
+        <div data-sigem-page-actions className="flex min-w-0 flex-wrap items-center gap-2 lg:min-w-max lg:justify-end">
           {actions}
         </div>
       )}
