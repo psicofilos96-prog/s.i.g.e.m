@@ -38,12 +38,12 @@ export function DirectorSummaryPanel({ school, year, on, blocks }: { school: str
   const map = useQuery({ queryKey: ["dir-map", ...scope, y, m], enabled: !!s, retry: false, queryFn: () => readMap(school, y, m) });
   if (!s) return null;
   const v = vacancySummary(vac.isError ? null : vac.data ?? null);
-  const card = (title: string, value: string, detail: string, to: string, loading: boolean, action = "Consultar") => (
+  const card = (title: string, value: string, detail: string, to: string, loading: boolean, action: string | null = "Consultar") => (
     <article className="flex min-h-36 flex-col rounded-lg border bg-card p-4">
       <h2 className="text-sm font-semibold">{title}</h2>
       <p className="mt-2 text-lg font-semibold tabular-nums">{loading ? "Carregando…" : value}</p>
       <p className="mt-1 flex-1 text-xs text-muted-foreground">{detail}</p>
-      <Button asChild size="sm" variant="outline" className="mt-3 self-start"><Link to={to as "/secretaria"}>{action}</Link></Button>
+      {action && <Button asChild size="sm" variant="outline" className="mt-3 self-start"><Link to={to as "/secretaria"}>{action}</Link></Button>}
     </article>);
   const active = blocks.find((b) => b.id === "matriculas");
   const classes = blocks.find((b) => b.id === "alocacoes");
@@ -51,10 +51,10 @@ export function DirectorSummaryPanel({ school, year, on, blocks }: { school: str
   const detail = (b: Block | undefined) => b?.state === "UNKNOWN" ? "O dado ainda não foi confirmado." : b?.state === "UNAVAILABLE" ? "A informação não está disponível neste perfil." : b?.detail ?? "Consulte o módulo responsável.";
   return (
     <section aria-label="Indicadores principais" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      {card("Matrículas ativas", metric(active), detail(active), "/secretaria", false, active?.state === "UNKNOWN" ? "Preencher" : "Ver matrículas")}
-      {card("Turmas com estudantes", metric(classes), detail(classes), "/turmas", false, classes?.state === "UNKNOWN" ? "Preencher" : "Ver turmas")}
-      {card("Vagas nas turmas", v ? `${v.open} com vaga · ${v.full} lotadas · ${v.over} acima` : vac.isError ? "Consulta indisponível" : "Carregando…", v ? (v.unknown ? `${v.unknown} turma(s) aguardando capacidade; ${v.total} turmas ativas.` : `${v.total} turmas ativas.`) : "A capacidade das turmas precisa estar registrada para calcular vagas.", "/turmas", vac.isLoading, v?.unknown ? "Conferir capacidades" : "Ver vagas")}
-      {card("Mapa Estatístico do mês", map.isError ? "Consulta indisponível" : map.data ?? "Aguardando preenchimento", `Competência ${String(m).padStart(2, "0")}/${y}. O estado reflete o fluxo oficial do mapa.`, "/mapa-estatistico", map.isLoading, "Abrir mapa")}
+      {card("Matrículas ativas", metric(active), detail(active), "/secretaria", false, active?.state === "UNAVAILABLE" ? null : active?.state === "UNKNOWN" ? "Preencher" : "Ver matrículas")}
+      {card("Turmas com estudantes", metric(classes), detail(classes), "/turmas", false, classes?.state === "UNAVAILABLE" ? null : classes?.state === "UNKNOWN" ? "Preencher" : "Ver turmas")}
+      {card("Vagas nas turmas", v ? `${v.open} com vaga · ${v.full} lotadas · ${v.over} acima` : vac.isError ? "Consulta indisponível" : "Carregando…", v ? (v.unknown ? `${v.unknown} turma(s) aguardando capacidade; ${v.total} turmas ativas.` : `${v.total} turmas ativas.`) : vac.isError ? "Não foi possível ler as capacidades nesta consulta. Confira a tela de turmas." : "A capacidade das turmas precisa estar registrada para calcular vagas.", "/turmas", vac.isLoading, v?.unknown ? "Conferir capacidades" : "Ver vagas")}
+      {card("Mapa Estatístico do mês", map.isError ? "Consulta indisponível" : map.data ?? "Aguardando preenchimento", map.isError ? `Não foi possível consultar o mapa da competência ${String(m).padStart(2, "0")}/${y}. Abra o módulo para verificar a fonte.` : `Competência ${String(m).padStart(2, "0")}/${y}. O estado reflete o fluxo oficial do mapa.`, "/mapa-estatistico", map.isLoading, "Abrir mapa")}
     </section>
   );
 }
