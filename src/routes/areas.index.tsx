@@ -5,9 +5,9 @@ export const Route = createFileRoute("/areas/")({
   head: () => ({
     meta: [
       { title: "Áreas de trabalho — SIGEM" },
-      { name: "description", content: "Áreas institucionais do SIGEM com as telas que competem a cada uma." },
+      { name: "description", content: "Encontre as telas e tarefas disponíveis em cada área do SIGEM." },
       { property: "og:title", content: "Áreas de trabalho — SIGEM" },
-      { property: "og:description", content: "Organização funcional por área, com acesso conforme atuação vigente." },
+      { property: "og:description", content: "Acesso às tarefas de cada área conforme as autorizações da sua conta." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

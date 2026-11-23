@@ -136,12 +136,12 @@ export function InstitutionalEnrollmentWorkspace({ focus, initialClassId = "" }:
   };
 
   if (authority.status === "loading") return <SkeletonState label="Carregando" />;
-  if (!schools.length) return <Unavailable>Sua atuação não tem capacidade de consultar ou manter matrícula em nenhuma escola.</Unavailable>;
+  if (!schools.length) return <Unavailable>Sua conta não tem autorização para consultar ou manter matrículas em nenhuma escola. Peça à gestão responsável para conferir seu acesso.</Unavailable>;
   const d = data.data;
 
   return (
     <div className="space-y-6">
-      <PageHeader title={focus === "movimentacoes" ? "Movimentações" : "Matrícula, participação e enturmação"} description={focus === "movimentacoes" ? "Transferências, remanejamentos e saídas escolares, com pesquisa por aluno e registro histórico." : "Fonte institucional. Datas explícitas; ausência permanece ausência."} />
+      <PageHeader title={focus === "movimentacoes" ? "Movimentações" : "Matrículas e turmas"} description={focus === "movimentacoes" ? "Transferências, remanejamentos e saídas escolares, com pesquisa por aluno e registro histórico." : "Enturmação: colocar cada aluno na turma certa. Consulte matrículas e acompanhe transferências e mudanças de turma; as datas e o histórico são preservados."} />
       <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1">
           <Label htmlFor="b3-school">Escola</Label>
@@ -163,7 +163,7 @@ export function InstitutionalEnrollmentWorkspace({ focus, initialClassId = "" }:
       </div>
       {feedback && <p role="status" className="text-sm">{feedback}</p>}
       {data.isLoading && <p className="text-sm text-muted-foreground" role="status">Lendo os registros oficiais…</p>}
-      {data.error && <Unavailable>Fonte indisponível: {b3Message(data.error)}</Unavailable>}
+      {data.error && <Unavailable>Não foi possível buscar os dados da escola: {b3Message(data.error)} Confira sua conexão e tente novamente.</Unavailable>}
       {d && (
         <>
           {focus === "matriculas" && <SearchSection d={d} validOn={validOn} />}
@@ -210,9 +210,9 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
   const [ending, setEnding] = useState<Record<string, { date: string; status: string }>>({});
   return (
     <Card>
-      <CardHeader><CardTitle>Inscrições letivas vigentes em {fmt(validOn)}</CardTitle></CardHeader>
+      <CardHeader><CardTitle>Matrículas válidas em {fmt(validOn)}</CardTitle></CardHeader>
       <CardContent className="space-y-4">
-        {d.enrollments.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma inscrição registrada vigente nesta data.</p> : (
+        {d.enrollments.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma matrícula foi encontrada nesta data. Confira a escola e a data escolhidas ou faça uma matrícula, se necessário.</p> : (
           <ul className="space-y-2 text-sm">
             {d.enrollments.map((e) => {
               const st = ending[e.logical_id] ?? { date: "", status: "" };
@@ -220,7 +220,7 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
                 <li key={e.id} className="rounded-md border border-border p-2">
                   <div>{e.student_id} · ano {e.academic_year_id ?? "não registrado"} · desde {e.opened_on ? fmt(e.opened_on) : "não registrada"} {e.ended_on ? `· até ${fmt(e.ended_on)}` : ""}</div>
                   {canMaintain && (d.bondStatuses.length === 0
-                    ? <Unavailable>Encerrar indisponível: nenhuma situação do vínculo homologada.</Unavailable>
+                    ? <Unavailable>Não é possível encerrar esta matrícula porque nenhuma situação de encerramento foi aprovada pela rede. Peça à equipe responsável que aprove a situação necessária.</Unavailable>
                     : (
                       <div className="mt-2 flex flex-wrap gap-2">
                         <DateInput aria-label="Data de término" value={st.date} onChange={(ev) => setEnding({ ...ending, [e.logical_id]: { ...st, date: ev.target.value } })} />
@@ -251,7 +251,7 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
                 setFound(data ?? []);
               }}>Localizar</Button>
             </div>
-            {d.years.length === 0 ? <Unavailable>Nenhum ano letivo oficial registrado.</Unavailable> : (
+            {d.years.length === 0 ? <Unavailable>Nenhum ano letivo foi cadastrado para esta escola. Peça à equipe responsável que cadastre o ano letivo antes de continuar.</Unavailable> : (
               <select aria-label="Ano letivo" className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={year} onChange={(e) => setYear(e.target.value)}>
                 <option value="">Ano letivo…</option>
                 {d.years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
@@ -291,9 +291,9 @@ function ParticipationSection({ d, validOn, canMaintain, run }: { d: Data; valid
   const [nature, setNature] = useState("");
   return (
     <Card>
-      <CardHeader><CardTitle>Participações educacionais vigentes</CardTitle></CardHeader>
+      <CardHeader><CardTitle>Participações educacionais ativas</CardTitle></CardHeader>
       <CardContent className="space-y-3 text-sm">
-        {d.participations.length === 0 ? <p className="text-muted-foreground">Nenhuma participação registrada vigente nesta data.</p> : (
+        {d.participations.length === 0 ? <p className="text-muted-foreground">Nenhuma participação educacional foi registrada nesta data. Confira as matrículas da escola e registre a participação, se necessário.</p> : (
           <ul className="space-y-1">
             {d.participations.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center gap-2">
@@ -310,7 +310,7 @@ function ParticipationSection({ d, validOn, canMaintain, run }: { d: Data; valid
           </ul>
         )}
         {canMaintain && (d.natures.length === 0
-          ? <Unavailable>Declarar participação indisponível: nenhuma natureza de participação homologada.</Unavailable>
+          ? <Unavailable>Não é possível registrar a participação porque a rede ainda não aprovou os tipos disponíveis. Peça à equipe responsável que aprove os tipos.</Unavailable>
           : (
             <div className="flex flex-wrap gap-2">
               <select aria-label="Inscrição" className="h-9 rounded-md border border-input bg-background px-2" value={enrollment} onChange={(e) => setEnrollment(e.target.value)}>
@@ -348,9 +348,9 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run, initialC
   });
   return (
     <Card>
-      <CardHeader><CardTitle>Alocações em turma vigentes</CardTitle></CardHeader>
+      <CardHeader><CardTitle>Alunos colocados em turma nesta data</CardTitle></CardHeader>
       <CardContent className="space-y-3 text-sm">
-        {d.allocations.length === 0 ? <p className="text-muted-foreground">Nenhuma alocação registrada vigente nesta data.</p> : (
+        {d.allocations.length === 0 ? <p className="text-muted-foreground">Nenhum aluno foi colocado em turma nesta data. Use “Colocar aluno em turma” para registrar a enturmação (vínculo do aluno com a turma).</p> : (
           <ul className="space-y-1">
             {d.allocations.map((a) => (
               <li key={a.id} className="flex flex-wrap items-center gap-2">
@@ -390,10 +390,10 @@ function AllocationSection({ d, validOn, canMaintain, canCapacity, run, initialC
                 {(() => {
                   const av = deriveAvailability(cap.data);
                   return av.kind === "desconhecida"
-                    ? `Capacidade: não registrada · Ocupação: ${av.occupancy} alocação(ões) vigente(s) · Vagas: desconhecidas (sem capacidade registrada não há como calcular).`
+                    ? `Capacidade ainda não definida · ${av.occupancy} aluno(s) nesta turma · não é possível calcular as vagas livres sem definir a capacidade.`
                     : `Capacidade registrada: ${av.limit} · Ocupação: ${av.occupancy} · Vagas derivadas: ${av.remaining}${av.exceededBy ? ` · ocupação acima da capacidade em ${av.exceededBy}` : ""}.`;
                 })()}
-                {" "}Nenhum efeito por lotação é aplicado sem política homologada.
+                {" "}A quantidade de vagas é apenas informativa; ela não bloqueia a matrícula ou a troca de turma.
               </p>
             )}
             {canCapacity && (
@@ -442,8 +442,8 @@ function SearchSection({ d, validOn }: { d: Data; validOn: string }) {
             {(Object.keys(SITUATION_LABEL) as OperationalSituation[]).map((k) => <option key={k} value={k}>{SITUATION_LABEL[k]}</option>)}
           </select>
         </div>
-        {d.history.enrollments.length === 0 ? <p className="text-muted-foreground">Nenhuma inscrição letiva registrada nesta escola.</p>
-          : rows.length === 0 ? <p className="text-muted-foreground">Nenhum resultado para os filtros escolhidos.</p> : (
+        {d.history.enrollments.length === 0 ? <p className="text-muted-foreground">Nenhuma matrícula foi encontrada nesta escola. Confira os filtros ou faça uma matrícula.</p>
+          : rows.length === 0 ? <p className="text-muted-foreground">Nenhum aluno corresponde à busca e aos filtros escolhidos. Altere os termos ou limpe os filtros para buscar novamente.</p> : (
           <ul className="space-y-1">
             {rows.map((r) => (
               <li key={r.enrollmentLogicalId} className="flex flex-wrap items-center gap-2">
@@ -456,7 +456,7 @@ function SearchSection({ d, validOn }: { d: Data; validOn: string }) {
         {student && (
           <div className="rounded-md border border-border p-3">
             <h3 className="font-medium">Trajetória de {student}</h3>
-            {trajectory.length === 0 ? <p className="text-muted-foreground">Nenhum fato datado registrado.</p> : (
+            {trajectory.length === 0 ? <p className="text-muted-foreground">Ainda não há registros com data para este aluno. Confira outra data ou consulte a ficha escolar.</p> : (
               <ol className="mt-2 space-y-1">
                 {trajectory.map((t, i) => (
                   <li key={`${t.ref}-${t.kind}-${i}`}>
@@ -551,9 +551,9 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
     && cl.id !== currentEpisode?.class_id);
   return (
     <Card>
-      <CardHeader><CardTitle>Movimentações escolares</CardTitle></CardHeader>
+      <CardHeader><CardTitle>Movimentações escolares (transferências, remanejamentos e saídas)</CardTitle></CardHeader>
       <CardContent className="space-y-3 text-sm">
-        {d.history.movements.length === 0 ? <p className="text-muted-foreground">Nenhuma movimentação registrada para esta escola.</p> : (
+        {d.history.movements.length === 0 ? <p className="text-muted-foreground">Nenhuma transferência, mudança de turma ou saída foi registrada para esta escola. Confira o período ou registre a alteração necessária.</p> : (
           <div className="overflow-x-auto rounded-lg border border-border" role="region" aria-label="Movimentações registradas" tabIndex={0}>
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead className="bg-muted/50 text-muted-foreground"><tr>{["Data", "Aluno", "Tipo", "Status", "Ação"].map((label) => <th key={label} scope="col" className="px-4 py-3 font-medium">{label}</th>)}</tr></thead>
@@ -586,7 +586,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
               reasonCode: fix.row.reason_code, reasonText: fix.row.reason_text, actRef: fix.row.originating_act_ref, correctionReason: fix.reason,
             }).then(() => setFix(null)), "Retificação registrada como nova versão.")}>Gravar retificação</Button>
             <Button size="sm" variant="outline" onClick={() => setFix(null)}>Cancelar</Button>
-            {!typeOf(fix.row.movement_type_id) && <Unavailable>O tipo desta movimentação não está homologado na data atual; retificação indisponível.</Unavailable>}
+            {!typeOf(fix.row.movement_type_id) && <Unavailable>Este tipo de movimentação ainda não foi aprovado para a data escolhida. Não é possível retificá-la; peça à rede que confira a aprovação do tipo.</Unavailable>}
           </div>
         )}
         <section aria-label="Pesquisar estudante para movimentação" className="space-y-3 rounded-lg border border-border p-4">
@@ -612,16 +612,16 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
           </div>
           {searchError && <p role="alert" className="text-sm text-destructive">{searchError}</p>}
           {matched && (
-            <p role="status" className="text-sm text-muted-foreground">{matched.size === 0 ? "Nenhum aluno encontrado nesta escola." : `${matched.size} aluno(s) localizado(s) nesta escola. Selecione a inscrição correspondente abaixo.`}</p>
+            <p role="status" className="text-sm text-muted-foreground">{matched.size === 0 ? "Nenhum aluno corresponde à busca nesta escola. Confira o nome ou os dados informados e tente novamente." : `${matched.size} aluno(s) localizado(s) nesta escola. Selecione a inscrição correspondente abaixo.`}</p>
           )}
         </section>
-        {!canRegister ? <Unavailable>Sua atuação não pode registrar movimentação nesta escola.</Unavailable>
-          : d.movementTypes.length === 0 ? <Unavailable>Nenhum tipo de movimentação homologado; o registro fica indisponível até a rede homologar os tipos.</Unavailable>
+        {!canRegister ? <Unavailable>Sua conta não tem autorização para registrar transferências ou mudanças de turma nesta escola. Peça à gestão responsável para conferir seu acesso.</Unavailable>
+          : d.movementTypes.length === 0 ? <Unavailable>A rede ainda não aprovou os tipos de movimentação. Por isso, não é possível registrar transferências ou mudanças de turma agora. A equipe da rede precisa aprovar os tipos antes.</Unavailable>
           : (
             <div className="flex flex-wrap gap-2 border-t border-border pt-3">
               {labelsQuery.isError && (
                 <div className="w-full space-y-2">
-                  <Unavailable>Não foi possível consultar os nomes dos alunos nesta escola. Nenhuma movimentação será registrada sem identificação legível.</Unavailable>
+                  <Unavailable>Não foi possível buscar os nomes dos alunos desta escola. Confira sua conexão e tente buscar novamente; nenhuma movimentação será registrada sem identificar o aluno.</Unavailable>
                   <Button size="sm" variant="outline" onClick={() => void labelsQuery.refetch()}>Tentar carregar nomes novamente</Button>
                 </div>
               )}
@@ -640,7 +640,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
                 })}
               </select>
               <select aria-label="Tipo de movimentação escolar" className="h-9 rounded-md border border-input bg-background px-2" value={type} onChange={(e) => setType(e.target.value)}>
-                <option value="">Escolha a movimentação…</option>
+                <option value="">Escolha o que deseja fazer…</option>
                 {d.movementTypes.map((t) => <option key={t.valueId} value={t.valueId}>{t.label.replace(/\s+v\d+\s*$/i, "").replace(/\s*\([^()]+\)\s*$/, "")}</option>)}
               </select>
               {transfer && <select aria-label="Escola de destino" className="h-9 max-w-full rounded-md border border-input bg-background px-2" value={destination} onChange={(e) => setDestination(e.target.value)}>
@@ -660,7 +660,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
               </select>}
               <Input aria-label={saida ? "Motivo da saída" : "Motivo da movimentação (opcional)"} placeholder={saida ? "Motivo da saída (obrigatório)" : "Motivo (opcional)"} className="w-64" value={reason} onChange={(e) => setReason(e.target.value)} />
               {enr && <Button size="sm" variant="outline" asChild><Link to="/ficha-longitudinal/$id" params={{ id: enr.student_id }}>Ver ficha longitudinal</Link></Button>}
-              {remanejamento && <p className="w-full text-xs text-muted-foreground">A troca de turma encerra a alocação anterior e abre a nova na mesma escola pelo escritor oficial, sem apagar o histórico. {currentEpisode ? "" : "Este aluno não tem turma vigente para remanejar nesta data."}</p>}
+              {remanejamento && <p className="w-full text-xs text-muted-foreground">A mudança de turma encerra o vínculo com a turma atual e registra a nova turma na mesma escola, sem apagar o histórico. {currentEpisode ? "" : "Este aluno não está em uma turma nesta data."}</p>}
               {(type === "cancelamento" || type === "evasao") && <p className="w-full text-xs text-muted-foreground">A saída encerra a matrícula e registra o tipo homologado. É obrigatório informar o motivo. Desistência e evasão não devem ser equiparadas sem respaldo no registro escolar.</p>}
               {transfer && <p className="w-full text-xs text-muted-foreground">A transferência encerra a matrícula na origem. A escola de destino deverá registrar o recebimento. Se for externa, descreva a escola no motivo da saída para preservar a informação.</p>}
               {type === "falecimento" && enr ? (
@@ -676,7 +676,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
                       title: remanejamento ? "Confirmar remanejamento" : "Confirmar saída escolar",
                       consequence: remanejamento
                         ? "A turma anterior será encerrada e a nova turma receberá o aluno na data escolhida."
-                        : "O vínculo da escola será encerrado e a movimentação oficial será registrada. A operação altera o histórico escolar.",
+                        : "A matrícula nesta escola será encerrada e a transferência será registrada no histórico escolar.",
                       actionLabel: remanejamento ? "Remanejar" : "Registrar saída",
                       destructive: !remanejamento,
                     });
@@ -693,7 +693,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
               )}
             </div>
           )}
-        <p className="text-xs text-muted-foreground">Os lançamentos oficiais só podem ser realizados para um ano letivo aberto e com as competências exigidas. Em ano histórico, a consulta permanece disponível, mas a gravação pode ser recusada. Nenhum encerramento ou troca de turma é feito sem confirmação.</p>
+        <p className="text-xs text-muted-foreground">Só é possível registrar alterações em um ano letivo aberto e quando sua conta tem autorização para a ação. Em anos anteriores, você ainda pode consultar o histórico, mas não registrar mudanças. O sistema sempre pede confirmação antes de encerrar uma matrícula ou trocar um aluno de turma.</p>
       </CardContent>
     </Card>
   );

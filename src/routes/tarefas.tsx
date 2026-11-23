@@ -12,9 +12,9 @@ import { loadTasks, recordTaskEvent, type TaskLoad } from "@/features/tasks/task
 export const Route = createFileRoute("/tarefas")({
   head: () => ({
     meta: [
-      { title: "Tarefas e agenda operacional — SIGEM" },
+      { title: "Tarefas e agenda — SIGEM" },
       { name: "description", content: "Suas tarefas e as do setor, incluindo pendências de processos, com prazo só quando declarado." },
-      { property: "og:title", content: "Tarefas e agenda operacional — SIGEM" },
+      { property: "og:title", content: "Tarefas e agenda — SIGEM" },
       { property: "og:description", content: "Tarefas manuais e pendências de processos em um só lugar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/tarefas")({
   component: Page,
 });
 
-const ERR: Record<string, string> = { forbidden: "Sua conta não pode alterar esta tarefa.", stale: "A tarefa mudou; recarregue.", "reassign-forbidden": "Só quem gere tarefas pode reatribuir.", "assignee-inactive": "A atuação escolhida não está vigente." };
+const ERR: Record<string, string> = { forbidden: "Sua conta não tem autorização para alterar esta tarefa. Peça à gestão responsável para conferir seu acesso.", stale: "Outra pessoa atualizou esta tarefa. Recarregue a lista antes de tentar novamente.", "reassign-forbidden": "Sua conta não tem autorização para trocar o responsável. Peça à gestão responsável para conferir seu acesso.", "assignee-inactive": "O responsável escolhido não tem vínculo ativo na data da tarefa. Escolha outra pessoa." };
 
 function Page() {
   const [data, setData] = useState<TaskLoad | null>(null);
@@ -34,14 +34,14 @@ function Page() {
 
   async function act(t: TaskView, kind: "status" | "comentario", value: string) {
     const r = await recordTaskEvent({ taskId: t.id, kind, expectedSeq: t.seq, ...(kind === "status" ? { status: value } : { comment: value }) });
-    setMsg(r.ok ? "Registrado." : ERR[r.error] ?? "Não foi possível registrar.");
+    setMsg(r.ok ? "Registrado." : ERR[r.error] ?? "Não foi possível salvar esta alteração. Confira os dados e tente novamente.");
     await reload();
   }
 
   const list = data ? sortTasks(view === "agenda" ? data.items : filterTasks(data.items, { view, myEngagements: data.myEngagements })) : [];
   return (
     <section className="mx-auto max-w-4xl space-y-4 p-6">
-      <PageHeader eyebrow="Rotina" title="Tarefas e agenda operacional" />
+      <PageHeader eyebrow="Rotina" title="Tarefas e agenda" />
       <p className="text-sm text-muted-foreground">Pendências de processos aparecem aqui e só se encerram quando o processo avança. A agenda mostra prazos de tarefas; dias letivos e eventos escolares ficam no <Link to="/calendario-escolar" className="underline">Calendário Escolar</Link>.</p>
       <div role="tablist" className="flex flex-wrap gap-2">
         {(["minhas", "setor", "concluidas", "agenda"] as const).map((v) => (
@@ -52,12 +52,12 @@ function Page() {
       </div>
       {msg && <p role="status" className="text-sm">{msg}</p>}
       {!data && <SkeletonState label="Carregando" />}
-      {data?.manualError && <p className="text-sm text-muted-foreground">Tarefas manuais não puderam ser lidas agora.</p>}
-      {data?.workflowError && <p className="text-sm text-muted-foreground">Pendências de processos não puderam ser lidas agora.</p>}
+      {data?.manualError && <p className="text-sm text-muted-foreground">Não foi possível buscar suas tarefas. Confira a conexão e atualize a página para tentar novamente.</p>}
+      {data?.workflowError && <p className="text-sm text-muted-foreground">Não foi possível buscar as pendências dos processos. Confira a conexão e atualize a página para tentar novamente.</p>}
       {view === "agenda" ? (
-        operationalAgenda(list).length === 0 ? <p>Nenhuma tarefa aberta com prazo declarado.</p> :
+        operationalAgenda(list).length === 0 ? <p>Nenhuma tarefa aberta tem prazo informado. Confira as abas Minhas e Do setor ou cadastre uma tarefa com prazo.</p> :
         operationalAgenda(list).map((d) => (<section key={d.date}><h2 className="font-semibold">{d.date}</h2><ul className="list-disc pl-5 text-sm">{d.tasks.map((t) => <li key={t.key}>{t.title}</li>)}</ul></section>))
-      ) : list.length === 0 && data ? <p>Nada aqui.</p> : list.map((t) => <TaskCard key={t.key} t={t} onAct={act} />)}
+      ) : list.length === 0 && data ? <p>Nenhuma tarefa aparece nesta lista. Confira a aba selecionada ou altere os filtros para buscar outras tarefas.</p> : list.map((t) => <TaskCard key={t.key} t={t} onAct={act} />)}
     </section>
   );
 }
@@ -73,7 +73,7 @@ function TaskCard({ t, onAct }: { t: TaskView; onAct: (t: TaskView, k: "status" 
       <p className="text-xs text-muted-foreground">
         Prazo: {t.dueOn ?? "não definido"}{t.priority ? ` · Prioridade: ${t.priority.label}` : ""}{t.recurrence ? ` · Repete: ${t.recurrence}` : ""}{t.source && t.origin === "manual" ? ` · Origem: ${t.source.kind}` : ""}
       </p>
-      {t.orphan && <p className="text-sm">Sem responsável vigente — precisa ser reatribuída por quem gere as tarefas.</p>}
+      {t.orphan && <p className="text-sm">Esta tarefa está sem responsável ativo. Peça a quem coordena as tarefas que escolha outra pessoa.</p>}
       {t.origin === "workflow" ? (
         <Link to="/pendencias" className="text-sm underline">Abrir o processo para avançar</Link>
       ) : t.open && (

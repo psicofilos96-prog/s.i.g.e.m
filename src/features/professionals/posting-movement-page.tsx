@@ -70,7 +70,7 @@ export function PostingMovementPage({
         <EmptyState
           icon={FileQuestion}
           title="Vínculo funcional existente obrigatório"
-          description="A movimentação funcional exige Pessoa, Profissional e Vínculo Funcional existentes."
+          description="Para mudar a lotação, é preciso ter a pessoa, o cadastro profissional e o vínculo de trabalho registrados."
           action={
             <Button asChild variant="outline">
               <Link to="/profissionais/$id/vinculos/novo" params={{ id: professionalId }}>
@@ -98,8 +98,8 @@ export function PostingMovementPage({
   return (
     <div className="space-y-4 pb-5">
       <OperationalPageHeader
-        title="Movimentação funcional"
-        description="Movimentar encerra uma lotação específica e cria outra em continuidade, preservando o histórico. Não é edição destrutiva nem lotação adicional."
+        title="Mudar lotação do servidor"
+        description="Mudar a lotação encerra a lotação anterior e registra a nova, preservando o histórico do servidor."
         parent={{ label: "Profissionais", to: "/profissionais" }}
         actions={
           <>
@@ -116,7 +116,7 @@ export function PostingMovementPage({
               onClick={() => setConfirmOpen(true)}
             >
               <CheckCircle2 />
-              Concluir movimentação
+              Confirmar mudança de lotação
             </Button>
           </>
         }
@@ -128,7 +128,7 @@ export function PostingMovementPage({
         <span className="text-muted-foreground">Demonstração sem persistência</span>
       </div>
       <div className="grid gap-7 lg:grid-cols-[14rem_minmax(0,1fr)]">
-        <nav aria-label="Seções da movimentação" className="self-start lg:sticky lg:top-4">
+        <nav aria-label="Etapas para mudar a lotação do servidor" className="self-start lg:sticky lg:top-4">
           <ol className="border-l border-border">
             {MOVEMENT_SECTIONS.map(([id, label], index) => (
               <li key={id}>
@@ -176,13 +176,13 @@ export function PostingMovementPage({
                 </RadioGroup>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Nenhuma lotação vigente para movimentar. Use “Adicionar lotação” para a primeira
+                  O servidor ainda não tem uma lotação ativa para mudar. Use “Adicionar lotação” para registrar a primeira.
                   lotação.
                 </p>
               )}
               {preserved.length ? (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Lotações que permanecerão vigentes:{" "}
+                  Lotações que continuarão ativas:{" "}
                   {preserved.map((item) => item.place).join("; ")}.
                 </p>
               ) : null}
@@ -218,7 +218,7 @@ export function PostingMovementPage({
               <div className="max-w-64">
                 <Field
                   id="effective-date"
-                  label="Data efetiva da movimentação"
+                  label="Data em que a nova lotação começa"
                   value={draft.effectiveDate}
                   onChange={(effectiveDate) => update({ effectiveDate })}
                   type="date"
@@ -231,7 +231,7 @@ export function PostingMovementPage({
               title="Compatibilidade e conflitos"
               description="Simultaneidade legítima em unidades distintas não é duplicidade."
             >
-              <ConflictPanel conflicts={conflicts} label="Conflitos da movimentação" />
+              <ConflictPanel conflicts={conflicts} label="Conflitos ao mudar a lotação" />
               <Button
                 size="sm"
                 variant="outline"
@@ -242,7 +242,7 @@ export function PostingMovementPage({
               </Button>
               {versionConflict ? (
                 <p role="alert" className="mt-2 border border-border p-3 text-sm">
-                  {POSTING_VERSION_CONFLICT} A futura operação de movimentação deverá revalidar a
+                  {POSTING_VERSION_CONFLICT} A próxima etapa deverá conferir novamente a
                   versão antes da conclusão.
                 </p>
               ) : null}
@@ -302,7 +302,7 @@ export function PostingMovementPage({
                 tudo ou nada. Nenhum sucesso parcial é apresentado.
               </p>
               {errors.length ? (
-                <ul aria-label="Pendências da movimentação" className="mt-4 space-y-1 text-xs">
+                <ul aria-label="Pendências para mudar a lotação" className="mt-4 space-y-1 text-xs">
                   {errors.map((error) => (
                     <li key={error} className="flex gap-2">
                       <CircleAlert className="size-3.5 text-destructive" />
@@ -316,7 +316,7 @@ export function PostingMovementPage({
           <section id="conclusao">
             <DetailSection
               title="Conclusão demonstrativa"
-              description="Nenhum dado será persistido e nenhuma função ou atuação pedagógica é criada."
+              description="Esta é apenas uma prévia: nenhum dado será salvo e nenhuma função ou atribuição pedagógica será criada."
             >
               <p className="text-sm">{POSTING_AUTHORIZATION_NOTE}</p>
             </DetailSection>
@@ -328,7 +328,7 @@ export function PostingMovementPage({
           <AlertDialogHeader>
             <AlertDialogTitle>Sair com alterações não salvas?</AlertDialogTitle>
             <AlertDialogDescription>
-              A movimentação demonstrativa será descartada; nenhuma lotação será alterada.
+              A prévia da mudança será descartada; nenhuma lotação será alterada.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -342,13 +342,13 @@ export function PostingMovementPage({
           <DialogHeader>
             <DialogTitle>
               {concluded
-                ? "Movimentação funcional demonstrativa preparada"
-                : "Concluir movimentação (demonstrativa)"}
+                ? "Prévia da mudança de lotação preparada"
+                : "Preparar mudança de lotação (prévia)"}
             </DialogTitle>
             <DialogDescription>
               {concluded
-                ? "Movimentação funcional demonstrativa preparada. A lotação anterior foi preservada no histórico e a nova lotação foi preparada."
-                : "A operação é conceitualmente atômica: ou todas as etapas são concluídas, ou nenhuma é."}
+                ? "Prévia da mudança de lotação preparada. A lotação anterior foi preservada no histórico e a nova lotação foi preparada."
+                : "Todas as etapas precisam ser concluídas juntas. Se uma delas falhar, nenhuma alteração será registrada."}
             </DialogDescription>
           </DialogHeader>
           {concluded ? (

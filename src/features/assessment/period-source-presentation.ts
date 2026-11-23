@@ -14,8 +14,8 @@ export function periodSourcePresentation(source: PeriodSource | undefined): Peri
   if (source === "institucional-b2.4")
     return {
       tone: "warning",
-      badge: "Período institucional · calendário institucional indisponível para consulta",
-      detail: "Período institucional · calendário institucional indisponível para consulta",
+      badge: "Período institucional (organização de períodos da escola) · calendário oficial não pôde ser consultado",
+      detail: "Período institucional (organização de períodos da escola) · calendário oficial não pôde ser consultado",
       technical: "institucional-b2.4 (organização de períodos da turma)",
     };
   return {

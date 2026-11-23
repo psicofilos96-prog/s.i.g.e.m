@@ -63,7 +63,7 @@ export function ManagementPage() {
         <label className="text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label>
       </section>
       {ready ? <Station key={JSON.stringify(f)} {...f} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
-        : <EmptyState title="Escolha escola, ano e data" description="Selecione os dados para consultar a escola." />}
+        : <EmptyState title="Informe a escola, o ano e a data" description="Faltam dados para buscar o painel. Escolha a escola, o ano letivo e a data nos campos acima para consultar as informações." />}
     </div>
   );
 }
@@ -78,7 +78,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     readManagementInputs(school, year, on, k).then((i) => { if (current) setRes(buildPanel(i)); }, (e: Error) => { if (current) setErr(userErrorText(e)); });
     return () => { current = false; };
   }, [school, year, on, k]);
-  if (err) return <StatePanel tone="neutral" title="Não foi possível carregar o painel" description="Tente novamente em instantes." />;
+  if (err) return <StatePanel tone="neutral" title="Não foi possível buscar os dados da escola" description="A consulta falhou e o painel não foi atualizado. Confira sua conexão e atualize a página para tentar novamente." action={<Button variant="outline" onClick={() => window.location.reload()}>Tentar novamente</Button>} />;
   if (!res) return <SkeletonState label="Carregando painel" />;
   const exportCsv = () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
@@ -90,7 +90,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
     const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`];
     const logo = await loadSchoolLogo(school); // ausência ou falha = sem logo, nunca a de outra escola
-    openSchedulePrint(dossierPrintHtml(toPrintableHtml(r, { headerLines: ["SIGEM"], title: "Dossiê da Direção — situação operacional", logoUrl: logo?.dataUrl ?? null }, meta), res.pending));
+    openSchedulePrint(dossierPrintHtml(toPrintableHtml(r, { headerLines: ["SIGEM"], title: "Dossiê da Direção — situação da escola", logoUrl: logo?.dataUrl ?? null }, meta), res.pending));
   };
   return (
     <div className="space-y-6">
@@ -106,7 +106,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       </section>
       <section aria-label="Pendências" className="space-y-2">
         <h2 className="font-semibold">Pendências ({res.pending.length})</h2>
-        {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência encontrada nesta consulta.</p>
+        {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência foi encontrada para esta escola e data. Confira os dados selecionados; não há providências pendentes entre as informações consultadas.</p>
           : <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text.replace(/fonte não lida/g, "consulta indisponível").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</Link></li>)}</ul>}
       </section>
       <OccurrencesPanel school={school} schoolName={schoolName} />
@@ -118,7 +118,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
       <SchoolLogoPanel school={school} />
       <CensusDeclaredStaff school={school} />
-      <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação operacional (CSV)</Button>
+      <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação da escola (CSV)</Button>
         <Button variant="outline" onClick={exportPdf}>Gerar Dossiê da Direção (PDF)</Button></div>
     </div>
   );

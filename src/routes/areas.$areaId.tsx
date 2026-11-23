@@ -5,9 +5,9 @@ export const Route = createFileRoute("/areas/$areaId")({
   head: () => ({
     meta: [
       { title: "Área de trabalho — SIGEM" },
-      { name: "description", content: "Atividades da área institucional, conforme a atuação vigente." },
+      { name: "description", content: "Tarefas disponíveis nesta área, conforme as autorizações da sua conta." },
       { property: "og:title", content: "Área de trabalho — SIGEM" },
-      { property: "og:description", content: "Atividades por competência da área institucional." },
+      { property: "og:description", content: "Tarefas e informações disponíveis nesta área." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

@@ -86,11 +86,11 @@ function NeiWorkspace({ access }: { access: NeiAccess[] }) {
           </label>
         </div>
         {dashErr ? <StatePanel tone="danger" title="Painel indisponível" description={dashErr} /> : rows === null ? <StatePanel title="Carregando contagens…" description="Lendo do servidor dentro do seu escopo." /> : rows.length === 0 ? (
-          <EmptyState title="Nada a mostrar neste escopo" description="O servidor não devolveu escolas para a sua conta neste filtro." />
+          <EmptyState title="Nenhuma escola disponível para mostrar" description="Sua conta não tem escolas liberadas neste filtro. Escolha outra opção de escopo ou peça à coordenação do NEI para conferir seu acesso." />
         ) : (
           <>
             <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-              {[["Escolas", t.schools], ["Estudantes com registro de apoio", t.students], ["Atendimentos AEE vigentes", t.aee], ["Sessões AEE (30 dias)", t.sessions], ["Mediações vigentes", t.mediations], ["Estudantes com registro clínico", t.clinical ?? "sem acesso"]].map(([l, v]) => (
+              {[["Escolas", t.schools], ["Estudantes com registro de apoio", t.students], ["Atendimentos ativos de AEE", t.aee], ["Sessões AEE (30 dias)", t.sessions], ["Mediações ativas", t.mediations], ["Estudantes com registro clínico", t.clinical ?? "sem acesso"]].map(([l, v]) => (
                 <div key={String(l)} className="rounded-md border border-border p-3"><p className="text-xs text-muted-foreground">{l}</p><p className="text-xl font-semibold tabular-nums">{v}</p></div>
               ))}
             </div>
@@ -168,7 +168,7 @@ function TeamPanel({ access }: { access: NeiAccess[] }) {
         <label className="text-sm sm:col-span-2">Motivo<input className="mt-1 block w-full rounded-md border border-input bg-background p-2" value={reason} onChange={(e) => setReason(e.target.value)} /></label>
       </div>
       <div className="flex items-center gap-3"><Button type="button" disabled={!!problem} onClick={() => void grant()}>Conceder papel</Button><span className="text-xs text-muted-foreground" role="status">{msg ?? problem}</span></div>
-      {grants === null ? <LoadingState label="Carregando papéis…" /> : grants.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum papel concedido ainda.</p> : (
+      {grants === null ? <LoadingState label="Carregando papéis…" /> : grants.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum papel foi concedido para esta equipe. Preencha Pessoa, Papel e Escopo acima e clique em “Conceder papel” para liberar o acesso.</p> : (
         <table className="w-full text-sm"><caption className="sr-only">Papéis do NEI</caption>
           <thead><tr className="text-left text-xs text-muted-foreground"><th scope="col" className="p-2">Pessoa</th><th scope="col" className="p-2">Papel</th><th scope="col" className="p-2">Escopo</th><th scope="col" className="p-2">Vigência</th><th scope="col" className="p-2">Situação</th><th scope="col" className="p-2" /></tr></thead>
           <tbody>{grants.map((g) => (
@@ -189,7 +189,7 @@ function AccessLog() {
   return (
     <section aria-labelledby="nei-log-h" className="space-y-2 rounded-md border border-border p-4">
       <h2 id="nei-log-h" className="text-sm font-semibold">Acessos registrados (últimos 100)</h2>
-      {rows === null ? <LoadingState label="Carregando…" /> : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum acesso registrado.</p> : (
+      {rows === null ? <LoadingState label="Carregando…" /> : rows.length === 0 ? <p className="text-sm text-muted-foreground">Nenhum acesso foi registrado nos últimos 100 eventos. Os acessos aparecerão aqui quando alguém usar uma área do NEI.</p> : (
         <ul className="max-h-64 space-y-1 overflow-auto text-xs">{rows.map((r, i) => <li key={i}>{new Date(r.recorded_at).toLocaleString("pt-BR")} — {r.person_name} — {r.action}{r.school_id ? ` (${r.school_id})` : ""} — <strong>{r.outcome}</strong></li>)}</ul>
       )}
     </section>

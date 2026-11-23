@@ -224,7 +224,7 @@ export function AllocationWorkspacePage({
 
   const singleGrouping = selected && !needsGrouping ? (selected.item.groupings[0] ?? null) : null;
   const effectiveGrouping = needsGrouping ? draft.groupingLabel : (singleGrouping?.label ?? "");
-  const primaryLabel = isMovement ? "Concluir movimentação" : "Concluir enturmação";
+  const primaryLabel = isMovement ? "Confirmar mudança de turma" : "Colocar aluno na turma";
   // Ação institucional inválida permanece indisponível; a causa fica visível.
   const primaryDisabled = errors.length > 0;
 
@@ -272,8 +272,8 @@ export function AllocationWorkspacePage({
             <InstitutionalDetails summary="Ver registro institucional desta conclusão">
               <p>
                 {isMovement
-                  ? "Movimentação demonstrativa preparada. A alocação anterior seria encerrada e a nova alocação criada na mesma operação, preservando o histórico. Nada foi persistido."
-                  : "Alocação em turma preparada. Nada foi persistido."}
+                  ? "Prévia de mudança de turma preparada. A turma anterior seria encerrada e a nova registrada na mesma ação, preservando o histórico. Nenhum dado foi salvo."
+                  : "Prévia de enturmação preparada: colocar o aluno na turma escolhida. Nenhum dado foi salvo."}
               </p>
               <p className="mt-2">{isMovement ? ATOMICITY_NOTE : ALLOCATION_SCOPE_NOTE}</p>
               <p className="mt-2">
@@ -297,7 +297,7 @@ export function AllocationWorkspacePage({
           {targets.length === 0 ? (
             <div className="rounded-lg border border-border bg-muted/40 px-4 py-3">
               <p className="text-base font-semibold text-foreground">
-                Nenhuma participação disponível.
+                Nenhuma matrícula com participação educacional foi encontrada para este aluno. Registre o vínculo letivo e a participação no botão abaixo para continuar.
               </p>
               <p className="mt-1 text-sm text-muted-foreground">{NO_PARTICIPATION_NOTE}</p>
               <Button asChild variant="outline" className="mt-3 min-h-11">
@@ -403,7 +403,7 @@ export function AllocationWorkspacePage({
 
       {target && active && !isMovement ? (
         <FeedbackNote tone="impedimento" title={`Este aluno já está em ${active.classLabel}.`}>
-          <p>Para trocar de turma, faça uma movimentação: assim o histórico não se perde.</p>
+          <p>Para mudar o aluno de turma, use a opção abaixo. O histórico das duas turmas será preservado.</p>
           <Button asChild variant="outline" className="mt-3 min-h-11">
             <Link
               to="/enturmacoes/movimentar"
@@ -420,19 +420,18 @@ export function AllocationWorkspacePage({
 
       {target && !active && isMovement ? (
         <FeedbackNote tone="atencao" title={NO_CURRENT_ALLOCATION_LABEL}>
-          <p>Sem turma atual não há movimentação a fazer. Use a enturmação inicial.</p>
+          <p>Este aluno não está em uma turma nesta data. Use a opção abaixo para colocá-lo na primeira turma.</p>
           <Button asChild variant="outline" className="mt-3 min-h-11">
             <Link
               to="/enturmacoes/nova"
               search={{ aluno: target.studentId, participacao: target.id }}
             >
-              Ir para enturmação inicial
+              Colocar aluno em turma
             </Link>
           </Button>
           <InstitutionalDetails summary="Ver diagnóstico institucional">
             <p>
-              Sem alocação vigente não há movimentação a representar. A enturmação inicial é a
-              operação apropriada.
+              Como o aluno não está em uma turma nesta data, primeiro é preciso colocá-lo em uma turma.
             </p>
           </InstitutionalDetails>
         </FeedbackNote>
@@ -466,8 +465,7 @@ export function AllocationWorkspacePage({
             ))}
           </ul>
           <p className="mt-2 text-sm text-muted-foreground">
-            A turma anterior permanece registrada e navegável: a movimentação nunca substitui a
-            alocação anterior nos registros históricos.
+            A turma anterior continua no histórico. Mudar de turma não apaga nem substitui os registros anteriores.
           </p>
         </div>
       ) : null}
@@ -510,7 +508,7 @@ export function AllocationWorkspacePage({
             </RadioGroup>
           ) : (
             <p className="text-base text-muted-foreground">
-              Nenhuma turma demonstrativamente compatível neste contexto.
+              Nenhuma turma pode ser escolhida para este aluno com os dados disponíveis. Confira a matrícula e o ano letivo antes de continuar.
             </p>
           )}
           <FieldError issue={issueOf("classId")} id="al-err-classId" />
@@ -834,7 +832,7 @@ export function AllocationWorkspacePage({
             currentId={stepId}
             furthestIndex={furthest}
             onSelect={goTo}
-            label={isMovement ? "Etapas da movimentação" : "Etapas da enturmação"}
+            label={isMovement ? "Etapas para mudar o aluno de turma" : "Etapas para colocar o aluno em turma"}
           />
         </div>
       </header>
@@ -902,19 +900,17 @@ export function AllocationWorkspacePage({
           <SheetContent className="w-full overflow-y-auto sm:max-w-md">
             <SheetHeader>
               <SheetTitle>Informações institucionais</SheetTitle>
-              <SheetDescription>Escopo, natureza da alocação e limites desta operação.</SheetDescription>
+              <SheetDescription>Como o aluno é vinculado à turma e o que esta ação altera.</SheetDescription>
             </SheetHeader>
             <div className="mt-5 space-y-4 text-sm text-muted-foreground">
               <p>
-                Cadeia institucional: Participação → Alocação → Turma. A alocação possui vigência
-                própria e não é atributo do aluno.
+                Enturmação: colocar o aluno na turma certa. O vínculo com a turma tem datas próprias e pode mudar durante o ano letivo.
               </p>
               <p>{ALLOCATION_SCOPE_NOTE}</p>
               <p>{MOVEMENT_NOT_TRANSFER_NOTE}</p>
               {isMovement ? <p>{ATOMICITY_NOTE}</p> : null}
               <p>
-                Conflitos evidentes são apresentados sem correção automática. Nenhuma alocação é
-                encerrada silenciosamente fora do fluxo explícito de movimentação.
+                O sistema mostra os conflitos encontrados, sem corrigi-los automaticamente. A turma atual só é encerrada quando você confirma a mudança de turma.
               </p>
               <p>{DATA_MINIMIZATION_ALLOCATION_NOTE}</p>
               {!isMovement ? (
@@ -939,7 +935,7 @@ export function AllocationWorkspacePage({
           <AlertDialogHeader>
             <AlertDialogDescription>
               O que você preencheu ainda não foi guardado. Ao sair, o preenchimento é descartado;
-              nenhuma alocação, participação, vínculo letivo ou matrícula escolar é alterada.
+              nenhuma turma, participação, vínculo letivo ou matrícula escolar é alterada.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -983,7 +979,7 @@ export function AllocationWorkspacePage({
                 setConcluded(true);
               }}
             >
-              {isMovement ? "Confirmar movimentação" : "Confirmar enturmação"}
+              {isMovement ? "Confirmar mudança de turma" : "Confirmar aluno na turma"}
             </Button>
           </DialogFooter>
         </DialogContent>

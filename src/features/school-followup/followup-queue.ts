@@ -14,8 +14,8 @@ export type QueueKind = "matricula-sem-turma" | "turma-sem-fechamento-de-frequen
 export const QUEUE_PRESENTATION: Record<QueueKind, { title: string; reason: string; next: string; deadline: string | null }> = {
   "matricula-sem-turma": {
     title: "Alunos sem turma",
-    reason: "Matrícula vigente sem enturmação na data consultada.",
-    next: "Acompanhar o aluno e pedir à Secretaria que coloque em turma.",
+    reason: "Matrícula ativa sem turma registrada nesta data.",
+    next: "Peça à Secretaria que coloque o aluno em uma turma.",
     deadline: null,
   },
   "turma-sem-fechamento-de-frequencia": {

@@ -23,7 +23,7 @@ function MapPage() {
   if (session.loading) return <SkeletonState label="Carregando" />;
   if (!session.user)
     return (
-      <EmptyState title="Entre para abrir o Mapa Estatístico" description="O Mapa usa somente registros institucionais e exige login com atuação vigente." />
+      <EmptyState title="Entre para abrir o Mapa Estatístico" description="Entre com sua conta institucional para consultar os dados oficiais da escola. O acesso depende das autorizações concedidas à sua conta." />
     );
   return <StatisticalMapWorkspace />;
 }
