@@ -3,7 +3,7 @@ import { OperationsConsole } from "@/components/sigem/operations-console";
 import { TECH_STAGES } from "@/features/technology/tech-operations";
 import { brand } from "@/config/branding";
 
-const title = `Central operacional de tecnologia — ${brand.name}`;
+const title = `Central de Tecnologia — ${brand.name}`;
 const description = "Chamados, fila, SLA, sessões, mudanças, inventário, conectividade, serviços, acessos, incidentes, backup, conhecimento, recursos pedagógicos e licenças pelos writers do banco.";
 
 export const Route = createFileRoute("/tecnologia/operacao")({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/tecnologia/operacao")({
 
 function TechOperationsPage() {
   return (
-    <OperationsConsole ns="op-tec" eyebrow="SIGEM Tecnologia" title="Central operacional de tecnologia" stages={TECH_STAGES}
+    <OperationsConsole ns="op-tec" eyebrow="SIGEM Tecnologia" title="Central de Tecnologia" stages={TECH_STAGES}
       description="Cada aba mostra os registros que sua conta pode ver e as ações da etapa. Toda gravação passa pelo writer do banco, que confere permissão, sequência, autoria e aprovação por outra pessoa." />
   );
 }
