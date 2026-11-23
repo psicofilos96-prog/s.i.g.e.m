@@ -134,8 +134,8 @@ function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }
 }
 
 const YEAR_STATE: Record<string, string> = {
-  operacional: "operacional", "historico-importado": "histórico (baseline 2026) — sem Mapa operacional",
-  "sem-estado": "ainda sem estado operacional — aguarda ato humano de abertura do ano",
+  operacional: "Em andamento", "historico-importado": "Histórico de 2026",
+  "sem-estado": "Ano letivo ainda não aberto",
 };
 
 /** Exporta a fotografia exibida — oficial congelada quando houver, senão a viva — pelo motor de relatórios. */
