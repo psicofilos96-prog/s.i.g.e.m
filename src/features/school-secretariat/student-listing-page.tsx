@@ -64,10 +64,7 @@ export function StudentListingPage() {
           <div className="flex flex-wrap gap-3">{LISTING_COLUMNS.map((c) => (
             <label key={c.id} className="flex items-center gap-1"><input type="checkbox" checked={cols.includes(c.id)} onChange={() => toggle(c.id)} />{c.label}</label>))}</div>
         </fieldset>
-        <div className="flex gap-2 sm:col-span-4">
-          <Button disabled={!rows || cols.length === 0 || shown.length === 0} onClick={() => void exportFile("pdf")}>Baixar PDF</Button>
-          <Button variant="outline" disabled={!rows || cols.length === 0 || shown.length === 0} onClick={() => void exportFile("xlsx")}>Baixar Excel</Button>
-        </div>
+        <div className="flex sm:col-span-4"><ExportMenu disabled={!rows || cols.length === 0 || shown.length === 0} onPdf={() => exportFile("pdf")} onExcel={() => exportFile("xlsx")} />
       </div>
       {err && <p role="status" className="text-sm text-destructive">{err}</p>}
       {!err && (rows === null ? <LoadingState label="Carregando…" /> : (
