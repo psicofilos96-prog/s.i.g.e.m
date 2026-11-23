@@ -431,8 +431,7 @@ export function AllocationWorkspacePage({
           </Button>
           <InstitutionalDetails summary="Ver diagnóstico institucional">
             <p>
-              Sem alocação vigente não há movimentação a representar. A enturmação inicial é a
-              operação apropriada.
+              Como o aluno não está em uma turma nesta data, primeiro é preciso colocá-lo em uma turma.
             </p>
           </InstitutionalDetails>
         </FeedbackNote>
@@ -466,8 +465,7 @@ export function AllocationWorkspacePage({
             ))}
           </ul>
           <p className="mt-2 text-sm text-muted-foreground">
-            A turma anterior permanece registrada e navegável: a movimentação nunca substitui a
-            alocação anterior nos registros históricos.
+            A turma anterior continua no histórico. Mudar de turma não apaga nem substitui os registros anteriores.
           </p>
         </div>
       ) : null}
@@ -906,15 +904,13 @@ export function AllocationWorkspacePage({
             </SheetHeader>
             <div className="mt-5 space-y-4 text-sm text-muted-foreground">
               <p>
-                Cadeia institucional: Participação → Alocação → Turma. A alocação possui vigência
-                própria e não é atributo do aluno.
+                Enturmação: colocar o aluno na turma certa. O vínculo com a turma tem datas próprias e pode mudar durante o ano letivo.
               </p>
               <p>{ALLOCATION_SCOPE_NOTE}</p>
               <p>{MOVEMENT_NOT_TRANSFER_NOTE}</p>
               {isMovement ? <p>{ATOMICITY_NOTE}</p> : null}
               <p>
-                Conflitos evidentes são apresentados sem correção automática. Nenhuma alocação é
-                encerrada silenciosamente fora do fluxo explícito de movimentação.
+                O sistema mostra os conflitos encontrados, sem corrigi-los automaticamente. A turma atual só é encerrada quando você confirma a mudança de turma.
               </p>
               <p>{DATA_MINIMIZATION_ALLOCATION_NOTE}</p>
               {!isMovement ? (
