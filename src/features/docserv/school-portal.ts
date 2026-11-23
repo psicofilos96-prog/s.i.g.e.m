@@ -2,7 +2,8 @@
 export type DocCell = { document_id: string; version: number; seq: number; path: string; valid_until: string | null; by_school: boolean; status: string };
 export type RosterPerson = { person_id: string; masked_name: string | null; sources: string[]; functions: string[]; other_schools: number; docs: Record<string, DocCell> };
 export type LinkRequest = { request_id: string; seq: number; kind: string; state: string; reason: string; person_masked: string | null; at: string };
-export type Roster = { school_id: string; season: string; can_validate: boolean; staff_records_without_person: number; people: RosterPerson[]; requests: LinkRequest[] };
+export type TestStaffRecord = { id: string; name: string | null; registration: string | null; cargo: string | null; function: string | null; link: string | null; group: string | null; status: string | null; observation: string | null; reference_period: string | null; source_file: string; sheet: string | null; row_no: number | null };
+export type Roster = { school_id: string; season: string; can_validate: boolean; staff_records_without_person: number; test_records: TestStaffRecord[]; people: RosterPerson[]; requests: LinkRequest[] };
 
 export const TYPES = ["antecedente_criminal", "antecedente_civil"] as const;
 export type Filter = "todos" | "sem-envio" | "pendente" | "problema" | "valido";
