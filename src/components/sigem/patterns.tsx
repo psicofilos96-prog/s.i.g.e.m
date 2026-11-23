@@ -37,7 +37,7 @@ export function PageHeader({
           {title}
         </h1>
         {description && (
-          <p className="mt-2 max-w-[var(--content-reading)] truncate text-[0.9375rem] leading-[1.55] text-muted-foreground" title={description}>{description}</p>
+          <p className="mt-2 line-clamp-2 max-w-[var(--content-reading)] break-words text-[0.9375rem] leading-[1.55] text-muted-foreground" title={description}>{description}</p>
         )}
       </div>
       {actions && (

@@ -7,7 +7,7 @@ import { STATION_ROUTES } from "@/features/authority/station-navigation";
 import type { SessionAuthority } from "@/features/authority/session-authority";
 import { HomeTodayPanel } from "./home-today";
 import { PersonNoticeBoard, SchoolNoticeBoard } from "@/features/ciece/network-notices";
-import { MyPendingWorkCard } from "@/features/teacher-review/my-pending-card";
+import { MyPendingWorkCard } from "@/features/teacher-review/my-pending-card";\nimport { PageHeader } from "@/components/sigem/patterns";
 
 function sectorOf(a: SessionAuthority) {
   const pr = (a as { principal?: { station: keyof typeof STATION_ROUTES } | null }).principal;
