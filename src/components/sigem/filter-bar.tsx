@@ -149,7 +149,9 @@ export function FilterBar({
           {hasAdvancedPanel ? (
             <Sheet open={advancedOpen} onOpenChange={setAdvancedOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" className="h-9 px-2.5 text-sm text-muted-foreground hover:text-foreground">\n                  <Filter /> Filtros avançados {active ? `(${active})` : ""}\n                </Button>
+                <Button variant="ghost" className="h-9 px-2.5 text-sm text-muted-foreground hover:text-foreground">
+                  <Filter /> Filtros avançados {active ? `(${active})` : ""}
+                </Button>
               </SheetTrigger>
               <SheetContent className="w-full sm:max-w-md">
                 <SheetHeader>
