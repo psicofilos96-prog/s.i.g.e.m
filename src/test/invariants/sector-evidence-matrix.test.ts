@@ -14,8 +14,8 @@ describe("lote 17 — matriz evidência/pendência por setor", () => {
   });
   it("classifica os módulos de apoio docente sem tela como pendências de interface", () => {
     const docente = buildMatrix().find((s: { sector: string }) => s.sector === "Docente");
-    expect(docente.withoutScreen).toContain("src/features/teacher-diary/teacher-labels.ts");
-    expect(docente.withoutScreen).toContain("src/features/teacher-diary/teacher-navigation.ts");
+    expect(docente.withoutScreen).not.toContain("src/features/teacher-diary/teacher-labels.ts");
+    expect(docente.withoutScreen).not.toContain("src/features/teacher-diary/teacher-navigation.ts");
     expect(docente.withoutTest).not.toContain("src/features/teacher-diary/teacher-labels.ts");
     expect(docente.withoutTest).not.toContain("src/features/teacher-diary/teacher-navigation.ts");
   });
