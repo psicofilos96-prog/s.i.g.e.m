@@ -29,7 +29,7 @@ export function identityProblems(p: WizardPayload, id: Identity): Partial<Record
   const f: Partial<Record<WizardField, string>> = {};
   if (!birth || !isIsoDate(birth)) f["aluno.nascimento"] = "Informe uma data de nascimento válida.";
   else if (birth >= (id.cpfRequiredFrom ?? DEFAULT_CPF_REQUIRED_FROM)) {
-    if (!id.hasCpf) f.identificacao = "Informe e guarde o CPF do aluno. A certidão e o INEP não substituem o CPF para esta data de nascimento.";
+    if (!id.hasCpf) f.identificacao = "Falta o CPF do aluno. Sem ele, não dá para concluir a matrícula.";
   } else if (!id.hasCpf && !(id.certificate ?? p.documentos?.certidao)?.trim()) {
     f["documentos.certidao"] = "Informe o número ou a matrícula da certidão de nascimento, ou guarde o CPF do aluno.";
   }
@@ -83,7 +83,7 @@ export function seatLabel(c: ClassOption): string {
 
 const MESSAGES: Record<string, string> = {
   "student:birth-required": "Confira a data de nascimento do aluno antes de concluir.",
-  "student:cpf-required-by-birth": "O CPF é obrigatório para esta data de nascimento. Informe e guarde o CPF; certidão ou INEP não o substituem.",
+  "student:cpf-required-by-birth": "Falta o CPF do aluno. Sem ele, não dá para concluir a matrícula.",
   "student:certificate-required": "Informe a certidão de nascimento ou o CPF do aluno.",
   "student:certificate-invalid": "Confira o número ou a matrícula da certidão de nascimento.",
   "student:birth-conflict": "A data de nascimento difere do cadastro oficial. Corrija a ficha do aluno antes de matricular.",
