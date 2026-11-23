@@ -7,9 +7,9 @@ import { brand } from "@/config/branding";
 export const Route = createFileRoute("/preparacao-ano")({
   head: () => ({
     meta: [
-      { title: `Preparação do ano operacional — ${brand.name}` },
+      { title: `Preparação do próximo ano letivo — ${brand.name}` },
       { name: "description", content: "Transição de alunos e servidores entre anos, por escola, com decisão explícita da Secretaria." },
-      { property: "og:title", content: `Preparação do ano operacional — ${brand.name}` },
+      { property: "og:title", content: `Preparação do próximo ano letivo — ${brand.name}` },
       { property: "og:description", content: "Renovação, transferência e busca ativa exata sem cópia automática de vínculos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
