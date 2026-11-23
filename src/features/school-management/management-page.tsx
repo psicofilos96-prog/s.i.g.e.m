@@ -83,7 +83,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
   if (!res) return <SkeletonState label="Carregando painel" />;
   const exportCsv = () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
-    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Atualizado até: ${k ?? "momento da consulta"}`, "Resumo calculado a partir dos registros disponíveis."];
+    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Atualizado até: ${k ?? "momento da consulta"}`, "Resumo de acompanhamento da escola."];
     const blob = new Blob([toCsv(r, { headerLines: ["SIGEM"], title: GESTAO_ESCOLAR.title }, meta)], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `gestao-escolar-${on}.csv`; a.click(); URL.revokeObjectURL(a.href);
   };
