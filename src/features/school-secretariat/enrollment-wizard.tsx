@@ -80,7 +80,7 @@ function DraftPicker({ school }: { school: string }) {
               const progress = Math.min(100, Math.max(0, Math.floor(d.step / 8 * 100)));
               const edited = new Date(d.updatedAt);
               return <li key={d.draftId} className="space-y-4 rounded-lg border border-border bg-card p-5 transition-shadow hover:shadow-panel">
-                <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1"><h3 className="font-semibold break-words">{d.existingStudentName ?? d.payload.aluno?.nome ?? (d.inep ? `Aluno INEP ${d.inep}` : "Novo aluno")}</h3><p className="mt-1 text-xs text-muted-foreground">{Number.isNaN(edited.getTime()) ? "Edição não informada" : `Editado ${formatDistanceToNow(edited, { addSuffix: true, locale: ptBR })}`}</p></div><Button className="shrink-0 whitespace-nowrap" size="sm" onClick={() => setCurrent(d)}>Retomar<ArrowRight className="size-3.5" /></Button></div>
+                <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0 flex-1"><h3 className="font-semibold break-words">{d.existingStudentName ?? d.payload.aluno?.nome ?? (d.inep ? `Aluno INEP ${d.inep}` : "Novo aluno")}</h3><p className="mt-1 text-xs text-muted-foreground">{Number.isNaN(edited.getTime()) ? "Edição não informada" : `Editado ${formatDistanceToNow(edited, { addSuffix: true, locale: ptBR })}`}</p></div><Button className="shrink-0 whitespace-nowrap" size="sm" onClick={() => setCurrent(d)}>Continuar<ArrowRight className="size-3.5" /></Button></div>
                 <div><div className="mb-2 flex justify-between gap-2 text-xs text-muted-foreground"><span>Passo {d.step} de 8 · {WIZARD_STEPS[d.step - 1]?.title}</span><span>{progress}% concluído</span></div><progress className="h-1.5 w-full overflow-hidden rounded-full [&::-webkit-progress-bar]:bg-muted [&::-webkit-progress-value]:bg-primary [&::-moz-progress-bar]:bg-primary" max={100} value={progress} aria-label={`Progresso da matrícula de ${d.existingStudentName ?? d.payload.aluno?.nome ?? "novo aluno"}`} /></div>
               </li>;
             })}
@@ -108,7 +108,7 @@ function Field({ label, value, onChange, type = "text", hint, error }: { label: 
 const STATUS: Record<AutosaveStatus, string> = { ocioso: "", pendente: "Alterações não salvas…", salvando: "Salvando…", salvo: "Salvo", erro: "Não foi possível salvar o rascunho", "sem-conexao": "Sem conexão — o rascunho será salvo quando a conexão voltar" };
 
 function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: OpenDraft; cutoff: string; onExit: () => void }) {
-  const [step, setStep] = useState(initial.step);
+  const [step, setStep] = useState(Math.min(8, Math.max(1, initial.step)));
   const [p, setP] = useState<WizardPayload>(initial.payload);
   const [ident, setIdent] = useState({ existingStudentId: initial.existingStudentId, existingName: initial.existingStudentName, hasCpf: initial.hasCpf, cpfHint: initial.cpfHint, inep: initial.inep });
   const [official, setOfficial] = useState<{ birth_date: string | null; has_cpf: boolean; has_certificate: boolean } | null>(null);
@@ -140,23 +140,14 @@ function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: 
   return (
     <section className="space-y-4">
       {/* INT.7: matrícula em uma única página (antes: 8 telas e 7 cliques em "Continuar"). */}
-      <nav aria-label="Seções da matrícula" className="sticky top-[var(--topbar-height)] z-10 rounded-lg border bg-card/95 p-3 backdrop-blur">
-        <p className="mb-2 text-sm">
-          {(() => { const n = Object.values(missing).flat().length; return n ? <span>Faltam {n} {n === 1 ? "informação obrigatória" : "informações obrigatórias"}</span> : <strong>Tudo pronto para concluir</strong>; })()}
-        </p>
-        <ol className="flex flex-wrap gap-1 text-xs">
-          {WIZARD_STEPS.filter((s) => s.n < 8).map((s) => (
-            <li key={s.n}>
-              <a href={`#wz-sec-${s.n}`} className={`inline-block rounded-full border px-2 py-1 ${missing[s.n]!.length ? "border-warning" : "border-border"}`}>
-                {s.title}{missing[s.n]!.length ? " •" : ""}
-              </a>
-            </li>
-          ))}
-        </ol>
+      <nav aria-label="Progresso da matrícula" className="sticky top-[var(--topbar-height)] z-10 space-y-2 rounded-lg border bg-card/95 p-3 backdrop-blur">
+        <div className="flex items-center justify-between gap-3 text-sm"><strong>Passo {step} de 8</strong><span className="text-muted-foreground">{WIZARD_STEPS[step - 1]?.title}</span></div>
+        <progress className="h-2 w-full" max={8} value={step} aria-label={`Passo ${step} de 8`} />
+        <p className="text-xs text-muted-foreground" aria-live="polite">{(() => { const items = Object.values(missing).flat(); return items.length ? `Para concluir, ainda falta: ${items.join(", ")}.` : "Informações obrigatórias preenchidas. Você já pode revisar e concluir."; })()}</p>
         <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">{STATUS[status]}{saveErr && status === "erro" ? ` — ${saveErr}` : ""}
           {status === "erro" ? <RecoveryRetryButton type="button" variant="outline" size="sm" className="ml-2" error={saveErr ?? undefined} operation="salvar-rascunho-matricula" onRetry={() => auto.retry()} /> : null}</p>
       </nav>
-      {WIZARD_STEPS.filter((s) => s.n < 8).map((s) => (
+      {WIZARD_STEPS.filter((s) => s.n === step).map((s) => (
         <div key={s.n} id={`wz-sec-${s.n}`} className="scroll-mt-40 space-y-3 rounded-lg border bg-card p-4">
           <h2 className="text-lg font-semibold">{s.title}</h2>
           {s.n === 1 ? <><ContextHint label="Documentos de identificação" text={`Nascidos desde ${formatAcademicDate(cutoff)}: CPF obrigatório. Antes dessa data: CPF ou certidão de nascimento.`} />
@@ -180,15 +171,15 @@ function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: 
           </div>) : null}
           {s.n === 6 ? <StepYear fp={fp} p={p} edit={edit} /> : null}
           {s.n === 7 ? <StepClass fp={fp} school={school} p={p} edit={edit} /> : null}
-          {missing[s.n]!.length ? <p className="text-sm text-warning-foreground" role="status">Falta: {missing[s.n]!.join(", ")}.</p> : null}
+          {s.n === 8 ? <>
+            <StepReview p={p} ident={ident} missing={missing} go={go} />
+            <Complete draft={initial.draftId} seq={seq} auto={auto} p={p} ready={canComplete(p, identity) && (!ident.existingStudentId || !!official) && !officialError} onDone={(sid) => setDone({ studentId: sid, name: ident.existingName ?? p.aluno?.nome ?? "" })} />
+          </> : null}
         </div>
       ))}
-      <div className="flex flex-wrap justify-between gap-2">
-        <div className="flex gap-2">
-          <Button variant="ghost" onClick={async () => { await auto.flush(); onExit(); }}>Sair e continuar depois</Button>
-          <Discard draft={initial.draftId} seq={seq} auto={auto} onDone={onExit} photo={p.foto?.path} />
-        </div>
-        <Complete draft={initial.draftId} seq={seq} auto={auto} p={p} ready={canComplete(p, identity) && (!ident.existingStudentId || !!official) && !officialError} onDone={(sid) => setDone({ studentId: sid, name: ident.existingName ?? p.aluno?.nome ?? "" })} />
+      <div className="flex justify-between gap-3">
+        <Button type="button" variant="outline" disabled={step === 1} onClick={() => void go(step - 1)}>Voltar</Button>
+        {step < 8 ? <Button type="button" onClick={() => void go(step + 1)}>Continuar</Button> : <span className="self-center text-xs text-muted-foreground">Confira os dados e conclua a matrícula.</span>}
       </div>
     </section>
   );
@@ -235,15 +226,15 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
         edit((x) => ({ ...x, aluno: { ...x.aluno, nome: m.display_name, ...(m.birth_date ? { nascimento: m.birth_date } : {}) },
           responsaveis: x.responsaveis?.length ? x.responsaveis : [m.mother_name ? { nome: m.mother_name, parentesco: "Mãe", telefone: m.phones[0] ?? "" } : null, m.father_name ? { nome: m.father_name, parentesco: "Pai", telefone: m.phones[1] ?? "" } : null].filter(Boolean) as NonNullable<WizardPayload["responsaveis"]> }));
       }} />}
-      <details open={!!fp.identificacao} className="rounded-md border p-3">
+      <details className="rounded-md border p-3">
         <summary className="cursor-pointer text-sm">Buscar por CPF ou INEP</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={formatCpf(cpf)} onChange={(v) => setCpf(cpfDigits(v))} error={cpfMessage(cpf) ?? fp.identificacao} />
-          <Field label="Código INEP do aluno" value={inep} onChange={setInep} error={fp.identificacao} />
+          <Field label="Código INEP do aluno" value={inep} onChange={setInep} />
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button variant="outline" disabled={busy} onClick={() => void search()}>Buscar</Button>
-          <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Guardar documento</Button>
+          <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Salvar CPF</Button>
         </div>
       </details>
       {found ? (
@@ -363,7 +354,7 @@ function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: 
     <div className="space-y-3 text-right">
       <EntryOriginField value={origin} onChange={setOrigin} />
       {confirm ? <p className="mb-2 text-sm">Isto cria a matrícula oficial e coloca o aluno na turma <strong>{p.turma?.nome}</strong>. Confirmar?</p> : null}
-      {confirm ? <Button variant="outline" className="mr-2" disabled={busy} onClick={() => setConfirm(false)}>Revisar de novo</Button> : null}
+      {confirm ? <p className="mb-2 text-sm">Confirme os dados e pressione Continuar para concluir.</p> : null}
       <Button disabled={!ready || busy || !entryOriginOk(origin)} onClick={async () => {
         if (!confirm) { setConfirm(true); return; }
         setBusy(true); setErr("");
@@ -375,7 +366,7 @@ function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: 
           if (p.foto?.path) await bindPhoto(draft).catch(() => null);
           onDone(r.student_id);
         } catch (e) { setErr(wizardMessage(e)); setConfirm(false); } finally { setBusy(false); }
-      }}>{busy ? "Concluindo…" : confirm ? "Sim, concluir matrícula" : "Concluir matrícula"}</Button>
+      }}>{busy ? "Concluindo…" : "Continuar"}</Button>
       {err ? <p role="alert" className="mt-1 text-sm text-destructive">{err}</p> : null}
     </div>
   );
@@ -413,7 +404,7 @@ function Done({ school, studentId, name, onAgain }: { school: string; studentId:
 }
 
 function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: string; p: WizardPayload; edit: Edit; auto: Auto }) {
-  const [url, setUrl] = useState<string | null>(null); const [err, setErr] = useState(""); const [busy, setBusy] = useState(false); const [live, setLive] = useState(false);
+  const [url, setUrl] = useState<string | null>(null); const [err, setErr] = useState(""); const [busy, setBusy] = useState(false); const [live, setLive] = useState(false); const [skipped, setSkipped] = useState(false);
   const path = p.foto?.path;
   useEffect(() => { if (path) photoUrl(path).then(setUrl, () => setUrl(null)); else setUrl(null); }, [path]);
   async function pick(f: File | undefined) {
@@ -432,13 +423,14 @@ function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: s
     if (!path) return; setBusy(true);
     try { edit((x) => { const { foto: _f, ...rest } = x; return rest; }); await auto.flush(); await removePhoto(path).catch(() => null); } finally { setBusy(false); }
   }
+  if (skipped) return <p className="text-xs text-muted-foreground">Foto pulada. A matrícula pode ser concluída sem foto.</p>;
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-md border p-3">
       <div className="flex h-28 w-[5.25rem] items-center justify-center overflow-hidden rounded bg-muted text-xs text-muted-foreground">
         {url ? <img src={url} alt="Foto 3×4 do aluno" className="h-full w-full object-cover" /> : "Sem foto"}
       </div>
       <div className="space-y-2">
-        <p className="text-sm">Foto 3×4 <span className="text-muted-foreground">(opcional)</span></p>
+        <p className="text-sm">Foto 3×4 <span className="text-muted-foreground">(opcional — você pode concluir a matrícula sem foto)</span></p>
         <div className="flex flex-wrap gap-2">
           <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
             {path ? "Trocar foto" : "Adicionar foto"}
@@ -446,6 +438,7 @@ function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: s
           </label>
           <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => setLive((v) => !v)}>{live ? "Fechar câmera" : "Tirar foto com a câmera"}</Button>
           {path ? <Button variant="ghost" size="sm" disabled={busy} onClick={() => void clear()}>Remover</Button> : null}
+          {!path ? <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setSkipped(true)}>Pular foto</Button> : null}
         </div>
         {busy ? <p className="text-xs text-muted-foreground">Enviando…</p> : null}
         {err ? <p role="alert" className="text-xs text-destructive">{err}</p> : null}
