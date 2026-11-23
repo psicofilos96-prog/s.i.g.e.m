@@ -1,4 +1,4 @@
-import { humanizeForScreen } from "@/config/technical-codes";
+import { ExportMenu } from "@/components/sigem/export-menu";\nimport { humanizeForScreen } from "@/config/technical-codes";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
