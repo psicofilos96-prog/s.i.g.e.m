@@ -143,7 +143,7 @@ function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: 
       <nav aria-label="Progresso da matrícula" className="sticky top-[var(--topbar-height)] z-10 space-y-2 rounded-lg border bg-card/95 p-3 backdrop-blur">
         <div className="flex items-center justify-between gap-3 text-sm"><strong>Passo {step} de 8</strong><span className="text-muted-foreground">{WIZARD_STEPS[step - 1]?.title}</span></div>
         <progress className="h-2 w-full" max={8} value={step} aria-label={`Passo ${step} de 8`} />
-        <p className="text-xs text-muted-foreground" aria-live="polite">{(() => { const items = Object.values(missing).flat(); return items.length ? `Para concluir, ainda falta: ${items.join(", ")}.` : "Informações obrigatórias preenchidas. Você já pode revisar e concluir."; })()}</p>
+        <p className="text-xs text-muted-foreground" aria-live="polite">{(() => { const items = Object.values(missing).flat(); return items.length ? "Há informações obrigatórias pendentes antes da conclusão; confira os campos sinalizados." : "Informações obrigatórias preenchidas. Você já pode revisar e concluir."; })()}</p>
         <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">{STATUS[status]}{saveErr && status === "erro" ? ` — ${saveErr}` : ""}
           {status === "erro" ? <RecoveryRetryButton type="button" variant="outline" size="sm" className="ml-2" error={saveErr ?? undefined} operation="salvar-rascunho-matricula" onRetry={() => auto.retry()} /> : null}</p>
       </nav>
