@@ -6,6 +6,10 @@ describe("Frente W.2 — contrato das telas", () => {
   it("acompanhamento administrativo nunca grava nem oferece autoria docente", () => {
     const s = read("src/features/teacher-diary/diary-overview-page.tsx");
     expect(s).not.toMatch(/record(Lesson|Attendance)|record_lesson|record_attendance|Registrar aula|Fazer chamada/);
+    expect(s).toContain("Digite o código da escola");
+    expect(s).toContain("Nenhuma aula registrada neste período");
+    expect(s).not.toContain("atuação vigente");
+    expect(s).not.toContain("Consulta indisponível");
   });
   it("Meus diários usa só writers v2 e leitores da própria regência", () => {
     const s = read("src/features/teacher-diary/diary-w-source.ts");
