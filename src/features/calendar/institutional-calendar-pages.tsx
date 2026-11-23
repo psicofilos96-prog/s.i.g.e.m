@@ -26,13 +26,13 @@ import {
 
 const today = () => operationalToday();
 export const readerErrorText = (e: unknown) =>
-  e instanceof CalendarReaderShapeError ? "A resposta do calendário veio em formato inesperado. Nada foi exibido." : calendarErrorMessage(e);
+  e instanceof CalendarReaderShapeError ? "Não foi possível ler o calendário porque a resposta veio em formato inesperado. Use “Tentar novamente” para buscar outra vez." : calendarErrorMessage(e);
 
 const STATE_TEXT: Record<CalendarAtState, string> = {
   "access-denied": "Sua conta não tem autorização para consultar calendários nesta data. Peça à gestão responsável para conferir seu acesso.",
   homologada: "Aprovado oficialmente para a data consultada.",
   "nao-homologada": "Em construção — ainda não foi aprovado oficialmente. A equipe responsável deve concluir a revisão e aprovar o calendário.",
-  revogada: "Homologação revogada na data consultada.",
+  revogada: "A aprovação oficial foi cancelada para esta data. Consulte a equipe responsável antes de usar este calendário.",
   "sem-versao-vigente": "Nenhuma versão válida nesta data. Confira outra data ou peça à equipe responsável que cadastre uma versão para este período.",
   "cadeia-invalida": "Há informações divergentes no registro de aprovação. O calendário não pode ser tratado como oficial; peça à equipe responsável que revise o registro.",
 };
@@ -185,7 +185,7 @@ function PeriodTotals({ contextKey, calendarId, knownAt, periods }: { contextKey
     queryKey: ["b467-calendar-periods", contextKey, calendarId, knownAt, periods.map((p) => `${p.id}:${p.startsOn}:${p.endsOn}`).join("|")], retry: false,
     queryFn: () => Promise.all(periods.map(async (p) => ({ p, r: await readCalendarDays({ calendarId, from: p.startsOn, to: p.endsOn, knownAt }) }))),
   });
-  if (periods.length === 0) return <p className="text-sm text-muted-foreground">Este calendário ainda não tem períodos letivos ativos cadastrados. Cadastre os períodos na organização do ano letivo para calcular os totais.</p>;
+  if (periods.length === 0) return <p className="text-sm text-muted-foreground">Este calendário ainda não tem períodos letivos cadastrados, por isso não é possível calcular os totais. Cadastre os períodos na organização do ano letivo e volte a esta tela.</p>;
   if (q.error) return <div role="alert" className="space-y-2 text-sm text-destructive"><p>{readerErrorText(q.error)}</p><Button type="button" variant="outline" onClick={() => void q.refetch()}>Tentar novamente</Button></div>;
   if (!q.data) return <p role="status" className="text-sm text-muted-foreground">Calculando totais por período…</p>;
   return (
