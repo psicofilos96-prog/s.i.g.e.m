@@ -1,4 +1,3 @@
-import { ContextHint } from "@/components/sigem/context-help";
 import { categorize } from "@/lib/observability/governed-errors";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
@@ -20,13 +19,14 @@ export function ClassCouncilPanel({ school, year, on }: { school: string; year: 
   return (
     <section aria-label="Conselho de Classe" className="rounded-lg border bg-card p-4 space-y-3">
       <h2 className="font-semibold">Conselho de Classe</h2>
+      <p className="text-sm text-muted-foreground">É a reunião pedagógica em que a equipe analisa o percurso de aprendizagem e frequência dos estudantes e registra decisões e encaminhamentos em ata. Serve para orientar o acompanhamento da turma; não altera automaticamente notas ou resultados.</p>
+      <p className="text-sm"><strong>Próximo passo:</strong> selecione uma turma para abrir a pauta e os registros do Conselho de Classe.</p>
       {q.isLoading ? <p className="text-sm text-muted-foreground">…</p>
         : q.isError ? <p className="text-sm text-muted-foreground">Não foi possível ler as turmas.</p>
         : !q.data?.length ? <p className="text-sm text-muted-foreground">Nenhuma turma ativa nesta data.</p>
         : <div className="flex flex-wrap gap-2">{q.data.map((c) => (
             <Link key={c.id} to="/diario/turmas/$turmaId/avaliacao/conselho" params={{ turmaId: c.id }}
               className="rounded border px-2 py-1 text-sm hover:bg-accent">{c.name}</Link>))}</div>}
-      <ContextHint text="Escolha a turma para abrir o Conselho de Classe e sua ata." />
     </section>
   );
 }
