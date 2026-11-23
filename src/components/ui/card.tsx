@@ -6,6 +6,7 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
+      data-sigem-card="true"
       className={cn("rounded-[var(--sigem-card-radius)] border border-[var(--sigem-card-border)] bg-card text-card-foreground shadow-[var(--sigem-card-shadow)] transition-shadow duration-200", className)}
       {...props}
     />
