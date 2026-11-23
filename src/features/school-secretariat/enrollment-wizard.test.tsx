@@ -65,10 +65,12 @@ describe("matrícula guiada — tela", () => {
     // retomada: nova montagem lê só o banco
     render(<EnrollmentWizard />);
     expect(await screen.findByText("E2E Aluno")).toBeTruthy();
+    // O primeiro "Continuar" retoma o rascunho; a navegação começa no passo salvo.
     fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
-    for (let next = 2; next <= 5; next++) {
+    await waitFor(() => expect(screen.getByText("Passo 1 de 8")).toBeTruthy());
+    for (let next = 1; next <= 5; next++) {
       fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
-      expect(screen.getByText(`Passo ${next + 1} de 8`)).toBeTruthy();
+      await waitFor(() => expect(screen.getByText(`Passo ${next + 1} de 8`)).toBeTruthy());
     }
     const sel = await screen.findByLabelText("Ano letivo");
     await waitFor(() => expect(sel.querySelectorAll("option").length).toBe(2));
