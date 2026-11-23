@@ -162,7 +162,7 @@ function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: 
           {s.n === 4 ? (<div className="space-y-3">
             <Field label="Certidão de nascimento (número/matrícula)" error={fp["documentos.certidao"]} value={p.documentos?.certidao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, certidao: v } }))} />
             <Field label="Observações sobre documentos entregues" value={p.documentos?.observacao ?? ""} onChange={(v) => edit((x) => ({ ...x, documentos: { ...x.documentos, observacao: v } }))} />
-            <p className="text-xs text-muted-foreground">Foto 3×4 e anexos: envio pela ficha do aluno após concluir.</p>
+            <p className="text-xs text-muted-foreground">A foto 3×4 é opcional e pode ser pulada no primeiro passo. Anexos podem ser incluídos pela ficha do aluno após concluir.</p>
           </div>) : null}
           {s.n === 5 ? (<div className="space-y-3">
             <Field label="Escola anterior" value={p.escolar?.escolaAnterior ?? ""} onChange={(v) => edit((x) => ({ ...x, escolar: { ...x.escolar, escolaAnterior: v } }))} />
@@ -234,7 +234,7 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <Button variant="outline" disabled={busy} onClick={() => void search()}>Buscar</Button>
-          <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Salvar CPF</Button>
+          <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>{cpf ? "Salvar CPF" : "Salvar INEP"}</Button>
         </div>
       </details>
       {found ? (
