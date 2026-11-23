@@ -143,7 +143,7 @@ function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: 
       <nav aria-label="Progresso da matrícula" className="sticky top-[var(--topbar-height)] z-10 space-y-2 rounded-lg border bg-card/95 p-3 backdrop-blur">
         <div className="flex items-center justify-between gap-3 text-sm"><strong>Passo {step} de 8</strong><span className="text-muted-foreground">{WIZARD_STEPS[step - 1]?.title}</span></div>
         <progress className="h-2 w-full" max={8} value={step} aria-label={`Passo ${step} de 8`} />
-        <p className="text-xs text-muted-foreground" aria-live="polite">{(() => { const items = Object.values(missing).flat(); return items.length ? "Há informações obrigatórias pendentes antes da conclusão; confira os campos sinalizados." : "Informações obrigatórias preenchidas. Você já pode revisar e concluir."; })()}</p>
+        <p className="text-xs text-muted-foreground" aria-live="polite">{(() => { const items = [...new Set(Object.values(missing).flat())]; return items.length ? `Para concluir, faltam: ${items.join(", ")}.` : "Informações obrigatórias preenchidas. Você já pode revisar e concluir."; })()}</p>
         <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">{STATUS[status]}{saveErr && status === "erro" ? ` — ${saveErr}` : ""}
           {status === "erro" ? <RecoveryRetryButton type="button" variant="outline" size="sm" className="ml-2" error={saveErr ?? undefined} operation="salvar-rascunho-matricula" onRetry={() => auto.retry()} /> : null}</p>
       </nav>
@@ -225,7 +225,9 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
         else setFound({ id: m.student_id, name: m.display_name, activeHere: false });
         edit((x) => ({ ...x, aluno: { ...x.aluno, nome: m.display_name, ...(m.birth_date ? { nascimento: m.birth_date } : {}) },
           responsaveis: x.responsaveis?.length ? x.responsaveis : [m.mother_name ? { nome: m.mother_name, parentesco: "Mãe", telefone: m.phones[0] ?? "" } : null, m.father_name ? { nome: m.father_name, parentesco: "Pai", telefone: m.phones[1] ?? "" } : null].filter(Boolean) as NonNullable<WizardPayload["responsaveis"]> }));
-      }} />}
+      }} name={p.aluno?.nome ?? ""} birth={p.aluno?.nascimento ?? ""} nameError={fp["aluno.nome"]} birthError={fp["aluno.nascimento"]}
+        onNameChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nome: v } }))}
+        onBirthChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nascimento: v } }))} />}
       <details className="rounded-md border p-3">
         <summary className="cursor-pointer text-sm">Buscar por CPF ou INEP</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -245,9 +247,8 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
       ) : null}
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
       <PhotoField school={school} draft={draft} p={p} edit={edit} auto={auto} />
-      {!ident.existingStudentId ? <Field label="Nome completo" error={fp["aluno.nome"]} value={p.aluno?.nome ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nome: v } }))} /> : null}
       <div className="grid gap-3 sm:grid-cols-2">
-        {!officialBirth ? <Field label="Data de nascimento" error={fp["aluno.nascimento"]} type="date" value={p.aluno?.nascimento ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nascimento: v } }))} /> : null}
+        {ident.existingStudentId && !officialBirth ? <Field label="Data de nascimento" error={fp["aluno.nascimento"]} type="date" value={p.aluno?.nascimento ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nascimento: v } }))} /> : null}
         <Field label="Nome social (se houver)" value={p.aluno?.nomeSocial ?? ""} onChange={(v) => edit((x) => ({ ...x, aluno: { ...x.aluno, nomeSocial: v } }))} />
       </div>
     </div>
@@ -452,22 +453,25 @@ function PhotoField({ school, draft, p, edit, auto }: { school: string; draft: s
 }
 
 /** Procura o aluno na base já cadastrada (planilhas da rede) e traz os dados para continuar. */
-function NameSearch({ school, busy, onPick }: { school: string; busy: boolean; onPick: (m: StudentNameMatch) => void | Promise<void> }) {
-  const [name, setName] = useState(""); const [birth, setBirth] = useState("");
+function NameSearch({ school, busy, onPick, name, birth, nameError, birthError, onNameChange, onBirthChange }: {
+  school: string; busy: boolean; onPick: (m: StudentNameMatch) => void | Promise<void>;
+  name: string; birth: string; nameError?: string; birthError?: string;
+  onNameChange: (v: string) => void; onBirthChange: (v: string) => void;
+}) {
   const [rows, setRows] = useState<StudentNameMatch[] | null>(null); const [msg, setMsg] = useState(""); const [loading, setLoading] = useState(false);
   async function run() {
     setMsg(""); setRows(null);
-    if (name.trim().split(/\s+/).length < 2) { setMsg("Digite nome e sobrenome."); return; }
+    if (name.trim().split(/\\s+/).length < 2) { setMsg("Digite nome e sobrenome."); return; }
     setLoading(true);
-    try { const r = await locateStudentByName(school, name.trim(), birth || null); setRows(r); if (!r.length) setMsg("Nenhum aluno encontrado. Pode cadastrar como novo abaixo."); }
+    try { const r = await locateStudentByName(school, name.trim(), birth || null); setRows(r); if (!r.length) setMsg("Nenhum aluno encontrado. Confira os dados e continue para cadastrar."); }
     catch (e) { setMsg(wizardMessage(e)); } finally { setLoading(false); }
   }
   return (
     <div className="space-y-3 rounded-md border bg-muted/30 p-3">
-      <p className="text-sm font-medium">Procure o aluno: os dados já cadastrados aparecem prontos.</p>
+      <p className="text-sm font-medium">Procure o aluno pelo nome e nascimento. Se não houver cadastro, os dados informados serão usados na nova matrícula.</p>
       <div className="grid gap-3 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
-        <Field label="Nome do aluno" value={name} onChange={setName} />
-        <Field label="Nascimento (opcional)" type="date" value={birth} onChange={setBirth} />
+        <Field label="Nome do aluno" value={name} onChange={onNameChange} error={nameError} />
+        <Field label="Nascimento" type="date" value={birth} onChange={onBirthChange} error={birthError} />
         <Button disabled={busy || loading} onClick={() => void run()}>{loading ? "Buscando…" : "Buscar"}</Button>
       </div>
       {msg ? <p role="status" className="text-sm">{msg}</p> : null}
