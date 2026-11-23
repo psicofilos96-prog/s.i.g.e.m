@@ -29,11 +29,11 @@ export const readerErrorText = (e: unknown) =>
 
 const STATE_TEXT: Record<CalendarAtState, string> = {
   "access-denied": "Sua conta não tem autorização para consultar calendários nesta data. Peça à gestão responsável para conferir seu acesso.",
-  homologada: "Homologado na data consultada.",
-  "nao-homologada": "Em construção — ainda não homologado (visível apenas para quem constrói).",
+  homologada: "Aprovado oficialmente para a data consultada.",
+  "nao-homologada": "Em construção — ainda não foi aprovado oficialmente. A equipe responsável deve concluir a revisão e aprovar o calendário.",
   revogada: "Homologação revogada na data consultada.",
-  "sem-versao-vigente": "Sem versão vigente na data consultada.",
-  "cadeia-invalida": "Registro de homologação inconsistente — nada é considerado oficial.",
+  "sem-versao-vigente": "Nenhuma versão válida nesta data. Confira outra data ou peça à equipe responsável que cadastre uma versão para este período.",
+  "cadeia-invalida": "Há informações divergentes no registro de aprovação. O calendário não pode ser tratado como oficial; peça à equipe responsável que revise o registro.",
 };
 export const EFFECT_TEXT: Record<CalendarDayEffect["kind"], string> = {
   letivo: "Letivo", "nao-letivo": "Não letivo", conflito: "Declarações em conflito", "efeito-nao-declarado": "Efeito não declarado",
@@ -101,7 +101,7 @@ export function InstitutionalCalendarListView({ contextKey }: { contextKey: stri
                 </Link>
                 <p className="text-sm text-muted-foreground">
                   Vigência {v.validFrom}{v.validTo ? ` a ${v.validTo}` : " sem término"} ·{" "}
-                  {v.lastHomologation ? (v.lastHomologation.decision === "homologada" ? `homologada a partir de ${v.lastHomologation.effectiveFrom}` : `revogada a partir de ${v.lastHomologation.effectiveFrom}`) : "em construção"}
+                  {v.lastHomologation ? (v.lastHomologation.decision === "homologada" ? `aprovada a partir de ${v.lastHomologation.effectiveFrom}` : `cancelada a partir de ${v.lastHomologation.effectiveFrom}`) : "em preparação"}
                 </p>
                 <AuditBlock rows={[["Calendário", v.calendarId], ["Versão", v.versionId], ["Ato", v.actId], ["Registrada em", v.recordedAt]]} />
               </li>
