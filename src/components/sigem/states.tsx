@@ -190,11 +190,11 @@ export function DangerAction({
 export type AbsenceKind = "sem-dado" | "nao-configurado" | "sem-permissao" | "nenhum-resultado" | "nenhum-registro";
 
 export const ABSENCE_TEXT: Readonly<Record<AbsenceKind, { title: string; description: string }>> = {
-  "sem-dado": { title: "Não informado", description: "Esta informação ainda não foi confirmada." },
-  "nao-configurado": { title: "Ainda não configurado", description: "Falta a regra ou o cadastro que permite mostrar esta informação." },
-  "sem-permissao": { title: "Acesso restrito", description: "Esta informação não está disponível para sua conta." },
-  "nenhum-resultado": { title: "Nenhum resultado", description: "Nada corresponde à busca ou aos filtros. Ajuste os critérios." },
-  "nenhum-registro": { title: "Nenhum registro", description: "Ainda não há registros aqui." },
+  "sem-dado": { title: "Dado não informado", description: "Este campo não foi preenchido no cadastro. Abra o cadastro correspondente, confira a informação e preencha o campo, se tiver os dados." },
+  "nao-configurado": { title: "Configuração pendente", description: "Esta informação depende de uma configuração que ainda não foi definida. Abra as configurações desta tela e defina os dados necessários." },
+  "sem-permissao": { title: "Acesso não liberado", description: "Sua conta não tem autorização para ver esta informação. Peça à gestão responsável para conferir e liberar o acesso, se for o caso." },
+  "nenhum-resultado": { title: "Nenhum resultado encontrado", description: "Nenhum item corresponde à busca ou aos filtros atuais. Altere os termos ou use “Limpar filtros” para buscar novamente." },
+  "nenhum-registro": { title: "Nenhum registro encontrado", description: "Nenhum registro foi encontrado para o período escolhido. Isso pode acontecer quando ainda não houve cadastro ou quando a data não corresponde. Confira o período ou use o botão “Adicionar” para incluir o primeiro registro, se essa ação estiver disponível." },
 };
 
 export function AbsenceState({ kind, title, description, action, compact }: { kind: AbsenceKind; title?: string; description?: string; action?: ReactNode; compact?: boolean }) {
