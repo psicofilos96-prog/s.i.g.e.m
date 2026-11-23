@@ -141,7 +141,7 @@ export const DOCUMENT_CREST_URL: string = brasaoAsset.url;
 export const DOCUMENT_SECRETARIAT_LOGO_URL: string = educacaoAsset.url;
 
 export const EXECUTIVE_PRINT_THEME = { primary: [15, 61, 62], muted: [248, 250, 252], ink: [38, 48, 52], border: [225, 231, 235], amber: [181, 123, 28] } as const;
-export type ReportDocumentOptions = { landscape?: boolean; signatures?: readonly string[]; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[]; executive?: boolean; metadata?: readonly string[]; footerNote?: string };
+export type ReportDocumentOptions = { landscape?: boolean; signatures?: readonly string[]; sections?: readonly PdfSection[]; attachments?: readonly PdfAttachment[]; executive?: boolean; metadata?: readonly string[]; footerNote?: string; compress?: boolean };
 
 type HeaderImage = { dataUrl: string; width: number; height: number };
 /** Lê um ativo institucional da mesma origem como data URL, com dimensões naturais. Falha = sem imagem, nunca quebra a exportação. */
@@ -238,7 +238,7 @@ export async function toPdfFile(result: ReportResult, branding: Branding, meta: 
   opts: ReportDocumentOptions = {}): Promise<Blob> {
   const { jsPDF } = await import("jspdf");
   const autoTable = (await import("jspdf-autotable")).default;
-  const doc = new jsPDF({ orientation: opts.landscape ? "landscape" : "portrait", unit: "mm", format: "a4", compress: true });
+  const doc = new jsPDF({ orientation: opts.landscape ? "landscape" : "portrait", unit: "mm", format: "a4", compress: opts.compress ?? true });
   const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = opts.sections ? 18 : 12;
   // Brasão do município à esquerda e logo da Secretaria à direita, em todo documento emitido.
   const [crest, secretariat] = await Promise.all([

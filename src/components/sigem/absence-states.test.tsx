@@ -14,7 +14,8 @@ describe("NEMPTY.3 — estados de ausência", () => {
     const titles = Object.values(ABSENCE_TEXT).map((t) => t.title);
     expect(new Set(titles).size).toBe(5);
     render(<AbsenceState kind="sem-permissao" />);
-    expect(screen.getByText("Sem permissão")).toBeTruthy();
+    expect(screen.getByText("Acesso restrito")).toBeTruthy();
+    expect(screen.getByText("Esta informação não está disponível para sua conta.")).toBeTruthy();
   });
   it("telas corrigidas não usam zero como ausência", () => {
     expect(readFileSync("src/features/calendar/calendar-pages.tsx", "utf8")).not.toContain("schoolDays ?? 0");

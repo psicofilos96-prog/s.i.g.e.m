@@ -5,6 +5,7 @@ import { useOwnSchoolId } from "@/features/authority/own-school";
 import { OwnSchoolName } from "@/features/authority/own-school-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DateInput } from "@/components/sigem/date-input";
 import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/sigem/patterns";
 import { visitsIn, type VisitRow } from "./visit-record";
@@ -57,7 +58,7 @@ function VisitBook({ school }: { school: string }) {
         onSubmit={(e) => { e.preventDefault(); save.mutate({ logical: null, base: null, annul: false, reason: null }); }}
       >
         <div className="space-y-1"><Label htmlFor="v-date">Data da visita</Label>
-          <Input id="v-date" type="date" max={today()} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></div>
+          <DateInput id="v-date" max={today()} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required /></div>
         <div className="space-y-1"><Label htmlFor="v-kind">Quem visitou (cargo/setor)</Label>
           <select id="v-kind" className="h-10 w-full rounded-md border bg-background px-3 text-sm" value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value })}>
             {VISITOR_KIND_DEFAULTS.map((k) => <option key={k.id} value={k.id}>{k.label}</option>)}

@@ -33,11 +33,11 @@ export function PageHeader({
     >
       <div className="min-w-0">
         {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
-        <h1 className="text-balance font-display text-[1.625rem] font-semibold leading-[1.15] tracking-normal text-foreground sm:text-[2rem]">
+        <h1 className="text-balance font-display text-[length:var(--sigem-page-title-size)] font-bold leading-[var(--sigem-page-title-line)] tracking-[-0.03em] text-foreground">
           {title}
         </h1>
         {description && (
-          <p className="mt-2 max-w-[var(--content-reading)] text-pretty text-[0.9375rem] leading-relaxed text-muted-foreground">{description}</p>
+          <p className="mt-2 max-w-[var(--content-reading)] text-pretty text-[0.9375rem] leading-[1.55] text-muted-foreground">{description}</p>
         )}
       </div>
       {actions && (
@@ -61,8 +61,8 @@ export function SectionHeader({
   return (
     <div className="section-heading grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
       <div className="min-w-0">
-        <h2 className="font-display text-base font-semibold text-foreground">{title}</h2>
-        {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
+        <h2 className="font-display text-base font-semibold leading-snug tracking-[-0.01em] text-foreground">{title}</h2>
+        {description && <p className="mt-1 text-[0.8125rem] leading-relaxed text-muted-foreground">{description}</p>}
       </div>
       {action && <div className="min-w-0 shrink-0">{action}</div>}
     </div>

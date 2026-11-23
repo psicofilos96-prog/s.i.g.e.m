@@ -115,7 +115,7 @@ export async function exportMap(defn: ReportDefinition, cells: Record<string, Ce
   const result = runReport(defn, { params: {} }, cells);
   if (format === "csv") return new Blob([toCsv(result, branding, meta)], { type: "text/csv;charset=utf-8" });
   if (format === "xlsx") return new Blob([await toXlsx(result, branding, meta)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-  return toPdfFile(result, branding, meta, { landscape: true, signatures });
+  return toPdfFile(result, branding, meta, { landscape: true, signatures, compress: false });
 }
 
 /** LOTE 16 — grade no leiaute do mapa: Etapa agregada → etapa, com subtotal por grupo e total geral. Tudo derivado (somente leitura). */
