@@ -223,7 +223,7 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
         cpf: digits || null, inep: inep.trim() || null, existingStudent: existing ?? ident.existingStudentId });
       setIdent(existing ? { ...ident, existingStudentId: existing, existingName: found?.name ?? null }
         : { ...ident, hasCpf: ident.hasCpf || !!digits, cpfHint: digits ? digits.slice(-2) : ident.cpfHint, inep: inep.trim() || ident.inep });
-      setCpf(""); setMsg(existing ? "Cadastro existente selecionado." : "Documento guardado com segurança.");
+      setCpf(""); setMsg(existing ? "Cadastro existente selecionado." : "Documento salvo com segurança.");
     } catch (e) { setMsg(wizardMessage(e)); } finally { setBusy(false); }
   }
   return (
@@ -238,12 +238,13 @@ function StepStudent({ fp, school, draft, p, edit, ident, setIdent, seq, stepRef
       <details open={!!fp.identificacao} className="rounded-md border p-3">
         <summary className="cursor-pointer text-sm">Buscar por CPF ou INEP</summary>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={formatCpf(cpf)} onChange={(v) => setCpf(cpfDigits(v))} error={cpfMessage(cpf) ?? fp.identificacao} />
-          <Field label="Código INEP do aluno" value={inep} onChange={setInep} error={fp.identificacao} />
+          <Field label={`CPF${ident.hasCpf ? ` (guardado, final ${ident.cpfHint})` : ""}`} value={formatCpf(cpf)} onChange={(v) => setCpf(cpfDigits(v))} error={cpfMessage(cpf)} />
+          <Field label="Código INEP do aluno" value={inep} onChange={setInep}  />
         </div>
+        {fp.identificacao ? <p className="mt-2 text-xs text-destructive" role="alert">{fp.identificacao}</p> : null}
         <div className="mt-3 flex flex-wrap gap-2">
           <Button variant="outline" disabled={busy} onClick={() => void search()}>Buscar</Button>
-          <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Guardar documento</Button>
+          <Button variant="outline" disabled={busy || (!cpf && !inep)} onClick={() => void bind(null)}>Salvar</Button>
         </div>
       </details>
       {found ? (
