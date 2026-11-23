@@ -151,7 +151,7 @@ function Station({ school, year, on, onDateChange }: { school: string; year: str
             const Icon = t.id === "documento" || t.id === "oficios" || t.id === "docserv" ? FileText : t.id === "alimentacao-especial" ? BookOpen : ClipboardList;
             return <li key={t.id}>
               {t.target.kind === "route"
-                ? <Button asChild variant="outline" className="h-auto min-h-14 w-full justify-start gap-2 whitespace-normal text-left"><Link to={t.target.to}>{t.title}</Link></Button>
+                ? <Button asChild variant="outline" className="h-auto min-h-14 w-full justify-start gap-2 whitespace-normal text-left">{t.target.to === "/documentos-escolares" ? <Link to="/documentos-escolares" search={{ escola: school }}>{t.title}</Link> : <Link to={t.target.to}>{t.title}</Link>}</Button>
                 : <Button variant="outline" className="h-auto min-h-14 w-full justify-start gap-2 whitespace-normal text-left" onClick={() => document.getElementById("busca-valor")?.focus()}><Icon className="size-4" />{t.title}</Button>}
             </li>;
           })}
