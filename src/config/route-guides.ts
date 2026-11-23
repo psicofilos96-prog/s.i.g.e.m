@@ -28,7 +28,6 @@ export const ROUTE_GUIDES: Readonly<Record<string, RouteGuide>> = {
   "/secretaria": { where: "Secretaria Escolar", todo: "Cuide de matrículas, documentos e vagas da escola.", next: "escolha o serviço que vai realizar." },
   "/alunos": { where: "Estudantes", todo: "Encontre um estudante para ver ou atualizar o cadastro.", next: "pesquise pelo nome do estudante." },
   "/turmas": { where: "Turmas", todo: "Veja as turmas da escola e seus estudantes.", next: "abra uma turma para ver os detalhes." },
-  "/enturmacoes": { where: "Enturmações", todo: "Coloque estudantes em turmas ou faça movimentações." },
   "/documentos-escolares": { where: "Documentos escolares", todo: "Emita ou consulte documentos dos estudantes." },
   "/horarios": { where: "Horários", todo: "Monte e publique o quadro de horários das turmas.", next: "escolha uma turma para montar o horário." },
   "/direcao": { where: "Direção Escolar", todo: "Veja o que aguarda decisão da direção.", next: "abra um item para decidir." },

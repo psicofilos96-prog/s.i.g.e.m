@@ -1,5 +1,10 @@
 # Roadmap — SIGEM simples no design original
 
+## Apresentação dos fluxos escolares (23/11/2026)
+- [x] Padronizar Movimentações (tabela/tipo/status/menu/nomes), Enturmações (dois atalhos), Vagas (ausência explícita/atalho ao fluxo de capacidade) e Fila (cards/menu de cinco transições); convocação mantida recolhida, matrícula só abre o fluxo existente.
+- [x] 96 testes focais PASS (21 novos de interação), lint focal exit 0; typecheck/build automáticos OK em 23/11 às 13:31:18 UTC após corrigir erro no teste; verify acessibilidade (9 testes), migrations e diff PASS. Nenhuma regra/migration/dado alterado ou publicação.
+- [ ] Revisão autenticada das três listas e pré-seleção real da capacidade bloqueadas: solicitante sem conta correspondente e emissão para sec.99999901 exige aprovação indisponível neste contexto. Enturmações conferida visualmente em 1280×1800 e 390×844; quatro rotas sem overflow/erros nos estados acessíveis sem sessão. Testes de interação simulados não provam RLS nem aceitação autenticada.
+
 ## Imagens ao registrar visita (21/11/2026)
 - [x] Selecionar e pré-visualizar várias imagens no formulário das duas servidoras, reutilizando os anexos privados existentes; recuperação de envio mantém visita salva e chaves dos anexos.
 - [x] 53 testes PASS, incluindo os dois perfis simulados e recuperação sem duplicação; lint limpo, build automático OK, integridade/acessibilidade/segurança PASS. Verificação de segredos acusa textos em dependências compiladas da .oj-cache, não nos arquivos alterados.

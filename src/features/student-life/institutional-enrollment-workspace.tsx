@@ -1,5 +1,9 @@
 import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
+import { readCurrentSchoolNames } from "@/features/units/current-school-names";
+import { MoreHorizontal } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { PageHeader } from "@/components/sigem/patterns";
 /**
  * B3 — Interface institucional de inscrição letiva, participação, alocação,
@@ -68,7 +72,7 @@ function Unavailable({ children }: { children: ReactNode }) {
 
 export type EnrollmentFocus = "matriculas" | "enturmacoes" | "movimentacoes";
 
-export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentFocus }) {
+export function InstitutionalEnrollmentWorkspace({ focus, initialClassId = "" }: { focus: EnrollmentFocus; initialClassId?: string }) {
   const authority = useSessionAuthority();
   const qc = useQueryClient();
   const [validOn, setValidOn] = useState(today());
@@ -87,6 +91,12 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
   const schools = [...new Set([...consult, ...maintain])];
   const activeSchool = school || schools[0] || "";
   const canMaintain = maintain.has(activeSchool);
+  const schoolNames = useQuery({
+    queryKey: ["b3-school-names", schools, validOn],
+    queryFn: () => readCurrentSchoolNames(schools, validOn),
+    enabled: schools.length > 0,
+    staleTime: 600_000,
+  });
 
   const key = ["b3", activeSchool, validOn, knownAt];
   const data = useQuery({
@@ -136,7 +146,10 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
         <div className="space-y-1">
           <Label htmlFor="b3-school">Escola</Label>
           <select id="b3-school" className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={activeSchool} onChange={(e) => setSchool(e.target.value)}>
-            {schools.map((s) => <option key={s} value={s}>{s}</option>)}
+            {schools.map((s) => {
+              const name = schoolNames.data?.get(s);
+              return <option key={s} value={s}>{name && name !== s ? name : schoolNames.isPending ? "Carregando escola…" : "Nome da escola não disponível"}</option>;
+            })}
           </select>
         </div>
         <div className="space-y-1">
@@ -156,7 +169,7 @@ export function InstitutionalEnrollmentWorkspace({ focus }: { focus: EnrollmentF
           {focus === "matriculas" && <SearchSection d={d} validOn={validOn} />}
           {focus === "matriculas" && <EnrollmentSection d={d} school={activeSchool} validOn={validOn} canMaintain={canMaintain} run={run} />}
           {focus !== "movimentacoes" && <ParticipationSection d={d} validOn={validOn} canMaintain={canMaintain} run={run} />}
-          {focus === "enturmacoes" && <AllocationSection d={d} validOn={validOn} canMaintain={canMaintain} canCapacity={capacity.has(activeSchool)} run={run} />}
+          {focus === "enturmacoes" && <AllocationSection initialClassId={initialClassId} d={d} validOn={validOn} canMaintain={canMaintain} canCapacity={capacity.has(activeSchool)} run={run} />}
           {focus === "enturmacoes" && <AllocationPositionsPanel school={activeSchool} validOn={validOn} canMaintain={canMaintain} />}
           {focus === "enturmacoes" && <ClassCurricularResolutionPanel school={activeSchool} validOn={validOn} classes={d.classes} />}
           {focus === "enturmacoes" && <ClassJourneyPanel validOn={validOn} classes={d.classes} />}
@@ -319,9 +332,9 @@ function ParticipationSection({ d, validOn, canMaintain, run }: { d: Data; valid
   );
 }
 
-function AllocationSection({ d, validOn, canMaintain, canCapacity, run }: { d: Data; validOn: string; canMaintain: boolean; canCapacity: boolean; run: Run }) {
+function AllocationSection({ d, validOn, canMaintain, canCapacity, run, initialClassId }: { d: Data; validOn: string; canMaintain: boolean; canCapacity: boolean; run: Run; initialClassId: string }) {
   const [participation, setParticipation] = useState("");
-  const [cls, setCls] = useState("");
+  const [cls, setCls] = useState(() => d.classes.some((c) => c.id === initialClassId) ? initialClassId : "");
   const [allocEnd, setAllocEnd] = useState("");
   const [limit, setLimit] = useState("");
   const enrollmentYear = (pl: string) => {
@@ -461,7 +474,7 @@ function SearchSection({ d, validOn }: { d: Data; validOn: string }) {
   );
 }
 
-function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; school: string; validOn: string; canRegister: boolean; run: Run }) {
+export function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; school: string; validOn: string; canRegister: boolean; run: Run }) {
   const [enrollment, setEnrollment] = useState("");
   const [type, setType] = useState("");
   const [destination, setDestination] = useState("");
@@ -540,16 +553,27 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
     <Card>
       <CardHeader><CardTitle>Movimentações escolares</CardTitle></CardHeader>
       <CardContent className="space-y-3 text-sm">
-        <p className="text-muted-foreground">Transferir, remanejar ou encerrar um vínculo são operações diferentes. Aqui você escolhe o aluno e a ação; os registros oficiais preservam a matrícula e o histórico conforme as regras da rede.</p>
         {d.history.movements.length === 0 ? <p className="text-muted-foreground">Nenhuma movimentação registrada para esta escola.</p> : (
-          <ul className="space-y-1">
-            {d.history.movements.map((m) => (
-              <li key={m.id} className="flex flex-wrap items-center gap-2">
-                <span>{fmt(m.effective_on)} · {labels?.get(m.student_id)?.display_name ?? "Estudante sem nome legível"} · {typeOf(m.movement_type_id)?.label ?? "Tipo não identificado"} v{m.version}{m.correction_reason ? ` · retificada: ${m.correction_reason}` : ""}</span>
-                {canRegister && <Button size="sm" variant="ghost" onClick={() => setFix({ row: m, date: m.effective_on, reason: "" })}>Retificar data</Button>}
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto rounded-lg border border-border" role="region" aria-label="Movimentações registradas" tabIndex={0}>
+            <table className="w-full min-w-[640px] text-left text-sm">
+              <thead className="bg-muted/50 text-muted-foreground"><tr>{["Data", "Aluno", "Tipo", "Status", "Ação"].map((label) => <th key={label} scope="col" className="px-4 py-3 font-medium">{label}</th>)}</tr></thead>
+              <tbody>{d.history.movements.map((m) => {
+                const label = (typeOf(m.movement_type_id)?.label ?? "Tipo não identificado").replace(/\s+v\d+\s*$/i, "");
+                const status = label.match(/\s*\(([^()]+)\)\s*$/)?.[1];
+                const typeLabel = status ? label.replace(/\s*\([^()]+\)\s*$/, "") : label;
+                return <tr key={m.id} className="border-t border-border hover:bg-muted/30">
+                  <td className="whitespace-nowrap px-4 py-3 tabular-nums">{fmt(m.effective_on)}</td>
+                  <td className="px-4 py-3 font-medium">{labels?.get(m.student_id)?.display_name ?? "Estudante sem nome legível"}</td>
+                  <td className="px-4 py-3">{typeLabel}</td>
+                  <td className="px-4 py-3">{status ? <Badge variant="secondary">{status}</Badge> : <span className="text-muted-foreground">Não informado</span>}{m.correction_reason && <p className="mt-1 text-xs text-muted-foreground">Retificada: {m.correction_reason}</p>}</td>
+                  <td className="px-4 py-3">{canRegister ? <DropdownMenu>
+                    <DropdownMenuTrigger asChild><Button size="sm" variant="ghost" aria-label={`Mais ações de ${labels?.get(m.student_id)?.display_name ?? "aluno"}`}><MoreHorizontal className="size-4" />Mais ações</Button></DropdownMenuTrigger>
+                    <DropdownMenuContent align="end"><DropdownMenuItem onSelect={() => setFix({ row: m, date: m.effective_on, reason: "" })}>Retificar data</DropdownMenuItem></DropdownMenuContent>
+                  </DropdownMenu> : <span className="text-muted-foreground">—</span>}</td>
+                </tr>;
+              })}</tbody>
+            </table>
+          </div>
         )}
         {fix && (
           <div className="flex flex-wrap gap-2 rounded-md border border-border p-2">
@@ -617,7 +641,7 @@ function MovementSection({ d, school, validOn, canRegister, run }: { d: Data; sc
               </select>
               <select aria-label="Tipo de movimentação escolar" className="h-9 rounded-md border border-input bg-background px-2" value={type} onChange={(e) => setType(e.target.value)}>
                 <option value="">Escolha a movimentação…</option>
-                {d.movementTypes.map((t) => <option key={t.valueId} value={t.valueId}>{t.label}</option>)}
+                {d.movementTypes.map((t) => <option key={t.valueId} value={t.valueId}>{t.label.replace(/\s+v\d+\s*$/i, "").replace(/\s*\([^()]+\)\s*$/, "")}</option>)}
               </select>
               {transfer && <select aria-label="Escola de destino" className="h-9 max-w-full rounded-md border border-input bg-background px-2" value={destination} onChange={(e) => setDestination(e.target.value)}>
                 <option value="">Selecione a escola de destino…</option>

@@ -40,7 +40,7 @@ export const Route = createFileRoute("/enturmacoes/nova")({
 
 function NewAllocationRoute() {
   const { aluno, participacao, turma } = Route.useSearch();
-  return <ClassRouteGate institutional={() => <InstitutionalEnrollmentWorkspace focus="enturmacoes" />} laboratory={() => (
+  return <ClassRouteGate institutional={() => <InstitutionalEnrollmentWorkspace focus="enturmacoes" initialClassId={turma ?? ""} />} laboratory={() => (
     <AllocationWorkspacePage
       mode="enturmacao"
       studentId={aluno}
