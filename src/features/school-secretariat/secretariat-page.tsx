@@ -11,6 +11,7 @@ import { SECRETARIAT_TASKS } from "./secretariat-tasks";
 import { formatAcademicDateNumeric, operationalToday } from "@/lib/academic-date";
 import { readCurrentSchoolNames, sortedSchoolOptions } from "@/features/units/current-school-names";
 import { SkeletonState } from "@/components/sigem/guidance";
+import { ContextHint } from "@/components/sigem/context-help";
 import { useEffect, useState } from "react";
 import { useActiveYear } from "@/features/academic-year/active-year";
 import { Link, useNavigate } from "@tanstack/react-router";
