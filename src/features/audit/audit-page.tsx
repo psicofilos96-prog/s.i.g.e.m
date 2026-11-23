@@ -74,9 +74,9 @@ export function AuditPage() {
   const modules = useMemo(() => [...new Set(ADAPTERS.map((a) => a.module))], []);
   const set = (k: keyof typeof f) => (v: string) => { setF({ ...f, [k]: v }); setCursors([null]); setSel(null); };
 
-  if (authority.status === "signed-out") return <><h1 className="sr-only">Auditoria e governança de dados</h1><EmptyState title="Entre para consultar a auditoria" description="A trilha só existe com login e mostra apenas o que suas permissões alcançam." /></>;
-  if (q.isLoading || authority.status === "loading") return <><h1 className="sr-only">Auditoria e governança de dados</h1><SkeletonState label="Carregando trilha" /></>;
-  if (q.isError) return <><h1 className="sr-only">Auditoria e governança de dados</h1><EmptyState title="Não foi possível ler a trilha" description="Tente novamente em instantes." /></>;
+  if (authority.status === "signed-out") return <><h1 className="sr-only">Histórico de atividades</h1><EmptyState title="Entre para consultar a auditoria" description="Entre para consultar as atividades que sua conta tem autorização para ver." /></>;
+  if (q.isLoading || authority.status === "loading") return <><h1 className="sr-only">Histórico de atividades</h1><SkeletonState label="Carregando histórico" /></>;
+  if (q.isError) return <><h1 className="sr-only">Histórico de atividades</h1><EmptyState title="Não foi possível carregar o histórico" description="Tente novamente em instantes." /></>;
 
   const exportable = canExport(actor?.capabilities ?? []);
   function exportCsv() {
@@ -88,7 +88,7 @@ export function AuditPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Auditoria e governança de dados" description="Visão única dos registros históricos que sua conta pode ver. Senhas, chaves, conteúdo de documentos e dados clínicos nunca aparecem." />
+      <PageHeader title="Histórico de atividades" description="Visão única dos registros históricos que sua conta pode ver. Senhas, chaves, conteúdo de documentos e dados clínicos nunca aparecem." />
       <section aria-label="Filtros" className="grid gap-3 md:grid-cols-4">
         <label className="text-sm">De<DateInput value={f.from} onChange={(e) => set("from")(e.target.value)} /></label>
         <label className="text-sm">Até<DateInput value={f.to} onChange={(e) => set("to")(e.target.value)} /></label>
@@ -98,9 +98,9 @@ export function AuditPage() {
         <label className="text-sm">Quem age<select className="w-full min-w-0 rounded border border-border bg-background p-2" value={f.nature} onChange={(e) => set("nature")(e.target.value)}><option value="">Todos</option>{(Object.keys(NATURE_LABEL) as ActorNature[]).map((k) => <option key={k} value={k}>{NATURE_LABEL[k]}</option>)}</select></label>
         <label className="text-sm">Setor<select disabled={!stations.length} className="w-full min-w-0 rounded border border-border bg-background p-2" value={f.station} onChange={(e) => set("station")(e.target.value)}><option value="">{stations.length ? "Todos" : "Não disponível para sua conta"}</option>{stations.map((st) => <option key={st} value={st}>{stationLabel(st)}</option>)}</select></label>
         <label className="text-sm">Escola<select disabled={!d.data?.schools.length} className="w-full min-w-0 rounded border border-border bg-background p-2" value={f.schoolId} onChange={(e) => set("schoolId")(e.target.value)}><option value="">{d.data?.schools.length ? "Todas" : "Não disponível para sua conta"}</option>{d.data?.schools.map((sc) => <option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></label>
-        <label className="text-sm">Ator (identificador)<Input value={f.actor} onChange={(e) => set("actor")(e.target.value)} /></label>
-        <label className="text-sm">Registro (referência exata)<Input value={f.entity} onChange={(e) => set("entity")(e.target.value)} /></label>
-        <label className="text-sm">Conhecido até<Input type="datetime-local" value={f.knownAt} onChange={(e) => set("knownAt")(e.target.value)} /></label>
+        <label className="text-sm">Responsável<Input value={f.actor} onChange={(e) => set("actor")(e.target.value)} /></label>
+        <label className="text-sm">Registro<Input value={f.entity} onChange={(e) => set("entity")(e.target.value)} /></label>
+        <label className="text-sm">Até a data<Input type="datetime-local" value={f.knownAt} onChange={(e) => set("knownAt")(e.target.value)} /></label>
         <div className="flex items-end gap-2"><Button variant="ghost" onClick={() => { setF({ from: "", to: "", module: "", kind: "", actor: "", entity: "", knownAt: "", station: "", schoolId: "", nature: "", search: "" }); setCursors([null]); setSel(null); }}>Limpar filtros</Button>{exportable
           ? <Button variant="outline" onClick={exportCsv}>Exportar CSV</Button>
           : <p className="text-xs text-muted-foreground">Exportar exige a permissão específica de exportação de auditoria.</p>}</div>
