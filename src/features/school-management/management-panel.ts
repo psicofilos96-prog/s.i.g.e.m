@@ -59,8 +59,8 @@ export function buildPanel(i: Inputs): { blocks: Block[]; pending: Pending[] } {
   } else {
     const o = i.overview.data;
     if (!o.year.state) {
-      blocks.push({ ...yb, state: "BLOCKED", value: null, detail: `${o.year.label ?? "Ano"}: sem estado operacional registrado.`, reason: "O ano só é aberto por ato humano registrado; nada é aberto automaticamente." });
-      pending.push({ id: "ano-sem-estado", kind: "bloqueio-normativo", text: "Ano letivo sem estado operacional registrado.", link: "/secretaria", source: "academic_year_operational_state_at" });
+      blocks.push({ ...yb, state: "BLOCKED", value: null, detail: `${o.year.label ?? "Ano"}: ainda não foi aberto.`, reason: "A abertura do ano letivo é feita pela equipe responsável da rede." });
+      pending.push({ id: "ano-sem-estado", kind: "bloqueio-normativo", text: "Ano letivo ainda não foi aberto.", link: "/secretaria", source: "academic_year_operational_state_at" });
     } else blocks.push({ ...yb, state: "AVAILABLE", value: null, detail: `${o.year.label ?? "Ano"}: ${o.year.state}.`, reason: null });
     const e = o.enrollments; const mb = B("matriculas", "Matrículas ativas na data", "secretariat_overview_at", "/secretaria", false);
     if (e.start_unknown > 0) {
@@ -149,6 +149,6 @@ export function dossierPrintHtml(tableHtml: string, pending: readonly Pending[])
   const list = pending.length === 0
     ? `<p>Nenhuma pendência derivável das fontes alcançadas. Isso não afirma que a escola está em ordem.</p>`
     : `<ol>${pending.map((p) => `<li>${escHtml(p.text)} <small>(${escHtml(p.source)})</small></li>`).join("")}</ol>`;
-  const section = `<h2 style="font-size:14px">Pendências (${pending.length})</h2>${list}<p><small>Projeção dinâmica dos registros oficiais alcançados por quem gerou — não é documento oficial, não classifica nem decide.</small></p>`;
+  const section = `<h2 style="font-size:14px">Pendências (${pending.length})</h2>${list}<p><small>Resumo elaborado com as informações disponíveis para esta conta.</small></p>`;
   return tableHtml.replace("</body></html>", `${section}</body></html>`);
 }
