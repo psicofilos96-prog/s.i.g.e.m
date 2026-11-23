@@ -684,6 +684,14 @@
   ]
  },
  {
+  "id": "consultar-registro-de-visitas",
+  "module": "Demais módulos",
+  "firstMigration": "0621_school_visit_book_sector.sql",
+  "scopes": [
+   "escola"
+  ]
+ },
+ {
   "id": "consultar-registro-funcional",
   "module": "Demais módulos",
   "firstMigration": "0276_int8_staff_administrative_records.sql",
