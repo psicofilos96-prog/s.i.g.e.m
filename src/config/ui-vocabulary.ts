@@ -17,8 +17,8 @@ export const ACTION = {
 
 export const STATE_TEXT = {
   carregando: "Carregando…",
-  nenhumResultado: "Nenhum resultado.",
-  nenhumRegistro: "Nenhum registro.",
+  nenhumResultado: "Nenhum resultado encontrado. Altere os termos ou use “Limpar filtros” para buscar novamente.",
+  nenhumRegistro: "Nenhum registro encontrado para esta consulta. Confira o período ou use “Adicionar” para incluir o primeiro registro, se essa ação estiver disponível.",
   naoDisponivel: "não disponível", // ausência; nunca zero
 } as const;
 
