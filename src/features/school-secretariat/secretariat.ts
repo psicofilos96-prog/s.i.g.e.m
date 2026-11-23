@@ -20,13 +20,13 @@ export interface LifeEvent {
 
 const ISSUES: Record<string, string> = {
   "inicio-efetivo-nao-declarado": "Início efetivo do vínculo não declarado",
-  "sem-turma-vigente": "Vínculo ativo sem turma vigente",
+  "sem-turma-vigente": "Matrícula ativa sem turma nesta data",
 };
 export const issueLabel = (i: string) => knownLabel(ISSUES, i);
 
 const KINDS: Record<string, string> = {
   identidade: "Identidade permanente", "vinculo-anual": "Vínculo escolar anual", "encerramento-vinculo": "Encerramento do vínculo",
-  turma: "Enturmação", "saida-turma": "Saída da turma", movimentacao: "Movimentação",
+  turma: "Enturmação: aluno colocado em turma", "saida-turma": "Saída da turma", movimentacao: "Movimentação: transferência ou mudança de turma",
 };
 export const lifeKindLabel = (k: string) => knownLabel(KINDS, k);
 
