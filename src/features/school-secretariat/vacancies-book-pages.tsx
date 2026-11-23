@@ -1,4 +1,5 @@
-import { ContextHint } from "@/components/sigem/context-help";\nimport { ExportMenu } from "@/components/sigem/export-menu";
+import { ContextHint } from "@/components/sigem/context-help";
+import { ExportMenu } from "@/components/sigem/export-menu";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
@@ -128,7 +129,12 @@ export function EnrollmentBookPage() {
                   <option value="">Todas</option><option value="ativa">Ativa</option><option value="encerrada">Encerrada</option>
                 </select></label>
             </section>
-            <div className="flex flex-wrap items-center gap-2">\n              <ExportMenu disabled={!shown.length} onPdf={print}\n                onCsv={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}\n                onExcel={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")} />\n              <span className="text-sm text-muted-foreground">{shown.length} de {rows.length} matrícula(s)</span>\n            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <ExportMenu disabled={!shown.length} onPdf={print}
+                onCsv={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}
+                onExcel={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")} />
+              <span className="text-sm text-muted-foreground">{shown.length} de {rows.length} matrícula(s)</span>
+            </div>
             {shown.length === 0 ? <EmptyState title="Nenhuma matrícula encontrada" description="Mude a pesquisa ou o ano letivo." /> : (
               <div className="overflow-x-auto rounded-xl border border-border">
                 <table className="w-full text-sm">
