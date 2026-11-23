@@ -242,7 +242,7 @@ export function PostingMovementPage({
               </Button>
               {versionConflict ? (
                 <p role="alert" className="mt-2 border border-border p-3 text-sm">
-                  {POSTING_VERSION_CONFLICT} A futura mudança de lotação deverá conferir novamente a
+                  {POSTING_VERSION_CONFLICT} A próxima etapa deverá conferir novamente a
                   versão antes da conclusão.
                 </p>
               ) : null}
