@@ -50,7 +50,7 @@ export function ReportsCatalogPage() {
         <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Domínio
           <select className={sel} value={f.domain} onChange={(e) => setF({ ...f, domain: e.target.value })}><option value="">Todos</option>{opts.domain.map((d) => <option key={d}>{d}</option>)}</select>
         </label>
-        <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Escopo
+        <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Abrangência
           <select className={sel} value={f.scope} onChange={(e) => setF({ ...f, scope: e.target.value })}><option value="">Todos</option>{opts.scope.map((d) => <option key={d} value={d}>{SCOPE[d] ?? d}</option>)}</select>
         </label>
         <label className="flex w-full min-w-0 flex-col gap-1 text-sm sm:w-auto">Natureza
