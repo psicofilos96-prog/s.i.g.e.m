@@ -18,7 +18,7 @@ export const Route = createFileRoute("/ciece")({
       { title: "CIECE — Informação e Estatística — SIGEM" },
       { name: "description", content: "Indicadores autorizados da rede, com explicação de como cada número foi formado." },
       { property: "og:title", content: "CIECE — Informação e Estatística — SIGEM" },
-      { property: "og:description", content: "Consulta e exploração de indicadores pela fronteira analítica do CIECE." },
+      { property: "og:description", content: "Consulte indicadores e informações estatísticas da rede municipal de ensino." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
