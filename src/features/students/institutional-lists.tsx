@@ -115,7 +115,7 @@ export function InstitutionalStudentsListPage() {
           }
           cards={items.map((r) => (
             <RegistryCard key={r.id} title={<Link to="/alunos/$id" params={{ id: r.id }} className="text-foreground hover:text-primary hover:underline">{r.display_name}</Link>}>
-              <CardFact label="Identificador"><span className="tabular-nums">{r.institutional_identifier ?? NR}</span></CardFact>
+              <CardFact label="Identificador"><span className="tabular-nums">{r.institutional_identifier ?? <MissingValue label="Identificador não registrado" />}</span></CardFact>
             </RegistryCard>
           ))}
         />
