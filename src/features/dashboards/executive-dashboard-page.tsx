@@ -66,9 +66,9 @@ function NetworkIntelligence() {
         {!own && <label className="text-sm">Recorte<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Rede</option>{schools.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></label>}
         <label className="text-sm">Ano letivo<select className="ml-2 rounded border border-input bg-background p-2" value={year} onChange={(e) => setYear(e.target.value)}><option value="">Todos (sem recorte de ano)</option>{years.map((y) => <option key={y.id} value={y.id}>{y.name} — {YEAR_LABEL[y.nature]}</option>)}</select></label>
         <label className="text-sm">Situação em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
-        <label className="text-sm">Conhecido até (opcional) <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
+        <label className="text-sm">Até a data <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
       </div>
-      {yn ? <p className="text-xs text-muted-foreground">Natureza do ano: <strong>{YEAR_LABEL[yn]}</strong> (do estado registrado do ano; nenhum ano vira operacional sem ato humano de abertura).</p> : null}
+      {yn ? <p className="text-xs text-muted-foreground">Situação do ano letivo: <strong>{YEAR_LABEL[yn]}</strong>.</p> : null}
       {loading ? <p role="status" className="text-sm">Lendo as fontes…</p>
         : error ? <EmptyState title="Indicadores indisponíveis" description={error} />
         : !reading ? null : (
@@ -155,7 +155,7 @@ function MetricCard({ d, ctx, caps, tick }: { d: MetricDefinition; ctx: Ctx; cap
           <div><dt className="inline font-medium">Fórmula (v{d.version}): </dt><dd className="inline">{d.formula}</dd></div>
           <div hidden data-provenance><dt className="inline font-medium">Fonte: </dt><dd className="inline">{d.source}</dd></div>
           <div><dt className="inline font-medium">Granularidade: </dt><dd className="inline">{d.granularity}</dd></div>
-          <div><dt className="inline font-medium">Situação em: </dt><dd className="inline">{ctx.validOn}; conhecido até {ctx.knownAt ?? "agora"}</dd></div>
+          <div><dt className="inline font-medium">Situação em: </dt><dd className="inline">{ctx.validOn}; atualizado até {ctx.knownAt ?? "agora"}</dd></div>
           {r?.status === "disponivel" && r.refs.length > 0 && <div><dt className="font-medium">Registros que compõem o número ({r.refs.length}):</dt><dd className="font-mono break-all max-h-24 overflow-auto">{r.refs.slice(0, 200).join(", ")}{r.refs.length > 200 ? " …" : ""}</dd></div>}
           {d.drillRoute && <div><Link to={d.drillRoute as "/"} className="underline">Abrir os registros na área de origem</Link></div>}
         </dl>
@@ -202,7 +202,7 @@ export function ExecutiveDashboardPage() {
             <div className="flex flex-wrap items-end gap-3">
               {!own && <label className="text-sm">Escola<select className="ml-2 rounded border border-input bg-background p-2" value={school} onChange={(e) => setSchool(e.target.value)}><option value="">Selecione…</option>{schools.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
               <label className="text-sm">Situação em <DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
-              <label className="text-sm">Conhecido até (opcional) <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
+              <label className="text-sm">Até a data <DateInput value={known} onChange={(e) => setKnown(e.target.value)} /></label>
               <Button variant="outline" onClick={() => { cache.invalidate(); setTick((t) => t + 1); }}>Atualizar</Button>
             </div>
             {!school ? <p className="text-sm text-muted-foreground">Escolha uma escola.</p> : groups.map((g) => {
