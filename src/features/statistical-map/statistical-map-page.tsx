@@ -134,8 +134,8 @@ function CellRow({ c, adjust }: { c: MapCell; adjust?: AdjustProps | undefined }
 }
 
 const YEAR_STATE: Record<string, string> = {
-  operacional: "operacional", "historico-importado": "histórico (baseline 2026) — sem Mapa operacional",
-  "sem-estado": "ainda sem estado operacional — aguarda ato humano de abertura do ano",
+  operacional: "Em andamento", "historico-importado": "Histórico de 2026",
+  "sem-estado": "Ano letivo ainda não aberto",
 };
 
 /** Exporta a fotografia exibida — oficial congelada quando houver, senão a viva — pelo motor de relatórios. */
@@ -228,7 +228,7 @@ function MapBody({ v, competence, onChange }: { v: MapView; competence: { school
           <div><dt className="inline text-muted-foreground">Data de referência: </dt><dd className="inline">{s.snapshotDate ? `${fmtDate(s.snapshotDate)} (último dia letivo do mês pelo calendário oficial)` : (snapshotReasonText(s.snapshotDateBasis?.reason ?? null) || "não definida")}</dd></div>
           <div><dt className="inline text-muted-foreground">Regra: </dt><dd className="inline">{v.rule ? `${v.rule.id} v${v.rule.version}${v.rule.homologationActRef ? ` (${v.rule.homologationActRef})` : ""}` : "aguardando regra homologada que cubra esta escola"}</dd></div>
           <div><dt className="inline text-muted-foreground">Ano letivo: </dt><dd className="inline">{YEAR_STATE[v.yearState ?? ""] ?? "estado não pôde ser lido"}</dd></div>
-          <div><dt className="inline text-muted-foreground">Natureza: </dt><dd className="inline">{officialized && v.status.id === "oficializado" ? "Fotografia oficial congelada" : "Dinâmico — não oficial"}</dd></div>
+          <div><dt className="inline text-muted-foreground">Tipo de informação: </dt><dd className="inline">{officialized && v.status.id === "oficializado" ? "Versão oficial" : "Dados em atualização"}</dd></div>
           {v.openedAt && <div><dt className="inline text-muted-foreground">Aberto em: </dt><dd className="inline">{formatDateTime(v.openedAt)}</dd></div>}
         </dl></details>
         {!v.opened && (

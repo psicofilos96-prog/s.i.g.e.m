@@ -9,8 +9,8 @@ export type CountUnit = "alerta" | "caso" | "estudante-unico" | "evento";
 
 const PARAMS: readonly ParamDef[] = [
   { id: "asOf", label: "Data de referência", type: "date", required: true },
-  { id: "knownAt", label: "Conhecido até", type: "datetime", required: true },
-  { id: "scope", label: "Escopo", type: "enum", required: true, options: ["escola", "rede"] },
+  { id: "knownAt", label: "Até a data", type: "datetime", required: true },
+  { id: "scope", label: "Abrangência", type: "enum", required: true, options: ["escola", "rede"] },
   { id: "from", label: "Período — início", type: "date", required: false },
   { id: "segment", label: "Etapa/modalidade", type: "text", required: false, maxLength: 80 },
 ];

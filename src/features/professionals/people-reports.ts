@@ -12,8 +12,8 @@ import { NECESSIDADE_PROFESSOR, TOTAL_AULAS_OFERTADAS, TOTAL_AULAS_REDE, DYNAMIC
 
 const PARAMS: readonly ParamDef[] = [
   { id: "asOf", label: "Data de referência", type: "date", required: true },
-  { id: "knownAt", label: "Conhecido até", type: "datetime", required: true },
-  { id: "scope", label: "Escopo", type: "enum", required: true, options: ["escola", "rede"] },
+  { id: "knownAt", label: "Até a data", type: "datetime", required: true },
+  { id: "scope", label: "Abrangência", type: "enum", required: true, options: ["escola", "rede"] },
 ];
 
 export const PEOPLE_COLUMNS: readonly ColumnDef[] = [

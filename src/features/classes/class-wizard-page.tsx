@@ -106,7 +106,7 @@ export function ClassCreateWizardPage() {
       <section className="grid max-w-2xl gap-4 rounded-lg border border-border bg-card p-4">
         {step === 0 && (
           <>
-            {school ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{names.data?.get(school) ?? "Escola do seu escopo"}</strong></p> : (
+            {school ? <p className="text-sm"><span className="text-muted-foreground">Escola</span><br /><strong>{names.data?.get(school) ?? "Sua escola"}</strong></p> : (
               <label className="text-sm">Escola
                 <select className={sel} value={chosenSchool} onChange={(e) => setChosenSchool(e.target.value)}>
                   <option value="">Escolha a escola</option>

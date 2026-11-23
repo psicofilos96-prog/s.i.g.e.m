@@ -137,7 +137,7 @@ export function ClassWorkspacePage({
         <div className="surface-panel">
           <EmptyState
             icon={Lock}
-            title="Somente leitura"
+            title="Consulta"
             description="Período letivo, organização, agrupamentos e matriz aplicada permanecem como registrados naquele momento. Alteração retroativa de contexto histórico não é oferecida."
             action={
               <Button asChild variant="outline">

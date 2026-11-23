@@ -11,11 +11,11 @@ export const DYNAMIC_NATURE = "projeção dinâmica (não oficial)";
 
 const PARAMS: readonly ParamDef[] = [
   { id: "asOf", label: "Data de referência", type: "date", required: true },
-  { id: "knownAt", label: "Conhecido até", type: "datetime", required: true },
-  { id: "scope", label: "Escopo", type: "enum", required: true, options: ["escola", "rede"] },
+  { id: "knownAt", label: "Até a data", type: "datetime", required: true },
+  { id: "scope", label: "Abrangência", type: "enum", required: true, options: ["escola", "rede"] },
 ];
 const COLUMNS: readonly ColumnDef[] = [
-  { id: "escopo", label: "Escopo", kind: "text" },
+  { id: "escopo", label: "Abrangência", kind: "text" },
   { id: "turma", label: "Turma", kind: "text" },
   { id: "componente", label: "Componente", kind: "text" },
   { id: "grandeza", label: "Grandeza", kind: "text" },

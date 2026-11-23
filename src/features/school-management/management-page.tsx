@@ -79,17 +79,17 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     readManagementInputs(school, year, on, k).then((i) => { if (current) setRes(buildPanel(i)); }, (e: Error) => { if (current) setErr(userErrorText(e)); });
     return () => { current = false; };
   }, [school, year, on, k]);
-  if (err) return <StatePanel tone="neutral" title="Não foi possível buscar os dados da escola" description="A consulta falhou e o painel não foi atualizado. Confira sua conexão e atualize a página para tentar novamente." action={<Button variant="outline" onClick={() => window.location.reload()}>Tentar novamente</Button>} />;
+  if (err) return <StatePanel tone="neutral" title="Não foi possível buscar os dados da escola" description="Confira sua conexão e tente carregar as informações novamente." action={<Button variant="outline" onClick={() => window.location.reload()}>Tentar novamente</Button>} />;
   if (!res) return <SkeletonState label="Carregando painel" />;
   const exportCsv = () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
-    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`, "Projeção dinâmica — não é documento oficial."];
+    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Atualizado até: ${k ?? "momento da consulta"}`, "Resumo de acompanhamento da escola."];
     const blob = new Blob([toCsv(r, { headerLines: ["SIGEM"], title: GESTAO_ESCOLAR.title }, meta)], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `gestao-escolar-${on}.csv`; a.click(); URL.revokeObjectURL(a.href);
   };
   const exportPdf = async () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
-    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`];
+    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Atualizado até: ${k ?? "momento da consulta"}`];
     const logo = await loadSchoolLogo(school); // ausência ou falha = sem logo, nunca a de outra escola
     openSchedulePrint(dossierPrintHtml(toPrintableHtml(r, { headerLines: ["SIGEM"], title: "Dossiê da Direção — situação da escola", logoUrl: logo?.dataUrl ?? null }, meta), res.pending));
   };
@@ -102,7 +102,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
           <article key={b.id} className={`rounded-lg border bg-card p-5 space-y-1 transition-shadow hover:shadow-panel ${TONE[b.state]}`}>
             <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold"><Link to={b.link as "/secretaria"}>{b.title.replace(/utilizável/g, "cadastrada").replace(/alocações/g, "turmas")}</Link></h2></div>
             <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? (b.state === "BLOCKED" ? "Consultar" : b.state === "UNKNOWN" ? "—" : "—")}</p>
-            <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Dado ainda não disponível." : b.state === "BLOCKED" ? "Consulte por aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
+            <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Informação ainda não disponível." : b.state === "BLOCKED" ? "Consulte a situação na ficha do aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
           </article>))}
       </section>
       {res.pending.length > 0 && <section aria-label="Pendências" className="space-y-2">

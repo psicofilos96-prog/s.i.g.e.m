@@ -992,7 +992,7 @@ export function AssessmentRuleEditorPage({
       {readOnly && (
         <StatePanel
           tone="warning"
-          title="Somente leitura"
+          title="Consulta"
           description={
             rule.status === "homologada"
               ? "Regra homologada é imutável. Para alterar, duplique como nova versão em rascunho."

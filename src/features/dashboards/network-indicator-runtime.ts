@@ -96,7 +96,7 @@ const COLS: readonly ColumnDef[] = [
   { id: "unidade", label: "Unidade", kind: "text" }, { id: "natureza", label: "Natureza", kind: "text" },
   { id: "estado", label: "Estado", kind: "text" }, { id: "valor", label: "Valor", kind: "number" },
   { id: "motivo", label: "Motivo", kind: "text" }, { id: "fonte", label: "Proveniência", kind: "text" },
-  { id: "asOf", label: "Situação em", kind: "date" }, { id: "knownAt", label: "Conhecido até", kind: "text" },
+  { id: "asOf", label: "Situação em", kind: "date" }, { id: "knownAt", label: "Até a data", kind: "text" },
   { id: "recorte", label: "Recorte", kind: "text" },
 ];
 

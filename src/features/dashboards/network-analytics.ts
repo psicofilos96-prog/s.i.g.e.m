@@ -24,8 +24,8 @@ export function yearNature(operationalState: string | null | undefined): YearNat
     ? operationalState : "sem-estado";
 }
 export const YEAR_LABEL: Record<YearNature, string> = {
-  "historico-importado": "Histórico (importado)", "em-preparacao": "Em preparação", operacional: "Operacional",
-  encerrado: "Encerrado", "sem-estado": "Sem estado operacional",
+  "historico-importado": "Histórico de 2026", "em-preparacao": "Em preparação", operacional: "Em andamento",
+  encerrado: "Encerrado", "sem-estado": "Ainda não aberto",
 };
 
 export type SeriesPoint = Readonly<{ reading: NetworkReading; yearNature: YearNature; definitionVersion: number }>;
@@ -90,10 +90,10 @@ export function territoryStatus(schools: readonly { latitude?: number | null; lo
 /** Metadados obrigatórios de toda exportação analítica. */
 export function exportMetadata(r: NetworkReading, yn: YearNature): Record<string, CellValue>[] {
   return [
-    { campo: "Situação em", valor: r.asOf }, { campo: "Conhecido até", valor: r.knownAt },
+    { campo: "Situação em", valor: r.asOf }, { campo: "Atualizado até", valor: r.knownAt },
     { campo: "Recorte", valor: r.school ? `escola ${r.school}` : "rede" }, { campo: "Ano", valor: r.year },
-    { campo: "Natureza do ano", valor: YEAR_LABEL[yn] }, { campo: "Fonte", valor: "network_indicators_at (INVOKER, RLS)" },
-    { campo: "Documento oficial", valor: "não — projeção dinâmica" },
+    { campo: "Situação do ano", valor: YEAR_LABEL[yn] }, { campo: "Fonte", valor: "network_indicators_at (INVOKER, RLS)" },
+    { campo: "Tipo de informação", valor: "Resumo calculado" },
   ];
 }
 
@@ -123,5 +123,5 @@ export const pointOf = (reading: NetworkReading, yn: YearNature, key = "matricul
 export function analyticsCsv(r: NetworkReading, yn: YearNature, schoolName: (id: string) => string = (x) => x, now = new Date()): string {
   const res = runReport(INDICADORES_REDE, { params: {} }, indicatorRows(r), now);
   const meta = exportMetadata(r, yn).map((m) => `${m["campo"]}: ${m["campo"] === "Recorte" && r.school ? `escola ${schoolName(r.school)}` : m["valor"] ?? "não disponível"}`);
-  return toCsv(res, { headerLines: ["SIGEM"], title: INDICADORES_REDE.title }, [...meta, "Rótulo: projeção dinâmica; não é documento oficial."]);
+  return toCsv(res, { headerLines: ["SIGEM"], title: INDICADORES_REDE.title }, [...meta, "Resumo calculado a partir dos registros disponíveis."]);
 }

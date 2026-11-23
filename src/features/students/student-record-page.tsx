@@ -16,22 +16,22 @@ const SOURCE = { "carga-educacenso-2026": "Censo Escolar 2026 (carga técnica re
 export function StudentRecordPage({ id }: { id: string }) {
   const q = useQuery({ queryKey: ["student-record", id], queryFn: ({ signal }) => loadStudentRecord(id, signal), retry: 1 });
   if (q.isLoading) return <><h1 className="sr-only">Ficha do aluno</h1><SkeletonState label="Carregando ficha" /></>;
-  if (q.error) return <RegistryEmpty title="Não foi possível ler a ficha" description="A leitura falhou. Nada foi alterado." action={<Button size="sm" onClick={() => q.refetch()}>Tentar novamente</Button>} />;
+  if (q.error) return <RegistryEmpty title="Não foi possível carregar a ficha" description="Tente novamente em instantes." action={<Button size="sm" onClick={() => q.refetch()}>Tentar novamente</Button>} />;
   const r = q.data;
   if (!r) return (
     <div className="space-y-6">
       <h1 className="sr-only">Ficha do aluno</h1>
-      <RegistryEmpty title="Aluno fora do seu alcance" description="Este aluno não existe ou não está no escopo de escola da sua conta." action={<Button asChild size="sm" variant="outline"><Link to="/alunos">Voltar aos alunos</Link></Button>} />
+      <RegistryEmpty title="Aluno não encontrado" description="Não foi possível localizar este aluno nesta escola." action={<Button asChild size="sm" variant="outline"><Link to="/alunos">Voltar aos alunos</Link></Button>} />
     </div>
   );
   const allClasses = r.enrollments.flatMap((e) => e.classes);
   return (
     <div className="space-y-6">
       <RegistryHero eyebrow="Ficha escolar · 2026" title={r.name}
-        lede={`Código ${r.identifier ?? NI}. ${r.enrollments.length} matrícula(s) escolar(es) e ${allClasses.length} vínculo(s) com turma visíveis para a sua conta.`}
+        lede={`Código ${r.identifier ?? NI}. Esta ficha reúne ${r.enrollments.length} matrícula(s) e ${allClasses.length} vínculo(s) com turma.`}
         actions={<><Button asChild size="sm" variant="outline"><Link to="/alunos">Voltar aos alunos</Link></Button><Button asChild size="sm" variant="ghost"><Link to="/ficha-longitudinal/$id" params={{ id: r.id }}>Ficha longitudinal</Link></Button><EnrollmentFormDialog kind="preenchida" studentId={r.id} trigger={<Button size="sm">Imprimir Ficha de Matrícula</Button>} /></>} />
 
-      {r.enrollments.length === 0 && <RegistryEmpty title="Nenhuma matrícula visível" description="Não há matrícula escolar deste aluno no seu escopo." />}
+      {r.enrollments.length === 0 && <RegistryEmpty title="Nenhuma matrícula encontrada" description="Não há matrícula escolar deste aluno disponível para consulta." />}
 
       {r.enrollments.map((e) => (
         <section key={e.id} aria-label={`Matrícula em ${e.schoolLabel ?? "escola"}`} className="space-y-3">

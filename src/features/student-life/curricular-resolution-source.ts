@@ -222,8 +222,8 @@ export async function readAxisValueLabels(axes: AxisRef[], client = supabase): P
 }
 
 export type PositionDisplay = { labels: string[]; technical: string };
-export const UNNAMED_STUDENT = "Estudante sem nome legível";
-export const UNLABELED_VALUE = "Valor sem rótulo legível";
+export const UNNAMED_STUDENT = "Nome não informado";
+export const UNLABELED_VALUE = "Valor não informado";
 export function positionDisplay(axes: AxisRef[], labels: Map<string, string>): PositionDisplay {
   return {
     labels: axes.map((a) => labels.get(axisKey(a)) ?? UNLABELED_VALUE),

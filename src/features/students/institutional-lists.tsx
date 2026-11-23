@@ -91,14 +91,14 @@ export function InstitutionalStudentsListPage() {
       <RegistryHero
         eyebrow="Rede Municipal de Itaperuna · Estudantes 2026"
         title="Alunos e matrículas"
-        lede="Estudantes da base institucional no seu alcance de acesso. Abra um nome para ver a ficha longitudinal com matrícula, turma e percurso."
+        lede="Consulte os alunos da escola e clique em um nome para abrir a ficha completa."
         count={term ? undefined : countOf(q as Q, "alunos")}
         actions={<Button asChild size="sm" variant="outline"><Link to="/matriculas">Ver matrículas</Link></Button>}
       />
       <RegistryToolbar summary={term && q.data?.total != null ? <>{q.data.total.toLocaleString("pt-BR")} resultado(s) para a pesquisa</> : <>Ordem alfabética · {LIST_PAGE_SIZE} por página</>}>
         <SearchField id="students-search" label="Pesquisar alunos" placeholder="Nome ou identificador" value={query} onChange={setQuery} />
       </RegistryToolbar>
-      <ListStates q={q as Q} noun="alunos" emptyAll="Nenhum aluno registrado no seu escopo." searching={!!term}>
+      <ListStates q={q as Q} noun="alunos" emptyAll="Nenhum aluno encontrado nesta escola." searching={!!term}>
         <RegistryList
           label="Alunos"
           table={
@@ -148,7 +148,7 @@ export function InstitutionalProfessionalsListPage() {
       <RegistryHero
         eyebrow="Rede Municipal de Itaperuna · Pessoal 2026"
         title="Profissionais"
-        lede="Pessoas declaradas na base oficial 2026 (Censo Escolar), no seu alcance de acesso. A função mostrada é a declarada no Censo; ela não concede acesso ao SIGEM."
+        lede="Profissionais informados no Censo Escolar 2026."
         count={searching || q.data?.total == null ? undefined : <>≈ {q.data.total.toLocaleString("pt-BR")}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">profissionais</span></>}
         actions={<><Button asChild size="sm" variant="outline"><Link to="/pessoal-2026">Pessoal por escola (planilhas 2026)</Link></Button><Button asChild size="sm" variant="outline"><Link to="/conciliacao-pessoal">Conciliação de pessoal</Link></Button></>}
       />
@@ -156,7 +156,7 @@ export function InstitutionalProfessionalsListPage() {
         <SearchField id="prof-search" label="Pesquisar profissionais" placeholder="Nome" value={query} onChange={setQuery} />
         <SearchField id="prof-fn" label="Função declarada" placeholder="Ex.: docente, auxiliar" value={fn} onChange={setFn} />
       </RegistryToolbar>
-      <ListStates q={q as Q} noun="profissionais" emptyAll="Nenhum profissional visível no seu escopo." searching={searching}>
+      <ListStates q={q as Q} noun="profissionais" emptyAll="Nenhum profissional encontrado." searching={searching}>
         <RegistryList
           label="Profissionais"
           table={

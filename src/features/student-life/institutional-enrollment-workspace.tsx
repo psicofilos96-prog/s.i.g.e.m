@@ -157,7 +157,7 @@ export function InstitutionalEnrollmentWorkspace({ focus, initialClassId = "" }:
           <DateInput id="b3-date" value={validOn} onChange={(e) => setValidOn(e.target.value)} />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="b3-known">Conhecido até (opcional)</Label>
+          <Label htmlFor="b3-known">Até a data</Label>
           <DateInput id="b3-known" value={knownOn} onChange={(e) => setKnownOn(e.target.value)} />
         </div>
       </div>
@@ -191,6 +191,9 @@ type Data = {
 type Run = (fn: () => Promise<unknown>, ok: string) => Promise<void>;
 
 function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; school: string; validOn: string; canMaintain: boolean; run: Run }) {
+  const studentIds = [...new Set(d.enrollments.map((e) => e.student_id))];
+  const studentLabels = useQuery({ queryKey: ["b3", "enrollment-student-labels", school, studentIds], queryFn: () => readMovementStudentLabels(school, studentIds), enabled: Boolean(school && studentIds.length) });
+  const yearOf = (id: string | null) => d.years.find((y) => y.id === id)?.name ?? "Ano letivo não identificado";
   const [kind, setKind] = useState("cpf");
   const [value, setValue] = useState("");
   const [found, setFound] = useState<{ student_id: string; display_name: string }[]>([]);
@@ -218,9 +221,9 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
               const st = ending[e.logical_id] ?? { date: "", status: "" };
               return (
                 <li key={e.id} className="rounded-md border border-border p-2">
-                  <div>{e.student_id} · ano {e.academic_year_id ?? "não registrado"} · desde {e.opened_on ? fmt(e.opened_on) : "não registrada"} {e.ended_on ? `· até ${fmt(e.ended_on)}` : ""}</div>
+                  <div>{studentLabels.data?.get(e.student_id)?.display_name ?? "Nome não informado"} · {yearOf(e.academic_year_id)} · início {e.opened_on ? fmt(e.opened_on) : "não informado"} {e.ended_on ? `· término ${fmt(e.ended_on)}` : ""}</div>
                   {canMaintain && (d.bondStatuses.length === 0
-                    ? <Unavailable>Não é possível encerrar esta matrícula porque nenhuma situação de encerramento foi aprovada pela rede. Peça à equipe responsável que aprove a situação necessária.</Unavailable>
+                    ? <Unavailable>As opções de encerramento ainda não foram definidas pela Secretaria. Por enquanto, não é possível encerrar esta matrícula.</Unavailable>
                     : (
                       <div className="mt-2 flex flex-wrap gap-2">
                         <DateInput aria-label="Data de término" value={st.date} onChange={(ev) => setEnding({ ...ending, [e.logical_id]: { ...st, date: ev.target.value } })} />
@@ -242,22 +245,22 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
         )}
         {canMaintain && (
           <div className="space-y-2 border-t border-border pt-4">
-            <h3 className="font-medium">Constituir inscrição</h3>
+            <h3 className="font-medium">Criar matrícula</h3>
             <div className="flex flex-wrap gap-2">
-              <Input aria-label="Tipo de identificador" className="w-32" value={kind} onChange={(e) => setKind(e.target.value)} />
-              <Input aria-label="Identificador do estudante" className="w-56" value={value} onChange={(e) => setValue(e.target.value)} />
+              <Input aria-label="Tipo de documento" className="w-32" value={kind} onChange={(e) => setKind(e.target.value)} />
+              <Input aria-label="Número do documento do aluno" className="w-56" value={value} onChange={(e) => setValue(e.target.value)} />
               <Button size="sm" variant="outline" onClick={async () => {
                 const { data } = await supabase.rpc("locate_student_for_enrollment", { _kind: kind, _value: value });
                 setFound(data ?? []);
               }}>Localizar</Button>
             </div>
-            {d.years.length === 0 ? <Unavailable>Nenhum ano letivo foi cadastrado para esta escola. Peça à equipe responsável que cadastre o ano letivo antes de continuar.</Unavailable> : (
+            {d.years.length === 0 ? <Unavailable>Nenhum ano letivo foi cadastrado para esta escola. Entre em contato com a Secretaria.</Unavailable> : (
               <select aria-label="Ano letivo" className="h-9 rounded-md border border-input bg-background px-2 text-sm" value={year} onChange={(e) => setYear(e.target.value)}>
                 <option value="">Ano letivo…</option>
                 {d.years.map((y) => <option key={y.id} value={y.id}>{y.name}</option>)}
               </select>
             )}
-            <p className="text-xs text-muted-foreground">Oferta educacional: não registrada — não há definição homologada de qual eixo a representa.</p>
+            <p className="text-xs text-muted-foreground">A oferta educacional desta matrícula ainda não foi definida pela Secretaria.</p>
             <fieldset className="space-y-2">
               <legend className="text-sm font-medium">Forma de ingresso</legend>
               <div className="flex flex-wrap gap-4 text-sm">
@@ -447,7 +450,7 @@ function SearchSection({ d, validOn }: { d: Data; validOn: string }) {
           <ul className="space-y-1">
             {rows.map((r) => (
               <li key={r.enrollmentLogicalId} className="flex flex-wrap items-center gap-2">
-                <span>{r.studentId} · ano {r.academicYearId ?? "não registrado"} · {SITUATION_LABEL[r.situation]}{r.classIds.length ? ` · ${r.classIds.map(className).join(", ")}` : ""}</span>
+                <span>{labels?.get(r.studentId)?.display_name ?? "Nome não informado"} · {yearOf(r.academicYearId)} · {SITUATION_LABEL[r.situation]}{r.classIds.length ? ` · ${r.classIds.map(className).join(", ")}` : ""}</span>
                 <Button size="sm" variant="ghost" onClick={() => setStudent(r.studentId)} aria-pressed={student === r.studentId}>Trajetória</Button>
               </li>
             ))}
@@ -455,7 +458,7 @@ function SearchSection({ d, validOn }: { d: Data; validOn: string }) {
         )}
         {student && (
           <div className="rounded-md border border-border p-3">
-            <h3 className="font-medium">Trajetória de {student}</h3>
+            <h3 className="font-medium">Trajetória de {labels?.get(student)?.display_name ?? "aluno selecionado"}</h3>
             {trajectory.length === 0 ? <p className="text-muted-foreground">Ainda não há registros com data para este aluno. Confira outra data ou consulte a ficha escolar.</p> : (
               <ol className="mt-2 space-y-1">
                 {trajectory.map((t, i) => (
@@ -563,7 +566,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
                 const typeLabel = status ? label.replace(/\s*\([^()]+\)\s*$/, "") : label;
                 return <tr key={m.id} className="border-t border-border hover:bg-muted/30">
                   <td className="whitespace-nowrap px-4 py-3 tabular-nums">{fmt(m.effective_on)}</td>
-                  <td className="px-4 py-3 font-medium">{labels?.get(m.student_id)?.display_name ?? "Estudante sem nome legível"}</td>
+                  <td className="px-4 py-3 font-medium">{labels?.get(m.student_id)?.display_name ?? "Nome não informado"}</td>
                   <td className="px-4 py-3">{typeLabel}</td>
                   <td className="px-4 py-3">{status ? <Badge variant="secondary">{status}</Badge> : <span className="text-muted-foreground">Não informado</span>}{m.correction_reason && <p className="mt-1 text-xs text-muted-foreground">Retificada: {m.correction_reason}</p>}</td>
                   <td className="px-4 py-3">{canRegister ? <DropdownMenu>
@@ -584,7 +587,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
               type: typeOf(fix.row.movement_type_id)!, effectiveOn: fix.date,
               origin: (fix.row.origin ?? {}) as Record<string, string>, destination: (fix.row.destination ?? {}) as Record<string, string>,
               reasonCode: fix.row.reason_code, reasonText: fix.row.reason_text, actRef: fix.row.originating_act_ref, correctionReason: fix.reason,
-            }).then(() => setFix(null)), "Retificação registrada como nova versão.")}>Gravar retificação</Button>
+            }).then(() => setFix(null)), "Correção salva.")}>Salvar correção</Button>
             <Button size="sm" variant="outline" onClick={() => setFix(null)}>Cancelar</Button>
             {!typeOf(fix.row.movement_type_id) && <Unavailable>Este tipo de movimentação ainda não foi aprovado para a data escolhida. Não é possível retificá-la; peça à rede que confira a aprovação do tipo.</Unavailable>}
           </div>
@@ -634,7 +637,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
                   const name = st?.display_name?.trim();
                   return (
                     <option key={e.id} value={e.id} disabled={!name}>
-                      {name || "Estudante sem nome legível"} · {st?.census_inep ? `INEP: ${st.census_inep}` : "INEP não registrado"} · {yearOf(e.academic_year_id)}
+                      {name || "Nome não informado"} · {st?.census_inep ? `INEP: ${st.census_inep}` : "INEP não registrado"} · {yearOf(e.academic_year_id)}
                     </option>
                   );
                 })}

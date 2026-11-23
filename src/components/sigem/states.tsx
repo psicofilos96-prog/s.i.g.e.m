@@ -132,7 +132,7 @@ export function ConcurrencyConflictNotice({ onReload }: { onReload: () => void }
       <StatePanel
         tone="warning"
         title="Este registro mudou desde que você o abriu"
-        description="Outra gravação foi salva primeiro. Recarregue para ver a versão atual antes de alterar; sua edição não foi aplicada."
+        description="Este registro foi atualizado por outra pessoa. Atualize a tela antes de fazer novas alterações."
         action={<Button size="sm" variant="outline" onClick={trail.reload}><RefreshCw aria-hidden="true" /> Recarregar versão atual</Button>}
       />
     </div>
@@ -194,7 +194,7 @@ export const ABSENCE_TEXT: Readonly<Record<AbsenceKind, { title: string; descrip
   "nao-configurado": { title: "Configuração pendente", description: "Esta informação depende de uma configuração que ainda não foi definida. Abra as configurações desta tela e defina os dados necessários." },
   "sem-permissao": { title: "Acesso não liberado", description: "Sua conta não tem autorização para ver esta informação. Peça à gestão responsável para conferir e liberar o acesso, se for o caso." },
   "nenhum-resultado": { title: "Nenhum resultado encontrado", description: "Nenhum item corresponde à busca ou aos filtros atuais. Altere os termos ou use “Limpar filtros” para buscar novamente." },
-  "nenhum-registro": { title: "Nenhum registro encontrado", description: "Nenhum registro foi encontrado para o período escolhido. Isso pode acontecer quando ainda não houve cadastro ou quando a data não corresponde. Confira o período ou use o botão “Adicionar” para incluir o primeiro registro, se essa ação estiver disponível." },
+  "nenhum-registro": { title: "Nenhum registro encontrado", description: "Não há registros para o período escolhido. Confira a data ou adicione o primeiro registro, se necessário." },
 };
 
 export function AbsenceState({ kind, title, description, action, compact }: { kind: AbsenceKind; title?: string; description?: string; action?: ReactNode; compact?: boolean }) {
