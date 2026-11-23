@@ -101,8 +101,8 @@ function Station({ school, year, on, onDateChange }: { school: string; year: str
   useEffect(load, [school, year, on]);
   const [movTypes, setMovTypes] = useState<{ id: string; label: string }[]>([]);
   useEffect(() => { readMovementTypes().then(setMovTypes, () => setMovTypes([])); }, []);
-  if (err) return <StatePanel tone="warning" title="Painel indisponível" description={err} />;
-  if (!ov) return <SkeletonState label="Carregando painel" />;
+  if (err) return <div className="space-y-4"><Lookup school={school} year={year} onFound={setStudent} /><StatePanel tone="warning" title="Painel indisponível" description={err} /></div>;
+  if (!ov) return <div className="space-y-4"><Lookup school={school} year={year} onFound={setStudent} /><SkeletonState label="Carregando painel" /></div>;
   const movements = Object.entries(ov.movements);
   const decisions = Object.entries(ov.transition_decisions);
   const hasAttention = ov.allocations.enrollments_without_class > 0
