@@ -110,9 +110,9 @@ export function StatCard({
 }) {
   const TrendIcon = direction === "up" ? ArrowUpRight : ArrowDownRight;
   return (
-    <article className="border-r border-border/70 px-4 py-3 last:border-r-0">
+    <article className="min-w-0 rounded-xl border border-border/70 bg-card px-4 py-3 shadow-sm transition-shadow hover:shadow-panel">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="text-xs font-semibold tracking-wide text-muted-foreground">{label}</p>
         {trend && (
           <span
             className={cn(
