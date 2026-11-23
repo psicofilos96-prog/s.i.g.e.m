@@ -148,4 +148,8 @@ Consulta de baseline reutilizável: `scripts/test-school-cleanup-baseline.sql`.
 - O canal de leitura é somente leitura; o canal de dados aceita apenas DML direto, proibido neste pedido.
 - O canal de migration aplica somente DDL e não pode executar a limpeza como alteração de dados.
 - Por isso, nenhuma migration destrutiva foi aplicada e nenhuma linha foi removida. Operation id de limpeza: **nenhum**.
-- Também falta decidir as 7 contas ligadas a pessoas de teste e as 3 contas escolares: remover vínculo/principal desativa esses logins.
+- Os 7 vínculos conta-pessoa e os 3 principals escolares estão no inventário ampliado; as contas Auth não foram alteradas.
+- A expansão de 1.612 linhas é parcial: faltam os filhos dos filhos, referências sem FK e anexos. Não representa escopo final autorizado nem prova de ausência de órfãos.
+- SELECT final: escola 1; versões 2; identificador 1; alunos 80; matrículas 192; turmas 6; registros fictícios de servidores 16; atuações 34; declarações profissionais 7. Nenhum desses totais chegou a zero.
+- As 55 demais escolas e as fontes reais de 1.797/219 linhas permanecem intactas; os dois SHA-256 acima foram reproduzidos. As duas operações de origem permanecem.
+- Nenhum executor/migration de limpeza foi criado ou aplicado, pois o inventário ainda não é completo e não existe canal de invocação owner-only confirmado. Nenhum teste de execução/rollback foi declarado como realizado.
