@@ -1,4 +1,3 @@
-import { ContextHint } from "@/components/sigem/context-help";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { operationalToday } from "@/lib/academic-date";
 import { userErrorText } from "@/lib/observability/governed-errors";
@@ -13,14 +12,13 @@ import { yearStateLabel } from "@/features/school-secretariat/secretariat";
 import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
 import { openSchedulePrint } from "@/features/schedules/schedule-print";
 import { GESTAO_ESCOLAR } from "@/features/reports/report-registry";
-import { buildPanel, dossierPrintHtml, managementRows, type Block, type BlockState, type Pending } from "./management-panel";
+import { buildPanel, dossierPrintHtml, managementRows, type Block, type Pending } from "./management-panel";
 import { readManagementInputs } from "./management-source";
 import { CensusDeclaredStaff } from "@/features/professionals/census-declared-staff";
 import { useOwnSchoolId } from "@/features/authority/own-school";
 import { OwnSchoolName } from "@/features/authority/own-school-field";
 import { OccurrencesPanel } from "./occurrences-panel";
 import { DirectorSummaryPanel } from "./director-summary-panel";
-import { SchoolLogoPanel } from "./school-logo";
 import { SchoolNoticesPanel } from "./school-notices-panel";
 import { ClassCouncilPanel } from "./class-council-panel";
 import { RiskLimitsPanel } from "./risk-limits-panel";
@@ -32,7 +30,6 @@ import { loadSchoolLogo } from "./school-logo-data";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();
-const TONE: Record<BlockState, string> = { AVAILABLE: "border-border", ZERO: "border-border", UNKNOWN: "border-dashed", UNAVAILABLE: "border-dashed opacity-80", BLOCKED: "border-border" };
 
 export function ManagementPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
@@ -53,14 +50,14 @@ export function ManagementPage() {
   const ready = f.school && f.year && f.on;
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Direção" title="Gestão Escolar" />
-      <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
+      <PageHeader eyebrow="Direção" title="Gestão Escolar" description="Acompanhe os principais indicadores e a situação da sua escola." />
+      <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-3">
         {own ? <OwnSchoolName schoolId={own} /> : <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
           <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
         <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => { setF({ ...f, year: e.target.value }); active.setYear(e.target.value); }}>
           <option value="">Escolha o ano</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}</select></label>
         <label className="text-sm">Data de referência<DateInput value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
-        <label className="text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label>
+        <details className="rounded-lg border border-border bg-card p-3 text-sm sm:col-span-3"><summary className="cursor-pointer font-medium">Filtros avançados</summary><label className="mt-3 block max-w-sm text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label></details>
       </section>
       {ready ? <Station key={JSON.stringify(f)} {...f} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
         : <EmptyState title="Escolha escola, ano e data" description="Selecione os dados para consultar a escola." />}
@@ -95,29 +92,42 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
   return (
     <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Você está consultando registros de uma data anterior." />}
-      <DirectorSummaryPanel school={school} year={year} on={on} />
-      <section aria-label="Blocos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {res.blocks.filter((b) => b.state !== "UNAVAILABLE").map((b) => (
-          <article key={b.id} className={`rounded-lg border bg-card p-5 space-y-1 transition-shadow hover:shadow-panel ${TONE[b.state]}`}>
-            <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold"><Link to={b.link as "/secretaria"}>{b.title.replace(/utilizável/g, "cadastrada").replace(/alocações/g, "turmas")}</Link></h2><ContextHint text={b.state === "BLOCKED" ? "Abra a área de documentos para consultar por aluno." : b.state === "UNKNOWN" ? "Esta informação ainda não pôde ser confirmada para a data escolhida." : "Dados registrados na data da consulta."} label={`Sobre ${b.title}`} /></div>
-            <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? (b.state === "BLOCKED" ? "Consultar" : b.state === "UNKNOWN" ? "Não informado" : "—")}</p>
-            <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Informação a confirmar." : b.state === "BLOCKED" ? "Disponível por aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
-          </article>))}
+      <DirectorSummaryPanel school={school} year={year} on={on} blocks={res.blocks} />
+      <section aria-label="Visão geral da escola" className="space-y-3">
+        <h2 className="text-base font-semibold">Visão geral da escola</h2>
+        <div className="divide-y rounded-lg border bg-card px-4">
+        {res.blocks.filter((b) => !["matriculas", "alocacoes"].includes(b.id)).map((b) => (
+          <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">{b.title.replace(/utilizável/g, "cadastrada").replace(/alocações/g, "turmas")}</p>
+              <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Aguardando preenchimento" : b.state === "UNAVAILABLE" ? "Informação indisponível para este perfil" : b.state === "BLOCKED" ? "Consulta disponível no módulo específico" : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
+              {b.reason && <p className="text-xs text-muted-foreground">{b.reason}</p>}
+            </div>
+            <div className="flex items-center gap-3">
+              {b.value !== null && b.state !== "UNKNOWN" && <span className="text-sm font-semibold tabular-nums">{b.value}</span>}
+              {b.state === "UNKNOWN" || b.state === "BLOCKED" ? <Button asChild size="sm" variant="outline"><Link to={b.link as "/secretaria"}>{b.state === "UNKNOWN" ? "Preencher" : "Consultar"}</Link></Button> : null}
+            </div>
+          </div>))}
+        </div>
       </section>
-      <section aria-label="Pendências" className="space-y-2">
-        <h2 className="font-semibold">Pendências ({res.pending.length})</h2>
-        {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência encontrada nesta consulta.</p>
-          : <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text.replace(/fonte não lida/g, "consulta indisponível").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</Link></li>)}</ul>}
-      </section>
-      <OccurrencesPanel school={school} schoolName={schoolName} />
-      <SchoolNoticesPanel school={school} year={year} on={on} />
-      <ClassCouncilPanel school={school} year={year} on={on} />
-      <ReclassificationPanel school={school} />
-      <RiskLimitsPanel school={school} />
-      <FrequencyRiskPanel school={school} schoolName={schoolName} today={today()} />
-      <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
-      <SchoolLogoPanel school={school} />
-      <CensusDeclaredStaff school={school} />
+      {res.pending.length > 0 && <section aria-label="Pendências" className="space-y-3 rounded-lg border border-warning/30 bg-warning/5 p-4">
+        <h2 className="font-semibold">Pendências que precisam de atenção</h2>
+        <ul className="space-y-3">{res.pending.map((p) => <li key={p.id} className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 flex-1"><p className="text-sm font-medium">{p.text.replace(/fonte não lida/g, "A fonte de dados não respondeu").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</p>
+            <p className="text-xs text-muted-foreground">{p.kind === "fato-ausente" ? "Importa porque um registro necessário está incompleto e pode comprometer a conferência da situação escolar." : p.kind === "ambiguidade" ? "Importa porque há mais de uma interpretação possível e é necessária conferência antes de agir." : p.kind === "conferencia" ? "Importa porque existe uma informação aguardando conferência ou publicação." : p.kind === "bloqueio-normativo" ? "Importa porque a etapa depende de um registro ou decisão formal antes de prosseguir." : "Importa porque o painel não conseguiu confirmar esta informação; não significa que o dado seja zero."}</p></div>
+          <Button asChild size="sm" variant="outline"><Link to={p.link as "/secretaria"}>{p.kind === "fonte-indisponivel" ? "Abrir módulo" : "Resolver"}</Link></Button>
+        </li>)}</ul>
+      </section>}
+      <details className="rounded-lg border bg-card p-4"><summary className="cursor-pointer font-semibold">Mais informações e ferramentas da Gestão Escolar</summary><div className="mt-4 space-y-5">
+        <OccurrencesPanel school={school} schoolName={schoolName} />
+        <SchoolNoticesPanel school={school} year={year} on={on} />
+        <ClassCouncilPanel school={school} year={year} on={on} />
+        <ReclassificationPanel school={school} />
+        <RiskLimitsPanel school={school} />
+        <FrequencyRiskPanel school={school} schoolName={schoolName} today={today()} />
+        <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
+        <CensusDeclaredStaff school={school} />
+      </div></details>
       <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação operacional (CSV)</Button>
         <Button variant="outline" onClick={exportPdf}>Gerar Dossiê da Direção (PDF)</Button></div>
     </div>
