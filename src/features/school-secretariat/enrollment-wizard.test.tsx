@@ -42,10 +42,13 @@ describe("matrícula guiada — tela", () => {
   it("rascunho, retomada, foto, turma sem capacidade, recusa sem texto técnico e conclusão confirmada", async () => {
     const u = render(<EnrollmentWizard />);
     fireEvent.click(await screen.findByRole("button", { name: "Começar nova matrícula" }));
-    expect(screen.getByRole("navigation", { name: "Seções da matrícula" })).toBeTruthy();
-    expect(screen.getByText(/Faltam 5 informações obrigatórias/)).toBeTruthy();
-    fireEvent.change(screen.getByLabelText("Nome completo"), { target: { value: "E2E Aluno" } });
-    fireEvent.change(screen.getByLabelText("Data de nascimento"), { target: { value: "2017-12-01" } });
+    expect(screen.getByRole("navigation", { name: "Progresso da matrícula" })).toBeTruthy();
+    expect(screen.getByText("Passo 1 de 8")).toBeTruthy();
+    expect(screen.getByText(/Para concluir, faltam:/)).toBeTruthy();
+    expect(screen.getByText(/Foto 3×4.*opcional/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Pular foto" })).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Nome do aluno"), { target: { value: "E2E Aluno" } });
+    fireEvent.change(screen.getByLabelText("Nascimento"), { target: { value: "2017-12-01" } });
     // foto: arquivo falso recusado pelo conteúdo, JPEG real aceito
     const file = screen.getByLabelText("Adicionar foto") as HTMLInputElement;
     fireEvent.change(file, { target: { files: [fake()] } });
@@ -56,31 +59,37 @@ describe("matrícula guiada — tela", () => {
     expect(db.uploads[0]).toMatch(/^inep-A\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.jpg$/);
     await waitFor(() => expect((db.payload["foto"] as { path: string }).path).toBe(db.uploads[0]));
     expect(await screen.findByLabelText("Trocar foto")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Sair e continuar depois" }));
-    await waitFor(() => expect(screen.getByText("Continuar de onde parou")).toBeTruthy());
+    await waitFor(() => expect(db.seq).toBeGreaterThan(0));
     u.unmount();
 
     // retomada: nova montagem lê só o banco
     render(<EnrollmentWizard />);
     expect(await screen.findByText("E2E Aluno")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Retomar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    for (let next = 2; next <= 5; next++) {
+      fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+      expect(screen.getByText(`Passo ${next + 1} de 8`)).toBeTruthy();
+    }
     const sel = await screen.findByLabelText("Ano letivo");
     await waitFor(() => expect(sel.querySelectorAll("option").length).toBe(2));
     fireEvent.change(sel, { target: { value: "ano-x" } });
     fireEvent.change(screen.getByLabelText("Data de início na escola"), { target: { value: "2027-02-01" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     expect(await screen.findByText("Capacidade não informada · 4 enturmado(s)")).toBeTruthy();
     fireEvent.click(screen.getByText("1º ANO A"));
-    expect(screen.getByText(/Tudo pronto para concluir/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    expect(screen.getByText("Passo 8 de 8")).toBeTruthy();
+    expect(screen.getByText(/Informações obrigatórias preenchidas/)).toBeTruthy();
     fireEvent.click(screen.getByLabelText(/Aluno novo/));
     // recusa do banco: mensagem simples, nada técnico, rascunho continua
     db.failNext = "secretariat:class-invalid";
-    fireEvent.click(screen.getByRole("button", { name: "Concluir matrícula" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sim, concluir matrícula" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     const alert = await screen.findByText("A turma não pertence a esta escola e ano.");
     expect(document.body.textContent).not.toMatch(/P0001|PL\/pgSQL|secretariat:|[0-9a-f]{8}-[0-9a-f]{4}-/);
     expect(alert).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Concluir matrícula" }));
-    fireEvent.click(screen.getByRole("button", { name: "Sim, concluir matrícula" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continuar" }));
     expect(await screen.findByText("Matrícula concluída — E2E Aluno")).toBeTruthy();
     expect(db.completeArgs).toMatchObject({ draft: "d-1", expected: db.seq, year: "ano-x", on: "2027-02-01", classId: "t-1" });
     // cada gravação usou a base esperada correta (sem colisão)
