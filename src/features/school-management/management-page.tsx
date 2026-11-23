@@ -104,11 +104,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
             <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Dado ainda não disponível." : b.state === "BLOCKED" ? "Consulte por aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
           </article>))}
       </section>
-      <section aria-label="Pendências" className="space-y-2">
-        <h2 className="font-semibold">Pendências ({res.pending.length})</h2>
-        {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência foi encontrada para esta escola e data. Confira os dados selecionados; não há providências pendentes entre as informações consultadas.</p>
-          : <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text.replace(/fonte não lida/g, "consulta indisponível").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</Link></li>)}</ul>}
-      </section>
+      {res.pending.length > 0 && <section aria-label="Pendências" className="space-y-2">\n        <h2 className="font-semibold">Pendências ({res.pending.length})</h2>\n        <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text.replace(/fonte não lida/g, "consulta indisponível").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</Link></li>)}</ul>\n      </section>}
       <OccurrencesPanel school={school} schoolName={schoolName} />
       <SchoolNoticesPanel school={school} year={year} on={on} />
       <ClassCouncilPanel school={school} year={year} on={on} />
