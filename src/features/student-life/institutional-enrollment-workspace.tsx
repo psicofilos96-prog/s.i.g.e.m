@@ -157,7 +157,7 @@ export function InstitutionalEnrollmentWorkspace({ focus, initialClassId = "" }:
           <DateInput id="b3-date" value={validOn} onChange={(e) => setValidOn(e.target.value)} />
         </div>
         <div className="space-y-1">
-          <Label htmlFor="b3-known">Conhecido até (opcional)</Label>
+          <Label htmlFor="b3-known">Até a data</Label>
           <DateInput id="b3-known" value={knownOn} onChange={(e) => setKnownOn(e.target.value)} />
         </div>
       </div>
@@ -218,7 +218,7 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
               const st = ending[e.logical_id] ?? { date: "", status: "" };
               return (
                 <li key={e.id} className="rounded-md border border-border p-2">
-                  <div>{e.student_id} · ano {e.academic_year_id ?? "não registrado"} · desde {e.opened_on ? fmt(e.opened_on) : "não registrada"} {e.ended_on ? `· até ${fmt(e.ended_on)}` : ""}</div>
+                  <div>{e.student_id} · ano {yearOf(e.academic_year_id)} · desde {e.opened_on ? fmt(e.opened_on) : "não registrada"} {e.ended_on ? `· até ${fmt(e.ended_on)}` : ""}</div>
                   {canMaintain && (d.bondStatuses.length === 0
                     ? <Unavailable>Não é possível encerrar esta matrícula porque nenhuma situação de encerramento foi aprovada pela rede. Peça à equipe responsável que aprove a situação necessária.</Unavailable>
                     : (
@@ -447,7 +447,7 @@ function SearchSection({ d, validOn }: { d: Data; validOn: string }) {
           <ul className="space-y-1">
             {rows.map((r) => (
               <li key={r.enrollmentLogicalId} className="flex flex-wrap items-center gap-2">
-                <span>{r.studentId} · ano {r.academicYearId ?? "não registrado"} · {SITUATION_LABEL[r.situation]}{r.classIds.length ? ` · ${r.classIds.map(className).join(", ")}` : ""}</span>
+                <span>{r.studentId} · ano {yearOf(r.academicYearId)} · {SITUATION_LABEL[r.situation]}{r.classIds.length ? ` · ${r.classIds.map(className).join(", ")}` : ""}</span>
                 <Button size="sm" variant="ghost" onClick={() => setStudent(r.studentId)} aria-pressed={student === r.studentId}>Trajetória</Button>
               </li>
             ))}
@@ -563,7 +563,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
                 const typeLabel = status ? label.replace(/\s*\([^()]+\)\s*$/, "") : label;
                 return <tr key={m.id} className="border-t border-border hover:bg-muted/30">
                   <td className="whitespace-nowrap px-4 py-3 tabular-nums">{fmt(m.effective_on)}</td>
-                  <td className="px-4 py-3 font-medium">{labels?.get(m.student_id)?.display_name ?? "Estudante sem nome legível"}</td>
+                  <td className="px-4 py-3 font-medium">{labels?.get(m.student_id)?.display_name ?? "Nome não informado"}</td>
                   <td className="px-4 py-3">{typeLabel}</td>
                   <td className="px-4 py-3">{status ? <Badge variant="secondary">{status}</Badge> : <span className="text-muted-foreground">Não informado</span>}{m.correction_reason && <p className="mt-1 text-xs text-muted-foreground">Retificada: {m.correction_reason}</p>}</td>
                   <td className="px-4 py-3">{canRegister ? <DropdownMenu>
@@ -634,7 +634,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
                   const name = st?.display_name?.trim();
                   return (
                     <option key={e.id} value={e.id} disabled={!name}>
-                      {name || "Estudante sem nome legível"} · {st?.census_inep ? `INEP: ${st.census_inep}` : "INEP não registrado"} · {yearOf(e.academic_year_id)}
+                      {name || "Nome não informado"} · {st?.census_inep ? `INEP: ${st.census_inep}` : "INEP não registrado"} · {yearOf(e.academic_year_id)}
                     </option>
                   );
                 })}
