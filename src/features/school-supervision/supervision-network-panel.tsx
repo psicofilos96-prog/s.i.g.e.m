@@ -3,10 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, RefreshCw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { EmptyState, StatePanel } from "@/components/sigem/patterns";
+import { MissingValue } from "@/components/sigem/missing-value";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableCaption } from "@/components/ui/table";
 import { networkSchools, readNetworkReconciliation } from "./supervision-network";
 
-const number = (n: number | null) => n === null ? "Não disponível" : new Intl.NumberFormat("pt-BR").format(n);
+const number = (n: number | null) => n === null ? <MissingValue label="Contagem não disponível nesta consulta" /> : new Intl.NumberFormat("pt-BR").format(n);
 const match: Record<string, string> = { coincide: "Coincide", diverge: "Difere", incompleto: "Incompleto" };
 
 export function SupervisionNetworkPanel({ schools, sessionKey, openSchool }: {
@@ -35,10 +36,10 @@ export function SupervisionNetworkPanel({ schools, sessionKey, openSchool }: {
         <TableCaption>Contagens da base operacional na consulta, comparadas ao recibo Educacenso 2026. Matrículas = vínculos aluno × turma. Não é fechamento mensal nem homologação.</TableCaption>
         <TableHeader><TableRow><TableHead>Escola / INEP</TableHead><TableHead>Turmas</TableHead><TableHead>Matrículas</TableHead><TableHead>Alunos na escola</TableHead><TableHead>Censo 2026</TableHead><TableHead><span className="sr-only">Abrir escola</span></TableHead></TableRow></TableHeader>
         <TableBody>{filtered.map((r) => <TableRow key={r.id}>
-          <TableCell className="max-w-xs whitespace-normal"><strong className="block font-medium">{r.name}</strong><span className="text-xs text-muted-foreground">{r.inep ?? "INEP não disponível nesta consulta"}</span></TableCell>
+          <TableCell className="max-w-xs whitespace-normal"><strong className="block font-medium">{r.name}</strong><span className="text-xs text-muted-foreground">{r.inep ?? <MissingValue label="INEP não disponível nesta consulta" />}</span></TableCell>
           <TableCell>{query.isSuccess ? number(r.classes) : "—"}</TableCell><TableCell>{query.isSuccess ? number(r.enrollments) : "—"}</TableCell><TableCell>{query.isSuccess ? number(r.students) : "—"}</TableCell>
-          <TableCell>{query.isSuccess && r.comparison ? match[r.comparison] ?? "Não disponível" : "Não disponível"}</TableCell>
-          <TableCell><Button size="icon" variant="ghost" aria-label={`Abrir ${r.name}`} title={`Abrir ${r.name}`} onClick={() => openSchool(r.id)}><ArrowRight className="size-4" /></Button></TableCell>
+          <TableCell>{query.isSuccess && r.comparison ? match[r.comparison] ?? <MissingValue label="Comparação não disponível" /> : <MissingValue label="Comparação não disponível nesta consulta" />}</TableCell>
+          <TableCell className="w-[5rem] min-w-[5rem] whitespace-nowrap text-right"><Button size="icon" variant="ghost" aria-label={`Abrir ${r.name}`} title={`Abrir ${r.name}`} onClick={() => openSchool(r.id)}><ArrowRight className="size-4" /></Button></TableCell>
         </TableRow>)}</TableBody>
       </Table>}
   </section>;
