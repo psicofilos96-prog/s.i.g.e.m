@@ -220,7 +220,7 @@ function EnrollmentSection({ d, school, validOn, canMaintain, run }: { d: Data; 
                 <li key={e.id} className="rounded-md border border-border p-2">
                   <div>{e.student_id} · ano {e.academic_year_id ?? "não registrado"} · desde {e.opened_on ? fmt(e.opened_on) : "não registrada"} {e.ended_on ? `· até ${fmt(e.ended_on)}` : ""}</div>
                   {canMaintain && (d.bondStatuses.length === 0
-                    ? <Unavailable>Encerrar indisponível: nenhuma situação do vínculo homologada.</Unavailable>
+                    ? <Unavailable>Não é possível encerrar esta matrícula porque nenhuma situação de encerramento foi aprovada pela rede. Peça à equipe responsável que aprove a situação necessária.</Unavailable>
                     : (
                       <div className="mt-2 flex flex-wrap gap-2">
                         <DateInput aria-label="Data de término" value={st.date} onChange={(ev) => setEnding({ ...ending, [e.logical_id]: { ...st, date: ev.target.value } })} />
@@ -310,7 +310,7 @@ function ParticipationSection({ d, validOn, canMaintain, run }: { d: Data; valid
           </ul>
         )}
         {canMaintain && (d.natures.length === 0
-          ? <Unavailable>Declarar participação indisponível: nenhuma natureza de participação homologada.</Unavailable>
+          ? <Unavailable>Não é possível registrar a participação porque a rede ainda não aprovou os tipos disponíveis. Peça à equipe responsável que aprove os tipos.</Unavailable>
           : (
             <div className="flex flex-wrap gap-2">
               <select aria-label="Inscrição" className="h-9 rounded-md border border-input bg-background px-2" value={enrollment} onChange={(e) => setEnrollment(e.target.value)}>
@@ -660,7 +660,7 @@ export function MovementSection({ d, school, validOn, canRegister, run }: { d: D
               </select>}
               <Input aria-label={saida ? "Motivo da saída" : "Motivo da movimentação (opcional)"} placeholder={saida ? "Motivo da saída (obrigatório)" : "Motivo (opcional)"} className="w-64" value={reason} onChange={(e) => setReason(e.target.value)} />
               {enr && <Button size="sm" variant="outline" asChild><Link to="/ficha-longitudinal/$id" params={{ id: enr.student_id }}>Ver ficha longitudinal</Link></Button>}
-              {remanejamento && <p className="w-full text-xs text-muted-foreground">A troca de turma encerra a alocação anterior e abre a nova na mesma escola pelo escritor oficial, sem apagar o histórico. {currentEpisode ? "" : "Este aluno não tem turma vigente para remanejar nesta data."}</p>}
+              {remanejamento && <p className="w-full text-xs text-muted-foreground">A mudança de turma encerra o vínculo com a turma atual e registra a nova turma na mesma escola, sem apagar o histórico. {currentEpisode ? "" : "Este aluno não está em uma turma nesta data."}</p>}
               {(type === "cancelamento" || type === "evasao") && <p className="w-full text-xs text-muted-foreground">A saída encerra a matrícula e registra o tipo homologado. É obrigatório informar o motivo. Desistência e evasão não devem ser equiparadas sem respaldo no registro escolar.</p>}
               {transfer && <p className="w-full text-xs text-muted-foreground">A transferência encerra a matrícula na origem. A escola de destino deverá registrar o recebimento. Se for externa, descreva a escola no motivo da saída para preservar a informação.</p>}
               {type === "falecimento" && enr ? (
