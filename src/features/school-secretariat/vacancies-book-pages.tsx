@@ -1,4 +1,5 @@
 import { ContextHint } from "@/components/sigem/context-help";
+import { ExportMenu } from "@/components/sigem/export-menu";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
@@ -129,9 +130,9 @@ export function EnrollmentBookPage() {
                 </select></label>
             </section>
             <div className="flex flex-wrap items-center gap-2">
-              <Button onClick={() => void print()} disabled={!shown.length}>Imprimir Livro (PDF)</Button>
-              <Button variant="outline" disabled={!shown.length} onClick={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}>Baixar planilha (CSV)</Button>
-              <Button variant="outline" disabled={!shown.length} onClick={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}>Baixar Excel</Button>
+              <ExportMenu disabled={!shown.length} onPdf={print}
+                onCsv={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}
+                onExcel={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")} />
               <span className="text-sm text-muted-foreground">{shown.length} de {rows.length} matrícula(s)</span>
             </div>
             {shown.length === 0 ? <EmptyState title="Nenhuma matrícula encontrada" description="Mude a pesquisa ou o ano letivo." /> : (

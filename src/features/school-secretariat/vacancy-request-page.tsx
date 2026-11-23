@@ -1,3 +1,4 @@
+import { ExportMenu } from "@/components/sigem/export-menu";
 import { MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ContextHint } from "@/components/sigem/context-help";
@@ -73,11 +74,7 @@ export function VacancyRequestPage() {
             <option value="abertos">Só na fila</option><option value="todos">Todos</option>
           </select>
         </label>
-        <div className="ml-auto flex gap-2">
-          <Button variant="outline" disabled={!shown.length} onClick={() => exportFile("xlsx")}>Excel</Button>
-          <Button variant="outline" disabled={!shown.length} onClick={() => exportFile("pdf")}>PDF</Button>
-          <Button onClick={() => setShowForm((v) => !v)}>{showForm ? "Fechar" : "Novo pedido"}</Button>
-        </div>
+        <div className="ml-auto flex flex-wrap items-center gap-2"><ExportMenu disabled={!shown.length} onPdf={() => exportFile("pdf")} onExcel={() => exportFile("xlsx")} /><Button onClick={() => setShowForm((v) => !v)}>{showForm ? "Fechar" : "Novo pedido"}</Button></div>
       </div>
       <ContextHint text="Padrão do sistema: pedidos ordenados por data e hora do protocolo, separados por etapa." />
       {showForm && <NewRequestForm year={year} onDone={() => { setShowForm(false); load(); }} />}

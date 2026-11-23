@@ -96,9 +96,9 @@ export function FilterBar({
 
   return (
     <section aria-label={label} className="border-b border-border/70 pb-3">
-      <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-2.5 xl:flex-row xl:items-center">
         {search ? (
-          <div className="relative min-w-0 flex-1 lg:max-w-2xl">
+          <div className="relative min-w-0 flex-1 xl:max-w-2xl">
             <Search
               className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
               aria-hidden="true"
@@ -123,7 +123,7 @@ export function FilterBar({
             ) : null}
           </div>
         ) : null}
-        <div className="grid min-w-0 grid-cols-1 gap-2 min-[28rem]:grid-cols-2 sm:flex sm:flex-wrap sm:items-center">
+        <div className="grid min-w-0 grid-cols-1 gap-2 min-[28rem]:grid-cols-2 sm:flex sm:flex-wrap sm:items-center xl:flex-nowrap">
           {inlineFilters.map((filter) => (
             <Select
               key={filter.id}
@@ -149,8 +149,8 @@ export function FilterBar({
           {hasAdvancedPanel ? (
             <Sheet open={advancedOpen} onOpenChange={setAdvancedOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="h-10">
-                  <Filter /> Filtros {active ? `(${active})` : ""}
+                <Button variant="ghost" className="h-9 px-2.5 text-sm text-muted-foreground hover:text-foreground">
+                  <Filter /> Filtros avançados {active ? `(${active})` : ""}
                 </Button>
               </SheetTrigger>
               <SheetContent className="w-full sm:max-w-md">

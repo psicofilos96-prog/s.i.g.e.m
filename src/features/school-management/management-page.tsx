@@ -1,4 +1,5 @@
-import { ContextHint } from "@/components/sigem/context-help";
+import { MoreFilters } from "@/components/sigem/more-filters";
+import { ExportMenu } from "@/components/sigem/export-menu";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { operationalToday } from "@/lib/academic-date";
 import { userErrorText } from "@/lib/observability/governed-errors";
@@ -60,7 +61,7 @@ export function ManagementPage() {
         <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => { setF({ ...f, year: e.target.value }); active.setYear(e.target.value); }}>
           <option value="">Escolha o ano</option>{years.map((y) => <option key={y.id} value={y.id}>{y.label} — {yearStateLabel(y.state)}</option>)}</select></label>
         <label className="text-sm">Data de referência<DateInput value={f.on} onChange={(e) => setF({ ...f, on: e.target.value })} /></label>
-        <label className="text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label>
+        <MoreFilters active={!!f.knownAt}><label className="text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label></MoreFilters>
       </section>
       {ready ? <Station key={JSON.stringify(f)} {...f} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
         : <EmptyState title="Informe a escola, o ano e a data" description="Faltam dados para buscar o painel. Escolha a escola, o ano letivo e a data nos campos acima para consultar as informações." />}
@@ -99,16 +100,15 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       <section aria-label="Blocos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {res.blocks.filter((b) => b.state !== "UNAVAILABLE").map((b) => (
           <article key={b.id} className={`rounded-lg border bg-card p-5 space-y-1 transition-shadow hover:shadow-panel ${TONE[b.state]}`}>
-            <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold"><Link to={b.link as "/secretaria"}>{b.title.replace(/utilizável/g, "cadastrada").replace(/alocações/g, "turmas")}</Link></h2><ContextHint text={b.state === "BLOCKED" ? "Abra a área de documentos para consultar por aluno." : b.state === "UNKNOWN" ? "Esta informação ainda não pôde ser confirmada para a data escolhida." : "Dados registrados na data da consulta."} label={`Sobre ${b.title}`} /></div>
-            <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? (b.state === "BLOCKED" ? "Consultar" : b.state === "UNKNOWN" ? "Não informado" : "—")}</p>
-            <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Informação a confirmar." : b.state === "BLOCKED" ? "Disponível por aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
+            <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold"><Link to={b.link as "/secretaria"}>{b.title.replace(/utilizável/g, "cadastrada").replace(/alocações/g, "turmas")}</Link></h2></div>
+            <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? (b.state === "BLOCKED" ? "Consultar" : b.state === "UNKNOWN" ? "—" : "—")}</p>
+            <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Dado ainda não disponível." : b.state === "BLOCKED" ? "Consulte por aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
           </article>))}
       </section>
-      <section aria-label="Pendências" className="space-y-2">
+      {res.pending.length > 0 && <section aria-label="Pendências" className="space-y-2">
         <h2 className="font-semibold">Pendências ({res.pending.length})</h2>
-        {res.pending.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma pendência foi encontrada para esta escola e data. Confira os dados selecionados; não há providências pendentes entre as informações consultadas.</p>
-          : <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text.replace(/fonte não lida/g, "consulta indisponível").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</Link></li>)}</ul>}
-      </section>
+        <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text.replace(/fonte não lida/g, "consulta indisponível").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</Link></li>)}</ul>
+      </section>}
       <OccurrencesPanel school={school} schoolName={schoolName} />
       <SchoolNoticesPanel school={school} year={year} on={on} />
       <ClassCouncilPanel school={school} year={year} on={on} />
@@ -118,8 +118,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
       <SchoolLogoPanel school={school} />
       <CensusDeclaredStaff school={school} />
-      <div className="flex flex-wrap gap-2"><Button variant="outline" onClick={exportCsv}>Exportar situação da escola (CSV)</Button>
-        <Button variant="outline" onClick={exportPdf}>Gerar Dossiê da Direção (PDF)</Button></div>
+      <ExportMenu onCsv={exportCsv} onPdf={exportPdf} />
     </div>
   );
 }
