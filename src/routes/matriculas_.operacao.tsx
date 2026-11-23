@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { EnrollmentOperationsPage } from "@/features/enrollments/enrollment-operations-page";
 import { brand } from "@/config/branding";
 
-const title = `Central operacional de matrículas — ${brand.name}`;
-const description = "Campanhas, conferência, protocolo, classificação, distribuição, reservas, listas, confirmação, recursos, enturmação e transferências pelos writers do banco.";
+const title = `Central de matrículas — ${brand.name}`;
+const description = "Organize campanhas de matrícula, confira inscrições, acompanhe protocolos, distribua vagas, confirme pedidos e encaminhe alunos para as turmas.";
 
 export const Route = createFileRoute("/matriculas_/operacao")({
   ssr: false,
