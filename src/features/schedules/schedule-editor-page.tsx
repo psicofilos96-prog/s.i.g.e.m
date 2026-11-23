@@ -164,7 +164,7 @@ export function ScheduleEditorPage({
         <div className="surface-panel">
           <EmptyState
             icon={Lock}
-            title="Somente leitura"
+            title="Consulta"
             description="A distribuição registrada permanece como estava no período correspondente. Alterações retroativas não são oferecidas pelo editor demonstrativo."
             action={
               <Button asChild variant="outline">
