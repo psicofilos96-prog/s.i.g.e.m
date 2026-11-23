@@ -1727,3 +1727,66 @@
 .pulse-dot::after { content: ""; position: absolute; inset: 0; border-radius: 9999px; background: currentColor; animation: pulse-ring 2s ease-out infinite; }
 @keyframes pulse-ring { 0% { transform: scale(1); opacity: .6; } 100% { transform: scale(2.6); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .pulse-dot::after { animation: none; } }
+
+
+/* SIGEM UI foundation — shared visual language across operational screens. */
+:root {
+  --sigem-page-title-size: clamp(1.5rem, 1.25rem + 0.65vw, 1.875rem);
+  --sigem-page-title-line: 1.18;
+  --sigem-section-title-size: 1rem;
+  --sigem-body-size: 0.9375rem;
+  --sigem-help-size: 0.8125rem;
+  --sigem-control-height: 2.75rem;
+  --sigem-card-radius: 0.875rem;
+  --sigem-card-border: color-mix(in oklab, var(--institutional) 8%, var(--border));
+  --sigem-card-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 4%, transparent),
+    0 8px 24px -20px color-mix(in oklab, var(--institutional) 18%, transparent);
+  --sigem-space-page: clamp(1rem, 2vw, 1.75rem);
+  --sigem-space-section: 1.25rem;
+  --sigem-status-radius: 999px;
+}
+
+@layer base {
+  body { font-size: var(--sigem-body-size); line-height: 1.5; }
+  h1 { font-size: var(--sigem-page-title-size); line-height: var(--sigem-page-title-line); font-weight: 650; letter-spacing: -0.025em; }
+  h2 { font-size: var(--sigem-section-title-size); line-height: 1.35; font-weight: 650; }
+  h3 { line-height: 1.4; font-weight: 600; }
+  :where(input, select, textarea) { min-height: var(--sigem-control-height); }
+}
+
+/* Shared page, card, status and empty-state primitives. */
+[data-sigem-page-header] h1 {
+  font-size: var(--sigem-page-title-size);
+  line-height: var(--sigem-page-title-line);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+[data-sigem-page-header] > div > p:not(.eyebrow) {
+  max-width: var(--content-reading);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+.surface-panel,
+[data-sigem-card],
+.rounded-xl.border.bg-card {
+  border-color: var(--sigem-card-border);
+  border-radius: var(--sigem-card-radius);
+  box-shadow: var(--sigem-card-shadow);
+}
+[data-sigem-status],
+.badge-success, .badge-warning, .badge-danger, .badge-info, .badge-neutral {
+  border-radius: var(--sigem-status-radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  padding: 0.2rem 0.625rem;
+}
+[data-sigem-empty-state] {
+  min-height: 13rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px dashed var(--sigem-card-border);
+  border-radius: var(--sigem-card-radius);
+  background: color-mix(in oklab, var(--card) 78%, var(--muted));
+}
+[data-sigem-empty-state] h2 { font-size: 0.9375rem; font-weight: 650; }
+[data-sigem-empty-state] p { max-width: 34rem; font-size: 0.875rem; line-height: 1.55; }
