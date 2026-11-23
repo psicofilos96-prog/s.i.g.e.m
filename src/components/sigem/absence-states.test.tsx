@@ -14,7 +14,7 @@ describe("NEMPTY.3 — estados de ausência", () => {
     const titles = Object.values(ABSENCE_TEXT).map((t) => t.title);
     expect(new Set(titles).size).toBe(5);
     render(<AbsenceState kind="sem-permissao" />);
-    expect(screen.getByText("Acesso restrito")).toBeTruthy();
+    expect(screen.getByText("Acesso não liberado")).toBeTruthy();
     expect(screen.getByText("Sua conta não tem autorização para ver esta informação. Peça à gestão responsável para conferir e liberar o acesso, se for o caso.")).toBeTruthy();
     for (const item of Object.values(ABSENCE_TEXT)) {
       expect(item.description.length).toBeGreaterThan(80);
