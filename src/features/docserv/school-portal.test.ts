@@ -3,7 +3,7 @@ import { applyFilter, counters, linkLabel, validationQueue, type Roster, type Ro
 
 const p = (o: Partial<RosterPerson>): RosterPerson => ({ person_id: "a", masked_name: "Ana S.", sources: ["atuacao:professor"], functions: [], other_schools: 0, docs: {}, ...o });
 const doc = (status: string) => ({ document_id: "d", version: 1, seq: 1, path: "x", valid_until: null, by_school: false, status });
-const R = (people: RosterPerson[], can_validate = false): Roster => ({ school_id: "s", season: "2026", can_validate, staff_records_without_person: 0, people, requests: [] });
+const R = (people: RosterPerson[], can_validate = false): Roster => ({ school_id: "s", season: "2026", can_validate, staff_records_without_person: 0, test_records: [], people, requests: [] });
 
 describe("painel da escola", () => {
   it("pessoa com atuação e lotação conta uma vez e entra em múltiplos vínculos", () => {
