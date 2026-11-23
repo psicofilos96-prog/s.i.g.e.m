@@ -31,7 +31,7 @@ export function UnitEditorPage({ schoolId }: { schoolId: string | null }) {
       />
       {authority.status === "loading" && <SkeletonState label="Conferindo sua permissão" />}
       {authority.status !== "loading" && !canMaintain && (
-        <RegistryEmpty title="Sem permissão para alterar o cadastro" description="Sua atuação vigente não concede a manutenção do cadastro de unidades com alcance de rede." />
+        <RegistryEmpty title="Sem permissão para alterar o cadastro" description="Sua conta não tem autorização para alterar o cadastro das unidades da rede. Peça à gestão responsável para conferir seu acesso." />
       )}
       {canMaintain && <SchoolsAdminSection canMaintain focus={{ schoolId }} onExit={back} />}
     </div>
