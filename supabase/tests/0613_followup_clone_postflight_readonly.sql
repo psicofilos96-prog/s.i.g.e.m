@@ -10,6 +10,7 @@ DECLARE
   relation_name text;
   function_signature text;
   function_oid oid;
+  expected_function_count integer;
   role_name text;
   p record;
 BEGIN
@@ -171,6 +172,10 @@ BEGIN
   -- 0613 defines 13 functions; 0618 adds two attachment RPCs (15 total).
   -- Signature checks above establish all expected members; reject extras
   -- (including overloads that could make PostgREST resolution ambiguous).
+  expected_function_count := 13;
+  IF pg_catalog.to_regclass('public.school_institutional_followup_attachments') IS NOT NULL THEN
+    expected_function_count := 15;
+  END IF;
   IF (
     SELECT pg_catalog.count(*)
     FROM pg_catalog.pg_proc proc
@@ -178,7 +183,7 @@ BEGIN
     WHERE ns.nspname = 'public'
       AND (proc.proname LIKE 'school_institutional_followup_%'
         OR proc.proname LIKE 'record_school_institutional_followup_%')
-  ) <> CASE WHEN pg_catalog.to_regclass('public.school_institutional_followup_attachments') IS NULL THEN 13 ELSE 15 END THEN
+  ) <> expected_function_count THEN
     RAISE EXCEPTION 'followup-postflight:unexpected-function-family-member';
   END IF;
 
