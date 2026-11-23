@@ -74,7 +74,7 @@ export function VacancyRequestPage() {
             <option value="abertos">Só na fila</option><option value="todos">Todos</option>
           </select>
         </label>
-        <div className="ml-auto flex flex-wrap items-center gap-2"><ExportMenu disabled={!shown.length} onPdf={() => exportFile("pdf")} onExcel={() => exportFile("xlsx")} /><Button onClick={() => setShowForm((v) => !v)}>{showForm ? "Fechar" : "Novo pedido"}</Button>
+        <div className="ml-auto flex flex-wrap items-center gap-2"><ExportMenu disabled={!shown.length} onPdf={() => exportFile("pdf")} onExcel={() => exportFile("xlsx")} /><Button onClick={() => setShowForm((v) => !v)}>{showForm ? "Fechar" : "Novo pedido"}</Button></div>
       </div>
       <ContextHint text="Padrão do sistema: pedidos ordenados por data e hora do protocolo, separados por etapa." />
       {showForm && <NewRequestForm year={year} onDone={() => { setShowForm(false); load(); }} />}
