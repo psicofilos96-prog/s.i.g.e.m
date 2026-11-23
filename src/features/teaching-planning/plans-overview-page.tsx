@@ -29,28 +29,28 @@ export function PlansOverviewPage() {
   const plans = rows?.filter((r) => r.result_kind === "plan") ?? [];
   return (
     <div className="space-y-6">
-      <PageHeader title="Acompanhamento do planejamento" description="Consulta somente leitura dos planejamentos compartilhados. Escrever ou alterar plano é ato exclusivo do professor da regência." />
+      <PageHeader title="Acompanhamento do planejamento" description="Veja os planejamentos que os professores compartilharam. Para escrever ou alterar um plano, o professor responsável deve abrir a tela de Planejamento." />
       <div className="grid max-w-xl gap-2 sm:grid-cols-2">
-        <label className="text-sm">Escola (código)<input className="w-full rounded border bg-background p-2 text-sm" value={school} onChange={(e) => setSchool(e.target.value)} /></label>
+        <label className="text-sm">Código da escola<input className="w-full rounded border bg-background p-2 text-sm" value={school} onChange={(e) => setSchool(e.target.value)} /></label>
         <label className="text-sm">Data<DateInput value={on} onChange={(e) => setOn(e.target.value)} /></label>
       </div>
       {school.trim() && (
         <section aria-labelledby="fila-op" className="space-y-2">
-          <h2 id="fila-op" className="text-base font-semibold">Envios aguardando análise (planejamentos e provas)</h2>
+          <h2 id="fila-op" className="text-base font-semibold">Planejamentos e provas enviados para análise</h2>
           <ReviewQueue school={school.trim()} />
         </section>
       )}
-      {!school.trim() ? <EmptyState title="Informe a escola" description="A consulta só mostra o que sua atuação autoriza." />
-        : err ? <StatePanel tone="danger" title="Consulta indisponível" description={err} />
+      {!school.trim() ? <EmptyState title="Digite o código da escola" description="A escola ainda não foi informada, por isso os planejamentos não podem ser buscados. Digite o código no campo acima para consultar os planos compartilhados." />
+        : err ? <StatePanel tone="danger" title="Não foi possível buscar os planejamentos" description={`${err} Confira a conexão e tente buscar novamente.`} />
         : !rows ? <SkeletonState label="Carregando" />
-        : kind === "access-denied" ? <StatePanel tone="warning" title="Sem autorização para esta escola" description="Sua atuação vigente não tem capacidade de consulta do planejamento nesta escola." />
-        : kind === "invalid" ? <StatePanel tone="warning" title="Consulta inválida" description="Informe escola e data." />
-        : plans.length === 0 ? <EmptyState title="Nenhum planejamento compartilhado nesta data" description="Rascunhos não aparecem aqui. Ausência de plano compartilhado não é falta do professor." />
+        : kind === "access-denied" ? <StatePanel tone="warning" title="Você não pode consultar os planejamentos desta escola" description="Sua conta não tem autorização para ver estes registros. Peça à gestão responsável para conferir seu acesso à escola." />
+        : kind === "invalid" ? <StatePanel tone="warning" title="Confira os dados da busca" description="Falta informar a escola ou a data. Preencha os campos acima para buscar os planejamentos." />
+        : plans.length === 0 ? <EmptyState title="Nenhum planejamento compartilhado nesta data" description="Nenhum professor compartilhou um planejamento para esta escola e data. Confira a data ou peça ao professor responsável que compartilhe o plano; rascunhos não aparecem nesta consulta." />
         : (
           <ul className="space-y-3">{plans.map((p) => (
             <li key={p.plan_version_id ?? ""} className="rounded border border-border p-3 text-sm">
               <div className="font-medium">{p.title}</div>
-              <div className="text-xs text-muted-foreground">Turma {p.class_id} · v{p.version} · {p.covers_from ?? "sem início"} a {p.covers_until ?? "sem fim"}{p.period_id ? ` · período ${p.period_id}` : ""} · {parseRefs(p.curricular_refs).length} referência(s)</div>
+              <div className="text-xs text-muted-foreground">Turma {p.class_id} · versão {p.version} · {p.covers_from ?? "sem início"} a {p.covers_until ?? "sem fim"}{p.period_id ? ` · período ${p.period_id}` : ""} · {parseRefs(p.curricular_refs).length} referência(s)</div>
               {parseBlocks(p.blocks).map((b, i) => <div key={i} className="mt-2"><div className="font-medium">{b.heading}</div><p className="whitespace-pre-wrap">{b.body}</p></div>)}
             </li>))}</ul>)}
     </div>
