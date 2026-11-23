@@ -271,7 +271,7 @@ export function DataGrid<TRow>({
                 );
               })}
               {rowActions ? (
-                <TableHead className="w-12">
+                <TableHead className="w-[9.5rem] min-w-[9.5rem] whitespace-nowrap text-right">
                   <span className="sr-only">{rowActionsLabel}</span>
                 </TableHead>
               ) : null}
