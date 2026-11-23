@@ -1,6 +1,7 @@
 import { humanizeForScreen } from "@/config/technical-codes";
 import { operationalToday } from "@/lib/academic-date";
 import { PageHeader } from "@/components/sigem/patterns";
+import { Button } from "@/components/ui/button";
 /**
  * B4.6.7 — Consulta institucional positiva do calendário (lista + detalhe com grade mensal e totais por período B2.4).
  *
@@ -83,7 +84,7 @@ export function InstitutionalCalendarListView({ contextKey }: { contextKey: stri
       )}
       <DateField value={validOn} onChange={setValidOn} />
       {q.isFetching && !fresh && !q.error && <p role="status" className="text-sm text-muted-foreground">Consultando os calendários…</p>}
-      {q.error && <p role="alert" className="text-sm text-destructive">{readerErrorText(q.error)}</p>}
+      {q.error && <div role="alert" className="space-y-2 text-sm text-destructive"><p>{readerErrorText(q.error)}</p><Button type="button" variant="outline" onClick={() => void q.refetch()}>Tentar novamente</Button></div>}
       {fresh && !q.error && fresh.list.kind !== "lido" && (
         <p role="note" className="rounded border border-border bg-muted p-3 text-sm">Sua conta não tem autorização para consultar estes calendários. Peça à gestão responsável para conferir seu acesso.</p>
       )}
@@ -143,7 +144,7 @@ export function InstitutionalCalendarDetailView({ contextKey, calendarId }: { co
       <PageHeader title={version && fresh?.labels ? calendarTitle(version, fresh.labels.years) : "Calendário escolar"} />
       <DateField value={validOn} onChange={setValidOn} />
       {q.isFetching && !fresh && !q.error && <p role="status" className="text-sm text-muted-foreground">Consultando o calendário…</p>}
-      {q.error && <p role="alert" className="text-sm text-destructive">{readerErrorText(q.error)}</p>}
+      {q.error && <div role="alert" className="space-y-2 text-sm text-destructive"><p>{readerErrorText(q.error)}</p><Button type="button" variant="outline" onClick={() => void q.refetch()}>Tentar novamente</Button></div>}
       {fresh && !q.error && (
         <>
           <p role="note" className="rounded border border-border bg-muted p-3 text-sm">{STATE_TEXT[fresh.at.kind]}</p>
@@ -185,7 +186,7 @@ function PeriodTotals({ contextKey, calendarId, knownAt, periods }: { contextKey
     queryFn: () => Promise.all(periods.map(async (p) => ({ p, r: await readCalendarDays({ calendarId, from: p.startsOn, to: p.endsOn, knownAt }) }))),
   });
   if (periods.length === 0) return <p className="text-sm text-muted-foreground">Este calendário ainda não tem períodos letivos ativos cadastrados. Cadastre os períodos na organização do ano letivo para calcular os totais.</p>;
-  if (q.error) return <p role="alert" className="text-sm text-destructive">{readerErrorText(q.error)}</p>;
+  if (q.error) return <div role="alert" className="space-y-2 text-sm text-destructive"><p>{readerErrorText(q.error)}</p><Button type="button" variant="outline" onClick={() => void q.refetch()}>Tentar novamente</Button></div>;
   if (!q.data) return <p role="status" className="text-sm text-muted-foreground">Calculando totais por período…</p>;
   return (
     <section aria-label="Totais por período" className="space-y-1">
