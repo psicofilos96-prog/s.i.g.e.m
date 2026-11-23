@@ -136,3 +136,16 @@ Consulta de baseline reutilizável: `scripts/test-school-cleanup-baseline.sql`.
 - Último build automático observado às 18:58:19 UTC: build OK.
 - Não foram modificadas regras nem código executável da aplicação; testes de limpeza não foram executados,
   pois não existe executor de limpeza criado nesta rodada. Não se declarou PASS de exclusão ou de ausência de órfãos.
+## Escopo ampliado — 23/11/2026, 18:59 UTC
+- O proprietário autorizou a exclusão da própria escola `inep-99999901` e de todo dado fictício associado.
+- Nova expansão por chaves exatas e FKs encontrou **1.612 linhas candidatas em 56 tabelas**, sem referência de outra escola.
+  Inclui 80 alunos, 192 matrículas, 6 turmas, 34 atuações, 7 declarações, 16 registros da fonte fictícia,
+  a escola, seu identificador e 2 versões cadastrais, além de 7 vínculos conta-pessoa e 3 principals/eventos de contas escolares.
+- Há fatos protegidos por gatilhos de imutabilidade, incluindo congelamento do Mapa e identificadores de pessoa; o executor não pode desativá-los.
+
+## Bloqueio de execução confirmado
+- A conexão técnica disponível no sandbox é `sandbox_exec`; ela não é proprietária nem prova o destino pelo gate de ambiente.
+- O canal de leitura é somente leitura; o canal de dados aceita apenas DML direto, proibido neste pedido.
+- O canal de migration aplica somente DDL e não pode executar a limpeza como alteração de dados.
+- Por isso, nenhuma migration destrutiva foi aplicada e nenhuma linha foi removida. Operation id de limpeza: **nenhum**.
+- Também falta decidir as 7 contas ligadas a pessoas de teste e as 3 contas escolares: remover vínculo/principal desativa esses logins.
