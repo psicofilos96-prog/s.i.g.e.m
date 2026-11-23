@@ -353,7 +353,6 @@ function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: 
   return (
     <div className="space-y-3 text-right">
       <EntryOriginField value={origin} onChange={setOrigin} />
-      {confirm ? <p className="mb-2 text-sm">Isto cria a matrícula oficial e coloca o aluno na turma <strong>{p.turma?.nome}</strong>. Confirmar?</p> : null}
       {confirm ? <p className="mb-2 text-sm">Confirme os dados e pressione Continuar para concluir.</p> : null}
       <Button disabled={!ready || busy || !entryOriginOk(origin)} onClick={async () => {
         if (!confirm) { setConfirm(true); return; }
