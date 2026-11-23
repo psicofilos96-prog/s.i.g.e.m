@@ -22,6 +22,6 @@ function Page() {
   const session = useSessionUser();
   if (session.loading) return <SkeletonState label="Carregando" />;
   if (!session.user)
-    return <div className="mx-auto max-w-3xl p-4"><StatePanel tone="neutral" title="Entre para consultar a rede" description="A visão da rede usa somente registros institucionais e exige login com atuação vigente." /></div>;
+    return <div className="mx-auto max-w-3xl p-4"><StatePanel tone="neutral" title="Entre para consultar a rede" description="Entre com sua conta institucional para consultar os dados oficiais da rede. O acesso depende das autorizações concedidas à sua conta." /></div>;
   return <NetworkProjectionPage />;
 }
