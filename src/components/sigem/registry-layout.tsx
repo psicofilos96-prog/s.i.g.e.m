@@ -57,7 +57,7 @@ export function RegistryList(p: { table: ReactNode; cards: ReactNode; label: str
 
 export const registryTh = "sticky top-0 z-10 bg-muted/60 px-4 py-3 text-left text-[0.65rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground";
 export const registryTd = "px-4 py-3.5 align-middle";
-export const registryRow = "border-t border-border transition-colors hover:bg-muted/40";
+export const registryRow = "border-t border-border/70 transition-colors duration-150 hover:bg-muted/45";
 
 export function RegistryCard({ title, children, className }: { title: ReactNode; children: ReactNode; className?: string }) {
   return (
