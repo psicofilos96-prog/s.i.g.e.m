@@ -734,15 +734,6 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           {(monthly.isError || statuses.isError) && <p role="status" className="mt-3 text-sm text-muted-foreground">Os gráficos estão indisponíveis. A lista de escolas permanece consultável.</p>}
         </details>
         <p className="text-xs text-muted-foreground">Visitas no período · Medidas de todo o histórico <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="ml-1 size-6" aria-label="Sobre os indicadores"><Info className="size-3.5" /></Button></TooltipTrigger><TooltipContent className="max-w-72">Conclusões declaradas pela equipe. Filtros de escola alteram somente a lista e sua exportação.</TooltipContent></Tooltip></p>
-        {chartsConsistent && <InstitutionalFollowupAnalytics
-          months={monthly.data ?? []} statuses={statuses.data ?? []}
-          period={`${dateLabel(from)} a ${dateLabel(to)}`} />}
-        {analyticsReady && !chartsConsistent && <p role="alert" className="text-sm text-muted-foreground">
-          Os gráficos precisam ser atualizados. Clique em Atualizar; a lista permanece disponível.
-        </p>}
-        {(monthly.isError || statuses.isError) && <p role="status" className="text-sm text-muted-foreground">
-          Os gráficos estão indisponíveis. A lista de escolas permanece consultável.
-        </p>}
         <div className="flex flex-wrap items-baseline justify-between gap-2 pt-2">
           <h2 className="font-display text-lg font-semibold">Escolas</h2>
           <p className="text-xs text-muted-foreground">
