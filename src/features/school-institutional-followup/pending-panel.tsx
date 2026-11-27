@@ -132,7 +132,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
       </p>
       {filtered.length === 0 ? <div className="flex min-h-64 flex-col items-center justify-center rounded-xl bg-white px-6 py-12 text-center shadow-sm">
         <span className="mb-3 rounded-full bg-emerald-50 p-3"><CheckCircle2 className="size-7 text-emerald-600" /></span>
-        <h3 className="font-semibold">Tudo em dia por aqui</h3>
+        <h3 className="font-semibold">Nenhuma providência encontrada</h3>
         <p className="mt-1 max-w-md text-sm text-muted-foreground">Nenhuma providência corresponde à seleção atual. Experimente alterar os filtros ou consultar outro período.</p>
       </div> : <>
         <div className="overflow-x-auto rounded-lg border">
