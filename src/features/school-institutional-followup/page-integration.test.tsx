@@ -119,7 +119,7 @@ function renderPage() {
   return { ...rendered, client };
 }
 async function openSchool(name: string) {
-  const button = await screen.findByRole("button", { name });
+  const button = await screen.findByRole("button", { name: `Abrir ${name}` });
   fireEvent.click(button);
   const heading = await screen.findByRole("heading", { name });
   // A escrita agora só aparece depois de uma leitura escolar autorizada.
