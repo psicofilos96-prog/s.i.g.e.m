@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 const page = readFileSync("src/features/school-institutional-followup/page.tsx", "utf8");
 const source = readFileSync("src/features/school-institutional-followup/source.ts", "utf8");
-const migration = readFileSync("drizzle/migrations/0620_followup_record_deletion.sql", "utf8");
+const migration = readFileSync("drizzle/migrations/0635_followup_record_deletion.sql", "utf8");
 
 describe("Acompanhamento — exclusão de registros", () => {
   it("oferece exclusão de visitas, medidas e atualizações para quem pode registrar", () => {
