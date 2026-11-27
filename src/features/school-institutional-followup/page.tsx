@@ -365,7 +365,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       await deleteFollowupRecord(kind, id, reason.trim());
       setActionId(""); setUpdateVisitId(""); setTargetActionId("");
       resetMeasureDraft(); cancelEvolution();
-      setNotice(`${label.charAt(0).toUpperCase() + label.slice(1)} excluído(a) com sucesso.`);
+      setNotice(label === "visita" ? "Visita excluída com sucesso." : "Registro excluído com sucesso.");
       await refresh();
     } catch (e) { setError(presentError(e)); }
   }
@@ -737,14 +737,18 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           </p>
         </div>
         {rows.length === 0 ? <EmptyState title="Nenhuma escola disponível" description="Nenhuma unidade foi encontrada neste escopo ou filtro." /> : <>
-          <div className="max-h-96 overflow-auto rounded-lg border" tabIndex={0}
-            role="region" aria-label="Tabela de escolas — área rolável por teclado">
-            <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-muted text-xs uppercase tracking-wide text-muted-foreground"><tr>
-              <th scope="col" className="p-2">Unidade escolar</th><th scope="col" className="p-2">Visitas</th><th scope="col" className="p-2">Ações</th><th scope="col" className="p-2">Prazo vencido</th>
-            </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} className={"border-t transition-colors hover:bg-muted/50 " + (r.school_id === school ? "bg-primary/10" : "")}>
-              <td className="p-2"><Button variant="link" className="h-auto whitespace-normal p-0 text-left" onClick={() => { if (changeSchool(r.school_id)) setTab("school"); }}>{r.school_name}</Button>
-                {r.inep && <p className="text-xs text-muted-foreground">INEP: {r.inep}</p>}</td>
-              <td className="p-2 tabular-nums">{r.visits}</td><td className="p-2 tabular-nums">{r.actions}</td><td className={"p-2 tabular-nums " + (r.overdue > 0 ? "font-semibold text-destructive" : "")}>{r.overdue}</td>
+          <div className="overflow-auto rounded-xl bg-white shadow-sm" tabIndex={0} role="region" aria-label="Tabela de escolas — área rolável por teclado">
+            <table className="w-full text-left text-sm"><caption className="sr-only">Unidades da rede e situação de acompanhamento</caption><thead className="sticky top-0 bg-slate-100 text-xs uppercase tracking-wide text-muted-foreground"><tr>
+              <th scope="col" className="p-3">Unidade escolar</th><th scope="col" className="p-3">Visitas</th><th scope="col" className="p-3">Ações</th><th scope="col" className="p-3">Prazo vencido</th><th scope="col" className="p-3"><span className="sr-only">Abrir</span></th>
+            </tr></thead><tbody>{rows.map((r) => <tr key={r.school_id} tabIndex={0} role="button" aria-label={"Abrir " + r.school_name}
+              onClick={() => { if (changeSchool(r.school_id)) { setSchoolSection("overview"); setTab("school"); } }}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (changeSchool(r.school_id)) { setSchoolSection("overview"); setTab("school"); } } }}
+              className={"cursor-pointer border-t border-slate-100 transition-colors hover:bg-slate-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary " + (r.school_id === school ? "bg-primary/5" : "")}>
+              <td className="p-3"><p className="font-semibold">{r.school_name}</p>{r.inep && <p className="text-xs text-muted-foreground">INEP: {r.inep}</p>}</td>
+              <td className="p-3"><span className={"inline-flex min-w-8 justify-center rounded-full px-2 py-1 text-xs font-semibold tabular-nums " + (r.visits > 0 ? "bg-blue-50 text-blue-700" : "bg-slate-100 text-slate-500")}>{r.visits}</span></td>
+              <td className="p-3"><span className={"inline-flex min-w-8 justify-center rounded-full px-2 py-1 text-xs font-semibold tabular-nums " + (r.actions > 0 ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500")}>{r.actions}</span></td>
+              <td className="p-3"><span className={"inline-flex min-w-8 justify-center rounded-full px-2 py-1 text-xs font-semibold tabular-nums " + (r.overdue > 0 ? "bg-rose-50 text-rose-700" : "bg-slate-100 text-slate-500")}>{r.overdue}</span></td>
+              <td className="p-3 text-right"><ChevronRight className="ml-auto size-4 text-muted-foreground" /></td>
             </tr>)}</tbody></table>
           </div>
         </>}
@@ -777,12 +781,16 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     </section>}
     {school && (!network.isSuccess || network.isFetching || Boolean(selected)) &&
       <section id="followup-school-detail" className="scroll-mt-20 space-y-5" aria-label="Detalhamento da escola">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-primary/30 bg-card p-5 shadow-panel">
-        <div><p className="text-xs font-medium uppercase tracking-wide text-primary">Escola aberta</p><h2 className="font-display text-xl font-semibold">{selected?.school_name ?? school}</h2>
-          <p className="text-xs text-muted-foreground">INEP: {selected?.inep ?? "Não informado"}</p></div>
+      <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white/95 p-4 shadow-sm backdrop-blur">
+        <div className="min-w-0">
+          <Button type="button" variant="ghost" size="sm" className="-ml-2 mb-1 h-7 text-muted-foreground" onClick={() => { if (changeSchool("")) setTab("network"); }}>← Voltar para a rede</Button>
+          <h2 className="font-display text-xl font-semibold">{selected?.school_name ?? school}</h2>
+          <button type="button" title="Copiar código INEP" onClick={() => selected?.inep && void navigator.clipboard?.writeText(selected.inep)}
+            className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs text-muted-foreground hover:bg-slate-200">INEP {selected?.inep ?? "Não informado"} · copiar</button>
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           {detailData && <FollowupExportMenu scope="ficha da escola" disabled={exporting} onExport={(f) => void exportSchoolReport(f)} />}
-          <Button variant="outline" onClick={() => { if (changeSchool("")) setTab("network"); }}>Fechar escola</Button>
+          {canRecord && <Button type="button" onClick={() => { setCorrectionBase(null); setVisitDialogOpen(true); }}>+ Registrar nova visita</Button>}
         </div>
       </div>
       {(detail.isPending || detail.isFetching) && <p role="status">Carregando histórico…</p>}
@@ -792,8 +800,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         {([["Visitas", stats.visits], ["Medidas", stats.actions], ["Concluídas", stats.completed], ["Sem atualização", stats.withoutUpdate], ["Sem prazo", stats.noDueDate]] as const).map(([l, v]) =>
           <div key={l} className="rounded-lg border border-border/60 bg-card p-3"><p className="text-xs text-muted-foreground">{l}</p><p className="font-display text-2xl font-semibold tabular-nums">{v}</p></div>)}
       </div>}
-      {error && <p role="alert" className="rounded-lg border border-destructive p-3 text-sm text-destructive">{error}</p>}
-      {notice && <p role="status" className="rounded-lg border p-3 text-sm">{notice}</p>}
+      {error && <p role="alert" className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
+      {notice && <p role="status" className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">{notice}
+        <button type="button" className="float-right font-medium" aria-label="Fechar aviso" onClick={() => setNotice("")}>×</button></p>}
       {hasUnsavedFollowup && <p role="status" className="text-xs text-muted-foreground">
         Há um formulário em preenchimento ou envio. Salve ou cancele antes de sair desta página;
         uma recarga ou fechamento de aba pode exibir confirmação do navegador.
