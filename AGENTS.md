@@ -108,3 +108,8 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - Statistical map summaries read displayed PDF document cells; validation only explains existing diagnostics, because presentation must not recalculate totals or authorize submission.
 - Secretariat actions use grouped tabs and mount movement forms only in dialogs; management cards project the existing values without technical provenance text, because progressive disclosure must not create parallel facts or broaden authority.
 - Shared state panels omit correlation codes from visible copy while recovery telemetry retains them, because operational users need actionable messages rather than diagnostic identifiers.
+
+- School flow presentation keeps queue transition availability from `ALLOWED` and opens enrollment without a write; capacity links preselect only an existing class in the canonical allocation surface, because interface shortcuts must not create parallel mutations or authority.
+
+## Restricted technical cleanup
+- Test-school cleanup uses only the owner-gated command and fixed payload of the latest cleanup revision (0634); immutable guards stay enabled and accept a DELETE only for exact row hashes pre-registered by that operation in the same transaction, and removed audit rows are archived in full in the operation ledger, because deletion must not grant application authority or erase provenance.

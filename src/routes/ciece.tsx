@@ -18,7 +18,7 @@ export const Route = createFileRoute("/ciece")({
       { title: "CIECE — Informação e Estatística — SIGEM" },
       { name: "description", content: "Indicadores autorizados da rede, com explicação de como cada número foi formado." },
       { property: "og:title", content: "CIECE — Informação e Estatística — SIGEM" },
-      { property: "og:description", content: "Consulta e exploração de indicadores pela fronteira analítica do CIECE." },
+      { property: "og:description", content: "Consulte indicadores e informações estatísticas da rede municipal de ensino." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -39,7 +39,7 @@ function CiecePage() {
       <div className="mx-auto max-w-3xl p-4">
         <h1 className="sr-only">CIECE — Informação e Estatística</h1>
         <StatePanel tone="neutral" title="Entre para consultar o CIECE"
-          description="Os indicadores institucionais exigem login com atuação vigente."
+          description="Entre com sua conta institucional para consultar os indicadores. O acesso depende das autorizações concedidas à sua conta."
           action={<Link to="/laboratorio/ciece" className="text-sm font-medium text-primary underline">Abrir o laboratório demonstrativo</Link>} />
       </div>
     );

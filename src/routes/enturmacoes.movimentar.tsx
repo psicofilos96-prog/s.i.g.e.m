@@ -23,13 +23,13 @@ export const Route = createFileRoute("/enturmacoes/movimentar")({
       {
         name: "description",
         content:
-          "Fluxo demonstrativo de movimentação entre turmas: operação única que encerra a alocação anterior e cria a nova, preservando o histórico.",
+          "Mude o aluno de turma na mesma escola. O sistema registra a turma anterior e a nova, preservando o histórico.",
       },
       { property: "og:title", content: `Movimentação entre turmas — ${brand.name}` },
       {
         property: "og:description",
         content:
-          "Movimentação de turma é mudança interna de alocação e não se confunde com transferência entre unidades.",
+          "Mudar de turma mantém o aluno na mesma escola. Transferir é mudar o aluno de uma escola para outra.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

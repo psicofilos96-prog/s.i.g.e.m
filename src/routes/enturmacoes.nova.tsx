@@ -23,13 +23,13 @@ export const Route = createFileRoute("/enturmacoes/nova")({
       {
         name: "description",
         content:
-          "Fluxo demonstrativo de alocação em turma a partir de uma participação existente, com vigência própria e preservação do histórico.",
+          "Coloque o aluno matriculado na turma em que vai estudar. O histórico da matrícula e da turma é preservado.",
       },
       { property: "og:title", content: `Enturmação e alocação em turma — ${brand.name}` },
       {
         property: "og:description",
         content:
-          "A alocação é a relação temporal entre participação e turma: o aluno não possui turma como atributo permanente.",
+          "Enturmação: colocar o aluno na turma certa. A turma pode mudar ao longo do ano, e o histórico de cada mudança é preservado.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/enturmacoes/nova")({
 
 function NewAllocationRoute() {
   const { aluno, participacao, turma } = Route.useSearch();
-  return <ClassRouteGate institutional={() => <InstitutionalEnrollmentWorkspace focus="enturmacoes" />} laboratory={() => (
+  return <ClassRouteGate institutional={() => <InstitutionalEnrollmentWorkspace focus="enturmacoes" initialClassId={turma ?? ""} />} laboratory={() => (
     <AllocationWorkspacePage
       mode="enturmacao"
       studentId={aluno}

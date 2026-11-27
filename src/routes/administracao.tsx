@@ -6,9 +6,9 @@ export const Route = createFileRoute("/administracao")({
   head: () => ({
     meta: [
       { title: "Administração institucional — SIGEM" },
-      { name: "description", content: "Instalação única, pessoas, contas, atuações e Política de Capacidades do SIGEM." },
+      { name: "description", content: "Gerencie pessoas, contas, vínculos de trabalho e autorizações do SIGEM." },
       { property: "og:title", content: "Administração institucional — SIGEM" },
-      { property: "og:description", content: "Conta identifica; capacidade vem da atuação vigente e da política homologada." },
+      { property: "og:description", content: "A conta identifica quem acessa. As autorizações dependem do vínculo ativo, da função exercida e das regras institucionais aprovadas." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

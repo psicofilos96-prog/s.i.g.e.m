@@ -29,13 +29,13 @@ import {
 } from "./diary-w-source";
 
 const today = () => operationalToday();
-const YEAR: Record<string, string> = { operacional: "Ano em operação", "em-preparacao": "Ano em preparação", encerrado: "Ano encerrado", "historico-importado": "Ano histórico" };
+const YEAR: Record<string, string> = { operacional: "Em andamento", "em-preparacao": "Ano em preparação", encerrado: "Ano encerrado", "historico-importado": "Ano histórico" };
 const key = (d: MyDiary) => `${d.assignment_id}|${d.substitution_id ?? ""}|${d.engagement_id}`;
 
 export function MyDiariesPage({ search = {}, compact = false, mode = "all" }: { search?: DiarySearch; compact?: boolean; mode?: "all" | "attendance" | "lesson" } = {}) {
   const authority = useSessionAuthority();
   if (authority.status === "loading") return authority.error
-    ? <StatePanel tone="danger" title="Não foi possível conferir seu acesso" description="Tente abrir o Diário novamente." />
+    ? <StatePanel tone="danger" title="Não foi possível confirmar seu acesso" description="Tente abrir o Diário novamente." />
     : <SkeletonState label="Conferindo seu acesso" />;
   if (authority.status !== "signed-in") return <EmptyState title="Entre para usar o Diário" description="Use sua conta institucional." />;
   if (!authority.person) return <StatePanel tone="warning" title="Diário indisponível" description="Sua conta precisa estar vinculada a uma pessoa cadastrada." />;
@@ -60,7 +60,7 @@ function DiariesWorkspace({ scope, search, compact, mode }: { scope: readonly (s
     <div className="space-y-6">
       {compact ? <h2 className="font-display text-xl font-semibold">Minhas turmas e pendências</h2> : <PageHeader title={mode === "attendance" ? "Chamada" : mode === "lesson" ? "Registro de aula" : "Minhas turmas"} />}
       {!compact && <div className="max-w-xs"><label className="text-sm" htmlFor="data-diario">Data</label><DateInput id="data-diario" value={on} onChange={(e) => setOn(e.target.value)} /></div>}
-      {diariesQuery.isError ? <ReadFailure title="Não foi possível ler seus diários" retry={() => void diariesQuery.refetch()} />
+      {diariesQuery.isError ? <ReadFailure title="Não foi possível carregar seus diários" retry={() => void diariesQuery.refetch()} />
         : !rows ? <SkeletonState label="Carregando" />
         : rows.length === 0 ? <EmptyState title="Nenhuma regência vigente nesta data" description="Só aparecem regências ou substituições suas registradas pela escola." />
         : (
@@ -77,7 +77,7 @@ function DiariesWorkspace({ scope, search, compact, mode }: { scope: readonly (s
                 </span>
               </Button>
             </li>))}</ul>)}
-      {catalogQuery.isError && <ReadFailure title="Não foi possível ler as referências curriculares" retry={() => void catalogQuery.refetch()} />}
+      {catalogQuery.isError && <ReadFailure title="Não foi possível carregar as referências curriculares" retry={() => void catalogQuery.refetch()} />}
       {sel && <DiaryPanel key={`${key(sel)}|${on}`} diary={sel} on={on} catalog={catalog} scope={scope} mode={mode} />}
     </div>
   );
@@ -100,11 +100,11 @@ function DiaryPanel({ diary, on, catalog, scope, mode }: { diary: MyDiary; on: s
       <LessonDaySummaryPanel on={on} lessons={lessonsQuery.isFetching ? null : lessons} slots={slotsQuery.isFetching ? null : slots} />
       <div>
         <h2 className="font-semibold">Horários de {on}</h2>
-        {slotsQuery.isError ? <ReadFailure title="Não foi possível ler os horários" retry={() => void slotsQuery.refetch()} /> : !slots ? <SkeletonState label="Carregando" />
+        {slotsQuery.isError ? <ReadFailure title="Não foi possível carregar os horários" retry={() => void slotsQuery.refetch()} /> : !slots ? <SkeletonState label="Carregando" />
           : slots.length === 0 ? <p className="text-sm">Nenhum horário da grade para este elemento nesta data.</p>
           : <ul className="text-sm">{slots.map((s) => <li key={s.block_id}>{s.starts_at.slice(0, 5)}–{s.ends_at.slice(0, 5)} {s.block_state !== "utilizavel" && <Badge variant="outline">indisponível: {s.block_state}</Badge>}</li>)}</ul>}
       </div>
-      {readOnly && <StatePanel tone="info" title="Somente leitura" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
+      {readOnly && <StatePanel tone="info" title="Consulta" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
       {!operational && !readOnly && <StatePanel tone="warning" title="Registro de aulas indisponível" description={diaryMessage(`diary:year-not-operational:${diary.year_state ?? ""}`)} />}
       {operational && !editing && mode !== "attendance" && <LessonForm key={`new-lesson-${savedRevision}`} diary={diary} on={on} slots={slots ?? []} catalog={catalog} onSaved={saved} />}
       {mode === "attendance" && lessons && !lessons.some((l) => l.lesson_date === on) && <StatePanel tone="info" title="Registre a aula para abrir a chamada" description="" action={<Button asChild><Link to="/diario/registrar" search={{ data: on, turma: diary.class_id, componente: diary.component_label ?? undefined }}>Registrar aula</Link></Button>} />}

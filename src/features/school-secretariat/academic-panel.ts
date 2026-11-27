@@ -37,7 +37,7 @@ export function buildSecretariatPanel(scope: PanelScope, s: PanelSources): Block
     block("matriculas-ativas", "Matrículas ativas", scope, s.enrollments, (r) => r.active),
     block("turmas", "Turmas", scope, s.classes),
     // enturmação desconhecida (null) não conta como "sem enturmação"
-    block("sem-enturmacao", "Sem enturmação", scope, s.enrollments, (r) => r.active && r.allocated === false),
+    block("sem-enturmacao", "Sem turma", scope, s.enrollments, (r) => r.active && r.allocated === false),
     block("pendencias", "Pendências", scope, s.pendencies),
     block("transferencias", "Transferências", scope, s.transfers),
     block("documentos", "Documentos emitidos", scope, s.documents),

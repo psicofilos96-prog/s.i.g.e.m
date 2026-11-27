@@ -63,7 +63,7 @@ export function ManagementPage() {
         <MoreFilters active={!!f.knownAt}><label className="text-sm">Consultar histórico<input type="datetime-local" className={field} value={f.knownAt} onChange={(e) => setF({ ...f, knownAt: e.target.value })} /></label></MoreFilters>
       </section>
       {ready ? <Station key={JSON.stringify(f)} {...f} schoolName={schools?.find((s) => s.id === f.school)?.name ?? f.school} />
-        : <EmptyState title="Escolha escola, ano e data" description="Selecione os dados para consultar a escola." />}
+        : <EmptyState title="Informe a escola, o ano e a data" description="Faltam dados para buscar o painel. Escolha a escola, o ano letivo e a data nos campos acima para consultar as informações." />}
     </div>
   );
 }
@@ -96,6 +96,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Você está consultando registros de uma data anterior." />}
       <DirectorSummaryPanel school={school} year={year} on={on} />
+ux/unificacao-visual-global
       <section aria-label="Visão geral da escola" className="space-y-3">
         <h2 className="text-base font-semibold">Visão geral da escola</h2>
         <div className="divide-y rounded-lg border bg-card px-4">
@@ -133,6 +134,30 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
         <CensusDeclaredStaff school={school} />
       </div></details>
       <ExportMenu onCsv={exportCsv} onPdf={exportPdf} label="Exportar situação" />
+
+      <section aria-label="Blocos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {res.blocks.filter((b) => b.state !== "UNAVAILABLE").map((b) => (
+          <article key={b.id} className={`rounded-lg border bg-card p-5 space-y-1 transition-shadow hover:shadow-panel ${TONE[b.state]}`}>
+            <div className="flex items-baseline justify-between gap-2"><h2 className="text-sm font-semibold"><Link to={b.link as "/secretaria"}>{b.title.replace(/utilizável/g, "cadastrada").replace(/alocações/g, "turmas")}</Link></h2></div>
+            <p className="font-display text-2xl font-semibold tabular-nums">{b.value ?? (b.state === "BLOCKED" ? "Consultar" : b.state === "UNKNOWN" ? "—" : "—")}</p>
+            <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Informação ainda não disponível." : b.state === "BLOCKED" ? "Consulte a situação na ficha do aluno." : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
+          </article>))}
+      </section>
+      {res.pending.length > 0 && <section aria-label="Pendências" className="space-y-2">
+        <h2 className="font-semibold">Pendências ({res.pending.length})</h2>
+        <ul className="space-y-1 text-sm">{res.pending.map((p) => <li key={p.id}><Link to={p.link as "/secretaria"} className="underline">{p.text.replace(/fonte não lida/g, "consulta indisponível").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</Link></li>)}</ul>
+      </section>}
+      <OccurrencesPanel school={school} schoolName={schoolName} />
+      <SchoolNoticesPanel school={school} year={year} on={on} />
+      <ClassCouncilPanel school={school} year={year} on={on} />
+      <ReclassificationPanel school={school} />
+      <RiskLimitsPanel school={school} />
+      <FrequencyRiskPanel school={school} schoolName={schoolName} today={today()} />
+      <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
+      <SchoolLogoPanel school={school} />
+      <CensusDeclaredStaff school={school} />
+      <ExportMenu onCsv={exportCsv} onPdf={exportPdf} />
+main
     </div>
   );
 }

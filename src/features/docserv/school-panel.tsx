@@ -68,7 +68,18 @@ export function SchoolDocsPanel({ school }: { school: string }) {
         <Button size="sm" variant="outline" onClick={() => void confirmAnnual()}>Confirmar vínculos do ano</Button>
         <Button size="sm" variant="outline" onClick={() => void zip()}>Baixar ZIP</Button>
       </div>
-      {c && <p aria-label="Contadores">{c.servidores} servidores vinculados · {c["sem-envio"]} sem certidão criminal · {c.pendente} aguardando validação · {c.problema} com problema · {c.valido} válidos · {c.multiplos} com mais de um vínculo{data.staff_records_without_person > 0 ? ` · ${data.staff_records_without_person} registros de pessoal ainda sem pessoa conciliada (fora da lista)` : ""}</p>}
+      {c && <p aria-label="Contadores">{c.servidores} servidores vinculados · {c["sem-envio"]} sem certidão criminal · {c.pendente} aguardando validação · {c.problema} com problema · {c.valido} válidos · {c.multiplos} com mais de um vínculo{data.staff_records_without_person > 0 ? ` · ${data.staff_records_without_person} registros de pessoal ainda sem pessoa conciliada` : ""}</p>}
+      {data.test_records.length > 0 && <section className="rounded border border-dashed p-3 space-y-2">
+        <div><h3 className="font-semibold">Servidores de teste importados ({data.test_records.length})</h3>
+          <p className="text-muted-foreground">Dados fictícios para homologação. Exibidos integralmente, mas ainda não conciliados com pessoas e vínculos oficiais. Não participam de certidões, lotações ou contagens de servidores vinculados.</p></div>
+        <div className="overflow-x-auto"><table className="w-full"><thead><tr className="text-left">
+          <th>Nome</th><th>Matrícula</th><th>Cargo</th><th>Função</th><th>Vínculo</th><th>Grupo</th><th>Situação</th><th>Observação</th><th>Período</th><th>Origem</th>
+        </tr></thead><tbody>{data.test_records.map((r) => <tr key={r.id} className="border-t align-top">
+          <td>{r.name ?? "—"}</td><td>{r.registration ?? "—"}</td><td>{r.cargo ?? "—"}</td><td>{r.function ?? "—"}</td>
+          <td>{r.link ?? "—"}</td><td>{r.group ?? "—"}</td><td>{r.status ?? "—"}</td><td>{r.observation ?? "—"}</td>
+          <td>{r.reference_period ?? "—"}</td><td>{r.source_file}{r.sheet ? ` · ${r.sheet}` : ""}{r.row_no ? ` · linha ${r.row_no}` : ""}</td>
+        </tr>)}</tbody></table></div>
+      </section>}
       <input className={`${field} w-full`} placeholder="Motivo / observação (obrigatório para rejeitar, alertar e solicitar)" value={note} onChange={(e) => setNote(e.target.value)} />
       {msg && <p role="status">{msg}</p>}
 

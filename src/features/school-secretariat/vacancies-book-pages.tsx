@@ -1,4 +1,5 @@
 import { ContextHint } from "@/components/sigem/context-help";
+import { ExportMenu } from "@/components/sigem/export-menu";
 import { operationalToday, formatDateTime } from "@/lib/academic-date";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { useEffect, useMemo, useState } from "react";
@@ -49,23 +50,10 @@ export function VacanciesPage() {
               <Box label="Turmas ativas" value={String(sum!.classes)} />
               <Box label="Lotadas" value={String(sum!.full)} />
               <Box label="Sem capacidade informada" value={String(sum!.unknownCapacity)} />
-              <Box label="Vagas (turmas com capacidade)" value={sum!.availableKnown == null ? "Não informada" : String(sum!.availableKnown)} />
+              <Box label="Vagas (turmas com capacidade)" value={sum!.availableKnown == null ? "Capacidade ainda não definida" : String(sum!.availableKnown)} />
             </section>
             <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {rows.map((r) => (
-                <li key={r.class_id} className="rounded-xl border border-border bg-card p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="font-semibold">{r.name}</p>
-                    <StatusBadge tone={TONE[r.vacancy_state]}>{VACANCY_LABEL[r.vacancy_state]}</StatusBadge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{r.shift_label ?? "Turno não informado"}</p>
-                  <dl className="mt-2 grid grid-cols-3 gap-2 text-sm">
-                    <div><dt className="text-xs text-muted-foreground">Capacidade</dt><dd className="tabular-nums">{r.capacity ?? "Não informada"}</dd></div>
-                    <div><dt className="text-xs text-muted-foreground">Enturmados</dt><dd className="tabular-nums">{r.occupancy}</dd></div>
-                    <div><dt className="text-xs text-muted-foreground">Vagas</dt><dd className="tabular-nums">{r.available ?? "—"}</dd></div>
-                  </dl>
-                </li>
-              ))}
+              {rows.map((r) => <VacancyCard key={r.class_id} r={r} yearLabel={ctx.yearLabel} />)}
             </ul>
             <p className="text-sm"><Link to="/secretaria/fila-de-vagas" className="text-primary underline">Ver a fila de vagas da escola</Link></p>
           </>
@@ -74,8 +62,24 @@ export function VacanciesPage() {
   );
 }
 
+export function VacancyCard({ r, yearLabel }: { r: VacancyRow; yearLabel: string }) {
+  return <li className="min-w-0 rounded-lg border border-border bg-card p-5 shadow-sm">
+    <div className="flex flex-wrap items-start justify-between gap-2">
+      <h2 className="font-semibold">{r.name}<span className="ml-2 text-sm font-normal text-muted-foreground">{yearLabel}</span></h2>
+      {r.capacity !== null && <StatusBadge tone={TONE[r.vacancy_state]}>{VACANCY_LABEL[r.vacancy_state]}</StatusBadge>}
+    </div>
+    <p className="mt-1 text-sm text-muted-foreground">{r.shift_label ?? "Turno não informado"}</p>
+    {r.capacity === null && <p className="mt-4 text-sm text-muted-foreground">Capacidade ainda não definida</p>}
+    <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
+      {r.capacity !== null && <div><dt className="text-muted-foreground">Capacidade</dt><dd className="mt-1 text-xl font-semibold tabular-nums">{r.capacity}</dd></div>}
+      <div><dt className="text-muted-foreground">Alunos enturmados</dt><dd className="mt-1 text-xl font-semibold tabular-nums">{r.occupancy}</dd></div>
+      <div><dt className="text-muted-foreground">Vagas livres</dt><dd className="mt-1">{r.capacity === null ? <Button size="sm" variant="outline" asChild><Link to="/enturmacoes/nova" search={{ turma: r.class_id }}>Definir capacidade</Link></Button> : <span className="text-xl font-semibold tabular-nums">{r.available ?? "Não informado"}</span>}</dd></div>
+    </dl>
+  </li>;
+}
+
 function Box({ label, value }: { label: string; value: string }) {
-  return <div className="rounded-md border border-border p-3"><p className="text-xs text-muted-foreground">{label}</p><p className="font-display text-2xl font-semibold tabular-nums">{value}</p></div>;
+  return <div className="rounded-md border border-border p-3"><p className="text-xs text-muted-foreground">{label}</p><p className={/^\d+$/.test(value) ? "font-display text-2xl font-semibold tabular-nums" : "mt-1 text-sm font-medium"}>{value}</p></div>;
 }
 
 function download(name: string, data: BlobPart, type: string) {
@@ -126,9 +130,9 @@ export function EnrollmentBookPage() {
                 </select></label>
             </section>
             <div className="flex flex-wrap items-center gap-2">
-              <Button onClick={() => void print()} disabled={!shown.length}>Imprimir Livro (PDF)</Button>
-              <Button variant="outline" disabled={!shown.length} onClick={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}>Baixar planilha (CSV)</Button>
-              <Button variant="outline" disabled={!shown.length} onClick={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}>Baixar Excel</Button>
+              <ExportMenu disabled={!shown.length} onPdf={print}
+                onCsv={() => download(`${fileBase}.csv`, toCsv(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "text/csv;charset=utf-8")}
+                onExcel={async () => download(`${fileBase}.xlsx`, await toXlsx(report(), { headerLines: header, title: "Livro de Matrícula" }, meta), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")} />
               <span className="text-sm text-muted-foreground">{shown.length} de {rows.length} matrícula(s)</span>
             </div>
             {shown.length === 0 ? <EmptyState title="Nenhuma matrícula encontrada" description="Mude a pesquisa ou o ano letivo." /> : (

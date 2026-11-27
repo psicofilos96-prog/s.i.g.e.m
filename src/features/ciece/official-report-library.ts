@@ -17,7 +17,7 @@ import type { Snapshot } from "./historical-snapshots";
 import type { ChecklistItem } from "./census-cycles";
 import { readiness } from "./census-cycles";
 
-const P = { asOf: { id: "asOf", label: "Data de referência", type: "date", required: true }, knownAt: { id: "knownAt", label: "Conhecido até", type: "datetime", required: true }, year: { id: "year", label: "Ano", type: "integer", required: true, min: 2000, max: 2100 } } as const;
+const P = { asOf: { id: "asOf", label: "Data de referência", type: "date", required: true }, knownAt: { id: "knownAt", label: "Até a data", type: "datetime", required: true }, year: { id: "year", label: "Ano", type: "integer", required: true, min: 2000, max: 2100 } } as const;
 const col = (id: string, label: string, kind: ColumnDef["kind"] = "text", sensitive = false): ColumnDef => ({ id, label, kind, ...(sensitive ? { sensitive } : {}) });
 const def = (id: string, title: string, source: string, params: ReportDefinition["params"], columns: ColumnDef[], dependency: string | null = null): ReportDefinition =>
   ({ id: `ciece-${id}`, version: 1, title, description: title, source, params, columns, formats: ["pdf", "xlsx", "csv"], reproducible: true, syncRowLimit: 5000, dependency });

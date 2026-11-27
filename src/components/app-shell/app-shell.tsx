@@ -22,7 +22,6 @@ import {
   Building2,
   ChevronDown,
   ChevronRight,
-  CircleHelp,
   Menu,
   PanelLeftClose,
   PanelLeftOpen,
@@ -130,7 +129,6 @@ function SidebarNavigation({
     .map((group) => authority.status === "signed-in" ? { ...group, items: group.items.filter((item) => pathAllowed(authority, item.to)) } : group)
     .map((group) => (q ? { ...group, items: group.items.filter((item) => fold(item.label).includes(q)) } : group))
     .map((group) => ({ ...group, label: group.label === "Meus ambientes de trabalho" ? "Áreas de trabalho" : group.label, items: group.items.filter((item) => {
-      if (item.to === "/" && principal) return false;
       if (seenPaths.has(item.to)) return false;
       seenPaths.add(item.to); return true;
     }) }))
@@ -164,7 +162,7 @@ function SidebarNavigation({
   // NLOADING.2: enquanto a autoridade é lida, reserva o espaço do menu (sem piscar opções de outro setor).
   if (authority.status === "loading" && !authority.error)
     return (
-      <nav aria-label="Navegação principal" aria-busy="true" data-sigem-nav-skeleton className="flex-1 overflow-y-auto px-3 py-4">
+      <nav aria-label="Navegação principal" aria-busy="true" data-sigem-nav-skeleton className="sigem-sidebar-scroll flex-1 overflow-y-auto px-3 py-4">
         <span className="sr-only">Carregando menu</span>
         <ul className="space-y-2">{[0, 1, 2, 3, 4].map((i) => <li key={i} aria-hidden className="h-9 animate-pulse rounded-lg bg-sidebar-accent/40" />)}</ul>
       </nav>
@@ -223,7 +221,7 @@ function SidebarNavigation({
                   )}
                 >
                   <Icon className={cn("size-[1.125rem] shrink-0 transition-colors duration-200", isActive ? "text-territory-accent" : "group-hover/nav:text-territory-accent")} strokeWidth={1.75} aria-hidden="true" />
-                  {!compact && <span className="truncate">{item.label}</span>}
+                  {!compact && <span className="min-w-0 flex-1 whitespace-normal [overflow-wrap:anywhere]">{item.label}</span>}
                 </div>
               );
               const wrapped = <Link to={item.to} aria-label={item.label} aria-current={isActive ? "page" : undefined}>{content}</Link>;
@@ -426,7 +424,7 @@ function Topbar({
         "left-0",
       )}
     >
-      <div className="print:hidden flex h-full items-center gap-2 px-3 sm:gap-3 sm:px-6">
+      <div className="print:hidden flex h-full items-center gap-2 px-3 sm:gap-3 sm:px-5 2xl:gap-4">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu">
@@ -435,7 +433,7 @@ function Topbar({
           </SheetTrigger>
           <SheetContent
             side="left"
-            className="w-[17rem] border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
+            className="w-[18rem] border-sidebar-border bg-sidebar p-0 text-sidebar-foreground"
           >
             <SheetTitle className="sr-only">Menu principal</SheetTitle>
             <div className="flex h-[var(--topbar-height)] items-center border-b border-sidebar-border px-4">
@@ -445,15 +443,15 @@ function Topbar({
           </SheetContent>
         </Sheet>
 
-        <nav aria-label="Você está em" className="min-w-0 flex-1 overflow-hidden">
+        <nav aria-label="Você está em" className="min-w-[5rem] flex-1 overflow-hidden">
           <ol className="flex min-w-0 items-center gap-1.5 text-sm">
             {crumb.group && crumb.group !== "Meus ambientes de trabalho" && (
               <li className="hidden min-w-0 items-center gap-1.5 text-muted-foreground 2xl:flex">
-                <span>{crumb.group}</span>
+                <span className="max-w-[12rem] truncate" title={crumb.group}>{crumb.group}</span>
                 <ChevronRight className="size-3.5 opacity-60" aria-hidden="true" />
               </li>
             )}
-            <li aria-current="page" className="min-w-0 truncate font-display text-[0.9375rem] font-semibold text-foreground lg:text-base">
+            <li aria-current="page" className="min-w-0 truncate font-display text-[0.9375rem] font-semibold text-foreground lg:text-base" title={pageName}>
               {pageName}
             </li>
           </ol>
@@ -484,15 +482,10 @@ function Topbar({
         </>}
 
         {session.status === "signed-in" && <div className="ml-auto lg:ml-0"><ActiveYearPicker /></div>}
-        <div className="hidden shrink-0 sm:block"><ContextHelp /></div>
+        <div className="shrink-0"><ContextHelp /></div>
         {session.status === "signed-in" && <NotificationBell />}
-        {session.status === "signed-in" && !pathname.startsWith("/secretaria") && pathname !== "/gestao-escolar" && <div className="hidden 2xl:block min-w-0 max-w-48"><InstitutionalContextBadge /></div>}
+        {session.status === "signed-in" && <div className="hidden min-w-0 shrink 2xl:block"><InstitutionalContextBadge /></div> }
 
-        <Button asChild variant="ghost" size="icon" className="hidden sm:inline-flex">
-          <Link to="/ajuda" aria-label="Central de ajuda">
-            <CircleHelp />
-          </Link>
-        </Button>
 
         <SessionMenu />
       </div>
@@ -715,8 +708,8 @@ function InstitutionalContextBadge() {
   const ownName = useQuery({ queryKey: ["own-school-name", own], enabled: !!own, staleTime: 600_000, queryFn: () => readCurrentSchoolNames([own!]) });
   const text = own ? (ownName.data?.get(own) ?? "Minha escola") : "Rede Municipal de Ensino";
   return (
-    <span className="ml-auto hidden max-w-[24rem] items-center gap-2 px-2 text-sm md:ml-0 md:flex" aria-label="Contexto institucional" data-sigem-build="b4.6.8-header">
-      <Building2 className="size-4 text-muted-foreground" /><span className="truncate">{text}</span>
+    <span className="hidden max-w-[18rem] min-w-0 items-center gap-2 px-1 text-sm xl:flex" aria-label="Contexto institucional" data-sigem-build="b4.6.8-header">
+      <Building2 className="size-4 text-muted-foreground" /><span className="truncate" title={text}>{text}</span>
       {generalAdmin.status === "general-admin" ? (
         <Link to="/administracao-geral" className="shrink-0 rounded-md border border-border px-2 py-0.5 text-xs font-semibold hover:bg-muted">
           Administração Geral

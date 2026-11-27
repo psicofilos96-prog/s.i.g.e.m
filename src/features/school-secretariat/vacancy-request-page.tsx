@@ -1,3 +1,6 @@
+import { ExportMenu } from "@/components/sigem/export-menu";
+import { MoreHorizontal } from "lucide-react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ContextHint } from "@/components/sigem/context-help";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -71,11 +74,7 @@ export function VacancyRequestPage() {
             <option value="abertos">Só na fila</option><option value="todos">Todos</option>
           </select>
         </label>
-        <div className="ml-auto flex gap-2">
-          <Button variant="outline" disabled={!shown.length} onClick={() => exportFile("xlsx")}>Excel</Button>
-          <Button variant="outline" disabled={!shown.length} onClick={() => exportFile("pdf")}>PDF</Button>
-          <Button onClick={() => setShowForm((v) => !v)}>{showForm ? "Fechar" : "Novo pedido"}</Button>
-        </div>
+        <div className="ml-auto flex flex-wrap items-center gap-2"><ExportMenu disabled={!shown.length} onPdf={() => exportFile("pdf")} onExcel={() => exportFile("xlsx")} /><Button onClick={() => setShowForm((v) => !v)}>{showForm ? "Fechar" : "Novo pedido"}</Button></div>
       </div>
       <ContextHint text="Padrão do sistema: pedidos ordenados por data e hora do protocolo, separados por etapa." />
       {showForm && <NewRequestForm year={year} onDone={() => { setShowForm(false); load(); }} />}
@@ -91,7 +90,7 @@ export function VacancyRequestPage() {
   );
 }
 
-function RequestCard({ r, position, onChanged, schoolName }: { r: VacancyRequestRow; position: number | undefined; onChanged: () => void; schoolName: string }) {
+export function RequestCard({ r, position, onChanged, schoolName }: { r: VacancyRequestRow; position: number | undefined; onChanged: () => void; schoolName: string }) {
   const st = requestState(r.last_action);
   const [act, setAct] = useState<VacancyRequestAction | null>(null);
   const [due, setDue] = useState(defaultDueOn(operationalToday()));
@@ -103,26 +102,31 @@ function RequestCard({ r, position, onChanged, schoolName }: { r: VacancyRequest
     catch (e) { setErr(msg(e)); } finally { setBusy(false); }
   };
   return (
-    <li className="rounded-xl border border-border bg-card p-4">
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div>
-          <p className="font-semibold">{position ? `${position}º · ` : ""}{r.student_name}</p>
-          <p className="text-sm text-muted-foreground">{r.desired_stage}{r.desired_shift ? ` · ${r.desired_shift}` : ""} · nasc. {br(r.student_birth_date)} · protocolo {r.protocol_code} em {br(r.recorded_at)}</p>
-          <p className="text-sm text-muted-foreground">Responsável: {r.guardian_name}{r.guardian_phone ? ` · ${r.guardian_phone}` : ""}</p>
-          {st === "convocada" && r.due_on && <p className="text-sm">Comparecer até <strong>{br(r.due_on)}</strong></p>}
-          {r.last_note && <p className="text-xs text-muted-foreground">Obs.: {r.last_note}</p>}
+    <li className="min-w-0 rounded-lg border border-border bg-card p-5 shadow-sm">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground">Posição na fila: {position ? `${position}º` : "Não informado"}</p>
+          <h2 className="mt-1 break-words text-lg font-semibold">{r.student_name || "Não informado"}</h2>
         </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="ghost" onClick={async () => downloadBlob(`comprovante-${r.protocol_code}.pdf`, await vacancyReceiptPdf(r, schoolName))}>Comprovante</Button>
-          <StatusBadge tone={TONE[st]}>{STATE_LABEL[st]}</StatusBadge>
-        </div>
+        <StatusBadge tone={TONE[st]}>{STATE_LABEL[st]}</StatusBadge>
       </div>
-      {ALLOWED[st].length > 0 && (
-        <div className="mt-3 flex flex-wrap gap-2">
-          {ALLOWED[st].map((a) => <Button key={a} size="sm" variant={act === a ? "default" : "outline"} onClick={() => setAct(act === a ? null : a)}>{ACTION_LABEL[a]}</Button>)}
-          {st === "convocada" && <Button size="sm" variant="secondary" asChild><Link to="/matriculas/nova">Fazer a matrícula</Link></Button>}
-        </div>
-      )}
+      <dl className="mt-4 grid gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+        <div><dt className="text-xs text-muted-foreground">Etapa</dt><dd>{r.desired_stage || "Não informado"}{r.desired_shift ? ` · ${r.desired_shift}` : ""}</dd></div>
+        <div><dt className="text-xs text-muted-foreground">Protocolo</dt><dd className="break-words">{r.protocol_code || "Não informado"}<span className="ml-2 text-muted-foreground">{br(r.recorded_at)}</span></dd></div>
+        <div><dt className="text-xs text-muted-foreground">Responsável</dt><dd className="break-words">{r.guardian_name || "Não informado"}{r.guardian_phone ? ` · ${r.guardian_phone}` : ""}</dd></div>
+        <div><dt className="text-xs text-muted-foreground">Prazo para comparecer</dt><dd>{r.due_on ? br(r.due_on) : <span className="text-muted-foreground">Não informado</span>}</dd></div>
+        <div><dt className="text-xs text-muted-foreground">Nascimento</dt><dd>{br(r.student_birth_date)}</dd></div>
+      </dl>
+      {r.last_note && <p className="mt-3 text-xs text-muted-foreground">Obs.: {r.last_note}</p>}
+      <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border pt-4">
+        {st === "convocada" ? <Button size="sm" asChild><Link to="/matriculas/nova">Fazer a matrícula</Link></Button> : <Button size="sm" disabled>Fazer a matrícula</Button>}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild><Button size="sm" variant="outline"><MoreHorizontal className="size-4" />Mais ações</Button></DropdownMenuTrigger>
+          <DropdownMenuContent align="end">{(["matriculado", "nao-compareceu", "voltar-a-fila", "desistiu", "cancelar"] as const).map((a) => <DropdownMenuItem key={a} disabled={!ALLOWED[st].includes(a) || busy} onSelect={() => setAct(act === a ? null : a)}>{ACTION_LABEL[a]}</DropdownMenuItem>)}</DropdownMenuContent>
+        </DropdownMenu>
+        <Button size="sm" variant="ghost" onClick={async () => downloadBlob(`comprovante-${r.protocol_code}.pdf`, await vacancyReceiptPdf(r, schoolName))}>Comprovante</Button>
+      </div>
+      {ALLOWED[st].includes("convocar") && <details className="mt-3 text-sm"><summary className="cursor-pointer font-medium text-muted-foreground">Convocação</summary><div className="mt-2"><Button size="sm" variant="outline" onClick={() => setAct(act === "convocar" ? null : "convocar")}>Convocar</Button></div></details>}
       {act && (
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {act === "convocar" && <label className="text-sm">Prazo para comparecer (padrão 5 dias)<DateInput value={due} onChange={(e) => setDue(e.target.value)} /></label>}

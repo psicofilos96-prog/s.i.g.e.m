@@ -11,7 +11,7 @@
   --text-micro--line-height: 1rem;
   --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-mono: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 3px);
   --radius-md: calc(var(--radius) - 1px);
   --radius-lg: var(--radius);
@@ -66,7 +66,7 @@
 
 :root {
   --radius: 0.5rem;
-  --background: #F8F9FA;
+  --background: #F8FAFC;
   --foreground: oklch(0.23 0.03 238);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.23 0.03 238);
@@ -95,8 +95,8 @@
   --warning-foreground: oklch(0.4 0.1 63);
   --info: oklch(0.59 0.14 244);
   --info-foreground: oklch(0.34 0.1 247);
-  --border: #E5E7EB;
-  --input: oklch(0.88 0.005 240);
+  --border: #E2E8F0;
+  --input: #CBD5E1;
   --ring: oklch(0.58 0.11 232);
   --institutional: oklch(0.27 0.055 236);
   --institutional-foreground: oklch(0.97 0.008 231);
@@ -1733,16 +1733,16 @@
 :root {
   --sigem-page-title-size: clamp(1.5rem, 1.25rem + 0.65vw, 1.875rem);
   --sigem-page-title-line: 1.18;
-  --sigem-section-title-size: 1rem;
+  --sigem-section-title-size: 1.125rem;
   --sigem-body-size: 0.9375rem;
   --sigem-help-size: 0.8125rem;
   --sigem-control-height: 2.75rem;
   --sigem-card-radius: 0.875rem;
-  --sigem-card-border: color-mix(in oklab, var(--institutional) 8%, var(--border));
-  --sigem-card-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 4%, transparent),
-    0 8px 24px -20px color-mix(in oklab, var(--institutional) 18%, transparent);
+  --sigem-card-border: color-mix(in oklab, var(--border) 88%, var(--institutional));
+  --sigem-card-shadow: 0 1px 2px color-mix(in oklab, var(--foreground) 3%, transparent),
+    0 4px 14px -12px color-mix(in oklab, var(--institutional) 12%, transparent);
   --sigem-space-page: clamp(1rem, 2vw, 1.75rem);
-  --sigem-space-section: 1.25rem;
+  --sigem-space-section: 1.5rem;
   --sigem-status-radius: 999px;
 }
 
@@ -1767,11 +1767,17 @@
   line-height: 1.55;
 }
 .surface-panel,
-[data-sigem-card],
-.rounded-xl.border.bg-card {
+[data-sigem-card] {
   border-color: var(--sigem-card-border);
   border-radius: var(--sigem-card-radius);
   box-shadow: var(--sigem-card-shadow);
+}
+
+/* Cards aninhados viram superfícies de apoio, sem repetir borda e sombra. */
+[data-sigem-card] [data-sigem-card] {
+  border-color: color-mix(in oklab, var(--sigem-card-border) 55%, transparent);
+  background: color-mix(in oklab, var(--card) 72%, var(--muted));
+  box-shadow: none;
 }
 [data-sigem-status],
 .badge-success, .badge-warning, .badge-danger, .badge-info, .badge-neutral {
@@ -1790,3 +1796,92 @@
 }
 [data-sigem-empty-state] h2 { font-size: 0.9375rem; font-weight: 650; }
 [data-sigem-empty-state] p { max-width: 34rem; font-size: 0.875rem; line-height: 1.55; }
+
+
+/* Fundação visual global — aplicação, sem interferir em folhas oficiais de impressão. */
+@layer base {
+  button {
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+  }
+}
+
+/* Códigos e identificadores apresentados na interface seguem a tipografia do sistema.
+   Blocos de código semântico mantêm fonte técnica própria. */
+.font-mono:not(pre):not(code):not(kbd):not(samp):not([data-code]) {
+  font-family: var(--font-sans) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Superfícies e estados: uma única linguagem de bordas e cores suaves. */
+.surface-panel,
+[data-sigem-card] {
+  border-color: var(--sigem-card-border);
+  box-shadow: var(--sigem-card-shadow);
+}
+[data-sigem-status] {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--sigem-status-radius);
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  padding: 0.2rem 0.625rem;
+  white-space: nowrap;
+}
+.badge-success {
+  border-color: color-mix(in oklab, var(--success) 22%, var(--border));
+  background: color-mix(in oklab, var(--success) 10%, var(--card));
+  color: var(--success-foreground);
+}
+.badge-warning {
+  border-color: color-mix(in oklab, var(--warning) 28%, var(--border));
+  background: color-mix(in oklab, var(--warning) 12%, var(--card));
+  color: var(--warning-foreground);
+}
+.badge-danger {
+  border-color: color-mix(in oklab, var(--destructive) 22%, var(--border));
+  background: color-mix(in oklab, var(--destructive) 9%, var(--card));
+  color: var(--destructive);
+}
+.badge-info {
+  border-color: color-mix(in oklab, var(--info) 22%, var(--border));
+  background: color-mix(in oklab, var(--info) 9%, var(--card));
+  color: var(--info-foreground);
+}
+.badge-neutral {
+  border-color: var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+
+/* Shell global: rolagem discreta integrada à navegação escura. */
+.sigem-sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--sidebar-foreground) 22%, transparent) transparent;
+  overscroll-behavior: contain;
+}
+.sigem-sidebar-scroll::-webkit-scrollbar { width: 6px; }
+.sigem-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sigem-sidebar-scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--sidebar-foreground) 20%, transparent);
+}
+.sigem-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--sidebar-foreground) 34%, transparent);
+}
+[data-sigem-page-actions] { align-self: end; }
+[data-sigem-page-header] { min-width: 0; }
+@media (max-width: 1023px) {
+  [data-sigem-page-header] > div:first-child { min-width: 0; }
+  [data-sigem-page-actions] { width: 100%; }
+}

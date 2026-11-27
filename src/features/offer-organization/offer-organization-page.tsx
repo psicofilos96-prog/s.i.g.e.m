@@ -30,9 +30,9 @@ import {
 } from "./offer-source";
 
 const YEAR_STATE_TEXT: Record<string, string> = {
-  "historico-importado": "Histórico importado (somente leitura)",
+  "historico-importado": "Histórico importado",
   "em-preparacao": "Em preparação",
-  operacional: "Operacional",
+  operacional: "Em andamento",
   encerrado: "Encerrado",
 };
 
@@ -77,12 +77,12 @@ function OfferBody({ c, on, knownAt }: { c: OfferContext; on: string; knownAt: s
     <div className="space-y-4">
       <OperationalPageHeader
         title={`Organização da oferta — ${c.className}`}
-        description={`Ano letivo: ${c.yearState ? knownLabel(YEAR_STATE_TEXT, c.yearState) : "sem estado operacional (não aberto)"} · data de referência ${formatAcademicDate(on)}.`}
+        description={`Ano letivo: ${c.yearState ? knownLabel(YEAR_STATE_TEXT, c.yearState) : "ainda não foi aberto"} · data de referência ${formatAcademicDate(on)}.`}
         parent={{ label: "Turmas", to: "/turmas" }}
       />
       {!writableYear ? (
         <p role="status" className="rounded border border-border bg-muted p-3 text-sm">
-          Nenhuma alteração é possível: a organização só pode ser preparada quando o ano letivo estiver em preparação ou operacional.
+          A organização desta turma poderá ser preparada quando o ano letivo estiver aberto para essa etapa.
         </p>
       ) : null}
       <Tabs defaultValue="jornada">
@@ -142,7 +142,7 @@ function JourneyTab({ c, on, knownAt, canEdit }: TabProps) {
             </ul>)}
       </div>
       {canEdit && !editing ? <Button className="mt-3" size="sm" onClick={start}>{j.data?.kind === "vigente" ? "Registrar nova versão" : "Registrar jornada"}</Button> : null}
-      {!canEdit ? <p className="mt-3 text-xs text-muted-foreground">Somente leitura para o seu perfil.</p> : null}
+      {!canEdit ? <p className="mt-3 text-xs text-muted-foreground">Você pode consultar esta informação, mas não editá-la.</p> : null}
       {editing ? (
         <div className="mt-4 space-y-3 rounded border border-border p-3">
           {j.data?.kind === "vigente" ? (
@@ -223,7 +223,7 @@ function ScheduleTab({ c, on, knownAt, canEdit }: TabProps) {
         setDraft([{ blockKey: "b1", weekday: 1, startsAt: "07:00", endsAt: "07:50", matrixVersionId: null, itemKey: null }]);
         setW({ kind: s.data?.kind === "vigente" ? "sucessao" : "constituicao", validFrom: on, validUntil: null, sourceRef: null, reason: null }); setErr(null); setEditing(true);
       }}>{s.data?.kind === "vigente" ? "Registrar nova versão" : "Montar grade"}</Button> : null}
-      {!canEdit ? <p className="mt-3 text-xs text-muted-foreground">Somente leitura para o seu perfil.</p> : null}
+      {!canEdit ? <p className="mt-3 text-xs text-muted-foreground">Você pode consultar esta informação, mas não editá-la.</p> : null}
       {editing ? (
         <div className="mt-4 space-y-3 rounded border border-border p-3">
           {!elements.length ? <p role="alert" className="text-sm text-destructive">Nenhuma matriz curricular resolvida para a turma: a grade não pode ser montada.</p> : null}
@@ -343,7 +343,7 @@ function AssignmentsTab({ c, on, knownAt, canEdit }: TabProps) {
           </ul>)}
       </div>
       {canEdit && !open ? <Button className="mt-3" size="sm" onClick={() => setOpen(true)}>Registrar atribuição</Button> : null}
-      {!canEdit ? <p className="mt-3 text-xs text-muted-foreground">Somente leitura para o seu perfil.</p> : null}
+      {!canEdit ? <p className="mt-3 text-xs text-muted-foreground">Você pode consultar esta informação, mas não editá-la.</p> : null}
       {open ? (
         <div className="mt-4 space-y-3 rounded border border-border p-3">
           <ProfessionalPicker schoolId={c.schoolId} on={on} onPick={setPick} />
@@ -398,7 +398,7 @@ function SubstitutionsTab({ c, on, knownAt, canEdit }: TabProps) {
           </ul>)}
       </div>
       {canEdit && !open ? <Button className="mt-3" size="sm" onClick={() => setOpen(true)} disabled={!a.data?.length}>Registrar substituição</Button> : null}
-      {!canEdit ? <p className="mt-3 text-xs text-muted-foreground">Somente leitura para o seu perfil.</p> : null}
+      {!canEdit ? <p className="mt-3 text-xs text-muted-foreground">Você pode consultar esta informação, mas não editá-la.</p> : null}
       {open ? (
         <div className="mt-4 space-y-3 rounded border border-border p-3">
           <div><Label htmlFor="sb-t">Atribuição titular</Label>
@@ -427,7 +427,7 @@ function SchoolScheduleTab({ c, on, knownAt }: TabProps) {
   for (const r of s.data!.rows) byPerson.set(r.personId, [...(byPerson.get(r.personId) ?? []), r]);
   return (
     <Box title="Horários dos profissionais da escola" icon={<Clock className="size-4" />}>
-      <Muted>Projeção das atribuições sobre a grade das turmas; nenhum horário do professor é gravado à parte. Professores consultam o próprio horário em <Link className="underline" to="/horarios/profissionais">Meu horário</Link>.</Muted>
+      <Muted>Os horários são organizados a partir das turmas e das atribuições docentes. Cada professor pode consultar o próprio horário em <Link className="underline" to="/horarios/profissionais">Meu horário</Link>.</Muted>
       {s.data!.denied ? <Muted>Sem acesso aos horários desta escola.</Muted> : !s.data!.rows.length ? <Muted>Nenhum bloco atribuído na data.</Muted> : (
         <div className="mt-3 grid gap-3">
           {[...byPerson.entries()].map(([pid, rows], idx) => {
@@ -453,7 +453,7 @@ function ReadinessTab({ c, on, knownAt }: TabProps) {
   const res = r.data ? readinessResult(r.data) : null;
   return (
     <Box title="Prontidão para o Diário" icon={<ClipboardCheck className="size-4" />}>
-      <Muted>Painel informativo. O Diário não é aberto aqui; ele dependerá do ano operacional e da atribuição docente.</Muted>
+      <Muted>O Diário ficará disponível quando o ano letivo estiver aberto e as atribuições docentes estiverem definidas.</Muted>
       {r.isLoading ? <Muted>Carregando…</Muted> : r.error ? <Err e={r.error} /> : (
         <>
           <p className="mt-2 text-sm">Resultado: <Badge variant={res === "ready" ? "secondary" : "destructive"}>{res === "ready" ? "Pronta" : res === "blocked" ? "Bloqueada" : "Indisponível"}</Badge></p>

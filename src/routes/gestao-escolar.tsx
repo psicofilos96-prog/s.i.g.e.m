@@ -7,7 +7,7 @@ export const Route = createFileRoute("/gestao-escolar")({
   head: () => ({
     meta: [
       { title: "Gestão escolar — SIGEM" },
-      { name: "description", content: "Situação operacional da escola para a Direção, montada dos registros oficiais, com pendências explicáveis." },
+      { name: "description", content: "Veja matrículas, turmas, frequência e pendências da escola a partir dos registros oficiais." },
       { property: "og:title", content: "Gestão escolar — SIGEM" },
       { property: "og:description", content: "Matrículas, turmas, grade, Diário, planejamento, fechamentos, comunicação, AEE e alimentação em um só lugar." },
       { property: "og:type", content: "website" },

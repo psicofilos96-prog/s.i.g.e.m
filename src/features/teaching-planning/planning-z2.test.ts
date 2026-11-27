@@ -37,6 +37,10 @@ describe("Z.2 — writer corrigido (0150)", () => {
     expect(o).not.toMatch(/INSERT|UPDATE|DELETE/);
     const page = readFileSync("src/features/teaching-planning/plans-overview-page.tsx", "utf8").replace(/\/\*\*[\s\S]*?\*\//, "");
     expect(page).not.toMatch(/aprovar|reprovar|savePlan|record_teaching_plan/i);
+    expect(page).toContain("Digite o código da escola");
+    expect(page).toContain("Nenhum planejamento compartilhado nesta data");
+    expect(page).not.toContain("atuação vigente");
+    expect(page).not.toContain("Consulta indisponível");
   });
 });
 

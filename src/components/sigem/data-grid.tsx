@@ -271,7 +271,7 @@ export function DataGrid<TRow>({
                 );
               })}
               {rowActions ? (
-                <TableHead className="w-12">
+                <TableHead className="w-[9.5rem] min-w-[9.5rem] whitespace-nowrap text-right">
                   <span className="sr-only">{rowActionsLabel}</span>
                 </TableHead>
               ) : null}
@@ -315,7 +315,7 @@ export function DataGrid<TRow>({
                       {column.cell(row)}
                     </TableCell>
                   ))}
-                  {rowActions ? <TableCell>{rowActions(row)}</TableCell> : null}
+                  {rowActions ? <TableCell className="w-[9.5rem] min-w-[9.5rem] whitespace-nowrap"><div className="flex min-w-max items-center justify-end gap-2 whitespace-nowrap [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">{rowActions(row)}</div></TableCell> : null}
                 </TableRow>
               );
             })}

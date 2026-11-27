@@ -246,7 +246,7 @@ export function CieceWorkspace({ source, catalog, initialReference, tasks }: { s
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4">
-      <PageHeader eyebrow="CIECE" title="Informação e Estatística" description="Indicadores respondidos pela fronteira analítica, dentro do escopo da sua atuação vigente." />
+      <PageHeader eyebrow="CIECE" title="Informação e Estatística" description="Consulte indicadores oficiais das escolas e áreas que sua conta está autorizada a acessar." />
       {source.kind === "laboratorio" && (
         <StatePanel tone="warning" title="Laboratório demonstrativo" description="Todos os números desta página são fictícios e simulados. Nada é lido ou gravado no banco institucional." />
       )}

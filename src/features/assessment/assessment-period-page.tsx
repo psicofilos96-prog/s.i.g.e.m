@@ -172,7 +172,7 @@ export function AssessmentPeriodPage({ classId, search }: { classId: string; sea
   if (!applicability.applicable)
     return <div className="space-y-6">{header}<StatePanel tone="info" title="Avaliação do período não se aplica" description={humanizeForScreen(applicability.reason)} /></div>;
   if (cloud && !canRead)
-    return <div className="space-y-6">{header}<StatePanel tone="warning" title="Consulta não autorizada" description="Sua atuação vigente não concede, pela política homologada, consulta aos resultados desta turma neste período." /></div>;
+    return <div className="space-y-6">{header}<StatePanel tone="warning" title="Consulta não autorizada" description="Sua conta não tem autorização para consultar os resultados desta turma neste período. Peça à gestão responsável para conferir seu acesso." /></div>;
   if (cloud && !cloudFacts.ready)
     return <div className="space-y-6">{header}<StatePanel tone="info" title="Carregando" description="Lendo os registros oficiais da turma." /></div>;
   if (cloud && cloudFacts.error)

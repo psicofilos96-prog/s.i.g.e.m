@@ -4432,6 +4432,27 @@
       "when": 1794854736735,
       "tag": "0632_followup_municipal_school_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 633,
+      "version": "7",
+      "when": 1795461485595,
+      "tag": "0633_test_school_99999901_fail_closed_cleanup",
+      "breakpoints": true
+    },
+    {
+      "idx": 634,
+      "version": "7",
+      "when": 1795780452219,
+      "tag": "0634_test_school_99999901_full_cleanup_revision",
+      "breakpoints": true
+    },
+    {
+      "idx": 635,
+      "version": "7",
+      "when": 1795781000000,
+      "tag": "0635_followup_record_deletion",
+      "breakpoints": true
     }
   ]
 }

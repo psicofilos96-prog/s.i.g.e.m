@@ -9,16 +9,16 @@ export type GovernedCategory =
   | "dependencia-normativa" | "fonte-ausente" | "indisponivel" | "falha-tecnica";
 
 const USER_MESSAGE: Record<GovernedCategory, string> = {
-  "sessao-expirada": "Sua sessão terminou. Entre de novo para continuar; nada foi gravado nesta tentativa.",
-  "sem-conexao": "Sem conexão com o servidor. Verifique a internet e tente de novo; nada foi gravado nesta tentativa.",
-  validacao: "Algum dado informado não foi aceito. Revise os campos e tente de novo.",
-  autorizacao: "Sua conta não tem permissão para esta ação, ou o registro não está disponível para você.",
-  conflito: "O registro mudou desde que você abriu a tela. Recarregue e confira antes de repetir.",
-  "registro-fechado": "Este período, versão ou registro já foi fechado e não aceita mais alterações.",
-  "dependencia-normativa": "Falta uma regra institucional homologada para concluir esta ação.",
-  "fonte-ausente": "A fonte de dados necessária ainda não está disponível.",
-  indisponivel: "Este recurso está indisponível no momento. Tente de novo mais tarde.",
-  "falha-tecnica": "Ocorreu uma falha técnica. Tente de novo; se persistir, informe o código ao suporte.",
+  "sessao-expirada": "Sua sessão terminou. Clique em “Entrar” e faça login novamente; nada foi salvo nesta tentativa.",
+  "sem-conexao": "Sem conexão com o servidor. Verifique sua internet e use “Tentar novamente” para repetir a ação; nada foi salvo nesta tentativa.",
+  validacao: "Falta corrigir ou preencher um dado obrigatório. Confira os campos destacados e tente novamente.",
+  autorizacao: "Sua conta não tem autorização para esta ação ou para ver este registro. Peça à gestão responsável para conferir seu acesso.",
+  conflito: "Outra pessoa atualizou este registro. Use “Recarregar”, confira a versão atual e refaça sua alteração.",
+  "registro-fechado": "Este período, versão ou registro já foi encerrado e não aceita alterações. Abra o período atual ou peça à equipe responsável que oriente o próximo passo.",
+  "dependencia-normativa": "Falta uma regra institucional aprovada para concluir esta ação. Peça à equipe responsável que aprove a regra antes de continuar.",
+  "fonte-ausente": "Falta uma fonte de dados necessária para esta consulta. Confira a fonte indicada na tela e peça à equipe responsável que a disponibilize.",
+  indisponivel: "Não foi possível acessar este recurso agora. Verifique sua conexão e use “Tentar novamente” para repetir a consulta.",
+  "falha-tecnica": "Ocorreu um erro ao concluir a ação. Use “Tentar novamente”; se o problema continuar, informe o código ao suporte.",
 };
 
 /** Código de correlação: aleatório, curto, sem nenhuma informação do usuário ou do registro. */
@@ -79,7 +79,7 @@ export function governError(error: unknown, correlationId = newCorrelationId()):
   const category = categorize(error);
   const code = canonicalCode(error);
   const b = code && /^[A-Z]/.test(code) ? blockByCode(code) : null;
-  const userMessage = b ? `${b.unavailable} indisponível: ${b.why}. Falta: ${b.missing}.` : USER_MESSAGE[category];
+  const userMessage = b ? `${b.unavailable}. Isso acontece porque ${b.why}. Falta ${b.missing}. Confira a orientação e use a ação indicada nesta tela.` : USER_MESSAGE[category];
   return { category, userMessage, correlationId, code, technical: redactText(error, 200) };
 }
 

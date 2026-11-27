@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { SkeletonState } from "@/components/sigem/guidance";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { MissingValue } from "@/components/sigem/missing-value";
 import { useDebounced } from "@/features/global-search/global-search";
 import { LIST_PAGE_SIZE, ListTimeoutError, useServerPage } from "@/lib/server-page";
 
@@ -58,7 +59,6 @@ function Pager({ q, page, setPage, noun }: { q: Q; page: number; setPage: (p: nu
 
 type StudentRow = { id: string; display_name: string; institutional_identifier: string | null };
 
-const NR = "Não registrado";
 const countOf = (q: Q, noun: string) => q.data?.total != null ? <>{q.data.total.toLocaleString("pt-BR")}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">{noun}</span></> : undefined;
 
 function SearchField({ id, label, placeholder, value, onChange }: { id: string; label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
@@ -91,31 +91,31 @@ export function InstitutionalStudentsListPage() {
       <RegistryHero
         eyebrow="Rede Municipal de Itaperuna · Estudantes 2026"
         title="Alunos e matrículas"
-        lede="Estudantes da base institucional no seu alcance de acesso. Abra um nome para ver a ficha longitudinal com matrícula, turma e percurso."
+        lede="Consulte os alunos da escola e clique em um nome para abrir a ficha completa."
         count={term ? undefined : countOf(q as Q, "alunos")}
         actions={<Button asChild size="sm" variant="outline"><Link to="/matriculas">Ver matrículas</Link></Button>}
       />
       <RegistryToolbar summary={term && q.data?.total != null ? <>{q.data.total.toLocaleString("pt-BR")} resultado(s) para a pesquisa</> : <>Ordem alfabética · {LIST_PAGE_SIZE} por página</>}>
         <SearchField id="students-search" label="Pesquisar alunos" placeholder="Nome ou identificador" value={query} onChange={setQuery} />
       </RegistryToolbar>
-      <ListStates q={q as Q} noun="alunos" emptyAll="Nenhum aluno registrado no seu escopo." searching={!!term}>
+      <ListStates q={q as Q} noun="alunos" emptyAll="Nenhum aluno encontrado nesta escola." searching={!!term}>
         <RegistryList
           label="Alunos"
           table={
-            <table className="w-full text-sm" aria-busy={q.isFetching}>
+            <table className="w-full min-w-[42rem] text-sm" aria-busy={q.isFetching}>
               <caption className="sr-only">Alunos</caption>
               <thead><tr><th scope="col" className={registryTh}>Nome</th><th scope="col" className={registryTh}>Identificador</th><th scope="col" className={registryTh}><span className="sr-only">Ação</span></th></tr></thead>
               <tbody>{items.map((r) => (
                 <tr key={r.id} className={registryRow}>
                   <td className={registryTd}><Link to="/alunos/$id" params={{ id: r.id }} className="font-medium text-foreground hover:text-primary hover:underline">{r.display_name}</Link></td>
-                  <td className={`${registryTd} font-mono text-xs tabular-nums text-muted-foreground`}>{r.institutional_identifier ?? NR}</td>
-                  <td className={`${registryTd} text-right`}><Link to="/alunos/$id" params={{ id: r.id }} aria-label={`Abrir ficha de ${r.display_name}`} className="text-sm font-medium text-primary hover:underline">Abrir ficha</Link></td>
+                  <td className={`${registryTd} font-mono text-xs tabular-nums text-muted-foreground`}>{r.institutional_identifier ?? <MissingValue label="Identificador não registrado" />}</td>
+                  <td className={`${registryTd} min-w-[9rem] whitespace-nowrap text-right`}><Button asChild size="sm" variant="outline"><Link to="/alunos/$id" params={{ id: r.id }} aria-label={`Abrir ficha de ${r.display_name}`}>Abrir ficha</Link></Button></td>
                 </tr>))}</tbody>
             </table>
           }
           cards={items.map((r) => (
             <RegistryCard key={r.id} title={<Link to="/alunos/$id" params={{ id: r.id }} className="text-foreground hover:text-primary hover:underline">{r.display_name}</Link>}>
-              <CardFact label="Identificador"><span className="tabular-nums">{r.institutional_identifier ?? NR}</span></CardFact>
+              <CardFact label="Identificador"><span className="tabular-nums">{r.institutional_identifier ?? <MissingValue label="Identificador não registrado" />}</span></CardFact>
             </RegistryCard>
           ))}
         />
@@ -148,7 +148,7 @@ export function InstitutionalProfessionalsListPage() {
       <RegistryHero
         eyebrow="Rede Municipal de Itaperuna · Pessoal 2026"
         title="Profissionais"
-        lede="Pessoas declaradas na base oficial 2026 (Censo Escolar), no seu alcance de acesso. A função mostrada é a declarada no Censo; ela não concede acesso ao SIGEM."
+        lede="Profissionais informados no Censo Escolar 2026."
         count={searching || q.data?.total == null ? undefined : <>≈ {q.data.total.toLocaleString("pt-BR")}<span className="ml-2 align-middle text-sm font-normal text-muted-foreground">profissionais</span></>}
         actions={<><Button asChild size="sm" variant="outline"><Link to="/pessoal-2026">Pessoal por escola (planilhas 2026)</Link></Button><Button asChild size="sm" variant="outline"><Link to="/conciliacao-pessoal">Conciliação de pessoal</Link></Button></>}
       />
@@ -156,7 +156,7 @@ export function InstitutionalProfessionalsListPage() {
         <SearchField id="prof-search" label="Pesquisar profissionais" placeholder="Nome" value={query} onChange={setQuery} />
         <SearchField id="prof-fn" label="Função declarada" placeholder="Ex.: docente, auxiliar" value={fn} onChange={setFn} />
       </RegistryToolbar>
-      <ListStates q={q as Q} noun="profissionais" emptyAll="Nenhum profissional visível no seu escopo." searching={searching}>
+      <ListStates q={q as Q} noun="profissionais" emptyAll="Nenhum profissional encontrado." searching={searching}>
         <RegistryList
           label="Profissionais"
           table={
@@ -166,14 +166,14 @@ export function InstitutionalProfessionalsListPage() {
               <tbody>{items.map((r) => { const f = declaredFunctions(r); return (
                 <tr key={r.id} className={registryRow}>
                   <td className={`${registryTd} font-medium text-foreground`}>{r.display_name}</td>
-                  <td className={`${registryTd} text-muted-foreground`}>{f.join(", ") || "Não declarada"}</td>
+                  <td className={`${registryTd} text-muted-foreground`}>{f.join(", ") || <MissingValue label="Função não declarada no Censo 2026" />}</td>
                   <td className={`${registryTd} tabular-nums text-muted-foreground`}>{r.professional_census_declarations.length}</td>
                 </tr>); })}</tbody>
             </table>
           }
           cards={items.map((r) => (
             <RegistryCard key={r.id} title={r.display_name}>
-              <CardFact label="Função declarada">{declaredFunctions(r).join(", ") || "Não declarada"}</CardFact>
+              <CardFact label="Função declarada">{declaredFunctions(r).join(", ") || <MissingValue label="Função não declarada no Censo 2026" />}</CardFact>
               <CardFact label="Declarações"><span className="tabular-nums">{r.professional_census_declarations.length}</span></CardFact>
             </RegistryCard>
           ))}

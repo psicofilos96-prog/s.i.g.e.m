@@ -96,6 +96,6 @@ export const CALENDAR_ACCESS_DENIED_TEXT =
 
 export function calendarErrorMessage(e: unknown): string {
   if (e instanceof InstitutionalCalendarShapeError)
-    return "A resposta do calendário institucional veio em formato inesperado. Nada foi exibido.";
-  return "Não foi possível consultar o calendário institucional agora. Nada foi exibido.";
+    return "Não foi possível ler o calendário porque a resposta veio em formato inesperado. Use “Tentar novamente” para buscar outra vez.";
+  return "Não foi possível buscar o calendário. Confira sua conexão e use “Tentar novamente” para repetir a consulta.";
 }

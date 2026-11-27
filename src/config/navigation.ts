@@ -93,7 +93,7 @@ export const provisionalNavigation: Array<{ label: string; items: NavigationItem
     label: "Secretaria escolar",
     items: [
       { label: "Matrículas", icon: GraduationCap, to: "/matriculas", hint: "Matricular e consultar matrículas" },
-      { label: "Transferências e movimentações", icon: GraduationCap, to: "/transferencias", hint: "Entradas, saídas e transferências" },
+      { label: "Transferências", icon: GraduationCap, to: "/transferencias", hint: "Entradas, saídas e transferências" },
       { label: "Enturmações", icon: UsersRound, to: "/enturmacoes", hint: "Alunos nas turmas" },
       { label: "Vagas", icon: UsersRound, to: "/secretaria/vagas", hint: "Vagas por turma" },
       { label: "Fila de vagas", icon: UsersRound, to: "/secretaria/fila-de-vagas", hint: "Pedidos aguardando vaga" },

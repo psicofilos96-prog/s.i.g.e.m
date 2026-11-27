@@ -84,7 +84,7 @@ export function ScheduleVersionDetailPage({
       />
       <div className="flex flex-wrap gap-2 border-b border-border pb-3">
         <StatusBadge tone={lifecycleStateTone(record.state)}>{record.state}</StatusBadge>
-        {readOnly ? <StatusBadge tone="neutral">Somente leitura</StatusBadge> : null}
+        {readOnly ? <StatusBadge tone="neutral">Consulta</StatusBadge> : null}
         {effective?.id === record.id ? (
           <StatusBadge tone="success">Efetiva em {LIFECYCLE_REFERENCE_DATE}</StatusBadge>
         ) : (

@@ -9,7 +9,7 @@ export type Block = Readonly<{
 export type Pending = Readonly<{ id: string; kind: "fato-ausente" | "ambiguidade" | "conferencia" | "bloqueio-normativo" | "fonte-indisponivel"; text: string; link: string; source: string }>;
 
 export const STATE_LABEL: Record<BlockState, string> = {
-  AVAILABLE: "Disponível", ZERO: "Zero registrado", UNKNOWN: "Desconhecido", UNAVAILABLE: "Não disponível para você", BLOCKED: "Consulte no módulo próprio",
+  AVAILABLE: "Disponível", ZERO: "Nenhum registro", UNKNOWN: "Não foi possível consultar", UNAVAILABLE: "Acesso não disponível", BLOCKED: "Consulte na área correspondente",
 };
 
 /** Recusa de autorização é "não disponível" (sem revelar existência); demais falhas são "desconhecido". */
@@ -18,7 +18,7 @@ export function classifyError(msg: string): "UNAVAILABLE" | "UNKNOWN" {
 }
 const failed = (b: Omit<Block, "state" | "value" | "detail" | "reason">, error: string): Block => {
   const st = classifyError(error);
-  return { ...b, state: st, value: null, detail: st === "UNAVAILABLE" ? "Sua atuação não alcança esta fonte nesta escola." : "A fonte não pôde ser lida agora.", reason: st === "UNKNOWN" ? "Falha de leitura; nada foi presumido." : "Esta informação não faz parte do seu acesso." };
+  return { ...b, state: st, value: null, detail: st === "UNAVAILABLE" ? "Sua conta não tem acesso a esta informação nesta escola." : "Não foi possível consultar esta informação agora.", reason: st === "UNKNOWN" ? "Tente novamente mais tarde." : "Peça à gestão responsável para conferir seu acesso." };
 };
 /** Reader que sinaliza recusa por linha (result_kind) em vez de erro. */
 function rowDenied(rows: readonly { result_kind?: string | null }[]): string | null {
@@ -59,8 +59,8 @@ export function buildPanel(i: Inputs): { blocks: Block[]; pending: Pending[] } {
   } else {
     const o = i.overview.data;
     if (!o.year.state) {
-      blocks.push({ ...yb, state: "BLOCKED", value: null, detail: `${o.year.label ?? "Ano"}: sem estado operacional registrado.`, reason: "O ano só é aberto por ato humano registrado; nada é aberto automaticamente." });
-      pending.push({ id: "ano-sem-estado", kind: "bloqueio-normativo", text: "Ano letivo sem estado operacional registrado.", link: "/secretaria", source: "academic_year_operational_state_at" });
+      blocks.push({ ...yb, state: "BLOCKED", value: null, detail: `${o.year.label ?? "Ano"}: ainda não foi aberto.`, reason: "A abertura do ano letivo é feita pela equipe responsável da rede." });
+      pending.push({ id: "ano-sem-estado", kind: "bloqueio-normativo", text: "Ano letivo ainda não foi aberto.", link: "/secretaria", source: "academic_year_operational_state_at" });
     } else blocks.push({ ...yb, state: "AVAILABLE", value: null, detail: `${o.year.label ?? "Ano"}: ${o.year.state}.`, reason: null });
     const e = o.enrollments; const mb = B("matriculas", "Matrículas ativas na data", "secretariat_overview_at", "/secretaria", false);
     if (e.start_unknown > 0) {
@@ -149,6 +149,6 @@ export function dossierPrintHtml(tableHtml: string, pending: readonly Pending[])
   const list = pending.length === 0
     ? `<p>Nenhuma pendência derivável das fontes alcançadas. Isso não afirma que a escola está em ordem.</p>`
     : `<ol>${pending.map((p) => `<li>${escHtml(p.text)} <small>(${escHtml(p.source)})</small></li>`).join("")}</ol>`;
-  const section = `<h2 style="font-size:14px">Pendências (${pending.length})</h2>${list}<p><small>Projeção dinâmica dos registros oficiais alcançados por quem gerou — não é documento oficial, não classifica nem decide.</small></p>`;
+  const section = `<h2 style="font-size:14px">Pendências (${pending.length})</h2>${list}<p><small>Resumo elaborado com as informações disponíveis para esta conta.</small></p>`;
   return tableHtml.replace("</body></html>", `${section}</body></html>`);
 }

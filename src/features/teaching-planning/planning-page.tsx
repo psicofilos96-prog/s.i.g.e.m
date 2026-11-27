@@ -182,7 +182,7 @@ function PlanningWorkspace({ uid, revision }: { uid: string; revision: number })
         <section aria-label="Editor" className="space-y-4">
           {!draft ? <EmptyState title="Escolha ou crie um planejamento" description="Selecione uma regência para começar ou abra um planejamento existente." /> : (
             <div className="space-y-4">
-              {readOnly && <StatePanel tone="neutral" title="Somente leitura" description={assignment ? "Este planejamento é de outra pessoa." : "A regência deste planejamento não está vigente para você. O histórico é preservado; você pode copiá-lo para uma regência atual."} />}
+              {readOnly && <StatePanel tone="neutral" title="Consulta" description={assignment ? "Este planejamento é de outra pessoa." : "A regência deste planejamento não está vigente para você. O histórico é preservado; você pode copiá-lo para uma regência atual."} />}
               <label className="block text-sm font-medium">Título
                 <input className="mt-1 w-full rounded border border-input bg-background p-2" value={draft.title} disabled={readOnly} onChange={(e) => edit({ title: e.target.value })} maxLength={200} /></label>
               <div className="flex flex-wrap gap-3">

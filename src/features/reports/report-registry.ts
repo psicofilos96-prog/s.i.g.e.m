@@ -27,7 +27,7 @@ export const MAPA_ESTATISTICO: ReportDefinition = {
     { id: "year", label: "Ano", type: "integer", required: true, min: 2000, max: 2100 },
     { id: "month", label: "Mês", type: "integer", required: true, min: 1, max: 12 },
     { id: "referenceDate", label: "Data de referência", type: "date", required: false },
-    { id: "knownAt", label: "Conhecido até", type: "datetime", required: false },
+    { id: "knownAt", label: "Até a data", type: "datetime", required: false },
   ],
   columns: [
     { id: "schoolName", label: "Escola", kind: "text" }, { id: "schoolId", label: "Identificador", kind: "text" },
@@ -85,13 +85,13 @@ export const INCLUSAO_MINIMIZADO: ReportDefinition = {
 
 /** AK — situação operacional da escola: projeção dinâmica, NÃO é documento oficial. */
 export const GESTAO_ESCOLAR: ReportDefinition = {
-  id: "situacao-operacional-escola", version: 1, title: "Situação operacional da escola (projeção, não oficial)",
-  description: "Blocos da Estação da Direção com estado (disponível/zero/desconhecido/não disponível/bloqueado), motivo e fonte.",
+  id: "situacao-operacional-escola", version: 1, title: "Situação da escola",
+  description: "Resumo das informações disponíveis sobre a escola, com detalhes e motivos quando houver pendências.",
   source: "secretariat_overview_at / class_schedule_at / diary_school_overview_at / teaching_plans_overview_at / school_communications_at / aee_services_at / meal_services_at",
   params: [{ id: "school", label: "Escola", type: "text", required: true, maxLength: 120 }, { id: "on", label: "Data de referência", type: "date", required: true }],
   columns: [
     { id: "block", label: "Bloco", kind: "text" }, { id: "state", label: "Estado", kind: "text" }, { id: "value", label: "Valor", kind: "number" },
-    { id: "detail", label: "Detalhe", kind: "text" }, { id: "reason", label: "Motivo", kind: "text" }, { id: "source", label: "Fonte", kind: "text" }, { id: "knownAt", label: "Reproduz conhecido até", kind: "text" },
+    { id: "detail", label: "Detalhe", kind: "text" }, { id: "reason", label: "Motivo", kind: "text" }, { id: "source", label: "Fonte", kind: "text" }, { id: "knownAt", label: "Data considerada", kind: "text" },
   ],
   formats: ["csv"], reproducible: false, syncRowLimit: 100,
 };
@@ -100,7 +100,7 @@ export const SUPERVISAO_ACOMPANHAMENTO: ReportDefinition = {
   id: "acompanhamento-supervisao-escolar", version: 1, title: "Acompanhamento da Supervisão Escolar",
   description: "Registros vigentes (cabeça de cada cadeia) da Supervisão para uma escola; sem identificação de pessoas.",
   source: "school_supervision_records_at",
-  params: [{ id: "school", label: "Escola", type: "text", required: true, maxLength: 120 }, { id: "knownAt", label: "Conhecido até", type: "datetime", required: false }],
+  params: [{ id: "school", label: "Escola", type: "text", required: true, maxLength: 120 }, { id: "knownAt", label: "Até a data", type: "datetime", required: false }],
   columns: [
     { id: "school", label: "Escola", kind: "text" }, { id: "occurredOn", label: "Data", kind: "date" }, { id: "modality", label: "Modalidade", kind: "text" },
     { id: "subject", label: "Assunto", kind: "text" }, { id: "referral", label: "Encaminhamento", kind: "text" },

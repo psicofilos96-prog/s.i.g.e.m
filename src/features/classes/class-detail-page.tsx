@@ -332,11 +332,11 @@ export function ClassDetailPage({ id }: { id: string }) {
                     <dd className="mt-1 font-medium">{item.academicPeriod.label}</dd>
                   </div>
                   <div>
-                    <dt className="text-muted-foreground">Modo</dt>
+                    <dt className="text-muted-foreground">Visualização</dt>
                     <dd className="mt-1 font-medium">
                       {isHistorical
-                        ? "Somente consulta (histórico)"
-                        : "Somente leitura demonstrativa"}
+                        ? "Histórico"
+                        : "Exemplo para consulta"}
                     </dd>
                   </div>
                   <div>

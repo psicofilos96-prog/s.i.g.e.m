@@ -10,7 +10,7 @@ export const Route = createFileRoute("/direcao")({
       {
         name: "description",
         content:
-          "Ambiente institucional e decisório da unidade escolar: processos que exigem decisão, atos sob responsabilidade da Direção, conformidade operacional e governança local, como projeção autorizada dos fatos canônicos.",
+          "Espaço da Direção para acompanhar processos, tomar decisões e registrar os atos sob sua responsabilidade, com acesso conforme as autorizações da conta.",
       },
       { property: "og:title", content: "Portal da Direção Escolar — SIGEM" },
       {
