@@ -6,15 +6,15 @@ import { operationalToday } from "@/lib/academic-date";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info } from "lucide-react";
+import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info, Trash2 } from "lucide-react";
 import { FollowupExportMenu } from "./export-menu";
 import { FollowupSituationBadge } from "./situation-badge";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/sigem/date-input";
-import { confirmAction } from "@/components/sigem/confirm-action";
+import { askText, confirmAction } from "@/components/sigem/confirm-action";
 import { presentError, UserFacingError } from "@/lib/observability/governed-errors";
 import { PageHeader, EmptyState, StatePanel } from "@/components/sigem/patterns";
-import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, schoolFollowup } from "./source";
+import { networkFollowup, networkPendingFollowup, monthlyFollowup, followupStatuses, recordVisitBundle, recordVisit, recordAction, recordUpdate, deleteFollowupRecord, schoolFollowup } from "./source";
 import { InstitutionalFollowupAnalytics } from "./analytics";
 import { reconcileFollowupNetworkIndicators, reconcileFollowupPendingIndicators } from "./network-read-contract";
 import { InstitutionalPendingPanel } from "./pending-panel";
@@ -343,6 +343,30 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       queryClient.invalidateQueries({ queryKey: ["institutional-followup-attachments", sessionKey, school] }),
     ]);
   }
+  async function deleteRecord(kind: "visit" | "action" | "update", id: string, label: string) {
+    if (!school || !canRecord || hasUnsavedFollowup) {
+      setError(hasUnsavedFollowup ? "Salve ou descarte os formulários em preenchimento antes de excluir um registro." : "Você não tem permissão para excluir registros desta escola.");
+      return;
+    }
+    const scope = liveSchoolScope.current;
+    const reason = await askText("Justificativa da exclusão", "");
+    if (reason === null || reason.trim().length < 3) return;
+    if (scope !== liveSchoolScope.current) { setError("O escopo da escola mudou. Atualize a página antes de tentar novamente."); return; }
+    const confirmed = await confirmAction({
+      title: `Excluir ${label}?`,
+      consequence: "O registro será removido definitivamente, junto com as informações diretamente vinculadas. A operação ficará identificada na auditoria, sem conservar o conteúdo excluído.",
+      actionLabel: "Excluir definitivamente", destructive: true,
+    });
+    if (!confirmed || scope !== liveSchoolScope.current) return;
+    setError(""); setNotice("");
+    try {
+      await deleteFollowupRecord(kind, id, reason.trim());
+      setActionId(""); setUpdateVisitId(""); setTargetActionId("");
+      resetMeasureDraft(); cancelEvolution();
+      setNotice(`${label.charAt(0).toUpperCase() + label.slice(1)} excluído(a) com sucesso.`);
+      await refresh();
+    } catch (e) { setError(presentError(e)); }
+  }
   async function saveVisit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!school || !canRecord || !diagnosis.trim() || !day || day > today || savingVisitLock.current
@@ -655,9 +679,9 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <Dialog><DialogTrigger asChild><Button variant="outline" size="sm"><Users className="size-4" />Gerenciar responsáveis</Button></DialogTrigger><DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>Responsáveis pelo acompanhamento</DialogTitle></DialogHeader><SeatAdminPanel sessionKey={sessionKey} /></DialogContent></Dialog>}
     </div>
     <Tabs value={tab} onValueChange={setTab}><TabsList className="h-auto w-full justify-start overflow-x-auto bg-transparent p-0">
-      <TabsTrigger value="network" className="whitespace-nowrap">Visão Geral da Rede</TabsTrigger>
-      <TabsTrigger value="pending" className="whitespace-nowrap">Quadro de Providências</TabsTrigger>
-      <TabsTrigger value="school" className="whitespace-nowrap">Detalhes da Escola</TabsTrigger>
+      <TabsTrigger value="network" className="whitespace-nowrap">Rede</TabsTrigger>
+      <TabsTrigger value="pending" className="whitespace-nowrap">Providências</TabsTrigger>
+      <TabsTrigger value="school" className="whitespace-nowrap">Escola</TabsTrigger>
     </TabsList></Tabs>
     <div hidden={tab !== "network"} className="space-y-5">
     <section className="space-y-4" aria-label="Panorama da rede">
@@ -686,18 +710,29 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
         description={presentError(network.error)} />}
       {network.isSuccess && !network.isFetching && <>
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {[
-            ["Escolas acessíveis", totals.schools], ["Visitadas no período", totals.visitedSchools],
-            ["Ainda sem visita no período", totals.schools - totals.visitedSchools],
-            ["Visitas no período", totals.visits], ["Ações cadastradas", totals.actions],
-            ["Concluídas (declaradas)", totals.completed], ["Com prazo vencido", totals.overdue],
-            ["Ações sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
-          ].map(([label, value], i) => <div key={label} className={"rounded-lg border p-3 " + (i < 4 ? "border-border bg-card" : "border-border bg-card")}>
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className={"font-display font-semibold tabular-nums " + (i < 4 ? "text-3xl" : "text-xl")}>{value}</p>
+            ["Unidades", totals.schools], ["Visitadas", totals.visitedSchools],
+            ["Visitas", totals.visits], ["Prazos vencidos", totals.overdue],
+          ].map(([label, value]) => <div key={label} className="rounded-xl border bg-card px-4 py-3">
+            <p className="text-xs font-medium text-muted-foreground">{label}</p>
+            <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{value}</p>
           </div>)}
         </div>
+        <details className="rounded-lg border px-4 py-3">
+          <summary className="cursor-pointer text-sm font-medium">Indicadores detalhados e gráficos</summary>
+          <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
+            {[
+              ["Sem visita", totals.schools - totals.visitedSchools], ["Ações cadastradas", totals.actions],
+              ["Concluídas", totals.completed], ["Sem atualização", reconciledIndicators?.statusesConsistent ? (statuses.data?.find((r) => r.situation === "sem atualização")?.actions ?? 0) : "Não apurado"],
+            ].map(([label, value]) => <div key={label} className="rounded-lg bg-muted/40 p-3">
+              <p className="text-xs text-muted-foreground">{label}</p><p className="text-lg font-semibold tabular-nums">{value}</p>
+            </div>)}
+          </div>
+          {chartsConsistent && <InstitutionalFollowupAnalytics months={monthly.data ?? []} statuses={statuses.data ?? []} period={`${dateLabel(from)} a ${dateLabel(to)}`} />}
+          {analyticsReady && !chartsConsistent && <p role="alert" className="mt-3 text-sm text-muted-foreground">Os gráficos precisam ser atualizados. Clique em Atualizar; a lista permanece disponível.</p>}
+          {(monthly.isError || statuses.isError) && <p role="status" className="mt-3 text-sm text-muted-foreground">Os gráficos estão indisponíveis. A lista de escolas permanece consultável.</p>}
+        </details>
         <p className="text-xs text-muted-foreground">Visitas no período · Medidas de todo o histórico <Tooltip><TooltipTrigger asChild><Button variant="ghost" size="icon" className="ml-1 size-6" aria-label="Sobre os indicadores"><Info className="size-3.5" /></Button></TooltipTrigger><TooltipContent className="max-w-72">Conclusões declaradas pela equipe. Filtros de escola alteram somente a lista e sua exportação.</TooltipContent></Tooltip></p>
         {chartsConsistent && <InstitutionalFollowupAnalytics
           months={monthly.data ?? []} statuses={statuses.data ?? []}
@@ -966,11 +1001,16 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
                       <p><strong>Visita associada:</strong> {u.visit_logical_id
                         ? (dateLabel(followupVisitByLogicalId(detailData.visits, u.visit_logical_id)?.visit_date ?? null))
                         : "Nenhuma visita informada"}</p>
+                      {canRecord && <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive"
+                        disabled={hasUnsavedFollowup} onClick={() => void deleteRecord("update", u.id, "atualização")}> <Trash2 className="mr-1 size-4" />Excluir atualização</Button>}
                     </li>)}
                 </ol>
               </details>}
-              {canRecord && <Button size="sm" variant="outline"
-                onClick={() => startEvolution(a.id)}>Registrar evolução</Button>}
+              {canRecord && <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => startEvolution(a.id)}>Registrar evolução</Button>
+                <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive"
+                  disabled={hasUnsavedFollowup} onClick={() => void deleteRecord("action", a.id, "medida")}> <Trash2 className="mr-1 size-4" />Excluir medida</Button>
+              </div>}
             </div>;
           })}
         </div>
@@ -1024,7 +1064,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <h3 className="font-display text-lg font-semibold">Histórico de visitas</h3>
           {!detailData.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
           {detailData.visits.map((v) => <article key={v.id} className="space-y-4 rounded-lg border border-border bg-card p-5">
-            <header className="flex flex-wrap items-center justify-between gap-2 border-b pb-3"><p className="font-semibold">{dateLabel(v.visit_date)}</p><p className="text-sm text-muted-foreground">{v.author_name || "Autoria registrada"}{v.version > 1 ? ` · Retificação ${v.version}` : ""}</p></header>
+            <header className="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+              <div><p className="font-semibold">{dateLabel(v.visit_date)}</p><p className="text-sm text-muted-foreground">{v.author_name || "Autoria registrada"}{v.version > 1 ? ` · Retificação ${v.version}` : ""}</p></div>
+              {canRecord && <Button type="button" size="sm" variant="ghost" className="text-destructive hover:text-destructive"
+                disabled={hasUnsavedFollowup} onClick={() => void deleteRecord("visit", v.id, "visita")}> <Trash2 className="mr-1 size-4" />Excluir visita</Button>}
+            </header>
             <div className="grid gap-5 md:grid-cols-2">
               {([["Objetivo", v.purpose_note, Target], ["Diagnóstico", v.diagnosis, ClipboardList], ["Pontos fortes", v.strengths, Sparkles], ["Fragilidades", v.weaknesses, TriangleAlert], ["Encaminhamentos", v.summary, ArrowRight], ["Participantes", v.participants_note, Users]] as const).map(([label, text, Icon]) => text ? <div key={label} className="min-w-0 text-sm"><h4 className="mb-2 flex items-center gap-2 font-semibold"><Icon className="size-4 text-muted-foreground" />{label}</h4><FormattedText text={text} className="space-y-1 break-words text-muted-foreground" /></div> : null)}
             </div>
