@@ -170,7 +170,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     await waitFor(() => expect(mocks.uploadVisitImage).toHaveBeenCalledWith("school-a", "visit-created",
       expect.objectContaining({ file, request: expect.any(String) })));
     expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue(""));
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull());
   });
 
   it("repete envio de imagens sem registrar a visita uma segunda vez", async () => {
@@ -339,6 +339,7 @@ describe("acompanhamento institucional — integração da página e capacidades
 
     fireEvent.click(screen.getByRole("button", { name: "Abrir Escola Centro" }));
     await screen.findByRole("heading", { name: "Escola Centro" });
+    fireEvent.click(await screen.findByRole("button", { name: /Registrar nova visita/ }));
     expect(await screen.findByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Salvar visita e plano" })).toBeDisabled();
   });
@@ -353,7 +354,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     const visit = within(visitForm!);
     fireEvent.change(visit.getByRole("textbox", { name: "Objetivo da visita (opcional)" }),
       { target: { value: "Acompanhar o planejamento" } });
-    fireEvent.change(visit.getByRole("textbox", { name: "Demais participantes informados (opcional)" }),
+    fireEvent.change(visit.getByRole("textbox", { name: "Demais participantes (opcional)" }),
       { target: { value: "Outro servidor" } });
     fireEvent.change(visit.getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Organização pedagógica em revisão" } });
@@ -439,8 +440,6 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(fields.getByRole("textbox", { name: "Data da visita" })).toBeDisabled();
     expect(fields.getByRole("button", { name: "Adicionar medida" })).toBeDisabled();
     expect(fields.getByRole("button", { name: "Registrando…" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Fechar escola" }));
-    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
     expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
 
     await act(async () => { delayed.resolve("visit-created"); });
@@ -1356,7 +1355,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(screen.queryByRole("button", { name: "Abrir Escola Centro" })).toBeNull();
     expect(screen.queryByText("Dados do escopo A")).toBeNull();
     expect(screen.queryByRole("button", { name: "Ficha CSV" })).toBeNull();
-    await openSchool("Escola Serra");
+    await openSchool("Escola Serra", { openVisitForm: true });
     expect(await screen.findByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeTruthy();
     await act(async () => { unfinished.resolve(true); await unfinished.promise; });
     expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
