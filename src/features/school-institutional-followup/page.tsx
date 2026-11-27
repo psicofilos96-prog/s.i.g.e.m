@@ -918,6 +918,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>
       </DialogContent></Dialog>}
+      </div>
       {detailData && canRecord && measureVisitId && <form id="followup-measure-form"
         className="rounded-lg border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveMeasure(e)}>
         <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
@@ -952,6 +953,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>}
       {detailData && <>
+        <div hidden={schoolSection !== "overview"} className="space-y-5">
         <div className="space-y-3 rounded-lg border border-border/70 bg-card p-5 shadow-panel">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h3 className="font-display text-lg font-semibold">Ações e evolução</h3>
