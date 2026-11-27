@@ -137,8 +137,8 @@ jobs:
             -f drizzle/migrations/0617_followup_seat_owner_decision_and_cabinet_management.sql \
             -f drizzle/migrations/0618_followup_visit_attachments.sql \
             -f supabase/tests/0618_followup_attachments.sql \
-            -f drizzle/migrations/0620_followup_record_deletion.sql \
-            -f supabase/tests/0620_followup_record_deletion.sql
+            -f drizzle/migrations/0635_followup_record_deletion.sql \
+            -f supabase/tests/0635_followup_record_deletion.sql
           # Negative postflight checks operate ONLY on the disposable CI database:
           # a disabled or removed append-only trigger must invalidate the clone.
           expect_postflight_failure() {
