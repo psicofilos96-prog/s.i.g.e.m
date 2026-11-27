@@ -8,7 +8,7 @@ const migration = readFileSync("drizzle/migrations/0635_followup_record_deletion
 describe("Acompanhamento — exclusão de registros", () => {
   it("mantém o panorama limpo e recolhe gráficos complementares", () => {
     expect(page.match(/<InstitutionalFollowupAnalytics/g)?.length).toBe(1);
-    expect(page).toContain("Indicadores detalhados e gráficos");
+    expect(page).toContain("Ver gráficos e indicadores detalhados");
     expect(page).toContain("<details className=\"group\">");
   });
 
