@@ -95,6 +95,16 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("public.school_institutional_followup_can_read(v.school_id)");
     expect(sql).toContain("public.school_institutional_followup_can_read(a.school_id)");
   });
+  it("autoriza exclusão por RPC, preserva auditoria mínima e não abre DML direto", () => {
+    const deletion = readFileSync("drizzle/migrations/0635_followup_record_deletion.sql", "utf8");
+    expect(deletion).toContain("public.delete_school_institutional_followup_record");
+    expect(deletion).toContain("public.school_institutional_followup_person(_school)");
+    expect(deletion).toContain("school_institutional_followup_deletion_audit");
+    expect(deletion).toContain("current_setting('sigem.followup_delete', true) = 'on'");
+    expect(deletion).toContain("GRANT EXECUTE ON FUNCTION public.delete_school_institutional_followup_record");
+    expect(deletion).toContain("FROM PUBLIC, anon, service_role");
+    expect(deletion).toContain("DELETE FROM storage.objects");
+  });
   it("possui prova de negação e rollback em banco isolado", () => {
     expect(negative).toMatch(/^BEGIN;/m);
     expect(negative.trimEnd().endsWith("ROLLBACK;")).toBe(true);

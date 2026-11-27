@@ -81,6 +81,12 @@ async function call(fn: string, args: Record<string, unknown>): Promise<unknown>
     if (error.message.includes("followup:attachment-required")) {
       throw new UserFacingError("Não foi possível identificar o pedido de anexo. Tente novamente.");
     }
+    if (error.message.includes("followup:delete-invalid")) {
+      throw new UserFacingError("Informe uma justificativa de pelo menos três caracteres para excluir o registro.");
+    }
+    if (error.message.includes("followup:record-not-found")) {
+      throw new UserFacingError("Este registro não está mais disponível. Atualize o histórico e tente novamente.");
+    }
     if (error.message.includes("followup:request-conflict")) {
       throw new UserFacingError("O registro enviado não corresponde à tentativa anterior. Atualize os dados antes de repetir.");
     }
@@ -146,6 +152,15 @@ export async function recordVisitBundle(input: {
   });
   if (typeof id !== "string") throw new Error("Não foi possível confirmar a visita e o plano.");
   return id;
+}
+
+
+/** Exclusão física autorizada no banco, com remoção dos vínculos e auditoria mínima. */
+export async function deleteFollowupRecord(kind: "visit" | "action" | "update", id: string, reason: string): Promise<void> {
+  const result = await call("delete_school_institutional_followup_record", {
+    _kind: kind, _id: id, _reason: reason,
+  });
+  if (result !== true) throw new Error("Não foi possível confirmar a exclusão do registro.");
 }
 
 export type FollowupMonth = { month: string; visits: number };
