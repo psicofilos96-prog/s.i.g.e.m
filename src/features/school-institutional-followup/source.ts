@@ -148,6 +148,15 @@ export async function recordVisitBundle(input: {
   return id;
 }
 
+
+/** Exclusão física autorizada no banco, com remoção dos vínculos e auditoria mínima. */
+export async function deleteFollowupRecord(kind: "visit" | "action" | "update", id: string, reason: string): Promise<void> {
+  const result = await call("delete_school_institutional_followup_record", {
+    _kind: kind, _id: id, _reason: reason,
+  });
+  if (result !== true) throw new Error("Não foi possível confirmar a exclusão do registro.");
+}
+
 export type FollowupMonth = { month: string; visits: number };
 export type FollowupStatus = { situation: string; actions: number };
 export async function monthlyFollowup(from: string, to: string): Promise<FollowupMonth[]> {
