@@ -6,7 +6,7 @@ import { operationalToday } from "@/lib/academic-date";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info, Trash2 } from "lucide-react";
+import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info, Trash2, Building2, CalendarCheck, Activity, AlertTriangle, RefreshCw, ChevronRight } from "lucide-react";
 import { FollowupExportMenu } from "./export-menu";
 import { FollowupSituationBadge } from "./situation-badge";
 import { Button } from "@/components/ui/button";
@@ -72,6 +72,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
   const [networkView, setNetworkView] = useState<NetworkView>("todas");
   const [school, setSchool] = useState("");
   const [tab, setTab] = useState("network");
+  const [schoolSection, setSchoolSection] = useState("overview");
+  const [visitDialogOpen, setVisitDialogOpen] = useState(false);
   const [day, setDay] = useState(today);
   const [diagnosis, setDiagnosis] = useState("");
   const [strengths, setStrengths] = useState("");
@@ -673,7 +675,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
     setActionView("todas"); setActionQuery("");
     setTargetActionId(measureId);
   }
-  return <TooltipProvider><div className="space-y-6">
+  return <TooltipProvider><div className="space-y-6 rounded-2xl bg-slate-50/70 p-3 sm:p-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <PageHeader title="Acompanhamento das escolas" />
       {authority.capabilities.some((c) => c.capabilityId === "administrar-postos-de-acompanhamento") && <Dialog><DialogTrigger asChild><Button variant="outline" size="sm"><Users className="size-4" />Gerenciar responsáveis</Button></DialogTrigger><DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-3xl"><DialogHeader><DialogTitle>Responsáveis pelo acompanhamento</DialogTitle></DialogHeader><SeatAdminPanel sessionKey={sessionKey} /></DialogContent></Dialog>}
@@ -691,36 +693,30 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           <FollowupExportMenu disabled={exporting} onExport={(f) => void exportReport(f)} />
         </div>}
       </div>
-      <div className="grid gap-3 rounded-lg bg-muted/40 p-3 sm:grid-cols-2 lg:grid-cols-[auto_auto_1fr_auto_auto] lg:items-end">
-        <label className="text-sm">Início do período<DateInput className={input} value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
-        <label className="text-sm">Fim do período<DateInput className={input} value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
-        <label className="min-w-40 flex-1 text-sm">Buscar unidade<input className={input} type="search" placeholder="Nome ou código INEP" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
-        <label className="text-sm">Situação das escolas
-          <select className={input} value={networkView}
-            onChange={(e) => setNetworkView(e.target.value as NetworkView)}>
-            <option value="todas">Todas as unidades</option>
-            <option value="visitadas">Com visitas no período</option>
-            <option value="sem visita">Sem visitas no período</option>
-            <option value="com prazo vencido">Com medidas vencidas</option>
-          </select>
-        </label>
-        <Button variant="outline" onClick={() => void refresh()}>Atualizar</Button>
+      <div className="flex flex-col gap-2 rounded-xl bg-white p-3 shadow-sm md:flex-row md:items-center">
+        <label className="text-xs text-muted-foreground">Início<DateInput className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm md:w-36" value={from} max={to} onChange={(e) => setFrom(e.target.value)} /></label>
+        <label className="text-xs text-muted-foreground">Fim<DateInput className="mt-1 h-9 w-full rounded-md border border-input bg-background px-2 text-sm md:w-36" value={to} min={from} max={today} onChange={(e) => setTo(e.target.value)} /></label>
+        <label className="min-w-0 flex-1 text-xs text-muted-foreground">Buscar unidade<input className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm" type="search" placeholder="Nome ou código INEP" value={search} onChange={(e) => setSearch(e.target.value)} /></label>
+        <label className="text-xs text-muted-foreground">Situação<select className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm md:w-52" value={networkView} onChange={(e) => setNetworkView(e.target.value as NetworkView)}>
+          <option value="todas">Todas as unidades</option><option value="visitadas">Com visitas no período</option><option value="sem visita">Sem visitas no período</option><option value="com prazo vencido">Com medidas vencidas</option>
+        </select></label>
+        <Button type="button" variant="ghost" size="icon" className="mt-5 shrink-0" aria-label="Atualizar dados" title="Atualizar" onClick={() => void refresh()}><RefreshCw className="size-4" /></Button>
       </div>
       {(network.isPending || network.isFetching) && <p role="status" className="text-sm text-muted-foreground">Carregando escolas…</p>}
       {network.isError && <StatePanel tone="danger" title="Não foi possível consultar a rede"
         description={presentError(network.error)} />}
       {network.isSuccess && !network.isFetching && <>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {[
-            ["Unidades", totals.schools], ["Visitadas", totals.visitedSchools],
-            ["Visitas", totals.visits], ["Prazos vencidos", totals.overdue],
-          ].map(([label, value]) => <div key={label} className="rounded-xl border bg-card px-4 py-3">
-            <p className="text-xs font-medium text-muted-foreground">{label}</p>
-            <p className="mt-1 font-display text-2xl font-semibold tabular-nums">{value}</p>
+          {([
+            ["Unidades", totals.schools, Building2], ["Visitadas", totals.visitedSchools, CalendarCheck],
+            ["Visitas", totals.visits, Activity], ["Prazos vencidos", totals.overdue, AlertTriangle],
+          ] as const).map(([label, value, Icon]) => <div key={label} className="flex items-center justify-between rounded-xl bg-white px-4 py-3 shadow-sm">
+            <div><p className="text-xs font-medium text-muted-foreground">{label}</p><p className="mt-1 font-display text-2xl font-semibold tabular-nums">{value}</p></div>
+            <Icon className={"size-5 " + (label === "Prazos vencidos" && value > 0 ? "text-amber-600" : "text-muted-foreground/50")} />
           </div>)}
         </div>
-        <details className="rounded-lg border px-4 py-3">
-          <summary className="cursor-pointer text-sm font-medium">Indicadores detalhados e gráficos</summary>
+        <details className="group">
+          <summary className="flex cursor-pointer list-none justify-end text-sm font-medium text-muted-foreground hover:text-foreground">Ver gráficos e indicadores detalhados <span aria-hidden="true">▾</span></summary>
           <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
             {[
               ["Sem visita", totals.schools - totals.visitedSchools], ["Ações cadastradas", totals.actions],
