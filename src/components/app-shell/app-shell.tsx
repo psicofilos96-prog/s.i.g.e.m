@@ -683,7 +683,9 @@ function SessionMenu() {
           <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
             {authority.person
               ? `${countLabel(authority.capabilities.length, "capacidade efetiva", "capacidades efetivas")} pela política homologada.`
-              : "Conta ainda não vinculada a pessoa institucional — nenhuma capacidade."}
+              : authority.principal
+                ? `${countLabel(authority.capabilities.length, "capacidade efetiva", "capacidades efetivas")} da estação ${STATION_LABEL[authority.principal.station]}.`
+                : "Conta ainda não vinculada a pessoa institucional — nenhuma capacidade."}
           </span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
