@@ -404,6 +404,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       setSavedVisitId(recordedVisit);
       for (const image of visitImages) await uploadVisitImage(school, recordedVisit, image);
       resetVisitDraft();
+      setVisitDialogOpen(false);
       setNotice(visitImages.length > 0 ? "Visita e imagens registradas."
         : correctionBase === null
         ? "Visita e ações registradas. O histórico da escola foi preservado."
@@ -818,7 +819,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
       {detailData && <SchoolOpenActionsPanel key={school} snapshot={detailData} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
-      {canRecord && <Dialog open={visitDialogOpen} onOpenChange={(open) => { if (!open && visitDraftIsDirty && !saving) return; setVisitDialogOpen(open); }}>
+      {canRecord && <Dialog open={visitDialogOpen} onOpenChange={setVisitDialogOpen}>
         <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-4xl">
         <DialogHeader><DialogTitle>{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</DialogTitle></DialogHeader>
         <form id="followup-visit-form" className="space-y-5" onSubmit={(e) => void saveVisit(e)}>
@@ -829,19 +830,15 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         {correctionBase && <p className="text-sm text-muted-foreground">
           Uma nova versão será criada sem alterar as medidas vinculadas à visita. A versão original e a justificativa ficarão no histórico.
         </p>}
-        <h4 className="border-b pb-1 text-sm font-semibold uppercase tracking-wide text-primary">1. Sobre a visita</h4>
-        <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
-        <div className="grid gap-3 md:grid-cols-2">
+        <h4 className="border-b border-slate-200 pb-2 text-sm font-semibold">1. Sobre a visita</h4>
+        <div className="grid gap-3 md:grid-cols-3">
+          <label className="block text-sm">Data da visita<DateInput className={input} max={today} required value={day} onChange={(e) => setDay(e.target.value)} /></label>
           <FollowupTextArea label="Objetivo da visita (opcional)" className={textArea} maxLength={1000}
             value={purpose} onChange={setPurpose} placeholder="Por exemplo: acompanhar a organização pedagógica" />
-          <FollowupTextArea label="Demais participantes informados (opcional)" className={textArea} maxLength={500}
-            value={participants} onChange={setParticipants} placeholder="Servidor ou equipe que também participou" />
+          <FollowupTextArea label="Demais participantes (opcional)" className={textArea} maxLength={500}
+            value={participants} onChange={setParticipants} placeholder="Equipe participante" />
         </div>
-        <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Mais informações</summary><p className="text-xs text-muted-foreground">
-          A autoria é atribuída automaticamente à conta que salva o registro. Participantes informados não
-          constituem assinatura, confirmação de presença ou autorização para escrever no sistema.
-        </p></details>
-        <h4 className="border-b pb-1 text-sm font-semibold uppercase tracking-wide text-primary">2. O que foi observado</h4>
+        <h4 className="border-b border-slate-200 pb-2 pt-2 text-sm font-semibold">2. O que foi observado</h4>
         <FollowupTextArea label="Diagnóstico da realidade" className={textArea} required maxLength={10000}
           value={diagnosis} onChange={setDiagnosis} />
         <div className="grid gap-3 md:grid-cols-2">
@@ -852,15 +849,15 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
           value={summary} onChange={setSummary} />
         {correctionBase && <FollowupTextArea label="Justificativa obrigatória da retificação" className={textArea}
           required maxLength={4000} value={correctionReason} onChange={setCorrectionReason} />}
-        {!correctionBase && <><h4 className="border-b pb-1 text-sm font-semibold uppercase tracking-wide text-primary">3. Plano de ação — o que a escola vai fazer</h4>
+        {!correctionBase && <><h4 className="border-b border-slate-200 pb-2 pt-2 text-sm font-semibold">3. Plano de ação — o que a escola vai fazer</h4>
         <p role="status" className="text-sm text-muted-foreground">
           {describedActionCount} {describedActionCount === 1 ? "medida descrita" : "medidas descritas"}.
           {invalidActionCount > 0
             ? ` ${invalidActionCount} ${invalidActionCount === 1 ? "medida precisa" : "medidas precisam"} de correção antes de salvar.`
             : " Nenhuma inconsistência no plano."}
         </p>
-        <details className="text-xs text-muted-foreground"><summary className="cursor-pointer">Sobre a ordem das medidas</summary><p>Organiza o envio desta visita; o histórico segue a ordem dos prazos.</p></details>
-        {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg border border-border/60 bg-muted/30 p-3">
+        
+        {draftActions.map((a, i) => <div key={a.draftKey} className="space-y-2 rounded-lg bg-slate-50 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h5 className="text-sm font-medium">Medida {i + 1}</h5>
             <div className="flex flex-wrap gap-1">
@@ -904,8 +901,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </div>)}</>}
         <VisitImagePicker images={visitImages} onChange={setVisitImages} disabled={saving || savedVisitId !== null} />
         </fieldset>
-        <div className="flex flex-wrap gap-2 border-t pt-4">
-          {!correctionBase && <Button type="button" variant="outline" disabled={saving || savedVisitId !== null || draftActions.length >= 50}
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4">
+          {!correctionBase && <Button type="button" variant="outline" className="border-dashed" disabled={saving || savedVisitId !== null || draftActions.length >= 50}
             onClick={() => { setDraftActions((a) => a.length < 50 ? [...a, newAction()] : a); visitRequests.current = null; }}>Adicionar medida</Button>}
           <Button type="submit" disabled={saving || !diagnosis.trim() || invalidActionCount > 0
             || Boolean(correctionBase && !correctionReason.trim())}>
