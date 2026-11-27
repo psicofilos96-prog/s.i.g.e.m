@@ -96,7 +96,7 @@ describe("acompanhamento institucional — contrato SQL", () => {
     expect(sql).toContain("public.school_institutional_followup_can_read(a.school_id)");
   });
   it("autoriza exclusão por RPC, preserva auditoria mínima e não abre DML direto", () => {
-    const deletion = readFileSync("drizzle/migrations/0620_followup_record_deletion.sql", "utf8");
+    const deletion = readFileSync("drizzle/migrations/0635_followup_record_deletion.sql", "utf8");
     expect(deletion).toContain("public.delete_school_institutional_followup_record");
     expect(deletion).toContain("public.school_institutional_followup_person(_school)");
     expect(deletion).toContain("school_institutional_followup_deletion_audit");
