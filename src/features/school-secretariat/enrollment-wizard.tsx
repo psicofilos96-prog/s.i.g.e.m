@@ -177,9 +177,15 @@ function Wizard({ school, initial, cutoff, onExit }: { school: string; initial: 
           </> : null}
         </div>
       ))}
-      <div className="flex justify-between gap-3">
-        <Button type="button" variant="outline" disabled={step === 1} onClick={() => void go(step - 1)}>Voltar</Button>
-        {step < 8 ? <Button type="button" onClick={() => void go(step + 1)}>Continuar</Button> : <span className="self-center text-xs text-muted-foreground">Confira os dados e conclua a matrícula.</span>}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="ghost" onClick={async () => { await auto.flush(); onExit(); }}>Sair e continuar depois</Button>
+          <Discard draft={initial.draftId} seq={seq} auto={auto} onDone={onExit} photo={p.foto?.path} />
+        </div>
+        <div className="flex gap-2">
+          <Button type="button" variant="outline" disabled={step === 1} onClick={() => void go(step - 1)}>Voltar</Button>
+          {step < 8 ? <Button type="button" onClick={() => void go(step + 1)}>Continuar</Button> : <span className="self-center text-xs text-muted-foreground">Confira os dados e conclua a matrícula.</span>}
+        </div>
       </div>
     </section>
   );
@@ -354,7 +360,8 @@ function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: 
   return (
     <div className="space-y-3 text-right">
       <EntryOriginField value={origin} onChange={setOrigin} />
-      {confirm ? <p className="mb-2 text-sm">Confirme os dados e pressione Continuar para concluir.</p> : null}
+      {confirm ? <p className="mb-2 text-sm">Isto cria a matrícula oficial e coloca o aluno na turma <strong>{p.turma?.nome}</strong>. Confirmar?</p> : null}
+      {confirm ? <Button type="button" variant="outline" className="mr-2" disabled={busy} onClick={() => setConfirm(false)}>Revisar de novo</Button> : null}
       <Button disabled={!ready || busy || !entryOriginOk(origin)} onClick={async () => {
         if (!confirm) { setConfirm(true); return; }
         setBusy(true); setErr("");
@@ -366,7 +373,7 @@ function Complete({ draft, seq, auto, p, ready, onDone }: { draft: string; seq: 
           if (p.foto?.path) await bindPhoto(draft).catch(() => null);
           onDone(r.student_id);
         } catch (e) { setErr(wizardMessage(e)); setConfirm(false); } finally { setBusy(false); }
-      }}>{busy ? "Concluindo…" : "Continuar"}</Button>
+      }}>{busy ? "Concluindo…" : confirm ? "Sim, concluir matrícula" : "Concluir matrícula"}</Button>
       {err ? <p role="alert" className="mt-1 text-sm text-destructive">{err}</p> : null}
     </div>
   );
