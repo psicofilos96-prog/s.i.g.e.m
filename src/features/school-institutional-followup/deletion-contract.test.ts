@@ -9,7 +9,15 @@ describe("Acompanhamento — exclusão de registros", () => {
   it("mantém o panorama limpo e recolhe gráficos complementares", () => {
     expect(page.match(/<InstitutionalFollowupAnalytics/g)?.length).toBe(1);
     expect(page).toContain("Indicadores detalhados e gráficos");
-    expect(page).toContain("<details className=\"rounded-lg border px-4 py-3\">");
+    expect(page).toContain("<details className=\"group\">");
+  });
+
+  it("mantém o formulário de visita em modal e organiza a ficha em três subabas", () => {
+    expect(page).toContain("<Dialog open={visitDialogOpen}");
+    expect(page).toContain('value="overview">Visão geral & ações</TabsTrigger>');
+    expect(page).toContain('value="history">Histórico de visitas</TabsTrigger>');
+    expect(page).toContain('value="compare">Comparar visitas</TabsTrigger>');
+    expect(page).toContain("setVisitDialogOpen(false)");
   });
 
   it("oferece exclusão de visitas, medidas e atualizações para quem pode registrar", () => {
