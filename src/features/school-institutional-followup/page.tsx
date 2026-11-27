@@ -6,7 +6,7 @@ import { operationalToday } from "@/lib/academic-date";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info, Trash2, Building2, CalendarCheck, Activity, AlertTriangle, RefreshCw, ChevronRight } from "lucide-react";
+import { Target, ClipboardList, Sparkles, TriangleAlert, ArrowRight, Users, Info, Trash2, Building2, CalendarCheck, Activity, AlertTriangle, RefreshCw, ChevronRight, LockKeyhole } from "lucide-react";
 import { FollowupExportMenu } from "./export-menu";
 import { FollowupSituationBadge } from "./situation-badge";
 import { Button } from "@/components/ui/button";

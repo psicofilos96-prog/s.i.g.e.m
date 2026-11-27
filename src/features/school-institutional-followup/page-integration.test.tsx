@@ -118,13 +118,20 @@ function renderPage() {
   </QueryClientProvider>);
   return { ...rendered, client };
 }
-async function openSchool(name: string) {
-  const button = await screen.findByRole("button", { name });
+async function openSchool(name: string, options: { openVisitForm?: boolean } = {}) {
+  const button = await screen.findByRole("button", { name: `Abrir ${name}` });
   fireEvent.click(button);
   const heading = await screen.findByRole("heading", { name });
   // A escrita agora só aparece depois de uma leitura escolar autorizada.
   // Esperar o término da consulta evita afirmar que o formulário é imediato.
   await waitFor(() => expect(screen.queryByText("Carregando histórico…")).toBeNull());
+  if (options.openVisitForm === true) {
+    const openVisit = screen.queryByRole("button", { name: /Registrar nova visita/ });
+    if (openVisit) {
+      fireEvent.click(openVisit);
+      await screen.findByRole("heading", { name: "Registrar nova visita", level: 3 });
+    }
+  }
   return heading;
 }
 
@@ -151,8 +158,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     setSession(true);
     mocks.session["user"] = { id: account };
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form");
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form");
     if (!form) throw new Error("Visit form not found");
     const fields = within(form);
     const file = new File(["photo"], "fachada.png", { type: "image/png" });
@@ -163,15 +170,15 @@ describe("acompanhamento institucional — integração da página e capacidades
     await waitFor(() => expect(mocks.uploadVisitImage).toHaveBeenCalledWith("school-a", "visit-created",
       expect.objectContaining({ file, request: expect.any(String) })));
     expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
-    await waitFor(() => expect(fields.getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue(""));
+    await waitFor(() => expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull());
   });
 
   it("repete envio de imagens sem registrar a visita uma segunda vez", async () => {
     setSession(true);
     mocks.uploadVisitImage.mockRejectedValueOnce(new Error("Interrupted image upload"));
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form");
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form");
     if (!form) throw new Error("Visit form not found");
     const fields = within(form);
     fireEvent.change(fields.getByLabelText("Selecionar imagens da visita"), {
@@ -237,7 +244,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     const compare = await screen.findByRole("region", { name: "Comparar visitas registradas" });
     expect(within(compare).getByText("Diagnóstico anterior")).toBeTruthy();
     expect(within(compare).getByText("Diagnóstico posterior")).toBeTruthy();
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
     expect(mocks.recordUpdate).not.toHaveBeenCalled();
   });
@@ -276,7 +283,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     await screen.findByText("Não apurado");
     expect(screen.queryByTestId("network-analytics")).toBeNull();
     expect(screen.getByText("Não apurado")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Escola Centro" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Abrir Escola Centro" })).toBeTruthy();
 
     // Refresh both readers, not only the chart, until they match the network.
     mocks.monthlyFollowup.mockResolvedValue([{ month: "2026-11", visits: 3 }]);
@@ -285,7 +292,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       { situation: "em andamento", actions: 2 },
       { situation: "concluída", actions: 2 },
     ]);
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(await screen.findByTestId("network-analytics")).toBeTruthy();
     expect(screen.queryByText(/Os totais da rede, a série mensal e a distribuição/)).toBeNull();
     expect(screen.queryByText("Não apurado")).toBeNull();
@@ -313,9 +320,9 @@ describe("acompanhamento institucional — integração da página e capacidades
     await openSchool("Escola Centro");
     expect(await screen.findByText("Nenhuma medida cadastrada para esta unidade.")).toBeTruthy();
     expect(screen.getAllByText("INEP: 33000001").length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
     expect(screen.queryByRole("button", { name: "Salvar visita e plano" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Registrar evolução" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Registrar evolução da medida: Organizar salas" })).toBeNull();
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
     expect(mocks.recordAction).not.toHaveBeenCalled();
     expect(mocks.recordUpdate).not.toHaveBeenCalled();
@@ -326,27 +333,28 @@ describe("acompanhamento institucional — integração da página e capacidades
     renderPage();
     await openSchool("Escola Serra");
     expect(await screen.findByText("Nenhuma medida cadastrada para esta unidade.")).toBeTruthy();
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
     expect(screen.queryByRole("button", { name: "Salvar visita e plano" })).toBeNull();
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Escola Centro" }));
+    fireEvent.click(screen.getByRole("button", { name: "Abrir Escola Centro" }));
     await screen.findByRole("heading", { name: "Escola Centro" });
-    expect(await screen.findByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+    fireEvent.click(await screen.findByRole("button", { name: /Registrar nova visita/ }));
+    expect(await screen.findByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Salvar visita e plano" })).toBeDisabled();
   });
 
   it("servidor registra visita e plano com autoria vinculada à sessão e sem gravar campos incompletos", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = await screen.findByRole("heading", { name: "Registrar nova visita" });
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = await screen.findByRole("heading", { name: "Registrar nova visita", level: 3 });
     const visitForm = form.closest("form");
     expect(visitForm).not.toBeNull();
     const visit = within(visitForm!);
     fireEvent.change(visit.getByRole("textbox", { name: "Objetivo da visita (opcional)" }),
       { target: { value: "Acompanhar o planejamento" } });
-    fireEvent.change(visit.getByRole("textbox", { name: "Demais participantes informados (opcional)" }),
+    fireEvent.change(visit.getByRole("textbox", { name: "Demais participantes (opcional)" }),
       { target: { value: "Outro servidor" } });
     fireEvent.change(visit.getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Organização pedagógica em revisão" } });
@@ -380,8 +388,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.recordVisitBundle.mockReturnValueOnce(pending.promise);
     mocks.recordVisitBundle.mockRejectedValueOnce(new Error("Falha de conexão simulada"));
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
     fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Diagnóstico em andamento" } });
@@ -417,8 +425,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     const delayed = pendingWrite();
     mocks.recordVisitBundle.mockReturnValueOnce(delayed.promise);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
     fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Relato em gravação" } });
@@ -432,19 +440,19 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(fields.getByRole("textbox", { name: "Data da visita" })).toBeDisabled();
     expect(fields.getByRole("button", { name: "Adicionar medida" })).toBeDisabled();
     expect(fields.getByRole("button", { name: "Registrando…" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Fechar escola" }));
-    expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
     expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
 
     await act(async () => { delayed.resolve("visit-created"); });
-    // O refresh esconde o formulário enquanto o snapshot autorizado é reconferido.
-    // Aguardar a consulta concluída e obter o formulário novamente no DOM.
-    await waitFor(() => {
-      const restored = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
-      const diagnosis = within(restored).getByRole("textbox", { name: "Diagnóstico da realidade" });
-      expect(diagnosis).not.toBeDisabled();
-      expect(diagnosis).toHaveValue("");
-    });
+    // A gravação concluída fecha o diálogo e limpa o rascunho.
+    await waitFor(() => expect(screen.queryByRole("heading", {
+      name: "Registrar nova visita", level: 3,
+    })).toBeNull());
+    fireEvent.click(await screen.findByRole("button", { name: /Registrar nova visita/ }));
+    const reopened = await screen.findByRole("heading", { name: "Registrar nova visita", level: 3 });
+    const restored = reopened.closest("form")!;
+    const diagnosis = within(restored).getByRole("textbox", { name: "Diagnóstico da realidade" });
+    expect(diagnosis).not.toBeDisabled();
+    expect(diagnosis).toHaveValue("");
   });
 
   it("congela a medida adicional durante o envio e restabelece o formulário após falha", async () => {
@@ -453,7 +461,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     const delayed = pendingWrite();
     mocks.recordAction.mockReturnValueOnce(delayed.promise);
     renderPage();
-    await openSchool("Escola Centro");
+    await openSchool("Escola Centro", { openVisitForm: false });
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico de visitas" }));
     fireEvent.click(await screen.findByRole("button", { name: "Acrescentar medida ao plano" }));
     const form = screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" }).closest("form")!;
     const fields = within(form);
@@ -488,8 +497,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     const delayed = pendingWrite();
     mocks.recordUpdate.mockReturnValueOnce(delayed.promise);
     renderPage();
-    await openSchool("Escola Centro");
-    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução" }));
+    await openSchool("Escola Centro", { openVisitForm: false });
+    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução da medida: Organizar salas" }));
     const form = screen.getByRole("heading", { name: "Nova atualização da ação" }).closest("form")!;
     const fields = within(form);
     fireEvent.change(fields.getByRole("textbox", { name: "O que foi feito" }),
@@ -510,8 +519,8 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("identifica medida parcialmente preenchida em tempo real e só libera envio após correção", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
 
     fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
@@ -543,8 +552,8 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("revalida prazos quando a data da visita muda e recupera o envio ao corrigir", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
 
     fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
@@ -577,8 +586,8 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("remove a medida intermediária sem apagar descrição ou responsável das demais", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
 
     fireEvent.change(fields.getByRole("textbox", { name: "Diagnóstico da realidade" }),
@@ -621,8 +630,8 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("permite ordenar três medidas propostas sem misturar responsáveis no envio", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
     
 
@@ -667,8 +676,8 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("preserva medida preenchida e todo o plano quando a remoção não é confirmada", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
     fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
     const descriptions = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
@@ -686,8 +695,8 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("remove uma medida vazia sem diálogo e mantém a outra linha", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
     fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
     fireEvent.click(fields.getByRole("button", { name: "Remover medida 2" }));
@@ -700,8 +709,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     const pending = pendingDecision();
     mocks.confirmAction.mockReturnValueOnce(pending.promise);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
     const diagnosis = fields.getByRole("textbox", { name: "Diagnóstico da realidade" });
     fireEvent.change(diagnosis, { target: { value: "Diagnóstico original" } });
@@ -722,8 +731,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     const pending = pendingDecision();
     mocks.confirmAction.mockReturnValueOnce(pending.promise);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     const fields = within(form);
     fireEvent.click(fields.getByRole("button", { name: "Adicionar medida" }));
     const [first, second] = fields.getAllByRole("textbox", { name: "O que precisa ser feito" });
@@ -745,7 +754,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     const pending = pendingDecision();
     mocks.confirmAction.mockReturnValueOnce(pending.promise);
     renderPage();
-    await openSchool("Escola Centro");
+    await openSchool("Escola Centro", { openVisitForm: false });
+    fireEvent.click(screen.getByRole("tab", { name: "Histórico de visitas" }));
     fireEvent.click(await screen.findByRole("button", { name: "Acrescentar medida ao plano" }));
     const form = screen.getByRole("heading", { name: "Acrescentar medida a uma visita existente" }).closest("form")!;
     const fields = within(form);
@@ -769,8 +779,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     const pending = pendingDecision();
     mocks.confirmAction.mockReturnValueOnce(pending.promise);
     renderPage();
-    await openSchool("Escola Centro");
-    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução" }));
+    await openSchool("Escola Centro", { openVisitForm: false });
+    fireEvent.click(await screen.findByRole("button", { name: "Registrar evolução da medida: Organizar salas" }));
     const form = screen.getByRole("heading", { name: "Nova atualização da ação" }).closest("form")!;
     const fields = within(form);
     const done = fields.getByRole("textbox", { name: "O que foi feito" });
@@ -799,7 +809,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     const firstSignal = vi.mocked(exportFollowupSchool).mock.calls[0]?.[4] as AbortSignal;
     expect(firstSignal.aborted).toBe(false);
 
-    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    fireEvent.click(screen.getByRole("button", { name: "Abrir Escola Serra" }));
     await screen.findByRole("heading", { name: "Escola Serra" });
     await waitFor(() => expect(firstSignal.aborted).toBe(true));
     fireEvent.click(await screen.findByRole("button", { name: "Ficha PDF" }));
@@ -818,7 +828,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     const pending = pendingDecision();
     vi.mocked(exportFollowupNetwork).mockReturnValueOnce(pending.promise.then(() => undefined));
     renderPage();
-    await screen.findByRole("button", { name: "Escola Centro" });
+    await screen.findByRole("button", { name: "Abrir Escola Centro" });
     fireEvent.click(within(screen.getByLabelText("Exportar panorama autorizado"))
       .getByRole("button", { name: "Excel" }));
     await waitFor(() => expect(exportFollowupNetwork).toHaveBeenCalledTimes(1));
@@ -830,7 +840,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     await act(async () => { pending.resolve(true); await pending.promise; });
     expect(within(screen.getByLabelText("Exportar panorama autorizado"))
       .getByRole("button", { name: "Excel" })).not.toBeDisabled();
-    expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Abrir Escola Serra" })).toBeTruthy();
   });
 
   it("interrompe o download do quadro antes de iniciar qualquer invalidação de consultas", async () => {
@@ -860,7 +870,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       expect(signal.aborted).toBe(true);
       return originalInvalidate(...args);
     });
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(signal.aborted).toBe(true);
     expect(invalidate).toHaveBeenCalled();
     await act(async () => { unfinished.resolve(true); await unfinished.promise; });
@@ -889,7 +899,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     fireEvent.click(within(toolbar).getByRole("button", { name: "PDF" }));
     const firstSignal = vi.mocked(exportNetworkPending).mock.calls[0]?.[2] as AbortSignal;
     expect(firstSignal.aborted).toBe(false);
-    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    fireEvent.click(screen.getByRole("button", { name: "Abrir Escola Serra" }));
     expect(firstSignal.aborted).toBe(true);
     fireEvent.click(within(toolbar).getByRole("button", { name: "CSV" }));
     expect(exportNetworkPending).toHaveBeenCalledTimes(2);
@@ -904,8 +914,8 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("mantém diagnóstico e escola quando o descarte do formulário é recusado", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Relato da escola" } });
     mocks.confirmAction.mockResolvedValueOnce(false);
@@ -920,12 +930,12 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("impede troca de escola com diagnóstico pendente até descarte explícito", async () => {
     setSession(true);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Diagnóstico ainda não registrado" } });
 
-    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    fireEvent.click(screen.getByRole("button", { name: "Abrir Escola Serra" }));
     expect(screen.getByRole("heading", { name: "Escola Centro" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "Escola Serra" })).toBeNull();
     expect(screen.getByText(/Há dados de visita ainda não registrados/)).toBeTruthy();
@@ -939,7 +949,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       title: "Descartar visita em preenchimento?", destructive: true,
     }));
     expect(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" })).toHaveValue("");
-    fireEvent.click(screen.getByRole("button", { name: "Escola Serra" }));
+    fireEvent.click(screen.getByRole("button", { name: "Abrir Escola Serra" }));
     await waitFor(() => expect(screen.getByRole("heading", { name: "Escola Serra" })).toBeTruthy());
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
   });
@@ -951,9 +961,9 @@ describe("acompanhamento institucional — integração da página e capacidades
     const pending = pendingDecision();
     vi.mocked(exportFollowupSchool).mockReturnValueOnce(pending.promise.then(() => undefined));
     renderPage();
-    await openSchool("Escola Centro");
+    await openSchool("Escola Centro", { openVisitForm: true });
     await waitFor(() => expect(screen.getAllByText("Organizar salas").length).toBeGreaterThan(0));
-    expect(screen.getByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeTruthy();
 
     fireEvent.click(await screen.findByRole("button", { name: "Ficha Excel" }));
     await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
@@ -961,12 +971,12 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(signal.aborted).toBe(false);
 
     mocks.schoolFollowup.mockRejectedValueOnce(new Error("permissão escolar revogada"));
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(signal.aborted).toBe(true);
     expect(await screen.findByText("Histórico indisponível")).toBeTruthy();
     expect(screen.queryAllByText("Organizar salas")).toHaveLength(0);
     expect(screen.queryByRole("button", { name: "Ficha Excel" })).toBeNull();
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
 
     await act(async () => { pending.resolve(true); await pending.promise; });
@@ -982,11 +992,11 @@ describe("acompanhamento institucional — integração da página e capacidades
     await waitFor(() => expect(screen.getAllByText("Organizar salas").length).toBeGreaterThan(0));
 
     mocks.networkFollowup.mockRejectedValueOnce(new Error("escopo de rede não autorizado"));
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(await screen.findByText("Não foi possível consultar a rede")).toBeTruthy();
     expect(screen.queryAllByText("Organizar salas")).toHaveLength(0);
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
-    expect(screen.queryByRole("button", { name: "Escola Serra" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Abrir Escola Serra" })).toBeNull();
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
   });
 
@@ -1010,13 +1020,13 @@ describe("acompanhamento institucional — integração da página e capacidades
 
     // A consulta por escola ainda retorna o cache antigo, mas a rede excluiu A.
     mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
-    await waitFor(() => expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Abrir Escola Serra" })).toBeTruthy());
     await waitFor(() => expect(signal.aborted).toBe(true));
     expect(screen.queryByText("Diagnóstico privativo da escola A")).toBeNull();
     expect(screen.queryByText("Organizar salas")).toBeNull();
     expect(screen.queryByRole("button", { name: "Ficha PDF" })).toBeNull();
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
     expect(screen.getByRole("heading", {
       name: "A unidade não consta mais no escopo autorizado",
     })).toBeTruthy();
@@ -1030,16 +1040,16 @@ describe("acompanhamento institucional — integração da página e capacidades
     setSession(true);
     mocks.schoolFollowup.mockResolvedValue(blankSchool);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Anotação ainda não enviada" } });
 
     mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     const discard = await screen.findByRole("button", { name: "Descartar rascunhos e fechar" });
     expect(screen.queryByDisplayValue("Anotação ainda não enviada")).toBeNull();
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
     mocks.confirmAction.mockResolvedValueOnce(false);
     await act(async () => { fireEvent.click(discard); });
     expect(mocks.confirmAction).toHaveBeenCalledTimes(1);
@@ -1050,7 +1060,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       fireEvent.click(screen.getByRole("button", { name: "Descartar rascunhos e fechar" }));
     });
     await waitFor(() => expect(screen.queryByText("A unidade não consta mais no escopo autorizado")).toBeNull());
-    await openSchool("Escola Serra");
+    await openSchool("Escola Serra", { openVisitForm: true });
     expect(mocks.recordVisitBundle).not.toHaveBeenCalled();
     expect(mocks.recordUpdate).not.toHaveBeenCalled();
   });
@@ -1059,13 +1069,13 @@ describe("acompanhamento institucional — integração da página e capacidades
     setSession(true);
     mocks.schoolFollowup.mockResolvedValue(blankSchool);
     renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Rascunho preservado após voltar o acesso" } });
 
     mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     const discard = await screen.findByRole("button", { name: "Descartar rascunhos e fechar" });
     const confirmation = pendingDecision();
     mocks.confirmAction.mockReturnValueOnce(confirmation.promise);
@@ -1074,7 +1084,7 @@ describe("acompanhamento institucional — integração da página e capacidades
 
     // A consulta agora volta a autorizar A antes de a pessoa responder ao diálogo.
     // O formulário antigo deve reaparecer sem perda de seus valores.
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     await waitFor(() => expect(screen.getByDisplayValue(
       "Rascunho preservado após voltar o acesso",
     )).toBeTruthy());
@@ -1102,15 +1112,15 @@ describe("acompanhamento institucional — integração da página e capacidades
 
     // The network RPC now contains only B, but the pending RPC still returns A.
     mocks.networkFollowup.mockResolvedValueOnce([schools[1]!]);
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
-    await waitFor(() => expect(screen.getByRole("button", { name: "Escola Serra" })).toBeTruthy());
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
+    await waitFor(() => expect(screen.getByRole("button", { name: "Abrir Escola Serra" })).toBeTruthy());
     expect(await within(panel).findByRole("alert")).toHaveTextContent(/escopo atual da rede/);
     expect(screen.queryByText("Providência exclusiva da escola A")).toBeNull();
     expect(within(panel).queryByLabelText("Exportar quadro filtrado")).toBeNull();
     expect(exportNetworkPending).not.toHaveBeenCalled();
 
     // A later consistent response restores the quadro without preserving old data.
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(await screen.findByText("Providência exclusiva da escola A")).toBeTruthy();
     expect(within(panel).queryByRole("alert")).toBeNull();
   });
@@ -1128,7 +1138,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     renderPage();
     expect(await screen.findByText("Medida inicialmente autorizada")).toBeTruthy();
     mocks.networkFollowup.mockRejectedValueOnce(new Error("escopo indisponível"));
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(await screen.findByText("Não foi possível consultar a rede")).toBeTruthy();
     const panel = screen.getByRole("region", { name: "Quadro de providências da rede" });
     expect(within(panel).queryByText("Medida inicialmente autorizada")).toBeNull();
@@ -1159,7 +1169,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.networkPendingFollowup.mockResolvedValue([
       measure, { ...measure, action_id: "pending-2", description: "Outra medida retornada" },
     ]);
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(await within(panel).findByText("Medida retornada")).toBeTruthy();
     expect(await within(panel).findByText("Outra medida retornada")).toBeTruthy();
     expect(within(panel).queryByRole("alert")).toBeNull();
@@ -1184,7 +1194,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(within(panel).queryByText("Prazo diferente entre consultas")).toBeNull();
 
     mocks.networkPendingFollowup.mockResolvedValue([{ ...measure, due_on: "2026-11-02" }]);
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(await within(panel).findByText("Prazo diferente entre consultas")).toBeTruthy();
     expect(within(panel).queryByRole("alert")).toBeNull();
   });
@@ -1222,7 +1232,7 @@ describe("acompanhamento institucional — integração da página e capacidades
       measures.map((item) => item.action_id === "measure-b"
         ? { ...item, school_id: "school-a", school_name: "Escola Centro", inep: "33000001" }
         : item));
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(await within(panel).findByText("Pendência deslocada")).toBeTruthy();
     expect(within(panel).queryByRole("alert")).toBeNull();
   });
@@ -1254,7 +1264,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     mocks.networkPendingFollowup.mockResolvedValue([
       { ...measureA, due_on: null }, { ...measureB, due_on: "2026-11-01" },
     ]);
-    fireEvent.click(screen.getByRole("button", { name: "Atualizar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Atualizar dados" }));
     expect(await within(panel).findByText("Prazo da escola B")).toBeTruthy();
     expect(within(panel).queryByRole("alert")).toBeNull();
   });
@@ -1267,9 +1277,9 @@ describe("acompanhamento institucional — integração da página e capacidades
     const unfinished = pendingDecision();
     vi.mocked(exportFollowupSchool).mockReturnValueOnce(unfinished.promise.then(() => undefined));
     const { rerender, client } = renderPage();
-    await openSchool("Escola Centro");
+    await openSchool("Escola Centro", { openVisitForm: true });
     expect(await screen.findByText("Relato privativo da conta anterior")).toBeTruthy();
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Anotação ainda não salva da primeira conta" } });
 
@@ -1286,12 +1296,12 @@ describe("acompanhamento institucional — integração da página e capacidades
     };
     rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
     await waitFor(() => expect(signal.aborted).toBe(true));
-    expect(await screen.findByRole("button", { name: "Escola Serra" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Escola Centro" })).toBeNull();
+    expect(await screen.findByRole("button", { name: "Abrir Escola Serra" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Abrir Escola Centro" })).toBeNull();
     expect(screen.queryByText("Relato privativo da conta anterior")).toBeNull();
     expect(screen.queryByDisplayValue("Anotação ainda não salva da primeira conta")).toBeNull();
     expect(screen.queryByRole("button", { name: "Ficha PDF" })).toBeNull();
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
     await act(async () => { unfinished.resolve(true); await unfinished.promise; });
     expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
   });
@@ -1300,8 +1310,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     setSession(true);
     mocks.schoolFollowup.mockResolvedValue(blankSchool);
     const { rerender, client } = renderPage();
-    await openSchool("Escola Centro");
-    const first = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const first = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     fireEvent.change(within(first).getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Rascunho da sessão encerrada" } });
 
@@ -1312,8 +1322,8 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(screen.queryByDisplayValue("Rascunho da sessão encerrada")).toBeNull();
     expect(screen.queryByRole("heading", { name: "Escola Centro" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Ficha CSV" })).toBeNull();
-    await screen.findByRole("button", { name: "Escola Centro" });
-    expect(screen.queryByRole("heading", { name: "Registrar nova visita" })).toBeNull();
+    await screen.findByRole("button", { name: "Abrir Escola Centro" });
+    expect(screen.queryByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeNull();
   });
 
   it("refaz consultas e cancela relatórios quando a capability muda na mesma sessão", async () => {
@@ -1324,7 +1334,7 @@ describe("acompanhamento institucional — integração da página e capacidades
     const unfinished = pendingDecision();
     vi.mocked(exportFollowupSchool).mockReturnValueOnce(unfinished.promise.then(() => undefined));
     const { rerender, client } = renderPage();
-    await openSchool("Escola Centro");
+    await openSchool("Escola Centro", { openVisitForm: true });
     expect(await screen.findByText("Dados do escopo A")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Ficha CSV" }));
     await waitFor(() => expect(exportFollowupSchool).toHaveBeenCalledTimes(1));
@@ -1343,12 +1353,12 @@ describe("acompanhamento institucional — integração da página e capacidades
     };
     rerender(<QueryClientProvider client={client}><InstitutionalSchoolFollowupPage /></QueryClientProvider>);
     await waitFor(() => expect(signal.aborted).toBe(true));
-    expect(await screen.findByRole("button", { name: "Escola Serra" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "Escola Centro" })).toBeNull();
+    expect(await screen.findByRole("button", { name: "Abrir Escola Serra" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Abrir Escola Centro" })).toBeNull();
     expect(screen.queryByText("Dados do escopo A")).toBeNull();
     expect(screen.queryByRole("button", { name: "Ficha CSV" })).toBeNull();
-    await openSchool("Escola Serra");
-    expect(await screen.findByRole("heading", { name: "Registrar nova visita" })).toBeTruthy();
+    await openSchool("Escola Serra", { openVisitForm: true });
+    expect(await screen.findByRole("heading", { name: "Registrar nova visita", level: 3 })).toBeTruthy();
     await act(async () => { unfinished.resolve(true); await unfinished.promise; });
     expect(vi.mocked(exportFollowupSchool)).toHaveBeenCalledTimes(1);
     expect(mocks.networkFollowup).toHaveBeenCalledTimes(2);
@@ -1379,8 +1389,8 @@ describe("acompanhamento institucional — integração da página e capacidades
   it("ordem diferente das mesmas capacidades não desmonta rascunho nem refaz consultas", async () => {
     setSession(true, "school-a");
     const { rerender, client } = renderPage();
-    await openSchool("Escola Centro");
-    const form = screen.getByRole("heading", { name: "Registrar nova visita" }).closest("form")!;
+    await openSchool("Escola Centro", { openVisitForm: true });
+    const form = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
     fireEvent.change(within(form).getByRole("textbox", { name: "Diagnóstico da realidade" }),
       { target: { value: "Preenchimento ainda em andamento" } });
     const count = mocks.networkFollowup.mock.calls.length;
