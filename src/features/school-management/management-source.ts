@@ -11,12 +11,15 @@ const countOf = async (p: PromiseLike<Res>): Promise<Probe<number>> => { try { c
 
 export async function readManagementInputs(school: string, year: string, on: string, knownAt: string | null): Promise<Inputs> {
   const window = { from: shiftDays(on, -30), to: on };
+  // class_schedule_at exige known_at não nulo. Na consulta corrente, captura um único
+  // instante para todas as turmas; na consulta histórica, preserva o instante informado.
+  const scheduleKnownAt = knownAt ?? new Date().toISOString();
   const classes = await probe<{ id: string; name: string }[]>(db.from("institutional_classes").select("id, name").eq("school_id", school).eq("academic_year_id", year).order("name"));
   const ids = classes.ok ? classes.data.map((c) => c.id) : [];
   const schedules: Promise<Probe<Record<string, boolean>>> = classes.ok ? (async () => {
     const out: Record<string, boolean> = {};
     for (const id of ids) {
-      const r = await probe<{ result_kind: string; schedule_id: string | null }[]>(rpc("class_schedule_at", { _class_id: id, _on: on, _known_at: knownAt }));
+      const r = await probe<{ result_kind: string; schedule_id: string | null }[]>(rpc("class_schedule_at", { _class_id: id, _on: on, _known_at: scheduleKnownAt }));
       if (!r.ok) return r;
       if (r.data[0]?.result_kind === "access-denied") return { ok: false, error: "access-denied" } as const;
       out[id] = r.data.some((x) => x.schedule_id);
