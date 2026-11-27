@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FollowupExportMenu } from "./export-menu";
+import { CheckCircle2, Clock3, RefreshCw, ClipboardList } from "lucide-react";
 import { FollowupSituationBadge } from "./situation-badge";
 import { Button } from "@/components/ui/button";
 import { formatAcademicDate } from "@/lib/academic-date";
@@ -74,7 +75,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
       }
     }
   }
-  return <section className="space-y-4 rounded-xl border border-border p-4" aria-label="Quadro de providências da rede">
+  return <section className="space-y-5" aria-label="Quadro de providências da rede">
     <div>
       <h2 className="text-lg font-semibold">Quadro de providências da rede</h2>
     </div>
@@ -89,12 +90,19 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
           ["Com prazo vencido", overdue],
           ["Sem atualização", noUpdate],
           ["Sem prazo declarado", noDeadline],
-        ].map(([label, value]) => <div key={String(label)} className="rounded-lg bg-muted/40 p-3">
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="text-xl font-semibold tabular-nums">{value}</p>
-        </div>)}
+        ].map(([label, value], index) => {
+          const quickView: PendingView = index === 1 ? "vencidas" : index === 2 ? "sem atualização" : index === 3 ? "sem prazo" : "todas";
+          const Icon = index === 1 ? Clock3 : index === 2 ? RefreshCw : index === 3 ? ClipboardList : CheckCircle2;
+          const activeCard = view === quickView;
+          return <button key={String(label)} type="button" aria-pressed={activeCard}
+            onClick={() => { cancelStaleExport(); setView(quickView); setPage(0); }}
+            className={"flex items-center justify-between rounded-xl bg-white p-4 text-left shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary " + (activeCard ? "ring-2 ring-primary ring-offset-2" : "hover:bg-slate-50")}>
+            <span><span className="block text-xs text-muted-foreground">{label}</span><span className="mt-1 block text-xl font-semibold tabular-nums">{value}</span></span>
+            <Icon className={"size-5 " + (index === 1 && Number(value) > 0 ? "text-amber-600" : "text-muted-foreground/60")} />
+          </button>;
+        })}
       </div>
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-col gap-3 rounded-xl bg-white p-3 shadow-sm md:flex-row md:items-end">
         <label className="min-w-48 flex-1 text-sm">Pesquisar medida, escola, INEP ou responsável
           <input className={field} type="search" value={search} placeholder="Descrição, escola ou responsável"
             onChange={(e) => { cancelStaleExport(); setSearch(e.target.value); setPage(0); }} />
@@ -113,7 +121,7 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
             <option value="suspensa">Suspensa</option>
           </select>
         </label>
-        <div className="flex flex-wrap gap-2" aria-label="Exportar quadro filtrado">
+        <div className="flex flex-wrap gap-2 md:ml-auto" aria-label="Exportar quadro filtrado">
           <FollowupExportMenu disabled={exporting} onExport={(f) => void exportRows(f)} />
         </div>
       </div>
@@ -122,9 +130,11 @@ export function InstitutionalPendingPanel({ rows, loading, error, today, selecte
       <p className="text-xs text-muted-foreground">
         {filtered.length} medidas · Prazos mais próximos primeiro
       </p>
-      {filtered.length === 0 ? <p className="text-sm text-muted-foreground">
-        Nenhuma providência corresponde à seleção atual.
-      </p> : <>
+      {filtered.length === 0 ? <div className="flex min-h-64 flex-col items-center justify-center rounded-xl bg-white px-6 py-12 text-center shadow-sm">
+        <span className="mb-3 rounded-full bg-emerald-50 p-3"><CheckCircle2 className="size-7 text-emerald-600" /></span>
+        <h3 className="font-semibold">Nenhuma providência encontrada</h3>
+        <p className="mt-1 max-w-md text-sm text-muted-foreground">Nenhuma providência corresponde à seleção atual. Experimente alterar os filtros ou consultar outro período.</p>
+      </div> : <>
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full min-w-[800px] text-left text-sm">
             <caption className="sr-only">Providências ainda não declaradas concluídas</caption>

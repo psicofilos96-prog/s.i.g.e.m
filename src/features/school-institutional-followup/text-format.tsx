@@ -79,10 +79,10 @@ export function FollowupTextArea({
     });
   };
   return (
-    <div className="block text-sm">
+    <div className="group block text-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <label htmlFor={id}>{label}</label>
-        <span className="flex flex-wrap gap-1" aria-label={`Formatação do campo ${label}`}>
+        <span className="flex flex-wrap gap-0.5 opacity-0 transition-opacity duration-150 group-focus-within:opacity-100 focus-within:opacity-100" aria-label={`Formatação do campo ${label}`}>
           <Button type="button" size="sm" variant="ghost" className="h-7 px-2" title="Negrito"
             aria-label={`Negrito em ${label}`} onClick={() => apply("bold")}>
             <Bold className="h-3.5 w-3.5" />
