@@ -78,19 +78,19 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     readManagementInputs(school, year, on, k).then((i) => { if (current) setRes(buildPanel(i)); }, (e: Error) => { if (current) setErr(userErrorText(e)); });
     return () => { current = false; };
   }, [school, year, on, k]);
-  if (err) return <StatePanel tone="neutral" title="Não foi possível carregar o painel" description="Tente novamente em instantes." />;
+  if (err) return <StatePanel tone="neutral" title="Não foi possível buscar os dados da escola" description="Confira sua conexão e tente carregar as informações novamente." action={<Button variant="outline" onClick={() => window.location.reload()}>Tentar novamente</Button>} />;
   if (!res) return <SkeletonState label="Carregando painel" />;
   const exportCsv = () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
-    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`, "Projeção dinâmica — não é documento oficial."];
+    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Atualizado até: ${k ?? "momento da consulta"}`, "Resumo de acompanhamento da escola."];
     const blob = new Blob([toCsv(r, { headerLines: ["SIGEM"], title: GESTAO_ESCOLAR.title }, meta)], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = `gestao-escolar-${on}.csv`; a.click(); URL.revokeObjectURL(a.href);
   };
   const exportPdf = async () => {
     const r = runReport(GESTAO_ESCOLAR, { params: { school, on } }, managementRows(res.blocks));
-    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Conhecido até: ${k ?? "momento da geração"}`];
+    const meta = [`Escola: ${schoolName}`, `Data de referência: ${on}`, `Atualizado até: ${k ?? "momento da consulta"}`];
     const logo = await loadSchoolLogo(school); // ausência ou falha = sem logo, nunca a de outra escola
-    openSchedulePrint(dossierPrintHtml(toPrintableHtml(r, { headerLines: ["SIGEM"], title: "Dossiê da Direção — situação operacional", logoUrl: logo?.dataUrl ?? null }, meta), res.pending));
+    openSchedulePrint(dossierPrintHtml(toPrintableHtml(r, { headerLines: ["SIGEM"], title: "Dossiê da Direção — situação da escola", logoUrl: logo?.dataUrl ?? null }, meta), res.pending));
   };
   return (
     <div className="space-y-6">
