@@ -184,3 +184,10 @@ Consulta de baseline reutilizável: `scripts/test-school-cleanup-baseline.sql`.
 - Lint focal e diff passaram; build automático OK. `verify` passou em limpeza-isolada e segurança, mas a integridade das migrations ainda acusa o arquivo preexistente `0374_docserv_school_test_staff_visibility.sql` fora do journal. Não se reescreveu história para ocultar essa falha.
 - SHA-256 da migration 0633 congelado: `67664494e5bdf44f5285c6283c2795259d82b52a408b04645c913b192212178e`.
 - Sem publicação. A continuidade exige uma solução explícita que preserve a auditoria e suas referências, não relaxar controles para executar exclusões.
+
+## Execução concluída — 27/11/2026
+- Migration `0634_test_school_99999901_full_cleanup_revision.sql`: nova revisão do comando owner-only; guards permanecem ativos e só aceitam exclusão de linhas cujo hash foi registrado pela própria operação na mesma transação.
+- Operação `48bd1c11-fcd7-4b7c-ae2f-52034c9384d0`, status `concluida`: 1.828 linhas em 70 tabelas, manifesto SHA-256 `5ff65b2f0db8a55ad23cc012a379dc02966ece43db8eeee1b9cb5810f11a480f`, 1.828 alvos no ledger; cópia integral das linhas removidas em `result.archive`.
+- Incluídos além do inventário original, por ID/proveniência exatos: espelho `sg_schools` e 56 `sg_students`; matriz fictícia `mat-099999901`; organização de períodos "TESTE INEP 99999901"; regra do Mapa `regra-mapa-teste-99999901`; 3 eventos de criação das contas setoriais da escola, 9 consultas exatas, 1 acesso de proteção e 1 evento do acervo (arquivados).
+- 80 matrículas sem operação: 56 com ato "Escola de teste movida para 2027" e 24 registradas pela conta da secretaria da escola de teste, sem matrícula em outra escola; o aluno `est-c27b3e44-…` está entre essas 24.
+- Pós-verificação: 0 escola/matrículas/turmas/servidores/atuações de teste; 55 escolas restantes; 1.797/219 linhas reais com hashes idênticos; operações históricas `5e6fdb25…` e `7a2f0000…` preservadas. Restam 3 eventos de definição de senha das contas de teste, que continuam existindo como contas de login.

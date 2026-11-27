@@ -112,4 +112,4 @@ B4.x: `docs/sigem-continuidade-tecnica-2026-10-03.md` (registro, não fonte norm
 - School flow presentation keeps queue transition availability from `ALLOWED` and opens enrollment without a write; capacity links preselect only an existing class in the canonical allocation surface, because interface shortcuts must not create parallel mutations or authority.
 
 ## Restricted technical cleanup
-- Test-school cleanup uses only the owner-gated command and fixed payload of migration 0633; retained audit FKs or existing immutable guards abort the whole transaction, because deletion must not silently redefine audit provenance or grant application authority.
+- Test-school cleanup uses only the owner-gated command and fixed payload of the latest cleanup revision (0634); immutable guards stay enabled and accept a DELETE only for exact row hashes pre-registered by that operation in the same transaction, and removed audit rows are archived in full in the operation ledger, because deletion must not grant application authority or erase provenance.

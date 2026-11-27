@@ -40165,6 +40165,38 @@ export type Database = {
           },
         ]
       }
+      technical_test_school_cleanup_delete_allowances: {
+        Row: {
+          operation_id: string
+          recorded_at: string
+          row_sha256: string
+          table_name: string
+          txid: number
+        }
+        Insert: {
+          operation_id: string
+          recorded_at?: string
+          row_sha256: string
+          table_name: string
+          txid: number
+        }
+        Update: {
+          operation_id?: string
+          recorded_at?: string
+          row_sha256?: string
+          table_name?: string
+          txid?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technical_test_school_cleanup_delete_allowanc_operation_id_fkey"
+            columns: ["operation_id"]
+            isOneToOne: false
+            referencedRelation: "technical_execution_operations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       temporal_stand_in_neutralizations: {
         Row: {
           field: string
@@ -55404,6 +55436,10 @@ export type Database = {
         }[]
       }
       technical_automation_enabled: { Args: never; Returns: boolean }
+      technical_cleanup_delete_allowed: {
+        Args: { _row: Json; _table: string }
+        Returns: boolean
+      }
       technical_cleanup_test_school_99999901: {
         Args: { _hash: string; _payload: Json }
         Returns: string

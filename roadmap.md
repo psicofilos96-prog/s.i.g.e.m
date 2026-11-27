@@ -1,11 +1,10 @@
 # Roadmap — SIGEM simples no design original
 
-## Limpeza restrita da escola de teste (23/11/2026)
-- [ ] Excluir integralmente inep-99999901 e fatos exclusivamente fictícios: tentativa pelo comando owner-only de 0633 revertida devido a 3 eventos imutáveis de auditoria com FK obrigatória aos principals da escola; não alterar/apagar a trilha nem contornar guards. SELECT posterior mantém 1 escola, 80 alunos, 192 matrículas, 6 turmas, 16 registros de servidores, 34 atuações e 7 declarações; operation id nenhum. Bloqueio atual é a referência de auditoria, não falta de sessão humana.
-- [x] Inventário inicial no Cloud: 192 matrículas/80 alunos, 6 turmas, 16 servidores da fonte exata, 7 declarações e 34 atuações; FKs e referências sem FK consultadas; hashes das 1.797/219 linhas reais registrados em test-school-cleanup-audit.md. Nenhuma mutação.
-- [ ] Fechar dependências por linha/JSON/arquivos: expansão interrompida no primeiro impedimento de auditoria; preservar pessoas e fatos compartilhados. O escopo novo inclui os estudantes exclusivos da escola; confirmação por nome não substitui a checagem de referências.
-- [x] Implementar/aplicar 0633 e tentar comando estreito sem DML de domínio: hash, switch, lock, estado esperado, proveniência, FKs, ledger/targets, autoria técnica; ACL só owner. 12 recusas/idempotência/reversão em PostgreSQL descartável e 13 testes focais PASS, lint e build automático OK. Hash congelado; sem publicação. Guards e auditoria mantidos.
-- [ ] Conferir zero resíduos/órfãos depois da execução: depende da operação; não há PASS de limpeza. Baseline reproduzível em scripts/test-school-cleanup-baseline.sql; escola/fontes reais mantidas, sem publicação.
+## Limpeza restrita da escola de teste (27/11/2026)
+- [x] Excluir integralmente inep-99999901 e fatos exclusivamente fictícios: operação `48bd1c11-fcd7-4b7c-ae2f-52034c9384d0` (migration 0634) removeu 1.828 linhas em 70 tabelas; auditoria arquivada integralmente no registro da operação.
+- [x] Provar as 80 matrículas sem operação: 56 "Escola de teste movida para 2027" + 24 registradas pela conta da secretaria de teste, que nunca matriculou em outra escola.
+- [x] Conferir zero resíduos/órfãos: varredura textual e por IDs em todas as tabelas públicas; restam só o registro técnico e 3 eventos de senha das contas de teste (contas de login continuam existindo). 55 escolas e fontes reais 1.797/219 com hashes idênticos.
+- [ ] Contas de login de teste (sec./diresc./orientaped.99999901, prof.teste1-3) seguem existindo sem vínculo: remoção depende de decisão do proprietário.
 
 ## Apresentação dos fluxos escolares (23/11/2026)
 - [x] Padronizar Movimentações (tabela/tipo/status/menu/nomes), Enturmações (dois atalhos), Vagas (ausência explícita/atalho ao fluxo de capacidade) e Fila (cards/menu de cinco transições); convocação mantida recolhida, matrícula só abre o fluxo existente.
