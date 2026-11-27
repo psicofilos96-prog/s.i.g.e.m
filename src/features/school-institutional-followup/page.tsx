@@ -807,10 +807,21 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         Há um formulário em preenchimento ou envio. Salve ou cancele antes de sair desta página;
         uma recarga ou fechamento de aba pode exibir confirmação do navegador.
       </p>}
+      <Tabs value={schoolSection} onValueChange={setSchoolSection} className="w-full">
+        <TabsList className="grid h-auto w-full grid-cols-3 rounded-xl bg-slate-100 p-1">
+          <TabsTrigger value="overview">Visão geral & ações</TabsTrigger>
+          <TabsTrigger value="history">Histórico de visitas</TabsTrigger>
+          <TabsTrigger value="compare">Comparar visitas</TabsTrigger>
+        </TabsList>
+      </Tabs>
+      <div hidden={schoolSection !== "overview"} className="space-y-5">
       {detailData && <SchoolOpenActionsPanel key={school} snapshot={detailData} today={today}
         schoolId={school} schoolName={selected?.school_name ?? school} inep={selected?.inep ?? null}
         onInspect={inspectSchoolMeasure} onStartUpdate={canRecord ? startEvolution : undefined} />}
-      {canRecord && <form id="followup-visit-form" className="rounded-lg border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveVisit(e)}>
+      {canRecord && <Dialog open={visitDialogOpen} onOpenChange={(open) => { if (!open && visitDraftIsDirty && !saving) return; setVisitDialogOpen(open); }}>
+        <DialogContent className="max-h-[92vh] overflow-y-auto sm:max-w-4xl">
+        <DialogHeader><DialogTitle>{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</DialogTitle></DialogHeader>
+        <form id="followup-visit-form" className="space-y-5" onSubmit={(e) => void saveVisit(e)}>
         <fieldset disabled={saving} className="min-w-0 space-y-4">
         <fieldset disabled={savedVisitId !== null} className="min-w-0 space-y-4">
         <h3 className="font-display text-lg font-semibold">{correctionBase ? "Retificar visita registrada" : "Registrar nova visita"}</h3>
@@ -906,9 +917,11 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
             {correctionBase ? "Cancelar retificação" : "Descartar preenchimento"}
           </Button>}
         </div>
-        <p className="text-xs text-muted-foreground">O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
+        <p className="flex items-start gap-2 text-xs text-muted-foreground"><LockKeyhole className="mt-0.5 size-4 shrink-0" />O registro é permanente. Para evitar expor dados pessoais, não inclua nomes de estudantes, documentos pessoais ou laudos no texto livre.</p>
         </fieldset>
-      </form>}
+      </form>
+      </DialogContent></Dialog>}
+      </div>
       {detailData && canRecord && measureVisitId && <form id="followup-measure-form"
         className="rounded-lg border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveMeasure(e)}>
         <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
@@ -1055,8 +1068,8 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               onClick={() => void discardEvolutionDraft()}>Cancelar</Button></div>
           </fieldset>
         </form>}
-        <FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} />
-        <div className="space-y-3">
+        <div hidden={schoolSection !== "compare"}><FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} /></div>
+        <div hidden={schoolSection !== "history"} className="space-y-3">
           <h3 className="font-display text-lg font-semibold">Histórico de visitas</h3>
           {!detailData.visits.length && <p className="text-sm text-muted-foreground">Nenhuma visita registrada.</p>}
           {detailData.visits.map((v) => <article key={v.id} className="space-y-4 rounded-lg border border-border bg-card p-5">
