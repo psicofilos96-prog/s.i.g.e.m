@@ -918,7 +918,6 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
         </fieldset>
       </form>
       </DialogContent></Dialog>}
-      </div>
       {detailData && canRecord && measureVisitId && <form id="followup-measure-form"
         className="rounded-lg border border-border/70 bg-card p-5 shadow-panel" onSubmit={(e) => void saveMeasure(e)}>
         <fieldset disabled={savingMeasure} className="min-w-0 space-y-3">
@@ -1065,6 +1064,7 @@ function FollowupWorkspace({ sessionKey, authority }: { sessionKey: string; auth
               onClick={() => void discardEvolutionDraft()}>Cancelar</Button></div>
           </fieldset>
         </form>}
+        </div>
         <div hidden={schoolSection !== "compare"}><FollowupVisitComparison key={school} schoolId={school} visits={detailData.visits} /></div>
         <div hidden={schoolSection !== "history"} className="space-y-3">
           <h3 className="font-display text-lg font-semibold">Histórico de visitas</h3>
