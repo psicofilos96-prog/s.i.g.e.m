@@ -14,7 +14,7 @@ import { yearStateLabel } from "@/features/school-secretariat/secretariat";
 import { runReport, toCsv, toPrintableHtml } from "@/features/reports/report-engine";
 import { openSchedulePrint } from "@/features/schedules/schedule-print";
 import { GESTAO_ESCOLAR } from "@/features/reports/report-registry";
-import { buildPanel, dossierPrintHtml, managementRows, type Block, type BlockState, type Pending } from "./management-panel";
+import { buildPanel, dossierPrintHtml, managementRows, type Block, type Pending } from "./management-panel";
 import { readManagementInputs } from "./management-source";
 import { CensusDeclaredStaff } from "@/features/professionals/census-declared-staff";
 import { useOwnSchoolId } from "@/features/authority/own-school";
@@ -33,7 +33,6 @@ import { loadSchoolLogo } from "./school-logo-data";
 
 const field = "mt-1 block w-full rounded-md border border-input bg-background p-2";
 const today = () => operationalToday();
-const TONE: Record<BlockState, string> = { AVAILABLE: "border-border", ZERO: "border-border", UNKNOWN: "border-dashed", UNAVAILABLE: "border-dashed opacity-80", BLOCKED: "border-border" };
 
 export function ManagementPage() {
   const [schools, setSchools] = useState<{ id: string; name: string }[] | null>(null);
@@ -54,8 +53,8 @@ export function ManagementPage() {
   const ready = f.school && f.year && f.on;
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow="Direção" title="Gestão Escolar" />
-      <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-4">
+      <PageHeader eyebrow="Direção" title="Gestão Escolar" description="Acompanhe os principais indicadores e a situação da sua escola." />
+      <section aria-label="Contexto" className="grid gap-3 sm:grid-cols-3">
         {own ? <OwnSchoolName schoolId={own} /> : <label className="text-sm">Escola<select className={field} value={f.school} onChange={(e) => setF({ ...f, school: e.target.value })}>
           <option value="">{schools === null ? "Carregando…" : "Escolha a escola"}</option>{(schools ?? []).map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}</select></label>}
         <label className="text-sm">Ano letivo<select className={field} value={f.year} onChange={(e) => { setF({ ...f, year: e.target.value }); active.setYear(e.target.value); }}>
@@ -97,6 +96,45 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
     <div className="space-y-6">
       {k && <StatePanel tone="info" title="Visão histórica" description="Você está consultando registros de uma data anterior." />}
       <DirectorSummaryPanel school={school} year={year} on={on} />
+ux/unificacao-visual-global
+      <section aria-label="Visão geral da escola" className="space-y-3">
+        <h2 className="text-base font-semibold">Visão geral da escola</h2>
+        <div className="divide-y rounded-lg border bg-card px-4">
+        {res.blocks.filter((b) => !["matriculas", "alocacoes"].includes(b.id)).map((b) => (
+          <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">{b.title.replace(/utilizável/g, "cadastrada").replace(/alocações/g, "turmas")}</p>
+              <p className="text-xs text-muted-foreground">{b.state === "UNKNOWN" ? "Aguardando preenchimento" : b.state === "UNAVAILABLE" ? "Informação indisponível para este perfil" : b.state === "BLOCKED" ? "Consulta disponível no módulo específico" : b.detail.replace(/ na fonte/g, "").replace(/alocados/g, "matriculados").replace(/utilizável/g, "cadastrada")}</p>
+              {b.reason && <p className="text-xs text-muted-foreground">{b.reason}</p>}
+            </div>
+            <div className="flex items-center gap-3">
+              {b.value !== null && b.state !== "UNKNOWN" && <span className="text-sm font-semibold tabular-nums">{b.value}</span>}
+              {b.state === "UNKNOWN" || b.state === "BLOCKED" ? <Button asChild size="sm" variant="outline"><Link to={b.link as "/secretaria"}>{b.state === "UNKNOWN" ? "Preencher" : "Consultar"}</Link></Button> : null}
+            </div>
+          </div>))}
+        </div>
+      </section>
+      {res.pending.length > 0 && <section aria-label="Pendências" className="space-y-3 rounded-lg border border-warning/30 bg-warning/5 p-4">
+        <h2 className="font-semibold">Pendências que precisam de atenção</h2>
+        <ul className="space-y-3">{res.pending.map((p) => <li key={p.id} className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 flex-1"><p className="text-sm font-medium">{p.text.replace(/fonte não lida/g, "A fonte de dados não respondeu").replace(/alocações/g, "turmas").replace(/utilizável/g, "cadastrada")}</p>
+            <p className="text-xs text-muted-foreground">{p.kind === "fato-ausente" ? "Importa porque um registro necessário está incompleto e pode comprometer a conferência da situação escolar." : p.kind === "ambiguidade" ? "Importa porque há mais de uma interpretação possível e é necessária conferência antes de agir." : p.kind === "conferencia" ? "Importa porque existe uma informação aguardando conferência ou publicação." : p.kind === "bloqueio-normativo" ? "Importa porque a etapa depende de um registro ou decisão formal antes de prosseguir." : "Importa porque o painel não conseguiu confirmar esta informação; não significa que o dado seja zero."}</p></div>
+          <Button asChild size="sm" variant="outline"><Link to={p.link as "/secretaria"}>{p.kind === "fonte-indisponivel" ? "Abrir módulo" : "Resolver"}</Link></Button>
+        </li>)}</ul>
+      </section>}
+      <details className="rounded-lg border bg-card p-4"><summary className="cursor-pointer font-semibold">Mais informações e ferramentas da Gestão Escolar</summary><div className="mt-4 space-y-5">
+        <OccurrencesPanel school={school} schoolName={schoolName} />
+        <SchoolNoticesPanel school={school} year={year} on={on} />
+        <ClassCouncilPanel school={school} year={year} on={on} />
+        <ReclassificationPanel school={school} />
+        <RiskLimitsPanel school={school} />
+        <FrequencyRiskPanel school={school} schoolName={schoolName} today={today()} />
+        <VaccinationOverduePanel school={school} schoolName={schoolName} today={today()} />
+        <SchoolLogoPanel school={school} />
+        <CensusDeclaredStaff school={school} />
+      </div></details>
+      <ExportMenu onCsv={exportCsv} onPdf={exportPdf} label="Exportar situação" />
+
       <section aria-label="Blocos" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {res.blocks.filter((b) => b.state !== "UNAVAILABLE").map((b) => (
           <article key={b.id} className={`rounded-lg border bg-card p-5 space-y-1 transition-shadow hover:shadow-panel ${TONE[b.state]}`}>
@@ -119,6 +157,7 @@ function Station({ school, year, on, knownAt, schoolName }: { school: string; ye
       <SchoolLogoPanel school={school} />
       <CensusDeclaredStaff school={school} />
       <ExportMenu onCsv={exportCsv} onPdf={exportPdf} />
+main
     </div>
   );
 }
