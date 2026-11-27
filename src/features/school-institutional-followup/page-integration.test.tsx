@@ -443,14 +443,16 @@ describe("acompanhamento institucional — integração da página e capacidades
     expect(mocks.recordVisitBundle).toHaveBeenCalledTimes(1);
 
     await act(async () => { delayed.resolve("visit-created"); });
-    // O refresh esconde o formulário enquanto o snapshot autorizado é reconferido.
-    // Aguardar a consulta concluída e obter o formulário novamente no DOM.
-    await waitFor(() => {
-      const restored = screen.getByRole("heading", { name: "Registrar nova visita", level: 3 }).closest("form")!;
-      const diagnosis = within(restored).getByRole("textbox", { name: "Diagnóstico da realidade" });
-      expect(diagnosis).not.toBeDisabled();
-      expect(diagnosis).toHaveValue("");
-    });
+    // A gravação concluída fecha o diálogo e limpa o rascunho.
+    await waitFor(() => expect(screen.queryByRole("heading", {
+      name: "Registrar nova visita", level: 3,
+    })).toBeNull());
+    fireEvent.click(await screen.findByRole("button", { name: /Registrar nova visita/ }));
+    const reopened = await screen.findByRole("heading", { name: "Registrar nova visita", level: 3 });
+    const restored = reopened.closest("form")!;
+    const diagnosis = within(restored).getByRole("textbox", { name: "Diagnóstico da realidade" });
+    expect(diagnosis).not.toBeDisabled();
+    expect(diagnosis).toHaveValue("");
   });
 
   it("congela a medida adicional durante o envio e restabelece o formulário após falha", async () => {
