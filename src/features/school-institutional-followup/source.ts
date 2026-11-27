@@ -81,6 +81,12 @@ async function call(fn: string, args: Record<string, unknown>): Promise<unknown>
     if (error.message.includes("followup:attachment-required")) {
       throw new UserFacingError("Não foi possível identificar o pedido de anexo. Tente novamente.");
     }
+    if (error.message.includes("followup:delete-invalid")) {
+      throw new UserFacingError("Informe uma justificativa de pelo menos três caracteres para excluir o registro.");
+    }
+    if (error.message.includes("followup:record-not-found")) {
+      throw new UserFacingError("Este registro não está mais disponível. Atualize o histórico e tente novamente.");
+    }
     if (error.message.includes("followup:request-conflict")) {
       throw new UserFacingError("O registro enviado não corresponde à tentativa anterior. Atualize os dados antes de repetir.");
     }
