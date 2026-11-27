@@ -6,6 +6,12 @@ const source = readFileSync("src/features/school-institutional-followup/source.t
 const migration = readFileSync("drizzle/migrations/0635_followup_record_deletion.sql", "utf8");
 
 describe("Acompanhamento — exclusão de registros", () => {
+  it("mantém o panorama limpo e recolhe gráficos complementares", () => {
+    expect(page.match(/<InstitutionalFollowupAnalytics/g)?.length).toBe(1);
+    expect(page).toContain("Indicadores detalhados e gráficos");
+    expect(page).toContain("<details className=\"rounded-lg border px-4 py-3\">");
+  });
+
   it("oferece exclusão de visitas, medidas e atualizações para quem pode registrar", () => {
     expect(page).toContain('deleteRecord("visit", v.id, "visita")');
     expect(page).toContain('deleteRecord("action", a.id, "medida")');
