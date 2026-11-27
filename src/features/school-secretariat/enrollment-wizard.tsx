@@ -468,7 +468,7 @@ function NameSearch({ school, busy, onPick, name, birth, nameError, birthError, 
   const [rows, setRows] = useState<StudentNameMatch[] | null>(null); const [msg, setMsg] = useState(""); const [loading, setLoading] = useState(false);
   async function run() {
     setMsg(""); setRows(null);
-    if (name.trim().split(/\\s+/).length < 2) { setMsg("Digite nome e sobrenome."); return; }
+    if (name.trim().split(/\s+/).length < 2) { setMsg("Digite nome e sobrenome."); return; }
     setLoading(true);
     try { const r = await locateStudentByName(school, name.trim(), birth || null); setRows(r); if (!r.length) setMsg("Nenhum aluno encontrado. Confira os dados e continue para cadastrar."); }
     catch (e) { setMsg(wizardMessage(e)); } finally { setLoading(false); }
